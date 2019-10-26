@@ -1,0 +1,69 @@
+object make_slip_form: Tmake_slip_form
+  Left = 2
+  Height = 20
+  Hint = ' drag this panel to set toolbars position - click to set number of rows  '
+  Top = 2
+  Width = 72
+  BorderIcons = []
+  BorderStyle = bsToolWindow
+  Caption = ' toolbars'
+  ClientHeight = 20
+  ClientWidth = 72
+  Color = clWhite
+  DesignTimePPI = 120
+  Font.Color = clBlack
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  OnCreate = FormCreate
+  ShowHint = True
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  Visible = True
+  object datestamp_label: TLabel
+    Left = 0
+    Height = 4
+    Top = 56
+    Width = 600
+    AutoSize = False
+    Font.Color = clGray
+    Font.Height = -7
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label1: TLabel
+    Left = 0
+    Height = 20
+    Top = 0
+    Width = 34
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'rows:'
+    Font.Color = clBlack
+    Font.Height = -12
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Layout = tlCenter
+    ParentColor = False
+    ParentFont = False
+  end
+  object Button1: TButton
+    Left = 35
+    Height = 20
+    Top = 0
+    Width = 18
+    Caption = '1'
+    OnClick = Button1Click
+    TabOrder = 0
+  end
+  object Button2: TButton
+    Left = 54
+    Height = 20
+    Top = 0
+    Width = 18
+    Caption = '2'
+    OnClick = Button2Click
+    TabOrder = 1
+  end
+end

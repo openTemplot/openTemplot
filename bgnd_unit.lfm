@@ -1,0 +1,2692 @@
+object bgnd_form: Tbgnd_form
+  Left = 11
+  Height = 638
+  Top = 10
+  Width = 640
+  BorderIcons = [biSystemMenu]
+  Caption = '        background  shapes'
+  ClientHeight = 613
+  ClientWidth = 640
+  Color = 16053488
+  DesignTimePPI = 120
+  Font.Color = clBlack
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  FormStyle = fsStayOnTop
+  KeyPreview = True
+  Menu = bgnd_shapes_menu
+  OnActivate = FormActivate
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  OnResize = FormResize
+  OnShow = FormShow
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object datestamp_label: TLabel
+    Left = 0
+    Height = 4
+    Top = 606
+    Width = 640
+    AutoSize = False
+    Font.Color = clGray
+    Font.Height = -7
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object p1_label: TLabel
+    Left = 22
+    Height = 57
+    Top = 288
+    Width = 151
+    AutoSize = False
+    ParentColor = False
+    WordWrap = True
+  end
+  object p2_label: TLabel
+    Left = 184
+    Height = 57
+    Top = 288
+    Width = 151
+    AutoSize = False
+    ParentColor = False
+    WordWrap = True
+  end
+  object empty_label: TLabel
+    Left = 60
+    Height = 97
+    Top = 58
+    Width = 193
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'no  background  shapes  are  currently  defined'
+    ParentColor = False
+    WordWrap = True
+  end
+  object type_label: TLabel
+    Left = 40
+    Height = 20
+    Top = 267
+    Width = 320
+    AutoSize = False
+    Caption = '    '
+    Font.Color = clBlue
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Layout = tlCenter
+    ParentColor = False
+    ParentFont = False
+  end
+  object bgs_file_label: TLabel
+    Left = 0
+    Height = 20
+    Hint = 'no files'
+    Top = 0
+    Width = 640
+    AutoSize = False
+    Caption = '     '
+    Color = 14737632
+    Font.Color = 4210768
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Layout = tlCenter
+    ParentColor = False
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    Transparent = False
+  end
+  object count_label: TLabel
+    Left = 518
+    Height = 18
+    Top = 544
+    Width = 111
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = '0  shapes'
+    Font.Color = 4210768
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object move_up_button: TSpeedButton
+    Left = 337
+    Height = 25
+    Hint = ' move  shape  backward  -  hold  down  to  repeat '
+    Top = 56
+    Width = 22
+    Glyph.Data = {
+      76010000424D7601000000000000760000002800000020000000100000000100
+      0400000000000001000084120000841200001000000000000000000000000000
+      800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+      FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+      3333333333333333333333333333333333333333333333333333333333111133
+      3333333333333333333333333311113333333333333333333333333333111133
+      3333333333333333333333333311113333333333333333333333333333111133
+      3333333333333333333333333311113333333333333333333333331111111111
+      1133333333333333333333311111111113333333333333333333333311111111
+      3333333333333333333333333111111333333333333333333333333333111133
+      3333333333333333333333333331133333333333333333333333333333333333
+      3333333333333333333333333333333333333333333333333333
+    }
+    Layout = blGlyphTop
+    Margin = 2
+    NumGlyphs = 2
+    Visible = False
+    OnMouseDown = move_up_buttonMouseDown
+    OnMouseUp = move_up_buttonMouseUp
+    ShowHint = True
+    ParentShowHint = False
+  end
+  object move_down_button: TSpeedButton
+    Left = 337
+    Height = 25
+    Hint = ' move  shape  forward  -  hold  down  to  repeat '
+    Top = 188
+    Width = 22
+    Glyph.Data = {
+      76010000424D7601000000000000760000002800000020000000100000000100
+      0400000000000001000084120000841200001000000000000000000000000000
+      800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+      FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+      3333333333333333333333333333333333333333333333333333333333311333
+      3333333333333333333333333311113333333333333333333333333331111113
+      3333333333333333333333331111111133333333333333333333333111111111
+      1333333333333333333333111111111111333333333333333333333333111133
+      3333333333333333333333333311113333333333333333333333333333111133
+      3333333333333333333333333311113333333333333333333333333333111133
+      3333333333333333333333333311113333333333333333333333333333333333
+      3333333333333333333333333333333333333333333333333333
+    }
+    Layout = blGlyphBottom
+    Margin = 3
+    NumGlyphs = 2
+    Visible = False
+    OnMouseDown = move_down_buttonMouseDown
+    OnMouseUp = move_down_buttonMouseUp
+    ShowHint = True
+    ParentShowHint = False
+  end
+  object move_to_top_button: TSpeedButton
+    Left = 337
+    Height = 25
+    Hint = ' move  shape  to  back '
+    Top = 24
+    Width = 22
+    Glyph.Data = {
+      76010000424D7601000000000000760000002800000020000000100000000100
+      0400000000000001000084120000841200001000000000000000000000000000
+      800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+      FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+      3333333333333333333333333333333333333333333333333333333333111133
+      3333333333333333333333333311113333333333333333333333333333111133
+      3333333333333333333333333311113333333333333333333333333333111133
+      3333333333333333333333333311113333333333333333333333331111111111
+      1133333333333333333333311111111113333333333333333333333311111111
+      3333333333333333333333333111111333333333333333333333333333111133
+      3333333333333333333333333331133333333333333333333333331111111111
+      1133333333333333333333111111111111333333333333333333
+    }
+    Layout = blGlyphTop
+    Margin = 4
+    NumGlyphs = 2
+    Visible = False
+    OnClick = move_to_top_buttonClick
+    ShowHint = True
+    ParentShowHint = False
+  end
+  object move_to_bottom_button: TSpeedButton
+    Left = 337
+    Height = 25
+    Hint = ' move  shape  to  front '
+    Top = 220
+    Width = 22
+    Glyph.Data = {
+      76010000424D7601000000000000760000002800000020000000100000000100
+      0400000000000001000084120000841200001000000000000000000000000000
+      800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+      FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00331111111111
+      1133333333333333333333111111111111333333333333333333333333311333
+      3333333333333333333333333311113333333333333333333333333331111113
+      3333333333333333333333331111111133333333333333333333333111111111
+      1333333333333333333333111111111111333333333333333333333333111133
+      3333333333333333333333333311113333333333333333333333333333111133
+      3333333333333333333333333311113333333333333333333333333333111133
+      3333333333333333333333333311113333333333333333333333333333333333
+      3333333333333333333333333333333333333333333333333333
+    }
+    Layout = blGlyphBottom
+    Margin = 4
+    NumGlyphs = 2
+    Visible = False
+    OnClick = move_to_bottom_buttonClick
+    ShowHint = True
+    ParentShowHint = False
+  end
+  object hide_tick_image: TImage
+    Left = 28
+    Height = 16
+    Hint = ' show / hide selected shape on the trackpad  -  double-click shape list '
+    Top = 248
+    Width = 16
+    OnClick = hide_tick_imageClick
+    ParentShowHint = False
+    Picture.Data = {
+      07544269746D617036030000424D360300000000000036000000280000001000
+      0000100000000100180000000000000300007412000074120000000000000000
+      0000808080808080808080808080808080808080808080808080808080808080
+      808080808080808080808080808080808080808080F4F4F4F4F4F4F4F4F4F4F4
+      F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F480
+      8080808080F4F4F4C6C4C2CACAC9D2D1D0D8D8D7DEDDDCE0DFDFE0DFDFE2E1E1
+      E6E5E5E9E8E8EAEAEAEBEBEAF4F4F4808080808080F4F4F4C1BEBBE4E3E2E9E9
+      E9ECECECF0F0F0F1F1F1F1F1F1F2F2F2F4F4F4F6F6F6F6F6F6EAEAEAF4F4F480
+      8080808080F4F4F4BEBAB6E0DEDCE5E4E4EAEAEAEEEEEEF0F0F0F0F0F0F1F1F1
+      F4F4F4F5F5F5F6F6F6E9E8E8F4F4F4808080808080F4F4F4BBB6B1DCD9D6E1DF
+      DEE7E6E6EBEBEBEDEDEDEDEDEDEFEFEFF2F2F2F4F4F4F4F4F4E6E5E5F4F4F480
+      8080808080F4F4F4B9B3AED9D4D1DEDAD8E3E1E0E8E8E8EAEAEAEAEAEAECECEC
+      EFEFEFF1F1F1F2F2F2E2E1E1F4F4F4808080808080F4F4F4B9B3AED8D2CEDCD8
+      D5E1DEDDE6E5E4E8E8E8E8E8E8EAEAEAEDEDEDF0F0F0F1F1F1E0DFDFF4F4F480
+      8080808080F4F4F4B9B3AED8D2CEDCD8D5E1DEDDE6E5E4E8E8E8E8E8E8EAEAEA
+      EDEDEDF0F0F0F1F1F1E0DFDFF4F4F4808080808080F4F4F4B9B3AED6D1CCDAD6
+      D2DFDCD9E3E2E1E6E5E4E6E5E4E8E8E8EBEBEBEEEEEEF0F0F0DEDDDCF4F4F480
+      8080808080F4F4F4B9B3AED5CFCBD7D2CEDBD6D3DFDCD9E1DEDDE1DEDDE3E1E0
+      E7E6E6EAEAEAECECECD8D8D7F4F4F4808080808080F4F4F4B9B3AED5CFCBD5CF
+      CBD7D2CEDAD6D2DCD8D5DCD8D5DEDAD8E1DFDEE5E4E4E9E9E9D2D1D0F4F4F480
+      8080808080F4F4F4B9B3AED5CFCBD5CFCBD5CFCBD6D1CCD8D2CED8D2CED9D4D1
+      DCD9D6E0DEDCE4E3E2CACAC9F4F4F4808080808080F4F4F4B9B3AEB9B3AEB9B3
+      AEB9B3AEB9B3AEB9B3AEB9B3AEB9B3AEBBB6B1BEBAB6C1BEBBC6C4C2F4F4F480
+      8080808080F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4
+      F4F4F4F4F4F4F4F4F4F4F4F4F4F4F48080808080808080808080808080808080
+      8080808080808080808080808080808080808080808080808080808080808080
+      8080
+    }
+    ShowHint = True
+    Stretch = True
+  end
+  object show_tick_image: TImage
+    Left = 28
+    Height = 16
+    Hint = ' show / hide selected shape on the trackpad  -  double-click shape list '
+    Top = 248
+    Width = 16
+    OnClick = show_tick_imageClick
+    ParentShowHint = False
+    Picture.Data = {
+      07544269746D617036030000424D360300000000000036000000280000001000
+      0000100000000100180000000000000300007412000074120000000000000000
+      0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+      FF0000FF0000FF0000FF0000FF0000FF0000FF0000F4F4F4F4F4F4F4F4F4F4F4
+      F4F4F4F4F5F5F5F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4FF
+      0000FF0000F4F4F4C6C4C2CACAC9D2D1D0E7E7E6F0EEECF2F0EFEAE9E9E2E1E1
+      E6E5E5E9E8E8EAEAEAEBEBEAF4F4F4FF0000FF0000F4F4F4C1BEBBE4E3E2EFEF
+      EFE9E0DD9C6955A57563F7F5F5F3F3F3F4F4F4F6F6F6F6F6F6EAEAEAF4F4F4FF
+      0000FF0000F4F4F4BEBAB6E1DFDDF6F5F5AC8070965F4A975F4ACBB2A8F7F7F7
+      F4F4F4F5F5F5F6F6F6E9E8E8F4F4F4FF0000FF0000F4F4F4BBB6B1E9E8E5CAB0
+      A7945C47955E49965F499B6652F0EAE7F4F4F4F4F4F4F4F4F4E6E5E5F4F4F4FF
+      0000FF0000F4F4F4C0BBB6E6DCD996604C935B46BA978AA06E5C955E49B99588
+      F6F6F6F1F1F1F2F2F2E2E1E1F4F4F4FF0000FF0000F4F4F4CBC7C3CFB9B0945E
+      499F6E5BF3F0EFD2BCB4945D48955E49E7DCD9F4F4F4F1F1F1E0DFDFF4F4F4FF
+      0000FF0000F4F4F4B9B3AEE7E4E1E9E1DDE1D4D0EEEDECF7F6F6A77A69955E49
+      AD8373F8F8F8F1F1F1E0DFDFF4F4F4FF0000FF0000F4F4F4B9B3AED6D1CCDDDA
+      D6E4E1DFE3E2E1EDECECE0D3CE945D48955E49D7C3BBF5F5F5DEDDDCF4F4F4FF
+      0000FF0000F4F4F4B9B3AED5CFCBD7D2CEDBD6D3DFDCD9E1DEDDEEEDECB69284
+      945C47A06E5CF4F2F1DBDBDAF4F4F4FF0000FF0000F4F4F4B9B3AED5CFCBD5CF
+      CBD7D2CEDAD6D2DCD8D5E2DEDCEBE4E097614D945C47C6AA9FE2E1E1F4F4F4FF
+      0000FF0000F4F4F4B9B3AED5CFCBD5CFCBD5CFCBD6D1CCD8D2CED8D2CEE8E4E3
+      C2A59ABB9A8DF1EEECCECECDF4F4F4FF0000FF0000F4F4F4B9B3AEB9B3AEB9B3
+      AEB9B3AEB9B3AEB9B3AEB9B3AEBEB8B4D3D0CCD9D7D4C9C6C3C6C4C2F4F4F4FF
+      0000FF0000F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4
+      F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4FF0000FF0000FF0000FF0000FF0000FF00
+      00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+      0000
+    }
+    ShowHint = True
+    Stretch = True
+  end
+  object hide_output_tick_image: TImage
+    Left = 200
+    Height = 16
+    Hint = ' show/hide selected shape on printed templates, on the sketchboard and in exported files '
+    Top = 248
+    Width = 16
+    OnClick = hide_output_tick_imageClick
+    ParentShowHint = False
+    Picture.Data = {
+      07544269746D617036030000424D360300000000000036000000280000001000
+      0000100000000100180000000000000300007412000074120000000000000000
+      0000808080808080808080808080808080808080808080808080808080808080
+      808080808080808080808080808080808080808080F4F4F4F4F4F4F4F4F4F4F4
+      F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F480
+      8080808080F4F4F4C6C4C2CACAC9D2D1D0D8D8D7DEDDDCE0DFDFE0DFDFE2E1E1
+      E6E5E5E9E8E8EAEAEAEBEBEAF4F4F4808080808080F4F4F4C1BEBBE4E3E2E9E9
+      E9ECECECF0F0F0F1F1F1F1F1F1F2F2F2F4F4F4F6F6F6F6F6F6EAEAEAF4F4F480
+      8080808080F4F4F4BEBAB6E0DEDCE5E4E4EAEAEAEEEEEEF0F0F0F0F0F0F1F1F1
+      F4F4F4F5F5F5F6F6F6E9E8E8F4F4F4808080808080F4F4F4BBB6B1DCD9D6E1DF
+      DEE7E6E6EBEBEBEDEDEDEDEDEDEFEFEFF2F2F2F4F4F4F4F4F4E6E5E5F4F4F480
+      8080808080F4F4F4B9B3AED9D4D1DEDAD8E3E1E0E8E8E8EAEAEAEAEAEAECECEC
+      EFEFEFF1F1F1F2F2F2E2E1E1F4F4F4808080808080F4F4F4B9B3AED8D2CEDCD8
+      D5E1DEDDE6E5E4E8E8E8E8E8E8EAEAEAEDEDEDF0F0F0F1F1F1E0DFDFF4F4F480
+      8080808080F4F4F4B9B3AED8D2CEDCD8D5E1DEDDE6E5E4E8E8E8E8E8E8EAEAEA
+      EDEDEDF0F0F0F1F1F1E0DFDFF4F4F4808080808080F4F4F4B9B3AED6D1CCDAD6
+      D2DFDCD9E3E2E1E6E5E4E6E5E4E8E8E8EBEBEBEEEEEEF0F0F0DEDDDCF4F4F480
+      8080808080F4F4F4B9B3AED5CFCBD7D2CEDBD6D3DFDCD9E1DEDDE1DEDDE3E1E0
+      E7E6E6EAEAEAECECECD8D8D7F4F4F4808080808080F4F4F4B9B3AED5CFCBD5CF
+      CBD7D2CEDAD6D2DCD8D5DCD8D5DEDAD8E1DFDEE5E4E4E9E9E9D2D1D0F4F4F480
+      8080808080F4F4F4B9B3AED5CFCBD5CFCBD5CFCBD6D1CCD8D2CED8D2CED9D4D1
+      DCD9D6E0DEDCE4E3E2CACAC9F4F4F4808080808080F4F4F4B9B3AEB9B3AEB9B3
+      AEB9B3AEB9B3AEB9B3AEB9B3AEB9B3AEBBB6B1BEBAB6C1BEBBC6C4C2F4F4F480
+      8080808080F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4
+      F4F4F4F4F4F4F4F4F4F4F4F4F4F4F48080808080808080808080808080808080
+      8080808080808080808080808080808080808080808080808080808080808080
+      8080
+    }
+    ShowHint = True
+    Stretch = True
+  end
+  object show_output_tick_image: TImage
+    Left = 200
+    Height = 16
+    Hint = ' show/hide selected shape on printed templates, on the sketchboard and in exported files '
+    Top = 248
+    Width = 16
+    OnClick = show_output_tick_imageClick
+    ParentShowHint = False
+    Picture.Data = {
+      07544269746D617036030000424D360300000000000036000000280000001000
+      0000100000000100180000000000000300007412000074120000000000000000
+      0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+      FF0000FF0000FF0000FF0000FF0000FF0000FF0000F4F4F4F4F4F4F4F4F4F4F4
+      F4F4F4F4F5F5F5F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4FF
+      0000FF0000F4F4F4C6C4C2CACAC9D2D1D0E7E7E6F0EEECF2F0EFEAE9E9E2E1E1
+      E6E5E5E9E8E8EAEAEAEBEBEAF4F4F4FF0000FF0000F4F4F4C1BEBBE4E3E2EFEF
+      EFE9E0DD9C6955A57563F7F5F5F3F3F3F4F4F4F6F6F6F6F6F6EAEAEAF4F4F4FF
+      0000FF0000F4F4F4BEBAB6E1DFDDF6F5F5AC8070965F4A975F4ACBB2A8F7F7F7
+      F4F4F4F5F5F5F6F6F6E9E8E8F4F4F4FF0000FF0000F4F4F4BBB6B1E9E8E5CAB0
+      A7945C47955E49965F499B6652F0EAE7F4F4F4F4F4F4F4F4F4E6E5E5F4F4F4FF
+      0000FF0000F4F4F4C0BBB6E6DCD996604C935B46BA978AA06E5C955E49B99588
+      F6F6F6F1F1F1F2F2F2E2E1E1F4F4F4FF0000FF0000F4F4F4CBC7C3CFB9B0945E
+      499F6E5BF3F0EFD2BCB4945D48955E49E7DCD9F4F4F4F1F1F1E0DFDFF4F4F4FF
+      0000FF0000F4F4F4B9B3AEE7E4E1E9E1DDE1D4D0EEEDECF7F6F6A77A69955E49
+      AD8373F8F8F8F1F1F1E0DFDFF4F4F4FF0000FF0000F4F4F4B9B3AED6D1CCDDDA
+      D6E4E1DFE3E2E1EDECECE0D3CE945D48955E49D7C3BBF5F5F5DEDDDCF4F4F4FF
+      0000FF0000F4F4F4B9B3AED5CFCBD7D2CEDBD6D3DFDCD9E1DEDDEEEDECB69284
+      945C47A06E5CF4F2F1DBDBDAF4F4F4FF0000FF0000F4F4F4B9B3AED5CFCBD5CF
+      CBD7D2CEDAD6D2DCD8D5E2DEDCEBE4E097614D945C47C6AA9FE2E1E1F4F4F4FF
+      0000FF0000F4F4F4B9B3AED5CFCBD5CFCBD5CFCBD6D1CCD8D2CED8D2CEE8E4E3
+      C2A59ABB9A8DF1EEECCECECDF4F4F4FF0000FF0000F4F4F4B9B3AEB9B3AEB9B3
+      AEB9B3AEB9B3AEB9B3AEB9B3AEBEB8B4D3D0CCD9D7D4C9C6C3C6C4C2F4F4F4FF
+      0000FF0000F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4
+      F4F4F4F4F4F4F4F4F4F4F4F4F4F4F4FF0000FF0000FF0000FF0000FF0000FF00
+      00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+      0000
+    }
+    ShowHint = True
+    Stretch = True
+  end
+  object blue_corner_panel: TPanel
+    Left = 0
+    Height = 73
+    Top = 24
+    Width = 20
+    BevelOuter = bvNone
+    ClientHeight = 73
+    ClientWidth = 20
+    Color = clBlue
+    Font.Color = clBlack
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 2
+    object how_panel: TPanel
+      Left = 0
+      Height = 20
+      Top = 48
+      Width = 16
+      Caption = '?'
+      Color = clBlack
+      Font.Color = clLime
+      Font.Height = -17
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      TabOrder = 0
+      OnClick = how_panelClick
+    end
+    object size_updown: TUpDown
+      Tag = 4
+      Left = 0
+      Height = 24
+      Top = 1
+      Width = 16
+      Max = 10
+      Min = 1
+      OnClick = size_updownClick
+      Position = 4
+      TabOrder = 1
+      Wrap = False
+    end
+    object colour_panel: TPanel
+      Left = 0
+      Height = 16
+      Top = 28
+      Width = 15
+      ClientHeight = 16
+      ClientWidth = 15
+      TabOrder = 2
+      OnClick = colour_panelClick
+      object colour_patch: TImage
+        Left = 1
+        Height = 14
+        Top = 1
+        Width = 13
+        Align = alClient
+        AutoSize = True
+        OnClick = colour_panelClick
+        Picture.Data = {
+          07544269746D6170B6040000424DB60400000000000036000000280000001800
+          0000100000000100180000000000800400008412000084120000000000000000
+          0000008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF00008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          00000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          0000
+        }
+        Stretch = True
+      end
+    end
+  end
+  object close_panel: TPanel
+    Left = 570
+    Height = 25
+    Top = 576
+    Width = 64
+    Alignment = taLeftJustify
+    Caption = '  hide'
+    ClientHeight = 25
+    ClientWidth = 64
+    Color = clYellow
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 1
+    OnClick = close_buttonClick
+    object close_button: TButton
+      Left = 43
+      Height = 15
+      Top = 3
+      Width = 15
+      Cancel = True
+      Caption = '  '
+      OnClick = close_buttonClick
+      TabOrder = 0
+    end
+  end
+  object bgnd_shapes_listbox: TListBox
+    Left = 24
+    Height = 221
+    Top = 24
+    Width = 306
+    Color = 16777200
+    ExtendedSelect = False
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ItemHeight = 18
+    OnClick = bgnd_shapes_listboxClick
+    OnDblClick = bgnd_shapes_listboxDblClick
+    OnDrawItem = bgnd_shapes_listboxDrawItem
+    ParentFont = False
+    Style = lbOwnerDrawFixed
+    TabOrder = 3
+  end
+  object tab_panel: TPanel
+    Left = 4
+    Height = 258
+    Top = 346
+    Width = 354
+    BevelOuter = bvNone
+    ClientHeight = 258
+    ClientWidth = 354
+    Color = 15786176
+    ParentColor = False
+    TabOrder = 6
+    object shapes_pages: TPageControl
+      Left = 0
+      Height = 258
+      Top = 0
+      Width = 354
+      ActivePage = options_sheet
+      Align = alClient
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      MultiLine = True
+      ParentFont = False
+      TabIndex = 3
+      TabOrder = 0
+      Options = [nboMultiLine]
+      object modify_all_sheet: TTabSheet
+        Caption = 'modify  all'
+        ClientHeight = 208
+        ClientWidth = 346
+        object shift_all_by_button: TButton
+          Left = 4
+          Height = 25
+          Top = 8
+          Width = 104
+          Caption = 'shift  all  by ...'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = shift_all_by_buttonClick
+          ParentFont = False
+          TabOrder = 0
+        end
+        object mirror_groupbox: TGroupBox
+          Left = 4
+          Height = 51
+          Top = 98
+          Width = 122
+          Caption = ' m&irror  all : '
+          ClientHeight = 30
+          ClientWidth = 118
+          Color = 12644576
+          Font.Color = clGreen
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+          TabOrder = 5
+          object mirror_x_button: TButton
+            Left = 6
+            Height = 23
+            Top = 6
+            Width = 50
+            Caption = 'on  X'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = mirror_x_buttonClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object mirror_y_button: TButton
+            Left = 62
+            Height = 23
+            Top = 6
+            Width = 50
+            Caption = 'on  Y'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = mirror_y_buttonClick
+            ParentFont = False
+            TabOrder = 1
+          end
+        end
+        object scale_all_by_button: TButton
+          Left = 231
+          Height = 25
+          Top = 8
+          Width = 110
+          Caption = 'scale  all  by ...'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = scale_all_by_buttonClick
+          ParentFont = False
+          TabOrder = 2
+        end
+        object rotate_all_by_button: TButton
+          Left = 113
+          Height = 25
+          Top = 8
+          Width = 113
+          Caption = 'rotate  all  by ...'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = rotate_all_by_buttonClick
+          ParentFont = False
+          TabOrder = 1
+        end
+        object all_mouse_groupbox: TGroupBox
+          Left = 136
+          Height = 109
+          Top = 40
+          Width = 205
+          Caption = ' mouse  actions  all :  '
+          ClientHeight = 88
+          ClientWidth = 201
+          Color = 13693168
+          Font.Color = clMaroon
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+          TabOrder = 4
+          object Label13: TLabel
+            Left = 6
+            Height = 34
+            Top = 32
+            Width = 190
+            AutoSize = False
+            Caption = 'rotating all by mouse action does not include picture shapes:'
+            Font.Color = clMaroon
+            Font.Height = -12
+            Font.Name = 'Arial'
+            ParentColor = False
+            ParentFont = False
+            WordWrap = True
+          end
+          object mouse_shift_all_button: TButton
+            Left = 6
+            Height = 25
+            Top = 4
+            Width = 62
+            Caption = 'shift  all'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = mouse_shift_all_buttonClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object mouse_rotate_all_button: TButton
+            Left = 6
+            Height = 25
+            Top = 64
+            Width = 188
+            Caption = 'mouse  action : rotate  all'
+            OnClick = mouse_rotate_all_buttonClick
+            TabOrder = 1
+          end
+          object mouse_scale_all_button: TButton
+            Left = 78
+            Height = 25
+            Top = 4
+            Width = 66
+            Caption = 'scale  all'
+            OnClick = mouse_scale_all_buttonClick
+            TabOrder = 2
+          end
+        end
+        object all_90degs_groupbox: TGroupBox
+          Left = 4
+          Height = 52
+          Top = 40
+          Width = 122
+          Caption = ' 90 degrees all : '
+          ClientHeight = 31
+          ClientWidth = 118
+          Color = 12644576
+          Font.Color = clGreen
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+          TabOrder = 3
+          object all_90degs_acw_button: TButton
+            Left = 6
+            Height = 23
+            Hint = 'anti-clockwise'
+            Top = 8
+            Width = 50
+            Caption = 'acw'
+            OnClick = all_90degs_acw_buttonClick
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 0
+          end
+          object all_90degs_cw_button: TButton
+            Left = 62
+            Height = 23
+            Hint = 'cockwise'
+            Top = 8
+            Width = 50
+            Caption = 'cw'
+            OnClick = all_90degs_cw_buttonClick
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 1
+          end
+        end
+        object rotate_around_groupbox: TGroupBox
+          Left = 4
+          Height = 48
+          Top = 156
+          Width = 337
+          Caption = ' rotate  all  around :  '
+          ClientHeight = 27
+          ClientWidth = 333
+          Color = 14221272
+          Font.Color = clGreen
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+          TabOrder = 6
+          object rotate_grid_radiobutton: TRadioButton
+            Left = 12
+            Height = 23
+            Top = 4
+            Width = 90
+            Caption = 'grid origin'
+            Checked = True
+            OnClick = rotate_grid_radiobuttonClick
+            TabOrder = 0
+            TabStop = True
+          end
+          object rotate_notch_radiobutton: TRadioButton
+            Left = 130
+            Height = 23
+            Top = 4
+            Width = 59
+            Caption = 'notch'
+            OnClick = rotate_notch_radiobuttonClick
+            TabOrder = 1
+          end
+          object rotate_ring_radiobutton: TRadioButton
+            Left = 214
+            Height = 23
+            Top = 4
+            Width = 102
+            Caption = 'spacing-ring'
+            OnClick = rotate_ring_radiobuttonClick
+            TabOrder = 2
+          end
+        end
+      end
+      object dxf_sheet: TTabSheet
+        Caption = 'DXF  import'
+        ClientHeight = 208
+        ClientWidth = 346
+        object import_dxf_button: TButton
+          Left = 238
+          Height = 25
+          Top = 172
+          Width = 104
+          Caption = 'import  DXF ...'
+          OnClick = import_dxf_buttonClick
+          TabOrder = 3
+        end
+        object dxf_units_groupbox: TGroupBox
+          Left = 236
+          Height = 66
+          Top = 38
+          Width = 100
+          Caption = ' DXF  units : '
+          ClientHeight = 45
+          ClientWidth = 96
+          TabOrder = 2
+          object dxf_mm_radio: TRadioButton
+            Left = 14
+            Height = 23
+            Top = 4
+            Width = 48
+            Caption = 'mm'
+            Checked = True
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 0
+            TabStop = True
+          end
+          object dxf_inches_radio: TRadioButton
+            Left = 14
+            Height = 23
+            Top = 26
+            Width = 65
+            Caption = 'inches'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 1
+          end
+        end
+        object modify_on_import_groupbox: TGroupBox
+          Left = 6
+          Height = 87
+          Top = 38
+          Width = 219
+          Caption = ' modify  on  import : '
+          ClientHeight = 66
+          ClientWidth = 215
+          TabOrder = 1
+          object scale_by_label: TLabel
+            Left = 12
+            Height = 16
+            Top = 46
+            Width = 135
+            AutoSize = False
+            Caption = 'scale  by :  100 %'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            ParentColor = False
+            ParentFont = False
+            OnClick = dxf_set_buttonClick
+          end
+          object shift_x_label: TLabel
+            Left = 12
+            Height = 16
+            Top = 6
+            Width = 156
+            AutoSize = False
+            Caption = 'shift  X  by :  0.0  mm'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            ParentColor = False
+            ParentFont = False
+            OnClick = dxf_set_buttonClick
+          end
+          object shift_y_label: TLabel
+            Left = 12
+            Height = 16
+            Top = 26
+            Width = 156
+            AutoSize = False
+            Caption = 'shift  Y  by :  0.0  mm'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            ParentColor = False
+            ParentFont = False
+            OnClick = dxf_set_buttonClick
+          end
+          object dxf_set_button: TButton
+            Left = 166
+            Height = 25
+            Top = 42
+            Width = 45
+            Caption = 'set ...'
+            OnClick = dxf_set_buttonClick
+            TabOrder = 0
+          end
+        end
+        object dxf_limits_checkbox: TCheckBox
+          Left = 16
+          Height = 23
+          Top = 10
+          Width = 238
+          Caption = 'import  within  visible  limits  only'
+          TabOrder = 0
+        end
+      end
+      object font_sheet: TTabSheet
+        Caption = 'font / colours'
+        ClientHeight = 208
+        ClientWidth = 346
+        object label_font_button: TButton
+          Left = 238
+          Height = 25
+          Top = 172
+          Width = 99
+          Caption = 'label  font ...'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = label_font_buttonClick
+          ParentFont = False
+          TabOrder = 2
+        end
+        object colour_groupbox: TGroupBox
+          Left = 8
+          Height = 61
+          Top = 12
+          Width = 259
+          Caption = ' shapes colour :  '
+          ClientHeight = 40
+          ClientWidth = 255
+          TabOrder = 0
+          object pad_colour_button: TButton
+            Left = 14
+            Height = 25
+            Top = 12
+            Width = 117
+            Caption = 'on  trackpad ...'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = pad_colour_buttonClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object print_colour_button: TButton
+            Left = 144
+            Height = 25
+            Top = 12
+            Width = 99
+            Caption = 'on  output ...'
+            OnClick = print_colour_buttonClick
+            TabOrder = 1
+          end
+        end
+        object line_width_groupbox: TGroupBox
+          Left = 8
+          Height = 53
+          Top = 88
+          Width = 209
+          Caption = ' trackpad shapes line width : '
+          ClientHeight = 32
+          ClientWidth = 205
+          TabOrder = 1
+          object pad_shapes_linewidth_1_radiobutton: TRadioButton
+            Left = 22
+            Height = 23
+            Top = 10
+            Width = 31
+            Caption = '1'
+            Checked = True
+            TabOrder = 0
+            TabStop = True
+          end
+          object pad_shapes_linewidth_2_radiobutton: TRadioButton
+            Left = 74
+            Height = 23
+            Top = 10
+            Width = 31
+            Caption = '2'
+            TabOrder = 1
+          end
+          object pad_shapes_linewidth_3_radiobutton: TRadioButton
+            Left = 128
+            Height = 23
+            Top = 10
+            Width = 31
+            Caption = '3'
+            TabOrder = 2
+          end
+        end
+      end
+      object options_sheet: TTabSheet
+        Caption = 'general  options'
+        ClientHeight = 208
+        ClientWidth = 346
+        object Label6: TLabel
+          Left = 52
+          Height = 20
+          Top = 84
+          Width = 173
+          AutoSize = False
+          Caption = 'sketchboad  items'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object close_checkbox: TCheckBox
+          Left = 8
+          Height = 23
+          Top = 130
+          Width = 213
+          Caption = 'hide  this  window  on  reload'
+          ParentShowHint = False
+          TabOrder = 4
+        end
+        object reload_limits_checkbox: TCheckBox
+          Left = 8
+          Height = 23
+          Top = 156
+          Width = 290
+          Caption = 'reload  shapes  within  visible  limits  only'
+          TabOrder = 5
+        end
+        object trackpad_grid_in_front_checkbox: TCheckBox
+          Left = 8
+          Height = 23
+          Top = 36
+          Width = 282
+          Caption = 'show  trackpad  grid  in  front  of  shapes'
+          OnClick = trackpad_grid_in_front_checkboxClick
+          TabOrder = 1
+        end
+        object mm_grid_button: TButton
+          Left = 224
+          Height = 25
+          Top = 6
+          Width = 117
+          Caption = 'grid  spacing ...'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = mm_grid_buttonClick
+          ParentFont = False
+          TabOrder = 0
+        end
+        object output_grid_in_front_checkbox: TCheckBox
+          Left = 8
+          Height = 23
+          Top = 66
+          Width = 258
+          Caption = 'output  grid  in  front  of  shapes  and'
+          Checked = True
+          State = cbChecked
+          TabOrder = 2
+        end
+        object output_shapes_in_front_of_sb_checkbox: TCheckBox
+          Left = 8
+          Height = 23
+          Top = 102
+          Width = 320
+          Caption = 'output  shapes  in  front  of  sketchboard  items'
+          Checked = True
+          State = cbChecked
+          TabOrder = 3
+        end
+        object allow_sync_checkbox: TCheckBox
+          Left = 150
+          Height = 23
+          Top = 182
+          Width = 159
+          Caption = 'allow  template  sync'
+          Checked = True
+          State = cbChecked
+          TabOrder = 6
+        end
+      end
+      object pictures_sheet: TTabSheet
+        Caption = 'picture  options'
+        ClientHeight = 208
+        ClientWidth = 346
+        object picture_borders_checkbox: TCheckBox
+          Left = 100
+          Height = 23
+          Top = 176
+          Width = 227
+          Caption = 'add picture borders on trackpad'
+          TabOrder = 2
+        end
+        object use_notch_fixed_marker_checkbox: TCheckBox
+          Left = 24
+          Height = 23
+          Top = 76
+          Width = 273
+          Caption = 'twist using notch-angle as fixed-marker'
+          OnClick = use_notch_fixed_marker_checkboxClick
+          TabOrder = 0
+        end
+        object lock_groupbox: TGroupBox
+          Left = 16
+          Height = 57
+          Top = 108
+          Width = 308
+          Caption = ' when  scaling  ( re-sizing )  lock  to :  '
+          ClientHeight = 36
+          ClientWidth = 304
+          Color = 13693168
+          Font.Color = clMaroon
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+          TabOrder = 1
+          object lock_to_origin_radiobutton: TRadioButton
+            Left = 14
+            Height = 23
+            Top = 12
+            Width = 49
+            Caption = 'grid'
+            Checked = True
+            TabOrder = 0
+            TabStop = True
+          end
+          object lock_to_notch_radiobutton: TRadioButton
+            Left = 94
+            Height = 23
+            Top = 12
+            Width = 59
+            Caption = 'notch'
+            TabOrder = 1
+          end
+          object lock_to_ring_radiobutton: TRadioButton
+            Left = 185
+            Height = 23
+            Top = 12
+            Width = 102
+            Caption = 'spacing-ring'
+            TabOrder = 2
+          end
+        end
+        object twist_groupbox: TGroupBox
+          Left = 16
+          Height = 57
+          Top = 8
+          Width = 308
+          Caption = ' twist  selected  picture  around :  '
+          ClientHeight = 36
+          ClientWidth = 304
+          Color = 14221272
+          Font.Color = clGreen
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+          TabOrder = 3
+          object twist_centre_radiobutton: TRadioButton
+            Left = 14
+            Height = 23
+            Top = 10
+            Width = 86
+            Caption = 'its  centre'
+            Checked = True
+            TabOrder = 0
+            TabStop = True
+          end
+          object twist_as_all_radiobutton: TRadioButton
+            Left = 130
+            Height = 23
+            Top = 10
+            Width = 149
+            Caption = 'same  as  rotate  all'
+            TabOrder = 1
+          end
+        end
+      end
+      object TabSheet1: TTabSheet
+        Caption = 'pruning'
+        ClientHeight = 208
+        ClientWidth = 346
+        ImageIndex = 5
+        object Label4: TLabel
+          Left = 12
+          Height = 36
+          Top = 8
+          Width = 300
+          AutoSize = False
+          Caption = 'These pruning functions are intended for use after DXF import of vectorised bitmaps.'
+          Font.Color = clNavy
+          Font.Height = -13
+          Font.Name = 'Arial'
+          ParentColor = False
+          ParentFont = False
+          WordWrap = True
+        end
+        object Label5: TLabel
+          Left = 12
+          Height = 22
+          Top = 48
+          Width = 290
+          AutoSize = False
+          Caption = 'They can be clicked repeatedly if necessary.'
+          Font.Color = clNavy
+          Font.Height = -13
+          Font.Name = 'Arial'
+          ParentColor = False
+          ParentFont = False
+        end
+        object delete_25_button: TButton
+          Left = 136
+          Height = 25
+          Top = 88
+          Width = 197
+          Caption = 'delete  25%  of  all  shapes'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = delete_25_buttonClick
+          ParentFont = False
+          TabOrder = 0
+        end
+        object delete_50_button: TButton
+          Left = 136
+          Height = 25
+          Top = 128
+          Width = 197
+          Caption = 'delete  50%  of  all  shapes'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = delete_50_buttonClick
+          ParentFont = False
+          TabOrder = 1
+        end
+      end
+    end
+  end
+  object shape_page_control: TPageControl
+    Left = 368
+    Height = 508
+    Top = 24
+    Width = 266
+    ActivePage = new_tab_sheet
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabIndex = 0
+    TabOrder = 0
+    object new_tab_sheet: TTabSheet
+      Caption = ' &new  shape '
+      ClientHeight = 477
+      ClientWidth = 258
+      object new_panel: TPanel
+        Left = 0
+        Height = 477
+        Top = 0
+        Width = 258
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 477
+        ClientWidth = 258
+        Color = 16578800
+        ParentColor = False
+        TabOrder = 0
+        OnMouseMove = new_panelMouseMove
+        object name_label: TLabel
+          Left = 5
+          Height = 16
+          Top = 3
+          Width = 246
+          AutoSize = False
+          Caption = 'name of new shape  or  text for label :'
+          Font.Color = clNavy
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label1: TLabel
+          Left = 130
+          Height = 14
+          Top = 47
+          Width = 117
+          Alignment = taRightJustify
+          AutoSize = False
+          Caption = '(max 46 characters)'
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label24: TLabel
+          Left = 6
+          Height = 18
+          Top = 46
+          Width = 65
+          AutoSize = False
+          Caption = 'optional'
+          Font.Color = 4210752
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Style = [fsBold, fsItalic]
+          Layout = tlCenter
+          ParentColor = False
+          ParentFont = False
+        end
+        object name_editbox: TEdit
+          Left = 4
+          Height = 26
+          Top = 20
+          Width = 246
+          Font.Color = clBlue
+          Font.Height = -15
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          MaxLength = 46
+          ParentFont = False
+          TabOrder = 0
+        end
+        object shape_groupbox: TGroupBox
+          Left = 8
+          Height = 188
+          Top = 72
+          Width = 122
+          Caption = ' &shape :  '
+          ClientHeight = 167
+          ClientWidth = 118
+          Font.Color = clNavy
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 1
+          object Label7: TLabel
+            Left = 68
+            Height = 17
+            Top = 60
+            Width = 48
+            AutoSize = False
+            Caption = 'or ellipse'
+            Font.Color = clBlack
+            Font.Height = -11
+            Font.Name = 'Arial'
+            Layout = tlCenter
+            ParentColor = False
+            ParentFont = False
+          end
+          object line_radio_button: TRadioButton
+            Left = 6
+            Height = 23
+            Top = 6
+            Width = 48
+            Caption = 'line'
+            Checked = True
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = line_radio_buttonClick
+            ParentFont = False
+            TabOrder = 0
+            TabStop = True
+          end
+          object rect_radio_button: TRadioButton
+            Left = 6
+            Height = 23
+            Top = 32
+            Width = 84
+            Caption = 'rectangle'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = rect_radio_buttonClick
+            ParentFont = False
+            TabOrder = 1
+            TabStop = True
+          end
+          object circle_radio_button: TRadioButton
+            Left = 6
+            Height = 23
+            Top = 58
+            Width = 59
+            Caption = 'circle'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = rect_radio_buttonClick
+            ParentFont = False
+            TabOrder = 2
+            TabStop = True
+          end
+          object label_radio_button: TRadioButton
+            Left = 6
+            Height = 23
+            Top = 84
+            Width = 56
+            Caption = 'label'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = label_radio_buttonClick
+            ParentFont = False
+            TabOrder = 3
+            TabStop = True
+          end
+          object target_radio_button: TRadioButton
+            Left = 6
+            Height = 23
+            Top = 110
+            Width = 97
+            Caption = 'target mark'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = target_radio_buttonClick
+            ParentFont = False
+            TabOrder = 4
+            TabStop = True
+          end
+          object picture_radio_button: TRadioButton
+            Left = 6
+            Height = 23
+            Top = 136
+            Width = 68
+            Caption = 'picture'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = picture_radio_buttonClick
+            ParentFont = False
+            TabOrder = 5
+            TabStop = True
+          end
+        end
+        object line_groupbox: TGroupBox
+          Left = 142
+          Height = 84
+          Top = 72
+          Width = 105
+          Caption = ' &lines :  '
+          ClientHeight = 63
+          ClientWidth = 101
+          Color = clWhite
+          Font.Color = clNavy
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+          TabOrder = 2
+          object Label8: TLabel
+            Left = 2
+            Height = 16
+            Top = 48
+            Width = 98
+            Alignment = taCenter
+            AutoSize = False
+            Caption = 'and when drawing'
+            Font.Color = clBlack
+            Font.Height = -11
+            Font.Name = 'Arial'
+            ParentColor = False
+            ParentFont = False
+          end
+          object solid_radio_button: TRadioButton
+            Left = 32
+            Height = 23
+            Top = 4
+            Width = 54
+            Caption = 'solid'
+            Checked = True
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 0
+            TabStop = True
+          end
+          object dotted_radio_button: TRadioButton
+            Left = 32
+            Height = 23
+            Top = 28
+            Width = 64
+            Caption = 'dotted'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 1
+            TabStop = True
+          end
+        end
+        object picture_buttons_panel: TPanel
+          Left = 0
+          Height = 200
+          Top = 270
+          Width = 258
+          BevelOuter = bvNone
+          ClientHeight = 200
+          ClientWidth = 258
+          TabOrder = 5
+          Visible = False
+          object Label10: TLabel
+            Left = 8
+            Height = 64
+            Top = 13
+            Width = 244
+            AutoSize = False
+            Caption = 'Click the button to add a new empty picture shape. You will then have several options to adjust the size and specify the image which it will contain.'
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            ParentColor = False
+            ParentFont = False
+            WordWrap = True
+          end
+          object Label11: TLabel
+            Left = 16
+            Height = 49
+            Top = 120
+            Width = 222
+            AutoSize = False
+            Caption = 'An easier way to create a picture shape is to drag and drop an image file onto the trackpad.'
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            ParentColor = False
+            ParentFont = False
+            WordWrap = True
+          end
+          object Label46: TLabel
+            Left = 4
+            Height = 18
+            Top = 170
+            Width = 115
+            AutoSize = False
+            Caption = 'for drag and drop :'
+            Font.Color = clBlue
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            Layout = tlCenter
+            ParentColor = False
+            ParentFont = False
+          end
+          object add_picture_shape_button: TButton
+            Left = 88
+            Height = 27
+            Top = 71
+            Width = 160
+            Caption = 'add  picture  shape'
+            OnClick = add_picture_shape_buttonClick
+            TabOrder = 0
+          end
+          object open_mystuff_button: TButton
+            Left = 112
+            Height = 23
+            Top = 168
+            Width = 142
+            Caption = 'go  to  My Pictures'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = open_mystuff_buttonClick
+            ParentFont = False
+            TabOrder = 1
+          end
+        end
+        object buttons_panel: TPanel
+          Left = 0
+          Height = 200
+          Top = 270
+          Width = 258
+          BevelOuter = bvNone
+          ClientHeight = 200
+          ClientWidth = 258
+          TabOrder = 4
+          object Label2: TLabel
+            Left = 8
+            Height = 20
+            Top = 10
+            Width = 141
+            AutoSize = False
+            Caption = 'add  new  shape :'
+            Font.Color = clBlue
+            Font.Height = -15
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            ParentColor = False
+            ParentFont = False
+          end
+          object shapes_help_label: TLabel
+            Cursor = crHandPoint
+            Left = 2
+            Height = 16
+            Top = 160
+            Width = 134
+            Alignment = taCenter
+            AutoSize = False
+            Caption = 'what are these options ?'
+            Font.Color = clBlue
+            Font.Height = -11
+            Font.Name = 'Arial'
+            Font.Style = [fsUnderline]
+            Layout = tlCenter
+            ParentColor = False
+            ParentFont = False
+            OnClick = shapes_help_labelClick
+            OnMouseMove = shapes_help_labelMouseMove
+          end
+          object Label12: TLabel
+            Left = 0
+            Height = 20
+            Top = 38
+            Width = 248
+            Alignment = taRightJustify
+            AutoSize = False
+            Caption = '1. select method   2. click add shape button'
+            Font.Color = clBlue
+            Font.Height = -12
+            Font.Name = 'Arial'
+            ParentColor = False
+            ParentFont = False
+          end
+          object add_shape_button: TButton
+            Left = 144
+            Height = 27
+            Top = 158
+            Width = 106
+            Caption = 'add  shape'
+            Font.Color = clBlack
+            Font.Height = -15
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = add_shape_buttonClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object enter_dims_radiobutton: TRadioButton
+            Left = 18
+            Height = 23
+            Top = 92
+            Width = 180
+            Caption = 'by  &entering  dimensions'
+            Font.Color = clNavy
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = enter_dims_radiobuttonClick
+            ParentFont = False
+            TabOrder = 1
+          end
+          object clicked_locs_radiobutton: TRadioButton
+            Left = 18
+            Height = 23
+            Top = 120
+            Width = 182
+            Caption = 'at  the  &clicked  locations'
+            Font.Color = clNavy
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = clicked_locs_radiobuttonClick
+            ParentFont = False
+            TabOrder = 2
+          end
+          object by_drawing_radiobutton: TRadioButton
+            Left = 18
+            Height = 23
+            Top = 64
+            Width = 99
+            Caption = 'by  &drawing'
+            Checked = True
+            Font.Color = clNavy
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = by_drawing_radiobuttonClick
+            ParentFont = False
+            TabOrder = 3
+            TabStop = True
+          end
+        end
+        object style_groupbox: TGroupBox
+          Left = 142
+          Height = 100
+          Top = 160
+          Width = 105
+          Caption = ' s&tyle :  '
+          ClientHeight = 79
+          ClientWidth = 101
+          Color = clWhite
+          Font.Color = clNavy
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+          TabOrder = 3
+          object clear_radio_button: TRadioButton
+            Left = 6
+            Height = 23
+            Top = 6
+            Width = 56
+            Caption = 'clear'
+            Checked = True
+            Enabled = False
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 0
+            TabStop = True
+          end
+          object solid_infill_radio_button: TRadioButton
+            Left = 6
+            Height = 23
+            Top = 30
+            Width = 86
+            Caption = 'solid infill'
+            Enabled = False
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 1
+            TabStop = True
+          end
+          object hatched_radio_button: TRadioButton
+            Left = 6
+            Height = 23
+            Top = 54
+            Width = 75
+            Caption = 'hatched'
+            Enabled = False
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 2
+            TabStop = True
+          end
+        end
+      end
+    end
+    object modify_tab_sheet: TTabSheet
+      Caption = ' m&odify  shape '
+      ClientHeight = 477
+      ClientWidth = 258
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ImageIndex = 1
+      ParentFont = False
+      object Label3: TLabel
+        Left = 30
+        Height = 97
+        Top = 42
+        Width = 193
+        Alignment = taCenter
+        AutoSize = False
+        Caption = 'no  background  shapes  are  currently  defined'
+        ParentColor = False
+        WordWrap = True
+      end
+      object modify_panel: TPanel
+        Left = 0
+        Height = 477
+        Top = 0
+        Width = 258
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 477
+        ClientWidth = 258
+        Color = 15786176
+        ParentColor = False
+        TabOrder = 0
+        object new_picture_shape3: TShape
+          Left = 0
+          Height = 31
+          Top = 0
+          Width = 167
+          Brush.Color = clYellow
+          Pen.Color = clYellow
+          Visible = False
+        end
+        object modify_button: TButton
+          Left = 2
+          Height = 23
+          Top = 56
+          Width = 154
+          Caption = 'change dimensions ...'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = modify_buttonClick
+          ParentFont = False
+          TabOrder = 5
+        end
+        object mouse_action_groupbox: TGroupBox
+          Left = 28
+          Height = 86
+          Top = 86
+          Width = 220
+          Caption = ' mo&use  actions :  '
+          ClientHeight = 63
+          ClientWidth = 216
+          Color = 13696976
+          Font.Color = clGreen
+          Font.Height = -15
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+          TabOrder = 7
+          object corner1_button: TButton
+            Left = 96
+            Height = 23
+            Top = 6
+            Width = 112
+            Caption = 'move  corner 1'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = corner1_buttonClick
+            ParentFont = False
+            TabOrder = 2
+          end
+          object new_picture_shape1: TShape
+            Left = 6
+            Height = 60
+            Top = 0
+            Width = 80
+            Brush.Color = clYellow
+            Pen.Color = clYellow
+            Visible = False
+          end
+          object corner2_button: TButton
+            Left = 96
+            Height = 23
+            Top = 32
+            Width = 112
+            Caption = 'move  corner 2'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = corner2_buttonClick
+            ParentFont = False
+            TabOrder = 3
+          end
+          object mouse_scale_one_button: TButton
+            Left = 16
+            Height = 23
+            Hint = 'change the size of the selected shape'
+            Top = 6
+            Width = 60
+            Caption = 'size'
+            Font.Color = clBlack
+            Font.Height = -15
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = mouse_scale_one_buttonClick
+            ParentFont = False
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 0
+          end
+          object mouse_shift_one_button: TButton
+            Left = 16
+            Height = 23
+            Hint = 'move the selected shape to a new position'
+            Top = 32
+            Width = 60
+            Caption = 'shift'
+            Font.Color = clBlack
+            Font.Height = -15
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = mouse_shift_one_buttonClick
+            ParentFont = False
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 1
+          end
+        end
+        object scale_one_by_button: TButton
+          Left = 168
+          Height = 23
+          Top = 2
+          Width = 84
+          Caption = 'scale by ...'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = scale_one_by_buttonClick
+          ParentFont = False
+          TabOrder = 2
+        end
+        object picture_groupbox: TGroupBox
+          Left = 0
+          Height = 292
+          Top = 176
+          Width = 254
+          Caption = ' modify  pi&cture  shape : '
+          ClientHeight = 271
+          ClientWidth = 250
+          Font.Color = clNavy
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 8
+          object Label9: TLabel
+            Left = 3
+            Height = 20
+            Top = 246
+            Width = 101
+            Alignment = taRightJustify
+            AutoSize = False
+            Caption = 'new  image from :'
+            Font.Color = clNavy
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            Layout = tlCenter
+            ParentColor = False
+            ParentFont = False
+          end
+          object new_picture_shape2: TShape
+            Left = 0
+            Height = 33
+            Top = 3
+            Width = 108
+            Brush.Color = clYellow
+            Pen.Color = clYellow
+            Visible = False
+          end
+          object reload_picture_button: TButton
+            Left = 106
+            Height = 23
+            Hint = ' reload image from a file '
+            Top = 244
+            Width = 48
+            Caption = 'file ...'
+            Enabled = False
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = reload_picture_buttonClick
+            ParentFont = False
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 10
+          end
+          object twist_picture_button: TButton
+            Left = 6
+            Height = 23
+            Top = 100
+            Width = 60
+            Caption = 'twist ...'
+            Enabled = False
+            Font.Color = clNavy
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = twist_picture_buttonClick
+            ParentFont = False
+            TabOrder = 3
+          end
+          object marker_line_fixed_button: TButton
+            Left = 70
+            Height = 23
+            Hint = ' set line as marker line  -  fixed line '
+            Top = 88
+            Width = 174
+            Caption = 'set as marker-line: Fixed'
+            Font.Color = clNavy
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = marker_line_fixed_buttonClick
+            ParentFont = False
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 4
+          end
+          object marker_line_twist_button: TButton
+            Left = 70
+            Height = 23
+            Hint = ' set line as marker line  -  twist line '
+            Top = 114
+            Width = 174
+            Caption = 'set as marker-line: Twist'
+            Font.Color = clNavy
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = marker_line_twist_buttonClick
+            ParentFont = False
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 5
+          end
+          object trans_checkbox: TCheckBox
+            Left = 116
+            Height = 23
+            Top = 8
+            Width = 125
+            Caption = 'show transparent'
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnMouseUp = trans_checkboxMouseUp
+            ParentFont = False
+            TabOrder = 1
+          end
+          object wrap_picture_button: TButton
+            Left = 6
+            Height = 23
+            Top = 182
+            Width = 238
+            Caption = 'wrap along the control template ...'
+            Font.Color = clNavy
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = wrap_picture_buttonClick
+            ParentFont = False
+            TabOrder = 7
+          end
+          object straighten_picture_button: TButton
+            Left = 6
+            Height = 23
+            Top = 152
+            Width = 238
+            Caption = 'straighten along the control template ...'
+            Font.Color = clNavy
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = straighten_picture_buttonClick
+            ParentFont = False
+            TabOrder = 6
+          end
+          object paste_button: TButton
+            Left = 157
+            Height = 23
+            Hint = ' paste a new copied image '
+            Top = 244
+            Width = 44
+            Caption = 'paste'
+            Enabled = False
+            Font.Color = clNavy
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = paste_buttonClick
+            ParentFont = False
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 11
+          end
+          object crop_rectangle_button: TButton
+            Left = 8
+            Height = 23
+            Top = 48
+            Width = 238
+            Caption = 'crop / combine  picture  shapes'
+            Enabled = False
+            OnClick = combine_pictures_menu_entryClick
+            TabOrder = 2
+          end
+          object scan_button: TButton
+            Left = 204
+            Height = 23
+            Hint = ' obtain new image from scanner '
+            Top = 244
+            Width = 40
+            Caption = 'scan'
+            OnClick = scan_buttonClick
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 12
+          end
+          object save_picture_button: TButton
+            Left = 132
+            Height = 23
+            Top = 216
+            Width = 112
+            Caption = 'save  image ...'
+            Enabled = False
+            Font.Color = clNavy
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = save_picture_buttonClick
+            ParentFont = False
+            TabOrder = 9
+          end
+          object copy_image_button: TButton
+            Left = 6
+            Height = 23
+            Top = 216
+            Width = 94
+            Caption = 'copy  image'
+            OnClick = copy_image_buttonClick
+            TabOrder = 8
+          end
+          object auto_fit_picture_button: TButton
+            Left = 8
+            Height = 23
+            Hint = ' re-size the selected picture shape to match the image '
+            Top = 8
+            Width = 88
+            Caption = 'auto-fit ...'
+            Font.Color = clBlack
+            Font.Height = -15
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = auto_fit_picture_buttonClick
+            ParentFont = False
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 0
+          end
+        end
+        object shift_one_by_button: TButton
+          Left = 168
+          Height = 23
+          Top = 29
+          Width = 84
+          Caption = 'shift  by ...'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = shift_one_by_buttonClick
+          ParentFont = False
+          TabOrder = 4
+        end
+        object rotate_one_by_button: TButton
+          Left = 160
+          Height = 23
+          Top = 56
+          Width = 92
+          Caption = 'rotate  by ...'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = rotate_one_by_buttonClick
+          ParentFont = False
+          TabOrder = 6
+        end
+        object apply_button: TButton
+          Left = 2
+          Height = 23
+          Top = 29
+          Width = 110
+          Caption = 'apply changes'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = apply_buttonClick
+          ParentFont = False
+          TabOrder = 3
+        end
+        object shift_one_to_button: TButton
+          Left = 82
+          Height = 23
+          Hint = ' enter a new position for the selected shape '
+          Top = 2
+          Width = 78
+          Caption = 'shift  to ...'
+          OnClick = shift_one_to_buttonClick
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 1
+        end
+        object scale_one_to_button: TButton
+          Left = 2
+          Height = 23
+          Hint = ' enter a new width for the selected shape '
+          Top = 2
+          Width = 76
+          Caption = 're-size ...'
+          OnClick = scale_one_to_buttonClick
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 0
+        end
+      end
+    end
+  end
+  object show_on_trackpad_static: TStaticText
+    Left = 48
+    Height = 18
+    Hint = ' show / hide selected shape on the trackpad  -  double-click shape list '
+    Top = 247
+    Width = 136
+    Caption = 'show  on  trackpad'
+    OnClick = show_on_trackpad_staticClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 4
+    TabStop = True
+  end
+  object show_on_output_static: TStaticText
+    Left = 220
+    Height = 18
+    Hint = ' show/hide selected shape on printed templates, on the sketchboard and in exported files '
+    Top = 247
+    Width = 124
+    Caption = 'show  on  output'
+    OnClick = show_on_output_staticClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 5
+    TabStop = True
+  end
+  object filesave_dialog: TSaveDialog
+    Title = '    save  background  shapes  as ...'
+    DefaultExt = '.otbgs'
+    FileName = 'my_baseboard.bgs'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofShowHelp, ofEnableSizing]
+    left = 68
+    top = 32
+  end
+  object fileload_dialog: TOpenDialog
+    Title = '    reload  background  shapes  from  file ...'
+    DefaultExt = '.otbgs'
+    FileName = '*.otbgs'
+    Options = [ofHideReadOnly, ofShowHelp, ofPathMustExist, ofFileMustExist, ofEnableSizing]
+    left = 168
+    top = 32
+  end
+  object dxf_file_dialog: TOpenDialog
+    DefaultExt = '.dxf'
+    FileName = '*.dxf'
+    Options = [ofHideReadOnly, ofShowHelp, ofPathMustExist, ofFileMustExist, ofEnableSizing]
+    left = 36
+    top = 44
+  end
+  object recent_popup_menu: TPopupMenu
+    AutoPopup = False
+    left = 64
+    top = 92
+    object recent_bgsfiles_caption_popup_entry: TMenuItem
+      Caption = '#                    reload  recent  shapes  file :'
+      Enabled = False
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object recent_1_popup_entry: TMenuItem
+      Caption = '1'
+      OnClick = recent_1_popup_entryClick
+    end
+    object N2: TMenuItem
+      Caption = '-'
+    end
+    object recent_2_popup_entry: TMenuItem
+      Caption = '2'
+      OnClick = recent_2_popup_entryClick
+    end
+    object recent_3_popup_entry: TMenuItem
+      Caption = '3'
+      OnClick = recent_3_popup_entryClick
+    end
+    object recent_4_popup_entry: TMenuItem
+      Caption = '4'
+      OnClick = recent_4_popup_entryClick
+    end
+    object recent_5_popup_entry: TMenuItem
+      Caption = '5'
+      OnClick = recent_5_popup_entryClick
+    end
+    object recent_6_popup_entry: TMenuItem
+      Caption = '6'
+      OnClick = recent_6_popup_entryClick
+    end
+    object N3: TMenuItem
+      Caption = '-'
+    end
+    object clear_recent_bgs_popup_entry: TMenuItem
+      Caption = 'clear  list'
+      Enabled = False
+      OnClick = clear_recent_bgs_popup_entryClick
+    end
+    object N4: TMenuItem
+      Caption = '-'
+    end
+    object bgsmru_cancel_popup_entry: TMenuItem
+      Caption = 'cancel  reload'
+    end
+  end
+  object picture_load_dialog: TOpenPictureDialog
+    Title = '    load  image  into  picture  shape ...'
+    DefaultExt = '.png'
+    Filter = 'all image formats|*.png;*.bmp;*.jpg;*.jp;*.jpeg;*.gif;*.emf;*.wmf|PNG image ( .png)|*.png|GIF image ( .gif)|*.gif|JPEG image ( .jpg  .jp  .jpeg)|*.jpg;*.jp;*.jpeg|BMP image ( .bmp)|*.bmp|Metafile image ( .emf  .wmf)|*.emf;*.wmf'
+    Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
+    left = 32
+    top = 140
+  end
+  object picture_save_dialog: TSavePictureDialog
+    Title = '    save  image  from  picture  shape ...'
+    DefaultExt = '.png'
+    Filter = 'PNG image ( .png)|*.png|GIF image ( .gif)|*.gif|JPEG image ( .jpg  .jp  .jpeg)|*.jpg;*.jp;*.jpeg|BMP image (  .bmp)|*.bmp'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofExtensionDifferent, ofPathMustExist, ofEnableSizing]
+    left = 164
+    top = 152
+  end
+  object bgnd_shapes_menu: TMainMenu
+    left = 252
+    top = 28
+    object bgnd_files_menu: TMenuItem
+      Caption = '&files'
+      object N14: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object reload_menu_entry: TMenuItem
+        Caption = 'reload ...'
+        ShortCut = 16460
+        OnClick = reload_menu_entryClick
+      end
+      object N32: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object bgsfilescanalsobe1: TMenuItem
+        Caption = '    .bgs  shapes  files  can  also  be'
+        Enabled = False
+      end
+      object draggedontothetrackpad1: TMenuItem
+        Caption = '    dragged  onto  the  trackpad :'
+        Enabled = False
+      end
+      object go_to_my_documents_menu_entry: TMenuItem
+        Caption = '    go  to  My Documents'
+        OnClick = go_to_my_documents_menu_entryClick
+      end
+      object N15: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object add_file_menu_entry: TMenuItem
+        Caption = 'add  file ...'
+        OnClick = add_file_menu_entryClick
+      end
+      object N5: TMenuItem
+        Caption = '-'
+      end
+      object N12: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object recent_files_menu_entry: TMenuItem
+        Caption = 'recent  files ...'
+        ShortCut = 16466
+        OnClick = recent_files_menu_entryClick
+      end
+      object N13: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object N11: TMenuItem
+        Caption = '-'
+      end
+      object N16: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object save_all_menu_entry: TMenuItem
+        Caption = 'save  all  as ...'
+        ShortCut = 16467
+        OnClick = save_all_menu_entryClick
+      end
+      object N17: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object saved_jpg_quality_menu_entry: TMenuItem
+        Caption = 'saved  JPG  image  quality ...'
+        OnClick = saved_jpg_quality_menu_entryClick
+      end
+      object N6: TMenuItem
+        Caption = '-'
+      end
+      object N37: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object hide_menu_entry: TMenuItem
+        Caption = 'hide'
+        ShortCut = 16456
+        OnClick = close_buttonClick
+      end
+    end
+    object bgnd_recent_menu: TMenuItem
+      Caption = '&recent'
+      OnClick = recent_files_menu_entryClick
+    end
+    object bgnd_draw_menu: TMenuItem
+      Caption = '&draw'
+      object N24: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object draw_mouse_menu_entry: TMenuItem
+        Caption = 'draw  with  mouse  or  pen'
+        ShortCut = 16452
+        OnClick = draw_mouse_menu_entryClick
+      end
+      object N29: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object N9: TMenuItem
+        Caption = '-'
+      end
+      object draw_spacing_ring_menu_entry: TMenuItem
+        Caption = 'draw  with  spacing - ring'
+        OnClick = draw_spacing_ring_menu_entryClick
+      end
+    end
+    object bgnd_edit_menu: TMenuItem
+      Caption = '&edit'
+      object N25: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object rename_menu_entry: TMenuItem
+        Caption = 'rename  shape ...'
+        ShortCut = 16462
+        OnClick = rename_menu_entryClick
+      end
+      object dimensions_menu_entry: TMenuItem
+        Caption = 'change  shape  dimensions ...'
+        OnClick = modify_buttonClick
+      end
+      object N30: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object N7: TMenuItem
+        Caption = '-'
+      end
+      object N28: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object combine_pictures_menu_entry: TMenuItem
+        Caption = 'crop / combine  picture  shapes  within  rectangle'
+        OnClick = combine_pictures_menu_entryClick
+      end
+      object N31: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object break_rectangle_menu_entry: TMenuItem
+        Caption = 'break  rectangle  to  4  lines'
+        OnClick = break_rectangle_menu_entryClick
+      end
+      object N27: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object N26: TMenuItem
+        Caption = '-'
+      end
+      object N18: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object delete_menu_entry: TMenuItem
+        Caption = 'delete  shape'
+        ShortCut = 46
+        OnClick = delete_menu_entryClick
+      end
+      object N19: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object N8: TMenuItem
+        Caption = '-'
+      end
+      object delete_all_menu_entry: TMenuItem
+        Caption = 'delete  all  /  clear'
+        ShortCut = 16430
+        OnClick = delete_all_menu_entryClick
+      end
+    end
+    object bgnd_all_menu: TMenuItem
+      Caption = '&all'
+      object N44: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object break_all_rectangles_menu_entry: TMenuItem
+        Caption = '&break  all  rectangles  to  lines'
+        OnClick = break_all_rectangles_menu_entryClick
+      end
+      object N48: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object N47: TMenuItem
+        Caption = '-'
+      end
+      object N45: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object all_pictures_transparent_menu_entry: TMenuItem
+        Caption = 'all  picture  shapes  &transparent'
+        OnClick = all_pictures_transparent_menu_entryClick
+      end
+      object no_pictures_transparent_menu_entry: TMenuItem
+        Caption = '&no  picture  shapes  transparent'
+        OnClick = no_pictures_transparent_menu_entryClick
+      end
+      object N46: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+    end
+    object bgnd_show_menu: TMenuItem
+      Caption = '&show'
+      object N33: TMenuItem
+        Caption = ' '
+      end
+      object show_on_trackpad_menu_entry: TMenuItem
+        Caption = 'show  shape  on  trackpad'
+        ShortCut = 16468
+        OnClick = show_on_trackpad_staticClick
+      end
+      object N34: TMenuItem
+        Caption = '-'
+      end
+      object N35: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object show_on_output_menu_entry: TMenuItem
+        Caption = 'show  shape  on  output'
+        ShortCut = 16463
+        OnClick = show_on_output_staticClick
+      end
+    end
+    object bgnd_zoom_menu: TMenuItem
+      Caption = '&zoom'
+      object N21: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object zoom_fit_shape_menu_entry: TMenuItem
+        Caption = 'zoom  to  fit  selected  shape'
+        ShortCut = 16454
+        OnClick = zoom_fit_shape_menu_entryClick
+      end
+      object N22: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object N20: TMenuItem
+        Caption = '-'
+      end
+      object N23: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object zoom_fit_all_shapes_menu_entry: TMenuItem
+        Caption = 'zoom  to  fit  all  shapes  showing'
+        ShortCut = 16453
+        OnClick = zoom_fit_all_shapes_menu_entryClick
+      end
+      object N36: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+    end
+    object bgnd_map_menu: TMenuItem
+      Caption = '&maps'
+      OnClick = bgnd_map_menuClick
+    end
+    object bgnd_help_menu: TMenuItem
+      Caption = '&help'
+      object N39: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object background_shapes_help_menu_entry: TMenuItem
+        Caption = 'background  shapes  -  help'
+        OnClick = background_shapes_help_menu_entryClick
+      end
+      object N10: TMenuItem
+        Caption = '-'
+      end
+      object N41: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object picture_shapes_help_menu_entry: TMenuItem
+        Caption = 'picture  shapes  -  help  to  add  one'
+        OnClick = add_picture_shape_buttonClick
+      end
+      object N38: TMenuItem
+        Caption = '-'
+      end
+      object N40: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object calculate_map_size_menu_entry: TMenuItem
+        Caption = 'calculate  size  of  a  map  screenshot'
+        OnClick = calculate_map_size_menu_entryClick
+      end
+      object N42: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+    end
+  end
+end

@@ -1,0 +1,2272 @@
+object keep_form: Tkeep_form
+  Left = 60
+  Height = 460
+  Top = 40
+  Width = 656
+  HorzScrollBar.Page = 656
+  HorzScrollBar.Tracking = True
+  VertScrollBar.Page = 434
+  VertScrollBar.Tracking = True
+  AutoScroll = True
+  BorderIcons = [biSystemMenu]
+  Caption = '                       storage   box'
+  ClientHeight = 435
+  ClientWidth = 656
+  Color = 12632240
+  DesignTimePPI = 120
+  Font.Color = clBlack
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  KeyPreview = True
+  Menu = keeps_menu_bar
+  OnActivate = FormActivate
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnDeactivate = FormDeactivate
+  OnHide = FormHide
+  OnKeyDown = FormKeyDown
+  OnKeyPress = FormKeyPress
+  OnResize = FormResize
+  OnShow = FormShow
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object keep_form_datestamp_label: TLabel
+    Left = 0
+    Height = 4
+    Top = 430
+    Width = 656
+    AutoSize = False
+    Font.Color = 6316128
+    Font.Height = -7
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object box_empty_label: TLabel
+    Left = 596
+    Height = 47
+    Top = 334
+    Width = 53
+    AutoSize = False
+    Caption = ' box  empty'
+    Font.Color = clBlack
+    Font.Height = -17
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object slider_ref_label: TLabel
+    Left = 192
+    Height = 34
+    Top = 324
+    Width = 170
+    AutoSize = False
+    Caption = 'slider ref'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    Visible = False
+    WordWrap = True
+  end
+  object flag_shape: TShape
+    Left = 333
+    Height = 11
+    Top = 35
+    Width = 11
+    Brush.Color = clBlack
+    Visible = False
+  end
+  object slider_number_label: TLabel
+    Left = 164
+    Height = 18
+    Top = 324
+    Width = 24
+    Alignment = taCenter
+    AutoSize = False
+    Caption = '123'
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object slider_shape: TShape
+    Left = 172
+    Height = 9
+    Top = 346
+    Width = 9
+    Brush.Color = clBlack
+    Visible = False
+  end
+  object Shape1: TShape
+    Left = 573
+    Height = 32
+    Top = 24
+    Width = 76
+    Pen.Color = clWhite
+  end
+  object library_label: TLabel
+    Left = 16
+    Height = 20
+    Top = 400
+    Width = 129
+    AutoSize = False
+    Caption = '  library  template'
+    Color = 15794128
+    Font.Color = clGreen
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    Transparent = False
+    Visible = False
+  end
+  object id_label: TLabel
+    Left = 354
+    Height = 20
+    Top = 28
+    Width = 67
+    AutoSize = False
+    Caption = 'DR1234'
+    Font.Color = clBlack
+    Font.Height = -16
+    Font.Name = 'Trebuchet MS'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    Visible = False
+  end
+  object radio_box_shape: TShape
+    Left = 504
+    Height = 75
+    Top = 324
+    Width = 78
+    Brush.Style = bsClear
+    Pen.Color = clLime
+    Pen.Width = 2
+    Visible = False
+  end
+  object rem_label: TLabel
+    Left = 0
+    Height = 20
+    Top = 266
+    Width = 73
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'reminder:'
+    Layout = tlCenter
+    ParentColor = False
+    Visible = False
+  end
+  object delete_to_control_radiobutton: TRadioButton
+    Left = 510
+    Height = 23
+    Top = 376
+    Width = 64
+    Caption = 'delete'
+    TabOrder = 3
+    Visible = False
+  end
+  object keep_panel: TPanel
+    Left = 25
+    Height = 202
+    Top = 58
+    Width = 520
+    Alignment = taLeftJustify
+    BevelOuter = bvNone
+    BorderWidth = 1
+    BorderStyle = bsSingle
+    ClientHeight = 198
+    ClientWidth = 516
+    Font.Color = clBlue
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 22
+    object keep_image: TImage
+      Left = 0
+      Height = 300
+      Top = 0
+      Width = 700
+    end
+  end
+  object blue_corner_panel: TPanel
+    Left = 0
+    Height = 90
+    Top = 24
+    Width = 20
+    BevelOuter = bvNone
+    ClientHeight = 90
+    ClientWidth = 20
+    Color = clBlue
+    Font.Color = clBlack
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 21
+    object how_panel: TPanel
+      Left = 0
+      Height = 20
+      Top = 48
+      Width = 16
+      Caption = '?'
+      Color = clBlack
+      Font.Color = clLime
+      Font.Height = -17
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      TabOrder = 0
+      OnClick = how_panelClick
+    end
+    object chat_panel: TPanel
+      Left = 0
+      Height = 16
+      Top = 70
+      Width = 16
+      Caption = '='
+      Color = clBlack
+      Font.Color = clLime
+      Font.Height = -17
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      TabOrder = 1
+      OnClick = chat_panelClick
+    end
+    object colour_panel: TPanel
+      Left = 0
+      Height = 16
+      Top = 28
+      Width = 15
+      ClientHeight = 16
+      ClientWidth = 15
+      TabOrder = 2
+      OnClick = colour_patchClick
+      object colour_patch: TImage
+        Left = 1
+        Height = 14
+        Top = 1
+        Width = 13
+        Align = alClient
+        AutoSize = True
+        OnClick = colour_patchClick
+        Picture.Data = {
+          07544269746D6170B6040000424DB60400000000000036000000280000001800
+          0000100000000100180000000000800400008412000084120000000000000000
+          0000008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF00008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          00000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          0000
+        }
+        Stretch = True
+      end
+    end
+    object size_updown: TUpDown
+      Tag = 4
+      Left = 0
+      Height = 24
+      Top = 1
+      Width = 16
+      Max = 10
+      Min = 1
+      OnClick = size_updownClick
+      Position = 4
+      TabOrder = 3
+      Wrap = False
+    end
+  end
+  object copy_panel: TPanel
+    Cursor = crHandPoint
+    Left = 575
+    Height = 76
+    Top = 324
+    Width = 77
+    ClientHeight = 76
+    ClientWidth = 77
+    Color = clLime
+    ParentColor = False
+    TabOrder = 0
+    Visible = False
+    OnClick = copy_to_pad_buttonClick
+    object to_control_label: TLabel
+      Left = 4
+      Height = 54
+      Top = 4
+      Width = 64
+      AutoSize = False
+      Caption = 'to the control template'
+      Font.Color = clBlack
+      Font.Height = -14
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+      OnClick = copy_to_pad_buttonClick
+    end
+    object copy_to_pad_button: TButton
+      Left = 55
+      Height = 15
+      Top = 55
+      Width = 15
+      Caption = '  '
+      Default = True
+      Font.Color = clBlack
+      Font.Height = -17
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = copy_to_pad_buttonClick
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object escape_panel: TPanel
+    Cursor = crHandPoint
+    Left = 504
+    Height = 24
+    Top = 404
+    Width = 147
+    Caption = 'hide'
+    ClientHeight = 24
+    ClientWidth = 147
+    Color = clYellow
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 4
+    OnClick = escape_buttonClick
+    object escape_button: TButton
+      Left = 126
+      Height = 15
+      Top = 2
+      Width = 15
+      Cancel = True
+      Caption = '  '
+      OnClick = escape_buttonClick
+      TabOrder = 0
+    end
+  end
+  object gauge_panel: TPanel
+    Left = 304
+    Height = 25
+    Top = 292
+    Width = 348
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    Caption = 'box  empty'
+    Color = 16777120
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 23
+    OnClick = read_info_buttonClick
+  end
+  object store_current_as_unused_button: TButton
+    Left = 552
+    Height = 25
+    Top = 254
+    Width = 98
+    Caption = 'store c&ontrol'
+    OnClick = store_current_as_unused_buttonClick
+    TabOrder = 11
+  end
+  object ref_panel: TPanel
+    Left = 4
+    Height = 25
+    Top = 292
+    Width = 294
+    Alignment = taLeftJustify
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    Color = clWhite
+    Font.Color = clNavy
+    Font.Height = -14
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 24
+    OnClick = rename_menu_entryClick
+  end
+  object scale_radio_panel: TPanel
+    Left = 26
+    Height = 25
+    Top = 28
+    Width = 298
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    ClientHeight = 21
+    ClientWidth = 294
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 19
+    object Label1: TLabel
+      Left = 0
+      Height = 16
+      Top = 2
+      Width = 82
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'draw zoom :'
+      ParentColor = False
+    end
+    object fit_radio_button: TRadioButton
+      Left = 88
+      Height = 23
+      Top = 1
+      Width = 56
+      Caption = 'to  &fit'
+      Checked = True
+      OnClick = fit_radio_buttonClick
+      TabOrder = 0
+      TabStop = True
+    end
+    object lock_radio_button: TRadioButton
+      Left = 162
+      Height = 23
+      Top = 1
+      Width = 50
+      Caption = 'loc&k'
+      OnClick = lock_radio_buttonClick
+      TabOrder = 1
+    end
+    object lock_at_button: TButton
+      Left = 218
+      Height = 19
+      Top = 0
+      Width = 74
+      Caption = 'lo&ck at ...'
+      OnClick = lock_at_buttonClick
+      TabOrder = 2
+    end
+  end
+  object show_list_button: TButton
+    Left = 426
+    Height = 25
+    Top = 28
+    Width = 110
+    Caption = 'show  bo&x  list'
+    OnClick = show_list_buttonClick
+    TabOrder = 18
+  end
+  object list_panel: TPanel
+    Left = 24
+    Height = 238
+    Top = 24
+    Width = 522
+    BevelOuter = bvNone
+    ClientHeight = 238
+    ClientWidth = 522
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 20
+    Visible = False
+    object Label2: TLabel
+      Left = 12
+      Height = 18
+      Top = 16
+      Width = 140
+      AutoSize = False
+      Caption = 'this  box  contains :'
+      Font.Color = clBlack
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object move_up_button: TSpeedButton
+      Left = 495
+      Height = 25
+      Hint = ' move  template  backward  -  hold  down  to  repeat '
+      Top = 90
+      Width = 22
+      Glyph.Data = {
+        76010000424D7601000000000000760000002800000020000000100000000100
+        0400000000000001000084120000841200001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+        3333333333333333333333333333333333333333333333333333333333111133
+        3333333333333333333333333311113333333333333333333333333333111133
+        3333333333333333333333333311113333333333333333333333333333111133
+        3333333333333333333333333311113333333333333333333333331111111111
+        1133333333333333333333311111111113333333333333333333333311111111
+        3333333333333333333333333111111333333333333333333333333333111133
+        3333333333333333333333333331133333333333333333333333333333333333
+        3333333333333333333333333333333333333333333333333333
+      }
+      Layout = blGlyphTop
+      Margin = 2
+      NumGlyphs = 2
+      Visible = False
+      OnMouseDown = move_up_buttonMouseDown
+      OnMouseUp = move_up_buttonMouseUp
+      ShowHint = True
+      ParentShowHint = False
+    end
+    object move_down_button: TSpeedButton
+      Left = 495
+      Height = 25
+      Hint = ' move  template  forward  -  hold  down  to  repeat '
+      Top = 169
+      Width = 22
+      Glyph.Data = {
+        76010000424D7601000000000000760000002800000020000000100000000100
+        0400000000000001000084120000841200001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+        3333333333333333333333333333333333333333333333333333333333311333
+        3333333333333333333333333311113333333333333333333333333331111113
+        3333333333333333333333331111111133333333333333333333333111111111
+        1333333333333333333333111111111111333333333333333333333333111133
+        3333333333333333333333333311113333333333333333333333333333111133
+        3333333333333333333333333311113333333333333333333333333333111133
+        3333333333333333333333333311113333333333333333333333333333333333
+        3333333333333333333333333333333333333333333333333333
+      }
+      Layout = blGlyphBottom
+      NumGlyphs = 2
+      Visible = False
+      OnMouseDown = move_down_buttonMouseDown
+      OnMouseUp = move_down_buttonMouseUp
+      ShowHint = True
+      ParentShowHint = False
+    end
+    object move_to_top_button: TSpeedButton
+      Left = 495
+      Height = 25
+      Hint = ' move  template  to  back '
+      Top = 51
+      Width = 22
+      Glyph.Data = {
+        76010000424D7601000000000000760000002800000020000000100000000100
+        0400000000000001000084120000841200001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+        3333333333333333333333333333333333333333333333333333333333111133
+        3333333333333333333333333311113333333333333333333333333333111133
+        3333333333333333333333333311113333333333333333333333333333111133
+        3333333333333333333333333311113333333333333333333333331111111111
+        1133333333333333333333311111111113333333333333333333333311111111
+        3333333333333333333333333111111333333333333333333333333333111133
+        3333333333333333333333333331133333333333333333333333331111111111
+        1133333333333333333333111111111111333333333333333333
+      }
+      Layout = blGlyphTop
+      Margin = 4
+      NumGlyphs = 2
+      Visible = False
+      OnClick = move_to_top_buttonClick
+      ShowHint = True
+      ParentShowHint = False
+    end
+    object move_to_bottom_button: TSpeedButton
+      Left = 495
+      Height = 25
+      Hint = ' move  template  to  front '
+      Top = 208
+      Width = 22
+      Glyph.Data = {
+        76010000424D7601000000000000760000002800000020000000100000000100
+        0400000000000001000084120000841200001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00331111111111
+        1133333333333333333333111111111111333333333333333333333333311333
+        3333333333333333333333333311113333333333333333333333333331111113
+        3333333333333333333333331111111133333333333333333333333111111111
+        1333333333333333333333111111111111333333333333333333333333111133
+        3333333333333333333333333311113333333333333333333333333333111133
+        3333333333333333333333333311113333333333333333333333333333111133
+        3333333333333333333333333311113333333333333333333333333333333333
+        3333333333333333333333333333333333333333333333333333
+      }
+      Layout = blGlyphBottom
+      Margin = 4
+      NumGlyphs = 2
+      Visible = False
+      OnClick = move_to_bottom_buttonClick
+      ShowHint = True
+      ParentShowHint = False
+    end
+    object print_list_button: TButton
+      Left = 214
+      Height = 25
+      Hint = 'print  the  box  list  or  create  a  PDF  file '
+      Top = 2
+      Width = 154
+      Caption = 'print  bo&x  list  •  PDF'
+      OnClick = print_list_buttonClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+    end
+    object show_dwg_button: TButton
+      Left = 400
+      Height = 25
+      Top = 2
+      Width = 110
+      Caption = 'show  dra&wing'
+      OnClick = show_dwg_buttonClick
+      TabOrder = 1
+    end
+    object keepform_listbox: TListBox
+      Left = 0
+      Height = 184
+      Top = 50
+      Width = 490
+      Color = 16773336
+      ExtendedSelect = False
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ItemHeight = 18
+      OnClick = keepform_listboxClick
+      OnDrawItem = keepform_listboxDrawItem
+      ParentFont = False
+      Style = lbOwnerDrawFixed
+      TabOrder = 2
+    end
+  end
+  object distortion_warning_panel: TPanel
+    Left = 26
+    Height = 17
+    Top = 58
+    Width = 273
+    BevelOuter = bvNone
+    Caption = 'warning :  data  distortions  are  in  force'
+    Color = clBlack
+    Font.Color = clFuchsia
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 25
+    Visible = False
+  end
+  object to_from_bgnd_panel: TPanel
+    Cursor = crHandPoint
+    Left = 8
+    Height = 42
+    Top = 386
+    Width = 147
+    Alignment = taLeftJustify
+    ClientHeight = 42
+    ClientWidth = 147
+    Color = clNavy
+    Font.Color = clWhite
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 16
+    Visible = False
+    OnClick = copy_or_wipe_background_buttonClick
+    object copy_wipe_label: TLabel
+      Left = 18
+      Height = 38
+      Top = 0
+      Width = 101
+      AutoSize = False
+      Caption = '    copy  to  &background'
+      ParentColor = False
+      WordWrap = True
+      OnClick = copy_or_wipe_background_buttonClick
+    end
+    object copy_or_wipe_background_button: TButton
+      Left = 124
+      Height = 15
+      Top = 20
+      Width = 15
+      Caption = '  '
+      OnClick = copy_or_wipe_background_buttonClick
+      TabOrder = 0
+    end
+  end
+  object save_all_button: TButton
+    Left = 552
+    Height = 28
+    Top = 180
+    Width = 98
+    Caption = '&save  all ...'
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = save_all_menu_entryClick
+    ParentFont = False
+    TabOrder = 9
+  end
+  object reload_button: TButton
+    Left = 552
+    Height = 28
+    Top = 68
+    Width = 98
+    Caption = '&reload ...'
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = reload_menu_entryClick
+    ParentFont = False
+    TabOrder = 6
+  end
+  object rename_button: TButton
+    Left = 8
+    Height = 25
+    Top = 324
+    Width = 80
+    Caption = '&name ...'
+    OnClick = rename_menu_entryClick
+    TabOrder = 12
+  end
+  object group_select_groupbox: TGroupBox
+    Left = 370
+    Height = 97
+    Top = 328
+    Width = 126
+    Caption = '     group select '
+    ClientHeight = 76
+    ClientWidth = 122
+    TabOrder = 17
+    Visible = False
+    object group_select_shape: TShape
+      Left = 12
+      Height = 9
+      Top = 0
+      Width = 9
+      Brush.Color = clBlack
+    end
+    object group_linked_warning_label: TLabel
+      Left = 8
+      Height = 16
+      Hint = ' click  to  unlink '
+      Top = 2
+      Width = 112
+      AutoSize = False
+      Caption = '!  linked to notch'
+      Font.Color = clYellow
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      Visible = False
+      OnClick = group_linked_warning_labelClick
+    end
+    object deselect_all_button: TButton
+      Left = 64
+      Height = 25
+      Top = 52
+      Width = 54
+      Caption = 'n&one'
+      OnClick = clear_selections_menu_entryClick
+      TabOrder = 2
+    end
+    object select_all_button: TButton
+      Left = 4
+      Height = 25
+      Top = 52
+      Width = 49
+      Caption = 'a&ll'
+      OnClick = select_all_menu_entryClick
+      TabOrder = 1
+    end
+    object select_toggle_button: TButton
+      Left = 4
+      Height = 25
+      Top = 22
+      Width = 114
+      Caption = 'select  ( &toggle )'
+      OnClick = select_menu_entryClick
+      TabOrder = 0
+    end
+  end
+  object add_file_button: TButton
+    Left = 552
+    Height = 28
+    Top = 102
+    Width = 98
+    Caption = '&add  file ...'
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = add_file_menu_entryClick
+    ParentFont = False
+    TabOrder = 7
+  end
+  object save_group_button: TButton
+    Left = 552
+    Height = 25
+    Top = 214
+    Width = 98
+    Caption = 'sa&ve group ...'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = save_group_menu_entryClick
+    ParentFont = False
+    TabOrder = 10
+  end
+  object updown_panel: TPanel
+    Left = 164
+    Height = 63
+    Top = 365
+    Width = 200
+    BevelOuter = bvNone
+    ClientHeight = 63
+    ClientWidth = 200
+    TabOrder = 26
+    object down_button: TSpeedButton
+      Left = 26
+      Height = 30
+      Top = 30
+      Width = 71
+      Glyph.Data = {
+        76010000424D7601000000000000760000002800000020000000100000000100
+        0400000000000001000084120000841200001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333330
+        3333333333333333333333333333330033333333333333333333333333333000
+        333333333333333333333333333300003333333333333FF37733333333300000
+        33333333333FF377F333333333000000333333333FF3773F3733333330000000
+        3333333FF377333F733333330000000033333333773333F37333333300000000
+        33333333FFFFFFF7FF3333333000000033333333777777777733333333000000
+        33333333F333333733333333333000003333333377F3333F7333333333330000
+        333333333377F333733333333333300033333333333377F33733333333333300
+        3333333333333377FF3333333333333033333333333333337733
+      }
+      NumGlyphs = 2
+      OnClick = down_buttonClick
+    end
+    object up_button: TSpeedButton
+      Left = 98
+      Height = 30
+      Top = 30
+      Width = 71
+      Glyph.Data = {
+        76010000424D7601000000000000760000002800000020000000100000000100
+        0400000000000001000084120000841200001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333330333333
+        333333F3333333333333333330033333333333FFF33333333333333330003333
+        333333773FF3333333333333300003333333333F773FF3333333333330000033
+        33333373F3773FF3333333333000000333333337F333773FF333333330000000
+        333333373F3333773FF3333330000000033333FF7FFFFFFF77FF333330000000
+        03333377777777773377333330000000333333337333333F7733333330000003
+        33333337F3333F77333333333000003333333337333F77333333333330000333
+        333333733F7733333333333330003333333333FF773333333333333330033333
+        3333337733333333333333333033333333333333333333333333
+      }
+      NumGlyphs = 2
+      OnClick = up_buttonClick
+    end
+    object bottom_button: TSpeedButton
+      Left = 0
+      Height = 30
+      Top = 30
+      Width = 27
+      Glyph.Data = {
+        76010000424D7601000000000000760000002800000020000000100000000100
+        0400000000000001000084120000841200001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00330003333333
+        0333333333333333333333000333333003333333333333333333330003333300
+        033333333333333333333300033330000333333333333FF37733330003330000
+        03333333333FF377F333330003300000033333333FF3773F3733330003000000
+        0333333FF377333F733333000000000003333333773333F37333330000000000
+        03333333FFFFFFF7FF3333000300000003333333777777777733330003300000
+        03333333F333333733333300033300000333333377F3333F7333330003333000
+        033333333377F333733333000333330003333333333377F33733330003333330
+        0333333333333377FF3333000333333303333333333333337733
+      }
+      NumGlyphs = 2
+      OnClick = bottom_buttonClick
+    end
+    object top_button: TSpeedButton
+      Left = 170
+      Height = 30
+      Top = 30
+      Width = 27
+      Glyph.Data = {
+        76010000424D7601000000000000760000002800000020000000100000000100
+        0400000000000001000084120000841200001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333033333330
+        003333F3333333333333333003333330003333FFF33333333333333000333330
+        003333773FF3333333333330000333300033333F773FF3333333333000003330
+        00333373F3773FF3333333300000033000333337F333773FF333333000000030
+        003333373F3333773FF3333000000000003333FF7FFFFFFF77FF333000000000
+        00333377777777773377333000000030003333337333333F7733333000000330
+        00333337F3333F77333333300000333000333337333F77333333333000033330
+        003333733F7733333333333000333330003333FF773333333333333003333330
+        0033337733333333333333303333333000333333333333333333
+      }
+      NumGlyphs = 2
+      OnClick = top_buttonClick
+    end
+    object slider_bar_shape: TShape
+      Left = 0
+      Height = 3
+      Top = 11
+      Width = 199
+      Brush.Color = clBlack
+    end
+    object slider_panel: TPanel
+      Cursor = crSizeWE
+      Left = 50
+      Height = 28
+      Top = 0
+      Width = 34
+      BevelWidth = 2
+      Caption = '•'
+      DragCursor = crHourGlass
+      Font.Color = clBlack
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      OnMouseDown = slider_panelMouseDown
+      OnMouseMove = slider_panelMouseMove
+      OnMouseUp = slider_panelMouseUp
+    end
+  end
+  object this_is_panel: TPanel
+    Left = 164
+    Height = 42
+    Top = 322
+    Width = 200
+    BevelOuter = bvNone
+    ClientHeight = 42
+    ClientWidth = 200
+    TabOrder = 27
+    Visible = False
+    object this_template_label: TLabel
+      Left = 2
+      Height = 41
+      Top = 0
+      Width = 66
+      AutoSize = False
+      Caption = '  this  is template'
+      Font.Color = clBlack
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+    object total_label: TLabel
+      Left = 140
+      Height = 19
+      Top = 11
+      Width = 58
+      AutoSize = False
+      Caption = 'of  1235'
+      Font.Color = clBlack
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+    object template_numbering_panel: TPanel
+      Left = 70
+      Height = 32
+      Top = 2
+      Width = 64
+      BevelOuter = bvLowered
+      ClientHeight = 32
+      ClientWidth = 64
+      Color = 15794128
+      Font.Color = clBlue
+      Font.Height = -20
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      TabOrder = 0
+      object template_number_shape: TShape
+        Left = 3
+        Height = 9
+        Top = 10
+        Width = 9
+        Brush.Color = clBlue
+        Pen.Color = clBlue
+        Visible = False
+      end
+      object template_number_label: TLabel
+        Left = 12
+        Height = 24
+        Top = 2
+        Width = 48
+        Alignment = taCenter
+        AutoSize = False
+        Caption = '1234'
+        ParentColor = False
+      end
+    end
+  end
+  object delete_button: TButton
+    Left = 94
+    Height = 25
+    Top = 354
+    Width = 60
+    Caption = '&delete'
+    OnClick = delete_menu_entryClick
+    TabOrder = 15
+  end
+  object read_info_button: TButton
+    Left = 94
+    Height = 25
+    Top = 324
+    Width = 60
+    Caption = '&info'
+    OnClick = read_info_buttonClick
+    TabOrder = 13
+  end
+  object rebuild_button: TButton
+    Left = 8
+    Height = 25
+    Top = 354
+    Width = 80
+    Caption = 'r&ebuild'
+    OnClick = rebuild_template_menu_entryClick
+    TabOrder = 14
+  end
+  object help_button: TButton
+    Left = 576
+    Height = 26
+    Top = 27
+    Width = 70
+    Caption = '? &help'
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = how_panelClick
+    ParentFont = False
+    TabOrder = 5
+  end
+  object add_library_button: TButton
+    Left = 552
+    Height = 25
+    Top = 136
+    Width = 98
+    Caption = 'add library ...'
+    OnClick = add_library_menu_entryClick
+    TabOrder = 8
+  end
+  object file_label_panel: TPanel
+    Left = 0
+    Height = 22
+    Top = 0
+    Width = 656
+    Align = alTop
+    BevelOuter = bvNone
+    ClientHeight = 22
+    ClientWidth = 656
+    TabOrder = 29
+    object box_file_label: TLabel
+      Left = 0
+      Height = 18
+      Hint = 'no files'
+      Top = 1
+      Width = 656
+      AutoSize = False
+      Caption = '  box  empty  on  startup'
+      Color = 13684944
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      Transparent = False
+    end
+  end
+  object keep_html_view: THtmlViewer
+    Left = 204
+    Height = 41
+    Top = 184
+    Width = 105
+    BorderStyle = htNone
+    DefBackground = clWhite
+    DefFontColor = clBlack
+    DefFontName = 'Verdana'
+    DefFontSize = 11
+    DefOverLinkColor = clRed
+    DefPreFontName = 'Courier New'
+    DefVisitedLinkColor = clBlue
+    HistoryMaxCount = 10
+    HtOptions = [htOverLinksActive, htPrintTableBackground, htPrintMonochromeBlack]
+    NoSelect = False
+    PrintMarginBottom = 1
+    PrintMarginLeft = 1
+    PrintMarginRight = 1
+    PrintMarginTop = 1
+    PrintScale = 1.25
+    ScrollBars = ssNone
+    TabOrder = 28
+    TabStop = True
+    Visible = False
+  end
+  object copy_to_control_radiobutton: TRadioButton
+    Left = 510
+    Height = 23
+    Top = 328
+    Width = 54
+    Caption = 'copy'
+    TabOrder = 1
+    Visible = False
+  end
+  object wipe_to_control_radiobutton: TRadioButton
+    Left = 510
+    Height = 23
+    Top = 352
+    Width = 55
+    Caption = 'wipe'
+    Checked = True
+    TabOrder = 2
+    TabStop = True
+    Visible = False
+  end
+  object rem_memo: TMemo
+    Left = 78
+    Height = 20
+    Top = 266
+    Width = 466
+    Color = clYellow
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold, fsItalic]
+    Lines.Strings = (
+      'rem_memo'
+    )
+    ParentFont = False
+    ReadOnly = True
+    TabOrder = 30
+    Visible = False
+  end
+  object save_dialog: TSaveDialog
+    Title = '    save  boxful  of  templates  as ...'
+    DefaultExt = '.otbox'
+    FileName = 'my_box_file.otbox'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofShowHelp, ofEnableSizing]
+    left = 128
+    top = 160
+  end
+  object load_dialog: TOpenDialog
+    Title = '    reload  storage  box  from  file ..'
+    DefaultExt = '.otbox'
+    FileName = '*.otbox'
+    Options = [ofHideReadOnly, ofShowHelp, ofFileMustExist, ofEnableSizing]
+    left = 230
+    top = 114
+  end
+  object keeps_menu_bar: TMainMenu
+    left = 112
+    top = 96
+    object box_menu: TMenuItem
+      Caption = '&box'
+      object clear_menu_entry: TMenuItem
+        Caption = '&clear  all  templates'
+        GroupIndex = 12
+        ShortCut = 16430
+        OnClick = clear_menu_entryClick
+      end
+      object delete_unused_menu_entry: TMenuItem
+        Caption = '&delete  unused  templates'
+        GroupIndex = 12
+        ShortCut = 8238
+        OnClick = delete_unused_menu_entryClick
+      end
+      object delete_library_templates_menu_entry: TMenuItem
+        Caption = 'delete  &library  templates'
+        GroupIndex = 12
+        OnClick = delete_library_templates_menu_entryClick
+      end
+      object delete_t55_templates_menu_entry: TMenuItem
+        Caption = 'delete  T-&55  templates'
+        GroupIndex = 12
+        OnClick = delete_t55_templates_menu_entryClick
+      end
+      object normalize_templates_menu_entry: TMenuItem
+        Caption = 'normali&ze  all  templates'
+        GroupIndex = 12
+        OnClick = normalize_templates_menu_entryClick
+      end
+      object reset_all_id_numbers_menu_entry: TMenuItem
+        Caption = '&reset  all  ID  numbers'
+        GroupIndex = 12
+        OnClick = reset_all_id_numbers_menu_entryClick
+      end
+      object N33: TMenuItem
+        Caption = '-'
+        GroupIndex = 12
+      end
+      object sort_by_name_menu_entry: TMenuItem
+        Caption = 'sort  by  name  or  ta&g'
+        GroupIndex = 12
+        OnClick = sort_by_name_menu_entryClick
+      end
+      object sort_by_id_menu_entry: TMenuItem
+        Caption = 'sort  by  ID  n&umber'
+        GroupIndex = 12
+        OnClick = sort_by_id_menu_entryClick
+      end
+      object sort_by_type_menu_entry: TMenuItem
+        Caption = 'sort  by  template  t&ype'
+        GroupIndex = 12
+        OnClick = sort_by_type_menu_entryClick
+      end
+      object sort_by_info_menu_entry: TMenuItem
+        Caption = 'sort  by  &gauge  or  info'
+        GroupIndex = 12
+        OnClick = sort_by_info_menu_entryClick
+      end
+      object N45: TMenuItem
+        Caption = '-'
+        GroupIndex = 12
+      end
+      object sort_library_templates_last_menu_entry: TMenuItem
+        Caption = '&sort  library  templates  to  last'
+        GroupIndex = 12
+        OnClick = sort_library_templates_last_menu_entryClick
+      end
+      object N47: TMenuItem
+        Caption = '-'
+        GroupIndex = 12
+      end
+      object sort_group_templates_first_menu_entry: TMenuItem
+        Caption = 'sort  group  templates  to  &first  ( back )'
+        GroupIndex = 12
+        OnClick = sort_group_templates_first_menu_entryClick
+      end
+      object sort_group_templates_last_menu_entry: TMenuItem
+        Caption = 'sort  group  templates  to  las&t  ( front )'
+        GroupIndex = 12
+        OnClick = sort_group_templates_last_menu_entryClick
+      end
+      object N14: TMenuItem
+        Caption = '-'
+        GroupIndex = 12
+      end
+      object sort_half_diamonds_to_first_menu_entry: TMenuItem
+        Caption = 'sort  half-dia&monds  to  first  ( back )'
+        GroupIndex = 12
+        OnClick = sort_half_diamonds_to_first_menu_entryClick
+      end
+      object N52: TMenuItem
+        Caption = '-'
+        GroupIndex = 12
+      end
+      object find_template_menu_entry: TMenuItem
+        Caption = 'find  template ...'
+        GroupIndex = 12
+        ShortCut = 16454
+        OnClick = find_template_menu_entryClick
+      end
+      object find_next_menu_entry: TMenuItem
+        Caption = 'find  &next'
+        GroupIndex = 12
+        ShortCut = 114
+        OnClick = find_next_menu_entryClick
+      end
+      object find_and_group_menu_entry: TMenuItem
+        Caption = 'f&ind  and  group ...'
+        GroupIndex = 12
+        OnClick = find_and_group_menu_entryClick
+      end
+      object N21: TMenuItem
+        Caption = '-'
+        GroupIndex = 12
+      end
+      object all_to_bgnd_menu_entry: TMenuItem
+        Caption = 'copy  &all  unused  to  background'
+        GroupIndex = 12
+        OnClick = all_to_bgnd_menu_entryClick
+      end
+      object wipe_all_menu_entry: TMenuItem
+        Caption = '&wipe  all  from  background'
+        GroupIndex = 12
+        OnClick = wipe_all_menu_entryClick
+      end
+      object toggle_all_bgnd_menu_entry: TMenuItem
+        Caption = 't&oggle  unused / background'
+        GroupIndex = 12
+        OnClick = toggle_all_bgnd_menu_entryClick
+      end
+      object rebuild_all_menu_entry: TMenuItem
+        Caption = 'rebuild  all  bac&kground'
+        GroupIndex = 12
+        OnClick = rebuild_all_menu_entryClick
+      end
+      object N13: TMenuItem
+        Caption = '-'
+        GroupIndex = 12
+      end
+      object print_list_menu_entry: TMenuItem
+        Caption = 'print  box  list   •   PDF'
+        GroupIndex = 12
+        ShortCut = 16464
+        OnClick = print_list_menu_entryClick
+      end
+      object print_info_menu_entry: TMenuItem
+        Caption = '&print  all  template  info   •   PDF'
+        GroupIndex = 12
+        object print_all_text_menu_entry: TMenuItem
+          Caption = '&all  information  and  memo  notes'
+          OnClick = print_all_text_menu_entryClick
+        end
+        object N35: TMenuItem
+          Caption = '-'
+        end
+        object print_all_info_menu_entry: TMenuItem
+          Caption = 'template  inf&ormation  only'
+          OnClick = print_all_info_menu_entryClick
+        end
+        object print_all_memo_menu_entry: TMenuItem
+          Caption = '&memo  notes  only'
+          OnClick = print_all_memo_menu_entryClick
+        end
+      end
+      object box_info_menu_entry: TMenuItem
+        Caption = 'show  cumulative  bo&x  data'
+        GroupIndex = 12
+        OnClick = box_info_menu_entryClick
+      end
+      object show_tags_list_menu_entry: TMenuItem
+        Caption = 'show  a  list  of  pr&efix  tags'
+        GroupIndex = 12
+        OnClick = show_tags_list_menu_entryClick
+      end
+      object N8: TMenuItem
+        Caption = '-'
+        GroupIndex = 12
+      end
+      object box_program_panel_menu_entry: TMenuItem
+        Caption = 'program  panel'
+        GroupIndex = 12
+        OnClick = box_program_panel_menu_entryClick
+      end
+      object hide_menu_entry: TMenuItem
+        Caption = '&hide  box'
+        GroupIndex = 12
+        ShortCut = 16456
+        OnClick = hide_menu_entryClick
+      end
+      object N20: TMenuItem
+        Caption = '-'
+        GroupIndex = 12
+      end
+      object box_quit_menu_entry: TMenuItem
+        Caption = 'quit  Templot'
+        GroupIndex = 12
+        OnClick = box_quit_menu_entryClick
+      end
+    end
+    object disk_menu: TMenuItem
+      Caption = '&files'
+      object newclearall1: TMenuItem
+        Caption = '&new  project'
+        GroupIndex = 12
+        object new_clear_all_menu_entry: TMenuItem
+          Caption = '&clear  all  templates'
+          ShortCut = 16430
+          OnClick = clear_menu_entryClick
+        end
+        object title_menu_entry: TMenuItem
+          Caption = 'box  &title  ( project  title ) ...'
+          OnClick = box_title_menu_entryClick
+        end
+        object N16: TMenuItem
+          Caption = '-'
+        end
+        object gauge_change_menu_entry: TMenuItem
+          Caption = 'gauge  and  &scale ...'
+          OnClick = gauge_change_menu_entryClick
+        end
+      end
+      object N10: TMenuItem
+        Caption = '-'
+        GroupIndex = 12
+      end
+      object undo_clear_menu_entry: TMenuItem
+        Caption = '&undo  reload / undo clear'
+        GroupIndex = 12
+        OnClick = undo_clear_menu_entryClick
+      end
+      object N24: TMenuItem
+        Caption = '-'
+        GroupIndex = 12
+      end
+      object recent_files_menu_entry: TMenuItem
+        Caption = 'r&ecent  files'
+        GroupIndex = 12
+        object reload_recent_file_menu_entry: TMenuItem
+          Caption = '&reload  recent ...'
+          GroupIndex = 12
+          OnClick = reload_recent_file_menu_entryClick
+        end
+        object add_recent_file_menu_entry: TMenuItem
+          Caption = '&add  recent ...'
+          GroupIndex = 12
+          OnClick = add_recent_file_menu_entryClick
+        end
+        object N36: TMenuItem
+          Caption = '-'
+          GroupIndex = 12
+        end
+        object help1: TMenuItem
+          Caption = '    ?  &help'
+          GroupIndex = 12
+        end
+      end
+      object file_viewer_menu_entry: TMenuItem
+        Caption = 'file  viewer'
+        GroupIndex = 12
+        OnClick = file_viewer_menu_entryClick
+      end
+      object reload_menu_entry: TMenuItem
+        Caption = 'load / &reload ...'
+        GroupIndex = 12
+        ShortCut = 16466
+        OnClick = reload_menu_entryClick
+      end
+      object add_file_menu_entry: TMenuItem
+        Caption = '&add ...'
+        GroupIndex = 12
+        ShortCut = 16457
+        OnClick = add_file_menu_entryClick
+      end
+      object add_library_menu_entry: TMenuItem
+        Caption = 'add  &library ...'
+        GroupIndex = 12
+        ShortCut = 16460
+        OnClick = add_library_menu_entryClick
+      end
+      object N26: TMenuItem
+        Caption = '-'
+        GroupIndex = 12
+      end
+      object restore_previous_menu_entry: TMenuItem
+        Caption = 'res&tore  previous'
+        GroupIndex = 12
+        OnClick = restore_previous_menu_entryClick
+      end
+      object restore_prior_previous_menu_entry: TMenuItem
+        Caption = 'restore  pr&ior-previous'
+        GroupIndex = 12
+        OnClick = restore_prior_previous_menu_entryClick
+      end
+      object N15: TMenuItem
+        Caption = '-'
+        GroupIndex = 12
+      end
+      object save_all_menu_entry: TMenuItem
+        Caption = '&save  all ...'
+        GroupIndex = 12
+        ShortCut = 16467
+        OnClick = save_all_menu_entryClick
+      end
+      object save_bgnd_menu_entry: TMenuItem
+        Caption = 'save  &background  only ...'
+        GroupIndex = 12
+        OnClick = save_bgnd_menu_entryClick
+      end
+      object save_unused_menu_entry: TMenuItem
+        Caption = 'save  unused  &only ...'
+        GroupIndex = 12
+        OnClick = save_unused_menu_entryClick
+      end
+      object save_library_menu_entry: TMenuItem
+        Caption = 'save  librar&y  only ...'
+        GroupIndex = 12
+        OnClick = save_library_menu_entryClick
+      end
+      object save_group_menu_entry: TMenuItem
+        Caption = 'sa&ve  group ...'
+        GroupIndex = 12
+        ShortCut = 16455
+        OnClick = save_group_menu_entryClick
+      end
+      object N2: TMenuItem
+        Caption = '-'
+        GroupIndex = 12
+      end
+      object export_dxf_menu_entry: TMenuItem
+        Caption = 'e&xport  DXF...'
+        GroupIndex = 12
+        ShortCut = 16453
+        OnClick = export_dxf_menu_entryClick
+      end
+      object N46: TMenuItem
+        Caption = '-'
+        GroupIndex = 12
+      end
+    end
+    object edit_menu: TMenuItem
+      Caption = '&edit'
+      object box_title_menu_entry: TMenuItem
+        Caption = '&box  title  ( project  title ) ...'
+        GroupIndex = 10
+        OnClick = box_title_menu_entryClick
+      end
+      object N5: TMenuItem
+        Caption = '-'
+        GroupIndex = 10
+      end
+      object rename_menu_entry: TMenuItem
+        Caption = 'template  &name ...'
+        GroupIndex = 10
+        ShortCut = 16462
+        OnClick = rename_menu_entryClick
+      end
+      object N44: TMenuItem
+        Caption = '-'
+        GroupIndex = 10
+      end
+      object rebuild_template_menu_entry: TMenuItem
+        Caption = 'rebuild  &template'
+        GroupIndex = 120
+        ShortCut = 16468
+        OnClick = rebuild_template_menu_entryClick
+      end
+      object make_library_template_menu_entry: TMenuItem
+        Caption = 'make  &library  template'
+        GroupIndex = 120
+        OnClick = make_library_template_menu_entryClick
+      end
+      object N25: TMenuItem
+        Caption = '-'
+        GroupIndex = 120
+      end
+      object obtain_to_control_menu_entry: TMenuItem
+        Caption = '&obtain  to  the  control  template'
+        GroupIndex = 120
+        object obtain_switch_menu_entry: TMenuItem
+          Caption = 'obtain  &switch'
+          OnClick = obtain_switch_menu_entryClick
+        end
+        object obtain_plain_track_menu_entry: TMenuItem
+          Caption = 'obtain  plain  trac&k  spacings'
+          OnClick = obtain_plain_track_menu_entryClick
+        end
+        object N37: TMenuItem
+          Caption = '-'
+        end
+        object obtain_to_control_help_menu_entry: TMenuItem
+          Caption = '    ?  obtain  -  &help'
+        end
+      end
+      object N27: TMenuItem
+        Caption = '-'
+        GroupIndex = 120
+      end
+      object reminder_message_menu_entry: TMenuItem
+        Caption = '&reminder  message'
+        GroupIndex = 120
+        OnClick = reminder_message_menu_entryClick
+        object add_reminder_menu_entry: TMenuItem
+          Caption = '&add  reminder ...'
+          OnClick = add_reminder_menu_entryClick
+        end
+        object edit_reminder_menu_entry: TMenuItem
+          Caption = '&edit  reminder ...'
+          OnClick = edit_reminder_menu_entryClick
+        end
+        object reminder_colour_menu_entry: TMenuItem
+          Caption = 'reminder  &colour ...'
+          OnClick = reminder_colour_menu_entryClick
+        end
+        object N53: TMenuItem
+          Caption = '-'
+        end
+        object remove_reminder_menu_entry: TMenuItem
+          Caption = 'rem&ove  reminder'
+          OnClick = remove_reminder_menu_entryClick
+        end
+      end
+      object N51: TMenuItem
+        Caption = '-'
+        GroupIndex = 120
+      end
+      object edit_memo_menu_entry: TMenuItem
+        Caption = 'edit  &memo  notes ...'
+        GroupIndex = 120
+        ShortCut = 16461
+        OnClick = edit_memo_menu_entryClick
+      end
+      object add_jotter_to_memo_menu_entry: TMenuItem
+        Caption = '&add  jotter  text  to  memo'
+        GroupIndex = 120
+        OnClick = add_jotter_to_memo_menu_entryClick
+      end
+      object N7: TMenuItem
+        Caption = '-'
+        GroupIndex = 120
+      end
+      object delete_menu_entry: TMenuItem
+        Caption = '&delete  template'
+        GroupIndex = 120
+        ShortCut = 46
+        OnClick = delete_menu_entryClick
+      end
+      object undo_delete_menu_entry: TMenuItem
+        Caption = '&undo  delete'
+        Enabled = False
+        GroupIndex = 120
+        ShortCut = 16474
+        OnClick = undo_delete_menu_entryClick
+      end
+    end
+    object group_menu: TMenuItem
+      Caption = 'gro&up'
+      object select_menu_entry: TMenuItem
+        Caption = 'select  to / from  group  ( &toggle )'
+        OnClick = select_menu_entryClick
+      end
+      object select_all_menu_entry: TMenuItem
+        Caption = 'select  &all'
+        ShortCut = 16449
+        OnClick = select_all_menu_entryClick
+      end
+      object select_all_bgnd_menu_entry: TMenuItem
+        Caption = 'select  all  &background'
+        OnClick = select_all_bgnd_menu_entryClick
+      end
+      object select_all_unused_menu_entry: TMenuItem
+        Caption = 'select  all  u&nused'
+        OnClick = select_all_unused_menu_entryClick
+      end
+      object clear_selections_menu_entry: TMenuItem
+        Caption = 's&elect  none  ( ungroup )'
+        ShortCut = 16473
+        OnClick = clear_selections_menu_entryClick
+      end
+      object invert_selections_menu_entry: TMenuItem
+        Caption = 'in&vert  group  selections'
+        OnClick = invert_selections_menu_entryClick
+      end
+      object N17: TMenuItem
+        Caption = '-'
+      end
+      object wipe_group_menu_entry: TMenuItem
+        Caption = '&wipe  group  from  background'
+        OnClick = wipe_group_menu_entryClick
+      end
+      object copy_group_menu_entry: TMenuItem
+        Caption = '&copy  group  to  background'
+        OnClick = copy_group_menu_entryClick
+      end
+      object toggle_group_bgnd_menu_entry: TMenuItem
+        Caption = 't&oggle  group  unused / bgnd'
+        OnClick = toggle_group_bgnd_menu_entryClick
+      end
+      object rebuild_group_menu_entry: TMenuItem
+        Caption = '&rebuild  group  templates'
+        ShortCut = 16474
+        OnClick = rebuild_group_menu_entryClick
+      end
+      object N18: TMenuItem
+        Caption = '-'
+      end
+      object delete_group_menu_entry: TMenuItem
+        Caption = '&delete  group  templates'
+        OnClick = delete_group_menu_entryClick
+      end
+      object delete_all_except_group_menu_entry: TMenuItem
+        Caption = 'delete  all  e&xcept  group'
+        OnClick = delete_all_except_group_menu_entryClick
+      end
+      object N19: TMenuItem
+        Caption = '-'
+      end
+      object group_save_menu_entry: TMenuItem
+        Caption = '&save  group  templates ...'
+        ShortCut = 16455
+        OnClick = save_group_menu_entryClick
+      end
+    end
+    object options_menu: TMenuItem
+      Caption = '&options'
+      object onkeep1: TMenuItem
+        Caption = 'on  store  as  &unused  from  trackpad'
+        object open_on_keep_menu_entry: TMenuItem
+          Caption = '&show  box'
+          Checked = True
+          GroupIndex = 4
+          RadioItem = True
+          OnClick = open_on_keep_menu_entryClick
+        end
+        object keep_blind_menu_entry: TMenuItem
+          Caption = 'store  &blind'
+          GroupIndex = 4
+          RadioItem = True
+          OnClick = keep_blind_menu_entryClick
+        end
+        object N38: TMenuItem
+          Caption = '-'
+          GroupIndex = 5
+        end
+        object help2: TMenuItem
+          Caption = '    ?  &help'
+          GroupIndex = 5
+        end
+      end
+      object onstorebackgroundfromtrackpad1: TMenuItem
+        Caption = 'on  store  &&  &background  from  trackpad'
+        object reveal_on_store_menu_entry: TMenuItem
+          Caption = 're&veal  ( slide  the  control  template  away )'
+          GroupIndex = 10
+          RadioItem = True
+          OnClick = reveal_on_store_menu_entryClick
+        end
+        object hide_on_store_menu_entry: TMenuItem
+          Caption = 'hi&de  the  control  template'
+          GroupIndex = 10
+          RadioItem = True
+          OnClick = hide_on_store_menu_entryClick
+        end
+        object briefly_hide_on_store_menu_entry: TMenuItem
+          Caption = 'brie&fly  hide  the  control  template'
+          GroupIndex = 10
+          RadioItem = True
+          OnClick = briefly_hide_on_store_menu_entryClick
+        end
+        object dont_hide_on_store_menu_entry: TMenuItem
+          Caption = 'leave  the  control  template  &showing  on  top'
+          GroupIndex = 10
+          RadioItem = True
+          OnClick = dont_hide_on_store_menu_entryClick
+        end
+        object alert_on_store_menu_entry: TMenuItem
+          Caption = 'sho&w  program  explanation  for  beginners'
+          Checked = True
+          GroupIndex = 10
+          RadioItem = True
+          OnClick = alert_on_store_menu_entryClick
+        end
+        object N43: TMenuItem
+          Caption = '-'
+          GroupIndex = 20
+        end
+        object on_store_help_menu_entry: TMenuItem
+          Caption = '    ?  &help'
+          GroupIndex = 20
+          OnClick = on_store_help_menu_entryClick
+        end
+      end
+      object N9: TMenuItem
+        Caption = '-'
+      end
+      object on_make_current_menu_entry: TMenuItem
+        Caption = 'on  &copy  to  the  control  template'
+        object copy_in_position_menu_entry: TMenuItem
+          Caption = '&copy  in  p&osition'
+          Checked = True
+          GroupIndex = 8
+          RadioItem = True
+          OnClick = copy_in_position_menu_entryClick
+        end
+        object copy_onto_notch_menu_entry: TMenuItem
+          Caption = 'copy  onto  &notch'
+          GroupIndex = 8
+          RadioItem = True
+          OnClick = copy_onto_notch_menu_entryClick
+        end
+        object copy_onto_datum_menu_entry: TMenuItem
+          Caption = 'copy  onto  &datum'
+          GroupIndex = 8
+          RadioItem = True
+          OnClick = copy_onto_datum_menu_entryClick
+        end
+        object N6: TMenuItem
+          Caption = '-'
+          GroupIndex = 12
+        end
+        object copy_name_menu_entry: TMenuItem
+          Caption = 'copy  na&me'
+          Checked = True
+          GroupIndex = 20
+          RadioItem = True
+          OnClick = copy_name_menu_entryClick
+        end
+        object new_name_menu_entry: TMenuItem
+          Caption = 'n&ew  name'
+          GroupIndex = 20
+          RadioItem = True
+          OnClick = new_name_menu_entryClick
+        end
+        object use_current_name_menu_entry: TMenuItem
+          Caption = 'u&se  current  name  of  the  control'
+          GroupIndex = 20
+          RadioItem = True
+          OnClick = use_current_name_menu_entryClick
+        end
+        object N1: TMenuItem
+          Caption = '-'
+          Enabled = False
+          GroupIndex = 22
+        end
+        object close_on_copy_menu_entry: TMenuItem
+          Caption = '&hide  box  and  redraw  trackpad'
+          Checked = True
+          GroupIndex = 60
+          RadioItem = True
+          OnClick = close_on_copy_menu_entryClick
+        end
+        object blind_copy_menu_entry: TMenuItem
+          Caption = 'copy  &blind'
+          GroupIndex = 60
+          RadioItem = True
+          OnClick = blind_copy_menu_entryClick
+        end
+      end
+      object N11: TMenuItem
+        Caption = '-'
+      end
+      object onrebuild1: TMenuItem
+        Caption = '&modify  on  rebuild'
+        object plain_track_as_stored_menu_entry: TMenuItem
+          Caption = 'plain-trac&k  lengths  as  stored'
+          Checked = True
+          GroupIndex = 10
+          RadioItem = True
+          OnClick = plain_track_as_stored_menu_entryClick
+        end
+        object plain_track_as_control_menu_entry: TMenuItem
+          Caption = 'plain-track  lengt&hs  as  the  control  template'
+          GroupIndex = 10
+          RadioItem = True
+          OnClick = plain_track_as_control_menu_entryClick
+        end
+        object N50: TMenuItem
+          Caption = '-'
+          GroupIndex = 15
+        end
+        object timbering_as_stored_menu_entry: TMenuItem
+          Caption = 'tim&bering  as  stored'
+          Checked = True
+          GroupIndex = 200
+          RadioItem = True
+          OnClick = timbering_as_stored_menu_entryClick
+        end
+        object timbering_as_control_menu_entry: TMenuItem
+          Caption = 't&imbering  as  the  control  template'
+          GroupIndex = 200
+          RadioItem = True
+          OnClick = timbering_as_control_menu_entryClick
+        end
+        object N49: TMenuItem
+          Caption = '-'
+          GroupIndex = 201
+        end
+        object customize_xing_as_stored_menu_entry: TMenuItem
+          Caption = 'custom  &V-crossing  as  stored'
+          Checked = True
+          GroupIndex = 204
+          RadioItem = True
+          OnClick = customize_xing_as_stored_menu_entryClick
+        end
+        object customize_xing_as_control_menu_entry: TMenuItem
+          Caption = 'c&ustom  V-crossing  as  the  control  template'
+          GroupIndex = 204
+          RadioItem = True
+          OnClick = customize_xing_as_control_menu_entryClick
+        end
+        object N3: TMenuItem
+          Caption = '-'
+          GroupIndex = 209
+        end
+        object trackbed_edges_as_stored_menu_entry: TMenuItem
+          Caption = '&trackbed  edges  as  stored'
+          Checked = True
+          GroupIndex = 210
+          RadioItem = True
+          OnClick = trackbed_edges_as_stored_menu_entryClick
+        end
+        object trackbed_edges_as_control_menu_entry: TMenuItem
+          Caption = 'trackbed  &edges  as  the  control  template'
+          GroupIndex = 210
+          RadioItem = True
+          OnClick = trackbed_edges_as_control_menu_entryClick
+        end
+        object N4: TMenuItem
+          Caption = '-'
+          GroupIndex = 215
+        end
+        object centre_lines_as_stored_menu_entry: TMenuItem
+          Caption = 'track  &centre-lines  as  stored'
+          Checked = True
+          GroupIndex = 220
+          RadioItem = True
+          OnClick = centre_lines_as_stored_menu_entryClick
+        end
+        object centre_lines_as_control_menu_entry: TMenuItem
+          Caption = 'track  centre-line&s  as  the  control  template'
+          GroupIndex = 220
+          RadioItem = True
+          OnClick = centre_lines_as_control_menu_entryClick
+        end
+        object N48: TMenuItem
+          Caption = '-'
+          GroupIndex = 222
+        end
+        object centre_line_offset_options_as_stored_menu_entry: TMenuItem
+          Caption = 'centre-line  &offset  options  as  stored'
+          Checked = True
+          GroupIndex = 224
+          RadioItem = True
+          OnClick = centre_line_offset_options_as_stored_menu_entryClick
+        end
+        object centre_line_offset_options_as_control_menu_entry: TMenuItem
+          Caption = 'centre-line  o&ffset  options  as  the  control  template'
+          GroupIndex = 224
+          RadioItem = True
+          OnClick = centre_line_offset_options_as_control_menu_entryClick
+        end
+        object N34: TMenuItem
+          Caption = '-'
+          GroupIndex = 230
+        end
+        object rail_section_data_as_stored_menu_entry: TMenuItem
+          Caption = '&rail  section  data  as  stored'
+          Checked = True
+          GroupIndex = 240
+          RadioItem = True
+          OnClick = rail_section_data_as_stored_menu_entryClick
+        end
+        object rail_section_data_as_control_menu_entry: TMenuItem
+          Caption = 'r&ail  section  data  as  the  control  template'
+          GroupIndex = 240
+          RadioItem = True
+          OnClick = rail_section_data_as_control_menu_entryClick
+        end
+        object N42: TMenuItem
+          Caption = '-'
+          GroupIndex = 242
+        end
+        object radius_warning_limit_as_stored_menu_entry: TMenuItem
+          Caption = 'radius  &warning  limit  as  stored'
+          Checked = True
+          GroupIndex = 245
+          RadioItem = True
+          OnClick = radius_warning_limit_as_stored_menu_entryClick
+        end
+        object radius_warning_limit_as_control_menu_entry: TMenuItem
+          Caption = 'radius  war&ning  limit  as  the  control  template'
+          GroupIndex = 245
+          RadioItem = True
+          OnClick = radius_warning_limit_as_control_menu_entryClick
+        end
+      end
+      object N23: TMenuItem
+        Caption = '-'
+      end
+      object on_reload_or_add_menu_entry: TMenuItem
+        Caption = 'on  r&eload  or  add'
+        object update_background_menu_entry: TMenuItem
+          Caption = 'update  &background  '
+          Checked = True
+          GroupIndex = 60
+          RadioItem = True
+          OnClick = update_background_menu_entryClick
+        end
+        object reload_ignore_bgnd_menu_entry: TMenuItem
+          Caption = 'ign&ore  background'
+          GroupIndex = 60
+          RadioItem = True
+          OnClick = reload_ignore_bgnd_menu_entryClick
+        end
+        object N22: TMenuItem
+          Caption = '-'
+          GroupIndex = 70
+        end
+        object load_all_menu_entry: TMenuItem
+          Caption = 'load  &all  templates'
+          Checked = True
+          GroupIndex = 80
+          RadioItem = True
+          OnClick = load_all_menu_entryClick
+        end
+        object ignore_unused_menu_entry: TMenuItem
+          Caption = 'ignore  &unused  templates'
+          GroupIndex = 80
+          RadioItem = True
+          OnClick = ignore_unused_menu_entryClick
+        end
+      end
+      object onadd1: TMenuItem
+        Caption = 'on  &add  only'
+        object add_ignore_group_menu_entry: TMenuItem
+          Caption = 'ign&ore  group'
+          Checked = True
+          GroupIndex = 10
+          RadioItem = True
+          OnClick = add_ignore_group_menu_entryClick
+        end
+        object add_to_group_menu_entry: TMenuItem
+          Caption = 'add  to  &existing  group'
+          GroupIndex = 10
+          RadioItem = True
+          OnClick = add_to_group_menu_entryClick
+        end
+        object add_new_group_menu_entry: TMenuItem
+          Caption = 'form  &new  group'
+          GroupIndex = 10
+          RadioItem = True
+          OnClick = add_new_group_menu_entryClick
+        end
+        object N39: TMenuItem
+          Caption = '-'
+          GroupIndex = 20
+        end
+        object help3: TMenuItem
+          Caption = '    ?  &help'
+          GroupIndex = 20
+        end
+      end
+      object onreloadonly1: TMenuItem
+        Caption = 'on  &reload  only'
+        object show_on_reload_menu_entry: TMenuItem
+          Caption = 'show  storage  &box  after  reloading'
+          Checked = True
+          GroupIndex = 90
+          RadioItem = True
+          OnClick = show_on_reload_menu_entryClick
+        end
+        object close_on_reload_menu_entry: TMenuItem
+          Caption = 'hi&de  box  after  reloading'
+          GroupIndex = 90
+          RadioItem = True
+          OnClick = close_on_reload_menu_entryClick
+        end
+        object N40: TMenuItem
+          Caption = '-'
+          GroupIndex = 100
+        end
+        object help4: TMenuItem
+          Caption = '    ?  &help'
+          GroupIndex = 100
+        end
+      end
+    end
+    object colours_menu: TMenuItem
+      Caption = '&colours'
+      object paper_colour_menu_entry: TMenuItem
+        Caption = 'p&aper  colour ...'
+        OnClick = paper_colour_menu_entryClick
+      end
+      object grid_colour_menu_entry: TMenuItem
+        Caption = '&scalebar  colour ...'
+        OnClick = grid_colour_menu_entryClick
+      end
+      object rail_colour_menu_entry: TMenuItem
+        Caption = '&rail  colour ...'
+        OnClick = rail_colour_menu_entryClick
+      end
+      object timber_colour_menu_entry: TMenuItem
+        Caption = '&timber  colour ...'
+        OnClick = timber_colour_menu_entryClick
+      end
+      object dwg_font_menu_entry: TMenuItem
+        Caption = '&font ...'
+        OnClick = dwg_font_menu_entryClick
+      end
+      object N12: TMenuItem
+        Caption = '-'
+      end
+      object list_colour_menu_entry: TMenuItem
+        Caption = '&list  colour ...'
+        OnClick = list_colour_menu_entryClick
+      end
+      object box_colour_menu_entry: TMenuItem
+        Caption = '&box  colour ...'
+        OnClick = colour_patchClick
+      end
+    end
+    object help_menu: TMenuItem
+      Caption = '&help'
+      object what_next_menu_entry: TMenuItem
+        Caption = '    ?  storage  &box  -  help'
+        OnClick = how_panelClick
+      end
+      object N41: TMenuItem
+        Caption = '-'
+      end
+      object boxfileshelp1: TMenuItem
+        Caption = '    ?  data  &files  -  &help'
+      end
+    end
+  end
+  object recent_popup_menu: TPopupMenu
+    AutoPopup = False
+    left = 80
+    top = 180
+    object mru_caption_popup_entry: TMenuItem
+      Caption = 'recent  box  files:'
+      Enabled = False
+    end
+    object N28: TMenuItem
+      Caption = '-'
+    end
+    object recent_1_popup_entry: TMenuItem
+      Caption = '1'
+      Enabled = False
+      OnClick = recent_1_popup_entryClick
+    end
+    object N29: TMenuItem
+      Caption = '-'
+    end
+    object recent_2_popup_entry: TMenuItem
+      Caption = '2'
+      Enabled = False
+      OnClick = recent_2_popup_entryClick
+    end
+    object recent_3_popup_entry: TMenuItem
+      Caption = '3'
+      Enabled = False
+      OnClick = recent_3_popup_entryClick
+    end
+    object recent_4_popup_entry: TMenuItem
+      Caption = '4'
+      Enabled = False
+      OnClick = recent_4_popup_entryClick
+    end
+    object recent_5_popup_entry: TMenuItem
+      Caption = '5'
+      Enabled = False
+      OnClick = recent_5_popup_entryClick
+    end
+    object recent_6_popup_entry: TMenuItem
+      Caption = '6'
+      Enabled = False
+      OnClick = recent_6_popup_entryClick
+    end
+    object recent_7_popup_entry: TMenuItem
+      Caption = '7'
+      Enabled = False
+      OnClick = recent_7_popup_entryClick
+    end
+    object recent_8_popup_entry: TMenuItem
+      Caption = '8'
+      Enabled = False
+      OnClick = recent_8_popup_entryClick
+    end
+    object recent_9_popup_entry: TMenuItem
+      Caption = '9'
+      Enabled = False
+      OnClick = recent_9_popup_entryClick
+    end
+    object N30: TMenuItem
+      Caption = '-'
+    end
+    object clear_mru_list_popup_entry: TMenuItem
+      Caption = 'clear  list'
+      Enabled = False
+      OnClick = clear_mru_list_popup_entryClick
+    end
+    object N31: TMenuItem
+      Caption = '-'
+    end
+    object restore_previous_mru_popup_entry: TMenuItem
+      Caption = 'restore  previous  session'
+      OnClick = restore_previous_menu_entryClick
+    end
+    object restore_prior_previous_mru_popup_entry: TMenuItem
+      Caption = 'restore  prior  previous  session'
+      OnClick = restore_prior_previous_menu_entryClick
+    end
+    object reload_add_mru_popup_entry: TMenuItem
+      Caption = 'reload / add  other  files ...'
+      OnClick = reload_add_mru_popup_entryClick
+    end
+    object N32: TMenuItem
+      Caption = '-'
+    end
+    object cancel_mru_popup_entry: TMenuItem
+      Caption = 'cancel'
+    end
+  end
+  object save_pdf_file_dialog: TSaveDialog
+    Title = '    save  page  as  PDF  file ...'
+    DefaultExt = '.pdf'
+    Filter = 'PDF documents  (*.pdf)|*.pdf'
+    Options = [ofReadOnly, ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
+    left = 388
+    top = 192
+  end
+end

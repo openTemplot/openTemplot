@@ -1,0 +1,53 @@
+object data_child_form: Tdata_child_form
+  Left = 305
+  Height = 570
+  Top = 180
+  Width = 565
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSizeToolWin
+  Caption = '      data ...'
+  ClientHeight = 570
+  ClientWidth = 565
+  Color = 15852503
+  DesignTimePPI = 120
+  Font.Color = clWindowText
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  FormStyle = fsStayOnTop
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnResize = FormResize
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object data_memo: TMemo
+    Left = 0
+    Height = 568
+    Top = 2
+    Width = 565
+    BorderStyle = bsNone
+    Color = 15852503
+    Font.Color = clNavy
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold, fsItalic]
+    HideSelection = False
+    Lines.Strings = (
+      'data_memo'
+    )
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssBoth
+    TabOrder = 0
+    WordWrap = False
+  end
+  object copy_all_button: TButton
+    Left = 460
+    Height = 22
+    Top = 2
+    Width = 70
+    Caption = 'copy  all'
+    OnClick = copy_all_buttonClick
+    TabOrder = 1
+  end
+end

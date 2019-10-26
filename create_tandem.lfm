@@ -1,0 +1,220 @@
+object tandem_form: Ttandem_form
+  Left = 740
+  Height = 330
+  Top = 381
+  Width = 600
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSizeToolWin
+  Caption = '    make  3-way  tandem  turnout  -  double-sided'
+  ClientHeight = 330
+  ClientWidth = 600
+  Color = 15794175
+  DesignTimePPI = 120
+  Font.Color = clWindowText
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object datestamp_label: TLabel
+    Left = 0
+    Height = 4
+    Top = 326
+    Width = 600
+    AutoSize = False
+    Font.Color = clSilver
+    Font.Height = -7
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label3: TLabel
+    Left = 0
+    Height = 20
+    Top = 10
+    Width = 600
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Please be aware that this function may not create a finished tandem turnout.'
+    Font.Color = 208
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Layout = tlCenter
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label4: TLabel
+    Left = 0
+    Height = 20
+    Top = 36
+    Width = 600
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'There may be some final details for you to adjust.  Please do not report these as an error.'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Layout = tlCenter
+    ParentColor = False
+    ParentFont = False
+  end
+  object comprised_label: TLabel
+    Left = 20
+    Height = 20
+    Top = 268
+    Width = 493
+    AutoSize = False
+    Caption = 'The tandem turnout will be comprised of 7 partial templates.'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Layout = tlCenter
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label6: TLabel
+    Left = 56
+    Height = 25
+    Top = 116
+    Width = 249
+    AutoSize = False
+    Caption = 'single-sided  tandem  turnout'
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object Label7: TLabel
+    Left = 36
+    Height = 49
+    Top = 148
+    Width = 344
+    AutoSize = False
+    Caption = 'Allow space in the track plan for a new switch to be created in front of the starting turnout.'
+    ParentColor = False
+    WordWrap = True
+  end
+  object derived_label: TLabel
+    Left = 20
+    Height = 20
+    Top = 296
+    Width = 501
+    AutoSize = False
+    Caption = 'The new middle V-crossing will be derived from a gaunt turnout.'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Layout = tlCenter
+    ParentColor = False
+    ParentFont = False
+  end
+  object ds_label: TLabel
+    Left = 92
+    Height = 20
+    Top = 236
+    Width = 249
+    AutoSize = False
+    Caption = 'double-sided  tandem  turnout'
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object go_button: TButton
+    Left = 528
+    Height = 25
+    Top = 288
+    Width = 57
+    Caption = 'GO'
+    ModalResult = 1
+    TabOrder = 0
+  end
+  object xing_type_groupbox: TGroupBox
+    Left = 24
+    Height = 147
+    Top = 72
+    Width = 369
+    Caption = '  V-crossing  on  new  2nd  turnout  in  tandem :   '
+    ClientHeight = 126
+    ClientWidth = 365
+    Color = 16777200
+    ParentColor = False
+    TabOrder = 1
+    object Label1: TLabel
+      Left = 64
+      Height = 20
+      Top = 40
+      Width = 295
+      AutoSize = False
+      Caption = 'for loops, crossovers and lay-by sidings'
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+    object Label2: TLabel
+      Left = 64
+      Height = 20
+      Top = 100
+      Width = 287
+      AutoSize = False
+      Caption = 'for yards and double-junctions'
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+    object regular_xing_radio: TRadioButton
+      Left = 28
+      Height = 23
+      Top = 14
+      Width = 143
+      Caption = 'regular  V-crossing'
+      Checked = True
+      TabOrder = 0
+      TabStop = True
+    end
+    object curviform_xing_radio: TRadioButton
+      Left = 28
+      Height = 23
+      Top = 74
+      Width = 157
+      Caption = 'curviform  V-crossing'
+      TabOrder = 1
+    end
+  end
+  object cancel_button: TButton
+    Left = 508
+    Height = 25
+    Top = 76
+    Width = 77
+    Caption = 'cancel'
+    ModalResult = 2
+    TabOrder = 2
+  end
+  object click_first_button: TButton
+    Left = 412
+    Height = 25
+    Top = 160
+    Width = 169
+    Caption = 'please  click  this  first'
+    OnClick = click_first_buttonClick
+    TabOrder = 3
+  end
+end

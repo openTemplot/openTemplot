@@ -1,0 +1,649 @@
+object metric_form: Tmetric_form
+  Left = 42
+  Height = 336
+  Top = 147
+  Width = 600
+  HorzScrollBar.Tracking = True
+  VertScrollBar.Tracking = True
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSizeToolWin
+  Caption = '     metric / scale  calculator'
+  ClientHeight = 336
+  ClientWidth = 600
+  Color = 16777184
+  DesignTimePPI = 120
+  Font.Color = clBlack
+  Font.Height = -17
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  FormStyle = fsStayOnTop
+  KeyPreview = True
+  OnActivate = FormActivate
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  OnKeyPress = FormKeyPress
+  Position = poScreenCenter
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object Label1: TLabel
+    Left = 216
+    Height = 27
+    Top = 112
+    Width = 85
+    AutoSize = False
+    Caption = 'mm    ='
+    Font.Color = clBlack
+    Font.Height = -23
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label2: TLabel
+    Left = 496
+    Height = 27
+    Top = 112
+    Width = 90
+    AutoSize = False
+    Caption = 'inches'
+    Font.Color = clBlack
+    Font.Height = -23
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label6: TLabel
+    Left = 28
+    Height = 54
+    Top = 8
+    Width = 405
+    AutoSize = False
+    Caption = 'Click and enter a dimension in any of the black boxes, then click the green calculate button or press the ENTER key to calculate the equivalent dimensions in all the other boxes.'
+    Font.Color = clBlue
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object datestamp_label: TLabel
+    Left = 0
+    Height = 4
+    Top = 332
+    Width = 600
+    AutoSize = False
+    Font.Color = clGray
+    Font.Height = -7
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label9: TLabel
+    Left = 28
+    Height = 41
+    Top = 64
+    Width = 565
+    AutoSize = False
+    Caption = 'When results are showing in all the boxes you can click the coloured bars to convert the dimensions to or from scale size for your model.'
+    Font.Color = clBlue
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object mm_box_edit: TEdit
+    Left = 16
+    Height = 34
+    Top = 108
+    Width = 193
+    AutoSize = False
+    AutoSelect = False
+    BorderStyle = bsNone
+    Color = clBlack
+    Font.Color = clRed
+    Font.Height = -30
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnEnter = mm_box_editEnter
+    OnExit = mm_box_editExit
+    ParentFont = False
+    TabOrder = 1
+    Text = '  0'
+  end
+  object inch_box_edit: TEdit
+    Left = 312
+    Height = 34
+    Top = 108
+    Width = 177
+    AutoSize = False
+    AutoSelect = False
+    BorderStyle = bsNone
+    Color = clBlack
+    Font.Color = clRed
+    Font.Height = -30
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnEnter = inch_box_editEnter
+    OnExit = inch_box_editExit
+    ParentFont = False
+    TabOrder = 2
+    Text = '  0'
+  end
+  object size_panel: TPanel
+    Left = 312
+    Height = 33
+    Top = 288
+    Width = 209
+    Caption = 'convert  to  full - size  '
+    ClientHeight = 33
+    ClientWidth = 209
+    Color = clAqua
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 6
+    OnClick = size_buttonClick
+    object size_button: TButton
+      Left = 188
+      Height = 15
+      Top = 14
+      Width = 15
+      Caption = '  '
+      Font.Color = clBlack
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = size_buttonClick
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object scale_panel: TPanel
+    Left = 6
+    Height = 33
+    Top = 288
+    Width = 231
+    Caption = 'convert  to  scale - size  '
+    ClientHeight = 33
+    ClientWidth = 231
+    Color = clFuchsia
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 5
+    OnClick = scale_buttonClick
+    object scale_button: TButton
+      Left = 210
+      Height = 15
+      Top = 14
+      Width = 15
+      Caption = '  '
+      Font.Color = clBlack
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = scale_buttonClick
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object feet_inches_groupbox: TGroupBox
+    Left = 16
+    Height = 113
+    Top = 156
+    Width = 453
+    Caption = ' or  in  feet  and  inches :  '
+    ClientHeight = 89
+    ClientWidth = 449
+    TabOrder = 3
+    object Label3: TLabel
+      Left = 134
+      Height = 21
+      Top = 24
+      Width = 60
+      AutoSize = False
+      Caption = 'feet  +'
+      Font.Color = clBlack
+      Font.Height = -18
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label4: TLabel
+      Left = 245
+      Height = 21
+      Top = 62
+      Width = 82
+      AutoSize = False
+      Caption = 'inches  +'
+      Font.Color = clBlack
+      Font.Height = -18
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label5: TLabel
+      Left = 374
+      Height = 21
+      Top = 62
+      Width = 60
+      AutoSize = False
+      Caption = '16 ths'
+      Font.Color = clBlack
+      Font.Height = -18
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label7: TLabel
+      Left = 294
+      Height = 21
+      Top = 22
+      Width = 70
+      AutoSize = False
+      Caption = 'inches'
+      Font.Color = clBlack
+      Font.Height = -18
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label8: TLabel
+      Left = 174
+      Height = 19
+      Top = 66
+      Width = 26
+      AutoSize = False
+      Caption = 'or'
+      Font.Color = clBlack
+      Font.Height = -17
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object approx_label: TLabel
+      Left = 398
+      Height = 16
+      Top = 80
+      Width = 42
+      AutoSize = False
+      Caption = 'approx'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+      Visible = False
+    end
+    object feet_box_edit: TEdit
+      Left = 14
+      Height = 28
+      Top = 20
+      Width = 113
+      AutoSize = False
+      AutoSelect = False
+      BorderStyle = bsNone
+      Color = clBlack
+      Font.Color = clRed
+      Font.Height = -23
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnEnter = feet_box_editEnter
+      OnExit = feet_box_editExit
+      ParentFont = False
+      TabStop = False
+      TabOrder = 0
+      Text = '  0'
+    end
+    object sixteenths_box_edit: TEdit
+      Left = 328
+      Height = 28
+      Top = 58
+      Width = 44
+      AutoSize = False
+      AutoSelect = False
+      BorderStyle = bsNone
+      Color = clBlack
+      Font.Color = clRed
+      Font.Height = -23
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnEnter = sixteenths_box_editEnter
+      OnExit = sixteenths_box_editExit
+      ParentFont = False
+      TabStop = False
+      TabOrder = 2
+      Text = '  0'
+    end
+    object dec_inches_box_edit: TEdit
+      Left = 198
+      Height = 28
+      Top = 18
+      Width = 89
+      AutoSize = False
+      AutoSelect = False
+      BorderStyle = bsNone
+      Color = clBlack
+      Font.Color = clRed
+      Font.Height = -23
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnEnter = dec_inches_box_editEnter
+      OnExit = dec_inches_box_editExit
+      ParentFont = False
+      TabStop = False
+      TabOrder = 1
+      Text = '  0'
+    end
+    object whole_inch_panel: TPanel
+      Left = 198
+      Height = 28
+      Top = 58
+      Width = 44
+      Alignment = taLeftJustify
+      BevelOuter = bvNone
+      Caption = '  0'
+      Font.Color = clBlue
+      Font.Height = -23
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 3
+    end
+  end
+  object calculate_panel: TPanel
+    Left = 484
+    Height = 57
+    Top = 212
+    Width = 108
+    Caption = 'calculate'
+    ClientHeight = 57
+    ClientWidth = 108
+    Color = clLime
+    Font.Color = clBlack
+    Font.Height = -18
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 0
+    OnClick = calculate_panelClick
+    object calculate_button: TButton
+      Left = 88
+      Height = 15
+      Top = 37
+      Width = 15
+      Caption = '  '
+      Font.Color = clBlack
+      Font.Height = -18
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = calculate_buttonClick
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object decimal_places_groupbox: TGroupBox
+    Left = 436
+    Height = 49
+    Top = 8
+    Width = 158
+    Caption = ' mm  decimal  places '
+    ClientHeight = 28
+    ClientWidth = 154
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 7
+    object places_label: TLabel
+      Left = 134
+      Height = 19
+      Top = 6
+      Width = 18
+      AutoSize = False
+      Caption = '2'
+      Font.Color = clBlack
+      Font.Height = -17
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object decimal_updown: TUpDown
+      Left = 10
+      Height = 20
+      Hint = ' sets  the  precision  of  displayed  numbers '
+      Top = 6
+      Width = 112
+      Max = 6
+      Min = 0
+      OnClick = decimal_updownClick
+      Orientation = udHorizontal
+      ParentShowHint = False
+      Position = 2
+      ShowHint = True
+      TabOrder = 0
+      Thousands = False
+      Wrap = True
+    end
+  end
+  object scale_groupbox: TGroupBox
+    Left = 242
+    Height = 52
+    Top = 276
+    Width = 64
+    Caption = ' scale : '
+    ClientHeight = 31
+    ClientWidth = 60
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 4
+    object Label10: TLabel
+      Left = 4
+      Height = 16
+      Top = 18
+      Width = 54
+      AutoSize = False
+      Caption = 'mm / ft.'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object scale_label: TLabel
+      Left = 14
+      Height = 18
+      Top = 2
+      Width = 44
+      AutoSize = False
+      Caption = '0'
+      Font.Color = clBlue
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+  end
+  object blue_corner_panel: TPanel
+    Left = 0
+    Height = 50
+    Top = 0
+    Width = 20
+    BevelOuter = bvNone
+    ClientHeight = 50
+    ClientWidth = 20
+    Color = clBlue
+    ParentColor = False
+    TabOrder = 11
+    object size_updown: TUpDown
+      Tag = 4
+      Left = 0
+      Height = 24
+      Top = 1
+      Width = 16
+      Max = 10
+      Min = 1
+      OnClick = size_updownClick
+      Position = 4
+      TabOrder = 0
+      Wrap = False
+    end
+    object colour_panel: TPanel
+      Left = 1
+      Height = 16
+      Top = 28
+      Width = 15
+      ClientHeight = 16
+      ClientWidth = 15
+      TabOrder = 1
+      OnClick = colour_patchClick
+      object colour_patch: TImage
+        Left = 1
+        Height = 14
+        Top = 1
+        Width = 13
+        Align = alClient
+        AutoSize = True
+        OnClick = colour_patchClick
+        Picture.Data = {
+          07544269746D6170B6040000424DB60400000000000036000000280000001800
+          0000100000000100180000000000800400008412000084120000000000000000
+          0000008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF00008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          00000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          0000
+        }
+        Stretch = True
+      end
+    end
+  end
+  object copy_button: TButton
+    Left = 484
+    Height = 25
+    Hint = ' copies  the  current  box  to  the  clipboard '
+    Top = 172
+    Width = 49
+    Caption = '&copy'
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = copy_buttonClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 8
+  end
+  object paste_button: TButton
+    Left = 538
+    Height = 25
+    Hint = ' replaces  the  current  box  from  the  clipboard '
+    Top = 172
+    Width = 54
+    Caption = 'p&aste'
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = paste_buttonClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 9
+  end
+  object close_panel: TPanel
+    Left = 532
+    Height = 49
+    Top = 278
+    Width = 58
+    ClientHeight = 49
+    ClientWidth = 58
+    Color = clYellow
+    ParentColor = False
+    TabOrder = 10
+    OnClick = close_buttonClick
+    object close_label: TLabel
+      Left = 2
+      Height = 19
+      Top = 6
+      Width = 48
+      AutoSize = False
+      Caption = '  hide'
+      Font.Color = clBlack
+      Font.Height = -17
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      OnClick = close_buttonClick
+    end
+    object close_button: TButton
+      Left = 38
+      Height = 15
+      Top = 29
+      Width = 15
+      Cancel = True
+      Caption = '  '
+      OnClick = close_buttonClick
+      TabOrder = 0
+    end
+  end
+end

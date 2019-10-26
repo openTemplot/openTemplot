@@ -1,0 +1,127 @@
+object print_now_form: Tprint_now_form
+  Left = 320
+  Height = 240
+  Top = 170
+  Width = 470
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = '      printing  now! ...'
+  ClientHeight = 240
+  ClientWidth = 470
+  Color = clWhite
+  DesignTimePPI = 120
+  Font.Color = clWindowText
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  OnCreate = FormCreate
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object print_hint_label: TLabel
+    Cursor = crHandPoint
+    Left = 12
+    Height = 18
+    Top = 146
+    Width = 450
+    AutoSize = False
+    Caption = 'use the OUTPUT menu instead for the full range of print functions'
+    Font.Color = clBlue
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold, fsUnderline]
+    ParentColor = False
+    ParentFont = False
+    OnClick = print_hint_labelClick
+  end
+  object print_data_sent_label: TLabel
+    Left = 170
+    Height = 18
+    Top = 76
+    Width = 290
+    AutoSize = False
+    Caption = 'all data has been sent to the printer'
+    Font.Color = 30719
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    Visible = False
+  end
+  object Label1: TLabel
+    Left = 24
+    Height = 26
+    Top = 24
+    Width = 400
+    AutoSize = False
+    Caption = 'printing  now !  ... ... ...    '
+    Font.Color = 30719
+    Font.Height = -22
+    Font.Name = 'Verdana'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label2: TLabel
+    Left = 8
+    Height = 17
+    Top = 216
+    Width = 300
+    AutoSize = False
+    Caption = '(closing this window will not affect printing)'
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label3: TLabel
+    Cursor = crHandPoint
+    Left = 12
+    Height = 18
+    Top = 116
+    Width = 440
+    AutoSize = False
+    Caption = 'hint: PRINT-NOW! is a special quick printing function'
+    Font.Color = clGreen
+    Font.Height = -14
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object datestamp_label: TLabel
+    Left = 0
+    Height = 4
+    Top = 236
+    Width = 470
+    AutoSize = False
+    Font.Color = clGray
+    Font.Height = -7
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object more_info_button: TButton
+    Left = 370
+    Height = 25
+    Top = 208
+    Width = 93
+    Caption = '&more  info'
+    OnClick = print_hint_labelClick
+    TabOrder = 1
+  end
+  object dont_show_again_checkbox: TCheckBox
+    Left = 40
+    Height = 23
+    Top = 182
+    Width = 259
+    Caption = 'do not show this again in this session'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 0
+  end
+end

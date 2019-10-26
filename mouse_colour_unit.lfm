@@ -1,0 +1,128 @@
+object mouse_colour_form: Tmouse_colour_form
+  Left = 72
+  Height = 180
+  Top = 201
+  Width = 440
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSizeToolWin
+  Caption = '    screen  colour  at  mouse  location ...'
+  ClientHeight = 180
+  ClientWidth = 440
+  Color = 16314608
+  DesignTimePPI = 120
+  Font.Color = clBlack
+  Font.Height = -17
+  Font.Name = 'Trebuchet MS'
+  KeyPreview = True
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  OnShow = FormShow
+  Position = poScreenCenter
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object Label2: TLabel
+    Left = 30
+    Height = 49
+    Top = 4
+    Width = 380
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Move the mouse pointer anywhere on the screen and then press the SPACE-BAR.'
+    Font.Color = clBlack
+    Font.Height = -16
+    Font.Name = 'Trebuchet MS'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object add_label: TLabel
+    Left = 0
+    Height = 45
+    Top = 60
+    Width = 440
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'The colour under the mouse pointer can now be added to the custom colours available on the colour selector dialog.'
+    Font.Color = clBlack
+    Font.Height = -14
+    Font.Name = 'Trebuchet MS'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    Visible = False
+    WordWrap = True
+  end
+  object mouse_colour_shape: TShape
+    Left = 32
+    Height = 60
+    Top = 112
+    Width = 60
+    Brush.Color = 16314608
+    Pen.Color = 16314608
+    Shape = stSquare
+  end
+  object datestamp_label: TLabel
+    Left = 0
+    Height = 4
+    Top = 176
+    Width = 440
+    AutoSize = False
+    Font.Color = clGray
+    Font.Height = -7
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object ok_panel: TPanel
+    Left = 260
+    Height = 25
+    Top = 144
+    Width = 173
+    Alignment = taLeftJustify
+    Caption = '  add  custom  colour'
+    ClientHeight = 25
+    ClientWidth = 173
+    Color = clLime
+    Font.Color = clBlack
+    Font.Height = -14
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 0
+    Visible = False
+    OnClick = ok_buttonClick
+    object ok_button: TButton
+      Left = 152
+      Height = 15
+      Top = 4
+      Width = 15
+      Caption = '  '
+      Default = True
+      Font.Color = clBlack
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      OnClick = ok_buttonClick
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object cancel_panel: TPanel
+    Left = 186
+    Height = 25
+    Top = 144
+    Width = 64
+    Caption = 'cancel'
+    Color = clYellow
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 1
+    OnClick = cancel_panelClick
+  end
+end

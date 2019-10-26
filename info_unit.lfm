@@ -1,0 +1,989 @@
+object info_form: Tinfo_form
+  Left = 20
+  Height = 430
+  Top = 96
+  Width = 800
+  HorzScrollBar.Smooth = True
+  HorzScrollBar.Tracking = True
+  VertScrollBar.Smooth = True
+  VertScrollBar.Tracking = True
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSizeToolWin
+  Caption = '  information'
+  ClientHeight = 430
+  ClientWidth = 800
+  Color = 15852503
+  DesignTimePPI = 120
+  Font.Color = clBlack
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  KeyPreview = True
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnPaint = FormPaint
+  OnShow = FormShow
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object radius_shape: TShape
+    Left = 128
+    Height = 86
+    Top = 24
+    Width = 277
+    Brush.Color = 14221311
+    Pen.Color = 13172735
+  end
+  object info_mm_label: TLabel
+    Left = 0
+    Height = 19
+    Top = 140
+    Width = 285
+    AutoSize = False
+    Caption = '   info ( all  dimensions  in  mm ) :'
+    Color = 14221311
+    ParentColor = False
+    ParentShowHint = False
+    Transparent = False
+  end
+  object ref_label: TLabel
+    Left = 4
+    Height = 16
+    Top = 114
+    Width = 48
+    AutoSize = False
+    Caption = 'name :'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    OnClick = rename_buttonClick
+  end
+  object ref_name_label: TLabel
+    Left = 54
+    Height = 19
+    Top = 112
+    Width = 559
+    AutoSize = False
+    Caption = 'ref_name'
+    Font.Color = clBlue
+    Font.Height = -17
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    ParentShowHint = False
+    OnClick = rename_buttonClick
+  end
+  object gauge_bang_label: TLabel
+    Left = 408
+    Height = 21
+    Hint = ' current  gauge/scale  -   click  to  change '
+    Top = 0
+    Width = 37
+    Caption = ' EM '
+    Color = clBlack
+    Font.Color = clYellow
+    Font.Height = -18
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Layout = tlCenter
+    ParentColor = False
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    Transparent = False
+    OnClick = gauge_bang_labelClick
+  end
+  object min_rad_box: TGroupBox
+    Left = 132
+    Height = 40
+    Top = 24
+    Width = 169
+    Caption = ' smallest  radius  now :  '
+    ClientHeight = 20
+    ClientWidth = 165
+    Color = 14221311
+    Font.Color = clBlack
+    Font.Height = -12
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 4
+    OnClick = limit_rad_labelClick
+    object min_rad_now_label: TLabel
+      Left = 30
+      Height = 16
+      Top = 4
+      Width = 128
+      AutoSize = False
+      Caption = '1000 mm'
+      Font.Color = clBlue
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      OnClick = limit_rad_labelClick
+    end
+    object min_rad_lamp_panel: TPanel
+      Left = 6
+      Height = 17
+      Top = 3
+      Width = 17
+      BevelInner = bvLowered
+      Color = clLime
+      ParentColor = False
+      TabOrder = 0
+      OnClick = limit_rad_labelClick
+    end
+  end
+  object blue_corner_panel: TPanel
+    Left = 0
+    Height = 48
+    Top = 60
+    Width = 40
+    BevelOuter = bvNone
+    ClientHeight = 48
+    ClientWidth = 40
+    Color = clBlue
+    Font.Color = clBlack
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 23
+    object what_next_panel: TPanel
+      Left = 20
+      Height = 24
+      Hint = ' what  next ? '
+      Top = 1
+      Width = 16
+      Caption = '?'
+      Color = clBlack
+      Font.Color = clLime
+      Font.Height = -17
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+      TabStop = True
+      OnClick = what_next_panelClick
+    end
+    object chat_panel: TPanel
+      Left = 20
+      Height = 16
+      Hint = ' chat '
+      Top = 28
+      Width = 16
+      Caption = '='
+      Color = clBlack
+      Font.Color = clLime
+      Font.Height = -17
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 2
+      OnClick = chat_panelClick
+    end
+    object colour_panel: TPanel
+      Left = 1
+      Height = 16
+      Hint = ' change  panel  colour '
+      Top = 28
+      Width = 15
+      ClientHeight = 16
+      ClientWidth = 15
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
+      OnClick = colour_panelClick
+      object colour_patch: TImage
+        Left = 1
+        Height = 14
+        Top = 1
+        Width = 13
+        Align = alClient
+        AutoSize = True
+        OnClick = colour_panelClick
+        Picture.Data = {
+          07544269746D6170B6040000424DB60400000000000036000000280000001800
+          0000100000000100180000000000800400008412000084120000000000000000
+          0000008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF00008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          00000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          0000
+        }
+        Stretch = True
+      end
+    end
+    object size_updown: TUpDown
+      Tag = 4
+      Left = 1
+      Height = 24
+      Hint = ' reduce / enlarge  panel '
+      Top = 1
+      Width = 16
+      Max = 10
+      Min = 1
+      OnClick = size_updownClick
+      ParentShowHint = False
+      Position = 4
+      ShowHint = True
+      TabOrder = 1
+      TabStop = True
+      Wrap = False
+    end
+  end
+  object corner_dot_panel: TPanel
+    Left = 0
+    Height = 1
+    Top = 0
+    Width = 1
+    BevelOuter = bvNone
+    TabOrder = 20
+    Visible = False
+  end
+  object shrink_button: TButton
+    Left = 66
+    Height = 24
+    Top = 59
+    Width = 56
+    Caption = 'shrin&k'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = shrink_buttonClick
+    ParentFont = False
+    TabOrder = 1
+  end
+  object expand_button: TButton
+    Left = 66
+    Height = 24
+    Top = 29
+    Width = 56
+    Caption = 'e&xpand'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = expand_buttonClick
+    ParentFont = False
+    TabOrder = 0
+  end
+  object limit_rad_box: TGroupBox
+    Left = 132
+    Height = 40
+    Top = 66
+    Width = 169
+    Caption = ' warn  if  radius  is  under :  '
+    ClientHeight = 20
+    ClientWidth = 165
+    Color = 14221311
+    Font.Color = clBlack
+    Font.Height = -12
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 5
+    OnClick = limit_rad_labelClick
+    object limit_rad_label: TLabel
+      Left = 14
+      Height = 16
+      Top = 4
+      Width = 74
+      AutoSize = False
+      Caption = '1000 mm'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      OnClick = limit_rad_labelClick
+    end
+    object change_limit_button: TButton
+      Left = 90
+      Height = 22
+      Top = 1
+      Width = 70
+      Caption = 'ch&ange ..'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = limit_rad_labelClick
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object info_gauge_panel: TPanel
+    Left = 0
+    Height = 22
+    Hint = ' click  to  show  or  hide  the  control  template '
+    Top = 0
+    Width = 405
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    ClientHeight = 18
+    ClientWidth = 401
+    Color = 16777120
+    ParentColor = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 21
+    OnClick = info_gauge_panelClick
+    object gauge_label: TLabel
+      Left = 32
+      Height = 18
+      Top = 0
+      Width = 371
+      AutoSize = False
+      Caption = 'gauge_label'
+      Font.Color = clBlack
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      OnClick = info_gauge_panelClick
+    end
+    object curving_label: TLabel
+      Left = 0
+      Height = 20
+      Hint = ' st=straight   co=constant radius    tr=transition curve    ~=slew '
+      Top = 0
+      Width = 33
+      Alignment = taCenter
+      AutoSize = False
+      Caption = '~st'
+      Font.CharSet = ANSI_CHARSET
+      Font.Color = clBlue
+      Font.Height = -17
+      Font.Name = 'Trebuchet MS'
+      Font.Style = [fsBold]
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+    end
+  end
+  object print_button: TButton
+    Left = 618
+    Height = 22
+    Hint = ' print  info '
+    Top = 133
+    Width = 44
+    Caption = 'p&rint'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = print_buttonClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 17
+  end
+  object write_button: TButton
+    Left = 664
+    Height = 22
+    Hint = ' info  to  file '
+    Top = 133
+    Width = 80
+    Caption = 'save  f&ile ..'
+    OnClick = write_buttonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 18
+  end
+  object mouse_now_panel: TPanel
+    Left = 492
+    Height = 22
+    Top = 0
+    Width = 246
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    Color = clWhite
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 22
+  end
+  object rename_button: TButton
+    Left = 52
+    Height = 22
+    Hint = ' name or rename current template '
+    Top = 88
+    Width = 70
+    Caption = '&name ...'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = rename_buttonClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 3
+  end
+  object view_button: TButton
+    Left = 574
+    Height = 22
+    Hint = ' view  info  as  help '
+    Top = 133
+    Width = 42
+    Caption = '&view'
+    OnClick = view_buttonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 16
+  end
+  object slew_warn_panel: TPanel
+    Left = 132
+    Height = 80
+    Top = 26
+    Width = 169
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    ClientHeight = 76
+    ClientWidth = 165
+    Color = 14221311
+    ParentColor = False
+    TabOrder = 6
+    Visible = False
+    object slew_caution_mode_label: TLabel
+      Left = 4
+      Height = 51
+      Top = 2
+      Width = 124
+      AutoSize = False
+      Caption = 'caution :    this  template  contains  a  SLEW  ( mode  1 )'
+      Color = 14221311
+      Font.Color = clRed
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      Transparent = False
+      WordWrap = True
+    end
+    object cancel_slewing_button: TButton
+      Left = 34
+      Height = 22
+      Top = 51
+      Width = 116
+      Caption = 'cancel  s&lewing'
+      OnClick = cancel_slewing_buttonClick
+      TabOrder = 0
+    end
+  end
+  object pad_data_groupbox: TGroupBox
+    Left = 492
+    Height = 82
+    Top = 24
+    Width = 308
+    Caption = ' trackpad  data :  '
+    ClientHeight = 61
+    ClientWidth = 304
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 9
+    object pad_data_scrollbox: TScrollBox
+      Left = 0
+      Height = 61
+      Top = 0
+      Width = 304
+      HorzScrollBar.Page = 1
+      HorzScrollBar.Visible = False
+      VertScrollBar.Increment = 4
+      VertScrollBar.Page = 61
+      VertScrollBar.Tracking = True
+      Align = alClient
+      BorderStyle = bsNone
+      ClientHeight = 61
+      ClientWidth = 283
+      TabOrder = 0
+      object zoom_lock_label: TLabel
+        Left = 52
+        Height = 18
+        Top = 2
+        Width = 89
+        Alignment = taCenter
+        AutoSize = False
+        Caption = 'lock_label'
+        Color = clBlack
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+        Transparent = False
+      end
+      object pad_width_label: TLabel
+        Left = 4
+        Height = 16
+        Top = 24
+        Width = 257
+        AutoSize = False
+        Caption = 'pad_width_label'
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object pad_height_label: TLabel
+        Left = 4
+        Height = 16
+        Top = 44
+        Width = 257
+        AutoSize = False
+        Caption = 'pad_height_label'
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object pad_zoom_label: TLabel
+        Left = 2
+        Height = 18
+        Top = 2
+        Width = 48
+        AutoSize = False
+        Caption = 'zoom :'
+        Font.Color = clBlue
+        Font.Height = -15
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object pad_notch_label: TLabel
+        Left = 2
+        Height = 18
+        Top = 66
+        Width = 124
+        AutoSize = False
+        Caption = 'pegging  notch :'
+        Font.Color = clBlue
+        Font.Height = -15
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object notchx_label: TLabel
+        Left = 4
+        Height = 16
+        Top = 86
+        Width = 276
+        AutoSize = False
+        Caption = 'notchx_label'
+        ParentColor = False
+      end
+      object notchy_label: TLabel
+        Left = 4
+        Height = 16
+        Top = 106
+        Width = 276
+        AutoSize = False
+        Caption = 'notchy_label'
+        ParentColor = False
+      end
+      object notchk_label: TLabel
+        Left = 4
+        Height = 16
+        Top = 126
+        Width = 300
+        AutoSize = False
+        Caption = 'notchk_label'
+        ParentColor = False
+      end
+      object grid_org_label: TLabel
+        Left = 2
+        Height = 18
+        Top = 148
+        Width = 85
+        AutoSize = False
+        Caption = 'grid  offset :'
+        Font.Color = clBlue
+        Font.Height = -15
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object offsetx_label: TLabel
+        Left = 4
+        Height = 16
+        Top = 168
+        Width = 276
+        AutoSize = False
+        Caption = 'offsetx_label'
+        ParentColor = False
+      end
+      object offsety_label: TLabel
+        Left = 4
+        Height = 22
+        Top = 188
+        Width = 276
+        AutoSize = False
+        Caption = 'offsety_label'
+        ParentColor = False
+      end
+      object unlock_button: TButton
+        Left = 146
+        Height = 20
+        Top = 0
+        Width = 59
+        Caption = '&unlock'
+        OnClick = unlock_buttonClick
+        TabOrder = 0
+      end
+      object lock_zoom_button: TButton
+        Left = 210
+        Height = 20
+        Top = 0
+        Width = 71
+        Caption = 'lock  a&t ..'
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        OnClick = lock_zoom_buttonClick
+        ParentFont = False
+        TabOrder = 1
+      end
+    end
+  end
+  object edit_button: TButton
+    Left = 534
+    Height = 22
+    Hint = ' edit  info '
+    Top = 133
+    Width = 38
+    Caption = '&edit'
+    OnClick = edit_buttonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 15
+  end
+  object info_font_button: TButton
+    Left = 746
+    Height = 22
+    Hint = ' change  font  for  info  below '
+    Top = 133
+    Width = 46
+    Caption = '&font ..'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = info_font_buttonClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 24
+  end
+  object metric_button: TButton
+    Left = 670
+    Height = 22
+    Hint = ' open  metric  calculator '
+    Top = 109
+    Width = 122
+    Caption = 'metric  &calculator'
+    OnClick = metric_buttonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 11
+  end
+  object resize_button: TButton
+    Left = 292
+    Height = 22
+    Hint = ' resize  info  to  fit  available  space '
+    Top = 133
+    Width = 106
+    Caption = 'fit  to  &window'
+    OnClick = resize_buttonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 12
+  end
+  object info_scrollbox: TScrollBox
+    Left = 0
+    Height = 272
+    Top = 158
+    Width = 800
+    HorzScrollBar.Page = 779
+    HorzScrollBar.Tracking = True
+    VertScrollBar.Page = 251
+    VertScrollBar.Tracking = True
+    BorderStyle = bsNone
+    ClientHeight = 251
+    ClientWidth = 779
+    Color = 14221311
+    ParentColor = False
+    TabOrder = 19
+    TabStop = True
+    object info_memo: TMemo
+      Left = 4
+      Height = 2500
+      Hint = ' information about the control template '
+      Top = 2
+      Width = 1000
+      BorderStyle = bsNone
+      Color = 14221311
+      Font.Color = 4210816
+      Font.Height = -15
+      Font.Name = 'Trebuchet MS'
+      Font.Style = [fsBold]
+      Lines.Strings = (
+        'info_memo'
+        'line 1'
+        'line 2'
+      )
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+    end
+  end
+  object jot_visible_button: TButton
+    Left = 456
+    Height = 22
+    Hint = ' add  visible  info  lines  to  jotter '
+    Top = 133
+    Width = 76
+    Caption = 'jot  visi&ble'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = jot_visible_buttonClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 14
+  end
+  object memo_button: TButton
+    Left = 616
+    Height = 22
+    Hint = ' edit  memo  notes  for  the  current  template '
+    Top = 109
+    Width = 52
+    Caption = '&memo'
+    OnClick = memo_buttonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 10
+  end
+  object rings_groupbox: TGroupBox
+    Left = 310
+    Height = 82
+    Top = 24
+    Width = 91
+    Caption = ' rings :  '
+    ClientHeight = 62
+    ClientWidth = 87
+    Color = 14221311
+    Font.Color = clBlack
+    Font.Height = -12
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 7
+    object ring_infringed_warning_label: TLabel
+      Left = 4
+      Height = 17
+      Top = 19
+      Width = 70
+      AutoSize = False
+      Caption = 'infringed by'
+      Font.Color = clRed
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+    object ring_infringed_by_label: TLabel
+      Left = 4
+      Height = 13
+      Top = 33
+      Width = 70
+      AutoSize = False
+      Caption = '1000 mm'
+      Font.Color = clRed
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object rings_boxline_shape: TShape
+      Left = 0
+      Height = 1
+      Top = 47
+      Width = 79
+      Pen.Color = clGray
+    end
+    object ring_lamp_panel: TPanel
+      Left = 56
+      Height = 17
+      Top = 0
+      Width = 17
+      BevelInner = bvLowered
+      Color = clLime
+      ParentColor = False
+      TabOrder = 2
+    end
+    object sp_ring_warn_checkbox: TCheckBox
+      Left = 4
+      Height = 23
+      Hint = ' warn  if  spacing-ring  is  infringed '
+      Top = 3
+      Width = 46
+      Caption = 'ring'
+      Checked = True
+      OnClick = sp_ring_warn_checkboxClick
+      ParentShowHint = False
+      ShowHint = True
+      State = cbChecked
+      TabOrder = 0
+    end
+    object ring_copies_warn_checkbox: TCheckBox
+      Left = 4
+      Height = 23
+      Hint = ' warn  if  any  ring  copies  are  infringed '
+      Top = 50
+      Width = 62
+      Caption = 'copies'
+      OnClick = ring_copies_warn_checkboxClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+    end
+  end
+  object help_button: TButton
+    Left = 744
+    Height = 22
+    Top = 1
+    Width = 56
+    Caption = '? &help'
+    OnClick = what_next_panelClick
+    TabOrder = 2
+  end
+  object jot_all_button: TButton
+    Left = 400
+    Height = 22
+    Top = 133
+    Width = 54
+    Caption = 'j&ot  all'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = jot_all_buttonClick
+    ParentFont = False
+    TabOrder = 13
+  end
+  object hide_panel: TPanel
+    Left = 0
+    Height = 24
+    Top = 29
+    Width = 62
+    Alignment = taLeftJustify
+    Caption = ' hide  F2'
+    Color = clYellow
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 25
+    TabStop = True
+    OnClick = hide_panelClick
+  end
+  object companion_button: TButton
+    Left = 424
+    Height = 25
+    Hint = ' visit  Templot  Companion  web  site '
+    Top = 28
+    Width = 53
+    Caption = 'HELP'
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = companion_buttonClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 8
+  end
+  object save_dialog: TSaveDialog
+    Title = '      write  info  and  memo  texts  to  file ...'
+    DefaultExt = '.txt'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofShowHelp, ofEnableSizing]
+    left = 111
+    top = 281
+  end
+end

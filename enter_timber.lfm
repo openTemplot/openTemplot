@@ -1,0 +1,96 @@
+object enter_timber_form: Tenter_timber_form
+  Left = 200
+  Height = 144
+  Top = 125
+  Width = 420
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSizeToolWin
+  Caption = '   select  timber ...'
+  ClientHeight = 144
+  ClientWidth = 420
+  Color = clBtnFace
+  DesignTimePPI = 120
+  Font.Color = clBlack
+  Font.Height = -15
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  KeyPreview = True
+  OnActivate = FormActivate
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  Position = poScreenCenter
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object Label1: TLabel
+    Left = 4
+    Height = 25
+    Top = 8
+    Width = 409
+    AutoSize = False
+    Caption = 'Enter the number of the timber which you want to shove:'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object Label2: TLabel
+    Left = 124
+    Height = 73
+    Top = 44
+    Width = 289
+    AutoSize = False
+    Caption = 'Hint: It is usually easier to select a timber for shoving by clicking its number on the trackpad screen (not on the timber itself).'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object datestamp_label: TLabel
+    Left = 0
+    Height = 4
+    Top = 140
+    Width = 420
+    AutoSize = False
+    Font.Color = clGray
+    Font.Height = -7
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object ok_button: TButton
+    Left = 346
+    Height = 25
+    Top = 110
+    Width = 65
+    Caption = 'O K'
+    Default = True
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = ok_buttonClick
+    ParentFont = False
+    TabOrder = 1
+  end
+  object shove_combo: TComboBox
+    Left = 12
+    Height = 26
+    Top = 40
+    Width = 97
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ItemHeight = 18
+    OnClick = ok_buttonClick
+    ParentFont = False
+    Sorted = True
+    TabOrder = 0
+    Text = 'J2'
+  end
+end

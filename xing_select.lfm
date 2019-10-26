@@ -1,0 +1,492 @@
+object xing_select_form: Txing_select_form
+  Left = 67
+  Height = 398
+  Top = 66
+  Width = 482
+  HorzScrollBar.Tracking = True
+  VertScrollBar.Tracking = True
+  BorderIcons = [biSystemMenu]
+  Caption = '      V - crossing  settings'
+  ClientHeight = 398
+  ClientWidth = 482
+  Color = 14213336
+  DesignTimePPI = 120
+  Font.Color = clBlack
+  Font.Height = -15
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  KeyPreview = True
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  OnShow = FormShow
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object help_shape: TShape
+    Left = 384
+    Height = 31
+    Top = 3
+    Width = 95
+    Pen.Color = clLime
+  end
+  object datestamp_label: TLabel
+    Left = 0
+    Height = 4
+    Top = 394
+    Width = 482
+    AutoSize = False
+    Font.Color = clSilver
+    Font.Height = -7
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object xing_geo_label: TLabel
+    Left = 176
+    Height = 18
+    Top = 44
+    Width = 170
+    AutoSize = False
+    Caption = 'V-crossing  geometry :'
+    Font.Color = clNavy
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object xing_angle_label: TLabel
+    Left = 28
+    Height = 18
+    Top = 16
+    Width = 140
+    AutoSize = False
+    Caption = 'V-crossing  angle :'
+    Font.Color = clNavy
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object other_label: TLabel
+    Left = 240
+    Height = 23
+    Top = 10
+    Width = 105
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = '1:0'
+    Font.Color = clBlack
+    Font.Height = -18
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object ok_panel: TPanel
+    Left = 388
+    Height = 33
+    Top = 360
+    Width = 89
+    Alignment = taLeftJustify
+    Caption = '    OK'
+    ClientHeight = 33
+    ClientWidth = 89
+    Color = clLime
+    Font.Color = clBlack
+    Font.Height = -17
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 4
+    OnClick = ok_buttonClick
+    object ok_button: TButton
+      Left = 64
+      Height = 17
+      Top = 10
+      Width = 17
+      Caption = '  '
+      Default = True
+      OnClick = ok_buttonClick
+      TabOrder = 0
+    end
+  end
+  object blue_corner_panel: TPanel
+    Left = 0
+    Height = 72
+    Top = 0
+    Width = 20
+    BevelOuter = bvNone
+    ClientHeight = 72
+    ClientWidth = 20
+    Color = clBlue
+    Font.Color = clBlack
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 5
+    object how_panel: TPanel
+      Left = 0
+      Height = 20
+      Hint = ' help  information '
+      Top = 48
+      Width = 16
+      Caption = '?'
+      Color = clBlack
+      Font.Color = clLime
+      Font.Height = -17
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+      OnClick = help_buttonClick
+    end
+    object size_updown: TUpDown
+      Tag = 4
+      Left = 0
+      Height = 24
+      Top = 1
+      Width = 16
+      Max = 10
+      Min = 1
+      OnClick = size_updownClick
+      Position = 4
+      TabOrder = 1
+      Wrap = False
+    end
+    object colour_panel: TPanel
+      Left = 1
+      Height = 16
+      Top = 28
+      Width = 15
+      ClientHeight = 16
+      ClientWidth = 15
+      TabOrder = 2
+      OnClick = colour_panelClick
+      object colour_patch: TImage
+        Left = 1
+        Height = 14
+        Top = 1
+        Width = 13
+        Align = alClient
+        AutoSize = True
+        OnClick = colour_panelClick
+        Picture.Data = {
+          07544269746D6170B6040000424DB60400000000000036000000280000001800
+          0000100000000100180000000000800400008412000084120000000000000000
+          0000008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF00008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          00000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          0000
+        }
+        Stretch = True
+      end
+    end
+  end
+  object xing_geo_listbox: TListBox
+    Left = 177
+    Height = 89
+    Top = 64
+    Width = 288
+    ExtendedSelect = False
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Items.Strings = (
+      '  regular  crossing  (normal)'
+      '  parallel  crossing'
+      '  curviform  crossing'
+      '  generic  crossing  (no  straight)'
+    )
+    ItemHeight = 18
+    OnClick = xing_geo_listboxClick
+    ParentShowHint = False
+    ParentFont = False
+    TabOrder = 1
+  end
+  object xing_angle_listbox: TListBox
+    Left = 29
+    Height = 345
+    Top = 36
+    Width = 116
+    ExtendedSelect = False
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Items.Strings = (
+      '  1 : 4'
+      '  1 : 4.5'
+      '  1 : 4.75'
+      '  1 : 5'
+      '  1 : 5.25'
+      '  1 : 5.5'
+      '  1 : 5.75'
+      '  1 : 6'
+      '  1 : 6.25'
+      '  1 : 6.5'
+      '  1 : 7'
+      '  1 : 7.5'
+      '  1 : 8'
+      '  1 : 9'
+      '  1 : 10'
+      '  1 : 12'
+      '  other ...'
+    )
+    ItemHeight = 18
+    ParentShowHint = False
+    ParentFont = False
+    TabOrder = 0
+  end
+  object straight_radio_panel: TPanel
+    Left = 162
+    Height = 126
+    Top = 220
+    Width = 312
+    BevelOuter = bvNone
+    BevelWidth = 2
+    BorderWidth = 1
+    BorderStyle = bsSingle
+    ClientHeight = 122
+    ClientWidth = 308
+    TabOrder = 3
+    object straight_label: TLabel
+      Left = 0
+      Height = 59
+      Top = 4
+      Width = 118
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'regular-crossing length of entry-straight : '
+      Font.Color = clNavy
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+    object straight_default_radio: TRadioButton
+      Left = 118
+      Height = 23
+      Top = 6
+      Width = 68
+      Caption = 'a&uto-fit'
+      Checked = True
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = straight_default_radioClick
+      ParentFont = False
+      TabOrder = 0
+      TabStop = True
+    end
+    object straight_ask_radio: TRadioButton
+      Left = 118
+      Height = 23
+      Top = 36
+      Width = 92
+      Caption = 'fi&xed  at ...'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = straight_ask_radioClick
+      ParentFont = False
+      TabOrder = 1
+      TabStop = True
+    end
+    object retain_entry_straight_on_make_checkbox: TCheckBox
+      Left = 136
+      Height = 23
+      Top = 82
+      Width = 162
+      Caption = 'retain  on  &tools:make'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 3
+    end
+    object retain_entry_straight_on_mint_checkbox: TCheckBox
+      Left = 136
+      Height = 23
+      Top = 58
+      Width = 156
+      Caption = 'retain  on  &new  mint'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 2
+    end
+  end
+  object return_curve_panel: TPanel
+    Left = 162
+    Height = 59
+    Top = 158
+    Width = 312
+    BevelOuter = bvNone
+    BevelWidth = 2
+    BorderWidth = 1
+    BorderStyle = bsSingle
+    ClientHeight = 55
+    ClientWidth = 308
+    Enabled = False
+    TabOrder = 2
+    Visible = False
+    object return_label: TLabel
+      Left = 2
+      Height = 37
+      Top = 8
+      Width = 133
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'parallel-crossing track centres :'
+      Font.Color = clNavy
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+    object adjacent_radio: TRadioButton
+      Left = 146
+      Height = 23
+      Top = 6
+      Width = 140
+      Caption = 'as  &adjacent  track'
+      Checked = True
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      TabStop = True
+    end
+    object other_radio: TRadioButton
+      Left = 146
+      Height = 23
+      Top = 28
+      Width = 73
+      Caption = '&other ...'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+      TabStop = True
+    end
+  end
+  object help_button: TButton
+    Left = 387
+    Height = 25
+    Top = 6
+    Width = 89
+    Caption = '? &help   F1'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = help_buttonClick
+    ParentFont = False
+    TabOrder = 6
+  end
+  object cancel_panel: TPanel
+    Left = 264
+    Height = 25
+    Top = 365
+    Width = 94
+    Alignment = taLeftJustify
+    Caption = '  cancel'
+    ClientHeight = 25
+    ClientWidth = 94
+    Color = clYellow
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 7
+    OnClick = cancel_buttonClick
+    object cancel_button: TButton
+      Left = 56
+      Height = 17
+      Top = 2
+      Width = 32
+      Cancel = True
+      Caption = 'Esc'
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'Arial'
+      OnClick = cancel_buttonClick
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object restore_settings_button: TButton
+    Left = 164
+    Height = 25
+    Hint = ' restore  previous  settings '
+    Top = 365
+    Width = 58
+    Caption = '&restore'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = restore_settings_buttonClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 8
+  end
+end

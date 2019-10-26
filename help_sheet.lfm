@@ -1,0 +1,602 @@
+object help_form: Thelp_form
+  Left = 20
+  Height = 680
+  Top = 20
+  Width = 530
+  HorzScrollBar.Smooth = True
+  HorzScrollBar.Tracking = True
+  VertScrollBar.Smooth = True
+  VertScrollBar.Tracking = True
+  BorderIcons = [biSystemMenu]
+  Caption = '  TEMPLOT         help  information'
+  ClientHeight = 680
+  ClientWidth = 530
+  Color = 15269887
+  DesignTimePPI = 120
+  Font.Color = clBlack
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  FormStyle = fsStayOnTop
+  KeyPreview = True
+  OnActivate = FormActivate
+  OnCreate = FormCreate
+  OnHide = FormHide
+  OnKeyDown = FormKeyDown
+  OnResize = FormResize
+  OnShow = FormShow
+  Position = poScreenCenter
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object top_line_shape: TShape
+    Left = 0
+    Height = 1
+    Top = 135
+    Width = 530
+    Anchors = []
+    Pen.Color = 10526880
+  end
+  object scroll_label: TLabel
+    Left = 0
+    Height = 24
+    Top = 464
+    Width = 530
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = ' ...use the scroll bar, arrow keys, or mouse wheel to read all of these notes down to the © end marker. '
+    Font.Color = 5263440
+    Font.Height = -11
+    Font.Name = 'Arial'
+    Font.Style = [fsItalic]
+    ParentColor = False
+    ParentFont = False
+    OnDblClick = scroll_labelDblClick
+  end
+  object html_view: THtmlViewer
+    Left = 0
+    Height = 360
+    Top = 100
+    Width = 530
+    BorderStyle = htNone
+    DefBackground = 15663103
+    DefFontColor = clBlack
+    DefFontName = 'Trebuchet MS'
+    DefFontSize = 9
+    DefOverLinkColor = clRed
+    DefPreFontName = 'Courier New'
+    DefVisitedLinkColor = clBlue
+    HistoryMaxCount = 10
+    HtOptions = [htOverLinksActive, htPrintTableBackground, htPrintMonochromeBlack]
+    NoSelect = False
+    PrintMarginBottom = 1
+    PrintMarginLeft = 1
+    PrintMarginRight = 1
+    PrintMarginTop = 1
+    PrintScale = 1.25
+    ScrollBars = ssVertical
+    PopupMenu = help_popup_menu
+    TabOrder = 1
+    TabStop = True
+  end
+  object top_panel: TPanel
+    Left = 0
+    Height = 98
+    Top = 0
+    Width = 530
+    BevelOuter = bvNone
+    ClientHeight = 98
+    ClientWidth = 530
+    Color = 15263968
+    ParentColor = False
+    TabOrder = 0
+    object help_top_label: TLabel
+      Left = 6
+      Height = 35
+      Top = 38
+      Width = 505
+      AutoSize = False
+      Caption = 'Use the scroll bars or arrow keys to read all of these notes.  Drag a corner to enlarge this window.  Text can be selected with the mouse for copying.  Right-click for options.'
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+    object index_label: TLabel
+      Left = 20
+      Height = 25
+      Hint = ' current  page  slot '
+      Top = 4
+      Width = 16
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'a'
+      Font.Color = clBlue
+      Font.Height = -21
+      Font.Name = 'Verdana'
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+    end
+    object blue_corner_panel: TPanel
+      Left = 0
+      Height = 34
+      Top = 0
+      Width = 20
+      BevelOuter = bvNone
+      ClientHeight = 34
+      ClientWidth = 20
+      Color = clBlue
+      Font.Color = clBlack
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      TabOrder = 0
+      object size_updown: TUpDown
+        Tag = 4
+        Left = 0
+        Height = 30
+        Hint = ' enlarge / shrink  top  controls  '
+        Top = 0
+        Width = 16
+        Max = 10
+        Min = 1
+        OnClick = size_updownClick
+        ParentShowHint = False
+        Position = 4
+        ShowHint = True
+        TabOrder = 0
+        Wrap = False
+      end
+    end
+    object print_button: TButton
+      Left = 94
+      Height = 25
+      Hint = ' print  this  page '
+      Top = 4
+      Width = 46
+      Caption = 'pri&nt'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = print_buttonClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
+    end
+    object scroll_groupbox: TGroupBox
+      Left = 314
+      Height = 37
+      Top = 0
+      Width = 206
+      Caption = ' scroll  with  &arrow  keys :  '
+      ClientHeight = 16
+      ClientWidth = 202
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 6
+      object slow_scroll_radiobutton: TRadioButton
+        Left = 4
+        Height = 23
+        Top = 3
+        Width = 53
+        Caption = '&slow'
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        OnClick = slow_scroll_radiobuttonClick
+        ParentFont = False
+        TabOrder = 0
+      end
+      object fast_scroll_radiobutton: TRadioButton
+        Left = 142
+        Height = 23
+        Top = 3
+        Width = 46
+        Caption = '&fast'
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        OnClick = fast_scroll_radiobuttonClick
+        ParentFont = False
+        TabOrder = 1
+      end
+      object gentle_scroll_radiobutton: TRadioButton
+        Left = 70
+        Height = 23
+        Top = 3
+        Width = 64
+        Caption = 'g&entle'
+        Checked = True
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        OnClick = gentle_scroll_radiobuttonClick
+        ParentFont = False
+        TabOrder = 2
+        TabStop = True
+      end
+    end
+    object options_button: TButton
+      Left = 228
+      Height = 25
+      Hint = ' show  options  menu '
+      Top = 4
+      Width = 78
+      Caption = '&options ...'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = options_buttonClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 5
+    end
+    object goto_companion_panel: TPanel
+      Left = 0
+      Height = 25
+      Top = 68
+      Width = 530
+      Alignment = taLeftJustify
+      BevelOuter = bvNone
+      ClientHeight = 25
+      ClientWidth = 530
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'Arial'
+      ParentFont = False
+      TabOrder = 7
+      object web_label: TLabel
+        Left = 0
+        Height = 15
+        Top = 4
+        Width = 360
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'For more help information visit the Templot user guide at: '
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Arial'
+        ParentColor = False
+        ParentFont = False
+      end
+      object go_companion_label: TLabel
+        Cursor = crHandPoint
+        Left = 362
+        Height = 16
+        Hint = ' go  to  Templot  web  site '
+        Top = 3
+        Width = 162
+        AutoSize = False
+        Caption = 'Templot  Companion  >>>'
+        Font.Color = clBlue
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = go_companion_labelClick
+      end
+    end
+    object forward_history_button: TBitBtn
+      Left = 64
+      Height = 25
+      Hint = ' forward  again '
+      Top = 4
+      Width = 26
+      Glyph.Data = {
+        F6000000424DF600000000000000760000002800000010000000100000000100
+        0400000000008000000084120000841200001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+        3333333333333333333333333C333333333333333CC33333333333333CCC3333
+        333333333CCCC333333333333CCCCC33333333333CCCCCC3333333333CCCCCCC
+        333333333CCCCCC3333333333CCCCC33333333333CCCC333333333333CCC3333
+        333333333CC33333333333333C33333333333333333333333333
+      }
+      OnClick = forward_history_buttonClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 2
+    end
+    object back_history_button: TBitBtn
+      Left = 38
+      Height = 25
+      Hint = ' back  to  previous  page '
+      Top = 4
+      Width = 26
+      Glyph.Data = {
+        F6000000424DF600000000000000760000002800000010000000100000000100
+        0400000000008000000084120000841200001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+        333333333333333333333333333333C33333333333333CC3333333333333CCC3
+        33333333333CCCC33333333333CCCCC3333333333CCCCCC333333333CCCCCCC3
+        333333333CCCCCC33333333333CCCCC333333333333CCCC3333333333333CCC3
+        3333333333333CC333333333333333C333333333333333333333
+      }
+      OnClick = back_history_buttonClick
+      ParentShowHint = False
+      ShowHint = True
+      Spacing = 0
+      TabOrder = 1
+    end
+    object pdf_button: TButton
+      Left = 142
+      Height = 25
+      Hint = ' create  a  PDF  file  containing  this  page '
+      Top = 4
+      Width = 84
+      Caption = 'create P&DF'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = pdf_buttonClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 4
+    end
+  end
+  object more_button: TButton
+    Left = 42
+    Height = 28
+    Top = 486
+    Width = 384
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = more_buttonClick
+    ParentFont = False
+    TabOrder = 3
+  end
+  object continue_button: TButton
+    Left = 438
+    Height = 28
+    Top = 486
+    Width = 86
+    Caption = '&continue'
+    Default = True
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ModalResult = 1
+    OnClick = continue_buttonClick
+    ParentFont = False
+    TabOrder = 4
+  end
+  object escape_button: TButton
+    Left = 4
+    Height = 21
+    Hint = ' cancel '
+    Top = 490
+    Width = 32
+    Cancel = True
+    Caption = 'Esc'
+    Font.Color = clBlack
+    Font.Height = -12
+    Font.Name = 'Arial'
+    ModalResult = 2
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 2
+  end
+  object help_popup_menu: TPopupMenu
+    OnPopup = help_popup_menuPopup
+    left = 240
+    top = 190
+    object back_page_popup_entry: TMenuItem
+      Caption = 'back  to  previous  page'
+      OnClick = back_history_buttonClick
+    end
+    object forward_page_popup_entry: TMenuItem
+      Caption = 'forward  again'
+      OnClick = forward_history_buttonClick
+    end
+    object N5: TMenuItem
+      Caption = '-'
+    end
+    object go_companion_popup_entry: TMenuItem
+      Caption = 'Templot  Companion  online  >>>'
+      OnClick = go_companion_labelClick
+    end
+    object stay_visible_popup_entry: TMenuItem
+      Caption = 'make  stay-visible  page  copy'
+      OnClick = stay_visible_popup_entryClick
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object copy_selected_popup_entry: TMenuItem
+      Caption = 'copy  selected  text                   Ctrl-C'
+      OnClick = copy_selected_popup_entryClick
+    end
+    object copy_all_popup_entry: TMenuItem
+      Caption = 'copy  all  text'
+      OnClick = copy_all_popup_entryClick
+    end
+    object jot_all_popup_entry: TMenuItem
+      Caption = 'copy  all  text  to  jotter'
+      OnClick = jot_all_popup_entryClick
+    end
+    object N2: TMenuItem
+      Caption = '-'
+    end
+    object help_font_popup_entry: TMenuItem
+      Caption = 'text  font'
+      object help_font_normal_popup_entry: TMenuItem
+        Caption = 'normal'
+        Checked = True
+        GroupIndex = 10
+        RadioItem = True
+        OnClick = help_font_normal_popup_entryClick
+      end
+      object help_font_bold_popup_entry: TMenuItem
+        Caption = 'bold'
+        GroupIndex = 10
+        RadioItem = True
+        OnClick = help_font_bold_popup_entryClick
+      end
+      object N9: TMenuItem
+        Caption = '-'
+        GroupIndex = 10
+      end
+      object size1: TMenuItem
+        Caption = 'text  size : '
+        Enabled = False
+        GroupIndex = 20
+      end
+      object help_font_12_popup_entry: TMenuItem
+        Caption = '1'
+        GroupIndex = 30
+        RadioItem = True
+        OnClick = help_font_12_popup_entryClick
+      end
+      object help_font_13_popup_entry: TMenuItem
+        Caption = '2'
+        GroupIndex = 30
+        RadioItem = True
+        OnClick = help_font_13_popup_entryClick
+      end
+      object help_font_14_popup_entry: TMenuItem
+        Caption = '3'
+        GroupIndex = 30
+        RadioItem = True
+        OnClick = help_font_14_popup_entryClick
+      end
+      object help_font_15_popup_entry: TMenuItem
+        Caption = '4'
+        GroupIndex = 30
+        RadioItem = True
+        OnClick = help_font_15_popup_entryClick
+      end
+      object help_font_16_popup_entry: TMenuItem
+        Caption = '5'
+        GroupIndex = 30
+        RadioItem = True
+        OnClick = help_font_16_popup_entryClick
+      end
+      object help_font_17_popup_entry: TMenuItem
+        Caption = '6'
+        Checked = True
+        GroupIndex = 30
+        RadioItem = True
+        OnClick = help_font_17_popup_entryClick
+      end
+      object help_font_18_popup_entry: TMenuItem
+        Caption = '7'
+        GroupIndex = 30
+        RadioItem = True
+        OnClick = help_font_18_popup_entryClick
+      end
+      object help_font_19_popup_entry: TMenuItem
+        Caption = '8'
+        GroupIndex = 30
+        RadioItem = True
+        OnClick = help_font_19_popup_entryClick
+      end
+      object help_font_20_popup_entry: TMenuItem
+        Caption = '9'
+        GroupIndex = 30
+        RadioItem = True
+        OnClick = help_font_20_popup_entryClick
+      end
+    end
+    object N3: TMenuItem
+      Caption = '-'
+    end
+    object print_popup_entry: TMenuItem
+      Caption = 'print'
+      OnClick = print_buttonClick
+    end
+    object printer_setup_popup_entry: TMenuItem
+      Caption = 'printer  setup ...'
+      OnClick = printer_setup_popup_entryClick
+    end
+    object printer_margins_popup_entry: TMenuItem
+      Caption = 'printed  page  margins ...'
+      OnClick = printer_margins_popup_entryClick
+    end
+    object N4: TMenuItem
+      Caption = '-'
+    end
+    object create_pdf_file_popup_entry: TMenuItem
+      Caption = 'create  PDF  file'
+      OnClick = pdf_buttonClick
+    end
+    object create_emf_file_popup_entry: TMenuItem
+      Caption = 'create  EMF  file'
+      OnClick = create_emf_file_popup_entryClick
+    end
+    object N7: TMenuItem
+      Caption = '-'
+    end
+    object scroll_slow_popup_entry: TMenuItem
+      Caption = 'scroll  slow'
+      GroupIndex = 50
+      RadioItem = True
+      OnClick = slow_scroll_radiobuttonClick
+    end
+    object scroll_gentle_popup_entry: TMenuItem
+      Caption = 'scroll  gentle'
+      Checked = True
+      GroupIndex = 50
+      RadioItem = True
+      OnClick = gentle_scroll_radiobuttonClick
+    end
+    object scroll_fast_popup_entry: TMenuItem
+      Caption = 'scroll  fast'
+      GroupIndex = 50
+      RadioItem = True
+      OnClick = fast_scroll_radiobuttonClick
+    end
+    object N6: TMenuItem
+      Caption = '-'
+      GroupIndex = 150
+      OnClick = fast_scroll_radiobuttonClick
+    end
+    object page_colour_popup_entry: TMenuItem
+      Caption = 'page  colour ...'
+      GroupIndex = 150
+      OnClick = page_colour_popup_entryClick
+    end
+    object hide_top_controls_popup_entry: TMenuItem
+      Caption = 'hide  top  controls'
+      GroupIndex = 150
+      OnClick = hide_top_controls_popup_entryClick
+    end
+  end
+  object print_setup_dialog: TPrinterSetupDialog
+    left = 317
+    top = 265
+  end
+  object save_file_dialog: TSaveDialog
+    Title = '    save  page  as  PDF  file ...'
+    DefaultExt = '.pdf'
+    Filter = 'PDF documents  (*.pdf)|*.pdf'
+    Options = [ofReadOnly, ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
+    left = 336
+    top = 360
+  end
+end

@@ -1,0 +1,139 @@
+object edit_memo_form: Tedit_memo_form
+  Left = 83
+  Height = 380
+  Top = 358
+  Width = 740
+  HorzScrollBar.Tracking = True
+  VertScrollBar.Tracking = True
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSizeToolWin
+  Caption = '    information  -  the  control  template'
+  ClientHeight = 380
+  ClientWidth = 740
+  Color = 16056316
+  DesignTimePPI = 120
+  Font.Color = clBlack
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  KeyPreview = True
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  OnResize = FormResize
+  OnShow = FormShow
+  Position = poScreenCenter
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object Label1: TLabel
+    Left = 6
+    Height = 16
+    Top = 8
+    Width = 183
+    AutoSize = False
+    Caption = 'right-click for editing options'
+    Font.Color = clMaroon
+    Font.Height = -13
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object datestamp_label: TLabel
+    Left = 0
+    Height = 4
+    Top = 376
+    Width = 740
+    AutoSize = False
+    Font.Color = clGray
+    Font.Height = -7
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object overwrite_label: TLabel
+    Cursor = crHandPoint
+    Left = 260
+    Height = 20
+    Hint = 'press Insert key for overwrite mode'
+    Top = 8
+    Width = 28
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'INS'
+    Font.Color = clBlack
+    Font.Height = -12
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    OnClick = overwrite_labelClick
+  end
+  object font_button: TButton
+    Left = 194
+    Height = 21
+    Top = 6
+    Width = 59
+    Caption = 'font ...'
+    OnClick = font_buttonClick
+    TabOrder = 1
+  end
+  object ok_panel: TPanel
+    Left = 666
+    Height = 23
+    Top = 4
+    Width = 66
+    Alignment = taLeftJustify
+    Caption = '   O K'
+    ClientHeight = 23
+    ClientWidth = 66
+    Color = clLime
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 3
+    OnClick = ok_panelClick
+    object ok_button: TButton
+      Left = 47
+      Height = 14
+      Top = 4
+      Width = 14
+      Caption = '  '
+      ModalResult = 1
+      TabOrder = 0
+    end
+  end
+  object vis_edit_memo: TMemo
+    Left = 8
+    Height = 340
+    Top = 36
+    Width = 724
+    BorderStyle = bsNone
+    Font.Color = clNavy
+    Font.Height = -17
+    Font.Name = 'Comic Sans MS'
+    Font.Style = [fsItalic]
+    Lines.Strings = (
+      'edit memo text'
+    )
+    OnKeyPress = vis_edit_memoKeyPress
+    ParentColor = True
+    ParentFont = False
+    ScrollBars = ssBoth
+    TabOrder = 0
+    WantTabs = True
+    WordWrap = False
+  end
+  object cancel_button: TButton
+    Left = 596
+    Height = 23
+    Top = 4
+    Width = 60
+    Cancel = True
+    Caption = 'cancel'
+    ModalResult = 2
+    TabOrder = 2
+  end
+end

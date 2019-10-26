@@ -1,0 +1,205 @@
+object stay_visible_form: Tstay_visible_form
+  Left = 358
+  Height = 376
+  Top = 133
+  Width = 288
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSizeToolWin
+  Caption = '    stay-visible  help  text'
+  ClientHeight = 376
+  ClientWidth = 288
+  Color = 15852503
+  DesignTimePPI = 120
+  Font.Color = clBlack
+  Font.Height = -15
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  OnCreate = FormCreate
+  OnResize = FormResize
+  OnShow = FormShow
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object font_button: TButton
+    Left = 180
+    Height = 22
+    Hint = ' change  text  typeface '
+    Top = 10
+    Width = 57
+    Caption = 'font ...'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = font_buttonClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 3
+  end
+  object help_scrollbox: TScrollBox
+    Left = 0
+    Height = 336
+    Top = 40
+    Width = 288
+    HorzScrollBar.Tracking = True
+    VertScrollBar.Tracking = True
+    AutoScroll = False
+    ClientHeight = 332
+    ClientWidth = 284
+    Color = clSilver
+    ParentColor = False
+    TabOrder = 2
+    TabStop = True
+    object text_label: TLabel
+      Left = 8
+      Height = 12000
+      Top = 12
+      Width = 246
+      AutoSize = False
+      Caption = 'text_label'
+      Font.Color = clNavy
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+  end
+  object blue_corner_panel: TPanel
+    Left = 0
+    Height = 30
+    Top = 4
+    Width = 38
+    BevelOuter = bvNone
+    ClientHeight = 30
+    ClientWidth = 38
+    Color = clBlue
+    Font.Color = clBlack
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 0
+    TabStop = True
+    object size_updown: TUpDown
+      Tag = 4
+      Left = 0
+      Height = 24
+      Hint = ' enlarge / reduce '
+      Top = 1
+      Width = 16
+      Max = 10
+      Min = 1
+      OnClick = size_updownClick
+      ParentShowHint = False
+      Position = 4
+      ShowHint = True
+      TabOrder = 0
+      Wrap = False
+    end
+    object colour_panel: TPanel
+      Left = 18
+      Height = 16
+      Hint = ' change  colour '
+      Top = 5
+      Width = 15
+      ClientHeight = 16
+      ClientWidth = 15
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+      OnClick = colour_panelClick
+      object colour_patch: TImage
+        Left = 1
+        Height = 14
+        Hint = ' change  colour '
+        Top = 1
+        Width = 13
+        Align = alClient
+        AutoSize = True
+        OnClick = colour_panelClick
+        ParentShowHint = False
+        Picture.Data = {
+          07544269746D6170B6040000424DB60400000000000036000000280000001800
+          0000100000000100180000000000800400008412000084120000000000000000
+          0000008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF00008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          00000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          0000
+        }
+        ShowHint = True
+        Stretch = True
+      end
+    end
+  end
+  object scroll_groupbox: TGroupBox
+    Left = 47
+    Height = 36
+    Top = 0
+    Width = 120
+    Caption = ' scroll :  '
+    ClientHeight = 16
+    ClientWidth = 116
+    Font.Color = clBlack
+    Font.Height = -12
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 1
+    object slow_button: TRadioButton
+      Left = 58
+      Height = 23
+      Top = 3
+      Width = 51
+      Caption = 'slow'
+      OnClick = slow_buttonClick
+      TabOrder = 0
+    end
+    object fast_button: TRadioButton
+      Left = 4
+      Height = 23
+      Top = 3
+      Width = 46
+      Caption = 'fast'
+      Checked = True
+      OnClick = fast_buttonClick
+      TabOrder = 1
+      TabStop = True
+    end
+  end
+end

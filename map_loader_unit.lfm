@@ -1,0 +1,1663 @@
+object map_loader_form: Tmap_loader_form
+  Left = 40
+  Height = 740
+  Top = 260
+  Width = 900
+  HorzScrollBar.Tracking = True
+  VertScrollBar.Tracking = True
+  Caption = '    load  a  map  into  background  picture  shapes ...'
+  ClientHeight = 740
+  ClientWidth = 900
+  Color = 16774388
+  DesignTimePPI = 120
+  Font.Color = clWindowText
+  Font.Height = -15
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  FormStyle = fsStayOnTop
+  OnActivate = FormActivate
+  OnCreate = FormCreate
+  OnMouseMove = FormMouseMove
+  Position = poScreenCenter
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object highlight_shape: TShape
+    Left = 6
+    Height = 104
+    Top = 2
+    Width = 280
+    Brush.Color = clYellow
+    Pen.Color = clRed
+    Pen.Style = psDash
+  end
+  object datestamp_label: TLabel
+    Left = 0
+    Height = 4
+    Top = 736
+    Width = 900
+    AutoSize = False
+    Font.Color = clGray
+    Font.Height = -7
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label20: TLabel
+    Left = 20
+    Height = 24
+    Top = 12
+    Width = 92
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'map name :'
+    Layout = tlCenter
+    ParentColor = False
+  end
+  object Label21: TLabel
+    Left = 288
+    Height = 24
+    Top = 11
+    Width = 395
+    AutoSize = False
+    Caption = 'enter a short name to identify the map (max 15 characters)'
+    Font.Color = clBlack
+    Font.Height = -14
+    Font.Name = 'Arial'
+    Layout = tlCenter
+    ParentColor = False
+    ParentFont = False
+  end
+  object load_new_label: TLabel
+    Left = 634
+    Height = 40
+    Top = 694
+    Width = 186
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'to get another map, first enter a new map name'
+    Font.Color = 192
+    Font.Height = -14
+    Font.Name = 'Trebuchet MS'
+    Font.Style = [fsBold]
+    Layout = tlCenter
+    ParentColor = False
+    ParentFont = False
+    Visible = False
+    WordWrap = True
+  end
+  object list_label: TLabel
+    Left = 0
+    Height = 24
+    Top = 48
+    Width = 112
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'loaded maps :'
+    Layout = tlCenter
+    ParentColor = False
+    Visible = False
+  end
+  object Label26: TLabel
+    Left = 126
+    Height = 54
+    Top = 50
+    Width = 160
+    AutoSize = False
+    Caption = 'each map must have its own unique name'
+    Font.Color = 4210752
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object zoom_label: TLabel
+    Left = 702
+    Height = 24
+    Top = 626
+    Width = 137
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'map zoom level :'
+    Layout = tlCenter
+    ParentColor = False
+  end
+  object info_label: TLabel
+    Cursor = crHandPoint
+    Left = 624
+    Height = 50
+    Top = 48
+    Width = 246
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'please click here or the above info button for an explanation of this dialog'
+    Font.Color = clBlue
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsUnderline]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+    OnClick = info_buttonClick
+    OnMouseMove = info_labelMouseMove
+  end
+  object current_map_label: TLabel
+    Left = 66
+    Height = 24
+    Top = 128
+    Width = 258
+    Alignment = taCenter
+    AutoSize = False
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold, fsItalic]
+    Layout = tlCenter
+    ParentColor = False
+    ParentFont = False
+  end
+  object t_55_label: TLabel
+    Left = 338
+    Height = 95
+    Top = 44
+    Width = 243
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'T-55 ?  Before using this dialog please set your required model gauge and scale.'
+    Font.Color = 192
+    Font.Height = -15
+    Font.Name = 'Trebuchet MS'
+    Font.Style = [fsBold]
+    Layout = tlCenter
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object map_load_groupbox: TGroupBox
+    Left = 12
+    Height = 334
+    Top = 170
+    Width = 876
+    Caption = ' map to load :  '
+    ClientHeight = 311
+    ClientWidth = 872
+    Color = 13695231
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 6
+    OnMouseMove = map_load_groupboxMouseMove
+    object Label1: TLabel
+      Left = 62
+      Height = 20
+      Top = 62
+      Width = 205
+      AutoSize = False
+      Caption = '© OpenStreetMap contributors'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label2: TLabel
+      Left = 346
+      Height = 20
+      Top = 62
+      Width = 197
+      AutoSize = False
+      Caption = '© National Library of Scotland'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label3: TLabel
+      Cursor = crHandPoint
+      Left = 346
+      Height = 20
+      Hint = 'visit NLS web site'
+      Top = 112
+      Width = 185
+      AutoSize = False
+      Caption = 'National Library of Scotland'
+      Font.Color = clBlue
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsUnderline]
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      OnClick = Label3Click
+      OnMouseMove = Label3MouseMove
+    end
+    object Label4: TLabel
+      Cursor = crHandPoint
+      Left = 346
+      Height = 20
+      Top = 86
+      Width = 177
+      AutoSize = False
+      Caption = 'information about this map'
+      Font.Color = clBlue
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsUnderline]
+      ParentColor = False
+      ParentFont = False
+      OnClick = Label4Click
+      OnMouseMove = Label4MouseMove
+    end
+    object Label5: TLabel
+      Cursor = crHandPoint
+      Left = 62
+      Height = 20
+      Hint = 'visit OpenStreetMap web site'
+      Top = 112
+      Width = 117
+      AutoSize = False
+      Caption = 'OpenStreetMap'
+      Font.Color = clBlue
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsUnderline]
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      OnClick = Label5Click
+      OnMouseMove = Label5MouseMove
+    end
+    object Label6: TLabel
+      Cursor = crHandPoint
+      Left = 62
+      Height = 20
+      Top = 86
+      Width = 177
+      AutoSize = False
+      Caption = 'information about this map'
+      Font.Color = clBlue
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsUnderline]
+      ParentColor = False
+      ParentFont = False
+      OnClick = Label6Click
+      OnMouseMove = Label6MouseMove
+    end
+    object Label22: TLabel
+      Left = 626
+      Height = 20
+      Top = 62
+      Width = 197
+      AutoSize = False
+      Caption = '© National Library of Scotland'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label23: TLabel
+      Cursor = crHandPoint
+      Left = 626
+      Height = 20
+      Hint = 'visit NLS web site'
+      Top = 112
+      Width = 185
+      AutoSize = False
+      Caption = 'National Library of Scotland'
+      Font.Color = clBlue
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsUnderline]
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      OnClick = Label3Click
+      OnMouseMove = Label23MouseMove
+    end
+    object Label24: TLabel
+      Cursor = crHandPoint
+      Left = 626
+      Height = 20
+      Top = 86
+      Width = 221
+      AutoSize = False
+      Caption = 'information about this map'
+      Font.Color = clBlue
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsUnderline]
+      ParentColor = False
+      ParentFont = False
+      OnClick = Label24Click
+      OnMouseMove = Label24MouseMove
+    end
+    object Label32: TLabel
+      Left = 62
+      Height = 20
+      Top = 232
+      Width = 197
+      AutoSize = False
+      Caption = '© National Library of Scotland'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label29: TLabel
+      Left = 118
+      Height = 22
+      Top = 4
+      Width = 180
+      AutoSize = False
+      Caption = 'tiled maps :'
+      Font.Color = 192
+      Font.Height = -18
+      Font.Name = 'Trebuchet MS'
+      Font.Style = [fsBold, fsItalic]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label30: TLabel
+      Left = 78
+      Height = 22
+      Top = 148
+      Width = 180
+      AutoSize = False
+      Caption = 'screenshot  maps :'
+      Font.Color = 192
+      Font.Height = -18
+      Font.Name = 'Trebuchet MS'
+      Font.Style = [fsBold, fsItalic]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label10: TLabel
+      Left = 48
+      Height = 20
+      Top = 208
+      Width = 200
+      AutoSize = False
+      Caption = '+ NLS  Bing  Aerial  under'
+      ParentColor = False
+    end
+    object Label15: TLabel
+      Left = 346
+      Height = 20
+      Top = 232
+      Width = 197
+      AutoSize = False
+      Caption = '© National Library of Scotland'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label18: TLabel
+      Left = 332
+      Height = 20
+      Top = 208
+      Width = 230
+      AutoSize = False
+      Caption = '+ NLS  OpenSteetMap  under'
+      ParentColor = False
+    end
+    object Label31: TLabel
+      Left = 626
+      Height = 20
+      Top = 232
+      Width = 197
+      AutoSize = False
+      Caption = '© National Library of Scotland'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label33: TLabel
+      Left = 612
+      Height = 20
+      Top = 208
+      Width = 252
+      AutoSize = False
+      Caption = '+ NLS  OS  6-inch  GB  1888-1913'
+      ParentColor = False
+    end
+    object Shape1: TShape
+      Left = 310
+      Height = 3
+      Top = 156
+      Width = 500
+      Brush.Color = clSilver
+      Pen.Color = clSilver
+    end
+    object Label34: TLabel
+      Left = 262
+      Height = 18
+      Top = 291
+      Width = 606
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'copy/paste from browser address bar - valid sources: NLS - OpenStreetMap - Google Maps - OS Maps'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+    end
+    object osm_radio_button: TRadioButton
+      Left = 26
+      Height = 23
+      Hint = 'a colourful modern map of the entire world'
+      Top = 38
+      Width = 254
+      AutoSize = False
+      Caption = 'OpenStreetMap  World  Map'
+      OnClick = osm_radio_buttonClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+    end
+    object nls_london_radio_button: TRadioButton
+      Left = 310
+      Height = 23
+      Hint = 'a very detailed large-scale map of the London area in the 1890s'
+      Top = 38
+      Width = 265
+      AutoSize = False
+      Caption = 'NLS  OS  60-inch  London 1890s'
+      Checked = True
+      OnClick = nls_london_radio_buttonClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+      TabStop = True
+    end
+    object nls_6inch_radio_button: TRadioButton
+      Left = 590
+      Height = 23
+      Hint = 'a smaller-scale historic map of the whole of Great Britain (not Northern Ireland)'
+      Top = 38
+      Width = 267
+      AutoSize = False
+      Caption = 'NLS  OS  6-inch  GB  1888-1913'
+      OnClick = nls_6inch_radio_buttonClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 2
+    end
+    object screenshot_25inch_radio_button: TRadioButton
+      Left = 26
+      Height = 23
+      Hint = 'a large-scale historic map of most of Great Britain '
+      Top = 184
+      Width = 270
+      AutoSize = False
+      Caption = 'NLS  OS  25-inch  GB  1892-1914'
+      Font.Color = clBlack
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = screenshot_25inch_radio_buttonClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
+    end
+    object screenshot_50inch_radio_button: TRadioButton
+      Left = 310
+      Height = 23
+      Hint = 'a very detailed large-scale map of south-east England and central Scotland, plus Aberdeen, Inverness'
+      Top = 184
+      Width = 266
+      AutoSize = False
+      Caption = 'NLS  OS  50"  1944-1967  (limited )'
+      Font.Color = clBlack
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = screenshot_50inch_radio_buttonClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 4
+    end
+    object screenshot_25k_radio_button: TRadioButton
+      Left = 590
+      Height = 23
+      Hint = 'a smaller-scale map from the 1940-1950s era'
+      Top = 184
+      Width = 266
+      AutoSize = False
+      Caption = 'NLS  OS  2.5"  25K  GB  1937-1961'
+      Font.Color = clBlack
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = screenshot_25k_radio_buttonClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 5
+    end
+    object screenshot_url_edit: TEdit
+      Left = 268
+      Height = 22
+      Hint = ' enter the URL for a map from NLS, OpenStreetMap, Google Maps, or OS Maps '
+      Top = 266
+      Width = 596
+      AutoSize = False
+      AutoSelect = False
+      Font.Color = clGray
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = screenshot_url_editClick
+      OnEnter = screenshot_url_editEnter
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 7
+      Text = 'http://maps.nls.uk/geo/explore/#zoom=20&lat=55.9599&lon=-4.8151&layers=170&b=7'
+    end
+    object other_screenshot_url_radio_button: TRadioButton
+      Left = 26
+      Height = 23
+      Hint = ' select other screenshot maps by entering the URL '
+      Top = 262
+      Width = 234
+      Caption = 'other  screenshot  map  URL :'
+      OnClick = other_screenshot_url_radio_buttonClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 6
+    end
+    object use_location_checkbox: TCheckBox
+      Left = 52
+      Height = 23
+      Hint = 'dont use location from URL - use location as below'
+      Top = 284
+      Width = 168
+      Caption = 'but use location below'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = use_location_checkboxClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 8
+    end
+  end
+  object location_groupbox: TGroupBox
+    Left = 12
+    Height = 216
+    Top = 516
+    Width = 589
+    Caption = ' real location :  '
+    ClientHeight = 193
+    ClientWidth = 585
+    Color = 13172712
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 7
+    OnMouseMove = location_groupboxMouseMove
+    object Label7: TLabel
+      Left = 374
+      Height = 16
+      Top = 110
+      Width = 49
+      AutoSize = False
+      Caption = 'letters:'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label8: TLabel
+      Left = 426
+      Height = 16
+      Top = 110
+      Width = 60
+      AutoSize = False
+      Caption = 'easting:'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label9: TLabel
+      Left = 498
+      Height = 16
+      Top = 110
+      Width = 60
+      AutoSize = False
+      Caption = 'northing:'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label11: TLabel
+      Left = 162
+      Height = 16
+      Top = 110
+      Width = 77
+      AutoSize = False
+      Caption = 'latitude:'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label12: TLabel
+      Left = 54
+      Height = 16
+      Top = 110
+      Width = 73
+      AutoSize = False
+      Caption = 'longitude:'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label13: TLabel
+      Left = 246
+      Height = 16
+      Top = 131
+      Width = 69
+      AutoSize = False
+      Caption = 'degrees'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label16: TLabel
+      Left = 262
+      Height = 20
+      Top = 4
+      Width = 230
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'GB locations can be found using:'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label14: TLabel
+      Cursor = crHandPoint
+      Left = 498
+      Height = 20
+      Hint = 'visit NLS 25K 1950s mapping, copy URL from address bar into box below'
+      Top = 4
+      Width = 80
+      AutoSize = False
+      Caption = 'NLS maps'
+      Font.Color = clBlue
+      Font.Height = -14
+      Font.Name = 'Arial'
+      Font.Style = [fsBold, fsUnderline]
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      OnClick = Label14Click
+      OnMouseMove = Label14MouseMove
+    end
+    object Label19: TLabel
+      Left = 206
+      Height = 24
+      Top = 82
+      Width = 101
+      AutoSize = False
+      Caption = '(entire world)'
+      Font.Color = clBlack
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label27: TLabel
+      Left = 6
+      Height = 34
+      Top = 157
+      Width = 153
+      AutoSize = False
+      Caption = 'enter longitude negative West of Greenwich UK'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+    object Label28: TLabel
+      Left = 162
+      Height = 35
+      Top = 157
+      Width = 145
+      AutoSize = False
+      Caption = 'enter latitude negative South of the Equator'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+    object Label25: TLabel
+      Left = 368
+      Height = 16
+      Top = 160
+      Width = 210
+      AutoSize = False
+      Caption = '3-figure or 5-figure references valid'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+    end
+    object os_grid_radio_button: TRadioButton
+      Left = 354
+      Height = 23
+      Top = 82
+      Width = 187
+      Caption = 'OS Grid Reference GB'
+      OnClick = os_letters_editEnter
+      TabOrder = 6
+    end
+    object lat_lon_radio_button: TRadioButton
+      Left = 34
+      Height = 23
+      Top = 82
+      Width = 156
+      Caption = 'longitude / latitude'
+      Checked = True
+      OnClick = lon_editEnter
+      TabOrder = 3
+      TabStop = True
+    end
+    object os_easting_edit: TEdit
+      Left = 426
+      Height = 24
+      Top = 128
+      Width = 64
+      AutoSize = False
+      AutoSelect = False
+      Color = clWhite
+      Font.Color = clGray
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = os_easting_editClick
+      OnEnter = os_letters_editEnter
+      ParentFont = False
+      TabOrder = 8
+      Text = '372'
+    end
+    object os_northing_edit: TEdit
+      Left = 498
+      Height = 24
+      Top = 128
+      Width = 64
+      AutoSize = False
+      AutoSelect = False
+      Color = clWhite
+      Font.Color = clGray
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = os_northing_editClick
+      OnEnter = os_letters_editEnter
+      ParentFont = False
+      TabOrder = 9
+      Text = '699'
+    end
+    object os_letters_edit: TEdit
+      Left = 374
+      Height = 24
+      Top = 128
+      Width = 36
+      AutoSize = False
+      AutoSelect = False
+      Color = clWhite
+      Font.Color = clGray
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      MaxLength = 2
+      OnClick = os_letters_editClick
+      OnEnter = os_letters_editEnter
+      ParentFont = False
+      TabOrder = 7
+      Text = 'TQ'
+    end
+    object lon_edit: TEdit
+      Left = 54
+      Height = 24
+      Top = 128
+      Width = 80
+      AutoSize = False
+      AutoSelect = False
+      Color = clWhite
+      Font.Color = clBlue
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = lon_editClick
+      OnEnter = lon_editEnter
+      ParentFont = False
+      TabOrder = 4
+      Text = '-0.0289'
+    end
+    object lat_edit: TEdit
+      Left = 162
+      Height = 24
+      Top = 128
+      Width = 80
+      AutoSize = False
+      AutoSelect = False
+      Color = clWhite
+      Font.Color = clBlue
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = lat_editClick
+      OnEnter = lon_editEnter
+      ParentFont = False
+      TabOrder = 5
+      Text = '51.4112'
+    end
+    object url_radio_button: TRadioButton
+      Left = 14
+      Height = 23
+      Top = 48
+      Width = 100
+      AutoSize = False
+      Caption = 'from URL :'
+      Font.Color = clBlack
+      Font.Height = -14
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = url_editEnter
+      ParentFont = False
+      TabOrder = 1
+    end
+    object url_edit: TEdit
+      Left = 120
+      Height = 22
+      Hint = ' set location by entering the URL for an OpenStreetMap or NLS slippy map or Google Maps or OS Maps '
+      Top = 48
+      Width = 460
+      AutoSize = False
+      AutoSelect = False
+      Font.Color = clGray
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = url_editClick
+      OnEnter = url_editEnter
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 2
+      Text = '  a URL entered here is used to set the location only'
+    end
+    object previous_loc_radio_button: TRadioButton
+      Left = 14
+      Height = 23
+      Top = 12
+      Width = 239
+      Caption = 'previous  screenshot  location'
+      Enabled = False
+      OnClick = previous_loc_radio_buttonClick
+      TabOrder = 0
+    end
+  end
+  object load_button: TButton
+    Left = 696
+    Height = 33
+    Top = 660
+    Width = 160
+    Caption = 'load  tiled  map'
+    Font.Color = clWindowText
+    Font.Height = -17
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = load_buttonClick
+    ParentFont = False
+    TabOrder = 13
+  end
+  object info_button: TButton
+    Left = 800
+    Height = 28
+    Hint = ' go to information on the Templot Companion web site '
+    Top = 6
+    Width = 94
+    Caption = '? info  >>>'
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = info_buttonClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 2
+  end
+  object extend_area_groupbox: TGroupBox
+    Left = 330
+    Height = 122
+    Top = 40
+    Width = 266
+    Caption = ' extend tiled map :  '
+    ClientHeight = 99
+    ClientWidth = 262
+    Color = 12648432
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 4
+    Visible = False
+    object Shape2: TShape
+      Left = 98
+      Height = 24
+      Top = 40
+      Width = 66
+      Brush.Color = clSilver
+      Brush.Style = bsDiagCross
+      Pen.Color = 53248
+      Pen.Width = 2
+    end
+    object add_top_button: TButton
+      Left = 98
+      Height = 24
+      Hint = 'add a row of tiles at the top'
+      Top = 10
+      Width = 66
+      Caption = '+ 1 row'
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = add_top_buttonClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+    end
+    object add_left_button: TButton
+      Left = 6
+      Height = 24
+      Hint = 'add a column of tiles on the left'
+      Top = 40
+      Width = 86
+      Caption = '+ 1 column'
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = add_left_buttonClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+    end
+    object add_right_button: TButton
+      Left = 170
+      Height = 24
+      Hint = 'add a column of tiles on the right'
+      Top = 40
+      Width = 86
+      Caption = '+ 1 column'
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = add_right_buttonClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 2
+    end
+    object add_bottom_button: TButton
+      Left = 98
+      Height = 24
+      Hint = 'add a row of tiles at the bottom'
+      Top = 70
+      Width = 66
+      Caption = '+ 1 row'
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = add_bottom_buttonClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
+    end
+  end
+  object crop_area_groupbox: TGroupBox
+    Left = 610
+    Height = 122
+    Top = 40
+    Width = 266
+    Caption = ' crop tiled map  :  '
+    ClientHeight = 99
+    ClientWidth = 262
+    Color = 13172712
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 5
+    Visible = False
+    object Shape3: TShape
+      Left = 98
+      Height = 24
+      Top = 40
+      Width = 66
+      Brush.Color = clSilver
+      Brush.Style = bsDiagCross
+      Pen.Color = clRed
+      Pen.Width = 2
+    end
+    object crop_top_button: TButton
+      Left = 98
+      Height = 24
+      Hint = 'remove a row of tiles at the top'
+      Top = 10
+      Width = 66
+      Caption = '- 1 row'
+      Font.Color = clWindowText
+      Font.Height = -14
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = crop_top_buttonClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+    end
+    object crop_left_button: TButton
+      Left = 6
+      Height = 24
+      Hint = 'remove a column of tiles on the left'
+      Top = 40
+      Width = 86
+      Caption = '- 1 column'
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = crop_left_buttonClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+    end
+    object crop_right_button: TButton
+      Left = 170
+      Height = 24
+      Hint = 'remove a column of tiles on the right'
+      Top = 40
+      Width = 86
+      Caption = '- 1 column'
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = crop_right_buttonClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 2
+    end
+    object crop_bottom_button: TButton
+      Left = 98
+      Height = 24
+      Hint = 'remove a row of tiles at the bottom'
+      Top = 70
+      Width = 66
+      Caption = '- 1 row'
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = crop_bottom_buttonClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
+    end
+  end
+  object background_shapes_button: TButton
+    Left = 710
+    Height = 28
+    Hint = 'show background shapes dialog'
+    Top = 512
+    Width = 174
+    Caption = 'background  shapes ...'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = background_shapes_buttonClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 8
+  end
+  object delete_button: TButton
+    Left = 690
+    Height = 28
+    Top = 6
+    Width = 93
+    Caption = 'delete map'
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = delete_buttonClick
+    ParentFont = False
+    TabOrder = 1
+  end
+  object show_loading_checkbox: TCheckBox
+    Left = 626
+    Height = 23
+    Top = 570
+    Width = 245
+    Caption = 'show full map while loading (slow)'
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 10
+  end
+  object transparent_checkbox: TCheckBox
+    Left = 626
+    Height = 23
+    Top = 594
+    Width = 160
+    Caption = 'load map transparent'
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    ParentShowHint = False
+    TabOrder = 11
+  end
+  object name_edit: TEdit
+    Left = 120
+    Height = 24
+    Top = 12
+    Width = 160
+    AutoSize = False
+    AutoSelect = False
+    Color = clWhite
+    Font.Color = clBlue
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    MaxLength = 15
+    OnChange = name_editChange
+    OnClick = name_editClick
+    ParentFont = False
+    TabOrder = 0
+  end
+  object name_listbox: TListBox
+    Left = 120
+    Height = 80
+    Hint = ' your current maps - select one to edit or delete '
+    Top = 46
+    Width = 190
+    Color = clWhite
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ItemHeight = 0
+    OnClick = name_listboxClick
+    ParentShowHint = False
+    ParentFont = False
+    ShowHint = True
+    TabOrder = 3
+    Visible = False
+  end
+  object zoom_edit: TEdit
+    Left = 844
+    Height = 24
+    Hint = 'leave unchanged for best results in most cases'
+    Top = 626
+    Width = 29
+    AutoSize = False
+    AutoSelect = False
+    Color = clWhite
+    Font.Color = clBlue
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    MaxLength = 2
+    OnClick = zoom_editClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 12
+    Text = '19'
+  end
+  object stop_button: TButton
+    Left = 708
+    Height = 28
+    Hint = 'stop loading map tiles'
+    Top = 704
+    Width = 109
+    Caption = 'stop  loading'
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = stop_buttonClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 15
+    Visible = False
+  end
+  object close_panel: TPanel
+    Left = 826
+    Height = 25
+    Top = 704
+    Width = 64
+    Alignment = taLeftJustify
+    Caption = '  hide'
+    ClientHeight = 25
+    ClientWidth = 64
+    Color = clYellow
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 16
+    OnClick = close_buttonClick
+    object close_button: TButton
+      Left = 43
+      Height = 15
+      Top = 3
+      Width = 15
+      Cancel = True
+      Caption = '  '
+      OnClick = close_buttonClick
+      TabOrder = 0
+    end
+  end
+  object pause_button: TButton
+    Left = 624
+    Height = 28
+    Top = 704
+    Width = 81
+    Caption = 'pause'
+    OnClick = pause_buttonClick
+    TabOrder = 14
+    Visible = False
+  end
+  object at_zero_checkbox: TCheckBox
+    Left = 626
+    Height = 23
+    Hint = 'untick if you want to specify the position on the trackpad'
+    Top = 546
+    Width = 262
+    Caption = 'screenshot at trackpad 0,0 grid datum'
+    Checked = True
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    State = cbChecked
+    TabOrder = 9
+  end
+  object cancel_button: TButton
+    Left = 624
+    Height = 25
+    Hint = 'click if the screnshot window stops responding'
+    Top = 664
+    Width = 56
+    Caption = 'cancel'
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Arial'
+    OnClick = cancel_buttonClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 17
+    Visible = False
+  end
+  object highlight_label: TLabel
+    Left = 14
+    Height = 48
+    Top = 50
+    Width = 100
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'enter a name here first'
+    Font.Color = clRed
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object manifest_memo: TMemo
+    Left = 606
+    Height = 20
+    Top = 512
+    Width = 102
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Arial'
+    Lines.Strings = (
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?> '
+      '<assembly '
+      '   xmlns="urn:schemas-microsoft-com:asm.v1" '
+      '   manifestVersion="1.0">'
+      ' <assemblyIdentity '
+      '    processorArchitecture="x86" '
+      '    version="5.1.0.0"'
+      '    type="win32"'
+      '    name="ot_screenshot_capture.exe"/>'
+      ' <description>OpenTemplot</description>'
+      ' <dependency>'
+      '  <dependentAssembly>'
+      '    <assemblyIdentity'
+      '         type="win32"'
+      '         name="Microsoft.Windows.Common-Controls"'
+      '         version="6.0.0.0"'
+      '         publicKeyToken="6595b64144ccf1df"'
+      '         language="*"'
+      '         processorArchitecture="x86"/>'
+      '  </dependentAssembly>'
+      ' </dependency>'
+      ' <asmv3:application xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">'
+      '    <asmv3:windowsSettings'
+      '         xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">'
+      '      <dpiAware>true</dpiAware>'
+      '    </asmv3:windowsSettings>'
+      '  </asmv3:application>'
+      '</assembly>'
+    )
+    ParentFont = False
+    ReadOnly = True
+    TabOrder = 18
+    Visible = False
+    WordWrap = False
+  end
+  object test_zoom_png_image: TImage
+    Left = 624
+    Height = 24
+    Top = 632
+    Width = 48
+    Enabled = False
+    Picture.Data = {
+      1754506F727461626C654E6574776F726B477261706869637F1A000089504E47
+      0D0A1A0A0000000D4948445200000190000000C80802000000497720B5000000
+      0774494D4507E1090B132326B9196842000000097048597300000B1200000B12
+      01D2DD7EFC00001A1E4944415478DAED9D4F4C5657FAC7DFEA4029860121CD4B
+      34044AC7804682254374BAD15D75655DB5BBE26A9C957625DDB9ABAE6C573AAB
+      D25DBB9A7655BBA39BA9C60985681C0C53FB1222BFF78DC1BE0C91612438BF2F
+      F7D0878773EEBDEFE5FD7F78BF9F1073DF7BEF39F7FCFD9EE739E7DCEB6BFF4B
+      A57E989C4C1142485D72FACC99D7AEA552D7FE3739F9C36B93542B428827ECAB
+      750208212429142C42883750B00821DE40C122847803058B10E20D142C428837
+      50B00821DE40C122847803058B10E20D142C42883750B00821DE40C122847803
+      058B10E20D142C42883750B00821DE40C122847803058B10E20D142C42883750
+      B00821DE40C122847803058B10E20D142C42883750B00821DE40C12284780305
+      8B10E20D142C42883750B00821DE40C122847803058B10E20D142C42883750B0
+      0821DE40C122847803058B10E20D142C42883750B00821DE40C122847803058B
+      10E20D142C42883750B00821DE40C122847803058B10E20D142C42883750B008
+      21DEF0BB5A27A0304D4DF9B6B6D98E8EE96CF6ECEA6A5FAD9313496B6BA6ABEB
+      5E53D3AF4F9E5CAA755A881F7474CCB4B7FFB4B6D69DCB9DAD755A8AA4CACDBE
+      DE05EBF8F1F1AEAEBBE6F8F9F33FADAED63A4161A0CE4647C7CC713E7F227940
+      68F1D0D0276D6DFF44937DF0E07A3DCB31292F3D3D5FF7F7DF32C799CC58AD93
+      530C4537FB52A8779770FFFEB55A27A130CDCDCBC505ECEFBF0DB5C2414B4B76
+      6868BCD6F920D563DFBEFFD43A09A55274B32F857A17ACBD0D742AF49810120A
+      05AB9668437A65E568AD934348BD53EF73587B9BF9F9B1D4E6CCEBF4DA5A37A7
+      EA09290805ABC640B3E6E7ABFAC496961CFE5D5B4BD73AEB84EC9A5A0A566B6B
+      A6AD6DD6CCDDBC7AF5C6CACA603E3F5C3094590936C7CBCBEFBC78D1BBBEDE51
+      30147A2942EDF659A96021EFC08179792202AEAEBEB5ABDE8E47EBF9299360EB
+      2478F9B25DAF12CA0D30BECCE374167012792F980C5D564839FE529B0BAF579B
+      9B97A7A76F96BE28E9E62206C948B9AAC62CA89BD96B441E544D788E249DD25A
+      10F6CD372775C9E856A4CBEDD9B333B55DBD4D924DAB22A20A50DF66B53783D9
+      42843FF33379FFAA1AB511ACDEDE89EEEE3B6E5B477D2C2C7CB8B8F87E68A8CE
+      CE1F07063EDD196A627DFDE0D3A7E78D6F150AEA7B70F086598CD39880785654
+      7D20607FFF6DD954A1595A3AF5AF7F7D9C44B610C989131F3735FD6A7EA2F53F
+      7A740D07E9F4777D7D13FACE7CFEC4CCCC67F2536E5859398A20C78E5D73B390
+      CD9E8523199AFE4387BEE9EBFB529EAB4BD814205255BA66B9B988219319B3AA
+      091DE3C891CF8BA89A74FA0E9E1BDA7EF014774F93A41315871243611E3890B1
+      EE595CBC90C97C84723B7CF85B5D6E0858AB4D279D9D778F1CF92C613687872F
+      CB3152FBFCF9293742DC23B1CDCE8EEB1C41AAD0DAD12B7786D82C3434B3F9F9
+      8B756292575BB0A0F118E1DDE6F2DBD52C6A08CD141DDBBDDAD3F3957B126D0B
+      4D0A111A21B0C0288AD619FA2C13103720A0DB16D1709192A85C40C59A9BAF4D
+      4DDD8ACF2C1A41A85AED0AF4E791914BAEF400342FF479C89CD5B19165311FDC
+      1236071B1BAF5779CB88B1EF842455E366AD60EE0607AFA376A2CA19977EFFFB
+      C7A18579E8D0DFA06BA16582684747C7EEDF9FA8A66615CC26AE3E7E3C6ECA07
+      6A82814DA41F975CC1126F26150C095AEFAC61D502CD0C26DEECECD55011AC32
+      555D25440776D50A9605FE5082E627CA3D54AD04DC89FB5FBCE8D32751431875
+      AD3BAD2E6102EA6701246668681C09B3025A6A8531CD7AE8DCDCE5542C887378
+      F88A3402849D9BBB526CB9FD1A5A5626FDB0A4F4CDB05E754337B946FAAD329C
+      9ABA6D29484581FDA29BBBAB56A15943015AF158DD58EA54DF1354DFE7F18519
+      5A2CA256A6BAADABD5DC286765D3A4C7CA26C47760E0BAFCD40D12126335E954
+      D030E41806AC1CBB6A659EA5B38FABC83EEEAC5A094451550B0BE5ABD50A1D58
+      7B7F1801504F3142804606A35D82A0F8B46D0FFBCB1A347497B0FC11A8DBDB6F
+      FFD55412861D18C318AC420342681E3EBC21F630DA010402492DD8DB75661189
+      652C0473ED631D1D33DA928FC1382C2606A4017A2A0D1AA681BEA47D34483F0A
+      D95CD23623328E2C943E60E672E79697DF09BDF4873FDCD4D9D7D50A2B5B0B8A
+      55C23A9D8801DD4C2A0E2E92EEC63A776E9964B3EF45D5916E0CAE74EA66A9AF
+      A29DA06D54C1C842094846D0E6B569836C06CEFE84F909CD424B36CD1E99157F
+      3FB5A959DF2F2C7CA0CB5C263710A7643078D7625CD40A2EB3586DA9A04BEA66
+      8C3BEFDD0BF172AA49F52CAC60EE707B3EC852AB5450E2F1C33E6A4E0741D3D1
+      963F8A558F2AD02039466FB7664F50C73FFFFC67F9A947241D102D0042A3BD77
+      D425FADEF4F4CDF8CCA295EBF68174963273B9B0F0211E2A31E00011EA015066
+      49D1A555520F4A7F0E0AE17D6D2176744C179D1E553EE97C7ED8FD6B6DFD455A
+      B9C9BE0E0535911EE29630D289FAD25523C7BA6AD0B574A99A32D11944C78E2A
+      4CDD18A07AD9EC597D55B7315CD571C2332ABDD00AA24D66CB11433691789D60
+      3D4FA25FF1817B6B95B92ABA93526ED035D1B860E4B8AE1B2A3A23C612F9893B
+      7503AB09D5132CDDF25034A133EBF1BDFAD5AB37AC33D02CDD9E0E1CD8DA2000
+      F5D1E20803C48D0D9AA51D10D3E7AD80BAC3EF4C494B4C3A313CEA11B2F4B9ED
+      8D8D90C769074104CB5D8ED441B4AF2D41CA0E4626ED50436AADEC6B2B09DAE4
+      963054438E8D5D131CE4B4791EBA6D4D078C1217B730B5F4BB5775A155E17D1A
+      28829E4608B5827536F538AD9B34CE8B07871B204C12647EFEA21C6B5D0B2D52
+      8C25181BE46759C6B952A89E4BA8B5397E966A57840A8AEE8D688E5183EDC6C6
+      EB4D4DDB41D038AC6E5C84D304D1D42E0646B30A3911D60C4B9D605C0CF9898A
+      B6EADA5A8047F984652DADBD1B540ACA50F619A4826120B454B57F8A6E8F67D5
+      C9DA5672B422A06DEB89A728D0E4F2F9AD5EF0F4E97971186122180DD22208EB
+      4CCF6FE831406F68D0E88588CA8D7309A99E60E9A2899AF82817BA58D1EE932F
+      BDEB80C5BD806E2DB5A0D1C096ACDAF4B67E109A3E5AA416746B1EB71209D0CB
+      F07884BBCE602DD247A9B9162C7360198F11A176C81382782758BA05A206776B
+      D1A0B129C1FADE08966EFFDAB3118FC490BC9BD410BE4BB845E50C16185CEE92
+      4D850836406EFBB90303D7E5D1502B3D6654E27B20DA174E05BB81EA6ACFE15E
+      45375D14B8CC7061EC4CA7EFE8DD0C2B2B474B1C3B6B6ED7EFFD577350C47A92
+      328AF21A7D4F9EFC45BE761498785F16DC065116D05E33998F640AA9ABEBEEE8
+      E845D8234883B6502AF1C5B860EA6A7BED0FB6153FEF5522EE5686502C2B7261
+      E143992FB67672C537C2249FE5AAB46F5490EA09D68B177D32C2B7B7FF94F0F5
+      8BE2B08691987DF031018B9E5F7CF4E8DAB36767F6EDFB8FD8D8F1ABECE50536
+      3F4C7D5915C230DBD1B1C34B850906DBA7BC0F851D171892DBABE351AF2B58DE
+      5CD446015DF8A6DC74E959BE8C0A3513F32C2F403625EF185792375D01E5299B
+      48F50A9279AD27A67C72B973F5EF4157CF25D48515B585B75CACAEBE25C7B02C
+      92CF14EA80A99D0B0509C19068A699D1D4F40A66351DC3A74FCF4799EE68CA65
+      798BD002369DDEC7209BDA5C6003EAB485AEE559C56E2A45570D943174136367
+      E78F728CA7F8E8905ABB288A6B33A1CBE2AE0165D585B513A23EA99E60E9D522
+      34EED095BB96969C35481607060A5DF17A2A47E3367A2B20FA61684077577D28
+      7AFF91710C4BCF5A41CCC6E5DFDEF5ED833105FF148D15FFDEBF3F313575ABEC
+      6A65EDE77CF0E0D378A5B0B61159256C5E6A939F505833EC9BB74FE4FCE0E00D
+      2B5A645C2FDE279907A843F4C2347439EAFDB0F84DE788C41AB1A2260174AF3C
+      7CF8DBD0685123E60B1FF540F5040B856869017444E40925D2DB3B3132726960
+      E0D3B23C4E6F2A813E2266A88CF40D540C1E878EED2E1BEB80E8F626A054183A
+      E7C8C85F0607AF27D12C48831ED6E0A655E1E506F476FDF6A2F9FE412AD84304
+      59E9E9F9BABC6940C968ED80A6A08850AAEE9FD475F056F3D6CA00923A3C7C45
+      4C2AD8C2F8B9F37588CBA1C770798E1FDF7E5904D5A1DF2FD19BB9EB1FED0140
+      EBF5BE595419DA9B3639518CE838A3A363F17E83654F45C977B00F6EBB2E4C8F
+      90D68E03142CBA40D45B9F4294935E76AA3AE90E8B43B7AAEEEE3BCEDBE128B5
+      4D5128FDAD11C480EE2A23BF795FD4BD0DA38AF555808401AD3781A28063A8BF
+      4B818AFFC73F262A5AC87AD74C3089663FAEBFFF56193F3F70FCF855BD93033A
+      E27E7DC190C96C7DF604A53D3B7B55B66B99D7394383A03BE999041CE38C4CCF
+      7575DD0DFD96462AD820EE913F885CE8B93C3874EDED3F896AA33C43CBE7C891
+      CF635EBF47338612C98B9351F20DBB15C380E89179EDDCDDDF60E65562266111
+      103E53150689AA6E6B40954C4FDF2CB8325AAEDDB4D0473D5885828276078724
+      019B9B97F7ED4BF4B503EBFDA1245B014B21892B84F617B88DA5DAF9E833511F
+      DE8807DD2978B1E660CC3DA80277550B67E2ABC6BC09540FDF1588C7DA4F8BEA
+      108B09523B33F359C14F66A312635A202291379CB3D9F762E4DB7C4424BE2E52
+      61F3CE187E7428F84C09A74A4AA1DADB1AA0595353B7BBBBBF4FA7BF73DBFAD2
+      D2299824655C4D43FB466D41FBCD7F9DA62F9937E0A33EF4131F10A280C124FE
+      051DC1B20B307C55F49B70C6EE8301A8DF3D36ED556F6E0836E97C57C42294A6
+      B5F597A2C3A210D0277B7BBF704B38BE1998AA81EE5BE6153ACFD2D2C9FAF972
+      533C6800DA9047E7D7F9457DC17A42FFC70DAE15890A45D8822D30973B676CA5
+      82A3AFA90B34513CCEDAD98B52FDF7BF07A2AA435B67512F129597D72627272B
+      FD8C28CCC73CCD71E8F70FCB0BAC6EF98F8976F51DC5A203D621B089443AAD4F
+      06D610795F67B7CD40AA26EA73A6758E497FC1C4EB95A85DED0732737CBB2A52
+      FDEE54925235F757A1FF1A6A2958A44298975DF5D74584CECEBB3221523F8245
+      4842F6FE4EF706C4FC6FD230EF61B16B4BBEAD6D76E78E81EA7DC08F90B240C1
+      DA6BC857D2CDB79503AB7E739503DEB7355554706A83907A8382B5A7D8B76F4D
+      EFF64EED9C68D7049F00F46FD2873438FC5AC39EE2D5AB96A9A9DB99CC58CC2A
+      F5CACA51DC53C64F9211523538E9BE67E9ECBCDBD6362B9BDA36365A5656066B
+      FEBFEC11520A142C428837D02524847803058B10E20D142C42883750B00821DE
+      40C122847803058B10E20D142C42883750B00821DE40C122847803058B10E20D
+      142C42883750B00821DE40C122847803058B10E20D142C42883750B00821DE40
+      C122847803058B10E20D142C42883750B00821DE40C122847803058B10E20D14
+      2C42883750B00821DE40C122847803058B10E20D142C42883750B00821DE40C1
+      22847803058B10E20D142C42883750B00821DE40C122847803058B10E20D142C
+      42883750B00821DE40C122847803058B10E20D142C42883750B00821DE40C122
+      847803058B10E20D142C42883750B00821DE40C122847803058B10E20D142C42
+      883750B00821DE40C122847803052B9296965C3A7D6760E07AAD134208D9E277
+      B54E409DF2EEBB179A9A7E35C78F1F8FD73A39248E23473E3F74E86FEBEB07E7
+      E62E3F7B76A6D6C9211584165638A256A4CE81150CB54A055576ECD835D8C551
+      773635E56B9D58522A142CE2372D2DD9989FA0B53503BF1E26F38103F3B54E2C
+      2915BA84C46F9E3F3FD5D737618EE115BE78D1ABAF1E3F3EDED575B7D6692465
+      838245FC666565F0C183EB3D3D5F6D6CB43C7972697DBD435FDDBF7FADD60924
+      E5848245BC074616FE6A9D0A520DF6AC60B5B4E4643A636DAD7B6D2DDDDA9A79
+      F3CD49736679F91DF80ED6685C044D4DF9B6B659FC258F16C9C0FD92361808AB
+      AB6F2179E57D0AB2DFDEFE9379CAAB576FE029F9FC70198B1749D25342A1919B
+      7BA2928A72686E5E36C7FA1E130A89373F63126FA5C14A89895F4FB4B7B6FE12
+      7A27F1883D2B58E9F47732B5F1ECD91934DF030732EAFAE6A56CF6ECFCFCC578
+      B188023DA1BFFF7677F79D9DA7E3A2EDECBC7BE4C867EEAC706AB3C7F63D7E3C
+      8E9EE93EA5AFEF4BB30A663D6565E5E8ECECD5D5D53E2B08723A3878A3ADED9F
+      D6F9F5F5834F9F9E5F5C7CBF74990E62EB3876ECA2ACA5DEBF3FE1A6046E1AFE
+      16163E84A7E6E66B74744C12F6F7BF6F65306ACA09F7A01233998F74E2A156C3
+      C397AD3B7FF861D21CA0A83B3AA6F5259C09BD93784443AC12C2B0DAA9565B40
+      6E46462EA187EF364204191DBDE8A8D58E68214FD679180BA16A95DAEC7B1904
+      110350181EBEE2A8D516AE24999C4208422F415CA0E088B088FC86B2B4745267
+      D9795CBEBBFBFBE0D2F7EE7E025D383A9EA82927241EE580C4736B4283D31082
+      65801593CF9FC0BFFA247AC289131FEFAA1BA0C30741B6376A215AFCC1F1D4D1
+      0E0D8D5BD2001F0496422AB017DC20A96003A44E494FCFD75A6771B309652241
+      462CA3066A75ECD835F9294F31F71B10211256966E0FD3493FDABA0A49324584
+      7F5DEDD6F7EB789E3FFF93AE2CFCE95048FCA143DF949E72E22F7BD625D4A0F5
+      3F7C78437CB496961C5C15B15CD0A3E0DC25DCCE8EAE1E74F82DB55A5A3A8580
+      E2A7B4B5CD0E0C5C1795C19DF7EE7DA583A373C2A0D042035183CA98208816F6
+      C8C2C207E65267E78F721B1CC0A9A95BF253CF82E978E4672633363F3F263FD3
+      E93B6FBFFD57936C044C9EDF18900B68A84906FE450274BEC41F37C7B9DC595D
+      86E2F721061D0A85F3F265FBF3E7A7B4EBD7DB3B21B11D3EFCADE40B038071EB
+      4E9F3EE3266F6666D3018451268EE1CCCCE79CB7F29D86B0B09E3D3BA3679470
+      3C37777971F1829CE9EABA97302A088A2845A083D775D75A59198432CA4FDC69
+      19171023CB2CC24FAD1D32D96CA1FD26F320EB1D1468901C236B5AAD00F4E2E7
+      9FFFAC7271A72C465636BB2D43DA2BB4F414C7B26260CA303406531A48AA35CB
+      86BC40AFCD3134B75C2E2DF1918610AC50B427826ED0D1319324543AFD9D1CBB
+      73C9A9400D6176C94F6BDE579D9F81C707DB017FBA07EA7EAEE7E06159E83E6F
+      A16D96D4A679F5917B4F2004DBBE614C6CC9C9E5CEC9B1F6F29029EB4E7D4697
+      A18E41032B185A6FCA077F7A3B68D43C2069041AC2250C05CA221E0D78FDF5FF
+      8303111F245847CFC84FBDD540A3678EAD1BD00F7B7BBF889AAD4F05D334720C
+      432998B1DE9A091A19B904430362E4EE39D24F41A6A2267A36365E6F6ADA0E52
+      FADE2594219264E6F8C52B441E453D37365A4C69E00CCEE37EFC2B794458772D
+      15DE2B1CC018552A4BCA89A734AE60A582BE2D1D23C9B86DEDFAD1D33449B026
+      C513242F3D3B7B7570F0864C99411A8686C691EC60E7C498DCA9050B19D96DC2
+      4AE1E9D3F383835B8B921062589D7A59F3D1A36B48B039C6795CD58618C2EAA8
+      301E0C0F5F095DCF25C4D0B82E6175907540688AA556F9FC894C660C7FD63C8E
+      06A6C4F4F44D99C1311849FAE31FC74A9987B216288B269820DFF2342146B29B
+      2115CCF1E1AAE4CEEC6F10394328CB501A1AFAC45A1545585344E54A2DF19D86
+      B6B04A041DA9E03DCBCBEF9803FD21406BD53215B68F4980933535750B7A0747
+      4FDF166C50F8442F1D1A4C3F4F9EB012595FEF585A3A69120625EDE9F94AEC41
+      334B383FBFB5610DE771552C5984D293EB9D9D77F5F6B1B9B92B8B8BEFEB0755
+      D36C24754B430B969E11777799BB585F02C8E5CE25DC25AF276E5281A3B4DBED
+      F548DEE3C7E3E8FC30D3A463E3C04C1B5989B796082B0D9445941492640EA09B
+      662B839EE792AB26948E44BB8A4B4BA7ACAB84181AD725B4A6C35757DF2A1804
+      1681F64DF46A573CD60499B5B321E69B7316E8FC0F1E7CAAD360FAB94EBCB587
+      A00A402E5D974D9B9F7373F60B34B8DF12D9A8E5D1D002240D4B830A565353DE
+      F2D1129A3C7AF7D3E1C3DF86EE0942E4F11A645D8D113EDC694D5459A26940E2
+      F50E7E642D747AAB723B98AC4D61D6FC94AB68F11F32B6E429D8B49174A35C0C
+      517BDC4AA7B777E2DD772F9C3E7D26AAE4BD88C10B1A42B06086C8064EF35F4B
+      8C8C5CD23E5AE88E2A41F7F3C5C50B32C76C5EEB4143110192C8ADF975CB971C
+      18F8D4040926A1BFB16667B49C211EC4D6D3F3B59C44FCA19EACCE8279331177
+      4AC34516904E93DA4A94B0DE859B0A96FFACCD9FD67C9F757F6AA75505071389
+      979407AF106EBF08B52B6B2B6A2F1BDA83FB3A5171987D18268548B9DEC1EB51
+      0CBED0107358E605BAA8AB18EDE3F7F5A0FA1F3EDC32C7CC2E79D123F346B13B
+      1F6CFC32E92DC1CCF429D99D04C53979F283A8C7C110585B3B1B449233533FFD
+      FDB7F0E7DE09B345528E0364443A2112303818F2FFFDA0D396EB830D3B53B269
+      E299310082EECE4099C544D3A342EDD96CF6AC9EE142E243D39F8ADE8B1B0ACA
+      44A2357BD9E45292359324580B26F8B9DBD79EEA21065F68080B2B060CF58F1E
+      5D73CFEBDDEA101AED3FA20F2088DE351E8A3580A301C5ACCDEBB77C8385B67C
+      6AE714B50B12F0E0C18E2E8D54B9968B053A6D853E6D2E6F0E64B3EFB9828833
+      B2EB4ABF6320ACAEF6CDCD5D898A1C1A27050E2D4E6E1CB9EF30959D8D8D969D
+      393DE8630CBED0108215ECA8B6C50292343575DB9D0F36041FDBDDAA751C587D
+      0C7D006171D28D16379B982D37133D16276147588D2978ABF9F6CCCC67D2AF9A
+      9B97F7EFFF6F2A98AB9E9D1DB73E2F611E8178EEDFFFC2FD041582843E25F5DB
+      76877BF7BEAED00BC062EB4589A6BC851365CFC22E83045BF94546600AA17CA6
+      A76F4AA612BE4765808E2306B7405EBD7AA32C19B7D664ADDDB0BEC4E00BAF4D
+      4E4ED63A0D1541BFE26F3E5D20DF207DF9B2DDEDEA2EF241CBF81EEE7EDAB460
+      CCF2B14DEB6B9CE6BCFB38FD69CD848F48457FD2B37298C9BE98B22D7883955F
+      ABA6CCF9E425105320E5556DB8FF686FFBF7AF6148D0DFA5F02B062F6820C1AA
+      758A0821A5D2102E2121646F40C122847803058B10E20D142C428837ECD98DA3
+      E6BF6C90E35A2787105206F6EC2A212164EF41979010E20D142C42883750B008
+      21DE40C122847803058B10E20D142C42883750B00821DE40C122847803058B10
+      E20D142C42883750B00821DE40C122847803058B10E20D142C42883750B00821
+      DE40C122847803058B10E20D142C42883750B00821DE40C122847803058B10E2
+      0D142C42883750B00821DE40C122847803058B10E20D142C42883750B00821DE
+      40C122847803058B10E20D142C42883750B00821DE40C122847803058B10E20D
+      142C42883750B00821DE40C122847803058B10E20D142C42883750B00821DE40
+      C1228478C3FF0389E313BC7422854B0000000049454E44AE426082
+    }
+    Visible = False
+  end
+end

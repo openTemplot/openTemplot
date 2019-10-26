@@ -1,0 +1,534 @@
+object mint_form: Tmint_form
+  Left = 30
+  Height = 342
+  Top = 82
+  Width = 682
+  BorderIcons = [biSystemMenu]
+  Caption = '    new  control  template  -  quick  set  ( mint ) ...'
+  ClientHeight = 342
+  ClientWidth = 682
+  Color = 15663103
+  DesignTimePPI = 120
+  Font.Color = clBlack
+  Font.Height = -15
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  KeyPreview = True
+  OnActivate = FormActivate
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  OnShow = FormShow
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object datestamp_label: TLabel
+    Left = 0
+    Height = 4
+    Top = 338
+    Width = 682
+    AutoSize = False
+    Font.Color = clSilver
+    Font.Height = -7
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object red_label: TLabel
+    Left = 500
+    Height = 24
+    Hint = ' click  the  help  button  for  information '
+    Top = 7
+    Width = 108
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = '------->'
+    Font.Color = clRed
+    Font.Height = -18
+    Font.Name = 'Verdana'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    OnClick = help_buttonClick
+  end
+  object mint_html_view: THtmlViewer
+    Left = 0
+    Height = 302
+    Top = 2
+    Width = 334
+    BorderStyle = htNone
+    DefBackground = 15663103
+    DefFontColor = clBlack
+    DefFontName = 'Arial'
+    DefFontSize = 8
+    DefOverLinkColor = clRed
+    DefPreFontName = 'Courier New'
+    DefVisitedLinkColor = clBlue
+    HistoryMaxCount = 10
+    HtOptions = [htOverLinksActive, htPrintTableBackground, htPrintMonochromeBlack]
+    NoSelect = True
+    PrintMarginBottom = 1
+    PrintMarginLeft = 1
+    PrintMarginRight = 1
+    PrintMarginTop = 1
+    PrintScale = 1.25
+    ScrollBars = ssNone
+    TabOrder = 12
+    TabStop = True
+  end
+  object size_groupbox: TGroupBox
+    Left = 328
+    Height = 158
+    Top = 110
+    Width = 157
+    Caption = ' turnout  &size :  '
+    ClientHeight = 135
+    ClientWidth = 153
+    Color = 16772829
+    Font.Color = clNavy
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 2
+    object left_hand_radio_button: TRadioButton
+      Left = 6
+      Height = 23
+      Top = 14
+      Width = 119
+      Caption = 'L H  &left-hand'
+      Checked = True
+      Font.Color = clNavy
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      TabStop = True
+    end
+    object right_hand_radio_button: TRadioButton
+      Left = 6
+      Height = 23
+      Top = 38
+      Width = 131
+      Caption = 'R H  &right-hand'
+      Font.Color = clNavy
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+    end
+    object turnout_combo: TComboBox
+      Left = 8
+      Height = 26
+      Top = 108
+      Width = 137
+      DropDownCount = 20
+      Font.Color = clBlack
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ItemHeight = 18
+      Items.Strings = (
+        '  plain  track'
+        ' REA      A - 4.5'
+        ' REA      A - 5'
+        ' REA      A - 5.5'
+        ' REA      A - 6'
+        ' REA      B - 5.5'
+        ' REA      B - 6'
+        ' REA      B - 6.5'
+        ' REA      B - 7'
+        ' REA      B - 7.5'
+        ' REA      B - 8'
+        ' REA      C - 8'
+        ' REA      C - 9'
+        ' REA      C - 10'
+        ' REA      D - 10'
+        ' REA      D - 12'
+      )
+      ParentFont = False
+      Style = csDropDownList
+      TabOrder = 3
+    end
+    object joggled_rails_checkbox: TCheckBox
+      Left = 6
+      Height = 23
+      Top = 72
+      Width = 139
+      Caption = 'joggled stoc&k rails'
+      Font.Color = clNavy
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 2
+    end
+  end
+  object curving_groupbox: TGroupBox
+    Left = 496
+    Height = 158
+    Top = 110
+    Width = 174
+    Caption = ' main  road  &curving :  '
+    ClientHeight = 135
+    ClientWidth = 170
+    Color = 16777198
+    Font.Color = clGreen
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 4
+    object rad_label: TLabel
+      Left = 10
+      Height = 20
+      Top = 66
+      Width = 133
+      AutoSize = False
+      Caption = 'model  radius :'
+      Font.Color = clGreen
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object model_rad_label: TLabel
+      Left = 10
+      Height = 18
+      Top = 86
+      Width = 158
+      AutoSize = False
+      Caption = '00000 mm  ( 0000.0 ins )'
+      Font.Color = clGreen
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object posrad_radio_button: TRadioButton
+      Left = 10
+      Height = 23
+      Top = 14
+      Width = 81
+      Caption = 'p&ositive'
+      Checked = True
+      Font.Color = clGreen
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      TabStop = True
+    end
+    object negrad_radio_button: TRadioButton
+      Left = 10
+      Height = 23
+      Top = 38
+      Width = 86
+      Caption = '&negative'
+      Font.Color = clGreen
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+    end
+    object radius_combo: TComboBox
+      Left = 8
+      Height = 26
+      Top = 108
+      Width = 154
+      DropDownCount = 16
+      Font.Color = clBlack
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ItemHeight = 18
+      Items.Strings = (
+        '   straight'
+        ' radius   200 ft'
+        ' radius   250 ft'
+        ' radius   300 ft'
+        ' radius   400 ft'
+        ' radius   500 ft'
+        ' radius   600 ft'
+        ' radius   750 ft'
+        ' radius  1000 ft'
+        ' radius  1500 ft'
+        ' radius  2000 ft'
+        ' radius   5 chains'
+        ' radius  10 chains'
+        ' radius  20 chains'
+      )
+      OnChange = radius_comboChange
+      ParentFont = False
+      Style = csDropDownList
+      TabOrder = 2
+    end
+  end
+  object blue_corner_panel: TPanel
+    Left = 0
+    Height = 48
+    Top = 0
+    Width = 20
+    BevelOuter = bvNone
+    ClientHeight = 48
+    ClientWidth = 20
+    Color = clBlue
+    Font.Color = clBlack
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 11
+    object size_updown: TUpDown
+      Tag = 4
+      Left = 0
+      Height = 24
+      Top = 1
+      Width = 16
+      Max = 10
+      Min = 1
+      OnClick = size_updownClick
+      Position = 4
+      TabOrder = 0
+      Wrap = False
+    end
+    object colour_panel: TPanel
+      Left = 1
+      Height = 16
+      Top = 28
+      Width = 15
+      ClientHeight = 16
+      ClientWidth = 15
+      TabOrder = 1
+      OnClick = colour_panelClick
+      object colour_patch: TImage
+        Left = 1
+        Height = 14
+        Top = 1
+        Width = 13
+        Align = alClient
+        AutoSize = True
+        OnClick = colour_panelClick
+        Picture.Data = {
+          07544269746D6170B6040000424DB60400000000000036000000280000001800
+          0000100000000100180000000000800400008412000084120000000000000000
+          0000008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF00008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          00000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          0000
+        }
+        Stretch = True
+      end
+    end
+  end
+  object ok_panel: TPanel
+    Left = 615
+    Height = 27
+    Top = 304
+    Width = 57
+    Alignment = taLeftJustify
+    Caption = '  OK'
+    ClientHeight = 27
+    ClientWidth = 57
+    Color = clLime
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 5
+    OnClick = ok_panelClick
+    object ok_button: TButton
+      Left = 36
+      Height = 15
+      Top = 7
+      Width = 15
+      Caption = '  '
+      Default = True
+      Font.Color = clBlack
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ModalResult = 1
+      OnClick = ok_panelClick
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object cancel_panel: TPanel
+    Left = 328
+    Height = 25
+    Top = 306
+    Width = 70
+    Alignment = taLeftJustify
+    Caption = ' cancel'
+    ClientHeight = 25
+    ClientWidth = 70
+    Color = clYellow
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 8
+    OnClick = cancel_panelClick
+    object cancel_button: TButton
+      Left = 49
+      Height = 15
+      Top = 4
+      Width = 15
+      Cancel = True
+      Caption = '  '
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ModalResult = 2
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object help_button: TButton
+    Left = 612
+    Height = 25
+    Hint = ' show  the  notes  for  this  panel '
+    Top = 6
+    Width = 64
+    Caption = '? &help'
+    OnClick = help_buttonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 0
+  end
+  object try_button: TButton
+    Left = 430
+    Height = 25
+    Top = 306
+    Width = 65
+    Caption = 'preview'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ModalResult = 4
+    OnClick = try_buttonClick
+    ParentFont = False
+    TabOrder = 7
+  end
+  object plain_track_button: TButton
+    Left = 328
+    Height = 25
+    Hint = ' set  the  new  template  to  be  plain  track '
+    Top = 72
+    Width = 100
+    Caption = 'plain  track'
+    OnClick = plain_track_buttonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 1
+  end
+  object straight_button: TButton
+    Left = 496
+    Height = 25
+    Hint = ' set  the  new  template  to  be  straight  ( no  curving ) '
+    Top = 72
+    Width = 80
+    Caption = 'straight'
+    OnClick = straight_buttonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 3
+  end
+  object zoom_fit_button: TButton
+    Left = 504
+    Height = 25
+    Top = 306
+    Width = 93
+    Caption = 'zoom  to  fit'
+    Enabled = False
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = zoom_fit_buttonClick
+    ParentFont = False
+    TabOrder = 6
+  end
+  object mint_current_button: TButton
+    Left = 176
+    Height = 25
+    Hint = ' mint  a  new  template  without  changing  size  or  radius '
+    Top = 306
+    Width = 138
+    Caption = 'mint  from  current'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ModalResult = 5
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 9
+  end
+  object reset_button: TButton
+    Left = 8
+    Height = 25
+    Hint = ' reset  unwanted  partial  template  settings  without  making  other changes  '
+    Top = 306
+    Width = 164
+    Caption = 'reset  partial  template'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ModalResult = 7
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 10
+  end
+end

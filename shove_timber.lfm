@@ -1,0 +1,806 @@
+object shove_timber_form: Tshove_timber_form
+  Left = 12
+  Height = 260
+  Top = 100
+  Width = 552
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSizeToolWin
+  Caption = '    shove   timber / sleeper'
+  ClientHeight = 260
+  ClientWidth = 552
+  Color = 15852503
+  DesignTimePPI = 120
+  Font.Color = clBlack
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnResize = FormResize
+  OnShow = FormShow
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object timbering_length_label: TLabel
+    Left = 240
+    Height = 18
+    Top = 0
+    Width = 310
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'total template timbering length:  00000.00 mm'
+    Font.Color = clMaroon
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object help_shape: TShape
+    Left = 492
+    Height = 28
+    Top = 24
+    Width = 58
+    Pen.Color = clWhite
+  end
+  object readout_label: TLabel
+    Left = 108
+    Height = 16
+    Top = 24
+    Width = 156
+    AutoSize = False
+    Caption = 'click these read-outs to set'
+    Font.Color = clBlack
+    Font.Height = -12
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object blue_corner_panel: TPanel
+    Left = 0
+    Height = 73
+    Top = 0
+    Width = 20
+    BevelOuter = bvNone
+    ClientHeight = 73
+    ClientWidth = 20
+    Color = clBlue
+    Font.Color = clBlack
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 35
+    object how_panel: TPanel
+      Left = 0
+      Height = 20
+      Top = 48
+      Width = 16
+      Caption = '?'
+      Color = clBlack
+      Font.Color = clLime
+      Font.Height = -17
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      TabOrder = 0
+      OnClick = how_panelClick
+    end
+    object size_updown: TUpDown
+      Tag = 4
+      Left = 0
+      Height = 24
+      Top = 1
+      Width = 16
+      Max = 10
+      Min = 1
+      OnClick = size_updownClick
+      Position = 4
+      TabOrder = 1
+      Wrap = False
+    end
+    object colour_panel: TPanel
+      Left = 1
+      Height = 16
+      Top = 28
+      Width = 15
+      ClientHeight = 16
+      ClientWidth = 15
+      TabOrder = 2
+      OnClick = colour_panelClick
+      object colour_patch: TImage
+        Left = 1
+        Height = 14
+        Top = 1
+        Width = 13
+        Align = alClient
+        AutoSize = True
+        OnClick = colour_panelClick
+        Picture.Data = {
+          07544269746D6170B6040000424DB60400000000000036000000280000001800
+          0000100000000100180000000000800400008412000084120000000000000000
+          0000008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF00008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          00000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          0000
+        }
+        Stretch = True
+      end
+    end
+  end
+  object hide_panel: TPanel
+    Left = 506
+    Height = 46
+    Top = 214
+    Width = 46
+    Caption = 'hide'
+    ClientHeight = 46
+    ClientWidth = 46
+    Color = clYellow
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 0
+    OnClick = hide_buttonClick
+    object hide_button: TButton
+      Left = 27
+      Height = 14
+      Top = 27
+      Width = 14
+      Caption = '  '
+      OnClick = hide_buttonClick
+      TabOrder = 0
+    end
+  end
+  object restore_button: TButton
+    Left = 424
+    Height = 22
+    Top = 129
+    Width = 126
+    Caption = 'M  restore  ti&mber'
+    Enabled = False
+    OnClick = restore_buttonClick
+    TabOrder = 21
+  end
+  object omit_button: TButton
+    Left = 312
+    Height = 22
+    Top = 129
+    Width = 108
+    Caption = 'O  &omit  timber'
+    Enabled = False
+    OnClick = omit_buttonClick
+    TabOrder = 20
+  end
+  object restore_all_button: TButton
+    Left = 2
+    Height = 22
+    Top = 129
+    Width = 80
+    Caption = 'restore all'
+    OnClick = restore_all_buttonClick
+    TabOrder = 17
+  end
+  object widen_button: TButton
+    Left = 2
+    Height = 22
+    Top = 238
+    Width = 78
+    Caption = 'W   &widen'
+    Enabled = False
+    OnClick = widen_buttonClick
+    TabOrder = 24
+  end
+  object mouse_groupbox: TGroupBox
+    Left = 2
+    Height = 51
+    Top = 156
+    Width = 548
+    Caption = ' shove  timber  by  mouse  action :   '
+    ClientHeight = 30
+    ClientWidth = 544
+    Color = 15268088
+    Font.Color = 12582912
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 22
+    object Label1: TLabel
+      Left = 371
+      Height = 16
+      Top = 0
+      Width = 112
+      AutoSize = False
+      Caption = '  response  rate :  '
+      ParentColor = False
+    end
+    object normal_label: TLabel
+      Left = 351
+      Height = 15
+      Top = 19
+      Width = 48
+      AutoSize = False
+      Caption = 'normal'
+      Font.Color = 12582912
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      OnClick = normal_radioClick
+    end
+    object fine_label: TLabel
+      Left = 416
+      Height = 15
+      Top = 19
+      Width = 30
+      AutoSize = False
+      Caption = 'fine'
+      Font.Color = 12582912
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      OnClick = fine_radioClick
+    end
+    object extra_fine_label: TLabel
+      Left = 457
+      Height = 15
+      Top = 19
+      Width = 65
+      AutoSize = False
+      Caption = 'extra-fine'
+      Font.Color = 12582912
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      OnClick = extra_fine_radioClick
+    end
+    object mouse_along_button: TButton
+      Left = 8
+      Height = 22
+      Top = 6
+      Width = 48
+      Caption = 'along'
+      Enabled = False
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = mouse_along_buttonClick
+      ParentFont = False
+      TabOrder = 0
+    end
+    object mouse_throw_button: TButton
+      Left = 164
+      Height = 22
+      Top = 6
+      Width = 48
+      Caption = 'throw'
+      Enabled = False
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = mouse_throw_buttonClick
+      ParentFont = False
+      TabOrder = 3
+    end
+    object normal_radio: TRadioButton
+      Left = 363
+      Height = 23
+      Top = 1
+      Width = 40
+      Caption = '    '
+      Checked = True
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = normal_radioClick
+      ParentFont = False
+      TabOrder = 6
+      TabStop = True
+    end
+    object fine_radio: TRadioButton
+      Left = 419
+      Height = 23
+      Top = 1
+      Width = 40
+      Caption = '    '
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = fine_radioClick
+      ParentFont = False
+      TabOrder = 7
+      TabStop = True
+    end
+    object extra_fine_radio: TRadioButton
+      Left = 475
+      Height = 23
+      Top = 1
+      Width = 40
+      Caption = '    '
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = extra_fine_radioClick
+      ParentFont = False
+      TabOrder = 8
+      TabStop = True
+    end
+    object mouse_twist_button: TButton
+      Left = 60
+      Height = 22
+      Top = 6
+      Width = 48
+      Caption = 'twist'
+      Enabled = False
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = mouse_twist_buttonClick
+      ParentFont = False
+      TabOrder = 1
+    end
+    object mouse_length_button: TButton
+      Left = 216
+      Height = 22
+      Top = 6
+      Width = 52
+      Caption = 'length'
+      Enabled = False
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = mouse_length_buttonClick
+      ParentFont = False
+      TabOrder = 4
+    end
+    object mouse_width_button: TButton
+      Left = 272
+      Height = 22
+      Top = 6
+      Width = 48
+      Caption = 'width'
+      Enabled = False
+      OnClick = mouse_width_buttonClick
+      TabOrder = 5
+    end
+    object mouse_crab_button: TButton
+      Left = 112
+      Height = 22
+      Top = 6
+      Width = 48
+      Caption = 'crab'
+      Enabled = False
+      OnClick = mouse_crab_buttonClick
+      TabOrder = 2
+    end
+  end
+  object xtb_panel: TPanel
+    Left = 177
+    Height = 19
+    Hint = ' click to set '
+    Top = 60
+    Width = 165
+    Alignment = taLeftJustify
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    Caption = '  centre :  mm'
+    Color = 13697023
+    ParentColor = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 10
+    OnClick = xtb_panelClick
+  end
+  object lengthen_button: TButton
+    Left = 82
+    Height = 22
+    Top = 238
+    Width = 86
+    Caption = 'L  &lengthen'
+    Enabled = False
+    OnClick = lengthen_buttonClick
+    TabOrder = 26
+  end
+  object shorten_button: TButton
+    Left = 82
+    Height = 22
+    Top = 213
+    Width = 86
+    Caption = 'S    &shorten'
+    Enabled = False
+    OnClick = shorten_buttonClick
+    TabOrder = 25
+  end
+  object narrow_button: TButton
+    Left = 2
+    Height = 22
+    Top = 213
+    Width = 78
+    Caption = 'N  &narrow'
+    Enabled = False
+    OnClick = narrow_buttonClick
+    TabOrder = 23
+  end
+  object number_panel: TPanel
+    Left = 420
+    Height = 22
+    Top = 213
+    Width = 53
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    Caption = 'S123'
+    Color = clWindow
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 33
+    OnClick = drop_buttonClick
+  end
+  object drop_button: TBitBtn
+    Left = 476
+    Height = 46
+    Top = 214
+    Width = 26
+    Default = True
+    Glyph.Data = {
+      F6000000424DF600000000000000760000002800000010000000100000000100
+      0400000000008000000084120000841200001000000000000000000000000000
+      800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+      FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+      333333333333333333333333333C33333333333333CCC333333333333CCCCC33
+      33333333CCCCCCC33333333CCCCCCCCC333333CCCCCCCCCCC3333CCCCCCCCCCC
+      CC3333333CCCCC33333333333CCCCC33333333333CCCCC33333333333CCCCC33
+      333333333CCCCC33333333333CCCCC3333333333333333333333
+    }
+    OnClick = drop_buttonClick
+    TabOrder = 1
+  end
+  object data_button: TButton
+    Left = 420
+    Height = 22
+    Top = 238
+    Width = 54
+    Caption = 'data ...'
+    Enabled = False
+    OnClick = data_buttonClick
+    TabOrder = 34
+  end
+  object twist_cw_button: TButton
+    Left = 262
+    Height = 22
+    Hint = ' twist timber clockwise '
+    Top = 213
+    Width = 64
+    Caption = 'C     &c-w'
+    Enabled = False
+    OnClick = twist_cw_buttonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 29
+  end
+  object twist_acw_button: TButton
+    Left = 262
+    Height = 22
+    Hint = ' twist timber anti-clockwise '
+    Top = 238
+    Width = 64
+    Caption = 'A  &a-c-w'
+    Enabled = False
+    OnClick = twist_acw_buttonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 30
+  end
+  object forward_button: TButton
+    Left = 170
+    Height = 22
+    Top = 238
+    Width = 90
+    Caption = 'F     &forward'
+    Enabled = False
+    OnClick = forward_buttonClick
+    TabOrder = 28
+  end
+  object backward_button: TButton
+    Left = 170
+    Height = 22
+    Top = 213
+    Width = 90
+    Caption = 'B  &backward'
+    Enabled = False
+    OnClick = backward_buttonClick
+    TabOrder = 27
+  end
+  object show_all_blue_checkbox: TCheckBox
+    Left = 32
+    Height = 23
+    Top = 4
+    Width = 177
+    Caption = 'show all shoved timbers'
+    Checked = True
+    OnClick = show_all_blue_checkboxClick
+    State = cbChecked
+    TabOrder = 3
+  end
+  object length_panel: TPanel
+    Left = 31
+    Height = 19
+    Hint = ' click to set '
+    Top = 42
+    Width = 138
+    Alignment = taLeftJustify
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    Caption = '  length :  mm'
+    Color = 13697023
+    ParentColor = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 4
+    OnClick = length_panelClick
+  end
+  object twist_panel: TPanel
+    Left = 177
+    Height = 19
+    Hint = ' click to set '
+    Top = 42
+    Width = 165
+    Alignment = taLeftJustify
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    Caption = '  twist :  degs'
+    Color = 13697023
+    ParentColor = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 8
+    OnClick = twist_panelClick
+  end
+  object zero_button: TButton
+    Left = 343
+    Height = 20
+    Hint = ' set centre zero on timber '
+    Top = 60
+    Width = 66
+    Caption = 'set zero'
+    OnClick = zero_buttonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 11
+  end
+  object throw_panel: TPanel
+    Left = 31
+    Height = 19
+    Hint = ' click to set '
+    Top = 102
+    Width = 138
+    Alignment = taLeftJustify
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    Caption = '  throw :  mm'
+    Color = 13697023
+    ParentColor = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 7
+    OnClick = throw_panelClick
+  end
+  object width_panel: TPanel
+    Left = 31
+    Height = 19
+    Hint = ' click to set '
+    Top = 60
+    Width = 138
+    Alignment = taLeftJustify
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    Caption = '  width :  mm'
+    Color = 13697023
+    ParentColor = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 5
+    OnClick = width_panelClick
+  end
+  object help_button: TButton
+    Left = 495
+    Height = 22
+    Top = 27
+    Width = 52
+    Caption = '? &help'
+    OnClick = how_panelClick
+    TabOrder = 2
+  end
+  object twist_origin_button: TButton
+    Left = 343
+    Height = 19
+    Hint = ' show  or  set  twist  angle  from  template datum '
+    Top = 41
+    Width = 23
+    Caption = '÷'
+    Font.Color = clBlack
+    Font.Height = -20
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = twist_origin_buttonClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 9
+  end
+  object add_bonus_button: TButton
+    Left = 158
+    Height = 22
+    Hint = ' add  a  bonus  timber  at  CTRL-1  '
+    Top = 129
+    Width = 150
+    Caption = 'U  add  bon&us  timber'
+    OnClick = add_bonus_buttonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 19
+  end
+  object reset_button: TButton
+    Left = 410
+    Height = 20
+    Hint = ' reset zero on CTRL-0 or rail joint (toggle) '
+    Top = 60
+    Width = 80
+    Caption = 'reset zero'
+    OnClick = reset_buttonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 12
+  end
+  object crab_panel: TPanel
+    Left = 31
+    Height = 19
+    Hint = ' click to set '
+    Top = 84
+    Width = 138
+    Alignment = taLeftJustify
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    Caption = '  crab :  mm'
+    Color = 13697023
+    ParentColor = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 6
+    OnClick = crab_panelClick
+  end
+  object crab_left_button: TButton
+    Left = 328
+    Height = 22
+    Top = 213
+    Width = 90
+    Caption = 'E    crab-l&eft'
+    Enabled = False
+    OnClick = crab_left_buttonClick
+    TabOrder = 31
+  end
+  object crab_right_button: TButton
+    Left = 328
+    Height = 22
+    Top = 238
+    Width = 90
+    Caption = 'R  crab-&right'
+    Enabled = False
+    OnClick = crab_right_buttonClick
+    TabOrder = 32
+  end
+  object omit_all_button: TButton
+    Left = 86
+    Height = 22
+    Top = 129
+    Width = 68
+    Caption = 'omit  all'
+    OnClick = omit_all_buttonClick
+    TabOrder = 18
+  end
+  object inches_radio_buton: TRadioButton
+    Left = 188
+    Height = 23
+    Hint = ' show  or  set  dimensions  in  full-size  prototype  inches '
+    Top = 104
+    Width = 122
+    Caption = 'full-size  inches'
+    OnClick = inches_radio_butonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 14
+  end
+  object mm_radio_button: TRadioButton
+    Left = 188
+    Height = 23
+    Hint = ' show  or  set  dimensions  in  model  mm '
+    Top = 82
+    Width = 96
+    Caption = 'model  mm'
+    Checked = True
+    OnClick = mm_radio_buttonClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 13
+    TabStop = True
+  end
+  object retain_shoves_on_mint_checkbox: TCheckBox
+    Left = 388
+    Height = 23
+    Hint = ' retain shoved timbers when minting a new template '
+    Top = 84
+    Width = 144
+    Caption = 'retain on new mint'
+    OnClick = retain_shoves_on_mint_checkboxClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 16
+  end
+  object retain_shoves_on_make_checkbox: TCheckBox
+    Left = 388
+    Height = 23
+    Hint = ' retain shoved timbers when using the tools > make --- functions '
+    Top = 104
+    Width = 154
+    Caption = 'retain on tools:make'
+    OnClick = retain_shoves_on_make_checkboxClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 15
+  end
+end

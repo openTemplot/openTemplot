@@ -1,0 +1,738 @@
+object alert_box: Talert_box
+  Left = 1493
+  Height = 437
+  Top = 273
+  Width = 439
+  HorzScrollBar.Tracking = True
+  HorzScrollBar.Visible = False
+  VertScrollBar.Tracking = True
+  VertScrollBar.Visible = False
+  AllowDropFiles = True
+  BorderIcons = [biSystemMenu]
+  Caption = '   important ...     '
+  ClientHeight = 437
+  ClientWidth = 439
+  Color = clSilver
+  DesignTimePPI = 120
+  Font.Color = clBlack
+  Font.Height = -15
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  KeyPreview = True
+  OnActivate = FormActivate
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnDeactivate = FormDeactivate
+  OnDropFiles = FormDropFiles
+  OnKeyDown = FormKeyDown
+  OnKeyPress = FormKeyPress
+  OnMouseMove = FormMouseMove
+  OnResize = FormResize
+  OnShow = FormShow
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object alert_header_label: TLabel
+    Left = 4
+    Height = 24
+    Top = 40
+    Width = 429
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'PROGRAM  ALERT'
+    Font.Color = clFuchsia
+    Font.Height = -20
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    ParentShowHint = False
+    OnMouseMove = FormMouseMove
+  end
+  object whats_this_label: TLabel
+    Cursor = crHandPoint
+    Left = 8
+    Height = 14
+    Top = 410
+    Width = 66
+    AutoSize = False
+    Caption = 'whats this ?'
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Arial'
+    Font.Style = [fsUnderline]
+    ParentColor = False
+    ParentFont = False
+    OnClick = whats_this_labelClick
+  end
+  object online_help_label: TLabel
+    Cursor = crHandPoint
+    Left = 60
+    Height = 16
+    Top = 3
+    Width = 124
+    AutoSize = False
+    Caption = 'whats this about ?'
+    Font.Color = clBlue
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsUnderline]
+    ParentColor = False
+    ParentFont = False
+    OnClick = online_help_labelClick
+  end
+  object ref_label: TLabel
+    Left = 230
+    Height = 15
+    Top = 9
+    Width = 26
+    AutoSize = False
+    Caption = '000'
+    Font.Color = clBlack
+    Font.Height = -12
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    OnDblClick = ref_labelDblClick
+  end
+  object dummy_label: TLabel
+    Left = 386
+    Height = 16
+    Top = 405
+    Width = 50
+    AutoSize = False
+    Caption = 'dummy'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+    Visible = False
+  end
+  object alert_panel1: TPanel
+    Left = 6
+    Height = 30
+    Top = 188
+    Width = 427
+    BevelOuter = bvNone
+    Caption = 'alert_panel1'
+    ClientHeight = 30
+    ClientWidth = 427
+    Color = clAqua
+    ParentColor = False
+    TabOrder = 1
+    Visible = False
+    OnClick = alert_panel1Click
+    OnMouseMove = alert_panel1MouseMove
+    object reply_button_1: TButton
+      Left = 400
+      Height = 22
+      Top = 2
+      Width = 21
+      Caption = '&1'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = alert_panel1Click
+      OnMouseMove = alert_panel1MouseMove
+      ParentFont = False
+      TabOrder = 0
+    end
+    object option1a_checkbox: TCheckBox
+      Left = 10
+      Height = 23
+      Top = 4
+      Width = 226
+      Caption = 'delete the underlying templates'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+      Visible = False
+    end
+    object option1b_checkbox: TCheckBox
+      Left = 248
+      Height = 23
+      Top = 4
+      Width = 147
+      Caption = 'option1b_checkbox'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 2
+      Visible = False
+    end
+  end
+  object alert_panel2: TPanel
+    Left = 6
+    Height = 30
+    Top = 224
+    Width = 427
+    BevelOuter = bvNone
+    Caption = 'alert_panel2'
+    ClientHeight = 30
+    ClientWidth = 427
+    Color = clAqua
+    ParentColor = False
+    TabOrder = 2
+    Visible = False
+    OnClick = alert_panel2Click
+    OnMouseMove = alert_panel2MouseMove
+    object reply_button_2: TButton
+      Left = 400
+      Height = 22
+      Top = 2
+      Width = 21
+      Caption = '&2'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = alert_panel2Click
+      OnMouseMove = alert_panel2MouseMove
+      ParentFont = False
+      TabOrder = 0
+    end
+    object option2a_button: TButton
+      Left = 94
+      Height = 22
+      Top = 0
+      Width = 90
+      Caption = 'option2a_button'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = option2a_buttonClick
+      ParentFont = False
+      TabOrder = 1
+      Visible = False
+    end
+    object option2b_button: TButton
+      Left = 194
+      Height = 22
+      Top = 0
+      Width = 90
+      Caption = 'option2b_button'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = option2b_buttonClick
+      ParentFont = False
+      TabOrder = 2
+      Visible = False
+    end
+    object down_panbutton: TBitBtn
+      Left = 358
+      Height = 22
+      Hint = ' pan trackpad down  -  hold down '
+      Top = 0
+      Width = 30
+      Glyph.Data = {
+        F6000000424DF600000000000000760000002800000010000000100000000100
+        0400000000008000000084120000841200001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+        33333333333333333333333333333333333333333333333333333333333C3333
+        3333333333CCC333333333333CCCCC3333333333CCCCCCC33333333CCCCCCCCC
+        333333CCCCCCCCCCC3333CCCCCCCCCCCCC333333333333333333333333333333
+        3333333333333333333333333333333333333333333333333333
+      }
+      OnMouseDown = down_panbuttonMouseDown
+      OnMouseUp = left_panbuttonMouseUp
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
+      Visible = False
+    end
+    object left_panbutton: TBitBtn
+      Left = 294
+      Height = 22
+      Hint = ' pan trackpad left  -  hold down '
+      Top = 0
+      Width = 30
+      Glyph.Data = {
+        F6000000424DF600000000000000760000002800000010000000100000000100
+        0400000000008000000084120000841200001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+        333333333333333333333333333333C33333333333333CC3333333333333CCC3
+        33333333333CCCC33333333333CCCCC3333333333CCCCCC333333333CCCCCCC3
+        333333333CCCCCC33333333333CCCCC333333333333CCCC3333333333333CCC3
+        3333333333333CC333333333333333C333333333333333333333
+      }
+      OnMouseDown = left_panbuttonMouseDown
+      OnMouseUp = left_panbuttonMouseUp
+      ParentShowHint = False
+      ShowHint = True
+      Spacing = 0
+      TabOrder = 4
+      Visible = False
+    end
+    object right_panbutton: TBitBtn
+      Left = 326
+      Height = 22
+      Hint = ' pan trackpad right  -  hold down '
+      Top = 0
+      Width = 30
+      Glyph.Data = {
+        F6000000424DF600000000000000760000002800000010000000100000000100
+        0400000000008000000084120000841200001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+        3333333333333333333333333C333333333333333CC33333333333333CCC3333
+        333333333CCCC333333333333CCCCC33333333333CCCCCC3333333333CCCCCCC
+        333333333CCCCCC3333333333CCCCC33333333333CCCC333333333333CCC3333
+        333333333CC33333333333333C33333333333333333333333333
+      }
+      OnMouseDown = right_panbuttonMouseDown
+      OnMouseUp = left_panbuttonMouseUp
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 5
+      Visible = False
+    end
+    object up_panbutton: TBitBtn
+      Left = 390
+      Height = 22
+      Hint = ' pan trackpad up  -  hold down '
+      Top = 0
+      Width = 30
+      Glyph.Data = {
+        F6000000424DF600000000000000760000002800000010000000100000000100
+        0400000000008000000084120000841200001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+        3333333333333333333333333333333333333333333333333333333333333333
+        33333CCCCCCCCCCCCC3333CCCCCCCCCCC333333CCCCCCCCC33333333CCCCCCC3
+        333333333CCCCC333333333333CCC33333333333333C33333333333333333333
+        3333333333333333333333333333333333333333333333333333
+      }
+      OnMouseDown = up_panbuttonMouseDown
+      OnMouseUp = left_panbuttonMouseUp
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 6
+      Visible = False
+    end
+  end
+  object alert_panel3: TPanel
+    Left = 6
+    Height = 30
+    Top = 260
+    Width = 427
+    BevelOuter = bvNone
+    Caption = 'alert_panel3'
+    ClientHeight = 30
+    ClientWidth = 427
+    Color = clAqua
+    ParentColor = False
+    TabOrder = 3
+    Visible = False
+    OnClick = alert_panel3Click
+    OnMouseMove = alert_panel3MouseMove
+    object reply_button_3: TButton
+      Left = 400
+      Height = 22
+      Top = 2
+      Width = 21
+      Caption = '&3'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = alert_panel3Click
+      OnMouseMove = alert_panel3MouseMove
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object alert_panel4: TPanel
+    Left = 6
+    Height = 30
+    Top = 296
+    Width = 427
+    BevelOuter = bvNone
+    Caption = 'alert_panel4'
+    ClientHeight = 30
+    ClientWidth = 427
+    Color = clAqua
+    ParentColor = False
+    TabOrder = 4
+    Visible = False
+    OnClick = alert_panel4Click
+    OnMouseMove = alert_panel4MouseMove
+    object reply_button_4: TButton
+      Left = 400
+      Height = 22
+      Top = 2
+      Width = 21
+      Caption = '&4'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = alert_panel4Click
+      OnMouseMove = alert_panel4MouseMove
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object alert_panel5: TPanel
+    Left = 6
+    Height = 30
+    Top = 332
+    Width = 427
+    BevelOuter = bvNone
+    Caption = 'alert_panel5'
+    ClientHeight = 30
+    ClientWidth = 427
+    Color = clYellow
+    ParentColor = False
+    TabOrder = 5
+    Visible = False
+    OnClick = alert_panel5Click
+    OnMouseMove = alert_panel5MouseMove
+    object reply_button_5: TButton
+      Left = 376
+      Height = 22
+      Top = 2
+      Width = 45
+      Cancel = True
+      Caption = 'Esc &5'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = alert_panel5Click
+      OnMouseMove = alert_panel5MouseMove
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object alert_panel6: TPanel
+    Left = 6
+    Height = 30
+    Top = 368
+    Width = 427
+    BevelOuter = bvNone
+    Caption = 'alert_panel6'
+    ClientHeight = 30
+    ClientWidth = 427
+    Color = clLime
+    ParentColor = False
+    TabOrder = 0
+    OnClick = alert_panel6Click
+    OnMouseMove = alert_panel6MouseMove
+    object reply_button_6: TButton
+      Left = 400
+      Height = 22
+      Top = 2
+      Width = 21
+      Caption = '&6'
+      Default = True
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = alert_panel6Click
+      OnMouseMove = alert_panel6MouseMove
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object blue_corner_panel: TPanel
+    Left = 0
+    Height = 47
+    Top = 0
+    Width = 40
+    BevelOuter = bvNone
+    ClientHeight = 47
+    ClientWidth = 40
+    Color = clBlue
+    Font.Color = clBlack
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 8
+    OnMouseMove = FormMouseMove
+    object how_panel: TPanel
+      Left = 20
+      Height = 24
+      Hint = ' what  next ? '
+      Top = 0
+      Width = 16
+      Caption = '?'
+      Color = clBlack
+      Font.Color = clLime
+      Font.Height = -17
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+      OnClick = how_panelClick
+      OnMouseMove = FormMouseMove
+    end
+    object chat_panel: TPanel
+      Left = 20
+      Height = 16
+      Hint = ' chat '
+      Top = 26
+      Width = 16
+      Caption = '='
+      Color = clBlack
+      Font.Color = clLime
+      Font.Height = -17
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+      OnClick = chat_panelClick
+      OnMouseMove = FormMouseMove
+    end
+    object colour_panel: TPanel
+      Left = 1
+      Height = 16
+      Top = 26
+      Width = 15
+      ClientHeight = 16
+      ClientWidth = 15
+      TabOrder = 2
+      OnClick = colour_panelClick
+      object colour_patch: TImage
+        Left = 1
+        Height = 14
+        Hint = ' change  colour '
+        Top = 1
+        Width = 13
+        Align = alClient
+        AutoSize = True
+        OnClick = colour_panelClick
+        OnMouseMove = FormMouseMove
+        ParentShowHint = False
+        Picture.Data = {
+          07544269746D6170B6040000424DB60400000000000036000000280000001800
+          0000100000000100180000000000800400008412000084120000000000000000
+          0000008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF00008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          00000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          0000
+        }
+        ShowHint = True
+        Stretch = True
+      end
+    end
+    object size_updown: TUpDown
+      Tag = 4
+      Left = 1
+      Height = 24
+      Hint = ' reduce / enlarge '
+      Top = 0
+      Width = 16
+      Max = 10
+      Min = 1
+      OnClick = size_updownClick
+      OnMouseMove = FormMouseMove
+      ParentShowHint = False
+      Position = 4
+      ShowHint = True
+      TabOrder = 3
+      Wrap = False
+    end
+  end
+  object preferences_checkbox: TCheckBox
+    Left = 76
+    Height = 23
+    Hint = ' click the top ? button for explanation '
+    Top = 408
+    Width = 265
+    Caption = 'dont  show  this  message  again  in  this  session'
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'Arial'
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 7
+    Visible = False
+  end
+  object online_help_button: TButton
+    Left = 258
+    Height = 22
+    Hint = ' go online to get more information about this '
+    Top = 5
+    Width = 176
+    Caption = 'more  information  &online'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    OnClick = online_help_buttonClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 6
+  end
+  object alert_html_viewer: THtmlViewer
+    Left = 0
+    Height = 117
+    Top = 64
+    Width = 439
+    BorderStyle = htNone
+    DefBackground = 15663103
+    DefFontColor = clBlack
+    DefFontName = 'Trebuchet MS'
+    DefFontSize = 9
+    DefOverLinkColor = clRed
+    DefPreFontName = 'Courier New'
+    DefVisitedLinkColor = clBlue
+    HistoryMaxCount = 0
+    HtOptions = [htOverLinksActive, htNoLinkUnderline, htPrintTableBackground, htPrintMonochromeBlack]
+    ImageCacheCount = 0
+    MarginHeight = 0
+    MarginWidth = 12
+    NoSelect = False
+    PrintMarginBottom = 1
+    PrintMarginLeft = 1
+    PrintMarginRight = 1
+    PrintMarginTop = 1
+    PrintScale = 1.25
+    ScrollBars = ssVertical
+    PopupMenu = html_popup_menu
+    TabOrder = 9
+  end
+  object drop_panel: TPanel
+    Left = 8
+    Height = 130
+    Top = 72
+    Width = 424
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    ClientHeight = 126
+    ClientWidth = 420
+    Color = clWhite
+    Font.Color = 6316128
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 10
+    Visible = False
+    object drop_label: TLabel
+      Left = 2
+      Height = 16
+      Top = 58
+      Width = 410
+      Alignment = taCenter
+      AutoSize = False
+      Caption = '( this panel will show the centre section of the image only )'
+      Font.Color = 6316128
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+    end
+    object drop_top_label: TLabel
+      Left = 0
+      Height = 18
+      Top = 22
+      Width = 420
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'you can drop the image here   -   then click the green bar'
+      Font.Color = 7368816
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object drop_image: TImage
+      Left = 0
+      Height = 128
+      Top = 0
+      Width = 422
+      Center = True
+      Visible = False
+    end
+    object open_mystuff_button: TButton
+      Left = 268
+      Height = 23
+      Top = 88
+      Width = 134
+      Caption = 'go  to  My Pictures'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = open_mystuff_buttonClick
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object html_popup_menu: TPopupMenu
+    left = 184
+    top = 4
+    object select_all_popup_entry: TMenuItem
+      Caption = 'select  all'
+      ShortCut = 16449
+      OnClick = select_all_popup_entryClick
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object copy_popup_entry: TMenuItem
+      Caption = 'copy'
+      ShortCut = 16451
+      OnClick = copy_popup_entryClick
+    end
+  end
+end
