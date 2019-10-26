@@ -121,7 +121,9 @@
       <Unit11>
         <Filename Value="info_unit.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="info_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit11>
       <Unit12>
         <Filename Value="print_unit.pas"/>
@@ -141,7 +143,9 @@
       <Unit15>
         <Filename Value="preview_unit.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="preview_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit15>
       <Unit16>
         <Filename Value="colour_unit.pas"/>
@@ -271,7 +275,9 @@
       <Unit39>
         <Filename Value="data_memo_unit.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="data_child_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit39>
       <Unit40>
         <Filename Value="math2_unit.pas"/>

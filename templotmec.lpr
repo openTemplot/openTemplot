@@ -83,6 +83,7 @@ uses
   xtc_unit in 'xtc_unit.pas',
 
   mecbox_unit in 'mecbox_unit.pas',
+  file_viewer in 'file_viewer.pas',
 
   printer4lazarus;
 
@@ -159,11 +160,10 @@ begin
   Application.CreateForm(Tcheck_diffs_form, check_diffs_form);
   Application.CreateForm(Timage_viewer_form, image_viewer_form);
   Application.CreateForm(Tmouse_colour_form, mouse_colour_form);
-
+  Application.CreateForm(Tfile_viewer_form, file_viewer_form);
 
 
   { OT-FIRST
-  Application.CreateForm(Tfile_viewer_form, file_viewer_form);
   Application.CreateForm(Tsb_rvf_outer_form, sb_rvf_outer_form);
   Application.CreateForm(Tsb_rich_form, sb_rich_form);
   Application.CreateForm(Tedit_outline_form, edit_outline_form);

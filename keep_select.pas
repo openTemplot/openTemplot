@@ -2431,7 +2431,6 @@ begin
 
             next_ti.keep_dims.box_dims1.id_byte:=255;  // identify file as OTBOX rather than BOX      290a
 
-
             case rolling_backup of
 
                  -1: begin    // final backup on exit ..
@@ -8617,6 +8616,8 @@ begin
   if hi_color=True then ref_panel.Color:=keepform_listbox.Color; //alert_colour[5];  // ice-blue or white.
 
   with keepform_listbox do ItemHeight:=Round(Canvas.TextHeight(' ')*8/7); // owner-draw listbox, 8/7 arbitrary.
+  if Assigned(data_child_form) and (data_child_form.Visible=True) then
+    keep_form.read_info_buttonClick(data_child_form);
 end;
 //____________________________________________________________________________________
 

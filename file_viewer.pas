@@ -32,12 +32,15 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, FileCtrl, ComCtrls, Grids, Outline, {DirOutln,} ExtCtrls,
-  Htmlview;
+  Htmlview, EditBtn, HTMLUn2;
 
 type
+
+  { Tfile_viewer_form }
+
   Tfile_viewer_form = class(TForm)
-    folder_listbox: TDirectoryListBox;
-    disk_drive_combo: TDriveComboBox;
+    folder_listbox: TFileListBox;
+    disk_drive_combo: TDirectoryEdit;
     Label1: TLabel;
     Label2: TLabel;
     help_shape: TShape;
@@ -130,7 +133,9 @@ uses
   ShellAPI,control_room,pad_unit,grid_unit,math_unit, panning_unit,
   shove_timber,rail_options_unit,platform_unit,check_diffs_unit,
   data_memo_unit,stay_visible_unit,info_unit,keep_select,help_sheet,alert_unit;
-  
+
+const
+  boxSuffix:string = 'otbox';
 
 var
 
@@ -191,7 +196,7 @@ var
   screen_rect,print_rect:TRect;
 
   create_bitmap:TBitmap;
-  create_png:TPNGObject;
+  create_png:TPortableNetworkGraphic;
 
   img_file_name_str:string;  // name part
   img_file_str:string;       // including full path
@@ -278,7 +283,7 @@ begin
 
        // build the lists ...
 
-    if FindFirst(dir_str+'*.box',0,search_record_box)=0
+    if FindFirst(dir_str+'*.'+boxSuffix,0,search_record_box)=0
        then begin
               add_file_to_box_lists(search_record_box);
 
@@ -397,7 +402,7 @@ begin
 
                   boxfile_str:=dir_str+box_file_list.Strings[n];
 
-                  if Pos('.box',LowerCase(boxfile_str))=0 then boxfile_str:=boxfile_str+'.box';  // in case his system hides extensions.
+                  if Pos('.'+boxSuffix,LowerCase(boxfile_str))=0 then boxfile_str:=boxfile_str+'.'+boxSuffix;  // in case his system hides extensions.
 
             //function load_storage_box(normal_load,old_templot_folder:boolean; file_str:string; load_backup,make_lib:boolean; var append:boolean; var last_bgnd_loaded_index:integer):boolean;    // load a file of templates into the keeps box.
 
@@ -430,13 +435,13 @@ begin
 
                   fv_tag_list.Add(tag_str);
 
-                  img_file_name_str:=StringReplace(box_file_list.Strings[n],'.box','_box',[rfReplaceAll, rfIgnoreCase]);
+                  img_file_name_str:=StringReplace(box_file_list.Strings[n],'.'+boxSuffix,'_'+boxSuffix,[rfReplaceAll, rfIgnoreCase]);
                   img_file_str:=exe_str+'internal\fview\'+img_file_name_str+'.png';
 
                   img_name_list.Add(img_file_str);
 
                   create_bitmap:=TBitmap.Create;
-                  create_png:=TPNGObject.Create;
+                  create_png:=TPortableNetworkGraphic.Create;
 
                   try
                     create_bitmap.Width:=pad_form.ClientWidth;
@@ -623,14 +628,14 @@ begin
   fv_tag_list:=TStringList.Create;
 
 
-  //files_listbox.Width:=0;   // fetches the .box file list in Items from the selected folder
+  //files_listbox.Width:=0; // fetches the .box file list in Items from the selected folder
                             // !!! Items not available if Visible=False
                             // FileListBox not used directly because not owner-draw
 
 
-  folder_str:=ExtractFilePath(Application.ExeName)+'BOX-FILES';    // exe_str not yet set
+  folder_str:=ExtractFilePath(Application.ExeName)+'box-files';    // exe_str not yet set
 
-  if DirectoryExists(folder_str)=True then folder_listbox.Directory:=folder_str;
+  if DirectoryExists(folder_str)=True then disk_drive_combo.Directory:=folder_str;
 
   html_create_str:='<P ALIGN="CENTER"><BR><BR><BR><IMG SRC="'+ExtractFilePath(Application.ExeName)+'internal\hlp\wait_signal_trans.gif"></P>'
                   +'<P ALIGN="CENTER" STYLE="FONT-SIZE:15PX; FONT-WEIGHT:BOLD;"><BR><BR>to see all the .box files in the selected disk drive and folder</P>'
@@ -675,7 +680,8 @@ var
 begin
   if no_onresize=True then EXIT;   // ??? scaling appears to cause a click
 
-  folder_listbox.OpenCurrent;   // mimics a double-click to open the folder
+  folder_listbox.Directory := disk_drive_combo.Directory;
+
 
   if instant_show_checkbox.Checked=True     // 208g
      then begin
@@ -696,7 +702,7 @@ begin
 
               // count the files ...
 
-            if FindFirst(dir_str+'*.box',0,search_record_box)=0
+            if FindFirst(dir_str+'*.'+boxSuffix,0,search_record_box)=0
                then begin
                       INC(file_count);
 
@@ -802,11 +808,11 @@ begin
       if ModalResult=mrOK
          then begin
 
-                new_name_str:=StringReplace(Trim(math_editbox.Text),'.box','',[rfReplaceAll, rfIgnoreCase])+'.box';
+                new_name_str:=StringReplace(Trim(math_editbox.Text),'.'+boxSuffix,'',[rfReplaceAll, rfIgnoreCase])+'.'+boxSuffix;
 
                 if new_name_str=old_name_str then EXIT;
 
-                if new_name_str='.box'
+                if new_name_str='.'+boxSuffix
                    then begin
                           show_modal_message('The new name cannot be blank.');
                           EXIT;
@@ -873,7 +879,7 @@ var
   file_str,path_str,update_str,dir_str:string;
   i,saved_width,saved_pos:integer;
 
-  img_png:TPNGObject;
+  img_png:TPortableNetworkGraphic;
 
   img_str:string;
 
@@ -894,7 +900,7 @@ begin
 
             img_str:=exe_str+'internal\fview\fv_deletion_confirm.png';
 
-            img_png:=TPNGObject.Create;
+            img_png:=TPortableNetworkGraphic.Create;
 
             img_png.Assign(Tbitmap(box_file_list.Objects[n]));
             img_png.SaveToFile(img_str);
@@ -1097,7 +1103,7 @@ begin
 
               // count the files ...
 
-            if FindFirst(dir_str+'*.box',0,search_record_box)=0
+            if FindFirst(dir_str+'*.'+boxSuffix,0,search_record_box)=0
                then begin
                       INC(file_count);
 
@@ -1317,7 +1323,7 @@ begin
 
        // build the lists ...
 
-    if FindFirst(dir_str+'*.box',0,search_record_box)=0
+    if FindFirst(dir_str+'*.'+boxSuffix,0,search_record_box)=0
        then begin
               add_file_to_box_lists(search_record_box);
 
@@ -1424,7 +1430,7 @@ begin
 
                   boxfile_str:=dir_str+box_file_list.Strings[n];
 
-                  if Pos('.box',LowerCase(boxfile_str))=0 then boxfile_str:=boxfile_str+'.box';  // in case his system hides extensions.
+                  if Pos('.'+boxSuffix,LowerCase(boxfile_str))=0 then boxfile_str:=boxfile_str+'.'+boxSuffix;  // in case his system hides extensions.
 
                         //function load_storage_box(normal_load,old_templot_folder:boolean; file_str:string; load_backup,make_lib:boolean; var append:boolean; var last_bgnd_loaded_index:integer):boolean;    // load a file of templates into the keeps box.
 
