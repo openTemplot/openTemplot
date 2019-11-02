@@ -28,7 +28,7 @@ program templotmec;
 {$MODE Delphi}
 
 uses
-  Forms, Interfaces, SysUtils,
+  Forms, Interfaces, SysUtils, Dialogs,
 
   control_room in 'control_room.pas' {control_room_form},
   keep_select in 'keep_select.pas' {keep_form},
@@ -82,13 +82,13 @@ uses
   create_tandem in 'create_tandem.pas' {tandem_form},
   xtc_unit in 'xtc_unit.pas',
 
+  mecbox_unit in 'mecbox_unit.pas',
+
   printer4lazarus;
 
 {$R *.res}
 
 begin
-
-  //ShowMessage('debug');
 
   { OT-FIRST
   abandon_if_existing_instance;       // see in the startup_unit.  24-7-01.
@@ -179,6 +179,8 @@ begin
   Application.CreateForm(Tmake_slip_form, make_slip_form);
   Application.CreateForm(Ttandem_form, tandem_form);
   Application.CreateForm(Txtc_form, xtc_form);
+
+  Application.CreateForm(Tmecbox_form, mecbox_form);
 
 { OT-FIRST
   finally

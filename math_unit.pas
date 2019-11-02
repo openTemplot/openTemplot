@@ -4733,7 +4733,7 @@ begin
 
                            // show the main details:
 
-          Add('template generated at '+TimeToStr(Time)+' on '+DateToStr(Date)+' using Templot0 v:'+round_str(program_version/100,2)+version_build);
+          Add('template generated at '+TimeToStr(Time)+' on '+DateToStr(Date)+' using Templot0 v:'+FormatFloat('0.00',program_version/100)+version_build);
           Add('scale = '+round_str(scale,2)+' mm/ft     scale ratio = 1:'+round_str(304.8/scale,2));
           Add('track gauge = '+round_str(g,2)+'    flangeway gap = '+round_str(fw,2));
 
@@ -22687,7 +22687,7 @@ begin
             end;
 
         // 214a and finally do the experimental chairs...
-(*
+//(*
 
     if (chair_marks=True) and (exp_chairing=True)    // generator  AND  template option
        then begin
@@ -22988,7 +22988,7 @@ begin
 
             end;
 
-*)
+//*)
 
   finally
     keq:=save_keq;        // restore global.
@@ -23317,7 +23317,7 @@ end;
 procedure keep_colours1;           // scheme 1 colours for the keep form...
 
 begin
-  keep_paper_colour:=clSilver;
+  keep_paper_colour:=clWhite; // was clSilver;
   keep_grid_colour:=clWhite;
   keep_timber_colour:=clOlive;
   keep_rail_colour:=clBlack;
@@ -23339,7 +23339,7 @@ end;
 procedure keep_colours3;           // scheme 3 colours for the keep form...
 
 begin
-  keep_paper_colour:=clSilver;
+  keep_paper_colour:=clWhite; // was clSilver;
   keep_grid_colour:=clWhite;
   keep_timber_colour:=clGray;
   keep_rail_colour:=clBlack;
@@ -23445,7 +23445,7 @@ begin
 
   pad_form.sb_black_white_menu_entry.Click;    // scalebar colours.
 
-  keep_paper_colour:=$00FFF0D8;      // ice blue,  colours for the keep form...
+  keep_paper_colour:=clWhite; // was $00FFF0D8;      // ice blue,  colours for the keep form...
   keep_grid_colour:=clTeal;
 
   keep_rail_colour:=clBlack;

@@ -346,6 +346,8 @@ var
 
 const
 
+  templot_program:integer=2;  // 0=Templot2   1=OpenTemplot   2=TemplotMEC
+
   distortion_help_str:string='      Expert  Help  -  Data  Distortions'
   +'||These data distortion functions are intended primarily for use when exporting templates in DXF file format for transfer to CAD software.'
   +'||There should normally be no need to distort (modify) the drawing data when printing templates directly from Templot0.'
@@ -499,12 +501,10 @@ var
   min_export_y:integer=-16000;
 
 
-  program_version:integer=221;     // this program version number (*100, e.g. v:1.3 = 130).
-                                   // this is version 2.21, started 1st June 2018
+ program_version:integer=290;     // this program version number (*100, e.g. v:1.3 = 130).
+                                  // this is version 2.90, started 30th October 2019
 
-                                   // !!! for OPENTEMPLOT there are no earlier versions
-
-  version_build:string='.a';       // sub-build letter for this version. started 1st June, released:
+  version_build:string='.a';      // sub-build letter for this version. started 30th October 2019, released:  01/11/2019
 
 
   loaded_version:integer=50000;   // init the loaded data file versions..
@@ -2191,7 +2191,7 @@ begin
             +'<P STYLE="text-align:center; margin-top:20px; color:blue; font-family:''Trebuchet MS''; font-size:19px; font-weight:bold; font-style:italic;">precision track design for model railways</P>'
             +'<P STYLE="text-align:center; margin-top:20px; margin-bottom:20px; color:#dd6600; font-size:16px; font-weight:bold;">track &nbsp;plan &nbsp;design&nbsp; &nbsp; • &nbsp; &nbsp;precision &nbsp;construction &nbsp;templates</P>'
             +'<HR NOSHADE>'
-            +'<P CLASS="mainheading" STYLE="text-align:center; font-size:20px; color:#0077DD;">'+Application.Title+' &nbsp;Version &nbsp;'+round_str(program_version/100,2)+version_build+'</P>'
+            +'<P CLASS="mainheading" STYLE="text-align:center; font-size:20px; color:#0077DD;">'+Application.Title+' &nbsp;Version &nbsp;'+FormatFloat('0.00',program_version/100)+version_build+'</P>'
             +'<P CLASS="centerbold"><A HREF="go_to_templot_com.85a">templot • com</A></P>'
             +'<P CLASS="center"><SPAN STYLE="font-size:12px; color:#555555;">&copy; 2018 &nbsp;released under open-source licence: GNU/GPLv3+<br>program from: &nbsp;https://sourceforge.net/projects/opentemplot/<br>'
             +'licence at: https://www.gnu.org/licenses/<br></SPAN></P>'

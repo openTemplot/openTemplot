@@ -1881,7 +1881,7 @@ begin
       Printer.BeginDoc;
 
       Font.Assign(set_font('Arial',6,[],clBlack));
-      top_str:=' '+DateToStr(Date)+'  '+TimeToStr(Time)+'      TEMPLOT V:'+round_str(program_version/100,2)+'  from  Martin  Wynne   templot.com';
+      top_str:=' '+DateToStr(Date)+'  '+TimeToStr(Time)+'      TEMPLOT V:'+FormatFloat('0.00',program_version/100)+'  from  Martin  Wynne   templot.com';
       TextOut(0,0,top_str);
 
       Font.Assign(set_font('Comic Sans MS',8,[],clBlack));

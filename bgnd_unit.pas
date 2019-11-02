@@ -7792,8 +7792,12 @@ end;
 
 procedure Tbgnd_form.background_shapes_help_menu_entryClick(Sender: TObject);
 
+var
+  hs:string;
+
 begin
-  help(0,bgs_help1_str+add_options_help_str,'');
+  hs:=bgs_help1_str+add_options_help_str;
+  help(0,hs,'');
 end;
 //______________________________________________________________________________
 

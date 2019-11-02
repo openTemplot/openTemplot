@@ -7,7 +7,7 @@ object pad_form: Tpad_form
   VertScrollBar.Tracking = True
   AllowDropFiles = True
   Caption = '          trackpad'
-  ClientHeight = 705
+  ClientHeight = 681
   ClientWidth = 1237
   Color = clSilver
   DesignTimePPI = 120
@@ -34,7 +34,7 @@ object pad_form: Tpad_form
   OnPaint = FormPaint
   OnResize = FormResize
   ShowHint = True
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.0.4.0'
   Scaled = False
   object pad_timber_font_label: TLabel
     Left = 156
@@ -75,7 +75,7 @@ object pad_form: Tpad_form
   object time_now_panel: TPanel
     Left = 1107
     Height = 29
-    Top = 673
+    Top = 649
     Width = 88
     Anchors = [akRight, akBottom]
     BevelOuter = bvNone
@@ -1292,7 +1292,7 @@ object pad_form: Tpad_form
     Left = 1213
     Height = 160
     Hint = ' change program size to suit your screen '
-    Top = 545
+    Top = 521
     Width = 24
     Max = 7
     Min = 1
@@ -1312,7 +1312,7 @@ object pad_form: Tpad_form
     Left = 1213
     Height = 20
     Hint = 'whats this?'
-    Top = 525
+    Top = 501
     Width = 24
     Alignment = taCenter
     Anchors = [akRight, akBottom]
@@ -1517,7 +1517,7 @@ object pad_form: Tpad_form
   object scaling_labels_panel: TPanel
     Left = 1041
     Height = 160
-    Top = 545
+    Top = 521
     Width = 172
     Anchors = [akRight, akBottom]
     BevelOuter = bvNone
@@ -2327,6 +2327,10 @@ object pad_form: Tpad_form
         GroupIndex = 252
         OnClick = write_reminder_menu_entryClick
       end
+    end
+    object box_menu: TMenuItem
+      Caption = 'bo&x'
+      OnClick = view_box_menu_entryClick
     end
     object background1: TMenuItem
       Caption = '&background'
@@ -3615,7 +3619,6 @@ object pad_form: Tpad_form
         OnClick = chairs_baseplates_menu_entryClick
         object experimental_chairing_menu_entry: TMenuItem
           Caption = 'show  &chair  outlines  ( not  yet  available )'
-          Enabled = False
           GroupIndex = 60
           RadioItem = True
           OnClick = experimental_chairing_menu_entryClick

@@ -630,7 +630,7 @@ begin
 
         Font.Style:=[];
         Font.Size:=8;
-        TextOut(0,0,' TEMPLOT  v: '+round_str(program_version/100,2));
+        TextOut(0,0,' TEMPLOT  v: '+FormatFloat('0.00',program_version/100));
 
         EndDoc;
 
@@ -1102,7 +1102,7 @@ begin
                   i:=i+n+(n div 2); TextOut(d_notes_left,i,'templot.com');
                   Font.Style:=[];
                   Font.Size:=8;
-                  TextOut(0,i,' TEMPLOT  v: '+round_str(program_version/100,2));
+                  TextOut(0,i,' TEMPLOT  v: '+FormatFloat('0.00',program_version/100));
                 end;
 
         Font.Size:=10;

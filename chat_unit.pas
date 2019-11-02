@@ -520,7 +520,7 @@ begin
       Font.Style:=[];
 
       x:=0; y:=197;
-      str:='OPENTEMPLOT  v:'+round_str(program_version/100,2)+'  ©  Martin  Wynne'; do_text;      // © = copyright symbol.
+      str:='OPENTEMPLOT  v:'+FormatFloat('0.00',program_version/100)+'  ©  Martin  Wynne'; do_text;      // © = copyright symbol.
 
       EndDoc;
 

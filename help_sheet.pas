@@ -470,7 +470,7 @@ begin
 
 
 
-  footer_str:='<HR NOSHADE><P CLASS="version">v: '+round_str(program_version/100,2)+version_build+'&nbsp; &copy; &nbsp;</P></BODY></HTML>';
+  footer_str:='<HR NOSHADE><P CLASS="version">v: '+FormatFloat('0.00',program_version/100)+version_build+'&nbsp; &copy; &nbsp;</P></BODY></HTML>';
 
   with help_form do begin
 
@@ -490,7 +490,7 @@ begin
 
        -300: Caption:='    program  information';          // 0.93.a
 
-       -250: Caption:='    about  '+Application.Title+'  v: '+round_str(program_version/100,2)+version_build;
+       -250: Caption:='    about  '+Application.Title+'  v: '+FormatFloat('0.00',program_version/100)+version_build;
        -200: Caption:='    saved  program  preferences';
        -150: Caption:='    welcome  to  '+Application.Title;
 
@@ -656,7 +656,7 @@ begin
      then msg:=html_path_str+msg   // make full file path
 
      else begin
-            if cap_code>-100 then msg:=msg+'<SPAN STYLE="FONT-WEIGHT:NORMAL; FONT-SIZE:13px;">|____________| v: '+round_str(program_version/100,2)+version_build+' &nbsp; ©</SPAN>';  // add footer
+            if cap_code>-100 then msg:=msg+'<SPAN STYLE="FONT-WEIGHT:NORMAL; FONT-SIZE:13px;">|____________| v: '+FormatFloat('0.00',program_version/100)+version_build+' &nbsp; ©</SPAN>';  // add footer
           end;
 
   show_help_form;    // now show it.
@@ -1352,7 +1352,7 @@ begin
     Add('<HTML><BODY BGCOLOR="#FFFFFF">');
     Add('<SPAN STYLE="FONT-WEIGHT:NORMAL; COLOR:#000000; FONT-FAMILY:'''+arial_str+''';">');
     Add('<TABLE WIDTH="100%" COLS="3" ROWS="1"><TR>');
-    Add('<TD ALIGN=LEFT><SPAN STYLE="FONT-SIZE:11PX;">printed from Templot0 v: '+round_str(program_version/100,2)+version_build+' &nbsp;on  &nbsp;'+DateToStr(Date)+' &nbsp;at &nbsp;'+TimeToStr(Time)+'</SPAN></TD>');
+    Add('<TD ALIGN=LEFT><SPAN STYLE="FONT-SIZE:11PX;">printed from Templot0 v: '+FormatFloat('0.00',program_version/100)+version_build+' &nbsp;on  &nbsp;'+DateToStr(Date)+' &nbsp;at &nbsp;'+TimeToStr(Time)+'</SPAN></TD>');
     Add('<TD ALIGN=CENTER><SPAN STYLE="FONT-SIZE:14PX;">'+html_view.DocumentTitle+'</SPAN></TD>');
     Add('<TD WIDTH="25%" ALIGN=RIGHT><SPAN STYLE="FONT-SIZE:14PX;">page&nbsp;&nbsp;&nbsp;<SPAN STYLE="FONT-SIZE:18PX;">'+IntToStr(NumPage)+'</SPAN>&nbsp;&nbsp;&nbsp;of&nbsp;&nbsp;'+IntToStr(num_of_print_pages)+'</SPAN></TD>');
     add('</TR></TABLE><HR NOSHADE COLOR=BLACK SIZE=1>');

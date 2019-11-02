@@ -252,7 +252,7 @@ var
 
   abort_map:boolean=False;
 
-  loading_in_progress:boolean=False;
+  map_loading_in_progress:boolean=False;
   stop_loading:boolean=False;
   pause_loading:boolean=False;
 
@@ -1678,7 +1678,7 @@ begin
             EXIT;
           end;
 
-  if loading_in_progress=True then EXIT;
+  if map_loading_in_progress=True then EXIT;
 
   if osm_radio_button.Checked=True
      then map_code:=0
@@ -2058,7 +2058,7 @@ begin
 
   //do_bgnd(False);  // show the bgnd shapes dialog as they load.
 
-  loading_in_progress:=True;
+  map_loading_in_progress:=True;
   stop_loading:=False;
   pause_loading:=False;
 
@@ -2247,7 +2247,7 @@ begin
 
     Screen.Cursor:=crDefault;
 
-    loading_in_progress:=False;
+    map_loading_in_progress:=False;
 
     stop_button.Hide;
     pause_button.Hide;
@@ -2953,7 +2953,7 @@ end;
 procedure Tmap_loader_form.FormActivate(Sender: TObject);
 
 begin
-  if loading_in_progress=False then map_loader_form_update;
+  if map_loading_in_progress=False then map_loader_form_update;
 end;
 //______________________________________________________________________________
 

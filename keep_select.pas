@@ -38,7 +38,9 @@ interface
     LCLtype,     // OT-FIRST   needed for (odSelected in State) for owner-draw stuff
 
     { OT-FIRST , WPPDFPRP,
-  WPPDFR1, WPPDFR2,} Htmlview ;
+  WPPDFR1, WPPDFR2,} Htmlview,
+
+    pad_unit;      // moved 290a
 
   type
 
@@ -51,6 +53,14 @@ interface
     chat_panel: TPanel;
     keep_form_datestamp_label: TLabel;
     keep_image: TImage;
+    MenuItem1: TMenuItem;
+    import_mecbox_menu_entry: TMenuItem;
+    MenuItem2: TMenuItem;
+    MenuItem3: TMenuItem;
+    MenuItem4: TMenuItem;
+    export_mecbox_menu_entry: TMenuItem;
+    MenuItem5: TMenuItem;
+    transfer_menu: TMenuItem;
     save_dialog: TSaveDialog;
     load_dialog: TOpenDialog;
     colour_panel: TPanel;
@@ -353,9 +363,11 @@ interface
     remove_reminder_menu_entry: TMenuItem;
     procedure copy_to_pad_buttonClick(Sender: TObject);
     procedure escape_buttonClick(Sender: TObject);
+    procedure export_mecbox_menu_entryClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormActivate(Sender: TObject);
     procedure colour_patchClick(Sender: TObject);
+    procedure import_mecbox_menu_entryClick(Sender: TObject);
     procedure size_updownClick(Sender: TObject; Button: TUDBtnType);
     procedure store_current_as_unused_buttonClick(Sender: TObject);
     procedure info_radio_buttonClick(Sender: TObject);
@@ -555,6 +567,77 @@ interface
 
 //_____________________________________________________________
 
+// 290a - these type declarations moved into the interface for mecbox_unit
+
+const
+
+shovedim_c_048=29;     // up to 30 timbers could be shoved pre version 0.71.a
+
+type
+
+Told_shove=record    // old Tshove record - shove data for a single timber.
+                     // as used in program pre version 0.71.a and still used for the
+                     // old_shove_info entry in the turnout_info part of a keep_data record on file.
+                     // (array of 0..29 of these records). For compatibility when loaded into versions pre 071.
+                     // (The first 30 shoved timbers in a template).
+                     // 68 bytes per record.
+
+         sv_code :integer;     // 0=empty slot, -1=omit this timber,  1=shove this timber.
+         sv_str  :string[8];   // timber number string.
+
+         alignment_byte_1:byte;   // D5 0.81 12-06-05
+
+         sv_x    :extended;    // xtb modifier.
+         sv_k    :extended;    // angle modifier.
+         sv_o    :extended;    // offset modifier (near end).
+         sv_l    :extended;    // length modifier (far end).
+         sv_w    :extended;    // width modifier (per side).
+         sv_t    :integer;     // nyi - thickness modifier in 1000ths of mm. (was spare integer).
+       end;
+
+T048_shoves=array[0..shovedim_c_048] of Told_shove;   // timber shove info for this turnout (first 30 shoved timbers only).
+                                                      // this data goes in the files for compatibility with old program versions,
+                                                      // but is not used in the program.
+
+
+Tshove_for_file=record    // Used in the SHOVE DATA BLOCKS in the 071 files.
+                          // But not used within the program - see Ttimber_shove.shove_data instead.
+                          // Conversion takes place in 071 on loading.
+
+                  sf_str:string[6];           // timber number string.
+
+                  alignment_byte_1:byte;   // D5 0.81 12-06-05
+
+                  sf_shove_data:Tshove_data;  // all the data.
+
+                end;//record
+
+// Tkeep_dims has the shove timber data omitted.  v:0.71.a  29-4-01.
+
+Tkeep_dims1=record      // first part of Tkeep_dims
+
+              box_dims1:Tbox_dims1;
+
+            end;//record Tkeep_dims1
+
+Tkeep_dims2=record
+
+              turnout_info2:Tturnout_info2;
+
+            end;//record Tkeep_dims2
+
+Told_keep_data=record    // this matches the old Tkeep_data record pre 071 including the timber shove data.
+                         // used on loading files.
+
+                 old_keep_dims1:Tkeep_dims1;
+                 //old_keep_shoves:T048_shoves;        // removed from OT format
+                 old_keep_dims2:Tkeep_dims2;
+
+               end;//record.
+
+
+var
+
   save_done:boolean=True;          // nothing to save at startup.
   name_highlighted:integer=-1;     // used in CTRL-Y for mouse select bgnd keep.
 
@@ -570,6 +653,12 @@ interface
   loading_in_progress:boolean=False;  // 208c
 
   reloaded_box_str:string='';
+
+  saved_box_str:string='';
+
+
+  his_save_file_name:string='';
+  his_load_file_name:string='';
 
   //function echo_keep:boolean;                                          // save the current keep as an echo.
   function save_box(this_one, which_ones, rolling_backup:integer; save_str:string):boolean;
@@ -637,6 +726,12 @@ interface
 
   function highest_bgnd_template:integer;  // 219a return highest index of a template on the background
 
+  procedure boxmru_update(file_str:string);   // update the mru list.  0.82.a  22-08-06
+
+  procedure init_ttemplate(n:integer);    // init list flags for a newly created keep.
+
+  function version_mismatch(var okd:Told_keep_data):boolean;   // check loaded template matches current program version.
+
 //_____________________________________________________________________________________________
 
 implementation
@@ -645,14 +740,17 @@ implementation
 
 {$R *.lfm}
 
-uses  ShellAPI, Math, control_room, pad_unit, switch_select, help_sheet, alert_unit, math_unit,
+uses  ShellAPI, Math, control_room, {pad_unit,} switch_select, help_sheet, alert_unit, math_unit,     // moved up 290a
   xing_select, entry_sheet, gauge_unit, colour_unit, info_unit, chat_unit, print_unit,
   dxf_unit, bgkeeps_unit, grid_unit, Clipbrd, edit_memo_unit, wait_message, shove_timber,
   jotter_unit, print_settings_unit, data_memo_unit,
 
-  MetaFilePrinter, { OT-FIRST file_viewer,} panning_unit;
+  MetaFilePrinter, { OT-FIRST file_viewer,} panning_unit, mecbox_unit;
 
 const
+
+  bgnd_ident_color:TColor=$0070FF;  // dark orange 223a
+
   chat_str:string='      Storage  Box  Chat'
   +'||The "storage box" is simply a metaphor for a document folder or other container in which accumulated paper templates would be kept.'
   +'||But as "folder" has a specific meaning in computer-speak, I needed to devise an alternative term. This is because the entire contents of the box can be saved in'
@@ -662,70 +760,7 @@ const
   +' a collection of paper ones. This would have been more laborious if each template was a separate file in a disk folder - although you can work this way'
   +' if you prefer (click the GROUP SELECT > SELECT (TOGGLE) button for the template(s) you require and then click the SAVE GROUP button).';
 
-  shovedim_c_048=29;     // up to 30 timbers could be shoved pre version 0.71.a
-
 type
-
-  Told_shove=record    // old Tshove record - shove data for a single timber.
-                       // as used in program pre version 0.71.a and still used for the
-                       // old_shove_info entry in the turnout_info part of a keep_data record on file.
-                       // (array of 0..29 of these records). For compatibility when loaded into versions pre 071.
-                       // (The first 30 shoved timbers in a template).
-                       // 68 bytes per record.
-
-           sv_code :integer;     // 0=empty slot, -1=omit this timber,  1=shove this timber.
-           sv_str  :string[8];   // timber number string.
-
-           alignment_byte_1:byte;   // D5 0.81 12-06-05
-
-           sv_x    :extended;    // xtb modifier.
-           sv_k    :extended;    // angle modifier.
-           sv_o    :extended;    // offset modifier (near end).
-           sv_l    :extended;    // length modifier (far end).
-           sv_w    :extended;    // width modifier (per side).
-           sv_t    :integer;     // nyi - thickness modifier in 1000ths of mm. (was spare integer).
-         end;
-
-  T048_shoves=array[0..shovedim_c_048] of Told_shove;   // timber shove info for this turnout (first 30 shoved timbers only).
-                                                        // this data goes in the files for compatibility with old program versions,
-                                                        // but is not used in the program.
-
-
-  Tshove_for_file=record    // Used in the SHOVE DATA BLOCKS in the 071 files.
-                            // But not used within the program - see Ttimber_shove.shove_data instead.
-                            // Conversion takes place in 071 on loading.
-
-                    sf_str:string[6];           // timber number string.
-
-                    alignment_byte_1:byte;   // D5 0.81 12-06-05
-
-                    sf_shove_data:Tshove_data;  // all the data.
-
-                  end;//record
-
-// Tkeep_dims has the shove timber data omitted.  v:0.71.a  29-4-01.
-
-  Tkeep_dims1=record      // first part of Tkeep_dims
-
-                box_dims1:Tbox_dims1;
-
-              end;//record Tkeep_dims1
-
-  Tkeep_dims2=record
-
-                turnout_info2:Tturnout_info2;
-
-              end;//record Tkeep_dims2
-
-  Told_keep_data=record    // this matches the old Tkeep_data record pre 071 including the timber shove data.
-                           // used on loading files.
-
-                   old_keep_dims1:Tkeep_dims1;
-                   //old_keep_shoves:T048_shoves;        // removed from OT format
-                   old_keep_dims2:Tkeep_dims2;
-
-                 end;//record.
-
   Tnew_keep_data=record           // this matches Tkeep_dims used in prog - see below.
 
                    new_keep_dims1:Tkeep_dims1;
@@ -758,10 +793,6 @@ var
   valid_calcs:boolean=False;
 
   box_width:extended=50000;     // startup box width in 1/100 mm.
-  his_save_file_name:string='';
-  his_load_file_name:string='';
-  saved_box_str:string='';
-
 
   info_str:string='';
 
@@ -2020,6 +2051,12 @@ begin
                           
                         end;
 
+                if templot_version<290
+                   then begin
+                          turnout_info1.rolled_in_sleepered_flag:=True;    // default was True pre-223a
+                          file_format_code:=0;                             // D5 format
+                        end;
+
 
                 templot_version:=program_version;      // file now corresponds to current.
                 RESULT:=True;                          // and flag not saved.
@@ -2392,6 +2429,8 @@ begin
                then next_ti.keep_dims.box_dims1.box_ident:='NX'+IntToStr(file_index)    // last one in file. (string[10])
                else next_ti.keep_dims.box_dims1.box_ident:='N '+IntToStr(file_index);
 
+            next_ti.keep_dims.box_dims1.id_byte:=255;  // identify file as OTBOX rather than BOX      290a
+
 
             case rolling_backup of
 
@@ -2417,7 +2456,7 @@ begin
 
               //  these go in every template but only the first or last in is read back...
 
-            next_ti.keep_dims.box_dims1.who_for:=Copy(box_project_title_str,1,49);     // goes in every template but only the last in is read back.
+            next_ti.keep_dims.box_dims1.project_for:=Copy(box_project_title_str,1,49);     // goes in every template but only the last in is read back.
 
                                 // 0.79.a  20-05-06  save grid info -- to be read from final template...
 
@@ -3240,7 +3279,7 @@ begin
          then begin
                 with old_next_data.old_keep_dims1.box_dims1 do begin
 
-                  box_project_title_str:=who_for;  // change the title to the one loaded last.
+                  box_project_title_str:=project_for;  // change the title to the one loaded last.
 
                    //     0.79.a 20-05-06  -- saved grid info -- read from last template only...
                    //     0.91.d -- read these only if prefs not being used on startup.
@@ -3338,23 +3377,23 @@ begin
 
     if (later_file=True) and (normal_load=True)   // normal_load 208d (off for file viewer)
        then begin
-              alert(1,'php/980    later  file   -   ( from  version  '+round_str(loaded_version/100,2)+' )',
+              alert(1,'php/980    later  file   -   ( from  version  '+FormatFloat('0.00',loaded_version/100)+' )',
                       'The file which you just reloaded contained one or more templates from a later version of Templot0 than this one.'
                      +' Some features may not be available or may be drawn differently.'
-                     +'||The earliest loaded template was from version  '+round_str(loaded_version/100,2)
-                     +'|This version of Templot0 is  '+round_str(program_version/100,2)
+                     +'||The earliest loaded template was from version  '+FormatFloat('0.00',loaded_version/100)
+                     +'|This version of Templot0 is  '+FormatFloat('0.00',program_version/100)
                      +'||Please refer to the Templot web site at  templot.com  for information about upgrading to the latest version, or click| <A HREF="online_ref980.85a">more information online</A> .',
                      '','','','','','continue',0);
             end;
 
-    if (loaded_version<program_version) and (normal_load=True)   // normal_load 208d (off for file viewer)
+    if (loaded_version<200) and (normal_load=True)   // normal_load 208d (off for file viewer)
        then begin
-              i:=alert(2,'php/980    old  file   -   ( from  version  '+round_str(loaded_version/100,2)+' )',
+              i:=alert(2,'php/980    old  file   -   ( from  version  '+FormatFloat('0.00',loaded_version/100)+' )',
                       'The file which you just reloaded contained one or more templates from an earlier version of Templot0.'
                      +'||These have been modified to make them compatible with this version, but some features may now be drawn differently or require adjustment.'
                      //+'||To re-create the templates from scratch in line with this version, click the blue bar below or select the PROGRAM > NORMALIZE ALL TEMPLATES menu item on the PROGRAM PANEL window.'
-                     +'||The earliest loaded template was from version  '+round_str(loaded_version/100,2)
-                     +'|This version of Templot0 is  '+round_str(program_version/100,2)
+                     +'||The earliest loaded template was from version  '+FormatFloat('0.00',loaded_version/100)
+                     +'|This version of Templot0 is  '+FormatFloat('0.00',program_version/100)
                      +'||Click for <A HREF="online_ref980.85a">more information online</A> about the differences between these two versions.'
                      //+'||Please refer to the Templot web site at  templot.com  for information about the differences between these two versions.'
                      +'||green_panel_begin tree.gif The template name labels are now shown in the boxed style by default.'
@@ -3900,12 +3939,12 @@ with keep_form do begin
 
                    1: begin    // bgnd template...
 
-                        template_number_label.Font.Color:=clRed;
-                        template_number_shape.Brush.Color:=clRed;
-                        template_number_shape.Pen.Color:=clred;
+                        template_number_label.Font.Color:=bgnd_ident_color;
+                        template_number_shape.Brush.Color:=bgnd_ident_color;
+                        template_number_shape.Pen.Color:=bgnd_ident_color;
 
-                        to_from_bgnd_panel.Color:=clRed;
-                        flag_shape.Brush.Color:=clRed;
+                        to_from_bgnd_panel.Color:=bgnd_ident_color;
+                        flag_shape.Brush.Color:=bgnd_ident_color;
                         bg_str:='';
 
                         with copy_wipe_label do begin
@@ -4572,7 +4611,7 @@ begin
                                -3,-2: if marks_checkbox.Checked=True then Pen.Color:=keep_mark_colour  // curving rad centres.
                                                                      else CONTINUE;
 
-                                  -1: Pen.Color:=clRed; // fixing peg (changes again later).
+                                  -1: Pen.Color:=bgnd_ident_color; // fixing peg (changes again later).
 
                             1,2,7,10: if marks_checkbox.Checked=True then Pen.Color:=keep_mark_colour   // guide marks, radial ends, transition marks, plain track start marks.
                                                                      else CONTINUE;
@@ -4604,7 +4643,7 @@ begin
                                               case Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1.bgnd_code_077 of
                                                 -1: Font.Color:=clGreen;
                                                  0: Font.Color:=clBlue;
-                                                 1: Font.Color:=clRed;
+                                                 1: Font.Color:=bgnd_ident_color;
                                               end;//case
 
                                               keep_pegx:=Round(p1.X*sx+x_offset);           // peg centres...
@@ -4645,7 +4684,7 @@ begin
                                               case Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1.bgnd_code_077 of
                                                 -1: Pen.Color:=clGreen;
                                                  0: Pen.Color:=clBlue;
-                                                 1: Pen.Color:=clRed;
+                                                 1: Pen.Color:=bgnd_ident_color;
                                               end;//case
 
                                               Brush.Color:=Pen.Color;   // show solid peg in keeps box.
@@ -4700,7 +4739,7 @@ begin
           case Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1.bgnd_code_077 of
             -1: Pen.Color:=clGreen;
              0: Pen.Color:=clBlue;
-             1: Pen.Color:=clRed;
+             1: Pen.Color:=bgnd_ident_color;
           end;//case
 
           if bgkeeps_form.centres_checkbox.Checked=True    // track centre-lines first...
@@ -4839,7 +4878,7 @@ begin
   Color:=get_colour('choose  a  new  colour  for  the  storage  box',Color);
   SetFocus;
 end;
-//________________________________________________________________________________________
+//______________________________________________________________________________
 
 procedure Tkeep_form.size_updownClick(Sender: TObject; Button: TUDBtnType);
 
@@ -6533,7 +6572,7 @@ procedure Tkeep_form.copy_in_position_menu_entryClick(Sender: TObject);     // 2
 
 begin
   copy_in_position_menu_entry.Checked:=True;   // radio item.
-  //if to_from_bgnd_panel.Color=clRed then make_label.Caption:='wipe to the control template';
+  //if to_from_bgnd_panel.Color=bgnd_ident_color then make_label.Caption:='wipe to the control template';
 end;
 //______________________________________________________________________________________
 
@@ -8465,7 +8504,7 @@ begin
                           case bgnd_code_077 of
                             -1: Font.Color:=clGreen;
                              0: Font.Color:=clBlue;
-                             1: Font.Color:=clRed;
+                             1: Font.Color:=bgnd_ident_color;
                           end;//case
 
                           Caption:=IntToStr(n+1);
@@ -8516,7 +8555,7 @@ begin
                           case bgnd_code_077 of
                             -1: Font.Color:=clGreen;
                              0: Font.Color:=clBlue;
-                             1: Font.Color:=clRed;
+                             1: Font.Color:=bgnd_ident_color;
                           end;//case
 
                           Caption:=IntToStr(n+1);
@@ -8822,7 +8861,7 @@ begin
       Brush.Style:=bsSolid;
       Pen.Width:=1;           // 213b
 
-      used_colour:=clRed;     // keep compiler happy.
+      used_colour:=bgnd_ident_color;     // keep compiler happy.
 
       if (odSelected in State)=True
          then begin
@@ -8842,7 +8881,7 @@ begin
                 case bg_flag of
                  -1: used_colour:=clGreen;
                   0: used_colour:=clBlue;
-                  1: used_colour:=clRed;
+                  1: used_colour:=bgnd_ident_color;
                 end;//case
 
                 text_colour:=clBlack;
@@ -8865,7 +8904,7 @@ begin
                 case bg_flag of
                  -1: used_colour:=clGreen;
                   0: used_colour:=clBlue;
-                  1: used_colour:=clRed;
+                  1: used_colour:=bgnd_ident_color;
                 end;//case
 
                 text_colour:=clBlack;
@@ -10540,7 +10579,21 @@ begin
   current_state(-1);
 end;
 //______________________________________________________________________________
+ 
+procedure Tkeep_form.import_mecbox_menu_entryClick(Sender: TObject);
 
+begin
+  import_mecbox('');    // in mecbox_unit
+end;
+//________________________________________________________________________________________
+
+
+procedure Tkeep_form.export_mecbox_menu_entryClick(Sender: TObject);
+
+begin
+  export_mecbox(True,'');     // True=show export result
+end;
+//______________________________________________________________________________
 
 end.
 

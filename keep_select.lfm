@@ -674,7 +674,7 @@ object keep_form: Tkeep_form
       Height = 184
       Top = 50
       Width = 490
-      Color = 16773336
+      Color = clWhite
       ExtendedSelect = False
       Font.Color = clBlack
       Font.Height = -13
@@ -1046,7 +1046,7 @@ object keep_form: Tkeep_form
       BevelOuter = bvLowered
       ClientHeight = 32
       ClientWidth = 64
-      Color = 15794128
+      Color = clWhite
       Font.Color = clBlue
       Font.Height = -20
       Font.Name = 'Arial'
@@ -1575,6 +1575,36 @@ object keep_form: Tkeep_form
       object N46: TMenuItem
         Caption = '-'
         GroupIndex = 12
+      end
+    end
+    object transfer_menu: TMenuItem
+      Caption = '&transfer'
+      object MenuItem1: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object import_mecbox_menu_entry: TMenuItem
+        Caption = 'i&mport  MECBOX  file ...'
+        OnClick = import_mecbox_menu_entryClick
+      end
+      object MenuItem2: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object MenuItem3: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem4: TMenuItem
+        Caption = ' '
+        Enabled = False
+      end
+      object export_mecbox_menu_entry: TMenuItem
+        Caption = 'e&xport  MECBOX  file ...'
+        OnClick = export_mecbox_menu_entryClick
+      end
+      object MenuItem5: TMenuItem
+        Caption = ' '
+        Enabled = False
       end
     end
     object edit_menu: TMenuItem

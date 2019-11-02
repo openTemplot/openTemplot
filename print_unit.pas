@@ -1818,7 +1818,7 @@ try
 
             bottom_str:=bottom_str+'    '+DateToStr(Date)+'  '+TimeToStr(Time);
 
-            top_str:=' Templot0  v:'+round_str(program_version/100,2)+version_build+'  templot.com  This drawing contains design elements and data © 2018 Martin Wynne.';
+            top_str:=' Templot0  v:'+FormatFloat('0.00',program_version/100)+version_build+'  templot.com  This drawing contains design elements and data © 2018 Martin Wynne.';
             if box_project_title_str<>'' then top_str:=top_str+'   Project : '+box_project_title_str;
 
             temp_str:=Chr(sheet_across+97)+'/'+IntToStr(sheet_down+1);

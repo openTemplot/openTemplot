@@ -45,6 +45,7 @@ type
   { Tpad_form }
 
   Tpad_form = class(TForm)
+    box_menu: TMenuItem;
     pad_menu_bar: TMainMenu;
     main_menu: TMenuItem;
     print_menu: TMenuItem;
@@ -4171,7 +4172,7 @@ type
 
                    plain_track_flag: boolean;      //  True=plain track only.
 
-                   alignment_byte_1:byte;   // D5 0.81 12-06-05
+                   rolled_in_sleepered_flag:boolean;  // 223a  alignment_byte_1:byte;   // D5 0.81 12-06-05
 
                    front_timbers_flag:boolean;     //  218a    alignment_byte_2:byte;   // D5 0.81 12-06-05
 
@@ -4327,7 +4328,9 @@ type
 
   Tbox_dims1=record
 
-                box_ident:string[11];   // first 12 bytes. 0.81
+                box_ident:string[10];   // first 11 bytes. in OTBOX,   (string[11], 12 bytes in BOX)
+
+                id_byte:byte;          // set to 255  $FF in OTBOX files - not read.
 
                 now_time:integer;      // date/time/random code at which template added to keep box. (from Delphi float format - fractional days since 1-1-1900).
                                        // this is used to detect duplicates on loading.
@@ -4336,7 +4339,7 @@ type
                 keep_time:string[20];
 
                 top_label:         string[100];  // template info label.
-                who_for:           string[50];   // his project title string for the boxful. (only read from the last template in the box).
+                project_for:           string[50];   // his project title string for the boxful. (only read from the last template in the box).
 
                 reference_string:  string[100];  // template name.
 
@@ -5146,7 +5149,7 @@ uses
   //}
   trackbed_unit, make_slip_unit, create_tandem, xtc_unit{, docs_unit},
 
-  Htmlview;
+  mecbox_unit, Htmlview;
 
 
 const
@@ -9274,7 +9277,8 @@ end;
 procedure Tpad_form.view_box_menu_entryClick(Sender: TObject);
 
 begin
-  keep_form.Show;          //  show the storage box.
+  if Sender=box_menu then main_menu.Click;      // 290a
+  keep_form.Show;                               // show the storage box.
   keep_form.BringToFront;
 end;
 //______________________________________________________________________________________
@@ -12260,7 +12264,7 @@ begin
    bgkeep_mark_colour:=$008000FF;              // pink.
    //mouse_font_label.Font.Color:=clYellow;
 
-   keep_paper_colour:=$00FFF0D8;      // ice blue,  colours for the keep form...
+   keep_paper_colour:=clWhite; // was $00FFF0D8;      // ice blue,  colours for the keep form...
    keep_grid_colour:=clTeal;
 
    keep_rail_colour:=clBlack;

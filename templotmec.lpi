@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="10"/>
+    <Version Value="11"/>
     <PathDelim Value="\"/>
     <General>
       <Flags>
@@ -23,10 +23,10 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="2"/>
-      <MinorVersionNr Value="21"/>
+      <MinorVersionNr Value="90"/>
       <RevisionNr Value="1"/>
-      <BuildNr Value="34"/>
-      <StringTable InternalName="TemplotMEC" LegalCopyright="(c) Martin Wynne 2018" ProductName="OpenTemplot" ProductVersion="2.21.a"/>
+      <BuildNr Value="56"/>
+      <StringTable InternalName="TemplotMEC" LegalCopyright="(c) Martin Wynne 2019" ProductName="OpenTemplot/TemplotMEC" ProductVersion="2.90.a"/>
     </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
@@ -35,19 +35,23 @@
       <Version Value="2"/>
     </PublishOptions>
     <RunParams>
-      <local>
-        <FormatVersion Value="1"/>
-      </local>
+      <FormatVersion Value="2"/>
+      <Modes Count="1">
+        <Mode0 Name="default"/>
+      </Modes>
     </RunParams>
-    <RequiredPackages Count="2">
+    <RequiredPackages Count="3">
       <Item1>
-        <PackageName Value="Printer4Lazarus"/>
+        <PackageName Value="FrameViewer09"/>
       </Item1>
       <Item2>
-        <PackageName Value="LCL"/>
+        <PackageName Value="Printer4Lazarus"/>
       </Item2>
+      <Item3>
+        <PackageName Value="LCL"/>
+      </Item3>
     </RequiredPackages>
-    <Units Count="50">
+    <Units Count="51">
       <Unit0>
         <Filename Value="templotmec.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -88,7 +92,9 @@
       <Unit6>
         <Filename Value="math_unit.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="math_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit6>
       <Unit7>
         <Filename Value="xing_select.pas"/>
@@ -145,7 +151,9 @@
       <Unit17>
         <Filename Value="calibration_unit.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="calibration_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit17>
       <Unit18>
         <Filename Value="plain_track_unit.pas"/>
@@ -207,7 +215,9 @@
       <Unit29>
         <Filename Value="mint_unit.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="mint_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit29>
       <Unit30>
         <Filename Value="wait_message.pas"/>
@@ -239,7 +249,9 @@
       <Unit35>
         <Filename Value="prefs_unit.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="prefs_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit35>
       <Unit36>
         <Filename Value="print_now_box.pas"/>
@@ -316,6 +328,13 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit49>
+      <Unit50>
+        <Filename Value="mecbox_unit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="mecbox_form"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit50>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -329,14 +348,10 @@
       <OtherUnitFiles Value="synapse_units;html_viewer_units"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
-    <CodeGeneration>
-      <Checks>
-        <IOChecks Value="True"/>
-        <RangeChecks Value="True"/>
-        <OverflowChecks Value="True"/>
-      </Checks>
-    </CodeGeneration>
     <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
       <Options>
         <Win32>
           <GraphicApplication Value="True"/>
