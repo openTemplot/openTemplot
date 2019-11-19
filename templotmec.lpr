@@ -1,8 +1,8 @@
 
 (*
 
-    This file is part of OpenTemplot, a computer program for the design of model railway track.
-    Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
+    This file is part of Templot3, a computer program for the design of model railway track.
+    Copyright (C) 2019  Martin Wynne.  email: martin@templot.com
 
 
     This program is free software: you may redistribute it and/or modify
@@ -28,9 +28,13 @@ program templotmec;
 {$MODE Delphi}
 
 uses
-  Forms, Interfaces, SysUtils, Dialogs,
+  Forms, Interfaces, SysUtils, Dialogs, ShellAPI, FileUtil, Classes,
 
   control_room in 'control_room.pas' {control_room_form},
+
+  pad_unit in 'pad_unit.pas' {pad_form},
+
+
   keep_select in 'keep_select.pas' {keep_form},
   switch_select in 'switch_select.pas' {switch_select_form},
   alert_unit in 'alert_unit.pas' {alert_box},
@@ -38,7 +42,7 @@ uses
   math_unit in 'math_unit.pas' {math_form},
   xing_select in 'xing_select.pas' {xing_select_form},
   chat_unit in 'chat_unit.pas' {chat_form},
-  pad_unit in 'pad_unit.pas' {pad_form},
+
   entry_sheet in 'entry_sheet.pas' {data_entry_form},
   info_unit in 'info_unit.pas' {info_form},
   print_unit in 'print_unit.pas' {print_form},
@@ -83,13 +87,45 @@ uses
   xtc_unit in 'xtc_unit.pas',
 
   mecbox_unit in 'mecbox_unit.pas',
-  file_viewer in 'file_viewer.pas',
+
+
+  file_viewer in 'file_viewer.pas' {file_viewer_form},
 
   printer4lazarus;
 
 {$R *.res}
 
+var
+  rem_list:TStringList;
+  rem_file_str:string;
+  n:integer;
+
 begin
+  RequireDerivedFormResource:=True;
+
+  Application.Title:='Templot3';
+
+  Application.Scaled:=False;
+
+  WriteLn(' '+#13+#10+'    DO NOT CLOSE THIS WINDOW        IT CAN BE MINIMIZED');
+
+  WriteLn(#13+#10+#13+#10+'    Welcome to '+Application.Title+#13+#10+#13+#10);
+
+  rem_file_str:=ExtractFilePath(Application.ExeName)+'reminder.txt';
+
+  if FileExists(rem_file_str)=True
+     then begin
+            rem_list:=TStringList.Create;
+            rem_list.LoadFromFile(rem_file_str);
+
+            for n:=0 to rem_list.Count-1 do WriteLn('    '+rem_list.Strings[n]);
+
+            rem_list.Free;
+          end
+     else begin
+            WriteLn('    A reminder message from the previous working session can be shown here.');
+            WriteLn(#13+#10+'    Click session > write a reminder... on the main program panel.');
+          end;
 
   { OT-FIRST
   abandon_if_existing_instance;       // see in the startup_unit.  24-7-01.
@@ -102,7 +138,6 @@ begin
 
   Application.Initialize;
 
-  Application.Title:='TemplotMEC';
 
 
   { OT-FIRST
@@ -113,7 +148,9 @@ begin
   }
 
   Application.CreateForm(Tcontrol_room_form, control_room_form);
+
   Application.CreateForm(Tpad_form, pad_form);
+
   Application.CreateForm(Tkeep_form, keep_form);
   Application.CreateForm(Tswitch_select_form, switch_select_form);
   Application.CreateForm(Txing_select_form, xing_select_form);
@@ -160,10 +197,11 @@ begin
   Application.CreateForm(Tcheck_diffs_form, check_diffs_form);
   Application.CreateForm(Timage_viewer_form, image_viewer_form);
   Application.CreateForm(Tmouse_colour_form, mouse_colour_form);
-  Application.CreateForm(Tfile_viewer_form, file_viewer_form);
+
 
 
   { OT-FIRST
+  Application.CreateForm(Tfile_viewer_form, file_viewer_form);
   Application.CreateForm(Tsb_rvf_outer_form, sb_rvf_outer_form);
   Application.CreateForm(Tsb_rich_form, sb_rich_form);
   Application.CreateForm(Tedit_outline_form, edit_outline_form);
@@ -182,6 +220,9 @@ begin
 
   Application.CreateForm(Tmecbox_form, mecbox_form);
 
+  Application.CreateForm(Tfile_viewer_form, file_viewer_form);
+
+
 { OT-FIRST
   finally
     Hide;
@@ -190,6 +231,8 @@ begin
 }
 
   { OT-FIRST set_menu_style(False);    // modify all menus to XP style  // 0.95.a  in startup unit}
+
+  minimize_consolehost_window;      // 291a  in startup unit
 
   detect_wine;   // 205a in startup unit
 
@@ -200,7 +243,7 @@ begin
   control_room_form.Enabled:=True;
 
 
-  do_dpi_aware_scaling(0);   // 211b
+  do_dpi_aware_scaling(0);   // 211b   in startup unit
 
   Application.Run;
 

@@ -1,7 +1,7 @@
 
 (*
 
-    This file is part of OpenTemplot, a computer program for the design of model railway track.
+    This file is part of Templot3, a computer program for the design of model railway track.
     Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
 
 
@@ -65,6 +65,8 @@ type
     data_distortions_menu_entry: TMenuItem;
     aspect_distortion_menu_entry: TMenuItem;
     ot_logo_panel: TPanel;
+    t3_logo_image: TImage;
+    t3_logo_panel: TPanel;
     x_skewing_menu_entry: TMenuItem;
     x_coning_menu_entry: TMenuItem;
     distortion_help_menu_entry: TMenuItem;
@@ -346,7 +348,13 @@ var
 
 const
 
-  templot_program:integer=2;  // 0=Templot2   1=OpenTemplot   2=TemplotMEC
+  program_name_str:string='TemplotMEC';
+
+  //program_name_str:string='OpenTemplot';
+
+  //program_name_str:string='Templot3';
+
+
 
   distortion_help_str:string='      Expert  Help  -  Data  Distortions'
   +'||These data distortion functions are intended primarily for use when exporting templates in DXF file format for transfer to CAD software.'
@@ -501,10 +509,10 @@ var
   min_export_y:integer=-16000;
 
 
- program_version:integer=290;     // this program version number (*100, e.g. v:1.3 = 130).
-                                  // this is version 2.90, started 30th October 2019
+ program_version:integer=291;     // this program version number (*100, e.g. v:1.3 = 130).
+                                  // this is version 2.91, started 11th November 2019
 
-  version_build:string='.a';      // sub-build letter for this version. started 30th October 2019, released:  01/11/2019
+  version_build:string='.a';      // sub-build letter for this version. started 11th November 2019, released:
 
 
   loaded_version:integer=50000;   // init the loaded data file versions..
@@ -722,12 +730,12 @@ uses
   dxf_unit, bgnd_unit, bgkeeps_unit, panning_unit, grid_unit,
   shove_timber, stay_visible_unit, action_unit, mint_unit, jotter_unit, print_settings_unit,
 
-  prefs_unit, plain_track_unit, calibration_unit,
+  prefs_unit, plain_track_unit, calibration_unit, startup_unit,
 
 
   { OT-FIRST dtpGR32,} edit_memo_unit, { OT-FIRST dtp_unit, dtp_settings_unit,} platform_unit,
   data_memo_unit, { OT-FIRST sketchboard_unit,} check_diffs_unit, rail_options_unit,
-  export_unit, { OT-FIRST file_viewer,} wait_message, { OT-FIRST companion_load_unit,}
+  export_unit, file_viewer, wait_message, { OT-FIRST companion_load_unit,}
 
   ActiveX,                 // IMalloc
   ShlObj, trackbed_unit,   // Needed for the CSIDL constants
@@ -1588,6 +1596,10 @@ var
 
   default_file_str:string;  // 206b ...
 
+  window_handle:HWND;
+
+  title_str:string;
+
 begin
   if open_button_clicked=True then EXIT;  // 205d
 
@@ -1609,10 +1621,14 @@ begin
 
   open_panel.Hide;
 
-  picture_panel.Visible:=True;
+     // only one of these is visible ...
 
+  t3_logo_panel.BringToFront;    // OT-FIRST
   tmec_logo_panel.BringToFront;  // OT-FIRST
   ot_logo_panel.BringToFront;    // OT-FIRST
+
+  picture_panel.Visible:=True;
+  picture_panel.SendToBack;
 
   Hide;  // hide the form until ready
 
@@ -1628,8 +1644,8 @@ begin
   ForceDirectories(exe_str+'internal\upd');     // for downloaded updates
   ForceDirectories(exe_str+'internal\map');     // for screenshot maps
 
-  ForceDirectories(exe_str+'BOX-FILES');        // .otbox        OT-FIRST
-  ForceDirectories(exe_str+'SHAPE-FILES');      // .otbgs        OT-FIRST
+  ForceDirectories(exe_str+'BOX-FILES');        // .box3        OT-FIRST
+  ForceDirectories(exe_str+'SHAPE-FILES');      // .bgs3        OT-FIRST
   ForceDirectories(exe_str+'DXF-FILES');
   ForceDirectories(exe_str+'EMF-FILES');
   ForceDirectories(exe_str+'PRINT-PREVIEW-FILES');
@@ -1908,12 +1924,12 @@ begin
   if (ParamCount>0)    // command line parameters?
      then begin
             param_str:=ParamStr(ParamCount);
-            if ExtractFileExt(param_str)='.otbox'
+            if ExtractFileExt(param_str)='.box3'
                then begin
                       if FileExists(param_str)=True then reload_specified_file(True,False,param_str);
                     end
                else begin
-                      if ExtractFileExt(param_str)='.bgs'
+                      if ExtractFileExt(param_str)='.bgs3'
                          then begin
                                 if FileExists(param_str)=True then load_shapes(param_str,False,False,False);
                               end
@@ -1992,12 +2008,12 @@ begin
 
        // 206b if nothing loaded, load the default files...
 
-  default_file_str:=exe_str+'BOX-FILES\start.otbox';
+  default_file_str:=exe_str+'BOX-FILES\start.box3';
 
   if (gauge_i=t_T55_i) and (keeps_list.Count<1) and (FileExists(default_file_str)=True)   // T-55 startup check in case box is empty after reloading file having control template only.
      then reload_specified_file(False,False,default_file_str);
 
-  default_file_str:=exe_str+'SHAPE-FILES\start.bgs';
+  default_file_str:=exe_str+'SHAPE-FILES\start.bgs3';
 
   if (bgnd_form.bgnd_shapes_listbox.Items.Count<1) and (FileExists(default_file_str)=True)
      then load_shapes(default_file_str,False,False,False);
@@ -2010,8 +2026,26 @@ begin
             startup_modal_warning(False);  // 212b
           end;
 
-  get_custom_gauges;  // load custom gauge/scale from previous session   215a in prefs_unit        
+  get_custom_gauges;  // load custom gauge/scale from previous session   215a in prefs_unit
+{
+  redraw(False);
 
+  Application.ProcessMessages;
+
+  title_str:='TemplotMEC';
+  window_handle:=FindWindow(nil,PChar(title_str));
+
+  title_str:=Application.Title;
+  if window_handle=0
+     then window_handle:=FindWindow(nil,PChar(title_str));
+
+  title_str:=Application.ExeName;
+  if window_handle=0
+     then window_handle:=FindWindow(nil,PChar(title_str));
+
+  if window_handle<>0
+     then ShowWindow(window_handle,SW_MINIMIZE);
+}
 end;
 //______________________________________________________________________________
 
@@ -2184,8 +2218,10 @@ var
 begin
 
   if Application.Title='TemplotMEC'       // OT-FIRST
-       then logo_img_str:='tm_logo.bmp'
-       else logo_img_str:='ot_logo.bmp';
+     then logo_img_str:='tm_logo.bmp'
+     else if Application.Title='OpenTemplot'
+             then logo_img_str:='ot_logo.bmp'
+             else logo_img_str:='t3_logo.bmp';
 
   about_str:='<P STYLE="text-align:center; margin-top:20px;"><IMG SRC="'+exe_str+'internal\hlp\'+logo_img_str+'"></P>'
             +'<P STYLE="text-align:center; margin-top:20px; color:blue; font-family:''Trebuchet MS''; font-size:19px; font-weight:bold; font-style:italic;">precision track design for model railways</P>'
@@ -3776,14 +3812,21 @@ begin
             Color:=$00A8FFF8;                   // TemplotMEC  unripe banana
             tmec_logo_panel.Visible:=True;
           end
-     else begin
-            Color:=$00FFEECC;                   // OpenTemplot  water blue
-            ot_logo_panel.Visible:=True;
-          end;
+     else if Application.Title='OpenTemplot'
+             then begin
+                    Color:=$00FFEECC;                   // OpenTemplot  water blue
+                    ot_logo_panel.Visible:=True;
+                  end
+             else begin
+                    Color:=$00B0FFF0;                   // 291a Templot3  cream
+                    t3_logo_panel.Visible:=True;
+                  end;
 
   Caption:='        . . .  welcome  to  '+Application.Title;
 
   startup_label.Caption:='. . .  welcome  to  '+Application.Title;
+
+  quit_menu_entry.Caption:='quit  '+Application.Title;
 
 end;
 //______________________________________________________________________________________
@@ -4237,7 +4280,7 @@ begin
        else begin
               vis_edit_memo.Lines.Add('Enter here a reminder message.');
               vis_edit_memo.Lines.Add('');
-              vis_edit_memo.Lines.Add('The message will be displayed when you next start a Templot0 session.');
+              vis_edit_memo.Lines.Add('The message will be displayed when you next start a Templot session.');
               vis_edit_memo.SelectAll;
             end;
 
@@ -4480,9 +4523,9 @@ procedure Tcontrol_room_form.room_file_viewer_menu_entryClick(Sender: TObject); 
 begin
   do_open_source_bang('FILE VIEWER');  // OT-FIRST
  { OT-FIRST
-  keep_form_was_showing:=False;
+  //keep_form_was_showing:=False;
   do_show_modal(file_viewer_form);  // 212a
-  }
+ }
 end;
 //______________________________________________________________________________
 
@@ -4514,7 +4557,7 @@ const
   fvo_help_str:string='php/950      `0file  viewer  options`9'
   +'||These options control how the screenshot images in the file viewer are generated.'
   +'||The `0images in memory`1 option is recommended.'
-  +'||Change to the `0images as files`1 option if your system is low on RAM memory, or you have many hundreds of .otbox files in a single folder, or you have many other programs running concurrently with Templot0.'
+  +'||Change to the `0images as files`1 option if your system is low on RAM memory, or you have many hundreds of .box3 files in a single folder, or you have many other programs running concurrently with Templot0.'
   +'||The screenshot images will then be saved as image files on the disk drive, instead of being stored in memory. Be aware that this option will cause the viewer to work more slowly.';
 
 begin
@@ -4756,7 +4799,7 @@ end;
 procedure do_open_source_bang(str:string);  // OT-FIRST
 
 begin
-  ShowMessage('              '+Application.Title+'   first release June 2018'
+  ShowMessage('              '+Application.Title+'   first release November 2019'
    +#13+#13+'The function you have selected is not available in this first release of '+Application.Title+':'
    +#13+#13+'                '+str
    +#13+#13+'This release of '+Application.Title+' is not intended for practical use.'

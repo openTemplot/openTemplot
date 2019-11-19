@@ -1,4 +1,28 @@
 
+(*
+
+    This file is part of Templot3, a computer program for the design of model railway track.
+    Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
+
+
+    This program is free software: you may redistribute it and/or modify
+    it under the terms of the GNU General Public Licence as published by
+    the Free Software Foundation, either version 3 of the Licence, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public Licence for more details.
+
+    You should have received a copy of the GNU General Public Licence
+    along with this program. See the files: licence.txt or opentemplot.lpr
+
+    Or if not, refer to the web site: https://www.gnu.org/licenses/
+
+====================================================================================
+*)
+
 unit print_settings_unit;
 
 {$MODE Delphi}
@@ -34,27 +58,9 @@ type
     Label5: TLabel;
     Label6: TLabel;
     output_xing_labels_checkbox: TCheckBox;
-    output_chairs_checkbox: TCheckBox;
-    output_timber_centres_checkbox: TCheckBox;
-    output_timber_numbers_checkbox: TCheckBox;
-    output_timber_extensions_checkbox: TCheckBox;
-    Label7: TLabel;
-    Label8: TLabel;
-    Label9: TLabel;
-    output_rail_joints_checkbox: TCheckBox;
-    output_guide_marks_checkbox: TCheckBox;
-    output_switch_drive_checkbox: TCheckBox;
-    output_timb_id_prefix_checkbox: TCheckBox;
-    output_platforms_checkbox: TCheckBox;
-    output_trackbed_edges_checkbox: TCheckBox;
-    Shape2: TShape;
-    //procedure rails_indicator_shapeMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    //procedure rails_indicator_shapeMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure size_updownClick(Sender: TObject; Button: TUDBtnType);
     procedure FormCreate(Sender: TObject);
     procedure close_buttonClick(Sender: TObject);
-    procedure output_timbering_checkboxClick(Sender: TObject);
-    procedure output_timber_numbers_checkboxClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -95,7 +101,7 @@ var
   save_priccu:integer=$0080B0E8;                  // 209c  was $006090C0;
 
   printrail_infill_colour_bg:integer=$00F0D0B4;  // 214a         was $00E8B080;   // 209c  was $00C09060;    // steely-blue.   //$0090C060 sea-green printed rails (background templates).
-  save_pricbg:integer=$00F0D0B4;                 // 214a         was $00E8B080;   // 209c  was $00C09060;
+  save_pricbg:integer=$00F0D0B4;                 // 214a         was $00E8B080;                  // 209c  was $00C09060;
 
            // 0.93.a platforms ..
 
@@ -107,8 +113,8 @@ var
   sb_track_bgnd_colour:integer=$0090D8D8;  // 206a
   save_sb_track_bgnd:integer=$0090D8D8;    // 206a
 
-  sb_diagram_colour:integer=$00E4C0A0;   // 223d       was $00C4A07C; steel blue
-  save_sb_diagram_col:integer=$00E4C0A0; // 223d       was $00C4A07C; steel blue
+  sb_diagram_colour:integer=$00B08050;     // 209c  steel blue
+  save_sb_diagram_col:integer=$00B08050;   // 209c  steel blue
 
   printgrid_thick:extended=0.02;             // mm minimum thickness.
   printpicborder_thick:extended=0.02;        // mm minimum thickness. (1 dot).
@@ -156,9 +162,10 @@ implementation
 {$BOOLEVAL ON}
 
 
-{$R *.LFM}
+{$R *.lfm}
 
-uses control_room,pad_unit,math_unit,keep_select,help_sheet,shove_timber,wait_message;
+uses control_room,pad_unit,math_unit,keep_select,help_sheet,shove_timber,
+  wait_message;
 
 //______________________________________________________________________________
 
@@ -182,12 +189,10 @@ end;
 procedure Tprint_settings_form.FormCreate(Sender: TObject);
 
 begin
-  ClientWidth:=480;
-  ClientHeight:=632;
-
-  AutoScroll:=False;
+  // OT-FIRST ClientWidth:=480;
+  // OT-FIRST ClientHeight:=510;
 end;
-//______________________________________________________________________________
+//___________________________________________________________________________
 
 procedure Tprint_settings_form.close_buttonClick(Sender: TObject);
 
@@ -421,28 +426,9 @@ begin
     keeps_list.Delete(n);
     memo_list.Delete(n);
 
-    //save_done:=False;
-
   end;//while              // no need to increment n, it is now pointing to the next keep.
 end;
 //______________________________________________________________________________
 
-procedure Tprint_settings_form.output_timbering_checkboxClick(Sender: TObject);
-
-begin
-  output_timber_centres_checkbox.Enabled:=output_timbering_checkbox.Checked;
-  output_timber_numbers_checkbox.Enabled:=output_timbering_checkbox.Checked;
-  output_timber_extensions_checkbox.Enabled:=output_timbering_checkbox.Checked;
-
-  output_timb_id_prefix_checkbox.Enabled:=(output_timbering_checkbox.Checked) and (output_timber_numbers_checkbox.Checked);
-end;
-//______________________________________________________________________________
-
-procedure Tprint_settings_form.output_timber_numbers_checkboxClick(Sender: TObject);
-
-begin
-  output_timb_id_prefix_checkbox.Enabled:=output_timber_numbers_checkbox.Checked;
-end;
-//______________________________________________________________________________
 
 end.

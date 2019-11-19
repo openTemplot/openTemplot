@@ -5,7 +5,7 @@ object data_child_form: Tdata_child_form
   Width = 565
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
-  Caption = '      data ...'
+  Caption = '      info ...'
   ClientHeight = 570
   ClientWidth = 565
   Color = 15852503
@@ -18,7 +18,7 @@ object data_child_form: Tdata_child_form
   OnClose = FormClose
   OnCreate = FormCreate
   OnResize = FormResize
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.0.4.0'
   Scaled = False
   object data_memo: TMemo
     Left = 0

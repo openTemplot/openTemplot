@@ -1,14 +1,14 @@
 object pad_form: Tpad_form
   Left = 12
-  Height = 730
+  Height = 748
   Top = 12
-  Width = 1237
+  Width = 1268
   HorzScrollBar.Tracking = True
   VertScrollBar.Tracking = True
   AllowDropFiles = True
   Caption = '          trackpad'
-  ClientHeight = 681
-  ClientWidth = 1237
+  ClientHeight = 723
+  ClientWidth = 1268
   Color = clSilver
   DesignTimePPI = 120
   Font.Color = clNavy
@@ -73,9 +73,9 @@ object pad_form: Tpad_form
     Visible = False
   end
   object time_now_panel: TPanel
-    Left = 1107
+    Left = 1138
     Height = 29
-    Top = 649
+    Top = 691
     Width = 88
     Anchors = [akRight, akBottom]
     BevelOuter = bvNone
@@ -1165,7 +1165,7 @@ object pad_form: Tpad_form
   end
   object reminder_memo1: TMemo
     Cursor = crArrow
-    Left = 1087
+    Left = 1118
     Height = 52
     Top = 222
     Width = 144
@@ -1190,7 +1190,7 @@ object pad_form: Tpad_form
   end
   object reminder_memo2: TMemo
     Cursor = crArrow
-    Left = 1087
+    Left = 1118
     Height = 52
     Top = 288
     Width = 144
@@ -1215,7 +1215,7 @@ object pad_form: Tpad_form
   end
   object reminder_memo3: TMemo
     Cursor = crArrow
-    Left = 1087
+    Left = 1118
     Height = 52
     Top = 354
     Width = 144
@@ -1240,7 +1240,7 @@ object pad_form: Tpad_form
   end
   object reminder_memo4: TMemo
     Cursor = crArrow
-    Left = 1087
+    Left = 1118
     Height = 52
     Top = 420
     Width = 144
@@ -1265,7 +1265,7 @@ object pad_form: Tpad_form
   end
   object reminder_memo5: TMemo
     Cursor = crArrow
-    Left = 1087
+    Left = 1118
     Height = 52
     Top = 486
     Width = 144
@@ -1289,10 +1289,10 @@ object pad_form: Tpad_form
     Visible = False
   end
   object scaling_trackbar: TTrackBar
-    Left = 1213
+    Left = 1244
     Height = 160
     Hint = ' change program size to suit your screen '
-    Top = 521
+    Top = 563
     Width = 24
     Max = 7
     Min = 1
@@ -1309,10 +1309,10 @@ object pad_form: Tpad_form
     TabOrder = 9
   end
   object scaling_help_static: TStaticText
-    Left = 1213
+    Left = 1244
     Height = 20
     Hint = 'whats this?'
-    Top = 501
+    Top = 543
     Width = 24
     Alignment = taCenter
     Anchors = [akRight, akBottom]
@@ -1515,9 +1515,9 @@ object pad_form: Tpad_form
     end
   end
   object scaling_labels_panel: TPanel
-    Left = 1041
+    Left = 1072
     Height = 160
-    Top = 521
+    Top = 563
     Width = 172
     Anchors = [akRight, akBottom]
     BevelOuter = bvNone

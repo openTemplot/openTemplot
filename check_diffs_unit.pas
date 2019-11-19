@@ -1,7 +1,7 @@
 
 (*
 
-    This file is part of OpenTemplot, a computer program for the design of model railway track.
+    This file is part of Templot3, a computer program for the design of model railway track.
     Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
 
 

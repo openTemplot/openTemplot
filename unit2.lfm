@@ -1,0 +1,19 @@
+object Form1: TForm1
+  Left = 1220
+  Height = 300
+  Top = 408
+  Width = 400
+  Caption = 'Form1'
+  ClientHeight = 300
+  ClientWidth = 400
+  DesignTimePPI = 120
+  LCLVersion = '2.0.4.0'
+  object ToggleBox1: TToggleBox
+    Left = 74
+    Height = 104
+    Top = 60
+    Width = 154
+    Caption = 'ToggleBox1'
+    TabOrder = 0
+  end
+end

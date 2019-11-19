@@ -22,7 +22,7 @@ object bgnd_form: Tbgnd_form
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   OnShow = FormShow
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.0.4.0'
   Scaled = False
   object datestamp_label: TLabel
     Left = 0
@@ -434,7 +434,6 @@ object bgnd_form: Tbgnd_form
       OnClick = size_updownClick
       Position = 4
       TabOrder = 1
-      Wrap = False
     end
     object colour_panel: TPanel
       Left = 0
@@ -2284,6 +2283,13 @@ object bgnd_form: Tbgnd_form
     ShowHint = True
     TabOrder = 5
     TabStop = True
+  end
+  object bgnd_shape_image: TImage
+    Left = 390
+    Height = 33
+    Top = 547
+    Width = 83
+    Visible = False
   end
   object filesave_dialog: TSaveDialog
     Title = '    save  background  shapes  as ...'

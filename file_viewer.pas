@@ -1,7 +1,7 @@
 
 (*
 
-    This file is part of OpenTemplot, a computer program for the design of model railway track.
+    This file is part of Templot3, a computer program for the design of model railway track.
     Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
 
 
@@ -32,15 +32,16 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, FileCtrl, ComCtrls, Grids, Outline, {DirOutln,} ExtCtrls,
-  Htmlview, EditBtn, HTMLUn2;
+  Htmlview;
 
 type
 
   { Tfile_viewer_form }
 
   Tfile_viewer_form = class(TForm)
-    folder_listbox: TFileListBox;
-    disk_drive_combo: TDirectoryEdit;
+    get_folders_button: TButton;
+    //folder_listbox: TDirectoryListBox;
+    //disk_drive_combo: TDriveComboBox;
     Label1: TLabel;
     Label2: TLabel;
     help_shape: TShape;
@@ -63,6 +64,8 @@ type
     images_label: TLabel;
     instant_show_checkbox: TCheckBox;
     escape_label: TLabel;
+    folder_tree: TTreeView;
+    procedure get_folders_buttonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure folder_listboxClick(Sender: TObject);
@@ -133,9 +136,7 @@ uses
   ShellAPI,control_room,pad_unit,grid_unit,math_unit, panning_unit,
   shove_timber,rail_options_unit,platform_unit,check_diffs_unit,
   data_memo_unit,stay_visible_unit,info_unit,keep_select,help_sheet,alert_unit;
-
-const
-  boxSuffix:string = 'otbox';
+  
 
 var
 
@@ -196,6 +197,9 @@ var
   screen_rect,print_rect:TRect;
 
   create_bitmap:TBitmap;
+
+  //create_png:TPNGObject;
+
   create_png:TPortableNetworkGraphic;
 
   img_file_name_str:string;  // name part
@@ -251,8 +255,8 @@ begin
 
       // no changes while building list
 
-    disk_drive_combo.Enabled:=False;
-    folder_listbox.Enabled:=False;
+    //disk_drive_combo.Enabled:=False;
+    //folder_listbox.Enabled:=False;
     refresh_button.Enabled:=False;
     images_clickable_checkbox.Enabled:=False;
     name_labels_checkbox.Enabled:=False;
@@ -279,11 +283,11 @@ begin
     fv_tag_list.Clear;
 
 
-    dir_str:=folder_listbox.Directory+'\';   // add trailing slash
+    //dir_str:=folder_listbox.Directory+'\';   // add trailing slash
 
        // build the lists ...
 
-    if FindFirst(dir_str+'*.'+boxSuffix,0,search_record_box)=0
+    if FindFirst(dir_str+'*.box3',0,search_record_box)=0
        then begin
               add_file_to_box_lists(search_record_box);
 
@@ -402,7 +406,7 @@ begin
 
                   boxfile_str:=dir_str+box_file_list.Strings[n];
 
-                  if Pos('.'+boxSuffix,LowerCase(boxfile_str))=0 then boxfile_str:=boxfile_str+'.'+boxSuffix;  // in case his system hides extensions.
+                  if Pos('.box3',LowerCase(boxfile_str))=0 then boxfile_str:=boxfile_str+'.box3';  // in case his system hides extensions.
 
             //function load_storage_box(normal_load,old_templot_folder:boolean; file_str:string; load_backup,make_lib:boolean; var append:boolean; var last_bgnd_loaded_index:integer):boolean;    // load a file of templates into the keeps box.
 
@@ -435,13 +439,18 @@ begin
 
                   fv_tag_list.Add(tag_str);
 
-                  img_file_name_str:=StringReplace(box_file_list.Strings[n],'.'+boxSuffix,'_'+boxSuffix,[rfReplaceAll, rfIgnoreCase]);
+                  img_file_name_str:=StringReplace(box_file_list.Strings[n],'.box3','_box3',[rfReplaceAll, rfIgnoreCase]);
                   img_file_str:=exe_str+'internal\fview\'+img_file_name_str+'.png';
 
                   img_name_list.Add(img_file_str);
 
                   create_bitmap:=TBitmap.Create;
+
+                  //create_png:=TPNGObject.Create;
+
                   create_png:=TPortableNetworkGraphic.Create;
+
+
 
                   try
                     create_bitmap.Width:=pad_form.ClientWidth;
@@ -586,8 +595,8 @@ begin
               end;//if count>0
 
     finally
-      disk_drive_combo.Enabled:=True;
-      folder_listbox.Enabled:=True;
+      //disk_drive_combo.Enabled:=True;
+      //folder_listbox.Enabled:=True;
       refresh_button.Enabled:=True;
       images_clickable_checkbox.Enabled:=True;
       name_labels_checkbox.Enabled:=True;
@@ -628,14 +637,14 @@ begin
   fv_tag_list:=TStringList.Create;
 
 
-  //files_listbox.Width:=0; // fetches the .box file list in Items from the selected folder
+  //files_listbox.Width:=0;   // fetches the .box file list in Items from the selected folder
                             // !!! Items not available if Visible=False
                             // FileListBox not used directly because not owner-draw
 
 
-  folder_str:=ExtractFilePath(Application.ExeName)+'box-files';    // exe_str not yet set
+  folder_str:=ExtractFilePath(Application.ExeName)+'BOX-FILES';    // exe_str not yet set
 
-  if DirectoryExists(folder_str)=True then disk_drive_combo.Directory:=folder_str;
+  //if DirectoryExists(folder_str)=True then folder_listbox.Directory:=folder_str;
 
   html_create_str:='<P ALIGN="CENTER"><BR><BR><BR><IMG SRC="'+ExtractFilePath(Application.ExeName)+'internal\hlp\wait_signal_trans.gif"></P>'
                   +'<P ALIGN="CENTER" STYLE="FONT-SIZE:15PX; FONT-WEIGHT:BOLD;"><BR><BR>to see all the .box files in the selected disk drive and folder</P>'
@@ -651,6 +660,45 @@ begin
   bmp_stream:=TMemoryStream.Create;
 
 end;
+
+procedure get_folders(folder_str:string; tree_node:TTreeNode);
+
+var
+search_record:TSearchRec;
+new_node:TTreeNode;
+
+begin
+if folder_str[Length(folder_str)]<>'\' then folder_str:=folder_str+'\';
+
+if FindFirst(folder_str+'*.*',faDirectory,search_record)=0
+   then begin
+          repeat
+            if ((search_record.Attr and faDirectory)=faDirectory) and (search_record.Name[1]<>'.')
+               then begin
+
+                      if ((search_record.Attr and faDirectory)>0)
+   			 then tree_node:=file_viewer_form.folder_tree.Items.AddChild(tree_node,search_record.Name);
+
+                      new_node:=tree_node.Parent;
+
+      	              get_folders(folder_str+search_record.Name,tree_node);
+
+      	              tree_node:=new_node;
+                    end;
+
+          until FindNext(search_record)<>0;
+
+          FindClose(search_record);
+        end;
+end;
+//______________________________________________________________________________
+
+procedure Tfile_viewer_form.get_folders_buttonClick(Sender: TObject);
+
+begin
+  folder_tree.Items.Clear;
+  get_folders('C:\TEMPLOT_DEV\',nil);
+end;
 //______________________________________________________________________________
 
 procedure Tfile_viewer_form.FormResize(Sender: TObject);
@@ -663,7 +711,7 @@ begin
 
   controls_panel.Top:=ClientHeight-controls_panel.Height;
 
-  folder_listbox.Height:=controls_panel.Top-folder_listbox.Top-images_label.Height;
+  //folder_listbox.Height:=controls_panel.Top-folder_listbox.Top-images_label.Height;
 end;
 //______________________________________________________________________________
 
@@ -680,8 +728,7 @@ var
 begin
   if no_onresize=True then EXIT;   // ??? scaling appears to cause a click
 
-  folder_listbox.Directory := disk_drive_combo.Directory;
-
+  //folder_listbox.OpenCurrent;   // mimics a double-click to open the folder
 
   if instant_show_checkbox.Checked=True     // 208g
      then begin
@@ -696,13 +743,13 @@ begin
             count_label.Hide;
             found_label.Hide;
 
-            dir_str:=folder_listbox.Directory+'\';   // add trailing slash
+            //dir_str:=folder_listbox.Directory+'\';   // add trailing slash
 
             file_count:=0; // init
 
               // count the files ...
 
-            if FindFirst(dir_str+'*.'+boxSuffix,0,search_record_box)=0
+            if FindFirst(dir_str+'*.box3',0,search_record_box)=0
                then begin
                       INC(file_count);
 
@@ -737,7 +784,7 @@ var
   file_str:string;
 
 begin
-  file_str:=file_viewer_form.folder_listbox.Directory+'\'+box_file_list.Strings[n];
+  //file_str:=file_viewer_form.folder_listbox.Directory+'\'+box_file_list.Strings[n];
   reload_specified_file(False,False,file_str);
 
   file_viewer_form.Close;
@@ -750,7 +797,7 @@ var
   file_str:string;
 
 begin
-  file_str:=file_viewer_form.folder_listbox.Directory+'\'+box_file_list.Strings[n];
+  //file_str:=file_viewer_form.folder_listbox.Directory+'\'+box_file_list.Strings[n];
   reload_specified_file(False,True,file_str);
 
   file_viewer_form.Close;
@@ -790,7 +837,7 @@ begin
 
   old_name_str:=box_file_list.Strings[n];
 
-  dir_str:=file_viewer_form.folder_listbox.Directory+'\';
+  //dir_str:=file_viewer_form.folder_listbox.Directory+'\';
 
   with math_form do begin
 
@@ -808,11 +855,11 @@ begin
       if ModalResult=mrOK
          then begin
 
-                new_name_str:=StringReplace(Trim(math_editbox.Text),'.'+boxSuffix,'',[rfReplaceAll, rfIgnoreCase])+'.'+boxSuffix;
+                new_name_str:=StringReplace(Trim(math_editbox.Text),'.box3','',[rfReplaceAll, rfIgnoreCase])+'.box3';
 
                 if new_name_str=old_name_str then EXIT;
 
-                if new_name_str='.'+boxSuffix
+                if new_name_str='.box3'
                    then begin
                           show_modal_message('The new name cannot be blank.');
                           EXIT;
@@ -865,7 +912,7 @@ var
   file_str:string;
 
 begin
-  file_str:=file_viewer_form.folder_listbox.Directory+'\'+box_file_list.Strings[n];
+  //file_str:=file_viewer_form.folder_listbox.Directory+'\'+box_file_list.Strings[n];
 
   if ShellExecute(0, nil, PChar('explorer.exe'), PChar('/select,'+file_str), nil, SW_SHOWNORMAL)<=32
      then show_modal_message('Sorry, unable to open the containing folder.')
@@ -879,6 +926,8 @@ var
   file_str,path_str,update_str,dir_str:string;
   i,saved_width,saved_pos:integer;
 
+  //img_png:TPNGObject;
+
   img_png:TPortableNetworkGraphic;
 
   img_str:string;
@@ -891,7 +940,7 @@ begin
 
   if alert_box.ClientWidth<692 then alert_box.ClientWidth:=692;     // to show 680 image
 
-  dir_str:=file_viewer_form.folder_listbox.Directory+'\';
+  //dir_str:=file_viewer_form.folder_listbox.Directory+'\';
 
   if showing_as_png_files=True
      then img_str:=img_name_list.Strings[n]
@@ -899,6 +948,8 @@ begin
      else begin    // save the bitmap as a file for alert box...
 
             img_str:=exe_str+'internal\fview\fv_deletion_confirm.png';
+
+            //img_png:=TPNGObject.Create;
 
             img_png:=TPortableNetworkGraphic.Create;
 
@@ -1097,13 +1148,13 @@ begin
 
   if fv_has_been_active=False    // first time only
      then begin
-            dir_str:=folder_listbox.Directory+'\';   // add trailing slash
+            //dir_str:=folder_listbox.Directory+'\';   // add trailing slash
 
             file_count:=0; // init
 
               // count the files ...
 
-            if FindFirst(dir_str+'*.'+boxSuffix,0,search_record_box)=0
+            if FindFirst(dir_str+'*.box3',0,search_record_box)=0
                then begin
                       INC(file_count);
 
@@ -1173,7 +1224,7 @@ var
 begin
   html_file_viewer.SetFocus;    // for return
 
-  dir_str:=file_viewer_form.folder_listbox.Directory+'\';
+  //dir_str:=file_viewer_form.folder_listbox.Directory+'\';
 
   if ShellExecute(0,'explore',PChar(dir_str),nil,nil,SW_SHOWNORMAL)<=32
      then show_modal_message('Sorry, unable to open the folder.')
@@ -1283,8 +1334,8 @@ begin
 
       // no changes while building list
 
-    disk_drive_combo.Enabled:=False;
-    folder_listbox.Enabled:=False;
+    //disk_drive_combo.Enabled:=False;
+    //folder_listbox.Enabled:=False;
     refresh_button.Enabled:=False;
     images_clickable_checkbox.Enabled:=False;
     name_labels_checkbox.Enabled:=False;
@@ -1319,11 +1370,11 @@ begin
 
     fv_tag_list.Clear;
 
-    dir_str:=folder_listbox.Directory+'\';   // add trailing slash
+    //dir_str:=folder_listbox.Directory+'\';   // add trailing slash
 
        // build the lists ...
 
-    if FindFirst(dir_str+'*.'+boxSuffix,0,search_record_box)=0
+    if FindFirst(dir_str+'*.box3',0,search_record_box)=0
        then begin
               add_file_to_box_lists(search_record_box);
 
@@ -1430,7 +1481,7 @@ begin
 
                   boxfile_str:=dir_str+box_file_list.Strings[n];
 
-                  if Pos('.'+boxSuffix,LowerCase(boxfile_str))=0 then boxfile_str:=boxfile_str+'.'+boxSuffix;  // in case his system hides extensions.
+                  if Pos('.box3',LowerCase(boxfile_str))=0 then boxfile_str:=boxfile_str+'.box3';  // in case his system hides extensions.
 
                         //function load_storage_box(normal_load,old_templot_folder:boolean; file_str:string; load_backup,make_lib:boolean; var append:boolean; var last_bgnd_loaded_index:integer):boolean;    // load a file of templates into the keeps box.
 
@@ -1612,8 +1663,8 @@ begin
               end;//if count>0
 
     finally
-      disk_drive_combo.Enabled:=True;
-      folder_listbox.Enabled:=True;
+      //disk_drive_combo.Enabled:=True;
+      //folder_listbox.Enabled:=True;
       refresh_button.Enabled:=True;
       images_clickable_checkbox.Enabled:=True;
       name_labels_checkbox.Enabled:=True;

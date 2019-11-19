@@ -1,7 +1,7 @@
 
 (*
 
-    This file is part of OpenTemplot, a computer program for the design of model railway track.
+    This file is part of Templot3, a computer program for the design of model railway track.
     Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
 
 
@@ -2051,12 +2051,16 @@ begin
                           
                         end;
 
-                if templot_version<290
+                if templot_version<290   // TemplotMEC
                    then begin
                           turnout_info1.rolled_in_sleepered_flag:=True;    // default was True pre-223a
                           file_format_code:=0;                             // D5 format
                         end;
 
+                if templot_version<291   // Templot3
+                   then begin
+                          //
+                        end;
 
                 templot_version:=program_version;      // file now corresponds to current.
                 RESULT:=True;                          // and flag not saved.
@@ -2333,7 +2337,7 @@ begin
                           if his_save_file_name<>'' then InitialDir:=ExtractFilePath(his_save_file_name)   // use his previous folder.
                                                     else InitialDir:=exe_str+'BOX-FILES\';                 // or the default one.
 
-                          Filter:= ' storage  box  contents  (*.otbox)|*.otbox';
+                          Filter:= ' storage  box  contents  (*.box3)|*.box3';
 
                           case which_ones of
 
@@ -2344,27 +2348,27 @@ begin
                                                  // 0.79.a  yy_mm_dd  was yy-mm-dd
 
                                0: begin
-                                    Filename:=remove_invalid_str(Copy(Trim(box_project_title_str),1,20)+FormatDateTime(' yyyy_mm_dd_hhmm_ss',Date+Time))+'.otbox';   // 0.79.a  20 chars was 15
+                                    Filename:=remove_invalid_str(Copy(Trim(box_project_title_str),1,20)+FormatDateTime(' yyyy_mm_dd_hhmm_ss',Date+Time))+'.box3';   // 0.79.a  20 chars was 15
                                     Title:='    save  all  templates  as ...';
                                   end;
 
                                1: begin
-                                    Filename:=remove_invalid_str('background'+FormatDateTime(' yyyy_mm_dd_hhmm_ss',Date+Time))+'.otbox';
+                                    Filename:=remove_invalid_str('background'+FormatDateTime(' yyyy_mm_dd_hhmm_ss',Date+Time))+'.box3';
                                     Title:='    save  background  templates  as ...';
                                   end;
 
                                2: begin
-                                    Filename:=remove_invalid_str('unused'+FormatDateTime(' yyyy_mm_dd_hhmm_ss',Date+Time))+'.otbox';
+                                    Filename:=remove_invalid_str('unused'+FormatDateTime(' yyyy_mm_dd_hhmm_ss',Date+Time))+'.box3';
                                     Title:='    save  unused  templates  as ...';
                                   end;
 
                                3: begin
-                                    Filename:=remove_invalid_str('group'+FormatDateTime(' yyyy_mm_dd_hhmm_ss',Date+Time))+'.otbox';
+                                    Filename:=remove_invalid_str('group'+FormatDateTime(' yyyy_mm_dd_hhmm_ss',Date+Time))+'.box3';
                                     Title:='    save  selected  group  of  templates  as ...';
                                  end;
 
                                4: begin
-                                    Filename:=remove_invalid_str('library'+FormatDateTime(' yyyy_mm_dd_hhmm_ss',Date+Time))+'.otbox';
+                                    Filename:=remove_invalid_str('library'+FormatDateTime(' yyyy_mm_dd_hhmm_ss',Date+Time))+'.box3';
                                     Title:='    save  library  templates  as ...';
                                   end;
 
@@ -2429,7 +2433,8 @@ begin
                then next_ti.keep_dims.box_dims1.box_ident:='NX'+IntToStr(file_index)    // last one in file. (string[10])
                else next_ti.keep_dims.box_dims1.box_ident:='N '+IntToStr(file_index);
 
-            next_ti.keep_dims.box_dims1.id_byte:=255;  // identify file as OTBOX rather than BOX      290a
+            next_ti.keep_dims.box_dims1.id_byte:=255;  // identify file as BOX3 rather than BOX      290a
+
 
             case rolling_backup of
 
@@ -3108,8 +3113,8 @@ begin
                                                             else InitialDir:=exe_str+'BOX-FILES\';
                                 end;
 
-                        Filter:= ' storage  box  contents  (*.otbox)|*.otbox';
-                        Filename:='*.otbox';
+                        Filter:= ' storage  box  contents  (*.box3)|*.box3';
+                        Filename:='*.box3';
 
                         if Execute=False then EXIT;          // get the file name.
 
@@ -3264,12 +3269,12 @@ begin
       if (file_str='')
          then loaded_str:=box_str     // file name from the "open" dialog.
          else begin
-                if ExtractFileExt(file_str)='.otbox'
+                if ExtractFileExt(file_str)='.box3'
                    then loaded_str:=file_str
                    else loaded_str:='data file';        // don't confuse him with internal file names.
               end;
 
-      if (ExtractFileExt(loaded_str)='.otbox') and (normal_load=True)   // 208d not for file viewer
+      if (ExtractFileExt(loaded_str)='.box3') and (normal_load=True)   // 208d not for file viewer
          then boxmru_update(loaded_str);                              // 0.82.a  update the mru list.
 
                       // file loaded, check it and update the background drawing...
@@ -3415,7 +3420,7 @@ procedure reload_specified_file(par,add:boolean; file_str:string);    // used fo
                                                                       // also for mru list. // 0.82.a  06-09-06
                                                                       // also for file viewer // 208d
 
-                                                                      // also for dropped .otbox files 214a
+                                                                      // also for dropped .box3 files 214a
 
       // par=true if command line parameter   0.82.a
 
@@ -4233,6 +4238,11 @@ begin
 
     if (list_position>-1) and (list_position<keeps_list.Count) and (keeps_list.Count>0)
        then highlight_bgkeep(list_position);   // and highlight the peg on the current keep on the background.
+
+//    if (data_child_form.Visible=True) {and (data_child_form.Parent=pad_form)}  // 290b  Graeme
+//       then keep_form.read_info_button.Click;
+
+
   finally
     Screen.Cursor:=crDefault;
   end;//try
@@ -8616,8 +8626,14 @@ begin
   if hi_color=True then ref_panel.Color:=keepform_listbox.Color; //alert_colour[5];  // ice-blue or white.
 
   with keepform_listbox do ItemHeight:=Round(Canvas.TextHeight(' ')*8/7); // owner-draw listbox, 8/7 arbitrary.
-  if Assigned(data_child_form) and (data_child_form.Visible=True) then
-    keep_form.read_info_buttonClick(data_child_form);
+
+
+  if  (data_child_form.Visible=True) //and (data_child_form.Parent=pad_form)  // 290b  Graeme
+  //and (Windows.GetParent(data_child_form.Handle)=pad_form.Handle)
+      then keep_form.read_info_button.Click;
+
+  //showmessage(inttostr(Windows.GetParent(data_child_form.Handle))+'  '+inttostr(pad_form.Handle));   // debug
+
 end;
 //____________________________________________________________________________________
 

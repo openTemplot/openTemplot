@@ -1,7 +1,7 @@
 
 (*
 
-    This file is part of OpenTemplot, a computer program for the design of model railway track.
+    This file is part of Templot3, a computer program for the design of model railway track.
     Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
 
 
@@ -1170,8 +1170,8 @@ begin
     Title:='    reload  calibration  for  '+prstr;
     InitialDir:=ExtractFilePath(Filename);           // use his previous folder.
     if InitialDir='' then InitialDir:=exe_str;       // or the default one.
-    Filter:= ' calibration  file  (*.otcal)|*.otcal';
-    Filename:='*.otcal';
+    Filter:= ' calibration  file  (*.cal3)|*.cal3';
+    Filename:='*.cal3';
   end;//with
 
   if calibration_form.open_dialog.Execute=True                // get his file name.
@@ -1231,8 +1231,8 @@ begin
     Title:='    save  calibration  for  '+prstr;
     InitialDir:=ExtractFilePath(Filename);           // use his previous folder.
     if InitialDir='' then InitialDir:=exe_str;       // or the default one.
-    Filter:= ' calibration  file  (*.otcal)|*.otcal';
-    Filename:=remove_invalid_str(Copy(Trim(prstr),1,22))+' - papertype.otcal';
+    Filter:= ' calibration  file  (*.cal3)|*.cal3';
+    Filename:=remove_invalid_str(Copy(Trim(prstr),1,22))+' - papertype.cal3';
   end;//with
 
   if calibration_form.save_dialog.Execute=True                // get his file name.

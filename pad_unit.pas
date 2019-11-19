@@ -1,7 +1,7 @@
 
 (*
 
-    This file is part of OpenTemplot, a computer program for the design of model railway track.
+    This file is part of Templot3, a computer program for the design of model railway track.
     Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
 
 
@@ -3529,7 +3529,7 @@ type
 
             end;//class
 
-  Tshapefile = file of Tbgnd_shape;       // the shapes data file   .bgs
+  Tshapefile = file of Tbgnd_shape;       // the shapes data file   .bgs3
 
   //----------------------------
 
@@ -4328,9 +4328,9 @@ type
 
   Tbox_dims1=record
 
-                box_ident:string[10];   // first 11 bytes. in OTBOX,   (string[11], 12 bytes in BOX)
+                box_ident:string[10];   // first 11 bytes. in BOX3,   (string[11], 12 bytes in BOX)
 
-                id_byte:byte;          // set to 255  $FF in OTBOX files - not read.
+                id_byte:byte;          // set to 255  $FF in BOX3 files - not read.
 
                 now_time:integer;      // date/time/random code at which template added to keep box. (from Delphi float format - fractional days since 1-1-1900).
                                        // this is used to detect duplicates on loading.
@@ -5138,19 +5138,17 @@ uses
   chat_unit, plain_track_unit, dxf_unit,
   bgnd_unit, bgkeeps_unit, panning_unit, shove_timber, action_unit,
   mint_unit, enter_timber, wait_message, edit_memo_unit, jotter_unit,
-  rail_options_unit, print_settings_unit, { OT-FIRST sketchboard_unit, pdf_unit,
-  dtp_unit,} print_now_box, { OT-FIRST dtp_settings_unit,} startup_unit,
-
+  rail_options_unit, print_settings_unit,
+  { OT-FIRST sketchboard_unit, pdf_unit, dtp_unit, dtp_settings_unit,}
+  startup_unit, print_now_box,
   export_unit, platform_unit, math2_unit,
-  check_diffs_unit, image_viewer_unit, mouse_colour_unit, file_viewer,
-  { OT-FIRST ebook_unit, companion_load_unit, web_browser_unit,} prefs_unit,
-  //{ OT-FIRST
-  map_loader_unit,
-  //}
-  trackbed_unit, make_slip_unit, create_tandem, xtc_unit{, docs_unit},
+  check_diffs_unit, image_viewer_unit, mouse_colour_unit,
+  { OT-FIRST file_viewer, ebook_unit, companion_load_unit, web_browser_unit,}
+  prefs_unit,  map_loader_unit, trackbed_unit, make_slip_unit, create_tandem, xtc_unit,
 
-  mecbox_unit, Htmlview;
+  mecbox_unit, export_draw_unit,         // 291a
 
+  Htmlview;
 
 const
 
@@ -5279,7 +5277,7 @@ const
    +' and an option setting for whether this colour should be used instead of the normal colours which are being used for printing background templates.'
    +' The pre-set mapping colour is Magenta-pink, and the option setting is Off, i.e. the mapping colour is not actually used until this option setting is changed for this template.'
 
-   +'||Marker and mapping colours and these option settings are part of the template specification and are included in template data .otbox files when templates are saved.'
+   +'||Marker and mapping colours and these option settings are part of the template specification and are included in template data .box3 files when templates are saved.'
 
    +'||To change the colours and options for a single background template, click on the template and then on its pop-up menu select the TEMPLATE COLOURS menu items.'
    +' Changing the marker or mapping colour automatically selects the option to use the relevant colour.'
@@ -12771,7 +12769,9 @@ begin
   pad_form.WindowProc:=pad_window_proc;              // and replace it
 
   DragAcceptFiles(pad_form.Handle,True);
-}
+  }
+
+  pad_quit_menu_entry.Caption:='quit  '+Application.Title;
 
 end;
 //___________________________________________________________________________________________
@@ -13087,7 +13087,9 @@ begin
 
   if Application.Title='TemplotMEC'       // OT-FIRST
      then logo_img_str:='tm_logo.bmp'
-     else logo_img_str:='ot_logo.bmp';
+     else if Application.Title='OpenTemplot'
+             then logo_img_str:='ot_logo.bmp'
+             else logo_img_str:='t3_logo.bmp';
 
   logo_str:='<P CLASS="spacer">&nbsp;</P>'
            +'<TABLE WIDTH="90%" ALIGN="CENTER"><TR>'
@@ -25110,7 +25112,7 @@ begin
                   +'||Click <A HREF="alert_2.85a">view image in Templot</A> to see it.',
                    '','view  image  in  Templot','view  image  in  your  usual  image  viewer','open  the  containing  folder','','continue',0);
 
-        if i=2 then show_an_image_file(file_str);
+        if i=2 then show_an_image_file(file_str,0,0,True);
 
         if i=3
            then begin
@@ -26568,8 +26570,11 @@ end;
 procedure Tpad_form.pad_file_viewer_menu_entryClick(Sender: TObject);   // 208d
 
 begin
+  do_open_source_bang('FILE VIEWER');  // OT-FIRST
+{ OT-FIRST
   keep_form_was_showing:=False;
   do_show_modal(file_viewer_form);       // 212a  ShowModal
+}
 end;
 //______________________________________________________________________________
 
@@ -26942,7 +26947,7 @@ const
   +'||After adding a baseboard outline, it can be adjusted for size or position by mouse action using the|`0action > mouse actions: shapes >`1 menu items.'
   +'||Or by using the mouse action buttons on the background shapes dialog at `0modify shape > mouse actions:`1.'
   +'||green_panel_begin tree.gif If you have added baseboard outlines remember to save your background shapes before quitting Templot0.'
-  +'||If you name the file `0start.bgs`f it will be loaded automatically when you start the next Templot0 session.green_panel_end'
+  +'||If you name the file `0start.bgs3`f it will be loaded automatically when you start the next Templot0 session.green_panel_end'
   +'|You can change the colour and line thickness for the displayed outline(s) by clicking the|`0background > quick baseboard outline > other sizes and options`1 menu items.'
   +'||To see the full background shapes functions and options click the button below, or click the|`0background > shapes`1 menu item.';
 
@@ -27158,7 +27163,7 @@ var
                                     if (loaded_version>92) then mint_final_or_copy_control(hl);                                         // copy the control template if there is one in the file.
                                   end;
                         end
-                   else ShowMessage('Sorry, an error occurred in loading the dropped .otbox file.');
+                   else ShowMessage('Sorry, an error occurred in loading the dropped .box3 file.');
 
               finally
                 redraw_pad(True,False);
@@ -27323,13 +27328,13 @@ begin
 
   dropped_file_ext_str:=LowerCase(ExtractFileExt(dropped_file_name_str));
 
-  if dropped_file_ext_str='.otbox'
+  if dropped_file_ext_str='.box3'
 
-     then load_dropped_box_file     // load or add .otbox file
+     then load_dropped_box_file     // load or add .box3 file
 
-     else if dropped_file_ext_str='.otbgs'
+     else if dropped_file_ext_str='.bgs3'
 
-             then load_shapes(dropped_file_name_str,False,False,True)      // load or add .otbgs file
+             then load_shapes(dropped_file_name_str,False,False,True)      // load or add .bgs3 file
 
 { OT-FIRST
   else if dropped_file_ext_str='.sk9'

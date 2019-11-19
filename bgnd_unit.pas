@@ -1,7 +1,7 @@
 
 (*
 
-    This file is part of OpenTemplot, a computer program for the design of model railway track.
+    This file is part of Templot3, a computer program for the design of model railway track.
     Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
 
 
@@ -47,6 +47,7 @@ type
     datestamp_label: TLabel;
     blue_corner_panel: TPanel;
     how_panel: TPanel;
+    bgnd_shape_image: TImage;
     Label10: TLabel;
     Label11: TLabel;
     Label46: TLabel;
@@ -529,8 +530,8 @@ const
   +'||rp.gif These background shapes will not actually appear on the trackpad unless the `0TRACKPAD > TRACKPAD BACKGROUND OPTIONS > SHOW BACKGROUND SHAPES`1 menu is selected.'
   +'||rp.gif Background shapes can be quickly toggled on and off by pressing the `0SHIFT+HOME`2 keys on the keyboard. This is very useful when working over picture shapes.'
 
-  +'||Your collection of background shapes and labels can be saved (in a .otbgs file) and reloaded again whenever needed.'
-  +' It is saved separately from your track template data files (.otbox files), so that you can easily re-use the baseboard outlines with different track plans.'
+  +'||Your collection of background shapes and labels can be saved (in a .bgs3 file) and reloaded again whenever needed.'
+  +' It is saved separately from your track template data files (.box3 files), so that you can easily re-use the baseboard outlines with different track plans.'
 
   +'||Shapes and labels can be created in several different ways:||';
 
@@ -3698,12 +3699,12 @@ begin
      else InitialDir:=user_save_shapes_path;
 
     Title:='    save  background  shapes  as ...';
-    Filter:= ' background  shapes  ( .otbgs)|*.otbgs';
-    DefaultExt:='otbgs';
+    Filter:= ' background  shapes  ( .bgs3)|*.bgs3';
+    DefaultExt:='bgs3';
 
               // mods 0.79.a
 
-    FileName:=remove_invalid_str(Copy(Trim(box_project_title_str),1,20)+FormatDateTime(' yy_mm_dd hhmm ss',Date+Time))+'.otbgs';
+    FileName:=remove_invalid_str(Copy(Trim(box_project_title_str),1,20)+FormatDateTime(' yy_mm_dd hhmm ss',Date+Time))+'.bgs3';
 
     FileName:=lower_case_filename(FileName);   // 0.79.a   to underscores and lower case.
   end;//with
@@ -3901,9 +3902,9 @@ begin
                             if append=True then Title:='    add  background  shapes  from  file ...'
                                            else Title:='    reload  background  shapes  from  file ...';
 
-                            Filter:= ' background  shapes  ( .otbgs)|*.otbgs';
-                            Filename:='*.otbgs';
-                            DefaultExt:='otbgs';
+                            Filter:= ' background  shapes  ( .bgs3)|*.bgs3';
+                            Filename:='*.bgs3';
+                            DefaultExt:='bgs3';
 
                           end;//with
 

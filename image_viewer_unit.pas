@@ -1,7 +1,7 @@
 
 (*
 
-    This file is part of OpenTemplot, a computer program for the design of model railway track.
+    This file is part of Templot3, a computer program for the design of model railway track.
     Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
 
 
@@ -38,6 +38,10 @@ type
   { Timage_viewer_form }
 
   Timage_viewer_form = class(TForm)
+    t3_logo_bmp_image: TImage;
+    top_label: TLabel;
+    tickbox_unticked_png_image: TImage;
+    tickbox_ticked_png_image: TImage;
     nls_copyright_png_image: TImage;
     osm_copyright_png_image: TImage;
     empty_picture_bmp_image: TImage;
@@ -108,7 +112,9 @@ type
 var
   image_viewer_form: Timage_viewer_form;
 
-  procedure show_an_image_file(file_str:string);
+  procedure show_an_image_file(file_str:string; emf_width,emf_height:integer; show_form:boolean);
+
+//______________________________________________________________________________
 
 implementation
 
@@ -120,19 +126,99 @@ uses
 var
   image_file_str:string='';
 
+  emf_showing:boolean=False;
+  emf_width_showing:integer=800;     // init
+  emf_height_showing:integer=600;
+
 //______________________________________________________________________________
 
-procedure show_an_image_file(file_str:string);
+procedure show_an_image_file(file_str:string; emf_width,emf_height:integer; show_form:boolean);
+
+ // emf_width, emf_height ignored for bitmaps       291a
+
+var
+  output_rect:Trect;
+  load_DC:HDC;
 
 begin
-  try
-    image_viewer_form.viewer_image.Picture.LoadFromFile(file_str);
-  except
-    show_modal_message('Sorry, unable to display the image.');
-    EXIT;
-  end;//try
+  if FileExists(file_str)=False         // 291a
+     then begin
+            show_modal_message('error: unable to find image file');
+            EXIT;
+          end;
 
-  show_modal_message('The image will be displayed full size. You may need to scroll the viewer to see anything.');
+  emf_showing:=False;
+
+  image_viewer_form.top_label.Caption:='';
+
+  if (LowerCase(ExtractFileExt(file_str))='.emf')       // 291a    show metafile
+     then begin
+
+            with image_viewer_form do begin
+
+              copy_image_menu_entry.Caption:='copy  EMF  metafile  as  bitmap  image';
+
+              viewer_image.AutoSize:=False;
+
+              viewer_image.Width:=ClientWidth;
+              viewer_image.Height:=Round(ClientWidth*emf_height/emf_width);
+
+              viewer_image.Picture.Bitmap.Width:=viewer_image.Width;
+              viewer_image.Picture.Bitmap.Height:=viewer_image.Height;
+
+              output_rect:=Rect(0,0,viewer_image.Picture.Bitmap.Width,viewer_image.Picture.Bitmap.Height);
+
+              with viewer_image.Picture.Bitmap.Canvas do begin
+
+                Brush.Color:=clWhite;     // blank it first
+                Brush.Style:=bsSolid;
+
+                FillRect(output_rect);
+
+              end;//with
+
+              try
+                load_DC:=GetEnhMetaFile(PChar(file_str));  // get metafile handle
+
+                PlayEnhMetaFile(viewer_image.Picture.Bitmap.Canvas.Handle,load_DC,output_rect);    // draw metafile on canvas
+
+                DeleteEnhMetaFile(load_DC);   // release metafile handle
+              except
+                show_modal_message('error: sorry unable to show EMF image');
+              end;
+
+              top_label.Caption:='The EMF metafile is being displayed to fit. To zoom in and examine detail, view the file on the sketchboard.';
+
+            end;//with form
+
+              // retain globals ...
+
+            emf_showing:=True;
+            emf_width_showing:=emf_width;
+            emf_height_showing:=emf_height;
+
+          end
+     else begin
+
+            with image_viewer_form do begin
+
+              copy_image_menu_entry.Caption:='copy  image';
+
+              viewer_image.AutoSize:=True;    // 291a
+
+              try
+                viewer_image.Picture.LoadFromFile(file_str);
+              except
+               show_modal_message('Sorry, unable to display the image.');
+              end;//try
+
+              top_label.Caption:='The image is being displayed full size. You may need to scroll to see it.';
+
+            end;//with
+
+          end;
+
+  //show_modal_message('The image will be displayed full size. You may need to scroll the viewer to see anything.');
 
   image_file_str:=file_str;
 
@@ -144,8 +230,7 @@ begin
     options_menu.Visible:=True;  // hidden for scanned picture shapes
   end;//with
 
-  do_show_modal(image_viewer_form);   // 212a ShowModal
-
+  if show_form=True then do_show_modal(image_viewer_form);   // 212a ShowModal
 end;
 //______________________________________________________________________________
 
@@ -163,6 +248,22 @@ begin
 
 end;
 //______________________________________________________________________________
+(*
+procedure Timage_viewer_form.FormResize(Sender: TObject);      // 291a
+
+begin
+  if emf_showing=True
+     then show_an_image_file(image_file_str,emf_width_showing,emf_height_showing,False);     // False=don't re-show form (modal)
+end;
+//______________________________________________________________________________
+
+procedure Timage_viewer_form.FormShow(Sender: TObject);
+
+begin
+  emf_showing:=False;  // init
+end;
+//______________________________________________________________________________
+*)
 
 procedure Timage_viewer_form.copy_image_menu_entryClick(Sender: TObject);
 
@@ -259,8 +360,8 @@ var
   img_path_str:string;
 
 begin
-  // OT-FIRST ClientWidth:=1000;
-  // OT-FIRST ClientHeight:=650;
+  ClientWidth:=1000;
+  ClientHeight:=650;
 
   AutoScroll:=True;
 
@@ -274,6 +375,8 @@ begin
   if FileExists(img_path_str+'ot_logo.bmp')=False then ot_logo_bmp_image.Picture.SaveToFile(img_path_str+'ot_logo.bmp');
 
   if FileExists(img_path_str+'tm_logo.bmp')=False then tm_logo_bmp_image.Picture.SaveToFile(img_path_str+'tm_logo.bmp');
+
+  if FileExists(img_path_str+'t3_logo.bmp')=False then t3_logo_bmp_image.Picture.SaveToFile(img_path_str+'t3_logo.bmp');   // 291a
 
   if FileExists(img_path_str+'adobe_print_dialog.png')=False then adobe_print_dialog_png_image.Picture.SaveToFile(img_path_str+'adobe_print_dialog.png');
 
@@ -320,6 +423,10 @@ begin
   if FileExists(img_path_str+'wait_signal.png')=False then wait_signal_png_image.Picture.SaveToFile(img_path_str+'wait_signal.png');
 
   if FileExists(img_path_str+'wait_signal_trans.gif')=False then wait_signal_trans_gif_image.Picture.SaveToFile(img_path_str+'wait_signal_trans.gif');
+
+  if FileExists(img_path_str+'tickbox_unticked.png')=False then tickbox_unticked_png_image.Picture.SaveToFile(img_path_str+'tickbox_unticked.png');   // 291a
+
+  if FileExists(img_path_str+'tickbox_ticked.png')=False then tickbox_ticked_png_image.Picture.SaveToFile(img_path_str+'tickbox_ticked.png');   // 291a
 
      // for map_loader ...
 
