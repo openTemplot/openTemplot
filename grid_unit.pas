@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -834,7 +834,6 @@ begin
 end;
 //______________________________________________________________________________
 
-
 procedure draw_bg_shapes(canv:TCanvas;index,colour:integer);     // draw any background shapes.
                                                                  // if index=-1 then draw all.
 var
@@ -844,7 +843,6 @@ var
   arm,diamond:extended;
   dummy_i:integer;
   raster_rect:TRect;
-
 
 begin
   if (index<0) or (index>(bgnd_form.bgnd_shapes_listbox.Items.Count-1))      // index out of range, draw all.
@@ -946,46 +944,60 @@ begin
                                  then begin
                                         case shape_code of
 
-                                              -1: begin     // picture = bitmap image.
-                                                              try
+                                              -1: begin     // picture
+                                                    try
+                                                      raster_rect.Left:=move_to.X;
+                                                      raster_rect.Bottom:=move_to.Y;
+                                                      raster_rect.Right:=line_to.X;
+                                                      raster_rect.Top:=line_to.Y;
 
-                                                                raster_rect.Left:=move_to.X;
-                                                                raster_rect.Bottom:=move_to.Y;
-                                                                raster_rect.Right:=line_to.X;
-                                                                raster_rect.Top:=line_to.Y;
+                                                      if Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgnd_shape.picture_is_metafile=True
+                                                         then begin
 
-                                                                { OT-FIRST
-                                                                if Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgnd_shape.picture_is_metafile=True
+                                                                if Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgnd_shape.show_transparent=True
+                                                                   then CopyMode:=cmSrcAnd          // for transparent bitmaps in the metafile
+                                                                   else begin
+                                                                          Brush.Color:=clWhite;     // blank it first for metafile overdraw
+                                                                          Brush.Style:=bsSolid;
+                                                                          FillRect(raster_rect);
+                                                                          CopyMode:=cmSrcCopy;      // normal for any bitmaps in the metafile
+                                                                        end;
+
+                                                                if PlayEnhMetaFile(Handle,
+                                                                                   Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape.image_metafile.emf_HDC,
+                                                                                   raster_rect)=False // draw metafile on canvas
                                                                    then begin
-                                                                          pad_form.bgnd_shape_image.Picture.Graphic:=Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape.image_metafile;
-                                                                          CopyMode:=cmSrcCopy;  // normal
-                                                                        end
-                                                                   else begin}
-                                                                          pad_form.bgnd_shape_image.Picture.Graphic:=Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape.image_bitmap;
-                                                                          if Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgnd_shape.show_transparent=True  // 0.93.a moved into file
-                                                                             then CopyMode:=cmSrcAnd    // (destination Canvas) transparent if on white background.
-                                                                             else CopyMode:=cmSrcCopy;  // normal
-                                                                        { OT-FIRST end;}
+                                                                          CopyMode:=cmSrcCopy;        // normal for Canvas
+                                                                          Brush.Color:=Pen.Color;     // metafile failed - draw hatched rectangle instead
+                                                                          Brush.Style:=bsBDiagonal;
+                                                                          Rectangle(move_to.X, move_to.Y, line_to.X, line_to.Y);
+                                                                        end;
+                                                              end
+                                                         else begin
+                                                                pad_form.bgnd_shape_image.Picture.Graphic:=Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape.image_bitmap;
+                                                                if Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgnd_shape.show_transparent=True  // 0.93.a moved into file
+                                                                   then CopyMode:=cmSrcAnd    // (destination Canvas) transparent if on white background.
+                                                                   else CopyMode:=cmSrcCopy;  // normal
 
                                                                 StretchDraw(raster_rect,pad_form.bgnd_shape_image.Picture.Graphic);   // needs TGraphic parameter to work reliably.
 
-                                                                CopyMode:=cmSrcCopy;   // reset normal for destination Canvas.
+                                                                CopyMode:=cmSrcCopy;   // reset normal for destination Canvas
+                                                              end;
 
-                                                                if bgnd_form.picture_borders_checkbox.Checked=True
-                                                                   then begin
-                                                                          Brush.Color:=paper_colour;
-                                                                          Brush.Style:=bsClear;
-                                                                          Rectangle(move_to.X, move_to.Y, line_to.X, line_to.Y);
-                                                                        end;
-
-                                                              except
-                                                                CopyMode:=cmSrcCopy;       // reset normal for destination Canvas.
-
-                                                                Brush.Color:=Pen.Color;    // stretch failed - draw hatched outline.
-                                                                Brush.Style:=bsBDiagonal;
+                                                      if bgnd_form.picture_borders_checkbox.Checked=True
+                                                         then begin
+                                                                Brush.Color:=paper_colour;
+                                                                Brush.Style:=bsClear;
                                                                 Rectangle(move_to.X, move_to.Y, line_to.X, line_to.Y);
-                                                              end;//try
-                                                            //end;  // 0.93.a
+                                                              end;
+
+                                                    except
+                                                      CopyMode:=cmSrcCopy;       // reset normal for destination Canvas
+                                                      Brush.Color:=Pen.Color;    // stretch failed - draw hatched rectangle instead
+                                                      Brush.Style:=bsBDiagonal;
+                                                      Rectangle(move_to.X, move_to.Y, line_to.X, line_to.Y);
+                                                    end;//try
+
                                                   end;//-1
 
                                                0: begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
@@ -3602,10 +3614,8 @@ end;
 procedure Tgrid_form.FormCreate(Sender: TObject);
 
 begin
-  Windows.SetParent(Handle,pad_form.Handle); // OT-FIRST
-  // OT-FIRST  Parent:=pad_form;
-  // OT-FIRST ClientWidth:=692;
-  // OT-FIRST ClientHeight:=312;
+  pad_form.InsertControl(grid_form);
+
   AutoScroll:=True;
 end;
 //________________________________________________________________________________________

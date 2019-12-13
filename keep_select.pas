@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -2057,7 +2057,7 @@ begin
                           file_format_code:=0;                             // D5 format
                         end;
 
-                if templot_version<291   // Templot3
+                if templot_version<292   // Templot3
                    then begin
                           //
                         end;
@@ -2383,6 +2383,8 @@ begin
                                     box_str:=FileName;
 
                                     if invalid_85a_file_name(box_str)=True then EXIT;
+
+                                    box_str:=ChangeFileExt(box_str,'.box3');   // force extension
 
                                     his_save_file_name:=box_str;              // so can use same folder next time.
                                   end;
@@ -3106,12 +3108,9 @@ begin
                                                                 else Title:='    add  templates  from  file ..';
                                              end;
 
-                        if old_templot_folder=True
-                           then InitialDir:='C:\TEMPLOT\BOX-FILES\'    // 207a to find old pug version files
-                           else begin
-                                  if his_load_file_name<>'' then InitialDir:=ExtractFilePath(his_load_file_name)
-                                                            else InitialDir:=exe_str+'BOX-FILES\';
-                                end;
+
+                        if his_load_file_name<>'' then InitialDir:=ExtractFilePath(his_load_file_name)
+                                                  else InitialDir:=exe_str+'BOX-FILES\';
 
                         Filter:= ' storage  box  contents  (*.box3)|*.box3';
                         Filename:='*.box3';
@@ -6790,14 +6789,7 @@ begin
 
   data_child_form.Close; // if showing elsewhere
 
-  Windows.SetParent(data_child_form.Handle,pad_form.Handle); // OT-FIRST
-  // OT-FIRST  data_child_form.Parent:=pad_form;
-
-  data_child_form.Left:=pad_form.ClientWidth-data_child_form.Width-10;
-  if data_child_form.Left<10 then data_child_form.Left:=10;
-
-  data_child_form.Top:=pad_form.ClientHeight-data_child_form.Height-10;
-  if data_child_form.Top<10 then data_child_form.Top:=10;
+  data_child_form.reset_position();   // child on pad
 
   data_child_form.data_memo.Text:=insert_crlf_str(info_str);  //  replace embedded | chars with a CR.
 

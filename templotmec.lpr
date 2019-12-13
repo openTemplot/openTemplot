@@ -28,9 +28,15 @@ program templotmec;
 {$MODE Delphi}
 
 uses
+
+           // Lazarus units:
+
   Forms, Interfaces, SysUtils, Dialogs, ShellAPI, FileUtil, Classes,
 
-  control_room in 'control_room.pas' {control_room_form},
+
+           // Templot3 units:
+
+  control_room in 'control_room.pas', //control_room_form
 
   pad_unit in 'pad_unit.pas' {pad_form},
 
@@ -88,8 +94,9 @@ uses
 
   mecbox_unit in 'mecbox_unit.pas',
 
-
   file_viewer in 'file_viewer.pas' {file_viewer_form},
+
+
 
   printer4lazarus;
 
@@ -221,6 +228,8 @@ begin
   Application.CreateForm(Tmecbox_form, mecbox_form);
 
   Application.CreateForm(Tfile_viewer_form, file_viewer_form);
+
+
 
 
 { OT-FIRST

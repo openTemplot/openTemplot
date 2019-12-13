@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -982,9 +982,6 @@ begin
   if Screen.Height<500 then Top:=4;    // move form up the screen for lo-res.
 
   AutoScroll:=False;
-
-  // OT-FIRST ClientWidth:=672;    // 208a see also data_child_form.Close
-  // OT-FIRST ClientHeight:=440;   // 208a see also data_child_form.Close
 end;
 //______________________________________________________________________________
 

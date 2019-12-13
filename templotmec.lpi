@@ -23,10 +23,10 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="2"/>
-      <MinorVersionNr Value="91"/>
+      <MinorVersionNr Value="92"/>
       <RevisionNr Value="1"/>
-      <BuildNr Value="109"/>
-      <StringTable InternalName="Templot3" LegalCopyright="(c) Martin Wynne 2019" ProductName="Templot3/TemplotMEC" ProductVersion="2.91.a"/>
+      <BuildNr Value="148"/>
+      <StringTable InternalName="Templot3" LegalCopyright="(c) Martin Wynne 2019" ProductName="Templot3/TemplotMEC" ProductVersion="2.92.a"/>
     </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
@@ -73,7 +73,9 @@
       <Unit3>
         <Filename Value="switch_select.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="switch_select_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit3>
       <Unit4>
         <Filename Value="alert_unit.pas"/>
@@ -121,7 +123,9 @@
       <Unit11>
         <Filename Value="info_unit.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="info_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit11>
       <Unit12>
         <Filename Value="print_unit.pas"/>
@@ -196,7 +200,9 @@
       <Unit24>
         <Filename Value="grid_unit.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="grid_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit24>
       <Unit25>
         <Filename Value="shove_timber.pas"/>
@@ -211,7 +217,9 @@
       <Unit27>
         <Filename Value="action_unit.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="action_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit27>
       <Unit28>
         <Filename Value="edit_memo_unit.pas"/>
@@ -314,7 +322,9 @@
       <Unit45>
         <Filename Value="make_slip_unit.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="make_slip_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit45>
       <Unit46>
         <Filename Value="create_tandem.pas"/>
@@ -367,7 +377,7 @@
       <Filename Value="output\templotmec"/>
     </Target>
     <SearchPaths>
-      <OtherUnitFiles Value="synapse_units;html_viewer_units"/>
+      <OtherUnitFiles Value="synapse_units;html_viewer_units;xml_units"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

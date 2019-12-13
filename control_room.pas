@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -509,10 +509,10 @@ var
   min_export_y:integer=-16000;
 
 
- program_version:integer=291;     // this program version number (*100, e.g. v:1.3 = 130).
-                                  // this is version 2.91, started 11th November 2019
+ program_version:integer=292;     // this program version number (*100, e.g. v:1.3 = 130).
+                                  // this is version 2.92, started 25th November 2019
 
-  version_build:string='.a';      // sub-build letter for this version. started 11th November 2019, released:
+  version_build:string='.a';      // sub-build letter for this version. started 25th November 2019, released: 9th December 2019
 
 
   loaded_version:integer=50000;   // init the loaded data file versions..

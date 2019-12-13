@@ -23,7 +23,7 @@ object switch_select_form: Tswitch_select_form
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   OnShow = FormShow
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.0.6.0'
   Scaled = False
   object datestamp_label: TLabel
     Left = 0
@@ -351,7 +351,7 @@ object switch_select_form: Tswitch_select_form
     TabOrder = 1
   end
   object show_info_button: TButton
-    Left = 504
+    Left = 510
     Height = 25
     Hint = ' show  dimensions  of  selected  switch '
     Top = 212

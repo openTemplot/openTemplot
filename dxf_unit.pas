@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -443,6 +443,8 @@ begin
     showing_dialog:=False;   // 212a Wine bug
 
     if invalid_85a_file_name(save_dialog.FileName)=True then EXIT;
+
+    save_dialog.FileName:=ChangeFileExt(save_dialog.FileName,'.dxf');   // force extension
 
     user_save_file_name:=save_dialog.FileName;
 

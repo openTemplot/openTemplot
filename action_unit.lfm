@@ -1,80 +1,86 @@
 object action_form: Taction_form
   Left = 650
-  Top = 215
-  Width = 188
   Height = 127
   Hint = ' hide  panel '
+  Top = 215
+  Width = 188
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
   Caption = ' mouse  action'
+  ClientHeight = 127
+  ClientWidth = 188
   Color = 15852503
-  Font.Charset = DEFAULT_CHARSET
+  DesignTimePPI = 120
   Font.Color = clBlue
   Font.Height = -15
   Font.Name = 'Arial'
   Font.Style = [fsBold]
-  Scaled = False
-  ShowHint = True
   OnActivate = FormActivate
   OnClick = FormClick
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnResize = FormResize
-  PixelsPerInch = 120
+  ShowHint = True
+  LCLVersion = '2.0.6.0'
+  Scaled = False
   object action_label: TLabel
     Left = 44
+    Height = 18
     Top = 2
     Width = 120
-    Height = 18
     AutoSize = False
     Caption = 'action_label'
-    Font.Charset = DEFAULT_CHARSET
     Font.Color = 192
     Font.Height = -15
     Font.Name = 'Arial'
     Font.Style = [fsBold]
+    ParentColor = False
     ParentFont = False
     OnClick = FormClick
   end
   object trail_dim_label: TLabel
+    Cursor = crHandPoint
     Left = 44
+    Height = 18
+    Hint = ' enter  data  directly '
     Top = 22
     Width = 120
-    Height = 18
-    Cursor = crHandPoint
-    Hint = ' enter  data  directly '
     AutoSize = False
     Caption = 'trail_dim_label'
-    Font.Charset = DEFAULT_CHARSET
     Font.Color = clBlue
     Font.Height = -15
     Font.Name = 'Arial'
     Font.Style = [fsBold, fsUnderline]
+    ParentColor = False
     ParentFont = False
     ParentShowHint = False
     ShowHint = True
     OnClick = trail_dim_labelClick
   end
   object image_panel: TPanel
+    Cursor = crHandPoint
     Left = 0
+    Height = 54
+    Hint = ' repeat  last  action / toggle  transition  radius '
     Top = 0
     Width = 38
-    Height = 54
-    Cursor = crHandPoint
-    Hint = ' repeat  last  action / toggle  transition  radius '
     BevelOuter = bvNone
+    ClientHeight = 54
+    ClientWidth = 38
     Color = clGray
+    ParentColor = False
     ParentShowHint = False
     ShowHint = True
     TabOrder = 0
     OnClick = action_1_imageClick
     object action_1_image: TImage
+      Cursor = crHandPoint
       Left = 4
+      Height = 27
       Top = 4
       Width = 27
-      Height = 27
-      Cursor = crHandPoint
       AutoSize = True
+      OnClick = action_1_imageClick
       Picture.Data = {
         07544269746D617012090000424D120900000000000036000000280000001B00
         00001B0000000100180000000000DC0800008412000084120000000000000000
@@ -150,15 +156,15 @@ object action_form: Taction_form
         8080808080808080808080808080000000000000000000808080808080808080
         808080808080808080808080808080808080808080808080808080000000
       }
-      OnClick = action_1_imageClick
     end
     object action_2_image: TImage
+      Cursor = crHandPoint
       Left = 4
+      Height = 27
       Top = 4
       Width = 27
-      Height = 27
-      Cursor = crHandPoint
       AutoSize = True
+      OnClick = action_1_imageClick
       Picture.Data = {
         07544269746D617012090000424D120900000000000036000000280000001B00
         00001B0000000100180000000000DC0800008412000084120000000000000000
@@ -235,32 +241,30 @@ object action_form: Taction_form
         000080000080000080000080000080000080000080000080000080000000
       }
       Visible = False
-      OnClick = action_1_imageClick
     end
   end
   object finish_button: TButton
     Left = 0
-    Top = 46
-    Width = 170
     Height = 34
     Hint = ' end  this  mouse  action  -  ESC  key  -  to  resize  button  drag  corners '
+    Top = 46
+    Width = 170
     Caption = 'STOP'
-    Font.Charset = DEFAULT_CHARSET
     Font.Color = clBlack
     Font.Height = -17
     Font.Name = 'Arial'
     Font.Style = [fsBold]
+    OnClick = finish_buttonClick
     ParentFont = False
     ParentShowHint = False
     ShowHint = True
     TabOrder = 1
-    OnClick = finish_buttonClick
   end
   object action_panel_timer: TTimer
     Enabled = False
     Interval = 500
     OnTimer = action_panel_timerTimer
-    Left = 84
-    Top = 8
+    left = 84
+    top = 8
   end
 end

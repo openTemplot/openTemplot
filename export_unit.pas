@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -78,7 +78,6 @@ type
     sketchboard_static_label: TStaticText;
     style_groupbox: TGroupBox;
     Label17: TLabel;
-    transparent_gif_checkbox: TCheckBox;
     blue_corner_panel: TPanel;
     size_updown: TUpDown;
     hide_panel: TPanel;
@@ -609,6 +608,8 @@ begin
 
     if Execute=False then EXIT;
 
+    FileName:=ChangeFileExt(FileName,'.emf');   // force extension
+
     his_emf_file_name:=FileName;        // so we can use the same folder next time.
 
       // invalid entered chars removed by dialog
@@ -952,22 +953,25 @@ begin
 
   with save_imagefile_dialog do begin
 
-    Filter:='PNG image ( .png)|*.png|GIF image ( .gif)|*.gif|JPEG image ( .jpg  .jp  .jpeg)|*.jpg;*.jp;*.jpeg|BMP image (  .bmp)|*.bmp';
+    Filter:='PNG image ( .png)|*.png|JPEG image ( .jpg  .jp  .jpeg)|*.jpg;*.jp;*.jpeg|BMP image (  .bmp)|*.bmp';
 
     if his_image_file_name<>'' then InitialDir:=ExtractFilePath(his_image_file_name)
                                else InitialDir:=exe_str+'IMAGE-FILES\';
 
+    { T3-FIRST
     if transparent_gif_checkbox.Checked=True
        then begin
               DefaultExt:='gif';
               FileName:=file_name_str+'.gif';
               FilterIndex:=2;
             end
-       else begin
+       else begin}
+
               DefaultExt:='png';
               FileName:=file_name_str+'.png';
               FilterIndex:=1;
-            end;
+
+            //end;
 
     if Execute=False then EXIT;
 
@@ -1063,10 +1067,11 @@ begin
                 create_jpg.Assign(create_bitmap);
 
                 create_jpg.CompressionQuality:=jpg_quality;   // global on control_room
-                { OT-FIRST create_jpg.JPEGNeeded;}
+
                 create_jpg.SaveToFile(file_str);
               end;
 
+      { T3-FIRST
       if LowerCase(ExtractFileExt(file_str))='.gif'
          then begin
                 create_bitmap.TransparentColor:=clWhite;
@@ -1075,10 +1080,10 @@ begin
                 create_gif.Assign(create_bitmap);
                 create_gif.SaveToFile(file_str);
               end;
+      }
 
       if LowerCase(ExtractFileExt(file_str))='.png'
          then begin
-                //create_png.CompressionLevel:=0;   // largest file, 0-9, default 7.
                 create_png.Assign(create_bitmap);
                 create_png.SaveToFile(file_str);
               end;

@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -999,10 +999,8 @@ end;
 procedure Tmake_slip_form.FormCreate(Sender: TObject);
 
 begin
-  Windows.SetParent(Handle,pad_form.Handle); // OT-FIRST
-  // OT-FIRST  Parent:=pad_form;
-  // OT FIRST  ClientHeight:=20;
-  // OT-FIRST ClientWidth:=72;
+  pad_form.InsertControl(make_slip_form);
+
   AutoScroll:=False;
 end;
 //______________________________________________________________________________

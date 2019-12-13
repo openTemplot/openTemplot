@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -34,6 +34,9 @@ uses
   StdCtrls, ExtCtrls;
 
 type
+
+  { Taction_form }
+
   Taction_form = class(TForm)
     action_label: TLabel;
     trail_dim_label: TLabel;
@@ -42,6 +45,7 @@ type
     action_2_image: TImage;
     action_panel_timer: TTimer;
     finish_button: TButton;
+    
     procedure FormCreate(Sender: TObject);
     procedure action_1_imageClick(Sender: TObject);
     procedure FormClick(Sender: TObject);
@@ -82,8 +86,8 @@ var
 procedure Taction_form.FormCreate(Sender: TObject);
 
 begin
-  Windows.SetParent(Handle,pad_form.Handle); // OT-FIRST
-  // OT-FIRST  Parent:=pad_form;
+  pad_form.InsertControl(action_form);
+
   AutoScroll:=False;
 
   ClientWidth:=170;
@@ -154,14 +158,14 @@ begin
   finish_button.Width:=ClientWidth;
   finish_button.Height:=ClientHeight-finish_button.Top;
 end;
-//_______________________________________________________________________________________
+//______________________________________________________________________________
 
 procedure Taction_form.FormActivate(Sender: TObject);
 
 begin
   action_resizing:=False;     // so he can resize it now.
 end;
-//____________________________________________________________________________________
+//______________________________________________________________________________
 
 procedure Taction_form.action_panel_timerTimer(Sender: TObject);
 
@@ -169,7 +173,7 @@ begin
   action_panel_timer.Enabled:=False;  //  one-shot.
   if mouse_modify=-1 then Close;
 end;
-//_____________________________________________________________________________________
+//______________________________________________________________________________
 
 procedure Taction_form.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 

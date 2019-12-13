@@ -2,7 +2,7 @@
 (*
 
     This file is part of Templot3, a computer program for the design of model railway track.
-    Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
+    Copyright (C) 2019  Martin Wynne.  email: martin@templot.com
 
 
     This program is free software: you may redistribute it and/or modify
@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -2081,7 +2081,6 @@ type
 
 
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
-
     procedure print_template_menu_entryClick(Sender: TObject);
     procedure paper_colour_menu_entryClick(Sender: TObject);
     procedure grid_colour_menu_entryClick(Sender: TObject);
@@ -3242,11 +3241,6 @@ type
     procedure shift_group_into_positve_quadrant_menu_entryClick(Sender: TObject);
 
   private
-{ OT-FIRST
-    original_pad_window_proc:TWndMethod;             // 214a for drag drop
-    procedure pad_window_proc (var msg:TMessage);
-    procedure pad_file_drop (var msg:TWMDROPFILES);
-}
 
   public
     { Public declarations }
@@ -3469,20 +3463,26 @@ type
 
             end;
 
-  //-----------------------
+  //----------------------------
+
+       // bgnd shapes ...
+
+  Temf=record
+         emf_HDC:HDC;
+         emf_width_mm:double;    // frame size in mm
+         emf_height_mm:double;
+       end;
 
   Timage_shape=record
                  image_bitmap:TBitmap;           // image bitmap.
                  rotated_bitmap:TBitmap;         // rotated bitmap for printing. // 0.93.a also used for curving bitmap
 
-                 { OT-FIRST image_metafile:TMetafile;}       // 213b
-                 { OT-FIRST rotated_metafile:TMetafile;}     // 213b
-
-                 rotated_picture:TPicture;       // picture object to contain it.
+                 rotated_picture:TPicture;       // picture object to contain rotated bitmap.
 
                  image_width:integer;
                  image_height:integer;
 
+                 image_metafile:Temf;       // T3-FIRST  219a
                end;
 
   Tbgimage=class(TPersistent)             // 3-2-01
@@ -3493,7 +3493,6 @@ type
 
            end;//class
 
-  //----------------------------
 
   Tbgnd_shape=record
 
@@ -4984,7 +4983,7 @@ var
   click_bgnd_select:boolean=False;  // ditto for selection list.
   shift_click:boolean=False;        // ditto for selecting with shift key down.
   clicks_accepted:boolean=False;    // if true mouse is over bgnd keep.
-  bgnd_form_closed:boolean=False;   // if true, re-open the shapes form after mouse drawing.
+  bgnd_form_closed:boolean=False;   // if true bgnd form was closed for a mouse action to take place
 
   save_sx, save_sy, save_ex, save_by, save_gx, save_gy:extended;
 
@@ -5145,7 +5144,7 @@ uses
   check_diffs_unit, image_viewer_unit, mouse_colour_unit,
   { OT-FIRST file_viewer, ebook_unit, companion_load_unit, web_browser_unit,}
   prefs_unit,  map_loader_unit, trackbed_unit, make_slip_unit, create_tandem, xtc_unit,
-
+  data_memo_unit,
   mecbox_unit, export_draw_unit,         // 291a
 
   Htmlview;
@@ -5597,7 +5596,6 @@ procedure Tpad_form.print_template_menu_entryClick(Sender: TObject);
 begin
   print_control_template(False);    // 0.91.d
 end;
-
 //_________________________________________________________________________________________
 
 procedure Tpad_form.print_entire_pad_menu_entryClick(Sender: TObject);
@@ -6001,7 +5999,7 @@ procedure Tpad_form.shift_shape_menu_entryClick(Sender: TObject);
 begin
   cancel_adjusts(True);
 
-  if bgnd_form.Visible=True
+  if bgnd_form.Showing=True
      then begin
             bgnd_form.Close;
             bgnd_form_closed:=True;
@@ -12764,13 +12762,6 @@ begin
 
   old_pre_templot2_files_menu_entry.Enabled:=DirectoryExists('C:\TEMPLOT\BOX-FILES');  // 207a
 
-{ OT-221b
-  original_pad_window_proc:=pad_form.WindowProc;     // temp save WindowProc for the pad    214a...
-  pad_form.WindowProc:=pad_window_proc;              // and replace it
-
-  DragAcceptFiles(pad_form.Handle,True);
-  }
-
   pad_quit_menu_entry.Caption:='quit  '+Application.Title;
 
 end;
@@ -16074,26 +16065,8 @@ begin
 
   list_position:=clicked_keep_index;
 
-  //if Copy(memo_list.Strings[list_position],1,1)=' '
-  //   then memo_text_str:='    blank'                        // alt+0160 = memo never used.
-  //   else
-
-  memo_text_str:=memo_list.Strings[list_position];
-
-  with Ttemplate(keeps_list.Objects[list_position]).template_info.keep_dims.box_dims1 do begin
-
-    info_str:={insert_cr_str( out 0.91.b}'    '+IntToStr(list_position+1)+'  '+reference_string+'   '+id_number_str
-                           +'||  '+top_label
-                           +'||--------------------------------------------------------------'
-                           +'||      Information  about  this  template :'
-                           +'||( all dimensions in millimetres )'
-                           +'||'+keeps_list.Strings[list_position]
-                           +'||--------------------------------------------------------------'
-                           +'||      Your  memo  notes  for  this  template :'
-                           +'||'+memo_text_str{) out 0.91.b};
-  end;//with
-
-  help(-3,info_str,'');
+  if data_child_form.Parent=pad_form
+     then data_child_form.show_template_info(list_position);
 
   clicked_keep_index:=-1;    // so can popup again.
   do_rollback:=False;
@@ -25072,6 +25045,8 @@ begin
 
     if Execute=False then EXIT;
 
+    FileName:=ChangeFileExt(FileName,'.png');   // force extension
+
     his_image_file_name:=FileName;        // so we can use the same folder next time.
 
       // invalid entered chars removed by dialog
@@ -27054,18 +27029,8 @@ begin
   no_chairing_menu_entry.Checked:= NOT exp_chairing;
 end;
 //______________________________________________________________________________
-{ OT-FIRST
-procedure Tpad_form.pad_window_proc(var msg:TMessage);       // 214a
 
-begin
-  if msg.Msg=WM_DROPFILES
-     then pad_file_drop(TWMDROPFILES(msg))
-     else original_pad_window_proc(msg);
-end;
-//______________________________________________________________________________
-}
-
-procedure Tpad_form.FormDropFiles(Sender: TObject;   const FileNames: array of String);
+procedure Tpad_form.FormDropFiles(Sender:TObject; const FileNames:array of String);
 
 const
   dropped_picture_str:string='        `0New  Picture  Shape`9'
@@ -27078,9 +27043,16 @@ var
   dropped_file_name_str,
   dropped_file_ext_str:string;
 
-  dropped_picture:TPicture;
+  hlp_str:string;
 
-  i:integer;
+  i,n:integer;
+
+  new_shape:Tbgnd_shape;
+  succesful:boolean;
+
+  img_width,img_height:integer;
+
+  bgshape:Tbgshape;
 
             ////////////////////////////////////////////////////////////////////
 
@@ -27171,154 +27143,15 @@ var
             end;
             ////////////////////////////////////////////////////////////////////
 
-            procedure add_dropped_picture_shape(hlp_str:string);
-
-            var
-              new_shape:Tbgnd_shape;
-              n:integer;
-              succesful:boolean;
-
-            begin
-
-              succesful:=False;  // init
-
-              with new_shape do begin
-
-                shape_code:=-1;   // -1=picture
-                shape_style:=0;   // not used
-
-                wrap_offset:=0;               // default
-                show_transparent:=False;      // default
-                picture_is_metafile:=False;   // default
-
-                shape_name:='picture';        // name or label
-
-                hide_bits:=0;  // normal visibility
-                option_bits:=0;     // byte;
-
-                p1.x:=mouse_now_x;     // dropped position is p1.
-                p1.y:=mouse_now_y;
-
-                p2.x:=p1.x+screenx*2/5;     // arbitrary
-                p2.y:=p1.y+screenx*9/40;    // default 16:9 aspect ratio (modified on loading)
-              end;//with
-
-              with bgnd_form.bgnd_shapes_listbox do begin
-
-                n:=Items.AddObject(new_shape.shape_name,Tbgshape.Create);  // create and insert a new entry in the shapes list.
-
-                Tbgshape(Items.Objects[n]).bgnd_shape:=new_shape;      // put data in list.
-
-                ItemIndex:=n;                                          // make it current.
-
-                with Tbgshape(Items.Objects[n]) do begin
-
-                  bgnd_shape.show_transparent:=False;
-
-                  bgimage:=Tbgimage.Create;     // create new image  3-2-01.
-
-                  with bgimage.image_shape do begin
-
-                    image_bitmap:=TBitmap.Create;
-                    rotated_bitmap:=TBitmap.Create;
-
-                    { OT-FIRST
-                    image_metafile:=TMetafile.Create;    // 213b
-                    rotated_metafile:=TMetafile.Create;  // 213b
-                    }
-
-                    rotated_picture:=TPicture.Create;
-
-                    try
-                      { OT-FIRST
-                      if dropped_picture.Graphic is TMetafile
-                         then begin
-                                image_metafile.Assign(dropped_picture.Graphic);
-
-                                image_width:=image_metafile.Width;
-                                image_height:=image_metafile.Height;
-
-                                bgnd_shape.picture_is_metafile:=True;
-                              end
-                         else begin}
-                                bgnd_shape.picture_is_metafile:=False;
-
-                                if dropped_picture.Graphic is TIcon    // convert it to bitmap
-                                   then begin
-                                          image_bitmap.Width:=dropped_picture.Graphic.Width;
-                                          image_bitmap.Height:=dropped_picture.Graphic.Height;
-
-                                          image_bitmap.Canvas.Draw(0,0,dropped_picture.Graphic);
-                                        end
-                                   else image_bitmap.Assign(dropped_picture.Graphic);
-
-                                image_width:=image_bitmap.Width;
-                                image_height:=image_bitmap.Height;
-
-
-                                // OT-FIRST if image_bitmap.PixelFormat<>pf8bit then image_bitmap.PixelFormat:=pf24bit;    // 215b  down from 32bit for deep zooming (also workaround for TPngImage on lower than 8bit)
-
-                              { OT-FIRST end;}
-
-                      with bgnd_shape do p2.y:=p1.y+(p2.x-p1.x)*image_height/image_width;   // adjust height to aspect ratio of loaded image
-
-                      succesful:=True;
-
-                    except
-                      image_bitmap.Width:=200;            // arbitrary.
-                      image_bitmap.Height:=150;           // arbitrary.
-
-                      image_width:=image_bitmap.Width;
-                      image_height:=image_bitmap.Height;
-
-                      with image_bitmap.Canvas do begin     // blank the picture area...
-                        Brush.Color:=clWhite;
-                        Brush.Style:=bsSolid;
-                        FillRect(Rect(0,0,image_bitmap.Width-1,image_bitmap.Height-1));
-                      end;//with
-
-                      bgnd_shape.picture_is_metafile:=False;
-
-                      ShowMessage('Sorry, unable to create picture shape from the dropped image.');
-                    end;//try
-
-                  end;//with
-                end;//with
-              end;//with
-
-              shapes_saved:=False;      // need a resave.
-              shapes_current_state;
-              do_rollback:=False;       // no need to put this change in rollback register on redraw.
-
-              redraw(False);                                                      // changes to default pad cursor.
-              if check_grey_paper=False then pad_form.Cursor:=cross_hairs_cursor; // so change it back again.
-
-              if succesful=True
-                 then begin
-
-                        do_bgnd(True);  // show background shapes dialog with modify shape tab active
-
-                        if yellow_msg_pref=False
-                           then begin
-                                  bgnd_form.new_picture_shape1.Visible:=True;  // show him which buttons to use (yellow patch)
-                                  bgnd_form.new_picture_shape2.Visible:=True;
-                                  bgnd_form.new_picture_shape3.Visible:=True;
-
-                                  if help(0,hlp_str,'don''t  show  this  again')=1 then yellow_msg_pref:=True;
-                                end;
-                      end;
-            end;
-            ////////////////////////////////////////////////////////////////////
 
 begin
-
   her_file_name_str:='';   // keep compiler happy
 
   num_files:=Length(FileNames);
 
   if num_files<>1
      then begin
-            ShowMessage('error - attempt to drop more than one file');
+            show_modal_message('error - attempt to drop more than one file');
             EXIT;
           end;
 
@@ -27329,44 +27162,77 @@ begin
   dropped_file_ext_str:=LowerCase(ExtractFileExt(dropped_file_name_str));
 
   if dropped_file_ext_str='.box3'
-
      then load_dropped_box_file     // load or add .box3 file
 
-     else if dropped_file_ext_str='.bgs3'
+  else if dropped_file_ext_str='.bgs3'
+          then load_shapes(dropped_file_name_str,False,False,True)      // load or add .bgs3 file
 
-             then load_shapes(dropped_file_name_str,False,False,True)      // load or add .bgs3 file
+  else begin                           // image file...
+         succesful:=False;  // init
 
-{ OT-FIRST
-  else if dropped_file_ext_str='.sk9'
-          then begin
-                 if dtp_form.dtp_document.Modified=True
-                    then begin
-                           i:=alert(4,'php/501    dropped  sketchboard  file  -  save  first?',
-                                      'There are unsaved changes on the sketchboard which will be lost if not saved.'
-                                     +'||Do you want to save them before reloading the sketchboard from the dropped file?',
-                                      '','','','no  -  load  dropped  file  without  saving','cancel','yes  -  save  first',0);
-                           if i=5 then EXIT;
+         with new_shape do begin
 
-                           if i=6 then dtp_form.save_dtp_as_menu_entry.Click;
-                         end;
+           shape_code:=-1;   // -1=picture
+           shape_style:=0;   // not used
 
-                 load_sketchboard_file(dropped_file_name_str);
-               end
-}
+           wrap_offset:=0;               // default
+           show_transparent:=False;      // default
+           picture_is_metafile:=False;   // default init
 
-             else begin   // image file
+           shape_name:='picture : '+Copy(ExtractFileName(dropped_file_name_str),1,36);     // for entry in list. 46 chars max
 
-                    dropped_picture:=TPicture.Create;
+           hide_bits:=0;       // normal visibility
+           option_bits:=0;     // byte;
 
-                    try
-                      dropped_picture.LoadFromFile(dropped_file_name_str);
-                      add_dropped_picture_shape(dropped_picture_str+'`0'+her_file_name_str+'`f||The '+picture_buttons_str);
-                    except
-                      on EInvalidGraphic do ShowMessage('error - the '+dropped_file_ext_str+' file format is not supported');
-                    end;//try
+           p1.x:=mouse_now_x;     // dropped position is p1.
+           p1.y:=mouse_now_y;
 
-                    dropped_picture.Free;
-                  end;
+           p2.x:=p1.x+screenx*2/5;     // arbitrary
+           p2.y:=p1.y+screenx*9/40;    // default 16:9 aspect ratio (modified on loading)
+         end;//with
+
+         with bgnd_form.bgnd_shapes_listbox do begin
+
+           n:=Items.AddObject(new_shape.shape_name,Tbgshape.Create);  // create and insert a new entry in the shapes list.
+
+           bgshape:=Tbgshape(Items.Objects[n]);
+
+           bgshape.bgnd_shape:=new_shape;      // put data in list.
+
+           ItemIndex:=n;                                          // make it current.
+
+           if create_picture_shape_image_from_file(dropped_file_name_str,bgshape,img_width,img_height)=True  // 291a
+              then begin
+                     with bgshape.bgnd_shape do p2.y:=p1.y+(p2.x-p1.x)*img_height/img_width;      // adjust height to aspect ratio of loaded image
+                     succesful:=True;
+                   end
+              else show_modal_message('Sorry, unable to create picture shape from the dropped image.');
+
+           shapes_saved:=False;      // need a resave.
+           shapes_current_state;
+           do_rollback:=False;       // no need to put this change in rollback register on redraw.
+
+           redraw(False);                                                      // changes to default pad cursor.
+
+           if check_grey_paper=False then pad_form.Cursor:=cross_hairs_cursor; // so change it back again.
+
+           if succesful=True
+              then begin
+                     do_bgnd(True);  // show background shapes dialog with modify shape tab active
+
+                     if yellow_msg_pref=False
+                        then begin
+                               bgnd_form.new_picture_shape1.Visible:=True;  // show him which buttons to use (yellow patch)
+                               bgnd_form.new_picture_shape2.Visible:=True;
+                               bgnd_form.new_picture_shape3.Visible:=True;
+
+                               hlp_str:=dropped_picture_str+'`0'+her_file_name_str+'`f||The '+picture_buttons_str;
+
+                               if help(0,hlp_str,'don''t  show  this  again')=1 then yellow_msg_pref:=True;
+                             end;
+                   end;
+         end;//with listbox
+       end;//not EMF
 end;
 //______________________________________________________________________________
 

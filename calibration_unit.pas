@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -1238,6 +1238,8 @@ begin
   if calibration_form.save_dialog.Execute=True                // get his file name.
      then begin
             cal_str:=calibration_form.save_dialog.FileName;
+
+            cal_str:=ChangeFileExt(cal_str,'.cal3');   // force extension
 
             if invalid_85a_file_name(cal_str)=True then EXIT;
 

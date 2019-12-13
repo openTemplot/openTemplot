@@ -22,7 +22,7 @@ object bgnd_form: Tbgnd_form
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   OnShow = FormShow
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.6.0'
   Scaled = False
   object datestamp_label: TLabel
     Left = 0
@@ -2284,25 +2284,18 @@ object bgnd_form: Tbgnd_form
     TabOrder = 5
     TabStop = True
   end
-  object bgnd_shape_image: TImage
-    Left = 390
-    Height = 33
-    Top = 547
-    Width = 83
-    Visible = False
-  end
   object filesave_dialog: TSaveDialog
     Title = '    save  background  shapes  as ...'
-    DefaultExt = '.otbgs'
-    FileName = 'my_baseboard.bgs'
+    DefaultExt = '.bgs3'
+    FileName = '*.bgs3'
+    Filter = 'background shapes|*.bgs3'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofShowHelp, ofEnableSizing]
-    left = 68
+    left = 72
     top = 32
   end
   object fileload_dialog: TOpenDialog
     Title = '    reload  background  shapes  from  file ...'
-    DefaultExt = '.otbgs'
-    FileName = '*.otbgs'
+    Filter = 'background shapes|*.bgs3;*.bgs'
     Options = [ofHideReadOnly, ofShowHelp, ofPathMustExist, ofFileMustExist, ofEnableSizing]
     left = 168
     top = 32
@@ -2311,13 +2304,13 @@ object bgnd_form: Tbgnd_form
     DefaultExt = '.dxf'
     FileName = '*.dxf'
     Options = [ofHideReadOnly, ofShowHelp, ofPathMustExist, ofFileMustExist, ofEnableSizing]
-    left = 36
-    top = 44
+    left = 128
+    top = 80
   end
   object recent_popup_menu: TPopupMenu
     AutoPopup = False
-    left = 64
-    top = 92
+    left = 232
+    top = 120
     object recent_bgsfiles_caption_popup_entry: TMenuItem
       Caption = '#                    reload  recent  shapes  file :'
       Enabled = False
@@ -2370,15 +2363,15 @@ object bgnd_form: Tbgnd_form
   object picture_load_dialog: TOpenPictureDialog
     Title = '    load  image  into  picture  shape ...'
     DefaultExt = '.png'
-    Filter = 'all image formats|*.png;*.bmp;*.jpg;*.jp;*.jpeg;*.gif;*.emf;*.wmf|PNG image ( .png)|*.png|GIF image ( .gif)|*.gif|JPEG image ( .jpg  .jp  .jpeg)|*.jpg;*.jp;*.jpeg|BMP image ( .bmp)|*.bmp|Metafile image ( .emf  .wmf)|*.emf;*.wmf'
+    Filter = 'all bitmap formats|*.png;*.bmp;*.jpg;*.jp;*.jpeg;*.gif|PNG image ( .png)|*.png|GIF image ( .gif)|*.gif|JPEG image ( .jpg  .jp  .jpeg)|*.jpg;*.jp;*.jpeg|BMP image ( .bmp)|*.bmp|EMF metafile ( .emf)|*.emf'
     Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
-    left = 32
-    top = 140
+    left = 48
+    top = 128
   end
   object picture_save_dialog: TSavePictureDialog
     Title = '    save  image  from  picture  shape ...'
     DefaultExt = '.png'
-    Filter = 'PNG image ( .png)|*.png|GIF image ( .gif)|*.gif|JPEG image ( .jpg  .jp  .jpeg)|*.jpg;*.jp;*.jpeg|BMP image (  .bmp)|*.bmp'
+    Filter = 'PNG image ( .png)|*.png|GIF image ( .gif)|*.gif|JPEG image ( .jpg  .jp  .jpeg)|*.jpg;*.jp;*.jpeg|BMP image ( .bmp)|*.bmp|EMF image ( .emf)|*.emf'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofExtensionDifferent, ofPathMustExist, ofEnableSizing]
     left = 164
     top = 152

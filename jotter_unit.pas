@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -348,6 +348,8 @@ begin
   jotter_save_dialog.Filter:='text files (*.txt)|*.txt';
   if jotter_save_dialog.Execute=True
      then begin
+            jotter_save_dialog.FileName:=ChangeFileExt(jotter_save_dialog.FileName,'.txt');   // force extension
+
             jotter_memo.Lines.SaveToFile(jotter_save_dialog.Filename);
             if jotter_memo.Showing=True then jotter_memo.SetFocus;
           end;

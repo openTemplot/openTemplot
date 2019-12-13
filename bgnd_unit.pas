@@ -1,8 +1,7 @@
-
 (*
 
     This file is part of Templot3, a computer program for the design of model railway track.
-    Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
+    Copyright (C) 2019  Martin Wynne.  email: martin@templot.com
 
 
     This program is free software: you may redistribute it and/or modify
@@ -16,7 +15,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -33,7 +32,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, ComCtrls, StdCtrls, Menus, ExtDlgs, Buttons, {MPlayer,} pad_unit,
+  ExtCtrls, ComCtrls, StdCtrls, Menus, ExtDlgs, Buttons, pad_unit,
   { OT-FIRST AcquireImage,}
 
   LCLtype;  // OT-FIRST
@@ -47,7 +46,6 @@ type
     datestamp_label: TLabel;
     blue_corner_panel: TPanel;
     how_panel: TPanel;
-    bgnd_shape_image: TImage;
     Label10: TLabel;
     Label11: TLabel;
     Label46: TLabel;
@@ -484,6 +482,10 @@ var
 
   procedure free_shape_object(n:integer);  // moved to interface 215a
 
+  function get_EMF_from_file_to_memory(file_str:string; var new_met_DC_handle:HDC):boolean;  // T3-FIRST  219a
+
+  function create_picture_shape_image_from_file(image_file_str:string; bgshape:Tbgshape; var img_width,img_height:integer):boolean;    // 291a
+
 
 //________________________________________________________________________________________
 
@@ -496,16 +498,46 @@ implementation
 
 uses
   ShellAPI, Math, Clipbrd, control_room, grid_unit, colour_unit, help_sheet, chat_unit, alert_unit,
-  entry_sheet, math_unit, wait_message, image_viewer_unit,
-
-  //dtpRasterHck, dtpGR32,
-
-  //{ OT-FIRST
-  map_loader_unit,
-  //}
-  action_unit;
+  entry_sheet, math_unit, wait_message, image_viewer_unit, xml_unit, map_loader_unit, action_unit;
 
 //________________________________________________________________________________________
+
+type
+
+  Tsize=packed record      // same as TPoint in effect
+    X:integer;
+    Y:integer;
+  end;
+
+  Temf_header=packed record
+    emf_type:dword;          // record type - this is a header record
+    emf_size:dword;          // size of each record in bytes - could be greater than the size of Temf_header
+    emf_bounds:TRect;        // records bounds rect in dots
+    emf_frame:TRect;         // image rect in 1/100th mm units
+    emf_signature:dword;     // ???
+    emf_version:dword;       // ???
+    emf_bytes:dword;         // size of metafile
+    emf_records:dword;       // number of records in the metafile
+    emf_handles:word;        // !NOT dword  number of handles in the metafile (not zero, which is reserved)
+    emf_reserved:word;       // !NOT dword  reserved - must be zero
+    emf_description:dword;         // number of chars in the description string (unicode), or zero if no description
+    emf_description_offset:dword;  // offset to the description in the metafile, or zero ditto
+    emf_palette_entries:dword;     // number of entries in the palette
+    emf_ref_size_dots:Tsize;       // size of the reference device in dots
+    emf_ref_size_mm:Tsize;         // size of the reference device in mm (??? rounded, see size in microns below)
+    emf_pixel_format:dword;        // size of pixel format info, or zero if no pixel formats used (bitmaps)
+    emf_pixel_format_offset:dword; // offset to pixel format info, or zero ditto
+    emf_OpenGL:dword;              // True (not zero) if any OpenGL commands are used in the metafile
+    emf_ref_size_micron:Tsize;     // size of reference device in microns (mm/1000)
+  end;
+
+  Temf_pict=packed record   // Windows CF_METAFILEPICT clipboard format
+    emf_map:integer;        // mapping mode
+    emf_X:integer;
+    emf_Y:integer;
+    emf_handle:HDC;
+  end;
+
 
 const
   bgs_help1_str:string='    `0Background  Shapes`9'
@@ -772,7 +804,212 @@ var
 
   procedure twist_picture(i:integer; krot:extended; do_container,all,sync:boolean);forward; // rotate bitmap supplied krot clockwise.
 
-//_______________________________________________________________________________________
+//______________________________________________________________________________
+
+
+function get_EMF_from_file_to_memory(file_str:string; var new_met_DC_handle:HDC):boolean;
+
+  // return metafile handle
+
+var
+  met_DC_handle:HDC;
+  failed:boolean;
+  met_size:integer;
+  met_copied:integer;
+  p:Pointer;
+
+begin
+  RESULT:=False;  // init
+  failed:=False;
+
+  try
+    try
+      met_DC_handle:=GetEnhMetaFile(PChar(file_str));   // load EMF file
+    except
+      failed:=True;
+      EXIT;
+    end;//try
+
+    try
+      met_size:=GetEnhMetaFileBits(met_DC_handle,0,nil);   // get size of EMF data
+    except
+      failed:=True;
+      EXIT;
+    end;//try
+
+    try
+      GetMem(p,met_size);    // memory space for it
+    except
+      memory_alert;          // tell him what's happened.
+      p:=nil;
+      EXIT;
+    end;//try
+
+    try
+      met_copied:=GetEnhMetaFileBits(met_DC_handle,met_size,p);   // get the EMF contents
+    except
+      failed:=True;
+      EXIT;
+    end;//try
+
+    try
+      new_met_DC_handle:=SetEnhMetaFileBits(met_copied,p);    // put them in memory
+    except
+      failed:=True;
+      EXIT;
+    end;//try
+
+    try
+      DeleteEnhMetaFile(met_DC_handle);   // release the file handle     (n.b. CloseEnh.. after saving a file.  DeleteEnh.. after loading a file)
+      FreeMem(p);
+    except
+      failed:=True;
+      EXIT;
+    end;//try
+
+    RESULT:= NOT failed;
+
+  finally
+    if failed=True then show_modal_message('error: sorry, unable to load the EMF metafile');
+  end;
+end;
+//______________________________________________________________________________
+
+function get_metafile_for_existing_shape(image_file_str:string; bgshape:Tbgshape):boolean;
+
+var
+  emf_header:Temf_header;
+
+begin
+  RESULT:=False;    // init
+
+  with bgshape do begin
+    with bgimage.image_shape do begin
+
+      if get_EMF_from_file_to_memory(image_file_str,image_metafile.emf_HDC)=True
+         then begin
+                if GetEnhMetaFileHeader(image_metafile.emf_HDC,SizeOf(emf_header),@emf_header)<>0
+                   then begin
+                          with emf_header.emf_frame do begin                  //  full image frame
+                            image_metafile.emf_width_mm:=ABS(Right-Left)/100;
+                            image_metafile.emf_height_mm:=ABS(Bottom-Top)/100;
+                          end;//with
+
+                          if image_metafile.emf_width_mm>minfp   // no zero div or neg
+                             then begin
+                                    image_width:=6000;   // arbitrary    not meaningful for EMF, used to set aspect ratio for display
+                                    image_height:=Round(image_width*image_metafile.emf_height_mm/image_metafile.emf_width_mm);
+
+                                    bgnd_shape.picture_is_metafile:=True;  // into file
+
+                                    RESULT:=True;
+                                  end;
+                        end;
+              end;
+
+    end;//with
+  end;//with
+end;
+//______________________________________________________________________________
+
+function create_picture_shape_image_from_file(image_file_str:string; bgshape:Tbgshape; var img_width,img_height:integer):boolean;    // 291a
+
+var
+  load_picture:TPicture;
+  ext_str:string;
+
+begin
+  RESULT:=False;  // init...
+  img_width:=0;
+  img_height:=0;
+
+  ext_str:=LowerCase(ExtractFileExt(image_file_str));
+
+  with bgshape do begin
+
+    if bgimage<>nil       // clear any existing
+       then begin
+              bgimage.image_shape.image_bitmap.Free;      // free the bitmaps.
+              bgimage.image_shape.rotated_bitmap.Free;
+
+              bgimage.image_shape.rotated_picture.Free;
+
+              bgimage.Free;                               // and free the image object.
+            end;
+
+    bgimage:=Tbgimage.Create;     // create new image  3-2-01.
+
+    bgnd_shape.show_transparent:=False;     // 0.93.a
+    bgnd_shape.picture_is_metafile:=False;  // 213b
+
+    with bgimage.image_shape do begin
+
+      // these never used if metafile...
+
+      image_bitmap:=TBitmap.Create;
+
+      rotated_bitmap:=TBitmap.Create;
+
+      rotated_picture:=TPicture.Create;
+
+        // T3-FIRST   EMF metafile ...
+
+      if ext_str='.emf'
+         then RESULT:=get_metafile_for_existing_shape(image_file_str,bgshape)
+         else begin    // not EMF
+
+                load_picture:=TPicture.Create; //0.93.a
+
+                try
+                  load_picture.LoadFromFile(image_file_str);
+
+                  if load_picture.Graphic is TIcon    // convert it to bitmap
+                     then begin
+                            image_bitmap.Width:=load_picture.Graphic.Width;
+                            image_bitmap.Height:=load_picture.Graphic.Height;
+
+                            image_bitmap.Canvas.Draw(0,0,load_picture.Graphic);
+                          end
+                     else image_bitmap.Assign(load_picture.Graphic);
+
+                  RESULT:=True;
+                except
+                  on EInvalidGraphic do show_modal_message('error - the '+UpperCase(StringReplace(ext_str,'.','',[]))+' file format is not supported');
+                end;
+
+                image_width:=image_bitmap.Width;
+                image_height:=image_bitmap.Height;
+
+                bgnd_shape.picture_is_metafile:=False;  // into file
+
+                load_picture.Free;
+              end;
+
+      if RESULT=False
+         then begin
+                bgfile_error(image_file_str);  // failed load
+                image_bitmap.Width:=200;       // arbitrary.
+                image_bitmap.Height:=150;      // arbitrary.
+
+                image_width:=image_bitmap.Width;
+                image_height:=image_bitmap.Height;
+
+                with image_bitmap.Canvas do begin     // blank the picture area...
+                  Brush.Color:=clWhite;
+                  Brush.Style:=bsSolid;
+                  FillRect(Rect(0,0,image_bitmap.Width-1,image_bitmap.Height-1));
+                end;//with
+
+                bgnd_shape.picture_is_metafile:=False;
+              end;
+
+      img_width:=image_width;      // return these
+      img_height:=image_height;
+
+    end;//with bgimage
+  end;//with bgshape
+end;
+//______________________________________________________________________________
 
 procedure normalize_line(var p1,p2:Tpex);  //214a
 
@@ -1007,7 +1244,7 @@ begin
                         // OT-FIRST convert_24bit_menu_entry.Enabled:=True;     // 215b
 
                         auto_fit_picture_button.Enabled:=True;
-                        copy_image_button.Enabled:=True;
+                        copy_image_button.Enabled:= NOT Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[n]).bgnd_shape.picture_is_metafile;
 
                         crop_rectangle_button.Enabled:=False; // 214a
 
@@ -1343,7 +1580,7 @@ begin
 
   form_scaling:=False;
 end;
-//__________________________________________________________________________________________
+//______________________________________________________________________________
 
 procedure Tbgnd_form.colour_panelClick(Sender: TObject);
 
@@ -1777,8 +2014,14 @@ var
 
   result_str:string;
 
-begin
+  emf_ok:boolean;
 
+  //emf_header:Temf_header;
+
+  bgshape:Tbgshape;
+
+begin
+  RESULT:='';           // keep compiler happy
   img_width:=0;         // default init...
   img_height:=0;
   was_cancelled:=False;
@@ -1800,11 +2043,6 @@ begin
                           bgimage.image_shape.image_bitmap.Free;      // free the bitmaps.
                           bgimage.image_shape.rotated_bitmap.Free;
 
-                          { OT-FIRST
-                          bgimage.image_shape.image_metafile.Free;    // 213b
-                          bgimage.image_shape.rotated_metafile.Free;  // 213b      not used
-                          }
-
                           bgimage.image_shape.rotated_picture.Free;
 
                           bgimage.Free;                               // and free the image object.
@@ -1823,43 +2061,22 @@ begin
                 image_bitmap:=TBitmap.Create;
                 rotated_bitmap:=TBitmap.Create;
 
-                { OT-FIRST
-                image_metafile:=TMetafile.Create;     // created but not used  213b
-                rotated_metafile:=TMetafile.Create;   // created but not used  213b
-                }
-
                 rotated_picture:=TPicture.Create;
 
                 try
-                  { OT-FIRST
-                  if dropped_picture.Graphic is TMetafile
+                  Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[n]).bgnd_shape.picture_is_metafile:=False;
+
+                  if dropped_picture.Graphic is TIcon    // convert it to bitmap
                      then begin
-                            image_metafile.Assign(dropped_picture.Graphic);
+                            image_bitmap.Width:=dropped_picture.Graphic.Width;
+                            image_bitmap.Height:=dropped_picture.Graphic.Height;
 
-                            image_width:=image_metafile.Width;
-                            image_height:=image_metafile.Height;
-
-                            Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[n]).bgnd_shape.picture_is_metafile:=True;
+                            image_bitmap.Canvas.Draw(0,0,dropped_picture.Graphic);
                           end
-                     else begin
-                     }
-                            Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[n]).bgnd_shape.picture_is_metafile:=False;
+                     else image_bitmap.Assign(dropped_picture.Graphic);    // load bitmap image
 
-                            if dropped_picture.Graphic is TIcon    // convert it to bitmap
-                               then begin
-                                      image_bitmap.Width:=dropped_picture.Graphic.Width;
-                                      image_bitmap.Height:=dropped_picture.Graphic.Height;
-
-                                      image_bitmap.Canvas.Draw(0,0,dropped_picture.Graphic);
-                                    end
-                               else image_bitmap.Assign(dropped_picture.Graphic);    // load bitmap image
-
-                            image_width:=image_bitmap.Width;
-                            image_height:=image_bitmap.Height;
-
-                            // OT-FIRST if image_bitmap.PixelFormat<>pf8bit then image_bitmap.PixelFormat:=pf24bit;    // 215b  down from 32bit for deep zooming (also workaround for TPngImage on lower than 8bit)
-
-                          { OT-FIRST end;}
+                  image_width:=image_bitmap.Width;
+                  image_height:=image_bitmap.Height;
 
                 except
                   image_bitmap.Width:=200;            // arbitrary.
@@ -1876,7 +2093,7 @@ begin
 
                   Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[n]).bgnd_shape.picture_is_metafile:=False;
 
-                  ShowMessage('Sorry, unable to create picture shape from the dropped image.');
+                  show_modal_message('Sorry, unable to create picture shape from the dropped image.');
                 end;//try
 
                 img_width:=image_width;        // return these to caller...
@@ -1902,19 +2119,12 @@ begin
               if do_twain(new_bmp)=True    // get scan
                    then begin
 
-                          // OT-FIRST if new_bmp.PixelFormat<>pf8bit then new_bmp.PixelFormat:=pf24bit;    // 215b  down from 32bit for deep zooming (also workaround for TPngImage on lower than 8bit)
-
                           with Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[n]) do begin
 
                             if bgimage<>nil       // clear any existing (this may be a reload).
                                then begin
                                       bgimage.image_shape.image_bitmap.Free;      // free the bitmaps.
                                       bgimage.image_shape.rotated_bitmap.Free;
-
-                                      { OT-FIRST
-                                      bgimage.image_shape.image_metafile.Free;    // 213b
-                                      bgimage.image_shape.rotated_metafile.Free;  // 213b
-                                      }
 
                                       bgimage.image_shape.rotated_picture.Free;
 
@@ -1931,11 +2141,6 @@ begin
 
                             image_bitmap:=TBitmap.Create;
                             rotated_bitmap:=TBitmap.Create;
-
-                            { OT-FIRST
-                            image_metafile:=TMetafile.Create;     // created but not used  213b
-                            rotated_metafile:=TMetafile.Create;   // created but not used  213b
-                            }
 
                             rotated_picture:=TPicture.Create;
 
@@ -1992,11 +2197,6 @@ begin
                                       bgimage.image_shape.image_bitmap.Free;      // free the bitmaps.
                                       bgimage.image_shape.rotated_bitmap.Free;
 
-                                      { OT-FIRST
-                                      bgimage.image_shape.image_metafile.Free;    // 213b
-                                      bgimage.image_shape.rotated_metafile.Free;  // 213b
-                                      }
-
                                       bgimage.image_shape.rotated_picture.Free;
 
                                       bgimage.Free;                               // and free the image object.
@@ -2015,16 +2215,9 @@ begin
                             image_bitmap:=TBitmap.Create;
                             rotated_bitmap:=TBitmap.Create;
 
-                            { OT-FIRST
-                            image_metafile:=TMetafile.Create;     // created but not used  213b
-                            rotated_metafile:=TMetafile.Create;   // created but not used  213b
-                            }
-
                             rotated_picture:=TPicture.Create;
 
                             image_bitmap.Assign(Clipboard);
-
-                            // OT-FIRST if image_bitmap.PixelFormat<>pf8bit then image_bitmap.PixelFormat:=pf24bit;    // 215b  down from 32bit for deep zooming (also workaround for TPngImage on lower than 8bit)
 
                             image_width:=image_bitmap.Width;
                             image_height:=image_bitmap.Height;
@@ -2047,24 +2240,27 @@ begin
 
     if was_cancelled=False     // 211b
        then begin
-
                  // load from file...
 
               with bgnd_form.picture_load_dialog do begin  // 0.93.a
 
-                if user_load_img_path=''
-                   then InitialDir:=exe_str+'IMAGE-FILES\'
-                   else Initialdir:=user_load_img_path;
+                if (user_load_img_path='') or (user_load_img_path=(exe_str+'EMF-FILES\')) or (user_load_img_path=(exe_str+'IMAGE-FILES\'))
+                   then begin
+                          if meta=True
+                             then InitialDir:=exe_str+'EMF-FILES\'
+                             else InitialDir:=exe_str+'IMAGE-FILES\';
+                        end
+                   else InitialDir:=user_load_img_path;
 
                 FileName:='';
 
                 if meta=True
                    then begin
-                          ShowMessage('The file dialog will display metafiles as requested.'
-                             +#13+#13+'To load a raster image file instead, change the File Type in the dialog.');
-                          FilterIndex:=6;    // init EMF, WMF in dialog
+                          show_modal_message('The file dialog will display EMF metafiles as requested.'
+                             +#13+#13+'To load a bitmap image file instead, change the File Type in the dialog.');
+                          FilterIndex:=6;    // init EMF in dialog
                         end
-                   else FilterIndex:=1;      // init all files in dialog
+                   else FilterIndex:=1;      // init all bimtap files in dialog
 
               end;//with dialog
 
@@ -2083,11 +2279,6 @@ begin
                                               bgimage.image_shape.image_bitmap.Free;      // free the bitmaps.
                                               bgimage.image_shape.rotated_bitmap.Free;
 
-                                              { OT-FIRST
-                                              bgimage.image_shape.image_metafile.Free;
-                                              bgimage.image_shape.rotated_metafile.Free;
-                                              }
-
                                               bgimage.image_shape.rotated_picture.Free;
 
                                               bgimage.Free;                               // and free the image object.
@@ -2100,45 +2291,43 @@ begin
 
                                   end;//with
 
-                                  with Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[n]) do begin
+                                  bgshape:=Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[n]);
+
+                                  with bgshape do begin
                                     with bgimage.image_shape do begin
+
+                                          // these never used if metafile...
 
                                       image_bitmap:=TBitmap.Create;
                                       rotated_bitmap:=TBitmap.Create;
 
-                                      { OT-FIRST
-                                      image_metafile:=TMetafile.Create;    // 213b
-                                      rotated_metafile:=TMetafile.Create;  // 213b
-                                      }
-
                                       rotated_picture:=TPicture.Create;
 
                                       load_picture:=TPicture.Create; //0.93.a
+
                                       try
-                                        load_picture.LoadFromFile(image_file_str);
+                                             // T3-FIRST   EMF metafile ...
 
-                                        { OT-FIRST
-                                        if (load_picture.Graphic is TMetafile)
-
+                                        if (LowerCase(ExtractFileExt(image_file_str))='.emf')
                                            then begin
-                                                  image_metafile.Assign(load_picture.Graphic);
-
-                                                  image_width:=image_metafile.Width;
-                                                  image_height:=image_metafile.Height;
-
-                                                  bgnd_shape.picture_is_metafile:=True;  // into file   213b
+                                                  if get_metafile_for_existing_shape(image_file_str,bgshape)=False
+                                                     then begin
+                                                            bgfile_error(image_file_str);
+                                                            was_cancelled:=True;
+                                                            EXIT;
+                                                          end;
                                                 end
-                                           else begin}
-                                                  image_bitmap.Assign(load_picture.Graphic);
+                                           else begin
 
-                                                  // OT-FIRST if image_bitmap.PixelFormat<>pf8bit then image_bitmap.PixelFormat:=pf24bit;    // 215b  down from 32bit for deep zooming (also workaround for TPngImage on lower than 8bit)
+                                                  load_picture.LoadFromFile(image_file_str);
+
+                                                  image_bitmap.Assign(load_picture.Graphic);
 
                                                   image_width:=image_bitmap.Width;
                                                   image_height:=image_bitmap.Height;
 
                                                   bgnd_shape.picture_is_metafile:=False;  // into file   213b
-                                                { OT-FIRST end;}
-
+                                                end;
                                       finally
                                         load_picture.Free;
                                       end;//try
@@ -2158,7 +2347,7 @@ begin
 
                                   EXIT;
                                 end
-                           else begin
+                           else begin  // file doesn't exist
                                   bgfile_error(image_file_str);
                                   was_cancelled:=True;
                                   EXIT;
@@ -2183,11 +2372,6 @@ begin
                           bgimage.image_shape.image_bitmap.Free;      // free the bitmaps.
                           bgimage.image_shape.rotated_bitmap.Free;
 
-                          { OT-FIRST
-                          bgimage.image_shape.image_metafile.Free;    // 213b
-                          bgimage.image_shape.rotated_metafile.Free;  // 213b
-                          }
-
                           bgimage.image_shape.rotated_picture.Free;
 
                           bgimage.Free;                               // and free the image object.
@@ -2203,11 +2387,6 @@ begin
 
                 image_bitmap:=TBitmap.Create;
                 rotated_bitmap:=TBitmap.Create;
-
-                { OT-FIRST
-                image_metafile:=TMetafile.Create;    // 213b
-                rotated_metafile:=TMetafile.Create;  // 213b
-                }
 
                 rotated_picture:=TPicture.Create;
 
@@ -2240,26 +2419,24 @@ function get_sk7_image(n:integer; sk7_str:string; var img_width,img_height:integ
 
          // n=shape index, sk7_str is the file name to load,
          // if load fails return empty_picture_string, otherwise null.
-
 var
-  sk7_exists:boolean;
+  bgshape:Tbgshape;
 
 begin
-  RESULT:=empty_picture_str;     // default init...
+  RESULT:=empty_picture_str;     // init...
   img_width:=20;
   img_height:=10;
 
-  with Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[n]) do begin
+  bgshape:=Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[n]);
+
+  with bgshape do begin
+
+    bgnd_shape.show_transparent:=False;     // not transparent
 
     if bgimage<>nil       // clear any existing (this may be a reload).
        then begin
               bgimage.image_shape.image_bitmap.Free;      // free the bitmaps.
               bgimage.image_shape.rotated_bitmap.Free;
-
-              { OT-FIRST
-              bgimage.image_shape.image_metafile.Free;    // 213b
-              bgimage.image_shape.rotated_metafile.Free;  // 213b
-              }
 
               bgimage.image_shape.rotated_picture.Free;
               bgimage.Free;                               // and free the image object.
@@ -2272,69 +2449,40 @@ begin
       image_bitmap:=TBitmap.Create;
       rotated_bitmap:=TBitmap.Create;
 
-      { OT-FIRST
-      image_metafile:=TMetafile.Create;    // 213b
-      rotated_metafile:=TMetafile.Create;  // 213b
-      }
-
       rotated_picture:=TPicture.Create;
 
-      sk7_exists:=FileExists(sk7_str);         // 0.93.a
-
-{ OT-FIRST
-      if sk7_exists=True     // EMF format
+      if FileExists(sk7_str)=True
          then begin
-
-                try
-                  image_metafile.LoadFromFile(sk7_str);
-                except
-                  sk7_exists:=False;
-                  bgfile_error(sk7_str);
-                end;//try
-
-                if sk7_exists=True
+                if get_metafile_for_existing_shape(sk7_str,bgshape)=False
                    then begin
+                            // loading failed, or he cancelled, so use defaults...
 
-                          bgnd_shape.show_transparent:=False;     // not transparent.
-                          bgnd_shape.picture_is_metafile:=True;   // in file
+                          image_bitmap.Width:=20;            // arbitrary.
+                          image_bitmap.Height:=10;           // arbitrary.
 
-                          image_width:=image_metafile.Width;
-                          image_height:=image_metafile.Height;
+                          image_width:=image_bitmap.Width;
+                          image_height:=image_bitmap.Height;
 
-                          img_width:=image_width;        // return these to caller...
-                          img_height:=image_height;
+                          with image_bitmap.Canvas do begin     // and blank the picture area...
 
-                          RESULT:='';
-                          EXIT;            // job done.
-                        end;
+                            Brush.Color:=clWhite;
+                            Brush.Style:=bsSolid;
+                            FillRect(Rect(0, 0, image_bitmap.Width-1, image_bitmap.Height-1));
+                          end;//with
+
+                          bgnd_shape.picture_is_metafile:=False;  // not a metafile
+
+                          shapes_saved:=False;   // failed to load, so shape is modified
+
+                        end
+                   else RESULT:='';       // ok, got metafile
+
+                img_width:=image_width;
+                img_height:=image_height;
               end;
-}
 
-        // loading failed, or he cancelled, so use defaults...
-
-      image_bitmap.Width:=20;            // arbitrary.
-      image_bitmap.Height:=10;           // arbitrary.
-
-      image_width:=image_bitmap.Width;
-      image_height:=image_bitmap.Height;
-
-      // OT-FIRST image_bitmap.PixelFormat:=pf24bit;    // 215b    was 8bit
-
-      with image_bitmap.Canvas do begin     // and blank the picture area...
-
-        Brush.Color:=clWhite;
-        Brush.Style:=bsSolid;
-        FillRect(Rect(0, 0, image_bitmap.Width-1, image_bitmap.Height-1));
-      end;//with
-
-    end;// with image shape
-
-    bgnd_shape.show_transparent:=False;     // not transparent.
-    bgnd_shape.picture_is_metafile:=False;  // not a metafile 213b
-
+    end;//with image_shape
   end;//with shape object
-
-  shapes_saved:=False;   // failed to load, so shape is modified
 end;
 //______________________________________________________________________________
 
@@ -2541,14 +2689,14 @@ begin
 
   if Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[n]).bgnd_shape.shape_code<>-1
      then begin
-            ShowMessage('The currently selected shape is not a picture shape.'
+            show_modal_message('The currently selected shape is not a picture shape.'
                         +#13+#13+'The auto-fit applies to picture shapes only.');
             EXIT;
           end;
 
   if Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[n]).bgnd_shape.shape_name=empty_picture_str
      then begin
-            ShowMessage('The currently selected picture shape is empty.'
+            show_modal_message('The currently selected picture shape is empty.'
                         +#13+#13+'There is no image to auto-fit.'
                         +#13+#13+'Click one of the "new image from :" buttons to load an image into this picture shape.');
             EXIT;
@@ -2963,11 +3111,6 @@ begin
                       image_bitmap:=TBitmap.Create;
                       rotated_bitmap:=TBitmap.Create;
 
-                      { OT-FIRST
-                      image_metafile:=TMetafile.Create;    // 213b
-                      rotated_metafile:=TMetafile.Create;  // 213b
-                      }
-
                       rotated_picture:=TPicture.Create;
 
                       try
@@ -3008,7 +3151,6 @@ begin
     //zoom_fit_shape_menu_entry.Click;
 
   end;//with form
-
 end;
 //____________________________________________________________________________________________
 
@@ -3043,29 +3185,44 @@ end;
 
 procedure free_shape_object(n:integer);
 
-begin
+var
+  bgshape:Tbgshape;
 
+begin
   with bgnd_form.bgnd_shapes_listbox.Items do begin
 
     if (Count<1) or (n<0) or (n>(Count-1)) then EXIT;
 
-    if Tbgshape(Objects[n]).bgimage<>nil
-       then begin
-              Tbgshape(Objects[n]).bgimage.image_shape.image_bitmap.Free;      // free the bitmaps.
-              Tbgshape(Objects[n]).bgimage.image_shape.rotated_bitmap.Free;
+    bgshape:=Tbgshape(Objects[n]);
 
-              { OT-FIRST
-              Tbgshape(Objects[n]).bgimage.image_shape.image_metafile.Free;    // 213b
-              Tbgshape(Objects[n]).bgimage.image_shape.rotated_metafile.Free;  // 213b
-              }
+    with bgshape do begin
 
-              Tbgshape(Objects[n]).bgimage.image_shape.rotated_picture.Free;
-              Tbgshape(Objects[n]).bgimage.Free;                               // and free the image object.
-              Tbgshape(Objects[n]).bgimage:=nil;
-            end;
+      if bgnd_shape.shape_code=-1    // picture shape
+         then begin
+                if bgimage<>nil
+                   then begin
+                          with bgimage.image_shape do begin
 
-    Tbgshape(Objects[n]).Free;
-  end;//with
+                            if image_bitmap<>nil then image_bitmap.Free;      // free the bitmaps.
+                            if rotated_bitmap<>nil then rotated_bitmap.Free;
+
+                            if rotated_picture<>nil then rotated_picture.Free;
+
+                            if bgnd_shape.picture_is_metafile=True              // 291a
+                               then DeleteEnhMetaFile(image_metafile.emf_HDC);  // release the metafile handle and free memory
+
+                          end;//with
+
+                          bgimage.Free;     // and free the image object.
+                          bgimage:=nil;
+                        end;
+
+              end;//picture shape
+
+      Free;  // free the bgshape object
+    end;//with
+
+  end;//with listbox
 end;
 //________________________________________________________________________________________
 
@@ -3318,7 +3475,7 @@ try
                 +'||Are you sure you want to delete this shape ?',
                  '','','','yes  -  delete  '+Strings[n],'no  -  cancel  delete','',0)=5 then EXIT;
 
-      free_shape_object(n);  // free any picture bitmaps and the shape object.
+      free_shape_object(n);  // free picture bitmaps if any, and the shape object
 
       Delete(n);                              // delete the entry.
       shapes_saved:=False;                    // need a resave.
@@ -3369,7 +3526,7 @@ begin
 
     if (n<0) or (n>(Items.Count-1))
        then begin
-              ShowMessage('No background shape is currently selected in the list.');
+              show_modal_message('No background shape is currently selected in the list.');
               EXIT;
             end;
 
@@ -3436,8 +3593,8 @@ begin
       if (shape_code=-1) and (old_shape_code<>-1)        // changed to a picture - get picture.
          then begin
                 img_file_str:=get_user_image(False,False,False,False,False,n,dummy1,dummy2); // get image file and file name for list.
-                shape_name:=img_file_str;                                              // in file.
-                Items.Strings[n]:=img_file_str;                                        // and in list.
+                shape_name:=img_file_str;                                                    // in file.
+                Items.Strings[n]:=img_file_str;                                              // and in list.
               end;
 
     end;//with
@@ -3668,29 +3825,201 @@ begin
        +'||If this is a reload operation, check that the named file exists in the named folder on the named drive.',
         '','','','','','O K',0);
 end;
-//__________________________________________________________________________________________
+//______________________________________________________________________________
+
+function save_all_shapes_to_file(file_str:string; readable:boolean):boolean;     // 291a  new BGS3 XML format  25-NOV-2019
+
+var
+  xml_doc:TNativeXml;
+  shape_node,header_node:TXmlNode;
+
+  n:integer;
+  met_size:integer;
+  met_copied:integer;
+  p:Pointer;
+
+  failed:boolean;
+
+            ////////////////////////////////////////////////////////////////////
+
+            function create_named_node(parent_node:TXmlNode; name_str:string):TXmlNode;
+
+            begin
+              RESULT:=TXmlNode.CreateName(xml_doc,name_str);
+              parent_node.NodeAdd(RESULT);
+            end;
+            ////////////////////////////////////////////////////////////////////
+
+begin
+  RESULT:=False; // init
+  failed:=False;
+
+  wait_form.cancel_button.Hide;
+  wait_form.waiting_label.Caption:='saving  background  shapes ...';
+  wait_form.waiting_label.Width:=wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);  // bug fix for Wine
+  wait_form.Show;
+
+  if Application.Terminated=False then Application.ProcessMessages;     // let the wait form fully paint.
+
+  xml_doc:=TNativeXml.CreateName('BGS3');
+
+  xml_doc.UseFullNodes:=True;
+
+  if readable=True
+     then xml_doc.XmlFormat:=xfReadable   // insert CRLF after each node
+     else xml_doc.XmlFormat:=xfCompact;   // image data on one line
+
+  xml_doc.WriteOnDefault:=True;       // ignore defaults and always write anyway
+  xml_doc.FloatSignificantDigits:=9;  // sig digs in floats
+
+  try
+    with bgnd_form.bgnd_shapes_listbox.Items do begin
+
+      if Count<1 then EXIT; // no shapes
+
+      header_node:=create_named_node(xml_doc.Root,'HEADER');
+
+      with header_node do begin
+
+        WriteString('program_name','Templot3 background shapes, saved from version '+round_str(program_version/100,2)+version_build,'');
+
+        WriteInteger('program_version',program_version,0);
+
+        WriteString('file_date',DateTimeToStr(Now),'');
+
+        WriteInteger('shapes_count',Count,0);
+
+      end;//with header
+
+      for n:=0 to Count-1 do begin
+
+        shape_node:=create_named_node(xml_doc.Root,'BGND_SHAPE_'+IntToStr(n));
+
+        with Tbgshape(Objects[n]) do begin
+
+          with bgnd_shape do begin
+
+               // first ensure all fields valid, in case loaded from very old BGS files...  225b
+
+            if shape_code<>-1  // not a picture..
+               then begin
+                      wrap_offset:=0;            // used only for pictures..
+                      show_transparent:=False;
+                      picture_is_metafile:=False;
+                    end
+               else begin     // picture..
+                      shape_style:=0;  // not used for picture
+
+                      show_transparent:=(integer(show_transparent)=1);
+                      picture_is_metafile:=(integer(picture_is_metafile)=1);
+                    end;
+
+            if hide_bits>3 then hide_bits:=0;
+
+            option_bits:=0;  // spare
+
+            with shape_node do begin
+
+              WriteString('shape_name',shape_name,'');
+
+              WriteInteger('wrap_offset',wrap_offset,0);  // 1/100ths mm
+
+              WriteBool('show_transparent',show_transparent,False);
+
+              WriteInteger('shape_code',shape_code,0);    // 0=line, 1=rectangle, 2=circle, 3=text, 4=target mark, -1=picture (bitmap image or metafile)
+
+              WriteInteger('shape_style',shape_style,0);  // byte  0=transparent, 1=blank/solid, 2=cross-hatched
+
+              WriteBool('picture_is_metafile',picture_is_metafile,False);
+
+              WriteInteger('hide_bits',hide_bits,0);      // byte  0=normal,  1=hide on trackpad,  2=hide on output,  3=hide both
+
+              WriteInteger('option_bits',option_bits,0);  // byte  spare
+
+              WriteFloat('p1.x',p1.x,0);       // Tpex...
+              WriteFloat('p1.y',p1.y,0);
+
+              WriteFloat('p2.x',p2.x,0);
+              WriteFloat('p2.y',p2.y,0);
+
+              if shape_code=-1    // picture shape
+                 then begin
+                        with bgimage.image_shape do begin
+
+                          WriteInteger('image_width',image_width,0);    // dots
+                          WriteInteger('image_height',image_height,0);  // dots
+
+                          if picture_is_metafile=True   // metafile...
+                             then begin
+
+                                    WriteFloat('emf_width_mm',image_metafile.emf_width_mm,0);    // EMF frame size in mm
+                                    WriteFloat('emf_height_mm',image_metafile.emf_height_mm,0);
+
+                                    met_size:=GetEnhMetaFileBits(image_metafile.emf_HDC,0,nil);  // get size of EMF data
+
+                                    if met_size=0
+                                       then begin
+                                              failed:=True;
+                                              EXIT;
+                                            end;
+
+                                    try
+                                      GetMem(p,met_size);    // get memory buffer for it
+                                    except
+                                      memory_alert;          // say what happened
+                                      p:=nil;
+                                      failed:=True;
+                                      EXIT;
+                                    end;//try
+
+                                    met_copied:=GetEnhMetaFileBits(image_metafile.emf_HDC,met_size,p);   // get the EMF contents into buffer
+
+                                    if met_copied=0    // size of data copied
+                                       then begin
+                                              failed:=True;
+                                              EXIT;
+                                            end;
+
+                                    XmlWriteHCKBuf(shape_node,'EMF',p,met_size);    // Write buffer to XML node using HCK compression
+
+                                    FreeMem(p);   // free the buffer
+
+                                  end
+                             else XmlWriteBitmap(shape_node,'BITMAP',image_bitmap); // not a metafile
+
+                        end;//with image
+                      end;//picture shape
+
+            end;//with node
+          end;//with bgnd_shape
+        end;//with shape object
+      end;//next shape
+    end;//with listbox.Items
+
+  finally
+    if failed=True
+       then show_modal_message('error: sorry unable to save background shapes')
+       else xml_doc.SaveToFile(file_str);
+
+    RESULT:= NOT failed;
+
+    wait_form.Close;
+    xml_doc.Free;
+  end;//try
+end;
+//______________________________________________________________________________
+
 
 procedure Tbgnd_form.save_all_menu_entryClick(Sender: TObject);
 
-                   // save all shapes
+        // save all shapes to file
 var
   bgs_str:string;
-  shape_file: Tshapefile;
-  i,maxbg:integer;
-  next_shape:Tbgnd_shape;
-
-  sk7_image_save_count:integer;
-  sk8_image_save_count:integer;
-
-  ext_str,sk7_str,sk8_str:string;
-
-  { OT-FIRST create_png:TPNGObject;}
-  create_png:TPortableNetworkGraphic;  // OT-FIRST
 
 begin
   shapes_saved:=False;                      // default result flag (for clear)
-  maxbg:=bgnd_shapes_listbox.Items.Count;
-  if maxbg<1 then EXIT;
+
+  if bgnd_shapes_listbox.Items.Count<1 then EXIT;
 
   with filesave_dialog do begin             // set up the save dialog.
 
@@ -3699,8 +4028,8 @@ begin
      else InitialDir:=user_save_shapes_path;
 
     Title:='    save  background  shapes  as ...';
-    Filter:= ' background  shapes  ( .bgs3)|*.bgs3';
-    DefaultExt:='bgs3';
+    Filter:= 'background shapes|*.bgs3';
+    DefaultExt:='.bgs3';
 
               // mods 0.79.a
 
@@ -3715,112 +4044,177 @@ begin
 
             if invalid_85a_file_name(bgs_str)=True then EXIT;
 
-            user_save_shapes_path:=ExtractFilePath(bgs_str); // for next time.
+            user_save_shapes_path:=ExtractFilePath(bgs_str);   // for next time
 
-            try
-              AssignFile(shape_file,bgs_str);    // set the file name.
-              Rewrite(shape_file);                 // open a new file.
+            bgs_str:=ChangeFileExt(bgs_str,'.bgs3');   // force extension
 
-              for i:=0 to maxbg-1 do begin
-                next_shape:=Tbgshape(bgnd_shapes_listbox.Items.Objects[i]).bgnd_shape;  // next shape.
-                Write(shape_file,next_shape);                                           // write next template to the file.
-              end;//for
-              CloseFile(shape_file);
-            except
-              on EInOutError do begin
-                                  bgfile_error(bgs_str);
-                                  user_save_shapes_path:='';
-                                  EXIT;
-                                end;
-            end;//try-except
-
-                // now save all image files...  0.93.a
-
-                // may be overwriting old ones.
-
-            sk7_image_save_count:=0;  // init
-            sk8_image_save_count:=0;  // init
-
-            for i:=0 to maxbg-1 do begin
-              if Tbgshape(bgnd_shapes_listbox.Items.Objects[i]).bgnd_shape.shape_code=-1     //  -1=picture (bitmap image).
-                 then begin
-                        { OT-FIRST
-                        if Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgnd_shape.picture_is_metafile=True
-
-                           then begin        // metafile...
-
-                                  INC(sk7_image_save_count);   // first one is 1
-
-                                  ext_str:='.sk7'+IntToStr(sk7_image_save_count);
-                                  sk7_str:=ChangeFileExt(bgs_str,ext_str);   // change file extension to .sk7n  (actually .emf)
-
-                                  try
-                                    with Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape do begin
-                                      image_metafile.Enhanced:=True;
-                                      image_metafile.SaveToFile(sk7_str);
-                                    end;//with
-
-                                  except
-                                    on EInOutError do begin bgfile_error(sk7_str); EXIT; end;
-                                  end;//try
-
-                                end
-                           else begin}        // bitmap...
-
-                                  INC(sk8_image_save_count);   // first one is 1
-
-                                  { OT-FIRST create_png:=TPNGObject.Create;}
-                                  create_png:=TPortableNetworkGraphic.Create;  // OT-FIRST
-
-                                  try
-                                    ext_str:='.sk8'+IntToStr(sk8_image_save_count);
-                                    sk8_str:=ChangeFileExt(bgs_str,ext_str);   // change file extension to .sk8n  (actually .png)
-
-                                    try
-                                      create_png.Assign(Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape.image_bitmap);
-                                      create_png.SaveToFile(sk8_str);
-                                    except
-                                      on EInOutError do begin bgfile_error(sk8_str); EXIT; end;
-                                    end;//try
-
-                                  finally
-                                    create_png.Free;
-                                  end;//try
-
-                                { OT-FIRST end;}
-
-                      end;//if picture shape
-
-            end;//next shape
-
-            while sk7_image_save_count<20 do begin    // likely maximum number of old metafiles
-
-              INC(sk7_image_save_count);
-
-              ext_str:='.sk7'+IntToStr(sk7_image_save_count);
-              sk7_str:=ChangeFileExt(bgs_str,ext_str);   // change file extension to .sk7n
-
-              if FileExists(sk7_str) then DeleteFile(sk7_str);
-            end;//while
-
-            while sk8_image_save_count<500 do begin    // likely maximum number of old bitmap files (could be map tiles)
-
-              INC(sk8_image_save_count);
-
-              ext_str:='.sk8'+IntToStr(sk8_image_save_count);
-              sk8_str:=ChangeFileExt(bgs_str,ext_str);   // change file extension to .sk8n
-
-              if FileExists(sk8_str) then DeleteFile(sk8_str);
-            end;//while
+            if save_all_shapes_to_file(bgs_str,False)=False    // False = compact XML format (not readable)
+               then begin
+                      bgfile_error(bgs_str);
+                      user_save_shapes_path:='';
+                      EXIT;
+                    end;
 
             shapes_saved:=True;
+
             bgs_file_label.Caption:=' shapes last saved to :  '+bgs_str;
             bgs_file_label.Hint:=bgs_file_label.Caption;  // in case too long for caption
 
             bgsmru_update(bgs_str);   // update the mru list.
-          end;//if save dialog
+
+            show_modal_message('Your background shapes have been saved to'+#13+#13+bgs_str);
+
+          end;//if save dialog execute
 end;
-//_________________________________________________________________________________________
+//______________________________________________________________________________
+
+function load_shapes_from_file(file_str:string; reload_limits:boolean):boolean;     // 292  new BGS3 XML format  25-NOV-2019
+
+var
+  xml_doc:TNativeXml;
+  shape_node,header_node:TXmlNode;
+
+  i,n,shapes_count:integer;
+
+  next_shape:Tbgnd_shape;
+
+  load_stream:TMemoryStream;
+
+begin
+  RESULT:=False;         // init
+
+  wait_form.cancel_button.Hide;
+  wait_form.waiting_label.Caption:='loading  background  shapes ...';
+  wait_form.waiting_label.Width:=wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);  // bug fix for Wine
+  wait_form.Show;
+
+  Screen.Cursor:=crHourGlass;  // might be slow if bitmaps
+
+  if Application.Terminated=False then Application.ProcessMessages;   // let the wait form fully paint, show cursor
+
+  xmin:=zoom_offsetx;    // init limits for check
+  ymin:=zoom_offsety;
+
+  xmax:=xmin+screenx;
+  ymax:=ymin+screeny;
+
+  xml_doc:=TNativeXml.Create;
+
+  xml_doc.LoadFromFile(file_str);    // this is slow
+
+  header_node:=xml_doc.Root.FindNode('HEADER');
+
+  shapes_count:=header_node.ReadInteger('shapes_count',0);
+
+  try
+    if shapes_count<1 then EXIT;
+
+    for n:=0 to shapes_count-1 do begin
+
+      shape_node:=xml_doc.Root.FindNode('BGND_SHAPE_'+IntToStr(n));
+
+      with next_shape do begin
+        with shape_node do begin
+
+          shape_name:=ReadString('shape_name','');
+
+          wrap_offset:=ReadInteger('wrap_offset',0);  // 1/100ths mm
+
+          show_transparent:=ReadBool('show_transparent',False);
+
+          shape_code:=ReadInteger('shape_code',0);    // 0=line, 1=rectangle, 2=circle, 3=text, 4=target mark, -1=picture (bitmap image or metafile)
+
+          shape_style:=ReadInteger('shape_style',0);  // byte  0=transparent, 1=blank/solid, 2=cross-hatched
+
+          picture_is_metafile:=ReadBool('picture_is_metafile',False);
+
+          hide_bits:=ReadInteger('hide_bits',0);      // byte  0=normal,  1=hide on trackpad,  2=hide on output,  3=hide both
+
+          option_bits:=ReadInteger('option_bits',0);  // byte  spare
+
+          p1.x:=ReadFloat('p1.x',0);                // Tpex...
+          p1.y:=ReadFloat('p1.y',0);
+
+          p2.x:=ReadFloat('p2.x',0);
+          p2.y:=ReadFloat('p2.y',0);
+
+          if reload_limits=True     // only within limits?
+             then begin
+                    if shape_code<3           // check both corners...
+                       then begin
+                              if (p1.x>xmax) or (p2.x>xmax) or (p1.y>ymax) or (p2.y>ymax)
+                              or (p1.x<xmin) or (p2.x<xmin) or (p1.y<ymin) or (p2.y<ymin)
+                                 then CONTINUE;
+                            end
+                       else begin             // check only p1...
+                              if (p1.x>xmax) or (p1.y>ymax)
+                              or (p1.x<xmin) or (p1.y<ymin)
+                                 then CONTINUE;
+                            end;
+                  end;
+
+          with bgnd_form.bgnd_shapes_listbox.Items do begin
+
+            i:=AddObject(shape_name,Tbgshape.Create);      // create and add a new line in the shapes list.
+
+            Tbgshape(Objects[i]).bgnd_shape:=next_shape;   // put data in list.
+
+            Tbgshape(Objects[i]).bgimage:=nil;  // init if not a picture
+
+            if shape_code=-1    // picture shape
+               then begin
+                      with Tbgshape(Objects[i]) do begin
+
+                        bgimage:=Tbgimage.Create;
+
+                        with bgimage.image_shape do begin
+
+                          image_width:=ReadInteger('image_width',0);    // dots
+                          image_height:=ReadInteger('image_height',0);  // dots
+
+                          image_bitmap:=TBitmap.Create;
+                          rotated_bitmap:=TBitmap.Create;
+
+                          rotated_picture:=TPicture.Create;
+
+                          if picture_is_metafile=True
+                             then begin
+
+                                    image_metafile.emf_width_mm:=ReadFloat('emf_width_mm',0);    // EMF frame size in mm
+                                    image_metafile.emf_height_mm:=ReadFloat('emf_height_mm',0);
+
+                                    load_stream:=TMemoryStream.Create;
+                                    load_stream.Position:=0;
+
+                                    XmlReadHCKStream(shape_node,'EMF',load_stream);
+
+                                    if load_stream.Size>0
+                                       then begin
+                                              load_stream.Position:=0;
+                                              image_metafile.emf_HDC:=SetEnhMetaFileBits(load_stream.Size,load_stream.Memory);
+                                            end;
+                                    load_stream.Free;
+                                  end
+                             else XmlReadBitmap(shape_node,'BITMAP',image_bitmap);
+
+                        end;//with image shape
+                      end;//with shape object
+                    end;//if picture shape
+
+          end;//with list
+        end;//with shape_node
+      end;//with shape
+    end;//next shape
+
+    RESULT:=True;
+
+  finally
+    Screen.Cursor:=crDefault;
+    wait_form.Close;
+    xml_doc.Free;
+  end;//try
+end;
+//______________________________________________________________________________
 
 procedure load_shapes(file_str:string; append,mru,dropped:boolean);
 
@@ -3902,9 +4296,10 @@ begin
                             if append=True then Title:='    add  background  shapes  from  file ...'
                                            else Title:='    reload  background  shapes  from  file ...';
 
-                            Filter:= ' background  shapes  ( .bgs3)|*.bgs3';
-                            Filename:='*.bgs3';
-                            DefaultExt:='bgs3';
+                            Filter:='background shapes|*.bgs3;*.otbgs';
+
+                            //Filename:='*.bgs3';
+                            //DefaultExt:='.bgs3';
 
                           end;//with
 
@@ -3919,15 +4314,6 @@ begin
 
       user_load_shapes_path:=ExtractFilePath(bgs_str); // for next time.
 
-      xmin:=zoom_offsetx;    // init for check
-      ymin:=zoom_offsety;
-
-      xmax:=xmin+screenx;
-      ymax:=ymin+screeny;
-
-      sk7_image_load_count:=0;  // 213b init
-      sk8_image_load_count:=0;  // 0.93.a init
-
       if FileExists(bgs_str)=False
          then begin
                 bgfile_error(bgs_str);
@@ -3936,94 +4322,125 @@ begin
               end
          else begin
                 if append=False then clear_shapes;   // first clear all existing.
-                try
-                  AssignFile(shape_file,bgs_str);  // set the file name.
-                  Reset(shape_file);               // open the file.
 
-                  While Eof(shape_file)=False do begin
+                if LowerCase(ExtractFileExt(bgs_str))='.bgs3'   // 291a new XML format
+                   then begin
+                          if load_shapes_from_file(bgs_str,reload_limits_checkbox.Checked)=False
+                             then begin
+                                    bgfile_error(bgs_str);
+                                    user_load_shapes_path:='';
+                                    if append=False then clear_shapes;    // remove any added
+                                    EXIT;
+                                  end;
+                        end
+                   else begin                                               // old BGS format ...
+                          if LowerCase(ExtractFileExt(bgs_str))<>'.otbgs'   // ???
+                             then begin
+                                    bgfile_error(bgs_str);
+                                    user_load_shapes_path:='';
+                                    if append=False then clear_shapes;    // remove any added
+                                    EXIT;
+                                  end;
 
-                    with bgnd_shapes_listbox do begin
+                          xmin:=zoom_offsetx;    // init for check
+                          ymin:=zoom_offsety;
 
-                      if Items.Count>=count_limit
-                         then begin
-                                alert(2,'    too  many  shapes',
-                                        '||You have now reached the limit of  '+IntToStr(count_limit)+'  background shapes. It is not possible to continue loading shapes from:'
-                                       +'|| '+bgs_str
-                                       +'||Try breaking the file into smaller sections and reloading each separately.',
-                                        '','','','','cancel  loading  of  remaining  shapes        ','',0);
-                                BREAK;
-                              end;
+                          xmax:=xmin+screenx;
+                          ymax:=ymin+screeny;
 
-                      Read(shape_file,next_shape);               // read next shape data.
+                          sk7_image_load_count:=0;  // 213b init
+                          sk8_image_load_count:=0;  // 0.93.a init
 
-                      if reload_limits_checkbox.Checked=True     // only within limits?
-                         then begin
-                                with next_shape do begin
-                                  if shape_code<3           // check both corners...
-                                     then begin
-                                            if (p1.x>xmax) or (p2.x>xmax) or (p1.y>ymax) or (p2.y>ymax)
-                                            or (p1.x<xmin) or (p2.x<xmin) or (p1.y<ymin) or (p2.y<ymin)
-                                               then CONTINUE;
-                                          end
-                                     else begin             // check only p1...
-                                            if (p1.x>xmax) or (p1.y>ymax)
-                                            or (p1.x<xmin) or (p1.y<ymin)
-                                               then CONTINUE;
-                                          end;
-                                end;//with
-                              end;
+                          try
+                            AssignFile(shape_file,bgs_str);  // set the file name.
+                            Reset(shape_file);               // open the file.
 
-                      n:=Items.AddObject(next_shape.shape_name,Tbgshape.Create);   // create and insert a new line in the shapes list.
+                            While Eof(shape_file)=False do begin
 
-                      Tbgshape(Items.Objects[n]).bgimage:=nil;  // 3-2-01.
+                              with bgnd_shapes_listbox do begin
 
-                      if next_shape.shape_code=-1
-                         then begin
-
-                                if next_shape.picture_is_metafile=True
+                                if Items.Count>=count_limit
                                    then begin
-                                          INC(sk7_image_load_count);        // 213b
-
-                                          ext_str:='.sk7'+IntToStr(sk7_image_load_count);  // 213b
-                                          sk7_str:=ChangeFileExt(bgs_str,ext_str);         // change file extension to .sk7n
-
-                                          if get_sk7_image(n,sk7_str,dummy1,dummy2)=empty_picture_str
-                                             then begin
-                                                    next_shape.picture_is_metafile:=False;
-                                                    next_shape.shape_name:=empty_picture_str;
-                                                    Items.Strings[n]:=empty_picture_str;
-                                                  end;
-
-                                        end
-                                   else begin
-                                          INC(sk8_image_load_count);        // 0.93.a
-
-                                          ext_str:='.sk8'+IntToStr(sk8_image_load_count);  // 0.93.a
-                                          sk8_str:=ChangeFileExt(bgs_str,ext_str);         // change file extension to .sk8n
-
-                                          if get_sk8_image(n,ExtractFilePath(bgs_str)+next_shape.shape_name,sk8_str,dummy1,dummy2)=empty_picture_str    // 0.82.a look in same folder as loaded bgs file
-                                             then begin
-                                                    next_shape.shape_name:=empty_picture_str;
-                                                    Items.Strings[n]:=empty_picture_str;
-                                                  end;
-
+                                          alert(2,'    too  many  shapes',
+                                                  '||You have now reached the limit of  '+IntToStr(count_limit)+'  background shapes. It is not possible to continue loading shapes from:'
+                                                 +'|| '+bgs_str
+                                                 +'||Try breaking the file into smaller sections and reloading each separately.',
+                                                  '','','','','cancel  loading  of  remaining  shapes        ','',0);
+                                          BREAK;
                                         end;
-                              end;
 
-                      Tbgshape(Items.Objects[n]).bgnd_shape:=next_shape;           // put data in list.
+                                Read(shape_file,next_shape);               // read next shape data.
 
-                      ItemIndex:=n;                                                // make it current.
-                    end;//with
-                  end;//while
-                  CloseFile(shape_file);
-                except
-                  on EInOutError do begin
-                                      bgfile_error(bgs_str);
-                                      user_load_shapes_path:='';
-                                      if append=False then clear_shapes;
-                                      EXIT;
-                                    end;
-                end;//try-except
+                                if reload_limits_checkbox.Checked=True     // only within limits?
+                                   then begin
+                                          with next_shape do begin
+                                            if shape_code<3           // check both corners...
+                                               then begin
+                                                      if (p1.x>xmax) or (p2.x>xmax) or (p1.y>ymax) or (p2.y>ymax)
+                                                      or (p1.x<xmin) or (p2.x<xmin) or (p1.y<ymin) or (p2.y<ymin)
+                                                         then CONTINUE;
+                                                    end
+                                               else begin             // check only p1...
+                                                      if (p1.x>xmax) or (p1.y>ymax)
+                                                      or (p1.x<xmin) or (p1.y<ymin)
+                                                         then CONTINUE;
+                                                    end;
+                                          end;//with
+                                        end;
+
+                                n:=Items.AddObject(next_shape.shape_name,Tbgshape.Create);   // create and insert a new line in the shapes list.
+
+                                Tbgshape(Items.Objects[n]).bgimage:=nil;  // 3-2-01.
+
+                                if next_shape.shape_code=-1
+                                   then begin
+
+                                          if next_shape.picture_is_metafile=True
+                                             then begin
+                                                    INC(sk7_image_load_count);        // 213b
+
+                                                    ext_str:='.sk7'+IntToStr(sk7_image_load_count);  // 213b
+                                                    sk7_str:=ChangeFileExt(bgs_str,ext_str);         // change file extension to .sk7n
+
+                                                    if get_sk7_image(n,sk7_str,dummy1,dummy2)=empty_picture_str
+                                                       then begin
+                                                              next_shape.picture_is_metafile:=False;
+                                                              next_shape.shape_name:=empty_picture_str;
+                                                              Items.Strings[n]:=empty_picture_str;
+                                                            end;
+
+                                                  end
+                                             else begin
+                                                    INC(sk8_image_load_count);        // 0.93.a
+
+                                                    ext_str:='.sk8'+IntToStr(sk8_image_load_count);  // 0.93.a
+                                                    sk8_str:=ChangeFileExt(bgs_str,ext_str);         // change file extension to .sk8n
+
+                                                    if get_sk8_image(n,ExtractFilePath(bgs_str)+next_shape.shape_name,sk8_str,dummy1,dummy2)=empty_picture_str    // 0.82.a look in same folder as loaded bgs file
+                                                       then begin
+                                                              next_shape.shape_name:=empty_picture_str;
+                                                              Items.Strings[n]:=empty_picture_str;
+                                                            end;
+
+                                                  end;
+                                        end;
+
+                                Tbgshape(Items.Objects[n]).bgnd_shape:=next_shape;           // put data in list.
+
+                                ItemIndex:=n;                                                // make it current.
+                              end;//with
+                            end;//while
+                            CloseFile(shape_file);
+                          except
+                            on EInOutError do begin
+                                                bgfile_error(bgs_str);
+                                                user_load_shapes_path:='';
+                                                if append=False then clear_shapes;
+                                                EXIT;
+                                              end;
+                          end;//try-except
+
+                        end;//old BGS format
 
                 if append=False
                    then begin
@@ -4062,13 +4479,7 @@ begin
   do_rollback:=False;       // no need to put this change in rollback register on redraw.
   redraw(False);            // now. remove any previous highlighting
 
-  with bgnd_shapes_listbox do begin
-
-    draw_bg_shapes(pad_form.Canvas,ItemIndex,clRed);   // highlight this one in red, directly on the pad.
-
-    if Tbgshape(Items.Objects[ItemIndex]).bgnd_shape.shape_code<>-1 then EXIT; // not a picture shape, finished.
-
-  end;//with
+  with bgnd_shapes_listbox do draw_bg_shapes(pad_form.Canvas,ItemIndex,clRed);   // highlight this one in red, directly on the pad.
 
 end;
 //______________________________________________________________________________
@@ -4145,7 +4556,7 @@ procedure Tbgnd_form.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   save_hide:=bgs_save_hide;        // restore pad flag.
   pad_form.Cursor:=cursor_saved;   // restore cursor.
-  redraw(False);                   // cancel any highlighting (immediate so can change cursor for mouse drawing).
+  redraw(False);                   // if no mouse action in force, cancel any highlighting (immediate so can change cursor for mouse drawing).
 end;
 //____________________________________________________________________________________________
 
@@ -5943,14 +6354,14 @@ begin
   end;//try
 end;
 
-//__________________________________________________________________________________________
+//______________________________________________________________________________
 
 procedure Tbgnd_form.trans_checkboxMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 
-
 const
   transpic_str:string='      Transparent  Picture  Shape'
-  +'||The transparent option for the picture shapes is useful when aligning scanned images but will cause slower re-draws when zooming and panning on the trackpad.'
+  +'||green_panel_begin tree.gif  The following notes do not apply to EMF metafile picture shapes, which can be freely set as transparent if desired.green_panel_end'
+  +'|The transparent option for the picture shapes is useful when aligning scanned images but will cause slower re-draws when zooming and panning on the trackpad.'
   +'||It is therefore recommended that this option is selected for only one or two picture shapes at any one time, and cancelled once the images have been aligned and saved.'
 
   +'||Click the PICTURE SHAPE IMAGE : > SAVE... button to save each bitmap image which has been twisted. Then click the SAVE ALL AS... button to save the new positions of the picture shape outlines and the names of the new bitmap image files.'
@@ -5994,7 +6405,8 @@ begin
                                    'You have selected the transparent option for this picture shape.'
                                   +'||This option is useful when aligning scanned images but will cause slower re-draws when zooming and panning on the trackpad.'
                                   +'||It may also restrict the maximum zoom-in which is possible for this image. If the image disappears when zooming in, try cancelling the transparent option.'
-                                  +'||To see the image clearly you may need to change the trackpad colours.',
+                                  +'||To see the image clearly you may need to change the trackpad colours.'
+                                  +'||tree.gif The above does not apply to EMF metafile picture shapes, which can be freely set as transparent if desired.',
                                    '','','','important  information','cancel  transparent  picture  shape','continue',4);
 
                         if i=4 then alert_help(0,transpic_str,'');
@@ -6443,7 +6855,7 @@ begin
         or (bgnd_shape.shape_name=empty_picture_str)
         or (bgimage=nil)   // no existing bitmap.
            then begin
-                  ShowMessage('No picture content to copy.');
+                  show_modal_message('No picture content to copy.');
                   EXIT;
                 end;
         try
@@ -6470,107 +6882,182 @@ var
   n:integer;
 
   create_jpg:TJpegImage;
-  create_gif:TGIFImage;
-  { OT-FIRST create_png:TPNGObject;}
-  create_png:TPortableNetworkGraphic;  // OT-FIRST
+  //create_gif:TGIFImage;
+  create_png:TPortableNetworkGraphic;
 
   folder_str:string;
+  emf_str:string;
+
+  //temp_bitmap:TBitmap;
+
+  img_saved:boolean;
 
 begin
+  img_saved:=False;   // init
+
   with bgnd_shapes_listbox do begin
     n:=ItemIndex;
     with Items do begin
 
-      if (Count<1) or (n<0) or (n>(Count-1)) then EXIT;
+      if (Count<1) or (n<0) or (n>(Count-1)) then EXIT;   //???
 
       with Tbgshape(Objects[n]) do begin
 
-        if (bgnd_shape.shape_code<>-1)      // not a picture shape.
+        if (bgnd_shape.shape_code<>-1)                 // not a picture shape
         or (bgnd_shape.shape_name=empty_picture_str)
-        or (bgimage=nil)   // no existing bitmap.
+        or (bgimage=nil)                               // no existing image
            then begin
-                  ShowMessage('No picture content to save.');
+                  show_modal_message('No picture content to save.');
                   EXIT;
                 end;
 
         with picture_save_dialog do begin  // set up the save dialog.
 
+          if user_save_img_path=''
+             then begin
+                    if bgnd_shape.picture_is_metafile=True
+                       then InitialDir:=exe_str+'EMF-FILES\'
+                       else InitialDir:=exe_str+'IMAGE-FILES\';
+                  end
+             else InitialDir:=user_save_img_path;
 
-        if user_save_img_path=''
-           then InitialDir:=exe_str+'SHAPE-FILES\'
-           else InitialDir:=user_save_img_path;
+          if bgnd_shape.picture_is_metafile=True
+             then Filter:='EMF metafile ( .emf)|*.emf'
+             else begin
+                    Filter:='PNG image ( .png)|*.png|JPEG image ( .jpg  .jp  .jpeg)|*.jpg;*.jp;*.jpeg|BMP image ( .bmp)|*.bmp';
+                    FilterIndex:=1;
+                  end;
 
           FileName:='';
 
-          if Execute=True         // get the file name.
+          if Execute=True    // get the file name.
              then begin
                     if invalid_85a_file_name(FileName)=True then EXIT;
 
                     user_save_img_path:=ExtractFilePath(FileName); // for next time.
 
-                    try
-                      if (LowerCase(ExtractFileExt(FileName))='.jpg')
-                      or (LowerCase(ExtractFileExt(FileName))='.jpeg')
-                          then begin
-                                 create_jpg:=TJpegImage.Create;
-                                 try
-                                   create_jpg.Assign(bgimage.image_shape.image_bitmap);
+                    if bgnd_shape.picture_is_metafile=True
+                       then begin
 
-                                   create_jpg.CompressionQuality:=jpg_quality;   // global on control_room
-                                   { OT-FIRST create_jpg.JPEGNeeded;}
-                                   create_jpg.SaveToFile(FileName);
-                                 finally
-                                   create_jpg.Free;
-                                 end;//try
-                               end;
+                              with bgimage.image_shape.image_metafile do begin
 
-                      if LowerCase(ExtractFileExt(FileName))='.gif'
-                          then begin
-                                 create_gif:=TGIFImage.Create;
-                                 try
-                                   create_gif.Assign(bgimage.image_shape.image_bitmap);
-                                   create_gif.SaveToFile(FileName);
-                                 finally
-                                   create_gif.Free;
-                                 end;//try
-                               end;
+                                emf_str:=ChangeFileExt(FileName,'.emf');   // force extension
 
-                      if LowerCase(ExtractFileExt(FileName))='.png'
-                          then begin
-                                 { OT-FIRST create_png:=TPNGObject.Create;}
-                                 create_png:=TPortableNetworkGraphic.Create;  // OT-FIRST
-                                 try
-                                   create_png.Assign(bgimage.image_shape.image_bitmap);
-                                   create_png.SaveToFile(FileName);
-                                 finally
-                                   create_png.Free;
-                                 end;//try
-                               end;
+                                if CopyEnhMetaFile(emf_HDC,PChar(emf_str))<>0
+                                   then begin
+                                          if alert(2,'   picture  shape  content  saved',
+                                                   'The EMF metafile was created successfully:||'+emf_str+'| ',
+                                                   '','','','open  the  containing  folder','','continue',0)=4
+                                              then begin
+                                                     folder_str:=ExtractFilePath(emf_str);
 
-                      if LowerCase(ExtractFileExt(FileName))='.bmp'
-                         then bgimage.image_shape.image_bitmap.SaveToFile(FileName);
+                                                     if ShellExecute(0,'explore',PChar(folder_str),nil,nil,SW_SHOWNORMAL)<=32
+                                                        then show_modal_message('Sorry, unable to open the folder.')
+                                                        else external_window_showing:=True;
+                                                   end;
+                                        end
+                                   else begin
+                                          user_save_img_path:='';
+                                          show_modal_message('Sorry, an error occurred in saving the metafile to '+#13+#13+emf_str);
+                                        end;
+                              end;//with metafile
+                            end
+                       else begin     // bitmap...
+                              try
+                                if (LowerCase(ExtractFileExt(FileName))='.jpg')
+                                or (LowerCase(ExtractFileExt(FileName))='.jpeg')
+                                    then begin
+                                           create_jpg:=TJpegImage.Create;
+                                           try
+                                             create_jpg.Assign(bgimage.image_shape.image_bitmap);
+
+                                             create_jpg.CompressionQuality:=jpg_quality;   // global on control_room
+
+                                             create_jpg.SaveToFile(FileName);
+                                           finally
+                                             create_jpg.Free;
+                                           end;//try
+                                           img_saved:=True;
+                                         end;
+
+                                { T3-FIRST
+                                if LowerCase(ExtractFileExt(FileName))='.gif'
+                                    then begin
+                                           temp_bitmap:=TBitmap.Create;
+                                           create_gif:=TGIFImage.Create;
+                                           try
+                                             temp_bitmap.Assign(bgimage.image_shape.image_bitmap);
+
+                                             with temp_bitmap do begin
+                                               PixelFormat:=pf8bit;
+                                               TransparentColor:=clWhite;
+                                               Transparent:=bgnd_form.trans_checkbox.Checked;
+                                             end;//with
 
 
-                      if alert(2,'   picture  shape  content  saved',
-                              ' |The image file was created successfully:||'+FileName+'| ',
-                              '','','','open  the  containing  folder','','continue',0)=4
-                         then begin
-                                folder_str:=ExtractFilePath(FileName);
+                                             create_gif.Assign(temp_bitmap);
 
-                                if ShellExecute(0,'explore',PChar(folder_str),nil,nil,SW_SHOWNORMAL)<=32
-                                   then ShowMessage('Sorry, unable to open the folder.')
-                                   else external_window_showing:=True;
-                              end;
 
-                    except
-                      user_save_img_path:='';
-                      ShowMessage('Sorry, an error occurred in saving the image to '+#13+#13+FileName);
-                    end;//try
+                                             create_gif.Transparent:=bgnd_form.trans_checkbox.Checked;
 
-                  end;
+                                             create_gif.Interlaced:=False;
+
+                                             create_gif.BitsPerPixel:=8;
+
+
+                                             create_gif.SaveToFile(FileName);
+                                           finally
+                                             temp_bitmap.Free;
+                                             create_gif.Free;
+                                           end;//try
+                                           img_saved:=True;
+                                         end;
+                                }
+
+                                if LowerCase(ExtractFileExt(FileName))='.png'
+                                    then begin
+                                           create_png:=TPortableNetworkGraphic.Create;
+                                           try
+                                             create_png.Assign(bgimage.image_shape.image_bitmap);
+                                             create_png.SaveToFile(FileName);
+                                           finally
+                                             create_png.Free;
+                                           end;//try
+                                           img_saved:=True;
+                                         end;
+
+                                if LowerCase(ExtractFileExt(FileName))='.bmp'
+                                   then begin
+                                          bgimage.image_shape.image_bitmap.SaveToFile(FileName);
+                                          img_saved:=True;
+                                        end;
+
+                                if img_saved=True
+                                   then begin
+                                          if alert(2,'   picture  shape  content  saved',
+                                                  'The image file was created successfully:||'+FileName+'| ',
+                                                  '','','','open  the  containing  folder','','continue',0)=4
+                                             then begin
+                                                    folder_str:=ExtractFilePath(FileName);
+
+                                                    if ShellExecute(0,'explore',PChar(folder_str),nil,nil,SW_SHOWNORMAL)<=32
+                                                       then show_modal_message('Sorry, unable to open the folder.')
+                                                       else external_window_showing:=True;
+                                                  end;
+
+                                        end
+                                   else show_modal_message('Sorry, an error occurred in saving the image to '+#13+#13+FileName);
+
+                              except
+                                user_save_img_path:='';
+                                show_modal_message('Sorry, an error occurred in saving the image to '+#13+#13+FileName);
+                              end;//try
+
+                            end;//metafile/bitmap
+                  end;//if Execute
         end;//with dialog
-      end;//with shape
-    end;//with items
+      end;//with shape object
+    end;//with Items
   end;//with list
 end;
 //_________________________________________________________________________________________
@@ -6609,7 +7096,7 @@ begin
     ItemIndex:=n;
   end;//with
 
-  ShowMessage('The fixed marker angle is '+round_str(marker_angle_fixed*180/Pi,2)+' degrees.');  // added 214a
+  show_modal_message('The fixed marker angle is '+round_str(marker_angle_fixed*180/Pi,2)+' degrees.');  // added 214a
 end;
 //___________________________________________________________________________________
 
@@ -6650,13 +7137,13 @@ begin
 
   if use_notch_fixed_marker_checkbox.Checked=False
 
-     then ShowMessage('The twist marker angle is '+round_str(marker_angle_twist*180/Pi,2)+' degrees.'
+     then show_modal_message('The twist marker angle is '+round_str(marker_angle_twist*180/Pi,2)+' degrees.'
                      +#13+#13
                      +'The difference from the fixed marker angle is '+round_str((marker_angle_fixed-marker_angle_twist)*180/Pi,2)+' degrees.'
                      +#13+#13
                      +'A picture shape would be twisted by this amount.')  // added 214a
 
-     else ShowMessage('The twist marker angle is '+round_str(marker_angle_twist*180/Pi,2)+' degrees.');
+     else show_modal_message('The twist marker angle is '+round_str(marker_angle_twist*180/Pi,2)+' degrees.');
 end;
 //______________________________________________________________________________
 
@@ -6908,7 +7395,7 @@ begin
 
       if (old_shapewidth_mm<minfp) or (old_shapeheight_mm<minfp)
          then begin
-                ShowMessage('The selected picture shape has zero width or zero height and cannot be straightened.');
+                show_modal_message('The selected picture shape has zero width or zero height and cannot be straightened.');
                 EXIT;
               end;
 
@@ -7311,7 +7798,7 @@ begin
 
     if (old_shapewidth<minfp) or (old_shapeheight<minfp)
        then begin
-              ShowMessage('The selected picture shape has zero width or zero height and cannot be wrapped.');
+              show_modal_message('The selected picture shape has zero width or zero height and cannot be wrapped.');
               EXIT;
             end;
 
@@ -7965,7 +8452,9 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure draw_picture_shapes(canv:TCanvas; xorg,yorg,dpmm:extended; yheight:integer);  // draw any background picture shapes.
+procedure draw_picture_shapes(canv:TCanvas; xorg,yorg,dpmm:extended; yheight:integer);
+
+  // draw any background picture shapes -- for crop/combine
 
   // dpmm = dots per mm
 
@@ -8294,7 +8783,7 @@ begin
 
     if (n<0) or (n>(Items.Count-1))
        then begin
-              ShowMessage('No background shape is currently selected in the list.');
+              show_modal_message('No background shape is currently selected in the list.');
               EXIT;
             end;
 
@@ -8439,14 +8928,14 @@ begin
             repeat
               i:=alert(2,'php/401    background  images',
                         'Images such as scanned maps, layout plans, sketches and aerial photographs can be displayed on the trackpad background as a guide to your track planning.'
-                        +'||Metafile vector images in EMF or WMF format created by CAD drawing and graphics software can also be displayed on the trackpad. Vector images can zoom smoothly without becoming fuzzy or blocky.'
+                        +'||Metafile vector images in EMF format created by CAD drawing and graphics software can also be displayed on the trackpad. Vector images can zoom smoothly without becoming fuzzy or blocky.'
 
                         +'||green_panel_begin tree.gif  Background images are called `0picture shapes`3 and are part of the `0background shapes`3 functions.'
                         +'||A picture shape is a rectangle outline, which contains an image. The container rectangle can be set to any size, and the image will be stretched to fit.'
                         +'||You can have as many picture shapes as you wish.green_panel_end'
 
                         +'|An easy way to create a new picture shape is to drag and drop an image from your pictures folder onto the trackpad. The container rectangle is then created automatically.'
-                        +'||Dropped images can be in any of these file formats:  JPG , PNG , GIF , BMP , EMF , WMF , ICO .'
+                        +'||Dropped images can be in any of these file formats:  JPG , PNG , GIF , BMP , EMF , ICO .'
                         +'||If you click `0I want to drop an image file on the trackpad`z below, this dialog window will close and your Windows pictures folder will open so that you easily drag and drop an image onto the trackpad.'
                         +'|<HR NOSHADE SIZE=1 COLOR=GRAY>'
                         +'Alternatively if you click `0continue`1 below an empty picture shape container will first be created.'
@@ -8569,14 +9058,14 @@ begin
              +'||A picture shape is a container for an image, which is stretched to fit within it. Templot0 now needs the image which is to be contained within this one. You can provide the image in several ways.'
 
              +'||The easiest way is to drag and drop it into the box above from your pictures folder. If you make a mistake simply drop the correct image over the wrong one. Then click the green bar below.'
-             +' Dropped files can be in any of JPG, PNG, GIF, BMP, EMF, WMF, ICO image formats.'
+             +' Dropped files can be in any of JPG, PNG, GIF, BMP, EMF, ICO image formats.'
             +'||Or you can select an image file on your computer in the usual way, or paste an image which you have copied, or if you have a scanner connected on your system you can scan the image directly now.'
             +'||After the image has been loaded into this picture shape, Templot0 can help you adjust the size and position of this picture shape to match your track plan.'
             +'||Because this is a new empty picture shape, its height will be adjusted initially to match the loaded image.'
             +'||If you decide to leave it empty, an image can be loaded into it later.'
             +'||Alternatively you may prefer to delete this picture shape, and create a new one by dragging and dropping an image file directly onto the trackpad.'
             +'||How do you want to proceed?      If you are unsure click the green bar.',
-             'delete  picture  shape','scan  into  picture  shape  now','paste  image  -  I  have  copied  an  image','I  have  a  metafile  ( EMF , WMF  file )','cancel  -  leave  picture  empty  for  now','I  have  an  image  file  ( JPG , PNG , GIF , BMP , ICO )   ',0);
+             'delete  picture  shape','scan  into  picture  shape  now','paste  image  -  I  have  copied  an  image','I  have  a  metafile  ( EMF  file )','cancel  -  leave  picture  empty  for  now','I  have  an  image  file  ( JPG , PNG , GIF , BMP , ICO )   ',0);
 
   alert_box.drop_panel.Visible:=False;  // for next time
 
@@ -8593,7 +9082,7 @@ begin
                  end;
 
               2: begin  // scan
-                   ShowMessage('If the image is a map or track plan for which you know the scale,'
+                   show_modal_message('If the image is a map or track plan for which you know the scale,'
                               +' make a note of the scanner DPI setting when your scanner dialogs appear.'
                               +#13+#13+'If you wish Templot0 will then be able to scale the image for you to match your model scale and gauge.');
                    reload_picture_image(True,False,False,False,True);    // scanning,pasting,meta,dropped,adjust_aspect
@@ -8602,7 +9091,7 @@ begin
               3: begin  // paste
                    if Clipboard.HasFormat(CF_BITMAP)=False
                       then begin
-                             ShowMessage('No copied image is avaiable.'
+                             show_modal_message('No copied image is avaiable.'
                                          +#13+#13+'You must copy an image from somewhere on your computer before using the paste option.'
                                          +#13+#13+'That usually means right-clicking on the image itself and selecting Copy on the menu which appears.');
                            end
@@ -8765,22 +9254,22 @@ var
 begin
   if (Index<0) or (Index>(bgnd_shapes_listbox.Items.Count-1)) then EXIT;  // ???
 
-  with bgnd_shapes_listbox do begin
-    with Canvas do begin
+  with (Control as TListBox).Canvas do begin
 
-      if (odSelected in State)=True
-         then begin
-                Brush.Color:=$00FF7700;   // light blue
-                text_colour:=clWhite;
-              end
-         else begin
-                Brush.Color:=bgnd_shapes_listbox.Color;
-                text_colour:=clBlack;
-              end;
+    if (odSelected in State)=True
+       then begin
+              Brush.Color:=$00FF7700;   // light blue
+              text_colour:=clWhite;
+            end
+       else begin
+              Brush.Color:=bgnd_shapes_listbox.Color;
+              text_colour:=clBlack;
+            end;
 
-      mark_str:=' ';
+    mark_str:=' ';
 
-      with Tbgshape(bgnd_shapes_listbox.Items.Objects[Index]).bgnd_shape do begin     // next shape.
+    try
+      with Tbgshape((Control as TListBox).Items.Objects[Index]).bgnd_shape do begin
 
         if (hide_bits AND $01)<>0         // 214a  byte,  0=normal,  1=hide on trackpad,  2=hide on output,  3=hide both
            then mark_str:=mark_str+'! ';  // hidden on trackpad
@@ -8794,16 +9283,16 @@ begin
                      then text_colour:=clSilver
                      else text_colour:=clGray;
                 end;
-
       end;//with
 
-      Font.Color:=text_colour;
+    except
+      // do nothing   -- fixes strange bug see Club message ref: 27596    program loops through here several times under condition mentioned there. 223c
+    end;//try
 
-      FillRect(Rect);  // OT-FIRST   needed to blank the area first
+    Font.Color:=text_colour;
 
-      TextOut(Rect.Left,Rect.Top,mark_str+Items.Strings[Index]);
+    TextOut(Rect.Left,Rect.Top,mark_str+(Control as TListBox).Items.Strings[Index]);
 
-    end;//with
   end;//with
 end;
 //______________________________________________________________________________
@@ -8853,7 +9342,7 @@ begin
   map_width_mm:=ABS(156543033.928*COS(lat_degs*Pi/180)*map_pixels*scale/304.8/Power(2,zoom_level));  //resolution = 156543.033928 metres/pixel * cos(latitude) / (2 ^ zoomlevel)
                                                                                                      // 156543.03392804096153584694438047
 
-  ShowMessage('The width of the map at your current scale is '+FormatFloat('0.00',map_width_mm)+' mm'
+  show_modal_message('The width of the map at your current scale is '+FormatFloat('0.00',map_width_mm)+' mm'
      +#13+#13+'Assuming the page zoom in the browser was set for dot-for-dot image display.');
 end;
 //______________________________________________________________________________

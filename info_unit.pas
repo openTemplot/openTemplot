@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -174,10 +174,8 @@ var
 procedure Tinfo_form.FormCreate(Sender: TObject);
 
 begin
-  Windows.SetParent(Handle,pad_form.Handle); // OT-FIRST
-  // OT-FIRST Parent:=pad_form;
-  // OT-FIRST ClientWidth:=800;
-  // OT-FIRST ClientHeight:=430;
+  pad_form.InsertControl(info_form);
+
   AutoScroll:=True;
 end;
 
@@ -327,6 +325,8 @@ begin
   save_dialog.Filter:='text files (*.txt)|*.txt';
   if save_dialog.Execute=True
      then begin
+            save_dialog.FileName:=ChangeFileExt(save_dialog.FileName,'.txt');   // force extension
+
             AssignFile(info_file,save_dialog.FileName);      // set the file name.
             Rewrite(info_file);                              // open a new file.
 
@@ -485,16 +485,9 @@ begin
 
   data_child_form.Close; // if showing elsewhere
 
-  Windows.SetParent(data_child_form.Handle,pad_form.Handle); // OT-FIRST
-  // OT-FIRST  data_child_form.Parent:=pad_form;
+  data_child_form.reset_position();   // child on pad
 
   data_child_form.data_memo.Text:=insert_crlf_str(memo_str);  //  replace embedded | chars with a CR.
-
-  data_child_form.Left:=pad_form.ClientWidth-data_child_form.Width-10;
-  if data_child_form.Left<10 then data_child_form.Left:=10;
-
-  data_child_form.Top:=pad_form.ClientHeight-data_child_form.Height-10;
-  if data_child_form.Top<10 then data_child_form.Top:=10;
 
   data_child_form.Show;
 end;

@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -210,10 +210,8 @@ var
 procedure Tcheck_diffs_form.FormCreate(Sender: TObject);
 
 begin
-  Windows.SetParent(Handle,pad_form.Handle); // OT-FIRST
-  // OT-FIRST  Parent:=pad_form;
-  // OT-FIRST  ClientWidth:=512;
-  // OT-FIRST  ClientHeight:=196;
+  pad_form.InsertControl(check_diffs_form);
+
   AutoScroll:=True;
 end;
 //______________________________________________________________________________

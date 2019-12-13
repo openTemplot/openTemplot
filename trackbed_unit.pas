@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -160,13 +160,9 @@ var
 procedure Ttrackbed_form.FormCreate(Sender: TObject);
 
 begin
-  Windows.SetParent(Handle,pad_form.Handle); // OT-FIRST
-  // OT-FIRST  Parent:=pad_form;
+  pad_form.InsertControl(trackbed_form);
 
   AutoScroll:=False;
-
-  // OT-FIRST ClientWidth:=530;
-  // OT-FIRST ClientHeight:=180;
 end;
 //______________________________________________________________________________
 

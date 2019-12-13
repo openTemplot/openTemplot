@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -273,13 +273,10 @@ end;
 procedure Tpanning_form.FormCreate(Sender: TObject);
 
 begin
-  // OT-FIRST  Parent:=pad_form;
 
-  Windows.SetParent(Handle,pad_form.Handle);   // OT-FIRST
+  pad_form.InsertControl(panning_form);
 
   AutoScroll:=False;
-  // OT-FIRST ClientWidth:=460;
-  // OT-FIRST ClientHeight:=96;
 end;
 //______________________________________________________________________________
 

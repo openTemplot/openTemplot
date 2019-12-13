@@ -15,7 +15,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -683,6 +683,8 @@ begin
               Filename:=lower_case_filename(Filename);   // 0.79.a   to underscores and lower case.
 
               if Execute=False then EXIT;    // show the dialog
+
+              FileName:=ChangeFileExt(FileName,'.mecbox');   // force extension
 
               mecbox_str:=FileName;
 

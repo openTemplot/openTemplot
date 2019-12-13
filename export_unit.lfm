@@ -23,7 +23,7 @@ object export_form: Texport_form
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   Position = poScreenCenter
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.6.0'
   Scaled = False
   object Label9: TLabel
     Left = 28
@@ -518,7 +518,7 @@ object export_form: Texport_form
       Height = 120
       Top = 236
       Width = 327
-      Caption = ' export  image  ( PNG,  GIF,  JPG,  BMP ) :  '
+      Caption = ' export  image  ( PNG,  JPG,  BMP ) :  '
       ClientHeight = 97
       ClientWidth = 323
       Color = 16772829
@@ -589,7 +589,7 @@ object export_form: Texport_form
         ParentFont = False
         ParentShowHint = False
         ShowHint = True
-        TabOrder = 1
+        TabOrder = 0
         Text = '4000'
       end
       object create_image_file_button: TButton
@@ -604,7 +604,7 @@ object export_form: Texport_form
         Font.Style = [fsBold]
         OnClick = create_image_file_buttonClick
         ParentFont = False
-        TabOrder = 3
+        TabOrder = 2
       end
       object png_help_button: TButton
         Left = 176
@@ -618,20 +618,7 @@ object export_form: Texport_form
         Font.Style = [fsBold]
         OnClick = png_help_buttonClick
         ParentFont = False
-        TabOrder = 4
-      end
-      object transparent_gif_checkbox: TCheckBox
-        Left = 14
-        Height = 23
-        Top = 12
-        Width = 122
-        Caption = 'transparent GIF'
-        Font.Color = clNavy
-        Font.Height = -13
-        Font.Name = 'Arial'
-        Font.Style = [fsBold]
-        ParentFont = False
-        TabOrder = 0
+        TabOrder = 3
       end
       object img_bgnd_colour_panel: TPanel
         Left = 196
@@ -650,7 +637,7 @@ object export_form: Texport_form
         ParentColor = False
         ParentFont = False
         ParentShowHint = False
-        TabOrder = 2
+        TabOrder = 1
         OnClick = img_bgnd_buttonClick
         object img_bgnd_button: TButton
           Left = 46

@@ -34,7 +34,7 @@ object pad_form: Tpad_form
   OnPaint = FormPaint
   OnResize = FormResize
   ShowHint = True
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.6.0'
   Scaled = False
   object pad_timber_font_label: TLabel
     Left = 156
@@ -268,7 +268,7 @@ object pad_form: Tpad_form
   object arrow_button_dummy_trackbar: TTrackBar
     Left = 0
     Height = 25
-    Top = 122
+    Top = 120
     Width = 60
     Position = 5
     TabOrder = 0
@@ -5691,7 +5691,6 @@ object pad_form: Tpad_form
       end
       object mouse_actions_shapes_menu_entry: TMenuItem
         Caption = 'mouse  actions :  &shapes'
-        Enabled = False
         GroupIndex = 250
         object shift_shape_menu_entry: TMenuItem
           Caption = 'shi&ft  shape'
@@ -8314,7 +8313,7 @@ object pad_form: Tpad_form
           end
         end
         object backgroundnamelabels1: TMenuItem
-          Caption = 'background  &name  labels'
+          Caption = 'template  &name  labels'
           GroupIndex = 95
           object transparent_names_menu_entry: TMenuItem
             Caption = '&transparent'

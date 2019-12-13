@@ -16,7 +16,7 @@ object grid_form: Tgrid_form
   Font.Style = [fsBold]
   OnCreate = FormCreate
   OnShow = FormShow
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.0.4.0'
   Scaled = False
   object help_shape: TShape
     Left = 628
@@ -60,7 +60,6 @@ object grid_form: Tgrid_form
       OnClick = size_updownClick
       Position = 4
       TabOrder = 0
-      Wrap = False
     end
     object colour_panel: TPanel
       Left = 0

@@ -15,7 +15,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -1773,9 +1773,9 @@ begin
                                                                                                                               // to find or set any other way.
                                                                         end;
 
-                                                                bgnd_form.bgnd_shape_image.Picture.Graphic:=Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape.image_bitmap;
+                                                                pad_form.bgnd_shape_image.Picture.Graphic:=Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape.image_bitmap;
 
-                                                                StretchDraw(raster_rect,bgnd_form.bgnd_shape_image.Picture.Graphic);   // needs TGraphic parameter to work reliably.
+                                                                StretchDraw(raster_rect,pad_form.bgnd_shape_image.Picture.Graphic);   // needs TGraphic parameter to work reliably.
 
                                                                 CopyMode:=cmSrcCopy;   // reset normal for destination Canvas.
 

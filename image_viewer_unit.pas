@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -180,11 +180,12 @@ begin
               try
                 load_DC:=GetEnhMetaFile(PChar(file_str));  // get metafile handle
 
-                PlayEnhMetaFile(viewer_image.Picture.Bitmap.Canvas.Handle,load_DC,output_rect);    // draw metafile on canvas
+                if PlayEnhMetaFile(viewer_image.Picture.Bitmap.Canvas.Handle,load_DC,output_rect)=False    // draw metafile on canvas
+                   then show_modal_message('error: Sorry, unable to show the EMF metafile image.');
 
                 DeleteEnhMetaFile(load_DC);   // release metafile handle
               except
-                show_modal_message('error: sorry unable to show EMF image');
+                show_modal_message('error: Sorry, unable to show EMF image');
               end;
 
               top_label.Caption:='The EMF metafile is being displayed to fit. To zoom in and examine detail, view the file on the sketchboard.';
@@ -217,8 +218,6 @@ begin
             end;//with
 
           end;
-
-  //show_modal_message('The image will be displayed full size. You may need to scroll the viewer to see anything.');
 
   image_file_str:=file_str;
 

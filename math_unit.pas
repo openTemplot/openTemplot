@@ -16,7 +16,7 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or opentemplot.lpr
+    along with this program. See the files: licence.txt or templotmec.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
@@ -13329,7 +13329,8 @@ begin
             EXIT;
           end;
 
-  if (bgnd_form.Visible=True)
+  if (mouse_modify=-1)           // 291a     not if mouse action in force
+  and (bgnd_form.Visible=True)
   and (zoom_rectangle=False)
   and (group_fence_rectangle=False)
   and (output_boundary_rectangle=False)  // 0.93.a  // he clicked shape corners.
@@ -29953,6 +29954,9 @@ var
   i:integer;
   sw_info:Tswitch_info;
 
+  margin_size:integer;
+  new_height:integer;
+
                               /////////////////////////////////////////
 
                               function val_str(d:extended):string;   // mods 208a
@@ -30080,25 +30084,36 @@ begin
   if already_showing=False
      then begin
 
+
             data_child_form.Close; // if showing elsewhere
 
-            Windows.SetParent(data_child_form.Handle,switch_select_form.Handle); // OT-FIRST
-  // OT-FIRST  data_child_form.Parent:=switch_select_form;
+            if data_child_form.Parent<>nil
+               then data_child_form.Parent.RemoveControl(data_child_form);
 
-            data_child_form.Top:=8;
+            with switch_select_form do begin
 
-            switch_select_form.ClientWidth:=switch_select_form.datestamp_label.Width+data_child_form.Width+switch_select_form.datestamp_label.Height;
+              InsertControl(data_child_form);     // make it a child
 
-            if switch_select_form.ClientHeight<(data_child_form.Height+16) then switch_select_form.ClientHeight:=data_child_form.Top+data_child_form.Height+switch_select_form.datestamp_label.Height;
+                 // child forms have wide borders ...
 
-            data_child_form.Left:=switch_select_form.datestamp_label.Width;
+              margin_size:=datestamp_label.Height;   // for program sizing
+
+              ClientWidth:=datestamp_label.Width+data_child_form.Width+margin_size*8;     // 8 arbitrary for child borders
+
+              new_height:=data_child_form.Height+margin_size*16;                          // 16 arbitrary for child caption bar
+              if ClientHeight<new_height then ClientHeight:=new_height;
+
+              data_child_form.Top:=margin_size*2;
+              data_child_form.Left:=datestamp_label.Width+margin_size;
+
+            end;//with
           end;
 
   data_child_form.data_memo.Text:=insert_crlf_str(info_str);  //  replace embedded | chars with a CR.
 
   if (already_showing=False) or (data_child_form.Visible=False) then data_child_form.Show;
 end;
-//______________________________________________________________________________________
+//______________________________________________________________________________
 
 function set_csi_from_switch_info(sw_info:Tswitch_info):boolean;  // set current switch from supplied info.
 
@@ -31145,7 +31160,7 @@ begin
             RESULT:=True;
           end;
 end;
-//_______________________________________________________________________________________
+//______________________________________________________________________________
 
 function remove_space_str(msg_str:string):string;    // remove all space characters from string.
 

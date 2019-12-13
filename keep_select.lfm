@@ -29,7 +29,7 @@ object keep_form: Tkeep_form
   OnKeyPress = FormKeyPress
   OnResize = FormResize
   OnShow = FormShow
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.6.0'
   Scaled = False
   object keep_form_datestamp_label: TLabel
     Left = 0
@@ -1220,19 +1220,19 @@ object keep_form: Tkeep_form
   end
   object save_dialog: TSaveDialog
     Title = '    save  boxful  of  templates  as ...'
-    DefaultExt = '.otbox'
-    FileName = 'my_box_file.otbox'
+    DefaultExt = '.box3'
+    FileName = '*.box3'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofShowHelp, ofEnableSizing]
     left = 128
     top = 160
   end
   object load_dialog: TOpenDialog
     Title = '    reload  storage  box  from  file ..'
-    DefaultExt = '.otbox'
-    FileName = '*.otbox'
+    DefaultExt = '.box3'
+    FileName = '*.box3'
     Options = [ofHideReadOnly, ofShowHelp, ofFileMustExist, ofEnableSizing]
     left = 230
-    top = 114
+    top = 112
   end
   object keeps_menu_bar: TMainMenu
     left = 112

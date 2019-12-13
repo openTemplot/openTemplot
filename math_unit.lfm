@@ -20,7 +20,7 @@ object math_form: Tmath_form
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.0.4.0'
   Scaled = False
   object datestamp_label: TLabel
     Left = 0
@@ -135,7 +135,6 @@ object math_form: Tmath_form
       OnClick = size_updownClick
       Position = 4
       TabOrder = 0
-      Wrap = False
     end
     object colour_panel: TPanel
       Left = 1
