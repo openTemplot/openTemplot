@@ -7,7 +7,7 @@ interface
 
 uses
   LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls;
+  StdCtrls, ExtCtrls, ComCtrls, fpPDF;
 
   // T3-OUT WPPDFPRP, WPPDFR1, WPPDFR2, dtpShape,dtpGR32;
 
@@ -42,6 +42,7 @@ type
     help_shape: TShape;
 
     // T3-OUT pdf_printer: TWPPDFPrinter;
+    pdf_doc: TPDFDocument;
 
     pdf_save_dialog: TSaveDialog;
     warnings_checkbox: TCheckBox;
@@ -614,15 +615,64 @@ var
 
   file_str:string;  // 217b
 
+  pdf_filename_str: string;
+
+  pdf_page: TPDFPage;
+  pdf_section: TPDFSection;
+
+  pdf_font_helv: Integer;
+  pdf_font_times: Integer;
+  pdf_font_courier: Integer;
+
+  /////////////////////////////
+
+  procedure begin_page;
+  begin
+    pdf_page := pdf_form.pdf_doc.Pages.AddPage;   // make a new page
+    pdf_section.AddPage(pdf_page); // Add the Page to the Section
+    with pdf_page do begin
+      UnitOfMeasure := uomMillimeters;
+      PaperType := ptA4;
+      SetFont(pdf_font_helv, 16);
+      SetColor(clBlue, false);
+    end;
+  end;
+
+  /////////////////////////////
+
+  procedure end_page(no_cancel:boolean);
+
+  //var
+
+  begin
+      //show_modal_message('end_page');
+  end;
 
               /////////////////////////////
 
               procedure begin_doc;
-
+              //var
               begin
                 printer_printing:=True;
  // T3-OUT               pdf_form.pdf_printer.BeginDoc;
  // T3-OUT               pdf_form.pdf_printer.StartPage(pdf_width_dots,pdf_height_dots,pdf_width_dpi,pdf_height_dpi,0);    // 0.91.d
+                pdf_form.pdf_doc := TPDFDocument.Create(Nil);
+                with pdf_form.pdf_doc.Infos do begin
+                  Title := Application.Title;
+                  Author := 'Graeme Defty';
+                  Producer := 'Templot 3';
+                  ApplicationName := ApplicationName;
+                  CreationDate := Now;
+                end;
+
+                with pdf_form.pdf_doc do begin
+                    StartDocument;
+                    pdf_section := Sections.AddSection;
+                    pdf_font_helv := Addfont('Helvetica');
+                    //pdf_font_times := Addfont('Times');             // Adding these causes a problem
+                    //pdf_font_courier := Addfont('Courier new');
+                end;
+                begin_page;
               end;
 
               /////////////////////////////
@@ -632,12 +682,24 @@ var
               var
                 pdf_size_str:string;
                 i:integer;
+                pdf_file: TFileStream;
 
               begin
                 try
 // T3-OUT                  pdf_form.pdf_printer.EndPage;
 // T3-OUT                  pdf_form.pdf_printer.EndDoc;
-
+                begin
+                  try
+                    pdf_file := TFileStream.Create(pdf_filename_str,fmCreate);
+                    show_modal_message('Saving ');
+                    pdf_form.pdf_doc.SaveToStream(pdf_file);
+                    show_modal_message('pdf_file saved');
+                    show_modal_message('Document used ' + IntToStr(pdf_form.pdf_doc.ObjectCount) + ' PDF objects/commands');
+                  finally
+                    pdf_form.pdf_doc.free;
+                    show_modal_message('doc freed');
+                  end;
+                end;
                   if (pdf_height_mm>3000) or (pdf_width_mm>3000)
                      then pdf_size_str:='|||<TABLE><TR><TD VALIGN="TOP">rp.gif&nbsp;</TD><TD>green_panel_begintree.gif   Large PDF page sizes:'
                                        +'||If the PDF file does not display properly in Adobe Reader the most likely reason is that the page size exceeds the limit for Adobe Reader.'
@@ -1688,8 +1750,8 @@ var
 
 
 begin
+  show_modal_message('!!!! MADE IT TO PDF_DRAW !!!!');
   with pdf_form.pdf_save_dialog do begin
-
     if his_pdf_file_name<>'' then InitialDir:=ExtractFilePath(his_pdf_file_name)
                              else InitialDir:=exe_str+'PDF-FILES\';
 
@@ -1717,9 +1779,11 @@ begin
                       end;
             end;
 
-// T3-OUT    pdf_form.pdf_printer.FileName:=file_str;
+    //pdf_form.pdf_printer.FileName:=file_str;  ???
+    pdf_filename_str := ExtractFilePath(FileName) + 'test.pdf';
 
   end;//with
+  show_modal_message('Writing : ' + pdf_filename_str);
 
   print_colours_setup;    // first set up the colours.
 
@@ -1778,6 +1842,7 @@ try
 
   for sheet_across:=0 to sheet_across_c do begin
     info_str:=info_str+'in row '+Chr(sheet_across+97)+' :   ';
+
     row_count:=0;
 
     for sheet_down:=0 to sheet_down_c do begin              // every sheet in row.
@@ -1847,7 +1912,6 @@ try
 
         page_num_str:=Chr(sheet_across+97)+'/'+IntToStr(sheet_down+1);
 
-
         page_str:=' page  '+page_num_str+'  ';
 
         if print_entire_pad_flag=True
@@ -1879,6 +1943,7 @@ try
 
         if all_pages=False
            then begin
+//                  show_modal_message('--- NOT ALL_PAGES ---');
                   button_clicked:=False;
                   banner_changed:=False;
                   enable_buttons(sheet_across<max_sheet_across);
@@ -1919,15 +1984,17 @@ try
                                           make_pdf_preview_screenshot;
                                           preview_record_file_made:=True;
                                         end;
-{ T3-OUT
                                 if printer_printing=True then begin
+                                       { T3-OUT
                                                                 pdf_form.pdf_printer.EndPage;
                                                                 pdf_form.pdf_printer.StartPage(pdf_width_dots,pdf_height_dots,pdf_width_dpi,pdf_height_dpi,0);    // 0.91.d
+                                       }
+                                                                end_page(False);
+                                                                begin_page;
                                                               end
                                                          else begin
                                                                 begin_doc;          // or the first.
                                                               end;
-}
 
                               end;
 
@@ -1946,21 +2013,24 @@ try
                                           make_pdf_preview_screenshot;
                                           preview_record_file_made:=True;
                                         end;
-{ T3-OUT
                                 if printer_printing=True then begin
+                                       { T3-OUT
                                                                 pdf_form.pdf_printer.EndPage;
                                                                 pdf_form.pdf_printer.StartPage(pdf_width_dots,pdf_height_dots,pdf_width_dpi,pdf_height_dpi,0);    // 0.91.d
+                                       }
+                                                               end_page(False);
+                                                               begin_page;
                                                               end
                                                          else begin
                                                                 begin_doc;
                                                               end;
-}
 
                               end;
                          else run_error(31);
                   end;//case
                 end
-           else begin
+           else begin                       // all pages
+//             show_modal_message('--- ALL PAGES ---');
                   if Application.Terminated=False then Application.ProcessMessages;
 
                   if pdf_form.ModalResult=mrCancel   // he's aborted all pages on F12 or Esc
@@ -1974,20 +2044,76 @@ try
                             make_pdf_preview_screenshot;
                             preview_record_file_made:=True;
                           end;
-{ T3-OUT
-                  if printer_printing=True then begin
+
+                       if printer_printing=True then begin
+                              { T3-OUT
                                                   pdf_form.pdf_printer.EndPage;
                                                   pdf_form.pdf_printer.StartPage(pdf_width_dots,pdf_height_dots,pdf_width_dpi,pdf_height_dpi,0);    // 0.91.d
+                              }
+                                                  end_page(False);
+                                                  begin_page;
                                                 end
                                            else begin
                                                   begin_doc;          // or the first.
                                                 end;
-}
 
                 end;
 
-
 // T3-OUT with pdf_form.pdf_printer.Canvas do begin
+        with pdf_page do begin
+          //SetFont(print_labels_font);         // for labels
+          //
+          //Brush.Color:=clWhite;
+          //Brush.Style:=bsSolid;
+          //
+          //FillRect(Rect(0,0,printer_width_indexmax_dots,printer_length_indexmax_dots)); //  this clears the canvas.
+          //
+          //
+          //TextOut(0,0,'');      // !!! Delphi bug? This seems to be necessary before dotted lines will draw properly.
+
+//        Print watermark Page number
+          if (pdf_form.page_ident_checkbox.Checked=True) and (page_count>3)  // 214a show large page ident if many pages
+             then begin
+
+                    //Brush.Style:=bsClear;
+
+                    //Font.Name:='Courier New';
+                    //Font.Height:=0-ABS((page_left_dots-page_right_dots)*9 div 23);  // 9/23 trial and error for this font up to z/99
+                    //SetFont(pdf_font_courier,0-ABS((page_left_dots-page_right_dots)*9 div 23));  // 9/23 trial and error for this font up to z/99
+                    SetFont(pdf_font_helv, 220);  // 220 trial and error : TODO: link this to page size
+
+                    if pdf_black_white=True
+                       then begin
+                              wm_shift:=1;             // watermark outline shift
+                              //Font.Color:=clBlack;
+                              SetColor(clBlack, False);
+                            end
+                       else begin
+                              //wm_shift:=Round(nom_width_dpi/30);   // watermark outline shift /30 arbitrary
+                              wm_shift:=2;                           // watermark outline shift - 2 experimental
+                              //Font.Color:=$00D0D0D0;               // pale-ish grey
+                              SetColor($00D0D0D0, False);            // pale-ish grey
+                            end;
+
+                    //ident_left:=Round(nom_width_dpi/10)+page_left_dots+(page_right_dots-page_left_dots-TextWidth(page_num_str)) div 2;  // nom_width_dpi/10   arbitrary for neatness
+                    ident_left:=40;
+                    //ident_top:=page_top_dots+(page_bottom_dots-page_top_dots+Font.Height) div 2;
+                    ident_top:=130;
+
+                    WriteText(ident_left-wm_shift,ident_top-wm_shift,page_num_str);
+                    WriteText(ident_left+wm_shift,ident_top-wm_shift,page_num_str);
+                    WriteText(ident_left-wm_shift,ident_top+wm_shift,page_num_str);
+                    WriteText(ident_left+wm_shift,ident_top+wm_shift,page_num_str);
+
+                    SetColor(clWhite, False);
+                    WriteText(ident_left,ident_top,page_num_str);        // ink saving, make watermark outline
+
+                    //Brush.Style:=bsSolid;  // reset..
+                    SetColor(clBlack);
+                  end;
+
+        end;
+
         with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
 
           Font.Assign(print_labels_font);         // for labels

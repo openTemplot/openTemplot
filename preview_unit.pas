@@ -200,7 +200,7 @@ implementation
 
 uses Printers, control_room, grid_unit, alert_unit, math_unit, calibration_unit,
   bgkeeps_unit, bgnd_unit, print_unit, info_unit, help_sheet,
-  print_settings_unit, { OT-FIRST pdf_unit, dtp_unit, dtp_settings_unit,} export_unit;
+  print_settings_unit, pdf_unit, { OT-FIRST dtp_unit, dtp_settings_unit,} export_unit;
 
 var
   pvsx: extended = 1;
@@ -408,10 +408,8 @@ var
 begin
   Result := False;                             // init error return.
 
-  if non_print_output = True                  // 0.91.d
-  then begin
-    { OT-FIRST
-
+  if non_print_output=True                  // 0.91.d
+     then begin
             if output_code=0       // pdf file
                then begin
                       printer_width_dots:=pdf_width_dots;
@@ -438,72 +436,70 @@ begin
                       nom_width_dpi:=metafile_dpi;
                       nom_length_dpi:=nom_width_dpi;
                     end;
-            }
 
-    if output_code = 3       // track plan as an image file
-    then begin
-      printer_length_dots := create_image_width_dots;    // swap height/width
-      printer_width_dots := create_image_height_dots;
+            if output_code=3       // track plan as an image file
+               then begin
+                      printer_length_dots:=create_image_width_dots;    // swap height/width
+                      printer_width_dots:=create_image_height_dots;
 
-      nom_width_dpi := create_image_dpi;
-      nom_length_dpi := nom_width_dpi;
-    end;
+                      nom_width_dpi:=create_image_dpi;
+                      nom_length_dpi:=nom_width_dpi;
+                    end;
 
-    if output_code = 4       // track plan as EMF file
-    then begin
-      printer_length_dots := metafile_width;    // swap height/width
-      printer_width_dots := metafile_height;
+            if output_code=4       // track plan as EMF file
+               then begin
+                      printer_length_dots:=metafile_width;    // swap height/width
+                      printer_width_dots:=metafile_height;
 
-      nom_width_dpi := metafile_dpi;
-      nom_length_dpi := nom_width_dpi;
-    end;
+                      nom_width_dpi:=metafile_dpi;
+                      nom_length_dpi:=nom_width_dpi;
+                    end;
 
-    { OT-FIRST if (output_code<0) or (output_code>4)}
+            if (output_code<0) or (output_code>4)
+               then begin
+                      valid_printer_data:=False;
+                      EXIT;
+                    end;
 
-    if (output_code < 3) or (output_code > 4)  // OT-FIRST
-    then begin
-      valid_printer_data := False;
-      EXIT;
-    end;
+            prindex:=0;        // not used
+            head_factor:=1.0;
+            roller_factor:=1.0;
 
-    prindex := 0;        // not used
-    head_factor := 1.0;
-    roller_factor := 1.0;
+            cal_wide_dpi:=nom_width_dpi;
+            cal_long_dpi:=nom_length_dpi;
 
-    cal_wide_dpi := nom_width_dpi;
-    cal_long_dpi := nom_length_dpi;
+            colour_depth_bits:=24;
 
-    colour_depth_bits := 24;
+            valid_printer_data:=True;
+          end
+     else begin
 
-    valid_printer_data := True;
-  end
-  else begin
+            if no_printer_available=True
+               then begin
+                      show_margins:=0;
+                      pad_form.page_outlines_off_menu_entry.Checked:=True; // radio item.
+                      pad_form.page_outlines_printer_menu_entry.Enabled:=False;
+                      EXIT;
+                    end;
 
-    if no_printer_available = True then begin
-      show_margins := 0;
-      pad_form.page_outlines_off_menu_entry.Checked := True; // radio item.
-      pad_form.page_outlines_printer_menu_entry.Enabled := False;
-      EXIT;
-    end;
+                    // first get info about the current Windows printer...
 
-    // first get info about the current Windows printer...
+            if get_prindex(prindex)=False then EXIT;         // get current printer index or none available.
+                                                             // first check if calibrated...
 
-    if get_prindex(prindex) = False then
-      EXIT;         // get current printer index or none available.
-    // first check if calibrated...
+            cur_cal:=Tprint_cal(printer_list.Objects[prindex]).cal_data;
 
-    cur_cal := Tprint_cal(printer_list.Objects[prindex]).cal_data;
-
-    with cur_cal do begin
-      if printer_calibrated = True then begin
-        head_factor := printer_head_factor;
-        roller_factor := printer_roller_factor;
-      end
-      else begin                         // no calibration.
-        head_factor := 1.0;
-        roller_factor := 1.0;
-      end;
-    end;//with
+            with cur_cal do begin
+              if printer_calibrated=True
+                 then begin
+                        head_factor:=printer_head_factor;
+                        roller_factor:=printer_roller_factor;
+                      end
+                 else begin                         // no calibration.
+                        head_factor:=1.0;
+                        roller_factor:=1.0;
+                      end;
+            end;//with
 
     try
 
@@ -584,10 +580,9 @@ begin
 
   // mods 208g to improve rounding between margins in PDF...
 
-  if non_print_output = True then begin
-    case output_code of
-
-      { OT-FIRST
+  if non_print_output=True
+     then begin
+            case output_code of
                0: begin                          // PDF
 
                     page_margin_top_mm:=6.0;     // 6 mm top trim margin.
@@ -605,6 +600,7 @@ begin
                     bottom_blanking_mm:=print_length/100+5.0;  // no bottom blanking.
                   end;
 
+               { OT-FIRST
              1,2: begin                       // sketchboard   image file, metafile
                     page_margin_top_mm:=0;    // 0.93.a  1-3-2009  no trim margins on sketchboard
                     page_margin_bottom_mm:=0;
@@ -615,7 +611,7 @@ begin
                     right_blanking_mm:=dtp_form.dtp_document.PageHeight+5.0;  // no right blanking (+5 mm arbitrary).
                     bottom_blanking_mm:=dtp_form.dtp_document.PageWidth+5.0;  // no bottom blanking (+5 mm arbitrary).
                   end;
-               }
+                  }
 
       3: begin                       // create image file
         page_margin_top_mm := 0;
@@ -1217,10 +1213,11 @@ begin
     if calcs_done_and_valid = False then
       EXIT;             //  calcs still not valid.
 
-    if page_info(False, no_alerts, non_print_output, output_code) = False
-    //  read the printer details, get sheet counts and page sizes.
-    then
-      EXIT;                                                        //  printer driver problem.
+        if page_info(False,no_alerts,non_print_output,output_code)=False     //  read the printer details, get sheet counts and page sizes.
+           then show_modal_message('oh fukkit!!!');
+
+    if page_info(False,no_alerts,non_print_output,output_code)=False     //  read the printer details, get sheet counts and page sizes.
+       then EXIT;                                                        //  printer driver problem.
 
     with pad_form do begin
 

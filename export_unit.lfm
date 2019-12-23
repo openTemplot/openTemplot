@@ -12,7 +12,6 @@ object export_form: Texport_form
   ClientHeight = 588
   ClientWidth = 704
   Color = 16310480
-  DesignTimePPI = 120
   Font.Color = clWindowText
   Font.Height = -13
   Font.Name = 'Arial'
@@ -23,7 +22,7 @@ object export_form: Texport_form
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   Position = poScreenCenter
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.4.0'
   Scaled = False
   object Label9: TLabel
     Left = 28
@@ -131,9 +130,9 @@ object export_form: Texport_form
     end
     object export_all_radiobutton: TRadioButton
       Left = 18
-      Height = 23
+      Height = 20
       Top = 12
-      Width = 260
+      Width = 254
       Caption = 'all background templates (track plan)'
       Checked = True
       Font.Color = clGreen
@@ -146,9 +145,9 @@ object export_form: Texport_form
     end
     object export_group_only_radiobutton: TRadioButton
       Left = 18
-      Height = 23
+      Height = 20
       Top = 35
-      Width = 158
+      Width = 152
       Caption = 'group templates only'
       Font.Color = clGreen
       Font.Height = -13
@@ -159,9 +158,9 @@ object export_form: Texport_form
     end
     object export_control_template_radiobutton: TRadioButton
       Left = 18
-      Height = 23
+      Height = 20
       Top = 58
-      Width = 152
+      Width = 146
       Caption = 'the control template'
       Font.Color = clGreen
       Font.Height = -13
@@ -325,6 +324,7 @@ object export_form: Texport_form
       Font.Height = -13
       Font.Name = 'Arial'
       Font.Style = [fsBold]
+      NumbersOnly = True
       ParentFont = False
       ParentShowHint = False
       ShowHint = True
@@ -360,9 +360,9 @@ object export_form: Texport_form
     end
     object pdf_end_run_radiobutton: TRadioButton
       Left = 14
-      Height = 23
+      Height = 20
       Top = 96
-      Width = 115
+      Width = 109
       Caption = 'end-run pages'
       Checked = True
       Font.Color = clMaroon
@@ -375,9 +375,9 @@ object export_form: Texport_form
     end
     object pdf_side_run_button: TRadioButton
       Left = 14
-      Height = 23
+      Height = 20
       Top = 118
-      Width = 117
+      Width = 111
       Caption = 'side-run pages'
       Font.Color = clMaroon
       Font.Height = -13
@@ -388,10 +388,10 @@ object export_form: Texport_form
     end
     object pdf_size_inside_trim_margins_checkbox: TCheckBox
       Left = 10
-      Height = 23
+      Height = 20
       Hint = ' untick to set document size '
       Top = 62
-      Width = 192
+      Width = 186
       Caption = 'size between trim margins'
       Checked = True
       Font.Color = clMaroon
@@ -673,9 +673,9 @@ object export_form: Texport_form
       TabOrder = 5
       object fit_all_radiobutton: TRadioButton
         Left = 14
-        Height = 23
+        Height = 20
         Top = 8
-        Width = 102
+        Width = 96
         Caption = 'fit templates'
         Checked = True
         TabOrder = 0
@@ -735,26 +735,26 @@ object export_form: Texport_form
       end
       object fit_shapes_radiobutton: TRadioButton
         Left = 14
-        Height = 23
+        Height = 20
         Top = 30
-        Width = 183
+        Width = 177
         Caption = 'fit all background shapes'
         TabOrder = 1
       end
       object use_current_rectangle_radiobutton: TRadioButton
         Left = 14
-        Height = 23
+        Height = 20
         Top = 52
-        Width = 160
+        Width = 154
         Caption = 'boundary  rectangle :'
         TabOrder = 2
       end
     end
     object export_include_grid_checkbox: TCheckBox
       Left = 18
-      Height = 23
+      Height = 20
       Top = 36
-      Width = 134
+      Width = 128
       Caption = 'include grid lines'
       Font.Color = clBlack
       Font.Height = -13
@@ -766,9 +766,9 @@ object export_form: Texport_form
     end
     object export_include_grid_labels_checkbox: TCheckBox
       Left = 158
-      Height = 23
+      Height = 20
       Top = 44
-      Width = 122
+      Width = 116
       Caption = 'with grid labels'
       Checked = True
       Enabled = False
@@ -782,9 +782,9 @@ object export_form: Texport_form
     end
     object export_include_picture_shapes_checkbox: TCheckBox
       Left = 18
-      Height = 23
+      Height = 20
       Top = 10
-      Width = 211
+      Width = 205
       Caption = 'include picture shape images'
       Checked = True
       Font.Color = clBlack
@@ -798,9 +798,9 @@ object export_form: Texport_form
     end
     object export_include_picture_borders_checkbox: TCheckBox
       Left = 234
-      Height = 23
+      Height = 20
       Top = 18
-      Width = 103
+      Width = 97
       Caption = 'with borders'
       Font.Color = clBlack
       Font.Height = -13
@@ -811,9 +811,9 @@ object export_form: Texport_form
     end
     object export_track_background_checkbox: TCheckBox
       Left = 18
-      Height = 23
+      Height = 20
       Top = 68
-      Width = 275
+      Width = 269
       Caption = 'add track background in diagram mode'
       Font.Color = clBlack
       Font.Height = -13
@@ -953,9 +953,9 @@ object export_form: Texport_form
     end
     object export_colour_radiobutton: TRadioButton
       Left = 10
-      Height = 23
+      Height = 20
       Top = 26
-      Width = 64
+      Width = 58
       Caption = 'colour'
       Checked = True
       Font.Color = clNavy
@@ -968,9 +968,9 @@ object export_form: Texport_form
     end
     object export_grey_radiobutton: TRadioButton
       Left = 82
-      Height = 23
+      Height = 20
       Top = 26
-      Width = 100
+      Width = 94
       Caption = 'grey shades'
       Font.Color = clNavy
       Font.Height = -13
@@ -981,9 +981,9 @@ object export_form: Texport_form
     end
     object export_black_radiobutton: TRadioButton
       Left = 190
-      Height = 23
+      Height = 20
       Top = 26
-      Width = 110
+      Width = 104
       Caption = 'black && white'
       Font.Color = clNavy
       Font.Height = -13

@@ -8,7 +8,6 @@ object pdf_form: Tpdf_form
   ClientHeight = 300
   ClientWidth = 560
   Color = 15266032
-  DesignTimePPI = 120
   Font.Color = clBlack
   Font.Height = -13
   Font.Name = 'Arial'
@@ -21,7 +20,7 @@ object pdf_form: Tpdf_form
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   OnShow = FormShow
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.4.0'
   Scaled = False
   object datestamp_label: TLabel
     Left = 0
@@ -131,7 +130,7 @@ object pdf_form: Tpdf_form
     VertScrollBar.Page = 62
     VertScrollBar.Tracking = True
     ClientHeight = 62
-    ClientWidth = 500
+    ClientWidth = 504
     Color = clWindow
     ParentColor = False
     TabOrder = 6
@@ -428,7 +427,7 @@ object pdf_form: Tpdf_form
   end
   object row_progressbar: TProgressBar
     Left = 296
-    Height = 8
+    Height = 10
     Top = 219
     Width = 257
     Step = 1
@@ -450,42 +449,42 @@ object pdf_form: Tpdf_form
   end
   object warnings_checkbox: TCheckBox
     Left = 24
-    Height = 23
+    Height = 20
     Top = 148
-    Width = 82
+    Width = 76
     Caption = '&warnings'
     TabOrder = 11
   end
   object black_edges_checkbox: TCheckBox
     Left = 150
-    Height = 23
+    Height = 20
     Top = 148
-    Width = 125
+    Width = 119
     Caption = 'blac&k rail-edges'
     OnClick = black_edges_checkboxClick
     TabOrder = 12
   end
   object picture_borders_checkbox: TCheckBox
     Left = 46
-    Height = 23
+    Height = 20
     Top = 220
-    Width = 103
+    Width = 97
     Caption = 'with &borders'
     TabOrder = 16
   end
   object include_pictures_checkbox: TCheckBox
     Left = 24
-    Height = 23
+    Height = 20
     Top = 200
-    Width = 246
+    Width = 240
     Caption = 'include background pict&ure shapes'
     TabOrder = 15
   end
   object detail_mode_radiobutton: TRadioButton
     Left = 296
-    Height = 23
+    Height = 22
     Top = 144
-    Width = 110
+    Width = 104
     Caption = 'detail  mode'
     Checked = True
     Font.Color = clBlack
@@ -499,9 +498,9 @@ object pdf_form: Tpdf_form
   end
   object diagram_mode_radiobutton: TRadioButton
     Left = 422
-    Height = 23
+    Height = 22
     Top = 144
-    Width = 127
+    Width = 121
     Caption = 'diagram  mode'
     Font.Color = clBlack
     Font.Height = -15
@@ -513,19 +512,19 @@ object pdf_form: Tpdf_form
   end
   object include_sketchboard_items_checkbox: TCheckBox
     Left = 4
-    Height = 23
+    Height = 20
     Top = 174
-    Width = 190
+    Width = 184
     Caption = 'include sketchboard items'
     OnClick = include_sketchboard_items_checkboxClick
     TabOrder = 13
   end
   object page_ident_checkbox: TCheckBox
     Left = 200
-    Height = 23
+    Height = 20
     Hint = 'add page-number watermark if more than 3 pages'
     Top = 174
-    Width = 92
+    Width = 86
     Caption = 'page ident'
     Checked = True
     ParentShowHint = False

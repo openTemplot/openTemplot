@@ -73,6 +73,7 @@ uses
   enter_timber in 'enter_timber.pas' {enter_timber_form},
   jotter_unit in 'jotter_unit.pas' {jotter_form},
   rail_options_unit in 'rail_options_unit.pas' {rail_options_form},
+  pdf_unit in 'pdf_unit.pas' {pdf_form},
   print_settings_unit in 'print_settings_unit.pas' {print_settings_form},
   prefs_unit in 'prefs_unit.pas' {prefs_form},
   print_now_box in 'print_now_box.pas' {print_now_form},
@@ -189,9 +190,9 @@ begin
   Application.CreateForm(Tjotter_form, jotter_form);
   Application.CreateForm(Trail_options_form, rail_options_form);
   Application.CreateForm(Tprint_settings_form, print_settings_form);
+  Application.CreateForm(Tpdf_form, pdf_form);
 
   { OT-FIRST
-  Application.CreateForm(Tpdf_form, pdf_form);
   Application.CreateForm(Tdtp_form, dtp_form);
   Application.CreateForm(Tdtp_settings_form, dtp_settings_form);
   Application.CreateForm(Tsketchboard_form, sketchboard_form);
