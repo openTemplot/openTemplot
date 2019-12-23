@@ -626,19 +626,39 @@ var
 
   /////////////////////////////
 
-  procedure begin_page;
+  procedure draw_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; thickness:Double = 1.0);
+
+  var
+    x1, y1, x2, y2 : Double;
+
+  const
+      dpmm = 600 / 25.4;                 // Dots per mm
+
   begin
-    pdf_page := pdf_form.pdf_doc.Pages.AddPage;   // make a new page
-    pdf_section.AddPage(pdf_page); // Add the Page to the Section
-    with pdf_page do begin
-      UnitOfMeasure := uomMillimeters;
-      PaperType := ptA4;
-      SetFont(pdf_font_helv, 16);
-      SetColor(clBlue, false);
-    end;
+    x1 := dots_x1 / dpmm * 210 / 180;
+    y1 := 297 - (dots_y1 / dpmm * 297 / 260);
+    x2 := dots_x2 / dpmm * 210 / 180;
+    y2 := 297 - (dots_y2 / dpmm * 297 / 260);
+
+
+    pdf_page.DrawLine(x1, y1, x2, y2, 1, true);
   end;
 
   /////////////////////////////
+
+procedure begin_page;
+begin
+  pdf_page := pdf_form.pdf_doc.Pages.AddPage;   // make a new page
+  pdf_section.AddPage(pdf_page); // Add the Page to the Section
+  with pdf_page do begin
+    UnitOfMeasure := uomMillimeters;
+    PaperType := ptA4;
+    SetFont(pdf_font_helv, 16);
+    SetColor(clBlue, false);
+  end;
+end;
+
+/////////////////////////////
 
   procedure end_page(no_cancel:boolean);
 
@@ -654,8 +674,6 @@ var
               //var
               begin
                 printer_printing:=True;
- // T3-OUT               pdf_form.pdf_printer.BeginDoc;
- // T3-OUT               pdf_form.pdf_printer.StartPage(pdf_width_dots,pdf_height_dots,pdf_width_dpi,pdf_height_dpi,0);    // 0.91.d
                 pdf_form.pdf_doc := TPDFDocument.Create(Nil);
                 with pdf_form.pdf_doc.Infos do begin
                   Title := Application.Title;
@@ -669,8 +687,8 @@ var
                     StartDocument;
                     pdf_section := Sections.AddSection;
                     pdf_font_helv := Addfont('Helvetica');
-                    //pdf_font_times := Addfont('Times');             // Adding these causes a problem
-                    //pdf_font_courier := Addfont('Courier new');
+                    pdf_font_times := Addfont('Times-Roman');
+                    pdf_font_courier := Addfont('Courier');
                 end;
                 begin_page;
               end;
@@ -691,13 +709,10 @@ var
                 begin
                   try
                     pdf_file := TFileStream.Create(pdf_filename_str,fmCreate);
-                    show_modal_message('Saving ');
                     pdf_form.pdf_doc.SaveToStream(pdf_file);
-                    show_modal_message('pdf_file saved');
-                    show_modal_message('Document used ' + IntToStr(pdf_form.pdf_doc.ObjectCount) + ' PDF objects/commands');
+                    show_modal_message('Document saved using ' + IntToStr(pdf_form.pdf_doc.ObjectCount) + ' PDF objects/commands');
                   finally
                     pdf_form.pdf_doc.free;
-                    show_modal_message('doc freed');
                   end;
                 end;
                   if (pdf_height_mm>3000) or (pdf_width_mm>3000)
@@ -1750,7 +1765,6 @@ var
 
 
 begin
-  show_modal_message('!!!! MADE IT TO PDF_DRAW !!!!');
   with pdf_form.pdf_save_dialog do begin
     if his_pdf_file_name<>'' then InitialDir:=ExtractFilePath(his_pdf_file_name)
                              else InitialDir:=exe_str+'PDF-FILES\';
@@ -2061,43 +2075,24 @@ try
 
 // T3-OUT with pdf_form.pdf_printer.Canvas do begin
         with pdf_page do begin
-          //SetFont(print_labels_font);         // for labels
-          //
-          //Brush.Color:=clWhite;
-          //Brush.Style:=bsSolid;
-          //
-          //FillRect(Rect(0,0,printer_width_indexmax_dots,printer_length_indexmax_dots)); //  this clears the canvas.
-          //
-          //
-          //TextOut(0,0,'');      // !!! Delphi bug? This seems to be necessary before dotted lines will draw properly.
 
 //        Print watermark Page number
           if (pdf_form.page_ident_checkbox.Checked=True) and (page_count>3)  // 214a show large page ident if many pages
              then begin
 
-                    //Brush.Style:=bsClear;
-
-                    //Font.Name:='Courier New';
-                    //Font.Height:=0-ABS((page_left_dots-page_right_dots)*9 div 23);  // 9/23 trial and error for this font up to z/99
-                    //SetFont(pdf_font_courier,0-ABS((page_left_dots-page_right_dots)*9 div 23));  // 9/23 trial and error for this font up to z/99
                     SetFont(pdf_font_helv, 220);  // 220 trial and error : TODO: link this to page size
 
                     if pdf_black_white=True
                        then begin
                               wm_shift:=1;             // watermark outline shift
-                              //Font.Color:=clBlack;
                               SetColor(clBlack, False);
                             end
                        else begin
-                              //wm_shift:=Round(nom_width_dpi/30);   // watermark outline shift /30 arbitrary
-                              wm_shift:=2;                           // watermark outline shift - 2 experimental
-                              //Font.Color:=$00D0D0D0;               // pale-ish grey
-                              SetColor($00D0D0D0, False);            // pale-ish grey
+                              wm_shift:=2;                // watermark outline shift - 2 experimental
+                              SetColor($00D0D0D0, False); // pale-ish grey
                             end;
 
-                    //ident_left:=Round(nom_width_dpi/10)+page_left_dots+(page_right_dots-page_left_dots-TextWidth(page_num_str)) div 2;  // nom_width_dpi/10   arbitrary for neatness
-                    ident_left:=40;
-                    //ident_top:=page_top_dots+(page_bottom_dots-page_top_dots+Font.Height) div 2;
+                    ident_left:=40;               // TODO: Link these to page size
                     ident_top:=130;
 
                     WriteText(ident_left-wm_shift,ident_top-wm_shift,page_num_str);
@@ -2109,11 +2104,483 @@ try
                     WriteText(ident_left,ident_top,page_num_str);        // ink saving, make watermark outline
 
                     //Brush.Style:=bsSolid;  // reset..
-                    SetColor(clBlack);
+                    SetColor(clBlack, True);
                   end;
 
-        end;
 
+//        Print background shapes
+          if bgnd_form.output_grid_in_front_checkbox.Checked=True            // do shapes and sb first
+             then pdf_shapes_and_sketchboard_items(grid_left,grid_top);      // 206e
+
+//        Print Grid
+//          Brush.Color:=clWhite;  // 206e moved here
+//          Brush.Style:=bsSolid;
+
+//          Font.Assign(print_labels_font);
+          SetFont(pdf_font_courier, 16);
+          if printgrid_i=1
+             then begin
+                    case grid_labels_code_i of
+                                      1: grid_str:='feet';     //  labels in feet.
+                                      2: grid_str:='inches';   //  labels in inches.
+                                      3: grid_str:='proto-feet'; //  labels in prototype feet.
+                                      4: grid_str:='cm';       //  labels in cm.
+                                      6: grid_str:='mm';       //  labels in mm.
+                                    else run_error(213);
+                    end;//case
+
+                    //Pen.Color:=printgrid_colour;           // for grid lines.
+                    SetColor(printgrid_colour, True);
+                    //Pen.Mode:=pmCopy;
+
+                    //if pad_form.printed_grid_dotted_menu_entry.Checked=True
+                    //   then begin
+                    //          Brush.Color:=clWhite;  // 0.93.a gaps in dotted lines.
+                    //          Brush.Style:=bsSolid;
+                    //
+                    //          //Pen.Style:=psDot;     //out wPDF bug
+                    //          Pen.Style:=psSolid;
+                    //
+                    //          pen_width:=1;         // must be 1 for dots.
+                    //        end
+                    //   else begin
+                    //          Pen.Style:=psSolid;
+                    //          {if impact>0 then pen_width:=1                   // impact printer or plotter.
+                    //                      else}
+                    //          pen_width:=printgrid_wide;
+                    //          if pen_width<1 then pen_width:=1;
+                    //        end;
+
+                       //  draw horizontal grid lines (across width)...
+
+                    if {(banner_paper=True) or (} print_pages_top_origin<>0 {)}            // TODO: Figure out what this is for
+                       then now_gridx:=0-gridx
+                       else now_gridx:=0;        //  init grid lines. no need for first line (gets overwritten by trim margins).
+
+                    repeat
+                      now_gridx:=now_gridx+gridx;
+                      grid_now_dots:=Round((now_gridx-grid_top)*scal_out)+page_top_dots;
+                      if grid_now_dots<0 then CONTINUE;
+
+                      //if (now_gridx=0) and (Pen.Style=psSolid)
+                      //   then Pen.Width:=pen_width+2    // thicker datum line (only appears if page origin is negative).
+                      //   else Pen.Width:=pen_width;
+
+                      //move_to.X:=left_blanking_dots;          move_to.Y:=grid_now_dots;
+                      //line_to.X:=printer_width_indexmax_dots; line_to.Y:=grid_now_dots;
+
+                      draw_line(left_blanking_dots, grid_now_dots, printer_width_indexmax_dots, grid_now_dots);
+
+                      //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+
+                      case grid_labels_code_i of
+                                        1: grid_label:=now_gridx/30480;       //  labels in feet.
+                                        2: grid_label:=now_gridx/2540;        //  labels in inches.
+                                        3: grid_label:=now_gridx/(100*scale); //  labels in prototype feet.
+                                        4: grid_label:=now_gridx/1000;        //  labels in cm.
+                                        6: grid_label:=now_gridx/100;         //  labels in mm.
+                                      else begin
+                                             grid_label:=0;   // keep the compiler happy.
+                                             run_error(223);
+                                           end;
+                      end;//case
+
+                      grid_label_str:=FormatFloat('0.###',grid_label);
+
+                      //text_out(left_blanking_dots,grid_now_dots-(TextHeight('A') div 2),grid_label_str+' '); //  add labels.
+
+                      until grid_now_dots>page_bottom_dots;
+
+                           //  draw vertical grid lines (down length)...
+
+                    if print_pages_left_origin<>0
+                       then now_gridy:=0-gridy
+                       else now_gridy:=0;        //  init grid lines. no need for first line (gets overwritten by trim margin).
+
+                    repeat
+                      now_gridy:=now_gridy+gridy;
+                      grid_now_dots:=Round((now_gridy-grid_left)*scaw_out)+page_left_dots;
+                      if grid_now_dots<0 then CONTINUE;
+
+                  //    if (now_gridy=0) and (Pen.Style=psSolid)
+                  //       then Pen.Width:=pen_width+2    // thicker datum line (only appears if page origin is negative).
+                  //       else Pen.Width:=pen_width;
+                  //
+                  //    move_to.X:=grid_now_dots; move_to.Y:=top_blanking_dots;
+                  //    line_to.X:=grid_now_dots; line_to.Y:=printer_length_indexmax_dots;
+
+                  draw_line(grid_now_dots, top_blanking_dots, grid_now_dots, printer_length_indexmax_dots);
+
+                  //    if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+
+                      case grid_labels_code_i of
+                                        1: grid_label:=now_gridy/30480;       //  labels in feet.
+                                        2: grid_label:=now_gridy/2540;        //  labels in inches.
+                                        3: grid_label:=now_gridy/(100*scale); //  labels in prototype feet.
+                                        4: grid_label:=now_gridy/1000;        //  labels in cm.
+                                        6: grid_label:=now_gridy/100;         //  labels in mm.
+                                      else begin
+                                             grid_label:=0;   // keep the compiler happy.
+                                             run_error(224);
+                                           end;
+                      end;//case
+
+                      grid_label_str:=FormatFloat('0.###',grid_label);
+
+                  //    text_out(grid_now_dots-(TextWidth(grid_label_str) div 2),page_top_dots-(printmargin_wide div 2)-halfmm_dots-TextHeight('A'),grid_label_str); //  add labels.
+
+                    until grid_now_dots>page_right_dots;
+
+                              // finally add the units string...
+
+                  //  text_out(left_blanking_dots,page_top_dots-(printmargin_wide div 2)-halfmm_dots-TextHeight('A'),grid_str);  // add the units string.
+                  //
+                  //  Pen.Style:=psSolid;  // reset in case of dotted.
+                  end;
+
+                  // grid finished.
+
+                  //----------------------------------------
+//
+//              if bgnd_form.output_grid_in_front_checkbox.Checked=False         // now do shapes and sb over the grid
+//                 then pdf_shapes_and_sketchboard_items(grid_left,grid_top);    // 206e
+//
+//              pdf_bgnd(grid_left,grid_top);       // now print any background templates.
+//
+//
+//                            //  control template - draw timbers and all marks except rail joints...
+//              //###
+//
+//              if  (print_entire_pad_flag=False) // control template
+//              and (output_diagram_mode=False)   // 0.93.a  no control template if diagram mode
+//              and (turnoutx>0)                  // not if invalidated
+//
+//                     // 0.93.a if printing background templates in Quick mode, the control template has been put on the background
+//
+//                 then begin
+//
+//                        if marks_list_ptr=nil then BREAK;       // pointer to marks list not valid, exit all sheets.
+//
+//                        draw_marks(grid_left,grid_top,False);   // print all the background timbering and marks except rail joints.
+//
+//                        if {pad_form.print_track_centre_lines_menu_entry.Checked=True}  // 0.82.b
+//                           ( (print_settings_form.output_centrelines_checkbox.Checked=True) and (dummy_template=False) )       // 212a
+//                        or ( (print_settings_form.output_bgnd_shapes_checkbox.Checked=True) and (dummy_template=True) )
+//
+//                           then begin
+//
+//                                  Brush.Color:=clWhite;  // 0.93.a gaps in dotted lines.
+//                                  Brush.Style:=bsClear;
+//                                  TextOut(0,0,'');
+//
+//                                  Pen.Mode:=pmCopy;
+//
+//                                  if dummy_template=True   // 212a
+//                                     then begin
+//                                            Pen.Style:=psSolid;
+//                                            Pen.Color:=printshape_colour;
+//
+//                                            Pen.Width:=printshape_wide;
+//
+//                                            if Pen.Width<1 then Pen.Width:=1;
+//                                          end
+//                                     else begin
+//                                            Pen.Color:=printcurail_colour;
+//
+//                                            Pen.Width:=printcl_wide;
+//
+//                                            if Pen.Width<1 then Pen.Width:=1;
+//
+//                                            {if Pen.Width=1 then Pen.Style:=psDash      // out wPDF bug
+//                                                           else} Pen.Style:=psSolid;
+//
+//                                          end;
+//
+//                                  for aq:=24 to 25 do begin
+//                                    if ( (plain_track=False) or (aq=24) ) and (aqyn[aq]=True)
+//
+//                                            // main side only only if plain track, and data available ?
+//
+//                                       then begin
+//                                              move_to.X:=get_w_dots(aq,0); move_to.Y:=get_l_dots(aq,0);
+//                                              for now:=1 to nlmax_array[aq] do begin
+//                                                line_to.X:=get_w_dots(aq,now); line_to.Y:=get_l_dots(aq,now);
+//                                                if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+//                                                move_to:=line_to;
+//                                              end;//for
+//                                            end;
+//                                  end;//for-next aq
+//                                end;//if track centre-lines.
+//
+//                        if {pad_form.print_rails_menu_entry.Checked=True}  // 0.82.b
+//                           print_settings_form.output_rails_checkbox.Checked=True
+//
+//                           then begin
+//                                              //  draw turnout rails...
+//
+//                                  Pen.Width:=printrail_wide;
+//                                  if Pen.Width<1 then Pen.Width:=1;
+//                                                   {end;}
+//
+//                                  if (rail_infill_i=0)  // out for pdf, was  or ((scale*out_factor)<0.75)   // less than 18.75% for 4mm scale (control template) (10.71% for 7mm).
+//                                     then begin           //  outline (pen) mode ...
+//                                                          //  n.b. this mode does not automatically close the rail-ends.
+//
+//                                            for aq:=0 to 23 do begin                                // 24, 25 centre-lines already done.
+//                                              if (adjacent_edges=False) and (aq>15) then CONTINUE;  // no adjacent tracks in output  // 206b
+//
+//                                              case aq of     // 223d
+//                                                16,17,20,21: if print_settings_form.output_platforms_checkbox.Checked=False then CONTINUE;         // platforms not wanted
+//                                                18,19,22,23: if print_settings_form.output_trackbed_edges_checkbox.Checked=False then CONTINUE;    // trackbed edges not wanted
+//                                              end;//case
+//
+//                                              draw_outline_railedge(aq,printcurail_colour);
+//                                            end;//next aq
+//
+//                                            for aq:=26 to aq_max_c do draw_outline_railedge(aq,printcurail_colour);  // K-crossing check rails.
+//
+//                                            outline_railends;     // finally do the rail ends for outline mode
+//                                          end
+//                                     else begin      // infill (polygon) mode ...
+//
+//                                                     // do blades first - neater result.
+//
+//                                            for rail:=1 to 3 do draw_fill_rail(8);  // closure rails and curved stock rail.
+//
+//                                            rail:=0;                                // straight stock rail.
+//                                            draw_fill_rail(8);
+//
+//                                            for rail:=6 to 7 do draw_fill_rail(8);  // check rails
+//
+//                                            if adjacent_edges=True    // 206b
+//                                               then begin
+//                                                      rail:=16;
+//                                                      repeat
+//                                                        case rail of     // 223d
+//                                                          16,20: if print_settings_form.output_platforms_checkbox.Checked=True then draw_fill_rail(1);        // platforms
+//                                                          18,22: if print_settings_form.output_trackbed_edges_checkbox.Checked=True then draw_fill_rail(1);   // trackbed edges
+//                                                        end;//case
+//                                                        rail:=rail+2;
+//                                                      until rail>22;
+//                                                    end;
+//
+//                                            rail:=26;
+//                                            repeat
+//                                              draw_fill_rail(1);      // K-crossing MS check rails.
+//                                              rail:=rail+2;
+//                                            until rail>28;
+//
+//                                            draw_fill_vee;   // now do the vee.
+//
+//                                                      // finally draw in or overdraw the planing gauge-faces - (no infill) ...
+//                                            aq:=1;
+//                                            if (plain_track=False) and (gaunt=False) and (aqyn[1]=True) and (list_planing_mark_aq1>0) {and (drawn_full_aq1=False)}    // not if already drawn.
+//                                               then begin
+//                                                      move_to.X:=get_w_dots(aq,0); move_to.Y:=get_l_dots(aq,0);
+//                                                      for now:=1 to list_planing_mark_aq1{+1} do begin                    // +1 to overdraw
+//                                                        line_to.X:=get_w_dots(aq,now); line_to.Y:=get_l_dots(aq,now);
+//                                                        if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+//                                                        move_to:=line_to;
+//                                                      end;//for
+//                                                    end;
+//
+//                                            aq:=2;
+//                                            if (plain_track=False) and (gaunt=False) and (aqyn[2]=True)  and (list_planing_mark_aq2>0) {and (drawn_full_aq2=False)}    // not if already drawn.
+//                                               then begin
+//                                                      move_to.X:=get_w_dots(aq,0); move_to.Y:=get_l_dots(aq,0);
+//                                                      for now:=1 to list_planing_mark_aq2{+1} do begin                      // +1 to overdraw
+//                                                        line_to.X:=get_w_dots(aq,now); line_to.Y:=get_l_dots(aq,now);
+//                                                        if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+//                                                        move_to:=line_to;
+//                                                      end;//for
+//                                                    end;
+//
+//                                                  //  CAN'T GET FLOODFILL TO WORK ON THE PRINTER 26-8-98.
+//                                                  // and flood fill the planing with the margin colour ...
+//
+//                                                  //Brush.Bitmap:=nil;     // so can use style again if it was dots.
+//
+//                                          end;//polygon mode
+//
+//                                                // finally add rail joint marks across rails (will now mark over rail infill)...
+//                                   //###
+//
+//                                  draw_marks(grid_left,grid_top,True);
+//
+//                                end;//if rails
+//
+//                      end;// if control template
+//
+//                      // now the trim margins....
+//
+//              Pen.Color:=printmargin_colour;
+//              Pen.Mode:=pmCopy;
+//              Pen.Style:=psSolid;
+//              Pen.Width:=printmargin_wide;
+//
+//              move_to.X:=left_blanking_dots;          move_to.Y:=page_top_dots;   // paper top left.
+//              line_to.X:=printer_width_indexmax_dots; line_to.Y:=page_top_dots;   // paper top margin.
+//              if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+//                                          // and right-hand alignment targets...
+//              //if sheet_across<>sheet_co_wide
+//              //   then begin
+//
+//              move_to.X:=page_right_dots; move_to.Y:=top_blanking_dots;
+//              line_to.X:=page_right_dots; line_to.Y:=printer_length_indexmax_dots;                    // paper right margin.
+//              if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+//
+//              move_to.X:=page_right_dots-alignmarks_inner_dots;
+//              line_to.X:=printer_width_indexmax_dots;
+//
+//              move_to.Y:=page_quarter_dots;  // right 1/4 target.
+//              line_to.Y:=page_quarter_dots;
+//              if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+//
+//              move_to.Y:=page_mid_dots;      // right centre target.
+//              line_to.Y:=page_mid_dots;
+//              if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+//
+//              move_to.Y:=page_3quarter_dots; // right 3/4 target.
+//              line_to.Y:=page_3quarter_dots;
+//              if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+//
+//              //        end;
+//
+//                  //  don't show bottom trim line on the last sheet down, otherwise he might trim off the info line,
+//                  //  and no bottom trim lines on any sheet for banners, unless for multiple print runs.
+//
+//              if {(banner_paper=False) and (} sheet_down<sheet_co_long {)}
+//                 then begin
+//                        if sheet[sheet_down+1,sheet_across].empty=False   // something on next page down ?
+//                           then begin
+//                                  move_to.X:=left_blanking_dots;          move_to.Y:=page_bottom_dots;
+//                                  line_to.X:=printer_width_indexmax_dots; line_to.Y:=page_bottom_dots;    // paper bottom margin.
+//                                  if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+//                                 end;
+//                      end;
+//
+//              if (want_bottom_margin=True) and (sheet_down=sheet_co_long)   // wanted for multiple print runs...
+//                 then begin
+//                        move_to.X:=left_blanking_dots;          move_to.Y:=page_bottom_dots;
+//                        line_to.X:=printer_width_indexmax_dots; line_to.Y:=page_bottom_dots;    // paper bottom margin.
+//                        if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+//                      end;
+//
+//              move_to.X:=page_left_dots; move_to.Y:=top_blanking_dots;
+//              line_to.X:=page_left_dots; line_to.Y:=printer_length_indexmax_dots;               // paper left margin.
+//              if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+//
+//              move_to.X:=page_left_dots-alignmarks_inner_dots;   // default 3 mm each way.
+//              line_to.X:=page_left_dots+alignmarks_inner_dots;
+//              if move_to.X<left_blanking_dots then move_to.X:=left_blanking_dots;
+//
+//              move_to.Y:=page_quarter_dots;    // left 1/4 target.
+//              line_to.Y:=page_quarter_dots;
+//              if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+//
+//              move_to.Y:=page_mid_dots;        // left centre target.
+//              line_to.Y:=page_mid_dots;
+//              if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+//
+//              move_to.Y:=page_3quarter_dots;   // left 3/4 target.
+//              line_to.Y:=page_3quarter_dots;
+//              if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+//
+//                  // trim margins finished.
+//
+//              //----------------------
+//
+//                 //  now any margin blanking (outside the trim margins)...
+//                 //  (+1 to ensure complete blanking on all printers.)
+//
+//              Brush.Color:=clWhite;
+//              Brush.Style:=bsSolid;
+//
+//              Pen.Color:=clWhite;
+//              Pen.Style:=psSolid;
+//              Pen.Width:=1;
+//              Pen.Mode:=pmCopy;
+//
+//              if left_blanking_dots>0 then Rectangle(0,0,left_blanking_dots,printer_length_indexmax_dots+1);
+//              if right_blanking_dots<=printer_width_indexmax_dots then Rectangle(right_blanking_dots,0,printer_width_indexmax_dots+1,printer_length_indexmax_dots+1);
+//
+//              if {(} top_blanking_dots>0 {) and (banner_paper=False)} then Rectangle(0,0,printer_width_indexmax_dots+1,top_blanking_dots);
+//              if {(} bottom_blanking_dots<=printer_length_indexmax_dots {) and (banner_paper=False)} then Rectangle(0,bottom_blanking_dots,printer_width_indexmax_dots+1,printer_length_indexmax_dots+1);
+//
+//                       // top branding...
+//
+//              Brush.Color:=clWhite;
+//              Brush.Style:=bsSolid;
+//
+//              Font.Assign(set_font('Arial',6,[],clBlack));
+//
+//              text_out(left_blanking_dots,top_blanking_dots,top_str);  // name and "who for?" string at topleft.
+//
+//                    // small text inside the margins...
+//
+//            //Font.Assign(set_font('Arial',6,[],calc_intensity(clBlack)));
+//
+//                    // mods 208g  20-04-2014  show page origin dims on templates...
+//
+//                    {Tsheet=record
+//                             grid_top:extended;          // 100th mm - grid means trim margin lines inside the sheet edges.
+//                             grid_bottom:extended;
+//                             grid_left:extended;
+//                             grid_right:extended;}
+//
+//              if print_entire_pad_flag=True        // 214a  for Gordon, see message ref: 19595   // background templates
+//                 then begin
+//                        if keep_form.box_file_label.Caption<>''
+//                           then last_file_str:='  printing from: '+ExtractFileName(keep_form.box_file_label.Caption)
+//                           else last_file_str:='  printing background templates';
+//                      end
+//                 else last_file_str:='  printing the control template';
+//
+//              if pad_form.show_margin_coordinates_menu_entry.Checked=True
+//                 then begin
+//                        all_pages_origin_str:='all pages origin (a/1): top(X)='+round_str(print_pages_top_origin,2)+'mm, left(Y)='+round_str(print_pages_left_origin,2)+'mm      ';     // 208g
+//                        this_page_begin_str:='this page begins: top(X)='+round_str(grid_top/100,2)+'mm, left(Y)='+round_str(grid_left/100,2)+'mm'+last_file_str;                        // 208g
+//                        this_page_end_str:='this page ends: bottom(X)='+round_str(grid_bottom/100,2)+'mm, right(Y)='+round_str(grid_right/100,2)+'mm';                                  // 208g
+//                      end
+//                 else begin
+//                        all_pages_origin_str:='';
+//                        this_page_begin_str:=last_file_str;
+//                        this_page_end_str:='';
+//                      end;
+//{
+//              if pad_form.show_corner_info_menu_entry.Checked=True    // 223d
+//                 then begin
+//
+//                        Font.Assign(print_corner_page_numbers_font);                           // 0.93.a
+//                        if print_corner_page_numbers_font.Size>8 then Brush.Style:=bsClear;
+//
+//                        Textout(page_left_dots+printmargin_wide+3, page_top_dots+printmargin_wide+2, this_page_begin_str);                                                                                // top left corner
+//                        Textout(page_left_dots+printmargin_wide+3, page_bottom_dots+Font.Height-printmargin_wide-4, page_num_str+'   '+box_project_title_str+'   '+DateToStr(Date)+' '+TimeToStr(Time));  // bottom left corner
+//                        Textout(page_right_dots-printmargin_wide-TextWidth(all_pages_origin_str+page_num_str)-3,page_top_dots+printmargin_wide+2,all_pages_origin_str+page_num_str);                      // top right corner
+//                        Textout(page_right_dots-printmargin_wide-TextWidth(this_page_end_str)-3,page_bottom_dots+Font.Height-printmargin_wide-4,this_page_end_str);                                       // bottom right corner
+//                      end;
+//}
+//
+//              if (distortions<>0) and (pdf_form.warnings_checkbox.Checked=True)
+//                 then begin
+//                        Font.Assign(set_font('Arial',7,[],printmargin_colour));
+//
+//                        text_out(page_left_dots+printmargin_wide,page_top_dots+printmargin_wide-(Font.Height*5),
+//                                '  Warning :  Data distortions are in force.  This template may not be dimensionally accurate.');
+//                      end;
+//
+//              Font.Assign(print_labels_font);  // reset for labels.
+//
+//              Font.Color:=calc_intensity(clBlack);
+//              Brush.Color:=clWhite;
+//              Brush.Style:=bsClear;   // transparent over detail.
+//
+//              TextOut(left_blanking_dots,page_bottom_dots+(printmargin_wide div 2)+halfmm_dots,page_str+bottom_str); // add the bottom string last.
+//
+//              Font.Assign(print_labels_font);  // reset for labels.
+//              Brush.Style:=bsSolid;
+
+            end;//with Canvas 0.91.d pdf
         with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
 
           Font.Assign(print_labels_font);         // for labels
