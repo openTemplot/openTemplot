@@ -12,23 +12,22 @@ uses
   // T3-OUT WPPDFPRP, WPPDFR1, WPPDFR2, dtpShape,dtpGR32;
 
 type
-  Tpdf_page=class     // A wrapper round a TPDFpage which translates dots to mm
-                      // and provides a 'canvas-style' interface
+  Tpdf_page = class(TPDFPage)  // A wrapper for TPDFpage: translates dots to mm
+                               // and provides a 'canvas-style' interface
     private
-      base_page: TPDFPage;
       curr_color: Integer;
       function px_to_mm(pixels: Integer): double;
       function dots_to_mm_x(dots_x: Integer): double;
       function dots_to_mm_y(dots_y: Integer): double;
     public
-      constructor create(PDFpage: TPDFpage);
+      constructor create(Adocument: TPDFdocument);
       procedure draw_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; thickness:Double = 1.0); overload;
       procedure draw_line(MoveTo, LineTo : TPoint; thickness:Double = 1.0); overload;
       procedure draw_open_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; thickness:Double = 1.0); overload;
       procedure draw_open_line(MoveTo, LineTo : TPoint; thickness:Double = 1.0); overload;
       procedure write_text(dots_x, dots_y : Integer; text : String);
       procedure polygon(dots : Array of Tpoint);
-      procedure set_color(color: Integer; Astroke: boolean = True);
+      procedure setcolor(color: Integer; Astroke: boolean = True);
       procedure set_font(FontIndex : Integer; FontSize : Integer);
       function current_color(): Integer;
   end;
@@ -325,9 +324,9 @@ var
 
 //_______________________________________________________________________________________
 
-constructor TPDF_page.create(PDFpage: TPDFpage);
+constructor TPDF_page.create(ADocument: TPDFdocument);
   begin
-       base_page := PDFpage;
+       inherited Create(Adocument);
   end;
 //_______________________________________________________________________________________
 
@@ -373,20 +372,7 @@ end;
   y1 := dots_to_mm_y(dots_y1);
   x2 := dots_to_mm_x(dots_x2);
   y2 := dots_to_mm_y(dots_y2);
-
-  //show_modal_message('Line in dots(' +
-  //         IntToStr(dots_x1) + ' ' +
-  //         IntToStr(dots_y1) + ')-(' +
-  //         IntToStr(dots_x2) + ',' +
-  //         IntToStr(dots_y2) + ')');
-  //
-  //show_modal_message('Line in mm(' +
-  //         FloatToStr(x1) + ',' +
-  //         FloatToStr(y1) + ')-(' +
-  //         FloatToStr(x2) + ',' +
-  //         FloatToStr(y2) + ')');
-
-  base_page.DrawLine(x1, y1, x2, y2, 1, true);
+  DrawLine(x1, y1, x2, y2, 1, true);
   end;
 
   //_______________________________________________________________________________________
@@ -420,18 +406,9 @@ var
 x, y : Double;
 
 begin
-x := dots_to_mm_x(dots_x);
-y := dots_to_mm_y(dots_y);
-
-//show_modal_message('Writing "' + text + '" to dots (' +
-//         IntToStr(dots_x) + ' ' +
-//         IntToStr(dots_y) + ')');
-//
-//show_modal_message('Writing "' + text + '" to mm (' +
-//         FloatToStr(x) + ',' +
-//         FloatToStr(y) + ')');
-
-base_page.WriteText(x, y, text);
+  x := dots_to_mm_x(dots_x);
+  y := dots_to_mm_y(dots_y);
+  WriteText(x, y, text);
 end;
 
 //_______________________________________________________________________________________
@@ -449,10 +426,10 @@ end;
 
 //_______________________________________________________________________________________
 
-procedure TPDF_page.set_color(color: Integer; Astroke: boolean = True);
+procedure TPDF_page.setcolor(color: Integer; Astroke: boolean = True);
 
 begin
-  base_page.SetColor(color, Astroke);
+  inherited SetColor(color, Astroke);
   curr_color := color;
 end;
 
@@ -468,7 +445,7 @@ end;
 
 procedure TPDF_page.set_font(FontIndex : Integer; FontSize : Integer);
   begin
-    base_page.SetFont(FontIndex, FontSize);
+    SetFont(FontIndex, FontSize);
   end;
 
 //_______________________________________________________________________________________
@@ -802,9 +779,9 @@ procedure begin_page;
 var
   page: TPDFPage;
 begin
-  page := pdf_form.pdf_doc.Pages.AddPage;   // Make a new page
-  pdf_section.AddPage(page);                // Add the Page to the Section
-  pdf_page := TPDF_page.Create(page);       // ... and create the wrapper
+  pdf_page := TPDF_page.Create(pdf_form.pdf_doc); // Make a new page
+  pdf_form.pdf_doc.Pages.Add(pdf_page);           // Add it to the document ...
+  pdf_section.AddPage(pdf_page);                  // ... and add it to the Section
 end;
 
 /////////////////////////////
@@ -1393,14 +1370,14 @@ end;
 
                                                           //if Brush.Style<>bsSolid then Pen.Width:=saved_pen_width+3;    // 206b  PDF bug, needs a wider line to ensure full blanking if hatched fill
 
-                                                          Set_Color(blank);                // first blank across..
+                                                          setcolor(blank);                // first blank across..
                                                           //MoveTo(move_to.X, move_to.Y);
                                                           //LineTo(line_to.X, line_to.Y);
                                                           draw_line(move_to, line_to);
 
                                                           //Pen.Width:=saved_pen_width;      // 206b restore original width
 
-                                                          Set_Color(edge);                 // then restore the corner points..
+                                                          setcolor(edge);                 // then restore the corner points..
                                                           //MoveTo(move_to.X, move_to.Y);
                                                           //LineTo(move_to.X, move_to.Y);
                                                           draw_line(move_to, move_to);
@@ -1422,8 +1399,8 @@ end;
                 with pdf_page do begin
 
                   if (rail=16) or (rail=20)   // 0.93.a platforms
-                     then Set_Color(printplat_edge_colour)
-                     else Set_Color(printcurail_colour);         //  1 = virtual black. Bug in HP driver if black (0) specified.
+                     then setcolor(printplat_edge_colour)
+                     else setcolor(printcurail_colour);         //  1 = virtual black. Bug in HP driver if black (0) specified.
 
                   //Pen.Mode:=pmCopy;
                   //Pen.Style:=psSolid;
@@ -1525,7 +1502,7 @@ end;
                                else begin
                                       if (rail=16) or (rail=20)   // 0.93.a platforms
                                          then begin
-                                                set_color(printplat_infill_colour);
+                                                setcolor(printplat_infill_colour);
 
                                                 //case print_platform_infill_style of
                                                 //        0: Brush.Style:=bsClear;
@@ -1547,7 +1524,7 @@ end;
                                                 if ((draw_ts_trackbed_cess_edge=True) and (rail=18))
                                                 or ((draw_ms_trackbed_cess_edge=True) and (rail=22))   // 215a
                                                    then begin
-                                                          set_color(sb_track_bgnd_colour); // cess use same colour as track background
+                                                          setcolor(sb_track_bgnd_colour); // cess use same colour as track background
                                                           //Brush.Style:=bsFDiagonal;
                                                         end
                                                    else begin   // normal rails...
@@ -1691,12 +1668,12 @@ end;
                                                     //with pad_form.Canvas do begin  // rubbish to allow test compilation
                                                     with pdf_page do begin  // rubbish to allow test compilation
 
-                                                      set_color(blank);                // first blank across..
+                                                      setcolor(blank);                // first blank across..
                                                       //MoveTo(move_to, move_to);
                                                       //LineTo(line_to, line_to);
                                                       draw_line(move_to, line_to);
 
-                                                      set_color(edge);                 // then restore the corner points..
+                                                      setcolor(edge);                 // then restore the corner points..
                                                       //MoveTo(move_to.X, move_to.);
                                                       //LineTo(move_to.X, move_to.Y);
                                                       //
@@ -2247,11 +2224,11 @@ try
                     if pdf_black_white=True
                        then begin
                               wm_shift:=2;             // watermark outline shift
-                              set_color(clBlack, False);
+                              setcolor(clBlack, False);
                             end
                        else begin
                               wm_shift:=10;                // watermark outline shift - 10 experimental
-                              set_color($00D0D0D0, False); // pale-ish grey
+                              setcolor($00D0D0D0, False); // pale-ish grey
                             end;
 
                     ident_left:=1000;               // TODO: Link these to page size
@@ -2262,11 +2239,11 @@ try
                     Write_Text(ident_left-wm_shift,ident_top+wm_shift,page_num_str);
                     Write_Text(ident_left+wm_shift,ident_top+wm_shift,page_num_str);
 
-                    set_color(clWhite, False);
+                    setcolor(clWhite, False);
                     Write_Text(ident_left,ident_top,page_num_str);        // ink saving, make watermark outline
 
                     //Brush.Style:=bsSolid;  // reset..
-                    set_color(clBlack, False);
+                    setcolor(clBlack, False);
                   end;
 
 
@@ -2292,7 +2269,7 @@ try
                     end;//case
 
                     //Pen.Color:=printgrid_colour;           // for grid lines.
-                    set_color(printgrid_colour, False);
+                    setcolor(printgrid_colour, False);
                     //Pen.Mode:=pmCopy;
 
                     //if pad_form.printed_grid_dotted_menu_entry.Checked=True
@@ -2578,7 +2555,7 @@ try
                       // now the trim margins....
 
 //              Pen.Color:=printmargin_colour;
-              set_color(printmargin_colour);
+              setcolor(printmargin_colour);
 //              Pen.Mode:=pmCopy;
 //              Pen.Style:=psSolid;
 //              Pen.Width:=printmargin_wide;
@@ -2700,7 +2677,7 @@ try
 //              Brush.Color:=clWhite;
 //              Brush.Style:=bsSolid;
 
-              set_color(clBlack, False);
+              setcolor(clBlack, False);
               set_font(pdf_font_times, 6);
 
               write_text(left_blanking_dots,top_blanking_dots,top_str);  // name and "who for?" string at topleft.
@@ -2709,7 +2686,7 @@ try
 
                     //Font.Assign(set_font('Arial',6,[],calc_intensity(clBlack)));
                     set_font(pdf_font_Arial, 6);
-                    set_color(calc_intensity(clBlack));
+                    setcolor(calc_intensity(clBlack));
 
                     // mods 208g  20-04-2014  show page origin dims on templates...
 
@@ -4581,35 +4558,35 @@ var
 
       if pdf_black_white
          then begin
-                set_color(clBlack);
+                setcolor(clBlack);
                 EXIT;
               end;
 
       if output_diagram_mode    // 0.94.a  don't use mapping colour for rail edges (used for infill instead).
          then begin
                 if (rail=16) or (rail=20)                  // 0.93.a platforms
-                   then set_color(printplat_edge_colour)
-                   else set_color(printbgrail_colour);
+                   then setcolor(printplat_edge_colour)
+                   else setcolor(printbgrail_colour);
                 EXIT;
               end;
 
       if using_mapping_colour and ( (pdf_form.black_edges_checkbox.Checked=False) or (rail_edges=False) )
          then begin
-                set_color(mapping_colour);
+                setcolor(mapping_colour);
                 EXIT;
               end;
 
       if (mapping_colours_print<0) and ( (pdf_form.black_edges_checkbox.Checked=False) or (rail_edges=False) )                    // 0=normal, 1=rails only, 2=timbers only, 3=rails and timber outlines, 4:=use the PAD colour instead, -1=single colour.
          then begin
-                set_color(printbg_single_colour);     // single colour for all of background templates.
+                setcolor(printbg_single_colour);     // single colour for all of background templates.
                 EXIT;
               end;
 
                 // normal output...
 
       if (rail=16) or (rail=20)   // 0.93.a platforms
-         then set_color(printplat_edge_colour)
-         else set_color(printbgrail_colour);
+         then setcolor(printplat_edge_colour)
+         else setcolor(printbgrail_colour);
 
     end;//with
   end;
@@ -5303,7 +5280,7 @@ var
                                                           //LineTo(line_to.X, line_to.Y);
                                                           draw_line(move_to.X, move_to.Y, line_to.X, line_to.Y);
 
-                                                          set_color(edge);                 // then restore the corner points..
+                                                          setcolor(edge);                 // then restore the corner points..
                                                           //MoveTo(move_to.X, move_to.Y);
                                                           //LineTo(move_to.X, move_to.Y);
                                                           draw_line(move_to.X, move_to.Y, move_to.X, move_to.Y);
