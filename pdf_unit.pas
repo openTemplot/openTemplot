@@ -341,20 +341,20 @@ end;
 
 function TPDF_page.dots_to_mm_x(dots_x: Integer): double;
   const
-    dpmm = 600 / 25.4;           // dots per inch / mm per inch
+    xscale = 1.028;
+    dpmm = 600 / 25.4 / xscale;           // dots per inch / mm per inch
   begin
-    //result := dots_x / dpmm + page_margin_left_mm;
-    result := 210 * (dots_x / printer_width_indexmax_dots);
+    result := dots_x / dpmm + page_margin_left_mm;
 end;
 
 //_______________________________________________________________________________________
 
 function TPDF_page.dots_to_mm_y(dots_y: Integer): double;
-const
-dpmm = 600 / 25.4;           // dots per mm
-begin
-  //result := 297 - (dots_y / dpmm + page_margin_bottom_mm);
-  result := 297 * (1- (dots_y / printer_length_indexmax_dots));
+  const
+    yscale = 1.028;
+    dpmm = 600 / 25.4 / yscale;           // dots per inch / mm per inch
+  begin
+    result := 297 - (dots_y / dpmm + page_margin_bottom_mm);
 end;
 
 //_______________________________________________________________________________________
@@ -898,7 +898,8 @@ end;
                 tbnum_str:=timb_numbers_str;      // the full string of timber numbering for the control template.
 
 // T3-OUT       with pdf_form.pdf_printer.Canvas do begin
-                with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
+                //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
+                with pdf_page do begin
 
                   for i:=0 to (mark_index-1) do begin   // (mark_index is always the next free slot)
 
@@ -1005,14 +1006,14 @@ end;
                                         TextOut(0,0,'');
 
                                         if pdf_black_white=True
-                                           then Pen.Color:=clBlack
+                                           then SetColor(clBlack)
                                            else case mark_code of
-                                       1,101,600,700: Pen.Color:=printguide_colour;  // guide marks.  switch drive  206b 600 added, 211b 700 added
-                                                   2: Pen.Color:=printalign_colour;  // rad end marks.
-                                             3,33,93: Pen.Color:=printtimber_colour; // timber outlines.
-                                                   6: Pen.Color:=printjoint_colour;  // rail joint marks.
-                                                   7: Pen.Color:=printalign_colour;         // transition/slewing ends.
-                                                 else Pen.Color:=calc_intensity(clBlack);   // thin dotted lines in black only.
+                                       1,101,600,700: SetColor(printguide_colour);  // guide marks.  switch drive  206b 600 added, 211b 700 added
+                                                   2: SetColor(printalign_colour);  // rad end marks.
+                                             3,33,93: SetColor(printtimber_colour); // timber outlines.
+                                                   6: SetColor(printjoint_colour);  // rail joint marks.
+                                                   7: SetColor(printalign_colour);         // transition/slewing ends.
+                                                 else SetColor(calc_intensity(clBlack));   // thin dotted lines in black only.
                                                 end;//case
 
                                         Pen.Mode:=pmCopy;
@@ -1052,7 +1053,9 @@ end;
 
                                         line_to.X:=Round((p2.Y+ypd-grid_left)*scaw_out)+page_left_dots;
                                         line_to.Y:=Round((p2.X-grid_top)*scal_out)+page_top_dots;
-                                        if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                                        //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                                        if check_limits(move_to, line_to)=True then
+                                           draw_line(move_to, line_to);
 
                                       end
 
@@ -1120,6 +1123,8 @@ end;
                                         Pen.Style:=psSolid;
                                         Pen.Mode:=pmCopy;
                                         Pen.Color:=calc_intensity(clBlack);
+                                        //Pen.Color:=calc_intensity(clBlack);
+                                        SetColor(calc_intensity(clBlack));
 
                                         p1:=ptr_1st^.p1;        // x1,y1 in  1/100ths mm
                                         radcen_arm:=400*scale;  // 4ft scale arbitrary (scale is for control template).
@@ -1129,14 +1134,18 @@ end;
 
                                         line_to.X:=Round((p1.Y-radcen_arm+ypd-grid_left)*scaw_out)+page_left_dots;
                                         line_to.Y:=Round((p1.X-grid_top)*scal_out)+page_top_dots;
-                                        if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                                        //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                                        if check_limits(move_to, line_to)=True then
+                                           draw_line(move_to, line_to);
 
                                         move_to.X:=Round((p1.Y+ypd-grid_left)*scaw_out)+page_left_dots;                 // mark centre lengthwise
                                         move_to.Y:=Round((p1.X+radcen_arm-grid_top)*scal_out)+page_top_dots;
 
                                         line_to.X:=Round((p1.Y+ypd-grid_left)*scaw_out)+page_left_dots;
                                         line_to.Y:=Round((p1.X-radcen_arm-grid_top)*scal_out)+page_top_dots;
-                                        if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                                        //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                                        if check_limits(move_to, line_to)=True then
+                                           draw_line(move_to, line_to);
                                       end;
 
                               if ((mark_code=203) or (mark_code=233) or (mark_code=293))  and (ptr_2nd<>nil)        // timber infill...
@@ -1249,8 +1258,11 @@ end;
                                                             else switch_label_str:='';
                                                       end;//case
 
-                                                      text_out(move_to.X-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
-                                                               move_to.Y-(TextHeight(switch_label_str) div 2),
+                                                      //text_out(move_to.X-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
+                                                      //         move_to.Y-(TextHeight(switch_label_str) div 2),
+                                                      //         ' '+switch_label_str+' ');
+                                                      write_text(move_to.X          ,//-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
+                                                               move_to.Y            ,//-(TextHeight(switch_label_str) div 2),
                                                                ' '+switch_label_str+' ');
 
                                                       Font.Assign(print_labels_font);      // reset for grid labels
@@ -1262,7 +1274,7 @@ end;
 
                             end;
                   end;//next mark i
-                end;//with pdf_form.pdf_printer.Canvas
+                end;//with pdf_page
               end;
               ///////////////////////////////
 
@@ -1783,9 +1795,10 @@ end;
                             end;//next now
 
 // T3-OUT                 with pdf_form.pdf_printer.Canvas do begin
-                          with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
+                          //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
+                          with pdf_page do begin
 
-                            Pen.Color:=printcurail_colour;         //  1 = virtual black. Bug in HP driver if black (0) specified.
+                            setColor(printcurail_colour);          //  1 = virtual black. Bug in HP driver if black (0) specified.
                                                                    //  (but not on "econofast" print !).
                             Pen.Mode:=pmCopy;
                             Pen.Style:=psSolid;
@@ -1812,7 +1825,7 @@ end;
                                then begin
                                       Polygon(Slice(dots,dots_index+1));   // +1, number of points, not index.  must have at least 5 points.
 
-                                      edge_colour:=Pen.Color;  // existing rail edges.
+                                      edge_colour:=curr_color;  // existing rail edges.
 
                                       if Brush.Style=bsSolid then blanking_colour:=Brush.Color   // infill colour.
                                                              else blanking_colour:=clWhite;
@@ -1824,7 +1837,7 @@ end;
                                       modify_vee_end(splice_mid_dots_index,splice_mid_dots_index+1,edge_colour,blanking_colour); // splice rail end.
                                     end;
 
-                          end;//with Canvas
+                          end;//with pdf_page
                         end;
               end;
               ////////////////////////////////////////////////////////////////////////
@@ -1844,7 +1857,8 @@ end;
                           end;//with
 
 // T3-OUT                 with pdf_form.pdf_printer.Canvas do begin
-                          with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
+                          //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
+                          with pdf_page do begin
 
 
                             Pen.Color:=printcurail_colour;         //  1 = virtual black. Bug in HP driver if black (0) specified.
@@ -1852,7 +1866,9 @@ end;
                             Pen.Mode:=pmCopy;
                             Pen.Style:=psSolid;
 
-                            if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                            //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                            if check_limits(move_to, line_to)=True then
+                               draw_line(move_to, line_to);
                           end;//with
                         end;
               end;
@@ -2749,7 +2765,8 @@ try
 //              Brush.Style:=bsSolid;
 
             end;//with Canvas 0.91.d pdf
-        with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
+
+        //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
 
           //Font.Assign(print_labels_font);         // for labels
           //
@@ -4002,7 +4019,7 @@ begin
 end;
 //_______________________________________________________________________________________
 
-procedure pdf_bgnd_marks(grid_left,grid_top:extended; maxbg_index:integer; rail_joints:boolean);  // print all the background timbering and marks.
+procedure pdf_bgnd_marks(grid_left,grid_top:extended; maxbg_index:integer; rail_joints:boolean; pdf_page: TPDF_page);  // print all the background timbering and marks.
 
                 // if rail_joints=True print only the rail joints, otherwise omit them.
 var
@@ -4035,7 +4052,8 @@ var
 
 begin
 // T3-OUT  with pdf_form.pdf_printer.Canvas do begin
-  with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
+  //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
+  with pdf_page do begin  // T3 rubbish to allow test compilation
 
     //single_colour_flag:=pad_form.use_single_colour_menu_entry.Checked;
 
@@ -4249,12 +4267,12 @@ begin
                                            then Pen.Color:=printbg_single_colour     // single colour for all of background templates.
                                            else begin
                                                   case code of
-                                           1,101,600,700: Pen.Color:=printguide_colour;  // guide marks. switch drive 206b 600 added, 211b 700 added
-                                                       2: Pen.Color:=printalign_colour;  // rad end marks.
-                                                 3,33,93: Pen.Color:=printtimber_colour; // timber outlines.
-                                                       6: Pen.Color:=printjoint_colour;  // rail joints.
-                                                       7: Pen.Color:=printalign_colour;        // transition ends.
-                                                     else Pen.Color:=calc_intensity(clBlack);  // thin dotted lines in black only for timber centres and reduced ends.
+                                           1,101,600,700: SetColor(printguide_colour);  // guide marks. switch drive 206b 600 added, 211b 700 added
+                                                       2: SetColor(printalign_colour);  // rad end marks.
+                                                 3,33,93: SetColor(printtimber_colour); // timber outlines.
+                                                       6: SetColor(printjoint_colour);  // rail joints.
+                                                       7: SetColor(printalign_colour);        // transition ends.
+                                                     else SetColor(calc_intensity(clBlack));  // thin dotted lines in black only for timber centres and reduced ends.
                                                   end;//case
                                                 end;
                                       end;
@@ -4267,7 +4285,9 @@ begin
 
                     line_to.X:=Round((p2.Y-grid_left)*scaw_out)+page_left_dots;
                     line_to.Y:=Round((p2.X-grid_top)*scal_out)+page_top_dots;
-                    if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                    //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                    if check_limits(move_to, line_to)=True then
+                       draw_line(move_to, line_to);
                   end
              else begin
                     if ((code=-2) or (code=-3)) and {(pad_form.print_radial_centres_menu_entry.Checked=True)}  // 0.82.b
@@ -4298,14 +4318,18 @@ begin
 
                               line_to.X:=Round((p1.Y-radcen_arm-grid_left)*scaw_out)+page_left_dots;
                               line_to.Y:=Round((p1.X-grid_top)*scal_out)+page_top_dots;
-                              if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                              //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                              if check_limits(move_to, line_to)=True then
+                                 draw_line(move_to, line_to);
 
                               move_to.X:=Round((p1.Y-grid_left)*scaw_out)+page_left_dots;                 // mark centre lengthwise
                               move_to.Y:=Round((p1.X+radcen_arm-grid_top)*scal_out)+page_top_dots;
 
                               line_to.X:=Round((p1.Y-grid_left)*scaw_out)+page_left_dots;
                               line_to.Y:=Round((p1.X-radcen_arm-grid_top)*scal_out)+page_top_dots;
-                              if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                              //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                              if check_limits(move_to, line_to)=True then
+                                 draw_line(move_to, line_to);
                             end;
 
                     if (code=203) or (code=233) or (code=293)       // timber infill...
@@ -4331,16 +4355,16 @@ begin
                                         Pen.Color:=clWhite;  // so no overdrawing of timber outlines.
 
                                         if pdf_black_white=True
-                                           then Brush.Color:=clBlack
+                                           then SetColor(clBlack)
                                            else begin
                                                   //if single_colour_flag=False
                                                   if mapping_colours_print<>-1
                                                      then begin
                                                             {if impact>0 then Brush.Color:=printtimber_colour            // colour plotter, use same as timber outlines.
                                                                         else}
-                                                            Brush.Color:=printtimber_infill_colour;
+                                                            SetColor(printtimber_infill_colour);
                                                           end
-                                                     else Brush.Color:=printbg_single_colour;
+                                                     else SetColor(printbg_single_colour);
                                                 end;
 
                                            // 0.95.a  PDF bug-fix...
@@ -4420,9 +4444,9 @@ begin
                                         Font.Assign(print_timber_numbers_font);
 
                                         if pdf_black_white=True           // overides..
-                                           then Font.Color:=clBlack
+                                           then SetColor(clBlack)
                                            else begin
-                                                  if mapping_colours_print<0 then Font.Color:=printbg_single_colour;
+                                                  if mapping_colours_print<0 then SetColor(printbg_single_colour);
                                                 end;
 
                                         if pad_form.scale_timber_numbering_menu_entry.Checked=True
@@ -4447,8 +4471,11 @@ begin
 
                                         idtb_str:=' '+idtb_str+' ';
 
-                                        text_out(move_to.X-(TextWidth(idtb_str) div 2),
-                                                move_to.Y-(TextHeight(idtb_str) div 2),
+                                        //text_out(move_to.X-(TextWidth(idtb_str) div 2),
+                                        //        move_to.Y-(TextHeight(idtb_str) div 2),
+                                        //        idtb_str);
+                                        write_text(move_to.X       ,//-(TextWidth(idtb_str) div 2),
+                                                move_to.Y          ,//-(TextHeight(idtb_str) div 2),
                                                 idtb_str);
 
                                         Font.Assign(print_labels_font);      // reset for grid labels
@@ -4494,8 +4521,11 @@ begin
                                                   else switch_label_str:='';
                                             end;//case
 
-                                            text_out(move_to.X-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
-                                                     move_to.Y-(TextHeight(switch_label_str) div 2),
+                                            //text_out(move_to.X-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
+                                            //         move_to.Y-(TextHeight(switch_label_str) div 2),
+                                            //         ' '+switch_label_str+' ');
+                                            write_text(move_to.X              ,//-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
+                                                     move_to.Y                ,//-(TextHeight(switch_label_str) div 2),
                                                      ' '+switch_label_str+' ');
 
                                             Font.Assign(print_labels_font);      // reset for grid labels
@@ -4662,18 +4692,20 @@ var
                                  then begin
 
 // T3-OUT                                               with pdf_form.pdf_printer.Canvas do begin
-                                        with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
+                                        //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
+                                        with pdf_page do begin
 
-                                          Pen.Color:=blank;                // first blank across..
-                                          MoveTo(move_to.X, move_to.Y);
-                                          LineTo(line_to.X, line_to.Y);
-
-                                          Pen.Color:=edge;                 // then restore the corner points..
-                                          MoveTo(move_to.X, move_to.Y);
-                                          LineTo(move_to.X, move_to.Y);
-
-                                          MoveTo(line_to.X, line_to.Y);
-                                          LineTo(line_to.X, line_to.Y);
+                                          SetColor(blank);                // first blank across..
+                                          //MoveTo(move_to.X, move_to.Y);
+                                          //LineTo(line_to.X, line_to.Y);
+                                          //
+                                          //SetColor(edge);                 // then restore the corner points..
+                                          //MoveTo(move_to.X, move_to.Y);
+                                          //LineTo(move_to.X, move_to.Y);
+                                          //
+                                          //MoveTo(line_to.X, line_to.Y);
+                                          //LineTo(line_to.X, line_to.Y);
+                                          draw_open_line(move_to, line_to, edge);
                                         end;//with
                                       end;
                             end;
@@ -5456,7 +5488,8 @@ var
                                 p2:=bgnd_endmarks[aq2,aq2end];
 
 // T3-OUT                       with pdf_form.pdf_printer.Canvas do begin
-                                with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
+                                //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
+                                with pdf_page do begin
 
 
                                   set_pen_railcolour(True);
@@ -5471,7 +5504,9 @@ var
                                   line_to.X:=Round((p2.Y-grid_left)*scaw_out)+page_left_dots;
                                   line_to.Y:=Round((p2.X-grid_top)*scal_out)+page_top_dots;
 
-                                  if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                                  //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                                  if check_limits(move_to, line_to)=True then
+                                     draw_line(move_to, line_to);
                                 end;//with
                               end;
                     end;//with
@@ -5513,7 +5548,7 @@ begin          // print background templates...
 
   if max_list_index<0 then EXIT;  // no templates in box.
 
-  if output_diagram_mode=False then pdf_bgnd_marks(grid_left,grid_top,max_list_index,False); // 0.91.d if // first print all the background timbering and marks except rail joints.
+  if output_diagram_mode=False then pdf_bgnd_marks(grid_left,grid_top,max_list_index,False, pdf_page); // 0.91.d if // first print all the background timbering and marks except rail joints.
 
   //single_colour_flag:=(mapping_colours_print<0); {pad_form.use_single_colour_menu_entry.Checked;}
 
@@ -5790,7 +5825,7 @@ begin          // print background templates...
   // finally add the rail-joint marks over the rail infill...   // 209c moved outside loop
 
   if (print_settings_form.output_rails_checkbox.Checked=True) and (output_diagram_mode=False)
-     then pdf_bgnd_marks(grid_left,grid_top,max_list_index,True);
+     then pdf_bgnd_marks(grid_left,grid_top,max_list_index,True, pdf_page);
 
 end;
 //________________________________________________________________________________________

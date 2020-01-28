@@ -369,7 +369,6 @@ begin
 
   if export_all_radiobutton.Checked=True
      then begin
-            show_modal_message('Exporting All');
             if any_bgnd<1
                then begin
                       alert_no_bgnd;

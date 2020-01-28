@@ -1,7 +1,7 @@
 object pdf_form: Tpdf_form
-  Left = 40
+  Left = 42
   Height = 300
-  Top = 49
+  Top = 51
   Width = 560
   BorderIcons = [biSystemMenu]
   Caption = '        export  PDF  file ...'

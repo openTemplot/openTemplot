@@ -111,7 +111,7 @@ var
 begin
   RequireDerivedFormResource:=True;
 
-  Application.Title:='Templot3';
+    Application.Title:='Templot3';
 
   Application.Scaled:=False;
 
