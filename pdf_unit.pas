@@ -6,35 +6,13 @@ unit pdf_unit;
 interface
 
 uses
-  fpPDF,            // First in the list so that color definitions in Graphics takes precedence.
   LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls;
+  StdCtrls, ExtCtrls, ComCtrls,
+  pdf_lib_unit;
 
   // T3-OUT WPPDFPRP, WPPDFR1, WPPDFR2, dtpShape,dtpGR32;
 
 type
-  Tpdf_page = class(TPDFPage)  // A wrapper for TPDFpage: translates dots to mm
-                               // and provides a 'canvas-style' interface
-    private
-      curr_pen_color: Integer;
-      curr_fill_color: Integer;
-      function px_to_mm(pixels: Integer): double;
-      function dots_to_mm_x(dots_x: Integer): double;
-      function dots_to_mm_y(dots_y: Integer): double;
-    public
-      constructor create(Adocument: TPDFdocument);
-      procedure draw_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; thickness:Double = 1.0); overload;
-      procedure draw_line(MoveTo, LineTo : TPoint; thickness:Double = 1.0); overload;
-      procedure draw_open_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; thickness:Double = 1.0); overload;
-      procedure draw_open_line(MoveTo, LineTo : TPoint; thickness:Double = 1.0); overload;
-      procedure write_text(dots_x, dots_y : Integer; text : String);
-      procedure polygon(dots : Array of Tpoint);
-      procedure set_pen_color(color: Integer);
-      procedure set_fill_color(color: Integer);
-      procedure set_font(FontIndex : Integer; FontSize : Integer);
-      function current_pen_color(): Integer;
-      function current_fill_color(): Integer;
-  end;
 
   Tpdf_form = class(TForm)
     info_scrollbox: TScrollBox;
@@ -64,10 +42,7 @@ type
     row_progressbar: TProgressBar;
     help_button: TButton;
     help_shape: TShape;
-
-    // T3-OUT pdf_printer: TWPPDFPrinter;
-    pdf_doc: TPDFDocument;
-
+    pdf_doc: TPDF_Document;
     pdf_save_dialog: TSaveDialog;
     warnings_checkbox: TCheckBox;
     black_edges_checkbox: TCheckBox;
@@ -146,7 +121,7 @@ uses
 
   trackbed_unit, make_slip_unit;  // 214b
 
-const
+ const
   pdf_help_str:string='      Printing  Pages'
   +'||Behind this PRINT PAGES window you can see the layout of pages comprising your drawing. Drag and resize this window as necessary to get a clear view.'
   +' (It is often useful to have resized the trackpad window beforehand to less than the full screen.)'
@@ -325,159 +300,6 @@ var
   procedure pdf_rotate_bitmap(i:integer);forward;     // rotate bitmap for picture shape.
 
 // T3-OUT  procedure pdf_rotate_metafile(i:integer);forward;   // rotate metafile supplied 90degs clockwise.   213b
-
-//_______________________________________________________________________________________
-
-constructor TPDF_page.create(ADocument: TPDFdocument);
-  begin
-       inherited Create(Adocument);
-  end;
-//_______________________________________________________________________________________
-
-function TPDF_page.px_to_mm(pixels: Integer): double;
-  const
-    pxpmm = 72 / 25.4;           // px per inch / mm per inch
-  begin
-    result := pixels / pxpmm;
-end;
-
-//_______________________________________________________________________________________
-
-function TPDF_page.dots_to_mm_x(dots_x: Integer): double;
-  const
-    xscale = 1.028;
-    dpmm = 600 / 25.4 / xscale;           // dots per inch / mm per inch
-  begin
-    result := dots_x / dpmm + page_margin_left_mm;
-end;
-
-//_______________________________________________________________________________________
-
-function TPDF_page.dots_to_mm_y(dots_y: Integer): double;
-  const
-    yscale = 1.028;
-    dpmm = 600 / 25.4 / yscale;           // dots per inch / mm per inch
-  begin
-    result := 297 - (dots_y / dpmm + page_margin_bottom_mm);
-end;
-
-//_______________________________________________________________________________________
-
-  procedure TPDF_page.draw_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; thickness:Double = 1.0);
-
-  var
-  x1, y1, x2, y2 : Double;
-
-  const
-    dpmm = 600 / 25.4;                 // Dots per mm
-
-  begin
-  x1 := dots_to_mm_x(dots_x1);
-  y1 := dots_to_mm_y(dots_y1);
-  x2 := dots_to_mm_x(dots_x2);
-  y2 := dots_to_mm_y(dots_y2);
-  DrawLine(x1, y1, x2, y2, 1, true);
-  end;
-
-  //_______________________________________________________________________________________
-
-  procedure TPDF_page.draw_line(MoveTo, LineTo : TPoint; thickness:Double = 1.0);
-  begin
-    draw_line(MoveTo.x, MoveTo.y, LineTo.x, LineTo.y, thickness);
-  end;
-
-//_______________________________________________________________________________________
-//  Line without endpoints
-
-  procedure TPDF_page.draw_open_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; thickness:Double = 1.0);
-    begin
-      draw_line(dots_x1, dots_y1, dots_x2, dots_y2, thickness);
-    end;
-
-//_______________________________________________________________________________________
-//  Line without endpoints
-
-  procedure TPDF_page.draw_open_line(MoveTo, LineTo : TPoint; thickness:Double = 1.0);
-  begin
-    draw_open_line(MoveTo.x, MoveTo.y, LineTo.x, LineTo.y, thickness);
-  end;
-
-  //_______________________________________________________________________________________
-
-procedure TPDF_page.write_text(dots_x, dots_y : Integer; text : String);
-
-var
-x, y : Double;
-
-begin
-  x := dots_to_mm_x(dots_x);
-  y := dots_to_mm_y(dots_y);
-  WriteText(x, y, text);
-end;
-
-//_______________________________________________________________________________________
-
-procedure TPDF_page.polygon(dots : Array of Tpoint);
-var
-  points: array of TPDFcoord;
-  i: integer;
-begin
-  setlength(points, length(dots));
-  for i := 0 to length(dots)-1 do
-    begin
-      points[i].X := dots_to_mm_x(dots[i].x);
-      points[i].Y := dots_to_mm_y(dots[i].y);
-    end;
-  inherited DrawPolygon(points, 1.0);
-  inherited FillStrokePath();
-end;
-
-//_______________________________________________________________________________________
-
-function c_to_rgb(color: Integer): Integer;
-  var
-   r, g, b: Integer;
-  begin
-    r := (color       ) and $ff;
-    g := (color shr  8) and $ff;
-    b := (color shr 16) and $ff;
-    RESULT := (((r shl 8) or g) shl 8) or b;
-  end;
-
-procedure TPDF_page.set_pen_color(color: Integer);
-
-begin
-  curr_pen_color := color;
-  inherited SetColor(c_to_rgb(color), True);
-end;
-
-procedure TPDF_page.set_fill_color(color: Integer);
-
-begin
-  curr_fill_color := color;
-  inherited SetColor(c_to_rgb(color), False);
-end;
-
-//_______________________________________________________________________________________
-
-function TPDF_page.current_pen_color(): Integer;
-
-begin
-  RESULT := curr_pen_color;
-end;
-
-function TPDF_page.current_fill_color(): Integer;
-
-begin
-  RESULT := curr_fill_color;
-end;
-
-//_______________________________________________________________________________________
-
-procedure TPDF_page.set_font(FontIndex : Integer; FontSize : Integer);
-  begin
-    SetFont(FontIndex, FontSize);
-  end;
 
 //_______________________________________________________________________________________
 
@@ -798,7 +620,6 @@ var
   pdf_filename_str: string;
 
   pdf_page: TPDF_Page;
-  pdf_section: TPDFSection;
 
   pdf_font_arial: Integer;
   pdf_font_helv: Integer;
@@ -808,12 +629,8 @@ var
   /////////////////////////////
 
 procedure begin_page;
-var
-  page: TPDFPage;
 begin
-  pdf_page := TPDF_page.Create(pdf_form.pdf_doc); // Make a new page
-  pdf_form.pdf_doc.Pages.Add(pdf_page);           // Add it to the document ...
-  pdf_section.AddPage(pdf_page);                  // ... and add it to the Section
+  pdf_page := pdf_form.pdf_doc.new_page; // Start a new page
 end;
 
 /////////////////////////////
@@ -832,23 +649,21 @@ end;
 
               begin
                 printer_printing:=True;
-                pdf_form.pdf_doc := TPDFDocument.Create(Nil);
-                with pdf_form.pdf_doc.Infos do begin
-                  Title := Application.Title;
-                  Author := 'Graeme Defty';
-                  Producer := 'Templot 3';
-                  ApplicationName := ApplicationName;
-                  CreationDate := Now;
-                end;
-
+                pdf_form.pdf_doc := TPDF_Document.Create(Nil);
                 with pdf_form.pdf_doc do begin
-                    StartDocument;
-                    pdf_section := Sections.AddSection;
-                    pdf_font_arial := Addfont('Helvetica');
+                    with Infos do begin
+                      Title := Application.Title;
+                      Author := 'Graeme Defty';
+                      Producer := 'Templot 3';
+                      ApplicationName := ApplicationName;
+                      CreationDate := Now;
+                    end;
+                    pdf_font_arial := Addfont('Courier-Oblique');
                     pdf_font_helv  := Addfont('Helvetica');
                     pdf_font_times := Addfont('Times-Roman');
                     pdf_font_courier := Addfont('Courier');
                 end;
+
                 begin_page;
               end;
 
@@ -2276,7 +2091,6 @@ try
 //        Print watermark Page number
           if (pdf_form.page_ident_checkbox.Checked=True) and (page_count>3)  // 214a show large page ident if many pages
              then begin
-
                     Set_Font(pdf_font_helv, 220);  // 220 trial and error : TODO: link this to page size
 
                     if pdf_black_white=True
@@ -2288,9 +2102,9 @@ try
                               //wm_shift:=10;             // watermark outline shift - 10 experimental
                               set_pen_color($00D0D0D0);   // pale-ish grey
                             end;
-                       //set_fill_color(clWhite);      // ink saving, make watermark outline
-                       set_fill_color(clWatermark);      // ink saving, make watermark outline
-                       //set_pen_color(clRed);           //  <<<<<----- Irrelevant!!!
+                       set_fill_color(clWhite);      // ink saving, make watermark outline
+                       set_fill_color($00d0d0d0);    // WRONG!!!! fpPDF does not (yet!) support text mode :-(
+                                                     //   so just use a solid grey for now ...
 
                     ident_left:=1000;               // TODO: Link these to page size
                     ident_top:=4000;
