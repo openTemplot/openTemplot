@@ -28,6 +28,7 @@ type
     public
       procedure draw_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; thickness:Double = 1.0); overload;
       procedure draw_line(MoveTo, LineTo : TPoint; thickness:Double = 1.0); overload;
+      procedure draw_line_style(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; style: Integer); overload;
       procedure draw_open_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; thickness:Double = 1.0); overload;
       procedure draw_open_line(MoveTo, LineTo : TPoint; thickness:Double = 1.0); overload;
       procedure write_text(dots_x, dots_y : Integer; text : String);
@@ -45,11 +46,31 @@ type
     public
       constructor Create(AOwner : TComponent); override;
       function new_page(): TPDF_Page;
+      function AddLineStyleDef(ALineWidth : TPDFFloat; AColor : TARGBColor = clBlack; APenStyle : TPDFPenStyle = ppsSolid) : Integer;
     end;
 
 implementation
 
 {$BOOLEVAL ON}
+
+
+
+//=======================================================================================
+
+function c_to_rgb(color: Integer): Integer;
+  var
+   r, g, b: Integer;
+  begin
+    r := (color       ) and $ff;
+    g := (color shr  8) and $ff;
+    b := (color shr 16) and $ff;
+    RESULT := (((r shl 8) or g) shl 8) or b;
+  end;
+
+
+//=======================================================================================
+
+
 
 //{$R *.lfm}
 
@@ -76,6 +97,12 @@ implementation
      pdf_section.AddPage(pdf_page);           // ... add it to the Section ...
      RESULT := pdf_page;                      // ... then return it :-)
    end;
+
+//_______________________________________________________________________________________
+  function Tpdf_document.AddLineStyleDef(ALineWidth : TPDFFloat; AColor : TARGBColor = clBlack; APenStyle : TPDFPenStyle = ppsSolid) : Integer;
+  begin
+    inherited AddLineStyleDef(ALineWidth, c_to_rgb(AColor), APenStyle);
+  end;
 
 
 //=======================================================================================
@@ -123,6 +150,23 @@ end;
   x2 := dots_to_mm_x(dots_x2);
   y2 := dots_to_mm_y(dots_y2);
   DrawLine(x1, y1, x2, y2, 1, true);
+  end;
+  //_______________________________________________________________________________________
+
+  procedure TPDF_page.draw_line_style(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; style: Integer);
+
+  var
+    x1, y1, x2, y2 : Double;
+
+  const
+      dpmm = 600 / 25.4;                 // Dots per mm
+
+  begin
+    x1 := dots_to_mm_x(dots_x1);
+    y1 := dots_to_mm_y(dots_y1);
+    x2 := dots_to_mm_x(dots_x2);
+    y2 := dots_to_mm_y(dots_y2);
+    DrawLineStyle(x1, y1, x2, y2, style);
   end;
 
 //_______________________________________________________________________________________
@@ -177,18 +221,6 @@ begin
   inherited DrawPolygon(points, 1.0);
   inherited FillStrokePath();
 end;
-
-//_______________________________________________________________________________________
-
-function c_to_rgb(color: Integer): Integer;
-  var
-   r, g, b: Integer;
-  begin
-    r := (color       ) and $ff;
-    g := (color shr  8) and $ff;
-    b := (color shr 16) and $ff;
-    RESULT := (((r shl 8) or g) shl 8) or b;
-  end;
 
 procedure TPDF_page.set_pen_color(color: Integer);
 

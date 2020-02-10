@@ -626,6 +626,9 @@ var
   pdf_font_times: Integer;
   pdf_font_courier: Integer;
 
+  // Linestyles
+  ls_grid: Integer;
+
   /////////////////////////////
 
 procedure begin_page;
@@ -658,10 +661,13 @@ end;
                       ApplicationName := ApplicationName;
                       CreationDate := Now;
                     end;
+                    // add fonts to doc
                     pdf_font_arial := Addfont('Courier-Oblique');
                     pdf_font_helv  := Addfont('Helvetica');
                     pdf_font_times := Addfont('Times-Roman');
                     pdf_font_courier := Addfont('Courier');
+                    // add line styles to doc
+                    ls_grid := pdf_form.pdf_doc.addLineStyleDef(0.1, printgrid_colour);
                 end;
 
                 begin_page;
@@ -2126,7 +2132,7 @@ try
 //          Brush.Style:=bsSolid;
 
 //          Font.Assign(print_labels_font);
-          set_font(pdf_font_courier, 10);
+          set_font(pdf_font_arial, 10);
           if printgrid_i=1
              then begin
                     case grid_labels_code_i of
@@ -2139,7 +2145,7 @@ try
                     end;//case
 
                     //Pen.Color:=printgrid_colour;           // for grid lines.
-                    set_pen_color(printgrid_colour);
+                    //set_pen_color(printgrid_colour);
                     //Pen.Mode:=pmCopy;
 
                     //if pad_form.printed_grid_dotted_menu_entry.Checked=True
@@ -2160,6 +2166,9 @@ try
                     //          if pen_width<1 then pen_width:=1;
                     //        end;
 
+                    //ls_grid := pdf_form.pdf_doc.CreateLineStyle(ppsSolid, 10);
+                    //setLineStyle(lineStyleDef_grid);
+
                        //  draw horizontal grid lines (across width)...
 
                     if (banner_paper=True) or ( print_pages_top_origin<>0 )
@@ -2178,7 +2187,7 @@ try
                       //move_to.X:=left_blanking_dots;          move_to.Y:=grid_now_dots;
                       //line_to.X:=printer_width_indexmax_dots; line_to.Y:=grid_now_dots;
 
-                      draw_line(left_blanking_dots, grid_now_dots, printer_width_indexmax_dots, grid_now_dots);
+                      draw_line_style(left_blanking_dots, grid_now_dots, printer_width_indexmax_dots, grid_now_dots, ls_grid);
 
                       //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
 
