@@ -3,7 +3,7 @@
 
 // As an example, functions here:
 //    - take coordinates in dpi and turn them into mm.
-//    - take colors in BRG and turn them into RGB
+//    - take colors in BGR and turn them into RGB
 //    - etc
 
 unit pdf_lib_unit;
@@ -13,29 +13,36 @@ unit pdf_lib_unit;
 interface
 
 uses
-  fpPDF, Classes, Dialogs, SysUtils, Types,
+  fpPDF, Classes, Dialogs, FPCanvas, Graphics, SysUtils, Types,
   preview_unit;
 
 type
 
   Tpdf_page = class(TPDFPage)
     private
+      curr_pen_style: TPDFPenStyle;
+      curr_pen_width: Double;
       curr_pen_color: Integer;
       curr_fill_color: Integer;
-      function px_to_mm(pixels: Integer): double;
+      function dots_to_px(dots: Integer): double;
+      function px_to_dots(px: Double): Integer;
       function dots_to_mm_x(dots_x: Integer): double;
       function dots_to_mm_y(dots_y: Integer): double;
     public
-      procedure draw_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; thickness:Double = 1.0); overload;
-      procedure draw_line(MoveTo, LineTo : TPoint; thickness:Double = 1.0); overload;
+      procedure draw_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer); overload;
+      procedure draw_line(MoveTo, LineTo : TPoint); overload;
       procedure draw_line_style(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; style: Integer); overload;
-      procedure draw_open_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; thickness:Double = 1.0); overload;
-      procedure draw_open_line(MoveTo, LineTo : TPoint; thickness:Double = 1.0); overload;
+      procedure draw_open_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; colour: Integer); overload;
+      procedure draw_open_line(MoveTo, LineTo : TPoint; colour: Integer); overload;
       procedure write_text(dots_x, dots_y : Integer; text : String);
       procedure polygon(dots : Array of Tpoint);
       procedure set_pen_color(color: Integer);
       procedure set_fill_color(color: Integer);
       procedure set_font(FontIndex : Integer; FontSize : Integer);
+      procedure set_pen_style(APenStyle : TFPPenStyle = psSolid);
+      procedure set_pen_width(Width : LongInt = 1);
+      function current_pen_width(): Integer;
+      function current_pen_style(): TFPPenStyle;
       function current_pen_color(): Integer;
       function current_fill_color(): Integer;
   end;
@@ -46,8 +53,8 @@ type
     public
       constructor Create(AOwner : TComponent); override;
       function new_page(): TPDF_Page;
-      function AddLineStyleDef(ALineWidth : TPDFFloat; AColor : TARGBColor = clBlack; APenStyle : TPDFPenStyle = ppsSolid) : Integer;
     end;
+
 
 implementation
 
@@ -65,6 +72,11 @@ function c_to_rgb(color: Integer): Integer;
     g := (color shr  8) and $ff;
     b := (color shr 16) and $ff;
     RESULT := (((r shl 8) or g) shl 8) or b;
+  end;
+
+function dots_to_mm(dots: Integer): Double;
+  begin
+    RESULT := dots * 25.4 / 600
   end;
 
 
@@ -98,20 +110,23 @@ function c_to_rgb(color: Integer): Integer;
      RESULT := pdf_page;                      // ... then return it :-)
    end;
 
-//_______________________________________________________________________________________
-  function Tpdf_document.AddLineStyleDef(ALineWidth : TPDFFloat; AColor : TARGBColor = clBlack; APenStyle : TPDFPenStyle = ppsSolid) : Integer;
-  begin
-    inherited AddLineStyleDef(ALineWidth, c_to_rgb(AColor), APenStyle);
-  end;
-
 
 //=======================================================================================
 
-function TPDF_page.px_to_mm(pixels: Integer): double;
+function TPDF_page.dots_to_px(dots: LongInt): double;
   const
-    pxpmm = 72 / 25.4;           // px per inch / mm per inch
+    px_per_dot = 72 / 600;           // px per inch / dots per inch
   begin
-    result := pixels / pxpmm;
+    result := dots * px_per_dot;
+end;
+
+//_______________________________________________________________________________________
+
+function TPDF_page.px_to_dots(px: Double): Integer;
+  const
+    dots_per_px = 600 / 72 ;           // dots per inch / px per inch
+  begin
+    result := round(px * dots_per_px);
 end;
 
 //_______________________________________________________________________________________
@@ -134,9 +149,27 @@ function TPDF_page.dots_to_mm_y(dots_y: Integer): double;
     result := 297 - (dots_y / dpmm + page_margin_bottom_mm);
 end;
 
+
+//_______________________________________________________________________________________
+  procedure TPDF_page.set_pen_style(APenStyle : TFPPenStyle = psSolid);
+  begin
+    case APenStyle of
+         psDot  : curr_pen_style := ppsDot;
+         psDash : curr_pen_style := ppsDash;
+         else     curr_pen_style := ppsSolid;
+    end;
+
+  end;
+
+  //_______________________________________________________________________________________
+  procedure TPDF_page.set_pen_width(Width : LongInt = 1);
+  begin
+    curr_pen_width := dots_to_px(Width);
+  end;
+
 //_______________________________________________________________________________________
 
-  procedure TPDF_page.draw_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; thickness:Double = 1.0);
+  procedure TPDF_page.draw_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer);
 
   var
   x1, y1, x2, y2 : Double;
@@ -149,7 +182,7 @@ end;
   y1 := dots_to_mm_y(dots_y1);
   x2 := dots_to_mm_x(dots_x2);
   y2 := dots_to_mm_y(dots_y2);
-  DrawLine(x1, y1, x2, y2, 1, true);
+  DrawLine(x1, y1, x2, y2, curr_pen_width, true);
   end;
   //_______________________________________________________________________________________
 
@@ -171,25 +204,25 @@ end;
 
 //_______________________________________________________________________________________
 
-  procedure TPDF_page.draw_line(MoveTo, LineTo : TPoint; thickness:Double = 1.0);
+  procedure TPDF_page.draw_line(MoveTo, LineTo : TPoint);
   begin
-    draw_line(MoveTo.x, MoveTo.y, LineTo.x, LineTo.y, thickness);
+    draw_line(MoveTo.x, MoveTo.y, LineTo.x, LineTo.y);
   end;
 
 //_______________________________________________________________________________________
 //  Line without endpoints
 
-  procedure TPDF_page.draw_open_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; thickness:Double = 1.0);
+  procedure TPDF_page.draw_open_line(dots_x1, dots_y1, dots_x2, dots_y2, colour : Integer);
     begin
-      draw_line(dots_x1, dots_y1, dots_x2, dots_y2, thickness);
+      draw_line(dots_x1, dots_y1, dots_x2, dots_y2);
     end;
 
 //_______________________________________________________________________________________
 //  Line without endpoints
 
-  procedure TPDF_page.draw_open_line(MoveTo, LineTo : TPoint; thickness:Double = 1.0);
+  procedure TPDF_page.draw_open_line(MoveTo, LineTo : TPoint; colour: Integer);
   begin
-    draw_open_line(MoveTo.x, MoveTo.y, LineTo.x, LineTo.y, thickness);
+    draw_open_line(MoveTo.x, MoveTo.y, LineTo.x, LineTo.y, colour);
   end;
 
   //_______________________________________________________________________________________
@@ -218,7 +251,7 @@ begin
       points[i].X := dots_to_mm_x(dots[i].x);
       points[i].Y := dots_to_mm_y(dots[i].y);
     end;
-  inherited DrawPolygon(points, 1.0);
+  inherited DrawPolygon(points, curr_pen_width);
   inherited FillStrokePath();
 end;
 
@@ -238,14 +271,28 @@ end;
 
 //_______________________________________________________________________________________
 
-function TPDF_page.current_pen_color(): Integer;
+function TPDF_page.current_pen_width(): Integer;
+begin
+  //RESULT := mm_to_dots(curr_pen_width);
+  //RESULT := round(curr_pen_width);
+  RESULT := px_to_dots(curr_pen_width);
+end;
 
+function TPDF_page.current_pen_style(): TFPPenStyle;
+begin
+  case curr_pen_style of
+       ppsSolid: RESULT := psSolid;
+       ppsDot:   RESULT := psDot;
+       ppsDash:  RESULT := psDash;
+  end;
+end;
+
+function TPDF_page.current_pen_color(): Integer;
 begin
   RESULT := curr_pen_color;
 end;
 
 function TPDF_page.current_fill_color(): Integer;
-
 begin
   RESULT := curr_fill_color;
 end;
