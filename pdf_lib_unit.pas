@@ -8,7 +8,8 @@
 
 unit pdf_lib_unit;
 
-{$MODE Delphi}
+//{$MODE Delphi}
+{$mode objfpc}{$H+}
 
 interface
 
@@ -24,17 +25,18 @@ type
       curr_pen_width: Double;
       curr_pen_color: Integer;
       curr_fill_color: Integer;
+      curr_font_index: Integer;
+      curr_font_size: Integer;
       function dots_to_px(dots: Integer): double;
       function px_to_dots(px: Double): Integer;
       function dots_to_mm_x(dots_x: Integer): double;
       function dots_to_mm_y(dots_y: Integer): double;
     public
       procedure draw_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer); overload;
-      procedure draw_line(MoveTo, LineTo : TPoint); overload;
+      procedure draw_line(MvTo, LineTo : TPoint); overload;
       procedure draw_line_style(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; style: Integer); overload;
       procedure draw_open_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; colour: Integer); overload;
-      procedure draw_open_line(MoveTo, LineTo : TPoint; colour: Integer); overload;
-      procedure write_text(dots_x, dots_y : Integer; text : String);
+      procedure draw_open_line(MvTo, LineTo : TPoint; colour: Integer); overload;
       procedure polygon(dots : Array of Tpoint);
       procedure set_pen_color(color: Integer);
       procedure set_fill_color(color: Integer);
@@ -204,9 +206,9 @@ end;
 
 //_______________________________________________________________________________________
 
-  procedure TPDF_page.draw_line(MoveTo, LineTo : TPoint);
+  procedure TPDF_page.draw_line(MvTo, LineTo : TPoint);
   begin
-    draw_line(MoveTo.x, MoveTo.y, LineTo.x, LineTo.y);
+    draw_line(MvTo.x, MvTo.y, LineTo.x, LineTo.y);
   end;
 
 //_______________________________________________________________________________________
@@ -220,9 +222,9 @@ end;
 //_______________________________________________________________________________________
 //  Line without endpoints
 
-  procedure TPDF_page.draw_open_line(MoveTo, LineTo : TPoint; colour: Integer);
+  procedure TPDF_page.draw_open_line(MvTo, LineTo : TPoint; colour: Integer);
   begin
-    draw_open_line(MoveTo.x, MoveTo.y, LineTo.x, LineTo.y, colour);
+    draw_open_line(MvTo.x, MvTo.y, LineTo.x, LineTo.y, colour);
   end;
 
   //_______________________________________________________________________________________
