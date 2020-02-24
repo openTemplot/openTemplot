@@ -18,6 +18,9 @@ uses
   preview_unit;
 
 type
+  Tpdf_TextPosn = (tpBottomLeft, tpBottomCentre, tpBottomRight,
+                   tpMiddleLeft, tpMiddleCentre, tpMiddleRight,
+                   tpTopLeft,    tpTopCentre,    tpTopRight);
 
   Tpdf_page = class(TPDFPage)
     private
@@ -37,6 +40,9 @@ type
       procedure draw_line_style(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; style: Integer); overload;
       procedure draw_open_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; colour: Integer); overload;
       procedure draw_open_line(MvTo, LineTo : TPoint; colour: Integer); overload;
+      procedure write_text(dots_x, dots_y : Integer; text : String); overload;
+      procedure write_text(dots_x, dots_y : Integer; text : String; shift: Array of Single); overload;
+      procedure write_text(dots_x, dots_y : Integer; text : String; base: Tpdf_TextPosn); overload;
       procedure polygon(dots : Array of Tpoint);
       procedure set_pen_color(color: Integer);
       procedure set_fill_color(color: Integer);
@@ -47,6 +53,11 @@ type
       function current_pen_style(): TFPPenStyle;
       function current_pen_color(): Integer;
       function current_fill_color(): Integer;
+      function current_font_index(): Integer;
+      // The following are copied from fpPDF
+      function GetStdFontCharWidthsArray(const AFontName: string): TPDFFontWidthArray;
+      function GetTextWidth(text: String): single;
+      function GetTextHeight(text: String): single;
   end;
 
   Tpdf_document = class(TPDFDocument)
@@ -62,7 +73,7 @@ implementation
 
 {$BOOLEVAL ON}
 
-
+{$I fontmetrics_stdpdf.inc }
 
 //=======================================================================================
 
@@ -229,16 +240,50 @@ end;
 
   //_______________________________________________________________________________________
 
-procedure TPDF_page.write_text(dots_x, dots_y : Integer; text : String);
+  procedure TPDF_page.write_text(dots_x, dots_y : Integer; text : String); overload;
+//
+//  var
+//  x, y : Double;
+//
+  begin
+    //x := dots_to_mm_x(dots_x);
+    //y := dots_to_mm_y(dots_y);
+    //WriteText(x, y, text);
+    write_text(dots_x, dots_y, text, [0,0]);
+  end;
 
-var
-x, y : Double;
+  procedure TPDF_page.write_text(dots_x, dots_y: Integer; text: String; base: Tpdf_TextPosn); overload;
 
-begin
-  x := dots_to_mm_x(dots_x);
-  y := dots_to_mm_y(dots_y);
-  WriteText(x, y, text);
-end;
+  const
+      shiftnums: array[Tpdf_textposn] of array[0..1] of Single =
+        ( (0.0,  0.0), (-0.5,  0.0), (-1.0, 0.0),
+          (0.0, -0.5), (-0.5, -0.5), (-1.0, -0.5),
+          (0.0, -1.0), (-0.5, -1.0), (-1.0, -1.0));
+  //       BottomLeft,  BottomCentre, BottomRight,
+  //       MiddleLeft,  MiddleCentre, MiddleRight,
+  //       TopLeft,     TopCentre,    TopRight
+  begin
+       write_text(dots_x, dots_y, text, shiftnums[base]);
+  end;
+
+
+  procedure TPDF_page.write_text(dots_x, dots_y: Integer; text: String; shift: Array of single); overload;
+
+  var
+  x, y : Double; // co-ordinates in mm
+  w, h : Double; // width and height of text
+
+  begin
+    // convert the dot co-ordinates to mm ...
+    x := dots_to_mm_x(dots_x);
+    y := dots_to_mm_y(dots_y);
+
+    // Get width & height in mm
+    w := GetTextWidth(text) / 4.37;
+    h := GetTextHeight(text) / 3.7275;
+
+    WriteText(x + w*shift[0], y + h*shift[1], text);
+  end;
 
 //_______________________________________________________________________________________
 
@@ -299,12 +344,91 @@ begin
   RESULT := curr_fill_color;
 end;
 
+function TPDF_page.current_font_index(): Integer;
+begin
+  RESULT := curr_font_index;
+end;
+
 //_______________________________________________________________________________________
 
 procedure TPDF_page.set_font(FontIndex : Integer; FontSize : Integer);
   begin
+    curr_font_index := FontIndex;
+    curr_font_size := FontSize;
     SetFont(FontIndex, FontSize);
   end;
+
+
+//_______________________________________________________________________________________
+// These functions copied from TPDFText in unit fpPDF where they are 'private'.
+// Why are they not made available there? I am too polite to speculate.
+//
+
+function TPDF_page.GetStdFontCharWidthsArray(const AFontName: string): TPDFFontWidthArray;
+begin
+  case AFontName of
+    'Courier':                 result := FONT_COURIER_FULL;
+    'Courier-Bold':            result := FONT_COURIER_FULL;
+    'Courier-Oblique':         result := FONT_COURIER_FULL;
+    'Courier-BoldOblique':     result := FONT_COURIER_FULL;
+    'Helvetica':               result := FONT_HELVETICA_ARIAL;
+    'Helvetica-Bold':          result := FONT_HELVETICA_ARIAL_BOLD;
+    'Helvetica-Oblique':       result := FONT_HELVETICA_ARIAL_ITALIC;
+    'Helvetica-BoldOblique':   result := FONT_HELVETICA_ARIAL_BOLD_ITALIC;
+    'Times-Roman':             result := FONT_TIMES;
+    'Times-Bold':              result := FONT_TIMES_BOLD;
+    'Times-Italic':            result := FONT_TIMES_ITALIC;
+    'Times-BoldItalic':        result := FONT_TIMES_BOLD_ITALIC;
+    'Symbol':                  result := FONT_SYMBOL;
+    'ZapfDingbats':            result := FONT_ZAPFDINGBATS;
+    //else
+    //  raise EPDF.CreateFmt(rsErrUnknownStdFont, [AFontName]);
+  end;
+end;
+
+function TPDF_page.GetTextWidth(text: String): single;
+var
+  i: integer;
+  lWidth: double;
+  lFontName: string;
+begin
+  //lFontName := Document.Fonts[Font.FontIndex].Name;
+  lFontName := Document.Fonts[current_font_index].Name;
+  //if not Document.IsStandardPDFFont(lFontName) then
+  //  raise EPDF.CreateFmt(rsErrUnknownStdFont, [lFontName]);
+  lWidth := 0;
+  for i := 1 to Length(text) do
+    lWidth := lWidth + GetStdFontCharWidthsArray(lFontName)[Ord(text[i])];
+  Result := lWidth * curr_font_size / 1540;
+end;
+
+function TPDF_page.GetTextHeight(text: String): single;
+var
+  lFontName: string;
+begin
+  //lFontName := Document.Fonts[Font.FontIndex].Name;
+  lFontName := Document.Fonts[current_font_index].Name;
+  Result := 0;
+  case lFontName of
+    'Courier':                 result := FONT_TIMES_COURIER_CAPHEIGHT;
+    'Courier-Bold':            result := FONT_TIMES_COURIER_CAPHEIGHT;
+    'Courier-Oblique':         result := FONT_TIMES_COURIER_CAPHEIGHT;
+    'Courier-BoldOblique':     result := FONT_TIMES_COURIER_CAPHEIGHT;
+    'Helvetica':               result := FONT_HELVETICA_ARIAL_CAPHEIGHT;
+    'Helvetica-Bold':          result := FONT_HELVETICA_ARIAL_BOLD_CAPHEIGHT;
+    'Helvetica-Oblique':       result := FONT_HELVETICA_ARIAL_ITALIC_CAPHEIGHT;
+    'Helvetica-BoldOblique':   result := FONT_HELVETICA_ARIAL_BOLD_ITALIC_CAPHEIGHT;
+    'Times-Roman':             result := FONT_TIMES_CAPHEIGHT;
+    'Times-Bold':              result := FONT_TIMES_BOLD_CAPHEIGHT;
+    'Times-Italic':            result := FONT_TIMES_ITALIC_CAPHEIGHT;
+    'Times-BoldItalic':        result := FONT_TIMES_BOLD_ITALIC_CAPHEIGHT;
+    'Symbol':                  result := 300;
+    'ZapfDingbats':            result := 300;
+    //else
+    //  raise EPDF.CreateFmt(rsErrUnknownStdFont, [lFontName]);
+  end;
+  Result := Result * curr_font_size / 1540;
+end;
 
 //_______________________________________________________________________________________
 

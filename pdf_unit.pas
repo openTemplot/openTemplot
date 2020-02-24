@@ -621,10 +621,21 @@ var
 
   pdf_page: TPDF_Page;
 
-  pdf_font_arial: Integer;
-  pdf_font_helv: Integer;
+  // all standard pdf fonts - useage preferred to reduce file size
   pdf_font_times: Integer;
-  pdf_font_courier: Integer;
+  //pdf_font_times_B: Integer;
+  //pdf_font_times_I: Integer;
+  //pdf_font_times_BI: Integer;
+  pdf_font_helv: Integer;
+  //pdf_font_helv_B: Integer;
+  //pdf_font_helv_I: Integer;
+  //pdf_font_helv_BI: Integer;
+  //pdf_font_courier: Integer;
+  //pdf_font_courier_B: Integer;
+  //pdf_font_courier_I: Integer;
+  //pdf_font_courier_BI: Integer;
+  //pdf_font_Symbol: Integer;
+  //pdf_font_ZapfDingbats: Integer;
 
   /////////////////////////////
 
@@ -674,10 +685,20 @@ end;
                               CreationDate := Now;
                             end;
                             // add fonts to doc
-                            pdf_font_arial := Addfont('Courier-Oblique');
-                            pdf_font_helv  := Addfont('Helvetica');
                             pdf_font_times := Addfont('Times-Roman');
-                            pdf_font_courier := Addfont('Courier');
+                            //pdf_font_times_B := Addfont('Times-Bold');
+                            //pdf_font_times_I := Addfont('Times-Oblique');
+                            //pdf_font_times_BI := Addfont('Times-BoldOblique');
+                            pdf_font_helv := Addfont('Helvetica');
+                            //pdf_font_helv_B := Addfont('Helvetica-Bold');
+                            //pdf_font_helv_I := Addfont('Helvetica-Oblique');
+                            //pdf_font_helv_BI := Addfont('Helvetica-BoldOblique');
+                            //pdf_font_courier := Addfont('Courier');
+                            //pdf_font_courier_B := Addfont('Courier-Bold');
+                            //pdf_font_courier_I := Addfont('Courier-Oblique');
+                            //pdf_font_courier_BI := Addfont('Courier-BoldOblique');
+                            //pdf_font_Symbol
+                            //pdf_font_ZapfDingbats
                         end;
                         set_styles;
                         begin_page;
@@ -2191,12 +2212,13 @@ try
           if bgnd_form.output_grid_in_front_checkbox.Checked=True            // do shapes and sb first
              then pdf_shapes_and_sketchboard_items(grid_left,grid_top);      // 206e
 
+//----------------------------------------
 //        Print Grid
 //          Brush.Color:=clWhite;  // 206e moved here
 //          Brush.Style:=bsSolid;
 
 //          Font.Assign(print_labels_font);
-          set_font(pdf_font_helv, 10);
+          set_font(pdf_font_times, 9);
           if printgrid_i=1
              then begin
                     case grid_labels_code_i of
@@ -2286,8 +2308,12 @@ try
 
                       grid_label_str:=FormatFloat('0.###',grid_label);
 
+                      set_fill_color(clLime);
                       //text_out(left_blanking_dots,grid_now_dots-(TextHeight('A') div 2),grid_label_str+' '); //  add labels.
-                      write_text(left_blanking_dots, grid_now_dots, grid_label_str+' '); //  add labels.
+                      write_text(left_blanking_dots,
+                                 grid_now_dots,
+                                 grid_label_str+' ',
+                                 tpMiddleCentre); //  add labels.
 
                       until grid_now_dots>page_bottom_dots;
 
@@ -2331,13 +2357,22 @@ try
                       grid_label_str:=FormatFloat('0.###',grid_label);
 
                   //    text_out(grid_now_dots-(TextWidth(grid_label_str) div 2),page_top_dots-(printmargin_wide div 2)-halfmm_dots-TextHeight('A'),grid_label_str); //  add labels.
-                  write_text(grid_now_dots{-(TextWidth(grid_label_str) div 2)}, page_top_dots-(printmargin_wide div 2)-halfmm_dots{-TextHeight('A')},grid_label_str); //  add labels.
+                  write_text(grid_now_dots{-(TextWidth(grid_label_str) div 2)},
+                             page_top_dots-(printmargin_wide div 2)-halfmm_dots{-TextHeight('A')},
+                             grid_label_str
+                             , tpBottomCentre); //  add labels.
 
                     until grid_now_dots>page_right_dots;
 
                               // finally add the units string...
 
+                  //write_text(grid_now_dots{-(TextWidth(grid_label_str) div 2)},
+                  //           page_top_dots-(printmargin_wide div 2)-halfmm_dots{-TextHeight('A')},
+                  //           grid_label_str); //  add labels.
                   //  text_out(left_blanking_dots,page_top_dots-(printmargin_wide div 2)-halfmm_dots-TextHeight('A'),grid_str);  // add the units string.
+                  write_text(left_blanking_dots,
+                             page_top_dots-(printmargin_wide div 2)-halfmm_dots{-TextHeight('A')},
+                             grid_str);  // add the units string.
                   //
                   //  Pen.Style:=psSolid;  // reset in case of dotted.
                   end;
@@ -2641,14 +2676,14 @@ try
 //              Brush.Style:=bsSolid;
 
               set_fill_color(clBlack);
-              set_font(pdf_font_times, 6);
+              set_font(pdf_font_helv, 7);
 
               write_text(left_blanking_dots,top_blanking_dots,top_str);  // name and "who for?" string at topleft.
 
                     // small text inside the margins...
 
                     //Font.Assign(set_font('Arial',6,[],calc_intensity(clBlack)));
-                    set_font(pdf_font_Arial, 6);
+                    set_font(pdf_font_helv, 6);
                     set_pen_color(calc_intensity(clBlack));
 
                     // mods 208g  20-04-2014  show page origin dims on templates...
@@ -2678,36 +2713,57 @@ try
                         this_page_begin_str:=last_file_str;
                         this_page_end_str:='';
                       end;
-{
-              if pad_form.show_corner_info_menu_entry.Checked=True    // 223d
+
+              //if pad_form.show_corner_info_menu_entry.Checked=True    // 223d
+              //   then begin
+
+                        //Font.Assign(print_corner_page_numbers_font);                           // 0.93.a
+                        //if print_corner_page_numbers_font.Size>8 then Brush.Style:=bsClear;
+
+                        //Textout(page_left_dots+printmargin_wide+3, page_top_dots+printmargin_wide+2, this_page_begin_str);                                                                                // top left corner
+                        write_text(page_left_dots+printmargin_wide+3,
+                                   page_top_dots+printmargin_wide+2,
+                                   this_page_begin_str,
+                                   tpTopLeft);           // top left corner
+                        //Textout(page_left_dots+printmargin_wide+3, page_bottom_dots+Font.Height-printmargin_wide-4, page_num_str+'   '+box_project_title_str+'   '+DateToStr(Date)+' '+TimeToStr(Time));  // bottom left corner
+                        write_text(page_left_dots+printmargin_wide+3,
+                                   page_bottom_dots{+Font.Height}-printmargin_wide-4,
+                                   page_num_str+'   '+box_project_title_str+'   '+DateToStr(Date)+' '+TimeToStr(Time));  // bottom left corner
+                        //Textout(page_right_dots-printmargin_wide-TextWidth(all_pages_origin_str+page_num_str)-3,page_top_dots+printmargin_wide+2,all_pages_origin_str+page_num_str);                      // top right corner
+                        write_text(page_right_dots-printmargin_wide{-TextWidth(all_pages_origin_str+page_num_str)}-200,
+                                   page_top_dots+printmargin_wide+2,
+                                   all_pages_origin_str+page_num_str,
+                                   tpTopRight);         // top right corner
+                        //Textout(page_right_dots-printmargin_wide-TextWidth(this_page_end_str)-3,page_bottom_dots+Font.Height-printmargin_wide-4,this_page_end_str);                                       // bottom right corner
+                        write_text(page_right_dots-printmargin_wide{-TextWidth(this_page_end_str)}-200,
+                                   page_bottom_dots{+Font.Height}-printmargin_wide-4,
+                                   this_page_end_str,
+                                   tpBottomRight);      // bottom right corner
+              //        end;
+
+
+              if (distortions<>0) and (pdf_form.warnings_checkbox.Checked=True)
                  then begin
-
-                        Font.Assign(print_corner_page_numbers_font);                           // 0.93.a
-                        if print_corner_page_numbers_font.Size>8 then Brush.Style:=bsClear;
-
-                        Textout(page_left_dots+printmargin_wide+3, page_top_dots+printmargin_wide+2, this_page_begin_str);                                                                                // top left corner
-                        Textout(page_left_dots+printmargin_wide+3, page_bottom_dots+Font.Height-printmargin_wide-4, page_num_str+'   '+box_project_title_str+'   '+DateToStr(Date)+' '+TimeToStr(Time));  // bottom left corner
-                        Textout(page_right_dots-printmargin_wide-TextWidth(all_pages_origin_str+page_num_str)-3,page_top_dots+printmargin_wide+2,all_pages_origin_str+page_num_str);                      // top right corner
-                        Textout(page_right_dots-printmargin_wide-TextWidth(this_page_end_str)-3,page_bottom_dots+Font.Height-printmargin_wide-4,this_page_end_str);                                       // bottom right corner
-                      end;
-}
-//
-//              if (distortions<>0) and (pdf_form.warnings_checkbox.Checked=True)
-//                 then begin
 //                        Font.Assign(set_font('Arial',7,[],printmargin_colour));
-//
+
 //                        text_out(page_left_dots+printmargin_wide,page_top_dots+printmargin_wide-(Font.Height*5),
 //                                '  Warning :  Data distortions are in force.  This template may not be dimensionally accurate.');
-//                      end;
-//
+                        write_text(page_left_dots+printmargin_wide,page_top_dots+printmargin_wide{-(Font.Height*5)},
+                                '  Warning :  Data distortions are in force.  This template may not be dimensionally accurate.');
+                      end;
+
 //              Font.Assign(print_labels_font);  // reset for labels.
-//
+
 //              Font.Color:=calc_intensity(clBlack);
 //              Brush.Color:=clWhite;
 //              Brush.Style:=bsClear;   // transparent over detail.
-//
+
 //              TextOut(left_blanking_dots,page_bottom_dots+(printmargin_wide div 2)+halfmm_dots,page_str+bottom_str); // add the bottom string last.
-//
+              write_text(left_blanking_dots,
+                         page_bottom_dots+(printmargin_wide div 2)+halfmm_dots,
+                         page_str+bottom_str,
+                         tpTopLeft); // add the bottom string last.
+
 //              Font.Assign(print_labels_font);  // reset for labels.
 //              Brush.Style:=bsSolid;
 
@@ -4472,18 +4528,20 @@ begin
                                                   idtb_str:=num_str;
                                                 end;
 
-                                        idtb_str:=' '+idtb_str+' ';
+                                        //idtb_str:=' '+idtb_str+' ';
 
                                         //text_out(move_to.X-(TextWidth(idtb_str) div 2),
                                         //        move_to.Y-(TextHeight(idtb_str) div 2),
                                         //        idtb_str);
 
-//                                        set_pen_color(clGreen);     // !!! THIS IS WRONG !!!!
+//                                        set_pen_color(clBlack);     // !!! THIS IS WRONG !!!!
                                         set_fill_color(clBlack);    // !!! THIS IS WRONG !!!!
+                                        set_font(1, 8);
 
-                                        write_text(move_to.X       ,//-(TextWidth(idtb_str) div 2),
-                                                move_to.Y          ,//-(TextHeight(idtb_str) div 2),
-                                                idtb_str);
+                                        write_text(move_to.X     ,//-(TextWidth(idtb_str) div 2),
+                                                   move_to.Y      ,//-(TextHeight(idtb_str) div 2),
+                                                   idtb_str,
+                                                   tpTopCentre);
 
                                         //Font.Assign(print_labels_font);      // reset for grid labels
                                       end;
@@ -4513,6 +4571,7 @@ begin
                                             //
                                             //Brush.Style:=bsSolid;
                                             //Brush.Color:=clWhite;
+                                            set_fill_color(printguide_colour);
 
                                             case code of
                                                   601: switch_label_str:='tips';
@@ -4533,7 +4592,8 @@ begin
                                             //         ' '+switch_label_str+' ');
                                             write_text(move_to.X              ,//-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
                                                      move_to.Y                ,//-(TextHeight(switch_label_str) div 2),
-                                                     ' '+switch_label_str+' ');
+                                                     switch_label_str,
+                                                     tpMiddleCentre);
 
                                             //Font.Assign(print_labels_font);      // reset for grid labels
                                           end;
