@@ -8,8 +8,7 @@
 
 unit pdf_lib_unit;
 
-//{$MODE Delphi}
-{$mode objfpc}{$H+}
+{$MODE Delphi}
 
 interface
 
@@ -24,6 +23,8 @@ type
 
   Tpdf_page = class(TPDFPage)
     private
+      width: Single;
+      height: Single;
       curr_pen_style: TPDFPenStyle;
       curr_pen_width: Double;
       curr_pen_color: Integer;
@@ -34,7 +35,10 @@ type
       function px_to_dots(px: Double): Integer;
       function dots_to_mm_x(dots_x: Integer): double;
       function dots_to_mm_y(dots_y: Integer): double;
+      function fontNum(const AFontName: string): Integer;
     public
+      constructor Create(AOwner: TPDFDocument);
+      procedure set_landscape();
       procedure draw_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer); overload;
       procedure draw_line(MvTo, LineTo : TPoint); overload;
       procedure draw_line_style(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; style: Integer); overload;
@@ -70,6 +74,9 @@ type
 
 
 implementation
+
+uses
+  strutils;
 
 {$BOOLEVAL ON}
 
@@ -126,6 +133,16 @@ function dots_to_mm(dots: Integer): Double;
 
 //=======================================================================================
 
+   constructor Tpdf_page.Create(AOwner: TPDFDocument);
+   begin
+     showMessage('About to call inherited');
+     inherited Create(AOwner);
+     showMessage('About to set height');
+     height := 297; // Default is portrait
+     showMessage('... exiting Create');
+   end;
+
+//_______________________________________________________________________________________
 function TPDF_page.dots_to_px(dots: LongInt): double;
   const
     px_per_dot = 72 / 600;           // px per inch / dots per inch
@@ -159,9 +176,16 @@ function TPDF_page.dots_to_mm_y(dots_y: Integer): double;
     yscale = 1.028;
     dpmm = 600 / 25.4 / yscale;           // dots per inch / mm per inch
   begin
-    result := 297 - (dots_y / dpmm + page_margin_bottom_mm);
+    result := height - (dots_y / dpmm + page_margin_bottom_mm);
 end;
 
+
+//_______________________________________________________________________________________
+  procedure TPDF_page.set_landscape();
+  begin
+    orientation := ppoLandscape;
+    height := 210
+  end;
 
 //_______________________________________________________________________________________
   procedure TPDF_page.set_pen_style(APenStyle : TFPPenStyle = psSolid);
@@ -241,14 +265,7 @@ end;
   //_______________________________________________________________________________________
 
   procedure TPDF_page.write_text(dots_x, dots_y : Integer; text : String); overload;
-//
-//  var
-//  x, y : Double;
-//
   begin
-    //x := dots_to_mm_x(dots_x);
-    //y := dots_to_mm_y(dots_y);
-    //WriteText(x, y, text);
     write_text(dots_x, dots_y, text, [0,0]);
   end;
 
@@ -272,6 +289,8 @@ end;
   var
   x, y : Double; // co-ordinates in mm
   w, h : Double; // width and height of text
+  old_pen_color: Integer;
+  old_fill_color: Integer;
 
   begin
     // convert the dot co-ordinates to mm ...
@@ -279,10 +298,22 @@ end;
     y := dots_to_mm_y(dots_y);
 
     // Get width & height in mm
-    w := GetTextWidth(text) / 4.37;
-    h := GetTextHeight(text) / 3.7275;
+    w := GetTextWidth(text) / 3.7; // 3.7724;
+    h := GetTextHeight(text) / 3.7; // 3.7275;
 
-    WriteText(x + w*shift[0], y + h*shift[1], text);
+    // Add in any required shift
+    x := x + w*shift[0];
+    y := y + h*shift[1];
+
+    old_pen_color := current_pen_color;
+    old_fill_color := current_fill_color;
+    set_pen_color(clWhite);
+    set_fill_color(clWhite);
+    DrawRect(x, y, w, h, 3, True, False);
+    set_pen_color(clWhite);
+    set_fill_color(old_fill_color);
+
+    WriteText(x, y, text);
   end;
 
 //_______________________________________________________________________________________
@@ -364,23 +395,43 @@ procedure TPDF_page.set_font(FontIndex : Integer; FontSize : Integer);
 // Why are they not made available there? I am too polite to speculate.
 //
 
+// OK, I lied - this one is not copied, but factored out of the following functions ...
+function TPDF_page.fontNum(const AFontName: string): Integer;
+begin
+  AnsiIndexText(AFontName,
+   ['Courier',
+    'Courier-Bold',
+    'Courier-Oblique',
+    'Courier-BoldOblique',
+    'Helvetica',
+    'Helvetica-Bold',
+    'Helvetica-Oblique',
+    'Helvetica-BoldOblique',
+    'Times-Roman',
+    'Times-Bold',
+    'Times-Italic',
+    'Times-BoldItalic',
+    'Symbol',
+    'ZapfDingbats']);
+end;
+
 function TPDF_page.GetStdFontCharWidthsArray(const AFontName: string): TPDFFontWidthArray;
 begin
-  case AFontName of
-    'Courier':                 result := FONT_COURIER_FULL;
-    'Courier-Bold':            result := FONT_COURIER_FULL;
-    'Courier-Oblique':         result := FONT_COURIER_FULL;
-    'Courier-BoldOblique':     result := FONT_COURIER_FULL;
-    'Helvetica':               result := FONT_HELVETICA_ARIAL;
-    'Helvetica-Bold':          result := FONT_HELVETICA_ARIAL_BOLD;
-    'Helvetica-Oblique':       result := FONT_HELVETICA_ARIAL_ITALIC;
-    'Helvetica-BoldOblique':   result := FONT_HELVETICA_ARIAL_BOLD_ITALIC;
-    'Times-Roman':             result := FONT_TIMES;
-    'Times-Bold':              result := FONT_TIMES_BOLD;
-    'Times-Italic':            result := FONT_TIMES_ITALIC;
-    'Times-BoldItalic':        result := FONT_TIMES_BOLD_ITALIC;
-    'Symbol':                  result := FONT_SYMBOL;
-    'ZapfDingbats':            result := FONT_ZAPFDINGBATS;
+  case fontNum(AFontName) of
+        0:  result := TPDFFontWidthArray(FONT_COURIER_FULL);
+        1:  result := TPDFFontWidthArray(FONT_COURIER_FULL);
+        2:  result := TPDFFontWidthArray(FONT_COURIER_FULL);
+        3:  result := TPDFFontWidthArray(FONT_COURIER_FULL);
+        4:  result := TPDFFontWidthArray(FONT_HELVETICA_ARIAL);
+        5:  result := TPDFFontWidthArray(FONT_HELVETICA_ARIAL_BOLD);
+        6:  result := TPDFFontWidthArray(FONT_HELVETICA_ARIAL_ITALIC);
+        7:  result := TPDFFontWidthArray(FONT_HELVETICA_ARIAL_BOLD_ITALIC);
+        8:  result := TPDFFontWidthArray(FONT_TIMES);
+        9:  result := TPDFFontWidthArray(FONT_TIMES_BOLD);
+        10: result := TPDFFontWidthArray(FONT_TIMES_ITALIC);
+        11: result := TPDFFontWidthArray(FONT_TIMES_BOLD_ITALIC);
+        12: result := TPDFFontWidthArray(FONT_SYMBOL);
+        13: result := TPDFFontWidthArray(FONT_ZAPFDINGBATS);
     //else
     //  raise EPDF.CreateFmt(rsErrUnknownStdFont, [AFontName]);
   end;
@@ -409,23 +460,23 @@ begin
   //lFontName := Document.Fonts[Font.FontIndex].Name;
   lFontName := Document.Fonts[current_font_index].Name;
   Result := 0;
-  case lFontName of
-    'Courier':                 result := FONT_TIMES_COURIER_CAPHEIGHT;
-    'Courier-Bold':            result := FONT_TIMES_COURIER_CAPHEIGHT;
-    'Courier-Oblique':         result := FONT_TIMES_COURIER_CAPHEIGHT;
-    'Courier-BoldOblique':     result := FONT_TIMES_COURIER_CAPHEIGHT;
-    'Helvetica':               result := FONT_HELVETICA_ARIAL_CAPHEIGHT;
-    'Helvetica-Bold':          result := FONT_HELVETICA_ARIAL_BOLD_CAPHEIGHT;
-    'Helvetica-Oblique':       result := FONT_HELVETICA_ARIAL_ITALIC_CAPHEIGHT;
-    'Helvetica-BoldOblique':   result := FONT_HELVETICA_ARIAL_BOLD_ITALIC_CAPHEIGHT;
-    'Times-Roman':             result := FONT_TIMES_CAPHEIGHT;
-    'Times-Bold':              result := FONT_TIMES_BOLD_CAPHEIGHT;
-    'Times-Italic':            result := FONT_TIMES_ITALIC_CAPHEIGHT;
-    'Times-BoldItalic':        result := FONT_TIMES_BOLD_ITALIC_CAPHEIGHT;
-    'Symbol':                  result := 300;
-    'ZapfDingbats':            result := 300;
+  case fontNum(lFontName) of
+        0: result := FONT_TIMES_COURIER_CAPHEIGHT;
+        1: result := FONT_TIMES_COURIER_CAPHEIGHT;
+        2: result := FONT_TIMES_COURIER_CAPHEIGHT;
+        3: result := FONT_TIMES_COURIER_CAPHEIGHT;
+        4: result := FONT_HELVETICA_ARIAL_CAPHEIGHT;
+        5: result := FONT_HELVETICA_ARIAL_BOLD_CAPHEIGHT;
+        6: result := FONT_HELVETICA_ARIAL_ITALIC_CAPHEIGHT;
+        7: result := FONT_HELVETICA_ARIAL_BOLD_ITALIC_CAPHEIGHT;
+        8: result := FONT_TIMES_CAPHEIGHT;
+        9: result := FONT_TIMES_BOLD_CAPHEIGHT;
+        10: result := FONT_TIMES_ITALIC_CAPHEIGHT;
+        11: result := FONT_TIMES_BOLD_ITALIC_CAPHEIGHT;
+        12: result := 300;
+        13: result := 300;
     //else
-    //  raise EPDF.CreateFmt(rsErrUnknownStdFont, [lFontName]);
+    //  raise EPDF.CreateFmt(rsErrUnknownStdFont, [AFontName]);
   end;
   Result := Result * curr_font_size / 1540;
 end;
