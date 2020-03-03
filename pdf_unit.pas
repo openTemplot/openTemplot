@@ -1029,7 +1029,7 @@ end;
                                         {if impact>0 then Pen.Width:=1                 // impact printer or plotter.
                                                     else}
                                         //Pen.Width:=printmark_wide;  // guide marks.
-                                        set_pen_width(printmark_wide);  // guide marks.
+                                        set_pen_width(round(max(printmark_wide, 1)));  // guide marks.
 
                                         // out 0.73.a 12-8-01 (now done in thickness setup) if out_factor<1 then Pen.Width:=Round(Pen.Width*out_factor); // scale down the line width.
 
@@ -1167,7 +1167,7 @@ end;
 
                                                       //Brush.Style:=bsSolid;
                                                       //Brush.Color:=clWhite;
-                                                      set_fill_color(clWhite);
+                                                      set_fill_color(printguide_colour);
 
                                                       case mark_code of
                                                             601: switch_label_str:='tips';
@@ -1188,7 +1188,8 @@ end;
                                                       //         ' '+switch_label_str+' ');
                                                       write_text(move_to.X          ,//-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
                                                                move_to.Y            ,//-(TextHeight(switch_label_str) div 2),
-                                                               ' '+switch_label_str+' ');
+                                                               ' '+switch_label_str+' ',
+                                                               tpMiddleCentre);
 
                                                       //Font.Assign(print_labels_font);      // reset for grid labels
                                                     end;
@@ -1470,6 +1471,7 @@ end;
                                                    else begin   // normal rails...
 
                                                           //Brush.Color:=printrail_infill_colour_cu;
+                                                          set_fill_color(printrail_infill_colour_cu);
 
                                                           //case rail_infill_i of
                                                           //      1: Brush.Style:=bsBDiagonal;   // hatched
@@ -1619,7 +1621,8 @@ end;
                                                       //
                                                       //MoveTo(line_to.X, line_to.Y);
                                                       //LineTo(line_to.X, line_to.Y);
-                                                      draw_line(move_to, line_to);
+                                                      draw_line(move_to, move_to);
+                                                      draw_line(line_to, line_to);
 
                                                     end;//with
                                                   end;
@@ -1904,7 +1907,7 @@ begin
     pdf_filename_str := ExtractFilePath(FileName) + 'test.pdf';
 
   end;//with
-  show_modal_message('Writing : ' + pdf_filename_str);
+  //show_modal_message('Writing : ' + pdf_filename_str);
 
   print_colours_setup;    // first set up the colours.
 
@@ -2391,43 +2394,45 @@ try
               pdf_bgnd(grid_left, grid_top, pdf_page);       // now print any background templates.
 
 
-//                            //  control template - draw timbers and all marks except rail joints...
-//              //###
-//
-//              if  (print_entire_pad_flag=False) // control template
-//              and (output_diagram_mode=False)   // 0.93.a  no control template if diagram mode
-//              and (turnoutx>0)                  // not if invalidated
-//
-//                     // 0.93.a if printing background templates in Quick mode, the control template has been put on the background
-//
-//                 then begin
-//
-//                        if marks_list_ptr=nil then BREAK;       // pointer to marks list not valid, exit all sheets.
-//
-//                        draw_marks(grid_left,grid_top,False);   // print all the background timbering and marks except rail joints.
-//
-//                        if {pad_form.print_track_centre_lines_menu_entry.Checked=True}  // 0.82.b
-//                           ( (print_settings_form.output_centrelines_checkbox.Checked=True) and (dummy_template=False) )       // 212a
-//                        or ( (print_settings_form.output_bgnd_shapes_checkbox.Checked=True) and (dummy_template=True) )
-//
-//                           then begin
-//
+                            //  control template - draw timbers and all marks except rail joints...
+              //###
+
+              if  (print_entire_pad_flag=False) // control template
+              and (output_diagram_mode=False)   // 0.93.a  no control template if diagram mode
+              and (turnoutx>0)                  // not if invalidated
+
+                     // 0.93.a if printing background templates in Quick mode, the control template has been put on the background
+
+                 then begin
+
+                        if marks_list_ptr=nil then BREAK;       // pointer to marks list not valid, exit all sheets.
+
+                        draw_marks(grid_left,grid_top,False);   // print all the background timbering and marks except rail joints.
+
+                        if {pad_form.print_track_centre_lines_menu_entry.Checked=True}  // 0.82.b
+                           ( (print_settings_form.output_centrelines_checkbox.Checked=True) and (dummy_template=False) )       // 212a
+                        or ( (print_settings_form.output_bgnd_shapes_checkbox.Checked=True) and (dummy_template=True) )
+
+                           then begin
+
 //                                  Brush.Color:=clWhite;  // 0.93.a gaps in dotted lines.
 //                                  Brush.Style:=bsClear;
 //                                  TextOut(0,0,'');
 //
 //                                  Pen.Mode:=pmCopy;
 //
-//                                  if dummy_template=True   // 212a
-//                                     then begin
+                                  if dummy_template=True   // 212a
+                                     then begin
 //                                            Pen.Style:=psSolid;
 //                                            Pen.Color:=printshape_colour;
 //
 //                                            Pen.Width:=printshape_wide;
 //
 //                                            if Pen.Width<1 then Pen.Width:=1;
-//                                          end
-//                                     else begin
+                                            set_pen_color(printshape_colour);
+                                            set_pen_width(round(max(printshape_wide,1)));
+                                          end
+                                     else begin
 //                                            Pen.Color:=printcurail_colour;
 //
 //                                            Pen.Width:=printcl_wide;
@@ -2436,123 +2441,135 @@ try
 //
 //                                            {if Pen.Width=1 then Pen.Style:=psDash      // out wPDF bug
 //                                                           else} Pen.Style:=psSolid;
-//
-//                                          end;
-//
-//                                  for aq:=24 to 25 do begin
-//                                    if ( (plain_track=False) or (aq=24) ) and (aqyn[aq]=True)
-//
-//                                            // main side only only if plain track, and data available ?
-//
-//                                       then begin
-//                                              move_to.X:=get_w_dots(aq,0); move_to.Y:=get_l_dots(aq,0);
-//                                              for now:=1 to nlmax_array[aq] do begin
-//                                                line_to.X:=get_w_dots(aq,now); line_to.Y:=get_l_dots(aq,now);
-//                                                if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
-//                                                move_to:=line_to;
-//                                              end;//for
-//                                            end;
-//                                  end;//for-next aq
-//                                end;//if track centre-lines.
-//
-//                        if {pad_form.print_rails_menu_entry.Checked=True}  // 0.82.b
-//                           print_settings_form.output_rails_checkbox.Checked=True
-//
-//                           then begin
-//                                              //  draw turnout rails...
-//
-//                                  Pen.Width:=printrail_wide;
-//                                  if Pen.Width<1 then Pen.Width:=1;
-//                                                   {end;}
-//
-//                                  if (rail_infill_i=0)  // out for pdf, was  or ((scale*out_factor)<0.75)   // less than 18.75% for 4mm scale (control template) (10.71% for 7mm).
-//                                     then begin           //  outline (pen) mode ...
-//                                                          //  n.b. this mode does not automatically close the rail-ends.
-//
-//                                            for aq:=0 to 23 do begin                                // 24, 25 centre-lines already done.
-//                                              if (adjacent_edges=False) and (aq>15) then CONTINUE;  // no adjacent tracks in output  // 206b
-//
-//                                              case aq of     // 223d
-//                                                16,17,20,21: if print_settings_form.output_platforms_checkbox.Checked=False then CONTINUE;         // platforms not wanted
-//                                                18,19,22,23: if print_settings_form.output_trackbed_edges_checkbox.Checked=False then CONTINUE;    // trackbed edges not wanted
-//                                              end;//case
-//
-//                                              draw_outline_railedge(aq,printcurail_colour);
-//                                            end;//next aq
-//
-//                                            for aq:=26 to aq_max_c do draw_outline_railedge(aq,printcurail_colour);  // K-crossing check rails.
-//
-//                                            outline_railends;     // finally do the rail ends for outline mode
-//                                          end
-//                                     else begin      // infill (polygon) mode ...
-//
-//                                                     // do blades first - neater result.
-//
-//                                            for rail:=1 to 3 do draw_fill_rail(8);  // closure rails and curved stock rail.
-//
-//                                            rail:=0;                                // straight stock rail.
-//                                            draw_fill_rail(8);
-//
-//                                            for rail:=6 to 7 do draw_fill_rail(8);  // check rails
-//
-//                                            if adjacent_edges=True    // 206b
-//                                               then begin
-//                                                      rail:=16;
-//                                                      repeat
-//                                                        case rail of     // 223d
-//                                                          16,20: if print_settings_form.output_platforms_checkbox.Checked=True then draw_fill_rail(1);        // platforms
-//                                                          18,22: if print_settings_form.output_trackbed_edges_checkbox.Checked=True then draw_fill_rail(1);   // trackbed edges
-//                                                        end;//case
-//                                                        rail:=rail+2;
-//                                                      until rail>22;
-//                                                    end;
-//
-//                                            rail:=26;
-//                                            repeat
-//                                              draw_fill_rail(1);      // K-crossing MS check rails.
-//                                              rail:=rail+2;
-//                                            until rail>28;
-//
-//                                            draw_fill_vee;   // now do the vee.
-//
-//                                                      // finally draw in or overdraw the planing gauge-faces - (no infill) ...
-//                                            aq:=1;
-//                                            if (plain_track=False) and (gaunt=False) and (aqyn[1]=True) and (list_planing_mark_aq1>0) {and (drawn_full_aq1=False)}    // not if already drawn.
-//                                               then begin
-//                                                      move_to.X:=get_w_dots(aq,0); move_to.Y:=get_l_dots(aq,0);
-//                                                      for now:=1 to list_planing_mark_aq1{+1} do begin                    // +1 to overdraw
-//                                                        line_to.X:=get_w_dots(aq,now); line_to.Y:=get_l_dots(aq,now);
-//                                                        if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
-//                                                        move_to:=line_to;
-//                                                      end;//for
-//                                                    end;
-//
-//                                            aq:=2;
-//                                            if (plain_track=False) and (gaunt=False) and (aqyn[2]=True)  and (list_planing_mark_aq2>0) {and (drawn_full_aq2=False)}    // not if already drawn.
-//                                               then begin
-//                                                      move_to.X:=get_w_dots(aq,0); move_to.Y:=get_l_dots(aq,0);
-//                                                      for now:=1 to list_planing_mark_aq2{+1} do begin                      // +1 to overdraw
-//                                                        line_to.X:=get_w_dots(aq,now); line_to.Y:=get_l_dots(aq,now);
-//                                                        if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
-//                                                        move_to:=line_to;
-//                                                      end;//for
-//                                                    end;
-//
-//                                                  //  CAN'T GET FLOODFILL TO WORK ON THE PRINTER 26-8-98.
-//                                                  // and flood fill the planing with the margin colour ...
-//
-//                                                  //Brush.Bitmap:=nil;     // so can use style again if it was dots.
-//
-//                                          end;//polygon mode
-//
-//                                                // finally add rail joint marks across rails (will now mark over rail infill)...
-//                                   //###
-//
-//                                  draw_marks(grid_left,grid_top,True);
-//
-//                                end;//if rails
-//
-//                      end;// if control template
+                                            set_pen_color(printcurail_colour);
+                                            set_pen_width(round(max(printcl_wide, 1)));
+
+                                            //{if Pen.Width=1 then Pen.Style:=psDash      // out wPDF bug
+                                            //               else} Pen.Style:=psSolid;
+
+                                          end;
+
+                                  for aq:=24 to 25 do begin
+                                    if ( (plain_track=False) or (aq=24) ) and (aqyn[aq]=True)
+
+                                            // main side only only if plain track, and data available ?
+
+                                       then begin
+                                              move_to.X:=get_w_dots(aq,0); move_to.Y:=get_l_dots(aq,0);
+                                              for now:=1 to nlmax_array[aq] do begin
+                                                line_to.X:=get_w_dots(aq,now); line_to.Y:=get_l_dots(aq,now);
+                                                //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                                                if check_limits(move_to, line_to)=True then
+                                                       draw_line(move_to, line_to);
+                                                move_to:=line_to;
+                                              end;//for
+                                            end;
+                                  end;//for-next aq
+                                end;//if track centre-lines.
+
+                        if {pad_form.print_rails_menu_entry.Checked=True}  // 0.82.b
+                           print_settings_form.output_rails_checkbox.Checked=True
+
+                           then begin
+                                              //  draw turnout rails...
+
+                                  //Pen.Width:=printrail_wide;
+                                  //if Pen.Width<1 then Pen.Width:=1;
+                                  //                 {end;}
+                                  set_pen_width(round(max(printrail_wide, 1)));
+
+                                  if (rail_infill_i=0)  // out for pdf, was  or ((scale*out_factor)<0.75)   // less than 18.75% for 4mm scale (control template) (10.71% for 7mm).
+                                     then begin           //  outline (pen) mode ...
+                                                          //  n.b. this mode does not automatically close the rail-ends.
+
+                                            for aq:=0 to 23 do begin                                // 24, 25 centre-lines already done.
+                                              if (adjacent_edges=False) and (aq>15) then CONTINUE;  // no adjacent tracks in output  // 206b
+
+                                              case aq of     // 223d
+                                                16,17,20,21: if print_settings_form.output_platforms_checkbox.Checked=False then CONTINUE;         // platforms not wanted
+                                                18,19,22,23: if print_settings_form.output_trackbed_edges_checkbox.Checked=False then CONTINUE;    // trackbed edges not wanted
+                                              end;//case
+
+                                              draw_outline_railedge(aq,printcurail_colour);
+                                            end;//next aq
+
+                                            for aq:=26 to aq_max_c do draw_outline_railedge(aq,printcurail_colour);  // K-crossing check rails.
+
+                                            outline_railends;     // finally do the rail ends for outline mode
+                                          end
+                                     else begin      // infill (polygon) mode ...
+
+                                                     // do blades first - neater result.
+
+                                            for rail:=1 to 3 do draw_fill_rail(8);  // closure rails and curved stock rail.
+
+                                            rail:=0;                                // straight stock rail.
+                                            draw_fill_rail(8);
+
+                                            for rail:=6 to 7 do draw_fill_rail(8);  // check rails
+
+                                            if adjacent_edges=True    // 206b
+                                               then begin
+                                                      rail:=16;
+                                                      repeat
+                                                        case rail of     // 223d
+                                                          16,20: if print_settings_form.output_platforms_checkbox.Checked=True then draw_fill_rail(1);        // platforms
+                                                          18,22: if print_settings_form.output_trackbed_edges_checkbox.Checked=True then draw_fill_rail(1);   // trackbed edges
+                                                        end;//case
+                                                        rail:=rail+2;
+                                                      until rail>22;
+                                                    end;
+
+                                            rail:=26;
+                                            repeat
+                                              draw_fill_rail(1);      // K-crossing MS check rails.
+                                              rail:=rail+2;
+                                            until rail>28;
+
+                                            draw_fill_vee;   // now do the vee.
+
+                                                      // finally draw in or overdraw the planing gauge-faces - (no infill) ...
+                                            aq:=1;
+                                            if (plain_track=False) and (gaunt=False) and (aqyn[1]=True) and (list_planing_mark_aq1>0) {and (drawn_full_aq1=False)}    // not if already drawn.
+                                               then begin
+                                                      move_to.X:=get_w_dots(aq,0); move_to.Y:=get_l_dots(aq,0);
+                                                      for now:=1 to list_planing_mark_aq1{+1} do begin                    // +1 to overdraw
+                                                        line_to.X:=get_w_dots(aq,now); line_to.Y:=get_l_dots(aq,now);
+                                                        //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                                                        if check_limits(move_to, line_to)=True then
+                                                            draw_line(move_to, line_to);
+                                                        move_to:=line_to;
+                                                      end;//for
+                                                    end;
+
+                                            aq:=2;
+                                            if (plain_track=False) and (gaunt=False) and (aqyn[2]=True)  and (list_planing_mark_aq2>0) {and (drawn_full_aq2=False)}    // not if already drawn.
+                                               then begin
+                                                      move_to.X:=get_w_dots(aq,0); move_to.Y:=get_l_dots(aq,0);
+                                                      for now:=1 to list_planing_mark_aq2{+1} do begin                      // +1 to overdraw
+                                                        line_to.X:=get_w_dots(aq,now); line_to.Y:=get_l_dots(aq,now);
+                                                        //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                                                      if check_limits(move_to, line_to)=True then
+                                                          draw_line(move_to, line_to);
+                                                        move_to:=line_to;
+                                                      end;//for
+                                                    end;
+
+                                                  //  CAN'T GET FLOODFILL TO WORK ON THE PRINTER 26-8-98.
+                                                  // and flood fill the planing with the margin colour ...
+
+                                                  //Brush.Bitmap:=nil;     // so can use style again if it was dots.
+
+                                          end;//polygon mode
+
+                                                // finally add rail joint marks across rails (will now mark over rail infill)...
+                                   //###
+
+                                  draw_marks(grid_left,grid_top,True);
+
+                                end;//if rails
+
+                      end;// if control template
 
                 // now the trim margins....
 
