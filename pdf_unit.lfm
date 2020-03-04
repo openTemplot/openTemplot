@@ -120,9 +120,9 @@ object pdf_form: Tpdf_form
     ParentFont = False
   end
   object info_scrollbox: TScrollBox
-    Left = 28
+    Left = -16
     Height = 66
-    Top = 74
+    Top = 80
     Width = 525
     HorzScrollBar.Page = 488
     HorzScrollBar.Tracking = True

@@ -84,6 +84,7 @@ var
   pdf_form: Tpdf_form;
 
 //________________________
+// All set inside Texport_form.create_pdf_buttonClick
 
   pdf_width_mm:extended=180.0;    // same defaults as sketchboard
   pdf_height_mm:extended=260.0;
@@ -1618,7 +1619,7 @@ end;
                                                       //
                                                       //MoveTo(line_to.X, line_to.Y);
                                                       //LineTo(line_to.X, line_to.Y);
-                                                      draw_line(move_to.X, move_to.Y, line_to.X, line_to.Y);
+                                                      draw_line(move_to, line_to);
 
                                                     end;//with
                                                   end;
@@ -2200,11 +2201,11 @@ try
                        set_fill_color($00d0d0d0);    // WRONG!!!! fpPDF does not (yet!) support text mode :-(
                                                      //   so just use a solid grey for now ...
 
-                    ident_left:=1000;               // TODO: Link these to page size
-                    ident_top:=4000;
+                    ident_left:=round(pdf_width_dots/2);               // TODO: Link these to page size
+                    ident_top:=round(pdf_height_dots/2);
 
                     //SetPenStyle(ppsSolid, 100);           //  <<<<<------ DOESN'T WORK !!!
-                    Write_Text(ident_left,ident_top,page_num_str);        //
+                    Write_Text(ident_left,ident_top,page_num_str, tpMiddleCentre);
 
                     //Brush.Style:=bsSolid;  // reset..
                     set_fill_color(clBlack);
@@ -2221,7 +2222,7 @@ try
 //          Brush.Style:=bsSolid;
 
 //          Font.Assign(print_labels_font);
-          set_font(pdf_font_times, 9);
+          set_font(pdf_font_times, 8);
           if printgrid_i=1
              then begin
                     case grid_labels_code_i of
@@ -2316,7 +2317,7 @@ try
                       write_text(left_blanking_dots,
                                  grid_now_dots,
                                  grid_label_str+' ',
-                                 tpMiddleCentre); //  add labels.
+                                 tpMiddleLeft); //  add labels.
 
                       until grid_now_dots>page_bottom_dots;
 
@@ -4019,7 +4020,7 @@ begin
                                         write_text(move_to.X     ,//-(TextWidth(idtb_str) div 2),
                                                    move_to.Y      ,//-(TextHeight(idtb_str) div 2),
                                                    idtb_str,
-                                                   tpTopCentre);
+                                                   tpBottomCentre);
 
                                         //Font.Assign(print_labels_font);      // reset for grid labels
                                       end;
@@ -4239,7 +4240,7 @@ var
                              then begin
                                     //MoveTo(move_to.X, move_to.Y);
                                     //LineTo(line_to.X, line_to.Y);
-                                    draw_line(move_to.X, move_to.Y, line_to.X, line_to.Y);
+                                    draw_line(move_to, line_to);
                                   end;
                           move_to:=line_to;
                         end;//next nk
@@ -4308,7 +4309,7 @@ var
                                                           set_pen_color(blank);                // first blank across..
                                                           //MoveTo(move_to.X, move_to.Y);
                                                           //LineTo(line_to.X, line_to.Y);
-                                                          draw_line(move_to.X, move_to.Y, line_to.X, line_to.Y);
+                                                          draw_line(move_to, line_to);
 
                                                           //Pen.Width:=saved_pen_width;      // 206b restore original width
                                                           set_pen_width(saved_pen_width);      // 206b restore original width
@@ -4317,11 +4318,11 @@ var
                                                           //MoveTo(move_to.X, move_to.Y);
                                                           //LineTo(move_to.X, move_to.Y);
                                                           set_pen_color(edge);                 // then restore the corner points..
-                                                          draw_line(move_to.X, move_to.Y, line_to.X, line_to.Y);
+                                                          draw_line(move_to, move_to);
 
                                                           //MoveTo(line_to.X, line_to.Y);
                                                           //LineTo(line_to.X, line_to.Y);
-                                                          draw_line(move_to.X, move_to.Y, line_to.X, line_to.Y);
+                                                          draw_line(line_to, line_to);
                                                         end;//with
                                                       end;
                                             end;
@@ -4608,16 +4609,16 @@ var
                                                           //MoveTo(move_to.X, move_to.Y);
                                                           //LineTo(line_to.X, line_to.Y);
                                                           set_pen_color(blank);                // first blank across..
-                                                          draw_line(move_to.X, move_to.Y, line_to.X, line_to.Y);
+                                                          draw_line(move_to, line_to);
 
                                                           set_pen_color(edge);                 // then restore the corner points..
                                                           //MoveTo(move_to.X, move_to.Y);
                                                           //LineTo(move_to.X, move_to.Y);
-                                                          draw_line(move_to.X, move_to.Y, move_to.X, move_to.Y);
+                                                          draw_line(move_to, move_to);
 
                                                           //MoveTo(line_to.X, line_to.Y);
                                                           //LineTo(line_to.X, line_to.Y);
-                                                          draw_line(line_to.X, line_to.Y, line_to.X, line_to.Y);
+                                                          draw_line(line_to, line_to);
                                                         end;//with
                                                       end;
                                             end;
@@ -5357,7 +5358,7 @@ begin          // print background templates...
                                                      then begin
                                                             //MoveTo(move_to.X, move_to.Y);
                                                             //LineTo(line_to.X, line_to.Y);
-                                                            draw_line(move_to.X, move_to.Y, line_to.X, line_to.Y);
+                                                            draw_line(move_to, line_to);
                                                      end;
                                                   move_to:=line_to;
                                                 end;//for
@@ -5373,7 +5374,7 @@ begin          // print background templates...
                                                      then begin
                                                             //MoveTo(move_to.X, move_to.Y);
                                                             //LineTo(line_to.X, line_to.Y);
-                                                            draw_line(move_to.X, move_to.Y, line_to.X, line_to.Y);
+                                                            draw_line(move_to, line_to);
                                                      end;
                                                   move_to:=line_to;
                                                 end;//for

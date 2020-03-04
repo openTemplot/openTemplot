@@ -33,8 +33,6 @@ type
       curr_font_size: Integer;
       function dots_to_px(dots: Integer): double;
       function px_to_dots(px: Double): Integer;
-      function dots_to_mm_x(dots_x: Integer): double;
-      function dots_to_mm_y(dots_y: Integer): double;
       function fontNum(const AFontName: string): Integer;
     public
       constructor Create(AOwner: TPDFDocument);
@@ -135,11 +133,8 @@ function dots_to_mm(dots: Integer): Double;
 
    constructor Tpdf_page.Create(AOwner: TPDFDocument);
    begin
-     showMessage('About to call inherited');
      inherited Create(AOwner);
-     showMessage('About to set height');
      height := 297; // Default is portrait
-     showMessage('... exiting Create');
    end;
 
 //_______________________________________________________________________________________
@@ -154,29 +149,9 @@ end;
 
 function TPDF_page.px_to_dots(px: Double): Integer;
   const
-    dots_per_px = 600 / 72 ;           // dots per inch / px per inch
+    dots_per_px = 600 / 72 ;            // dots per inch / px per inch
   begin
     result := round(px * dots_per_px);
-end;
-
-//_______________________________________________________________________________________
-
-function TPDF_page.dots_to_mm_x(dots_x: Integer): double;
-  const
-    xscale = 1.028;
-    dpmm = 600 / 25.4 / xscale;           // dots per inch / mm per inch
-  begin
-    result := dots_x / dpmm + page_margin_left_mm;
-end;
-
-//_______________________________________________________________________________________
-
-function TPDF_page.dots_to_mm_y(dots_y: Integer): double;
-  const
-    yscale = 1.028;
-    dpmm = 600 / 25.4 / yscale;           // dots per inch / mm per inch
-  begin
-    result := height - (dots_y / dpmm + page_margin_bottom_mm);
 end;
 
 
@@ -215,10 +190,10 @@ end;
     dpmm = 600 / 25.4;                 // Dots per mm
 
   begin
-  x1 := dots_to_mm_x(dots_x1);
-  y1 := dots_to_mm_y(dots_y1);
-  x2 := dots_to_mm_x(dots_x2);
-  y2 := dots_to_mm_y(dots_y2);
+  x1 := dots_to_mm(dots_x1);
+  y1 := height - dots_to_mm(dots_y1);
+  x2 := dots_to_mm(dots_x2);
+  y2 := height - dots_to_mm(dots_y2);
   DrawLine(x1, y1, x2, y2, curr_pen_width, true);
   end;
   //_______________________________________________________________________________________
@@ -232,10 +207,10 @@ end;
       dpmm = 600 / 25.4;                 // Dots per mm
 
   begin
-    x1 := dots_to_mm_x(dots_x1);
-    y1 := dots_to_mm_y(dots_y1);
-    x2 := dots_to_mm_x(dots_x2);
-    y2 := dots_to_mm_y(dots_y2);
+    x1 := dots_to_mm(dots_x1);
+    y1 := height - dots_to_mm(dots_y1);
+    x2 := dots_to_mm(dots_x2);
+    y2 := height - dots_to_mm(dots_y2);
     DrawLineStyle(x1, y1, x2, y2, style);
   end;
 
@@ -294,8 +269,8 @@ end;
 
   begin
     // convert the dot co-ordinates to mm ...
-    x := dots_to_mm_x(dots_x);
-    y := dots_to_mm_y(dots_y);
+    x := dots_to_mm(dots_x);
+    y := height - dots_to_mm(dots_y);
 
     // Get width & height in mm
     w := GetTextWidth(text) / 3.7; // 3.7724;
@@ -309,8 +284,8 @@ end;
     old_fill_color := current_fill_color;
     set_pen_color(clWhite);
     set_fill_color(clWhite);
-    DrawRect(x, y, w, h, 3, True, False);
-    set_pen_color(clWhite);
+    DrawRect(x, y, w, h, 3, True, True);
+    set_pen_color(old_pen_color);
     set_fill_color(old_fill_color);
 
     WriteText(x, y, text);
@@ -326,8 +301,8 @@ begin
   setlength(points, length(dots));
   for i := 0 to length(dots)-1 do
     begin
-      points[i].X := dots_to_mm_x(dots[i].x);
-      points[i].Y := dots_to_mm_y(dots[i].y);
+      points[i].X := dots_to_mm(dots[i].x);
+      points[i].Y := height - dots_to_mm(dots[i].y);
     end;
   inherited DrawPolygon(points, curr_pen_width);
   inherited FillStrokePath();
@@ -398,21 +373,21 @@ procedure TPDF_page.set_font(FontIndex : Integer; FontSize : Integer);
 // OK, I lied - this one is not copied, but factored out of the following functions ...
 function TPDF_page.fontNum(const AFontName: string): Integer;
 begin
-  AnsiIndexText(AFontName,
-   ['Courier',
-    'Courier-Bold',
-    'Courier-Oblique',
-    'Courier-BoldOblique',
-    'Helvetica',
-    'Helvetica-Bold',
-    'Helvetica-Oblique',
-    'Helvetica-BoldOblique',
-    'Times-Roman',
-    'Times-Bold',
-    'Times-Italic',
-    'Times-BoldItalic',
-    'Symbol',
-    'ZapfDingbats']);
+  RESULT := AnsiIndexText(AFontName,
+                           ['Courier',
+                            'Courier-Bold',
+                            'Courier-Oblique',
+                            'Courier-BoldOblique',
+                            'Helvetica',
+                            'Helvetica-Bold',
+                            'Helvetica-Oblique',
+                            'Helvetica-BoldOblique',
+                            'Times-Roman',
+                            'Times-Bold',
+                            'Times-Italic',
+                            'Times-BoldItalic',
+                            'Symbol',
+                            'ZapfDingbats']);
 end;
 
 function TPDF_page.GetStdFontCharWidthsArray(const AFontName: string): TPDFFontWidthArray;
