@@ -1305,21 +1305,24 @@ end;
                                                         //with pad_form.Canvas do begin  // rubbish to allow test compilation
                                                         with pdf_page do begin
 
-
                                                           //saved_pen_width:=Pen.Width; // 206b
-
                                                           //if Brush.Style<>bsSolid then Pen.Width:=saved_pen_width+3;    // 206b  PDF bug, needs a wider line to ensure full blanking if hatched fill
-
-                                                          set_pen_color(blank);                // first blank across..
+                                                          //
+                                                          //Pen.Color:=blank;                // first blank across..
                                                           //MoveTo(move_to.X, move_to.Y);
                                                           //LineTo(line_to.X, line_to.Y);
+
+                                                          saved_pen_width:=current_pen_width; // 206b
+//                                                          if current_fill_style<>bsSolid then set_pen_width(saved_pen_width+3);    // 206b  PDF bug, needs a wider line to ensure full blanking if hatched fill
+                                                          set_pen_color(blank);                // first blank across..
                                                           draw_line(move_to, line_to);
 
                                                           //Pen.Width:=saved_pen_width;      // 206b restore original width
+                                                          set_pen_width(saved_pen_width);      // 206b restore original width
 
-                                                          set_pen_color(edge);                 // then restore the corner points..
                                                           //MoveTo(move_to.X, move_to.Y);
                                                           //LineTo(move_to.X, move_to.Y);
+                                                          set_pen_color(edge);                 // then restore the corner points..
                                                           draw_line(move_to, move_to);
 
                                                           //MoveTo(line_to.X, line_to.Y);
@@ -1418,6 +1421,7 @@ end;
                             now_max:=nlmax_array[aq];
 
                             edge_started:=False;
+
                             for now:=now_max downto 0 do
                               begin
                                 x_dots:=get_w_dots(aq,now);
@@ -1490,8 +1494,10 @@ end;
 
                             if dots_index>2
                                then begin
+                                      //Polygon(Slice(dots,dots_index+1));   // +1, number of points, not index.  must have 4 points.
                                       Polygon(Slice(dots,dots_index+1));   // +1, number of points, not index.  must have 4 points.
 
+                                      //edge_colour:=Pen.Color;  // existing rail edges.
                                       edge_colour:=current_fill_color;  // existing rail edges.
 
                                       //if Brush.Style=bsSolid
@@ -1610,18 +1616,18 @@ end;
                                                     //with pad_form.Canvas do begin  // rubbish to allow test compilation
                                                     with pdf_page do begin  // rubbish to allow test compilation
 
-                                                      set_pen_color(blank);                // first blank across..
                                                       //MoveTo(move_to, move_to);
                                                       //LineTo(line_to, line_to);
+                                                      set_pen_color(blank);                // first blank across..
                                                       draw_line(move_to, line_to);
 
                                                       set_pen_color(edge);                 // then restore the corner points..
                                                       //MoveTo(move_to.X, move_to.);
                                                       //LineTo(move_to.X, move_to.Y);
-                                                      //
+                                                      draw_line(move_to, move_to);
+
                                                       //MoveTo(line_to.X, line_to.Y);
                                                       //LineTo(line_to.X, line_to.Y);
-                                                      draw_line(move_to, move_to);
                                                       draw_line(line_to, line_to);
 
                                                     end;//with
@@ -1758,6 +1764,7 @@ end;
                             if {(}pdf_black_white=True  {) or (impact>0)}
                                then begin
                                //       Brush.Style:=bsSolid;              // solid infill white.
+                               //       Brush.Color:=clWhite;              // overide
                                       set_fill_color(clWhite);
                                     end     ;
                                //else case rail_infill_i of
@@ -1775,6 +1782,7 @@ end;
                                then begin
                                       Polygon(Slice(dots,dots_index+1));   // +1, number of points, not index.  must have at least 5 points.
 
+                                      //edge_colour:=Pen.Color;  // existing rail edges.
                                       edge_colour:=current_pen_color;  // existing rail edges.
 
                                       //if Brush.Style=bsSolid then blanking_colour:=Brush.Color   // infill colour.
@@ -2391,7 +2399,8 @@ try
               if bgnd_form.output_grid_in_front_checkbox.Checked=False         // now do shapes and sb over the grid
                  then pdf_shapes_and_sketchboard_items(grid_left,grid_top);    // 206e
 
-              pdf_bgnd(grid_left, grid_top, pdf_page);       // now print any background templates.
+              if  print_entire_pad_flag // control template
+               then pdf_bgnd(grid_left, grid_top, pdf_page);       // now print any background templates.
 
 
                             //  control template - draw timbers and all marks except rail joints...
@@ -4776,6 +4785,7 @@ var
                                             polygon(Slice(dots,dots_index+1));   // +1, number of points, not index.  must have at least 5 points.
 
                                             //edge_colour:=Pen.Color;  // existing rail edges.
+                                            edge_colour:=current_pen_color;  // existing rail edges.
 
                                             //if Brush.Style=bsSolid then blanking_colour:=Brush.Color   // infill colour.
                                             //                       else blanking_colour:=clWhite;
