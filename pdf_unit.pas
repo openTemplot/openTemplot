@@ -110,17 +110,34 @@ implementation
 {$R *.lfm}
 
 uses
-  Printers, calibration_unit, preview_unit, control_room, pad_unit, alert_unit, keep_select, math_unit, gauge_unit,
-  info_unit, colour_unit, bgnd_unit, bgkeeps_unit, help_sheet,
-  stay_visible_unit, panning_unit, shove_timber, grid_unit, edit_memo_unit,
-  print_settings_unit, print_unit, entry_sheet, export_unit,
+  // Some not needed at the moment - commented out
+  // - reintroduce as the need arises ...
+  //Printers, calibration_unit,
+  preview_unit, control_room, pad_unit,
+
+  alert_unit, keep_select, math_unit,
+  //gauge_unit,
+
+  info_unit,
+  colour_unit,
+  bgnd_unit,
+  //bgkeeps_unit,
+  help_sheet,
+
+  stay_visible_unit, panning_unit, shove_timber, grid_unit,
+  //edit_memo_unit,
+  print_settings_unit,
+
+  print_unit,
+  //entry_sheet,
+  export_unit,
 
   // T3-OUT dtp_settings_unit, dtp_unit,
 
-  rail_options_unit, platform_unit,
-  check_diffs_unit, data_memo_unit,
+  rail_options_unit, platform_unit, check_diffs_unit, data_memo_unit,
 
-  trackbed_unit, make_slip_unit;  // 214b
+  trackbed_unit,
+  make_slip_unit;  // 214b
 
  const
   pdf_help_str:string='      Printing  Pages'
