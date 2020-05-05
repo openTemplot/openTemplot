@@ -111,7 +111,7 @@ implementation
 
 uses
   // Some not needed at the moment - commented out
-  // - reintroduce as the need arises ...
+  // - reintroduce as/if the need arises ...
   //Printers, calibration_unit,
   preview_unit, control_room, pad_unit,
 
@@ -765,7 +765,6 @@ end;
                   if i=3
                      then begin
 // T3-OUT                   folder_str:=pdf_form.pdf_printer.Filename;
-
                             if  OpenDocument(PChar(folder_str))=False // { *Converted from ShellExecute* }<=32
                                then ShowMessage('Sorry, unable to open the file.')
                                else external_window_showing:=True;
@@ -774,7 +773,6 @@ end;
                   if i=4
                      then begin
 // T3-OUT                   folder_str:=ExtractFilePath(pdf_form.pdf_printer.Filename);
-
                             if  OpenDocument(PChar(folder_str))=False // { *Converted from ShellExecute* }<=32
                                then ShowMessage('Sorry, unable to open the folder.')
                                else external_window_showing:=True;
@@ -802,8 +800,6 @@ end;
 
                 tbnum_str:=timb_numbers_str;      // the full string of timber numbering for the control template.
 
-// T3-OUT       with pdf_form.pdf_printer.Canvas do begin
-                //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
                 with pdf_page do begin
 
                   for i:=0 to (mark_index-1) do begin   // (mark_index is always the next free slot)
@@ -906,10 +902,6 @@ end;
                                  then begin
                                         p2:=ptr_1st^.p2;    // x2,y2 in  1/100ths mm
 
-                                        //Brush.Color:=clWhite;  // 0.93.a gaps in dotted lines.
-                                        //Brush.Style:=bsClear;
-                                        //TextOut(0,0,'');
-
                                         if pdf_black_white=True
                                            then set_pen_color(clBlack)
                                            else case mark_code of
@@ -921,31 +913,8 @@ end;
                                                  else set_pen_color(calc_intensity(clBlack));   // thin dotted lines in black only.
                                                 end;//case
 
-                                        //Pen.Mode:=pmCopy;
-                                        //Pen.Width:=1;
-                                        //Pen.Style:=psSolid; // default init.
                                         set_pen_width(1);
                                         set_pen_style(psSolid); // default init.
-
-                                        //case mark_code of
-                                        //   1,101: Pen.Width:=printmark_wide;    // guide marks. switch drive
-                                        //       2: Pen.Width:=printmark_wide;    // rad end marks.
-                                        // 3,33,93: Pen.Width:=printtimber_wide;  // timber outlines.
-                                        //
-                                        //  //4,44: Pen.Style:=psDash;  //out wPDF bug     // timber centre-lines.
-                                        //
-                                        // //5,55,95: Pen.Style:=psDot;  //out wPDF bug    // timber reduced ends.
-                                        //
-                                        //       6: Pen.Width:=printmark_wide;    // rail joint marks.
-                                        //       7: Pen.Width:=printmark_wide;    // transition ends.
-                                        //
-                                        //   14,54: Pen.Width:=printrail_wide;    // timber centre-lines with rail centre-lines (for rivet locations?).
-                                        //
-                                        // 600,700: Pen.Width:=printrail_wide + printrail_wide div 2;    //  206b 211b long marks
-                                        //
-                                        //     else Pen.Width:=1;
-                                        //
-                                        //end;//case
 
                                         case mark_code of
                                            1,101: set_pen_width(printmark_wide);    // guide marks. switch drive
@@ -980,7 +949,6 @@ end;
 
                                         line_to.X:=Round((p2.Y+ypd-grid_left)*scaw_out)+page_left_dots;
                                         line_to.Y:=Round((p2.X-grid_top)*scal_out)+page_top_dots;
-                                        //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
                                         if check_limits(move_to, line_to)=True then
                                            draw_line(move_to, line_to);
 
@@ -1022,9 +990,6 @@ end;
                                                             //Brush.Style:=bsSolid;
                                                             //Brush.Color:=clWhite;
 
-                                                            //text_out(move_to.X-(TextWidth(num_str) div 2),
-                                                            //        move_to.Y-(TextHeight(num_str) div 2),
-                                                            //        ' '+num_str+' ');
                                                             write_text(move_to.X    ,//-(TextWidth(num_str) div 2),
                                                                     move_to.Y       ,//-(TextHeight(num_str) div 2),
                                                                     ' '+num_str+' ');
@@ -1037,12 +1002,9 @@ end;
                             end
                        else begin   // other codes...
 
-                              if ( (mark_code=-2) or (mark_code=-3) )  and {(pad_form.print_radial_centres_menu_entry.Checked=True)}  // 0.82.b
-                                 (print_settings_form.output_radial_centres_checkbox.Checked=True)
+                              if ( (mark_code=-2) or (mark_code=-3) )  {and (pad_form.print_radial_centres_menu_entry.Checked=True)}  // 0.82.b                                 (print_settings_form.output_radial_centres_checkbox.Checked=True)
 
-                                         // draw curving rad centres...
-
-                                 then begin
+                                 then begin       // draw curving rad centres...
                                         {if impact>0 then Pen.Width:=1                 // impact printer or plotter.
                                                     else}
                                         //Pen.Width:=printmark_wide;  // guide marks.
@@ -1052,9 +1014,6 @@ end;
 
                                         //if Pen.Width<1 then Pen.Width:=1;
 
-                                        //Pen.Style:=psSolid;
-                                        //Pen.Mode:=pmCopy;
-                                        //Pen.Color:=calc_intensity(clBlack);
                                         set_pen_style(psSolid);
                                         set_pen_color(calc_intensity(clBlack));
 
@@ -1066,7 +1025,6 @@ end;
 
                                         line_to.X:=Round((p1.Y-radcen_arm+ypd-grid_left)*scaw_out)+page_left_dots;
                                         line_to.Y:=Round((p1.X-grid_top)*scal_out)+page_top_dots;
-                                        //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
                                         if check_limits(move_to, line_to)=True then
                                            draw_line(move_to, line_to);
 
@@ -1075,7 +1033,6 @@ end;
 
                                         line_to.X:=Round((p1.Y+ypd-grid_left)*scaw_out)+page_left_dots;
                                         line_to.Y:=Round((p1.X-radcen_arm-grid_top)*scal_out)+page_top_dots;
-                                        //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
                                         if check_limits(move_to, line_to)=True then
                                            draw_line(move_to, line_to);
                                       end;
@@ -1096,30 +1053,17 @@ end;
 
                                         if (check_limits(infill_points[0],infill_points[1])=True) and (check_limits(infill_points[2],infill_points[3])=True)
                                            then begin
-                                                  //Pen.Width:=1;
-                                                  //Pen.Style:=psSolid;
-                                                  //Pen.Mode:=pmCopy;
-                                                  //
-                                                  //Pen.Color:=clWhite;  // so no overdrawing of timber outlines.
                                                   set_pen_width(1);
                                                   set_pen_style(psSolid);
                                                   set_pen_color(clWhite);  // so no overdrawing of timber outlines.
 
                                                   if pdf_black_white=True
-                                                  //   then Brush.Color:=clBlack
-                                                  //   else begin
-                                                  //          {if impact>0 then Brush.Color:=printtimber_colour            // colour plotter.
-                                                  //                      else}
-                                                  //          //Brush.Color:=printtimber_infill_colour;
-                                                  //        end;
                                                      then set_fill_color(clBlack)
                                                      else begin
                                                             //if impact>0 then set_fill_color(printtimber_colour)            // colour plotter.
                                                             //            else
                                                                           set_fill_color(printtimber_infill_colour);
                                                           end;
-
-                                                      // 0.95.a  PDF bug-fix...
 
                                                   case print_timb_infill_style of
                                                                   0: CONTINUE;                         // no infill
@@ -1200,9 +1144,6 @@ end;
                                                             else switch_label_str:='';
                                                       end;//case
 
-                                                      //text_out(move_to.X-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
-                                                      //         move_to.Y-(TextHeight(switch_label_str) div 2),
-                                                      //         ' '+switch_label_str+' ');
                                                       write_text(move_to.X          ,//-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
                                                                move_to.Y            ,//-(TextHeight(switch_label_str) div 2),
                                                                ' '+switch_label_str+' ',
@@ -1250,24 +1191,14 @@ end;
                 if ( (plain_track=False) or (aq=0) or (aq=8) or (aq=3) or (aq=11) or ((aq>15) and (aq<24)) ) and (aqyn[aq]=True)
 
                    then begin
-// T3-OUT                 with pdf_form.pdf_printer.Canvas do begin
-//                          with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
                           with pdf_page do begin
 
-                            //Pen.Color:=pencol;
-                            //Pen.Mode:=pmCopy;
-                            //Pen.Style:=psSolid;
                             set_pen_color(pencol);
                             set_pen_style(psSolid);
 
                             move_to.X:=get_w_dots(aq,0); move_to.Y:=get_l_dots(aq,0);
                             for now:=1 to nlmax_array[aq] do begin
                               line_to.X:=get_w_dots(aq,now); line_to.Y:=get_l_dots(aq,now);
-                              //if check_limits(move_to, line_to)=True
-                              //then begin
-                              //       MoveTo(move_to.X, move_to.Y);
-                              //       LineTo(line_to.X, line_to.Y);
-                              //     end;
                               if check_limits(move_to, line_to)=True then
                                  draw_line(move_to, line_to);
                               move_to:=line_to;
@@ -1318,32 +1249,17 @@ end;
 
                                               if check_limits(move_to, line_to)=True
                                                  then begin
-// T3-OUT                                               with pdf_form.pdf_printer.Canvas do begin
-                                                        //with pad_form.Canvas do begin  // rubbish to allow test compilation
                                                         with pdf_page do begin
-
-                                                          //saved_pen_width:=Pen.Width; // 206b
-                                                          //if Brush.Style<>bsSolid then Pen.Width:=saved_pen_width+3;    // 206b  PDF bug, needs a wider line to ensure full blanking if hatched fill
-                                                          //
-                                                          //Pen.Color:=blank;                // first blank across..
-                                                          //MoveTo(move_to.X, move_to.Y);
-                                                          //LineTo(line_to.X, line_to.Y);
 
                                                           saved_pen_width:=current_pen_width; // 206b
 //                                                          if current_fill_style<>bsSolid then set_pen_width(saved_pen_width+3);    // 206b  PDF bug, needs a wider line to ensure full blanking if hatched fill
                                                           set_pen_color(blank);                // first blank across..
                                                           draw_line(move_to, line_to);
 
-                                                          //Pen.Width:=saved_pen_width;      // 206b restore original width
                                                           set_pen_width(saved_pen_width);      // 206b restore original width
-
-                                                          //MoveTo(move_to.X, move_to.Y);
-                                                          //LineTo(move_to.X, move_to.Y);
                                                           set_pen_color(edge);                 // then restore the corner points..
                                                           draw_line(move_to, move_to);
 
-                                                          //MoveTo(line_to.X, line_to.Y);
-                                                          //LineTo(line_to.X, line_to.Y);
                                                           draw_line(line_to, line_to);
 
                                                         end;//with pdf_page
@@ -1354,16 +1270,12 @@ end;
 
 
               begin
-// T3-OUT       with pdf_form.pdf_printer.Canvas do begin
-                //with pad_form.Canvas do begin  // rubbish to allow test compilation
                 with pdf_page do begin
 
                   if (rail=16) or (rail=20)   // 0.93.a platforms
                      then set_pen_color(printplat_edge_colour)
                      else set_pen_color(printcurail_colour);         //  1 = virtual black. Bug in HP driver if black (0) specified.
 
-                  //Pen.Mode:=pmCopy;
-                  //Pen.Style:=psSolid;
                   set_pen_style(psSolid);
 
                   aq:=rail;  // gauge-faces.
@@ -1511,10 +1423,8 @@ end;
 
                             if dots_index>2
                                then begin
-                                      //Polygon(Slice(dots,dots_index+1));   // +1, number of points, not index.  must have 4 points.
                                       Polygon(Slice(dots,dots_index+1));   // +1, number of points, not index.  must have 4 points.
 
-                                      //edge_colour:=Pen.Color;  // existing rail edges.
                                       edge_colour:=current_fill_color;  // existing rail edges.
 
                                       //if Brush.Style=bsSolid
@@ -1629,22 +1539,13 @@ end;
 
                                           if check_limits(move_to, line_to)=True
                                              then begin
-// T3-OUT                                           with pdf_form.pdf_printer.Canvas do begin
-                                                    //with pad_form.Canvas do begin  // rubbish to allow test compilation
-                                                    with pdf_page do begin  // rubbish to allow test compilation
+                                                    with pdf_page do begin
 
-                                                      //MoveTo(move_to, move_to);
-                                                      //LineTo(line_to, line_to);
                                                       set_pen_color(blank);                // first blank across..
                                                       draw_line(move_to, line_to);
 
                                                       set_pen_color(edge);                 // then restore the corner points..
-                                                      //MoveTo(move_to.X, move_to.);
-                                                      //LineTo(move_to.X, move_to.Y);
                                                       draw_line(move_to, move_to);
-
-                                                      //MoveTo(line_to.X, line_to.Y);
-                                                      //LineTo(line_to.X, line_to.Y);
                                                       draw_line(line_to, line_to);
 
                                                     end;//with
@@ -1748,40 +1649,15 @@ end;
                                  else if edge_started=True then BREAK;   // don't resume adding dots to this edge once started and then gone out of limits.
                             end;//next now
 
-// T3-OUT                 with pdf_form.pdf_printer.Canvas do begin
-                          //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
                           with pdf_page do begin
 
                             set_pen_color(printcurail_colour);          //  1 = virtual black. Bug in HP driver if black (0) specified.
                                                                    //  (but not on "econofast" print !).
-                            //Pen.Mode:=pmCopy;
-                            //Pen.Style:=psSolid;
-                            //
-                            //Brush.Color:=printrail_infill_colour_cu;
-                            //
                             set_pen_style(psSolid);
                             set_fill_color(printrail_infill_colour_cu);
-                            //
-                            //if {(}pdf_black_white=True  {) or (impact>0)}
-                            //   then begin
-                            //          Brush.Style:=bsSolid;              // solid infill white.
-                            //          Brush.Color:=clWhite;
-                            //        end
-                            //   else case rail_infill_i of
-                            //              1: Brush.Style:=bsBDiagonal;   // hatched
-                            //              2: Brush.Style:=bsSolid;       // solid
-                            //              3: Brush.Style:=bsDiagCross;   // cross_hatched
-                            //              4: begin                       // blank
-                            //                   Brush.Style:=bsSolid;
-                            //                   Brush.Color:=clWhite;
-                            //                 end;
-                            //            else Brush.Style:=bsSolid;       // solid
-                            //        end;//case
 
                             if {(}pdf_black_white=True  {) or (impact>0)}
                                then begin
-                               //       Brush.Style:=bsSolid;              // solid infill white.
-                               //       Brush.Color:=clWhite;              // overide
                                       set_fill_color(clWhite);
                                     end     ;
                                //else case rail_infill_i of
@@ -1799,7 +1675,6 @@ end;
                                then begin
                                       Polygon(Slice(dots,dots_index+1));   // +1, number of points, not index.  must have at least 5 points.
 
-                                      //edge_colour:=Pen.Color;  // existing rail edges.
                                       edge_colour:=current_pen_color;  // existing rail edges.
 
                                       //if Brush.Style=bsSolid then blanking_colour:=Brush.Color   // infill colour.
@@ -1831,22 +1706,11 @@ end;
                             line_to.X:=Round((p2.Y+ypd-grid_left)*scaw_out)+page_left_dots;  line_to.Y:=Round((p2.X-grid_top)*scal_out)+page_top_dots;
                           end;//with
 
-// T3-OUT                 with pdf_form.pdf_printer.Canvas do begin
-                          //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
                           with pdf_page do begin
-
-
-                            //Pen.Color:=printcurail_colour;         //  1 = virtual black. Bug in HP driver if black (0) specified.
-                            //                                       //  (but not on "econofast" print !).
-                            //Pen.Mode:=pmCopy;
-                            //Pen.Style:=psSolid;
-
                             set_pen_color(printcurail_colour);       //  1 = virtual black. Bug in HP driver if black (0) specified.
                                                                      //  (but not on "econofast" print !).
-                            //Pen.Mode:=pmCopy;
                             set_pen_style(psSolid);
 
-                            //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
                             if check_limits(move_to, line_to)=True then
                                draw_line(move_to, line_to);
                           end;//with
@@ -1932,7 +1796,6 @@ begin
     pdf_filename_str := ExtractFilePath(FileName) + 'test.pdf';
 
   end;//with
-  //show_modal_message('Writing : ' + pdf_filename_str);
 
   print_colours_setup;    // first set up the colours.
 
@@ -2208,9 +2071,7 @@ try
 
                 end;
 
-// T3-OUT with pdf_form.pdf_printer.Canvas do begin
         with pdf_page do begin
-
 //        Print watermark Page number
           if (pdf_form.page_ident_checkbox.Checked=True) and (page_count>3)  // 214a show large page ident if many pages
              then begin
@@ -2239,7 +2100,6 @@ try
                     set_fill_color(clBlack);
                   end;
 
-
 //        Print background shapes
           if bgnd_form.output_grid_in_front_checkbox.Checked=True            // do shapes and sb first
              then pdf_shapes_and_sketchboard_items(grid_left,grid_top);      // 206e
@@ -2262,35 +2122,12 @@ try
                                     else run_error(213);
                     end;//case
 
-                    //Pen.Color:=printgrid_colour;           // for grid lines.
-                    set_pen_color(printgrid_colour);
-                    //Pen.Mode:=pmCopy;
-
-                    //if pad_form.printed_grid_dotted_menu_entry.Checked=True
-                    //   then begin
-                    //          Brush.Color:=clWhite;  // 0.93.a gaps in dotted lines.
-                    //          Brush.Style:=bsSolid;
-                    //
-                    //          //Pen.Style:=psDot;     //out wPDF bug
-                    //          Pen.Style:=psSolid;
-                    //
-                    //          pen_width:=1;         // must be 1 for dots.
-                    //        end
-                    //   else begin
-                    //          Pen.Style:=psSolid;
-                    //          {if impact>0 then pen_width:=1                   // impact printer or plotter.
-                    //                      else}
-                    //          pen_width:=printgrid_wide;
-                    //          if pen_width<1 then pen_width:=1;
-                    //        end;
+                    set_pen_color(printgrid_colour);         // for grid lines.
 
                     if pad_form.printed_grid_dotted_menu_entry.Checked=True
                        then begin
                               set_fill_color(clWhite);  // 0.93.a gaps in dotted lines.
-                              //Brush.Style:=bsSolid;
-
-                              set_pen_style(psDot);     //out wPDF bug
-                              //Pen.Style:=psSolid;
+                              //set_pen_style(psDot);     //out wPDF bug
                               pen_width:=1;         // must be 1 for dots.
                             end
                        else begin
@@ -2312,15 +2149,8 @@ try
                       grid_now_dots:=Round((now_gridx-grid_top)*scal_out)+page_top_dots;
                       if grid_now_dots<0 then CONTINUE;
 
-                      //if (now_gridx=0) and (Pen.Style=psSolid)
-                      //   then Pen.Width:=pen_width+2    // thicker datum line (only appears if page origin is negative).
-                      //   else Pen.Width:=pen_width;
-
                       if (now_gridx=0) and (current_pen_style() = psSolid)
                          then set_pen_width(pen_width + 2);    // thicker datum line (only appears if page origin is negative).
-
-                      //move_to.X:=left_blanking_dots;          move_to.Y:=grid_now_dots;
-                      //line_to.X:=printer_width_indexmax_dots; line_to.Y:=grid_now_dots;
 
                       draw_line(left_blanking_dots, grid_now_dots, printer_width_indexmax_dots, grid_now_dots);
 
@@ -2341,7 +2171,6 @@ try
                       grid_label_str:=FormatFloat('0.###',grid_label);
 
                       set_fill_color(clLime);
-                      //text_out(left_blanking_dots,grid_now_dots-(TextHeight('A') div 2),grid_label_str+' '); //  add labels.
                       write_text(left_blanking_dots,
                                  grid_now_dots,
                                  grid_label_str+' ',
@@ -2360,15 +2189,9 @@ try
                       grid_now_dots:=Round((now_gridy-grid_left)*scaw_out)+page_left_dots;
                       if grid_now_dots<0 then CONTINUE;
 
-                  //    if (now_gridy=0) and (Pen.Style=psSolid)
-                  //       then Pen.Width:=pen_width+2    // thicker datum line (only appears if page origin is negative).
-                  //       else Pen.Width:=pen_width;
                       if (now_gridy=0) and (current_pen_style=psSolid)
                          then set_pen_width(pen_width+2)    // thicker datum line (only appears if page origin is negative).
                          else set_pen_width(pen_width);
-
-                  //    move_to.X:=grid_now_dots; move_to.Y:=top_blanking_dots;
-                  //    line_to.X:=grid_now_dots; line_to.Y:=printer_length_indexmax_dots;
 
                   draw_line(grid_now_dots, top_blanking_dots, grid_now_dots, printer_length_indexmax_dots);
 
@@ -2388,7 +2211,6 @@ try
 
                       grid_label_str:=FormatFloat('0.###',grid_label);
 
-                  //    text_out(grid_now_dots-(TextWidth(grid_label_str) div 2),page_top_dots-(printmargin_wide div 2)-halfmm_dots-TextHeight('A'),grid_label_str); //  add labels.
                   write_text(grid_now_dots{-(TextWidth(grid_label_str) div 2)},
                              page_top_dots-(printmargin_wide div 2)-halfmm_dots{-TextHeight('A')},
                              grid_label_str
@@ -2396,17 +2218,12 @@ try
 
                     until grid_now_dots>page_right_dots;
 
-                              // finally add the units string...
-
-                  //write_text(grid_now_dots{-(TextWidth(grid_label_str) div 2)},
-                  //           page_top_dots-(printmargin_wide div 2)-halfmm_dots{-TextHeight('A')},
-                  //           grid_label_str); //  add labels.
-                  //  text_out(left_blanking_dots,page_top_dots-(printmargin_wide div 2)-halfmm_dots-TextHeight('A'),grid_str);  // add the units string.
+                    // finally add the units string...
                   write_text(left_blanking_dots,
                              page_top_dots-(printmargin_wide div 2)-halfmm_dots{-TextHeight('A')},
                              grid_str);  // add the units string.
-                  //
-                  //  Pen.Style:=psSolid;  // reset in case of dotted.
+
+                    set_pen_style(psSolid);
                   end;
 
 //        grid finished.
@@ -2441,50 +2258,24 @@ try
 
                            then begin
 
-//                                  Brush.Color:=clWhite;  // 0.93.a gaps in dotted lines.
-//                                  Brush.Style:=bsClear;
-//                                  TextOut(0,0,'');
-//
-//                                  Pen.Mode:=pmCopy;
-//
                                   if dummy_template=True   // 212a
                                      then begin
-//                                            Pen.Style:=psSolid;
-//                                            Pen.Color:=printshape_colour;
-//
-//                                            Pen.Width:=printshape_wide;
-//
-//                                            if Pen.Width<1 then Pen.Width:=1;
+                                            set_pen_style(psSolid);
                                             set_pen_color(printshape_colour);
                                             set_pen_width(round(max(printshape_wide,1)));
                                           end
                                      else begin
-//                                            Pen.Color:=printcurail_colour;
-//
-//                                            Pen.Width:=printcl_wide;
-//
-//                                            if Pen.Width<1 then Pen.Width:=1;
-//
-//                                            {if Pen.Width=1 then Pen.Style:=psDash      // out wPDF bug
-//                                                           else} Pen.Style:=psSolid;
                                             set_pen_color(printcurail_colour);
                                             set_pen_width(round(max(printcl_wide, 1)));
-
-                                            //{if Pen.Width=1 then Pen.Style:=psDash      // out wPDF bug
-                                            //               else} Pen.Style:=psSolid;
-
                                           end;
 
                                   for aq:=24 to 25 do begin
                                     if ( (plain_track=False) or (aq=24) ) and (aqyn[aq]=True)
-
                                             // main side only only if plain track, and data available ?
-
                                        then begin
                                               move_to.X:=get_w_dots(aq,0); move_to.Y:=get_l_dots(aq,0);
                                               for now:=1 to nlmax_array[aq] do begin
                                                 line_to.X:=get_w_dots(aq,now); line_to.Y:=get_l_dots(aq,now);
-                                                //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
                                                 if check_limits(move_to, line_to)=True then
                                                        draw_line(move_to, line_to);
                                                 move_to:=line_to;
@@ -2495,13 +2286,8 @@ try
 
                         if {pad_form.print_rails_menu_entry.Checked=True}  // 0.82.b
                            print_settings_form.output_rails_checkbox.Checked=True
-
                            then begin
                                               //  draw turnout rails...
-
-                                  //Pen.Width:=printrail_wide;
-                                  //if Pen.Width<1 then Pen.Width:=1;
-                                  //                 {end;}
                                   set_pen_width(round(max(printrail_wide, 1)));
 
                                   if (rail_infill_i=0)  // out for pdf, was  or ((scale*out_factor)<0.75)   // less than 18.75% for 4mm scale (control template) (10.71% for 7mm).
@@ -2525,8 +2311,7 @@ try
                                           end
                                      else begin      // infill (polygon) mode ...
 
-                                                     // do blades first - neater result.
-
+                                          // do blades first - neater result.
                                             for rail:=1 to 3 do draw_fill_rail(8);  // closure rails and curved stock rail.
 
                                             rail:=0;                                // straight stock rail.
@@ -2561,7 +2346,6 @@ try
                                                       move_to.X:=get_w_dots(aq,0); move_to.Y:=get_l_dots(aq,0);
                                                       for now:=1 to list_planing_mark_aq1{+1} do begin                    // +1 to overdraw
                                                         line_to.X:=get_w_dots(aq,now); line_to.Y:=get_l_dots(aq,now);
-                                                        //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
                                                         if check_limits(move_to, line_to)=True then
                                                             draw_line(move_to, line_to);
                                                         move_to:=line_to;
@@ -2574,7 +2358,6 @@ try
                                                       move_to.X:=get_w_dots(aq,0); move_to.Y:=get_l_dots(aq,0);
                                                       for now:=1 to list_planing_mark_aq2{+1} do begin                      // +1 to overdraw
                                                         line_to.X:=get_w_dots(aq,now); line_to.Y:=get_l_dots(aq,now);
-                                                        //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
                                                       if check_limits(move_to, line_to)=True then
                                                           draw_line(move_to, line_to);
                                                         move_to:=line_to;
@@ -2599,15 +2382,12 @@ try
 
                 // now the trim margins....
 
-//              Pen.Color:=printmargin_colour;
               set_pen_color(printmargin_colour);
-//              Pen.Mode:=pmCopy;
-//              Pen.Style:=psSolid;
-//              Pen.Width:=printmargin_wide;
-//
+              set_pen_style(psSolid);
+              set_pen_width(printmargin_wide);
+
               move_to.X:=left_blanking_dots;          move_to.Y:=page_top_dots;   // paper top left.
               line_to.X:=printer_width_indexmax_dots; line_to.Y:=page_top_dots;   // paper top margin.
-              //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
               if check_limits(move_to, line_to)=True then
                  draw_line(move_to, line_to);   // top left. top margin.
 
@@ -2617,7 +2397,6 @@ try
 
               move_to.X:=page_right_dots; move_to.Y:=top_blanking_dots;
               line_to.X:=page_right_dots; line_to.Y:=printer_length_indexmax_dots;                    // paper right margin.
-              //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
               if check_limits(move_to, line_to)=True then
                  draw_line(move_to, line_to);   // paper top margin.
 
@@ -2626,19 +2405,16 @@ try
 
               move_to.Y:=page_quarter_dots;  // right 1/4 target.
               line_to.Y:=page_quarter_dots;
-              //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
               if check_limits(move_to, line_to)=True then
                  draw_line(move_to, line_to);
 
               move_to.Y:=page_mid_dots;      // right centre target.
               line_to.Y:=page_mid_dots;
-              //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
               if check_limits(move_to, line_to)=True then
                  draw_line(move_to, line_to);
 
               move_to.Y:=page_3quarter_dots; // right 3/4 target.
               line_to.Y:=page_3quarter_dots;
-              //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
               if check_limits(move_to, line_to)=True then
                  draw_line(move_to, line_to);
 
@@ -2653,7 +2429,6 @@ try
                            then begin
                                   move_to.X:=left_blanking_dots;          move_to.Y:=page_bottom_dots;
                                   line_to.X:=printer_width_indexmax_dots; line_to.Y:=page_bottom_dots;    // paper bottom margin.
-                                  //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
                                   if check_limits(move_to, line_to)=True then
                                      draw_line(move_to, line_to);
                                  end;
@@ -2663,14 +2438,12 @@ try
                  then begin
                         move_to.X:=left_blanking_dots;          move_to.Y:=page_bottom_dots;
                         line_to.X:=printer_width_indexmax_dots; line_to.Y:=page_bottom_dots;    // paper bottom margin.
-                        //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
                         if check_limits(move_to, line_to)=True then
                            draw_line(move_to, line_to);
                       end;
 
               move_to.X:=page_left_dots; move_to.Y:=top_blanking_dots;
               line_to.X:=page_left_dots; line_to.Y:=printer_length_indexmax_dots;               // paper left margin.
-              //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
               if check_limits(move_to, line_to)=True then
                  draw_line(move_to, line_to);
 
@@ -2680,19 +2453,16 @@ try
 
               move_to.Y:=page_quarter_dots;    // left 1/4 target.
               line_to.Y:=page_quarter_dots;
-              //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
               if check_limits(move_to, line_to)=True then
                  draw_line(move_to, line_to);
 
               move_to.Y:=page_mid_dots;        // left centre target.
               line_to.Y:=page_mid_dots;
-              //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
               if check_limits(move_to, line_to)=True then
                  draw_line(move_to, line_to);
 
               move_to.Y:=page_3quarter_dots;   // left 3/4 target.
               line_to.Y:=page_3quarter_dots;
-              //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
               if check_limits(move_to, line_to)=True then
                  draw_line(move_to, line_to);
 
@@ -2729,7 +2499,6 @@ try
 
                     // small text inside the margins...
 
-                    //Font.Assign(set_font('Arial',6,[],calc_intensity(clBlack)));
                     set_font(pdf_font_helv, 6);
                     set_pen_color(calc_intensity(clBlack));
 
@@ -2767,21 +2536,17 @@ try
                         //Font.Assign(print_corner_page_numbers_font);                           // 0.93.a
                         //if print_corner_page_numbers_font.Size>8 then Brush.Style:=bsClear;
 
-                        //Textout(page_left_dots+printmargin_wide+3, page_top_dots+printmargin_wide+2, this_page_begin_str);                                                                                // top left corner
                         write_text(page_left_dots+printmargin_wide+3,
                                    page_top_dots+printmargin_wide+2,
                                    this_page_begin_str,
                                    tpTopLeft);           // top left corner
-                        //Textout(page_left_dots+printmargin_wide+3, page_bottom_dots+Font.Height-printmargin_wide-4, page_num_str+'   '+box_project_title_str+'   '+DateToStr(Date)+' '+TimeToStr(Time));  // bottom left corner
                         write_text(page_left_dots+printmargin_wide+3,
                                    page_bottom_dots{+Font.Height}-printmargin_wide-4,
                                    page_num_str+'   '+box_project_title_str+'   '+DateToStr(Date)+' '+TimeToStr(Time));  // bottom left corner
-                        //Textout(page_right_dots-printmargin_wide-TextWidth(all_pages_origin_str+page_num_str)-3,page_top_dots+printmargin_wide+2,all_pages_origin_str+page_num_str);                      // top right corner
                         write_text(page_right_dots-printmargin_wide{-TextWidth(all_pages_origin_str+page_num_str)}-200,
                                    page_top_dots+printmargin_wide+2,
                                    all_pages_origin_str+page_num_str,
                                    tpTopRight);         // top right corner
-                        //Textout(page_right_dots-printmargin_wide-TextWidth(this_page_end_str)-3,page_bottom_dots+Font.Height-printmargin_wide-4,this_page_end_str);                                       // bottom right corner
                         write_text(page_right_dots-printmargin_wide{-TextWidth(this_page_end_str)}-200,
                                    page_bottom_dots{+Font.Height}-printmargin_wide-4,
                                    this_page_end_str,
@@ -2792,9 +2557,6 @@ try
               if (distortions<>0) and (pdf_form.warnings_checkbox.Checked=True)
                  then begin
 //                        Font.Assign(set_font('Arial',7,[],printmargin_colour));
-
-//                        text_out(page_left_dots+printmargin_wide,page_top_dots+printmargin_wide-(Font.Height*5),
-//                                '  Warning :  Data distortions are in force.  This template may not be dimensionally accurate.');
                         write_text(page_left_dots+printmargin_wide,page_top_dots+printmargin_wide{-(Font.Height*5)},
                                 '  Warning :  Data distortions are in force.  This template may not be dimensionally accurate.');
                       end;
@@ -2805,7 +2567,6 @@ try
 //              Brush.Color:=clWhite;
 //              Brush.Style:=bsClear;   // transparent over detail.
 
-//              TextOut(left_blanking_dots,page_bottom_dots+(printmargin_wide div 2)+halfmm_dots,page_str+bottom_str); // add the bottom string last.
               write_text(left_blanking_dots,
                          page_bottom_dots+(printmargin_wide div 2)+halfmm_dots,
                          page_str+bottom_str,
@@ -4172,7 +3933,6 @@ var
   procedure set_pen_railcolour(rail_edges:boolean);  // 0.76.a 3-11-01.
 
   begin
-// T3-OUT           with pdf_form.pdf_printer.Canvas do begin
     with pdf_page do begin
 
       if pdf_black_white
@@ -4257,13 +4017,9 @@ var
                       move_to.X:=Round((yint-grid_left)*scaw_out)+page_left_dots;
                       move_to.Y:=Round((xint-grid_top)*scal_out)+page_top_dots;
 
-// T3-OUT             with pdf_form.pdf_printer.Canvas do begin
-                      //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
                       with pdf_page do begin
 
                         if blank_it=True
-                        //   then Pen.Color:=blanking_colour
-                        //   else set_pen_railcolour(True);
                              then set_pen_color(blanking_colour)
                              else set_pen_railcolour(True);
 
@@ -4281,8 +4037,6 @@ var
 
                           if check_limits(move_to, line_to)=True
                              then begin
-                                    //MoveTo(move_to.X, move_to.Y);
-                                    //LineTo(line_to.X, line_to.Y);
                                     draw_line(move_to, line_to);
                                   end;
                           move_to:=line_to;
@@ -4336,35 +4090,18 @@ var
 
                                               if check_limits(move_to, line_to)=True
                                                  then begin
-// T3-OUT                                               with pdf_form.pdf_printer.Canvas do begin
-                                                        //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
+
                                                         with pdf_page do begin
-
-                                                          //saved_pen_width:=Pen.Width; // 206b
-                                                          //if Brush.Style<>bsSolid then Pen.Width:=saved_pen_width+3;    // 206b  PDF bug, needs a wider line to ensure full blanking if hatched fill
-                                                          //
-                                                          //Pen.Color:=blank;                // first blank across..
-                                                          //MoveTo(move_to.X, move_to.Y);
-                                                          //LineTo(line_to.X, line_to.Y);
-
                                                           saved_pen_width:=current_pen_width; // 206b
 //                                                          if current_fill_style<>bsSolid then set_pen_width(saved_pen_width+3);    // 206b  PDF bug, needs a wider line to ensure full blanking if hatched fill
                                                           set_pen_color(blank);                // first blank across..
-                                                          //MoveTo(move_to.X, move_to.Y);
-                                                          //LineTo(line_to.X, line_to.Y);
                                                           draw_line(move_to, line_to);
 
-                                                          //Pen.Width:=saved_pen_width;      // 206b restore original width
                                                           set_pen_width(saved_pen_width);      // 206b restore original width
 
-                                                          //Pen.Color:=edge;                 // then restore the corner points..
-                                                          //MoveTo(move_to.X, move_to.Y);
-                                                          //LineTo(move_to.X, move_to.Y);
                                                           set_pen_color(edge);                 // then restore the corner points..
                                                           draw_line(move_to, move_to);
 
-                                                          //MoveTo(line_to.X, line_to.Y);
-                                                          //LineTo(line_to.X, line_to.Y);
                                                           draw_line(line_to, line_to);
                                                         end;//with
                                                       end;
@@ -4462,8 +4199,6 @@ var
                            else if edge_started=True then BREAK;   // don't resume adding dots to this edge once started and then gone out of limits.
                       end;//next now
 
-//// T3-OUT             with pdf_form.pdf_printer.Canvas do begin
-                      //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
                       with pdf_page do begin
 
                         set_pen_railcolour(True);
@@ -4505,9 +4240,7 @@ var
                                           end
                                      else begin   // normal rails...
 
-                                       //if ( (using_mapping_colour=True) and (Pen.Color=mapping_colour) ) or ( (mapping_colours_print<0) and (Pen.Color=printbg_single_colour) )
                                             if ( (using_mapping_colour=True) and (current_fill_color=mapping_colour) ) or ( (mapping_colours_print<0) and (current_fill_color=printbg_single_colour) )
-                                            //  then Brush.Color:=calc_intensity(clSilver)  // 214b  - was clGray
                                                 then set_fill_color(calc_intensity(clSilver))  // 214b  - was clGray
                                                 else begin
                                                       if fb_kludge_this>0 then set_fill_color(printrail_infill_colour_cu)  // 0.94.a
@@ -4530,16 +4263,13 @@ var
 
                         if pdf_black_white=True
                            then begin
-                        //          Brush.Style:=bsSolid;               // solid infill white.
                                   set_fill_color(clWhite);               // overide
                                 end;
 
                         if dots_index>2
                            then begin
-                                  //Polygon(Slice(dots,dots_index+1));   // +1, number of points, not index.  must have 4 points.
                                   polygon(Slice(dots,dots_index+1));   // +1, number of points, not index.  must have 4 points.
 
-                                  //edge_colour:=Pen.Color;  // existing rail edges.
                                   edge_colour:=current_pen_color;  // existing rail edges.
 
                                   //if Brush.Style=bsSolid then blanking_colour:=Brush.Color   // infill colour.
@@ -4643,24 +4373,14 @@ var
 
                                               if check_limits(move_to, line_to)=True
                                                  then begin
-// T3-OUT                                               with pdf_form.pdf_printer.Canvas do begin
-                                                        //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
                                                         with pdf_page do begin
 
-
-                                                          //Pen.Color:=blank;                // first blank across..
-                                                          //MoveTo(move_to.X, move_to.Y);
-                                                          //LineTo(line_to.X, line_to.Y);
                                                           set_pen_color(blank);                // first blank across..
                                                           draw_line(move_to, line_to);
 
                                                           set_pen_color(edge);                 // then restore the corner points..
-                                                          //MoveTo(move_to.X, move_to.Y);
-                                                          //LineTo(move_to.X, move_to.Y);
                                                           draw_line(move_to, move_to);
 
-                                                          //MoveTo(line_to.X, line_to.Y);
-                                                          //LineTo(line_to.X, line_to.Y);
                                                           draw_line(line_to, line_to);
                                                         end;//with
                                                       end;
@@ -4761,8 +4481,6 @@ var
                                      else if edge_started=True then BREAK;   // don't resume adding dots to this edge once started and then gone out of limits.
                                 end;//next now
 
-// T3-OUT                       with pdf_form.pdf_printer.Canvas do begin
-                                //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
                                 with pdf_page do begin
 
                                   set_pen_railcolour(True);
@@ -4792,8 +4510,6 @@ var
 
                                   if {(} pdf_black_white=True {) or (impact>0)} {or (mapping_colours_print<0)}
                                      then begin
-                                  //          Brush.Style:=bsSolid;               // solid infill white.
-                                  //          Brush.Color:=clWhite;               // overide
                                             set_fill_color(clWhite);              // overide
                                           end;
 
@@ -4801,7 +4517,6 @@ var
                                      then begin
                                             polygon(Slice(dots,dots_index+1));   // +1, number of points, not index.  must have at least 5 points.
 
-                                            //edge_colour:=Pen.Color;  // existing rail edges.
                                             edge_colour:=current_pen_color;  // existing rail edges.
 
                                             //if Brush.Style=bsSolid then blanking_colour:=Brush.Color   // infill colour.
@@ -4831,8 +4546,6 @@ var
                                 p1:=bgnd_endmarks[aq1,aq1end];
                                 p2:=bgnd_endmarks[aq2,aq2end];
 
-// T3-OUT                       with pdf_form.pdf_printer.Canvas do begin
-                                //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
                                 with pdf_page do begin
 
 
@@ -4848,7 +4561,6 @@ var
                                   line_to.X:=Round((p2.Y-grid_left)*scaw_out)+page_left_dots;
                                   line_to.Y:=Round((p2.X-grid_top)*scal_out)+page_top_dots;
 
-                                  //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
                                   if check_limits(move_to, line_to)=True then
                                      draw_line(move_to, line_to);
                                 end;//with
@@ -4923,21 +4635,8 @@ var
 
                               if check_limits(move_to, line_to)=True
                                  then begin
-
-// T3-OUT                                               with pdf_form.pdf_printer.Canvas do begin
-                                        //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
                                         with pdf_page do begin
-
                                           set_pen_color(blank);                // first blank across..
-                                          //MoveTo(move_to.X, move_to.Y);
-                                          //LineTo(line_to.X, line_to.Y);
-                                          //
-                                          //set_pen_color(edge);                 // then restore the corner points..
-                                          //MoveTo(move_to.X, move_to.Y);
-                                          //LineTo(move_to.X, move_to.Y);
-                                          //
-                                          //MoveTo(line_to.X, line_to.Y);
-                                          //LineTo(line_to.X, line_to.Y);
                                           draw_open_line(move_to, line_to, edge);
                                         end;//with
                                       end;
@@ -5042,14 +4741,10 @@ var
            else if edge_started=True then BREAK;   // don't resume adding dots to this edge once started and then gone out of limits.
       end;//next now
 
-// T3-OUT             with pdf_form.pdf_printer.Canvas do begin
-//with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
   with pdf_page do begin
 
         set_pen_railcolour(True);
 
-        //Pen.Width:=printrail_wide;
-        //if Pen.Width<1 then Pen.Width:=1;
         set_pen_width(round(max(1, printrail_wide)));
 
         {if (single_colour_flag=True) and (pdf_form.black_edges_checkbox.Checked=False)
@@ -5060,10 +4755,6 @@ var
            then Brush.Color:=calc_intensity(clGray)
            else Brush.Color:=printrail_infill_colour_bg;
 }
-
-//        if using_mapping_colour=True
-//           then Brush.Color:=mapping_colour
-//           else Brush.Color:=sb_diagram_colour;  // 209c  was printrail_infill_colour_bg;
 
         if using_mapping_colour=True
            then set_fill_color(mapping_colour)
@@ -5094,7 +4785,6 @@ var
 
                   if output_include_boundaries=False
                      then begin
-                  //          edge_colour:=Pen.Color;  // existing rail edges.
                             edge_colour:=current_pen_color;  // existing rail edges.
                   //
                   //          if Brush.Style=bsSolid then blanking_colour:=Brush.Color   // infill colour.
@@ -5119,9 +4809,6 @@ var
                    and (intarray_max(list_bgnd_rails[1,0])<>0)    // data for straight switch rail
                    and (intarray_max(list_bgnd_rails[2,0])<>0)    // data for curved stock rail
                        then begin
-                              //if Brush.Color=clWhite
-                              //   then Pen.Color:=clBlack
-                              //   else Pen.Color:=clWhite;     // white points mark
                               if current_fill_color=clWhite
                                  then set_pen_color(clBlack)
                                  else set_pen_color(clWhite);     // white points mark
@@ -5131,13 +4818,10 @@ var
 
                               if (w_dims_valid=True) and (l_dims_valid=True)
                               then begin
-                                     //MoveTo(x_dots,y_dots);
-
                                      x_dots:=pbg_get_w_dots(2,0);  // ts toe.
                                      y_dots:=pbg_get_l_dots(2,0);
 
                                      if (w_dims_valid=True) and (l_dims_valid=True)
-                                        //then LineTo(x_dots,y_dots);
                                         then draw_line( pbg_get_w_dots(1,0),
                                                         pbg_get_l_dots(1,0),
                                                         pbg_get_w_dots(2,0),
@@ -5164,13 +4848,10 @@ begin          // print background templates...
 
   //single_colour_flag:=(mapping_colours_print<0); {pad_form.use_single_colour_menu_entry.Checked;}
 
-// with pdf_form.pdf_printer.Canvas do begin
   with pdf_page do begin
-//
-//    Pen.Mode:=pmCopy;     // default
-//
-//                  //  now print bgnd track centre-lines and turnout rails...
-//
+
+       //  now print bgnd track centre-lines and turnout rails...
+
     for n:=0 to max_list_index do begin
       if Ttemplate(keeps_list.Objects[n]).bg_copied=False then CONTINUE;  // no data, not on background.
 
@@ -5234,31 +4915,16 @@ begin          // print background templates...
 
                        then begin
 
-//                              Brush.Color:=clWhite;  // 0.93.a gaps in dotted lines.
-//                              Brush.Style:=bsClear;
-//                              TextOut(0,0,'');
-//
-//                              Pen.Mode:=pmCopy;
-//
                               if box_dims1.align_info.dummy_template_flag=True   // 212a   dummy template as bgnd shapes
                                  then begin
-//                                        Pen.Style:=psSolid;
-//                                        Pen.Color:=printshape_colour;
-//                                        Pen.Width:=printshape_wide;
                                         set_pen_style(psSolid);
                                         set_pen_color(printshape_colour);
                                         set_pen_width(printshape_wide);
                                       end
                                  else begin
                                         set_pen_railcolour(False);
-//                                        Pen.Width:=printcl_wide;
-//                                        if Pen.Width<1 then Pen.Width:=1;
                                           set_pen_width(trunc(max(printcl_wide, 1)));
-
-//                                        {if Pen.Width=1 then Pen.Style:=psDash     // out wPDF bug
-//                                                       else} Pen.Style:=psSolid;
                                           set_pen_style(psDash);
-
                                       end;
 
                               for aq:=24 to 25 do begin         // track centre-lines.
@@ -5303,20 +4969,7 @@ begin          // print background templates...
                   //drawn_full_aq1:=True;    // default init flags.
                   //drawn_full_aq2:=True;
 
-//                  Pen.Mode:=pmCopy;
-//                  Pen.Style:=psSolid;
-//
-//                  {if impact>0 then Pen.Width:=1        // impact printer or plotter.
-//                              else begin}
-//                                     {if out_factor<1   //  scale down the line width.
-//
-//                                        then Pen.Width:=Round(printrail_thick*out_factor)
-//                                        else}
-//                                     // out 0.73.a 12-8-01 (now done in thickness setup)
-//
-//                                     Pen.Width:=printrail_wide;
-//                                     if Pen.Width<1 then Pen.Width:=1;
-//                                   {end;}
+                  set_pen_style(psSolid);
 
                   if (rail_infill_i=0)  // out for pdf, was  or ((scale*out_factor)<0.75)   // less than 18.75% for 4mm scale (control template) (10.71% for 7mm).
                   and (output_diagram_mode=False)
@@ -5346,8 +4999,8 @@ begin          // print background templates...
                             pbg_outline_railends;  // next, draw in the rail ends using same pen settings...
                           end
                      else begin      // infill (polygon) mode ...
-//                                     // do blades first - neater result.
-//
+                                     // do blades first - neater result.
+
                             if output_diagram_mode=False // detail mode only
                                then begin
 
@@ -5400,8 +5053,6 @@ begin          // print background templates...
                                                   line_to.X:=pbg_get_w_dots(aq,now); line_to.Y:=pbg_get_l_dots(aq,now);
                                                   if check_limits(move_to, line_to) = True
                                                      then begin
-                                                            //MoveTo(move_to.X, move_to.Y);
-                                                            //LineTo(line_to.X, line_to.Y);
                                                             draw_line(move_to, line_to);
                                                      end;
                                                   move_to:=line_to;
@@ -5416,8 +5067,6 @@ begin          // print background templates...
                                                   line_to.X:=pbg_get_w_dots(aq,now); line_to.Y:=pbg_get_l_dots(aq,now);
                                                   if check_limits(move_to, line_to)=True
                                                      then begin
-                                                            //MoveTo(move_to.X, move_to.Y);
-                                                            //LineTo(line_to.X, line_to.Y);
                                                             draw_line(move_to, line_to);
                                                      end;
                                                   move_to:=line_to;
@@ -5426,8 +5075,6 @@ begin          // print background templates...
                                     end;//detail mode
 
                           end;//polygon mode
-
-//                         // finally add the rail-joint marks over the rail infill...
 
 // 209c                  if output_diagram_mode=False then pdf_bgnd_marks(grid_left,grid_top,max_list_index,True);
 
