@@ -375,7 +375,9 @@ begin
               green:=(colour AND $0000FF00) div $100;
               blue:=(colour AND $00FF0000) div $10000;
 
-              av:=(red+green+blue) div 3;
+              // The 'magic numbers' below are explained at
+              //     https://en.wikipedia.org/wiki/Grayscale
+              av:=round(min((red*0.2126 + green*0.7152 + blue*0.0722), 255));
 
               red:=av;
               green:=av;
@@ -1792,8 +1794,7 @@ begin
                       end;
             end;
 
-    //pdf_form.pdf_printer.FileName:=file_str;  ???
-    pdf_filename_str := ExtractFilePath(FileName) + 'test.pdf';
+    pdf_filename_str := file_str;
 
   end;//with
 
