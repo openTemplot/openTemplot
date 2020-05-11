@@ -498,8 +498,7 @@ var
 
   last_file_str: string;  // 214a
 
-  ident_left, ident_top: integer;  // 214a
-  //                    ,wm_shift
+  ident_left, ident_top, wm_shift: integer;  // 214a
 
   preview_record_file_made: boolean;   // 214b
 
@@ -2169,23 +2168,27 @@ begin
               // 220 trial and error : TODO: link this to page size
 
               if pdf_black_white = True then begin
-                //wm_shift:=2;              // watermark outline shift
+                wm_shift:=2;              // watermark outline shift
                 set_pen_color(clBlack);
               end
               else begin
-                //wm_shift:=10;             // watermark outline shift - 10 experimental
+                wm_shift:=10;             // watermark outline shift - 10 experimental
                 set_pen_color($00D0D0D0);   // pale-ish grey
               end;
-              set_fill_color(clWhite);      // ink saving, make watermark outline
               set_fill_color($00d0d0d0);
               // WRONG!!!! fpPDF does not (yet!) support text mode :-(
-              //   so just use a solid grey for now ...
+              //   so just use the clumsy method for now ...
 
-              ident_left := round(pdf_width_dots / 2);
               // TODO: Link these to page size
+              ident_left := round(pdf_width_dots / 2);
               ident_top := round(pdf_height_dots / 2);
 
               //SetPenStyle(ppsSolid, 100);           //  <<<<<------ DOESN'T WORK !!!
+              Write_Text(ident_left+wm_shift, ident_top+wm_shift, page_num_str, tpMiddleCentre);
+              Write_Text(ident_left+wm_shift, ident_top-wm_shift, page_num_str, tpMiddleCentre);
+              Write_Text(ident_left-wm_shift, ident_top+wm_shift, page_num_str, tpMiddleCentre);
+              Write_Text(ident_left-wm_shift, ident_top-wm_shift, page_num_str, tpMiddleCentre);
+              set_fill_color(clWhite);      // ink saving, make watermark outline
               Write_Text(ident_left, ident_top, page_num_str, tpMiddleCentre);
 
               //Brush.Style:=bsSolid;  // reset..
