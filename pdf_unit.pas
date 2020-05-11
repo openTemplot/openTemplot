@@ -917,11 +917,14 @@ var
                 //Brush.Style:=bsSolid;
                 //Brush.Color:=clWhite;
 
-                write_text(
-                  move_to.X,//-(TextWidth(num_str) div 2),
-                  move_to.Y
-                  ,//-(TextHeight(num_str) div 2),
-                  ' ' + num_str + ' ');
+                set_fill_color(clBlack);    // !!! THIS IS WRONG !!!!
+                set_font(1, 8);
+
+                write_text(move_to.X,
+                  move_to.Y,
+                  num_str,
+                  tpBottomCentre, True);
+
 
                 //Font.Assign(print_labels_font);      // reset for grid labels
                 //SetFont(print_labels_font, 10);      // reset for grid labels
@@ -1120,7 +1123,7 @@ var
                   move_to.Y
                   ,//-(TextHeight(switch_label_str) div 2),
                   ' ' + switch_label_str + ' ',
-                  tpMiddleCentre);
+                  tpMiddleCentre, True);
 
                 //Font.Assign(print_labels_font);      // reset for grid labels
               end;
@@ -2747,7 +2750,7 @@ begin
             write_text(left_blanking_dots,
               page_bottom_dots + (printmargin_wide div 2) + halfmm_dots,
               page_str + bottom_str,
-              tpTopLeft); // add the bottom string last.
+              tpTopLeft, True); // add the bottom string last.
 
             //              Font.Assign(print_labels_font);  // reset for labels.
             //              Brush.Style:=bsSolid;
@@ -4141,7 +4144,7 @@ begin
                 write_text(move_to.X,//-(TextWidth(idtb_str) div 2),
                   move_to.Y,//-(TextHeight(idtb_str) div 2),
                   idtb_str,
-                  tpBottomCentre);
+                  tpBottomCentre, True);
 
                 //Font.Assign(print_labels_font);      // reset for grid labels
               end;
@@ -4206,7 +4209,7 @@ begin
                     move_to.Y,
                     //-(TextHeight(switch_label_str) div 2),
                     switch_label_str,
-                    tpMiddleCentre);
+                    tpMiddleCentre, True);
 
                   //Font.Assign(print_labels_font);      // reset for grid labels
                 end;

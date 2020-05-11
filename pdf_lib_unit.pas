@@ -43,8 +43,10 @@ type
       procedure draw_open_line(dots_x1, dots_y1, dots_x2, dots_y2 : Integer; colour: Integer); overload;
       procedure draw_open_line(MvTo, LineTo : TPoint; colour: Integer); overload;
       procedure write_text(dots_x, dots_y : Integer; text : String); overload;
-      procedure write_text(dots_x, dots_y : Integer; text : String; shift: Array of Single); overload;
       procedure write_text(dots_x, dots_y : Integer; text : String; base: Tpdf_TextPosn); overload;
+      procedure write_text(dots_x, dots_y : Integer; text : String; blank_needed: Boolean); overload;
+      procedure write_text(dots_x, dots_y : Integer; text : String; base: Tpdf_TextPosn; blank_needed: Boolean); overload;
+      procedure write_text(dots_x, dots_y : Integer; text : String; shift: Array of Single; blank_needed: Boolean); overload;
       procedure polygon(dots : Array of Tpoint);
       procedure set_pen_color(color: Integer);
       procedure set_fill_color(color: Integer);
@@ -241,10 +243,20 @@ end;
 
   procedure TPDF_page.write_text(dots_x, dots_y : Integer; text : String); overload;
   begin
-    write_text(dots_x, dots_y, text, [0,0]);
+    write_text(dots_x, dots_y, text, tpBottomLeft);
   end;
 
   procedure TPDF_page.write_text(dots_x, dots_y: Integer; text: String; base: Tpdf_TextPosn); overload;
+  begin
+    write_text(dots_x, dots_y, text, base, False);
+  end;
+
+  procedure TPDF_page.write_text(dots_x, dots_y: Integer; text: String; blank_needed: Boolean); overload;
+  begin
+    write_text(dots_x, dots_y, text, tpBottomLeft, blank_needed);
+  end;
+
+  procedure TPDF_page.write_text(dots_x, dots_y: Integer; text: String; base: Tpdf_TextPosn; blank_needed: Boolean); overload;
 
   const
       shiftnums: array[Tpdf_textposn] of array[0..1] of Single =
@@ -255,12 +267,13 @@ end;
   //       MiddleLeft,  MiddleCentre, MiddleRight,
   //       TopLeft,     TopCentre,    TopRight
   begin
-       write_text(dots_x, dots_y, text, shiftnums[base]);
+       write_text(dots_x, dots_y, text, shiftnums[base], blank_needed);
   end;
 
 
-  procedure TPDF_page.write_text(dots_x, dots_y: Integer; text: String; shift: Array of single); overload;
-
+  procedure TPDF_page.write_text(dots_x, dots_y: Integer; text: String; shift: Array of single; blank_needed: Boolean); overload;
+  const
+      margin = 0.1; // 0.1mm margin on blanking box
   var
   x, y : Double; // co-ordinates in mm
   w, h : Double; // width and height of text
@@ -280,13 +293,16 @@ end;
     x := x + w*shift[0];
     y := y + h*shift[1];
 
-    old_pen_color := current_pen_color;
-    old_fill_color := current_fill_color;
-    set_pen_color(clWhite);
-    set_fill_color(clWhite);
-    DrawRect(x, y, w, h, 3, True, True);
-    set_pen_color(old_pen_color);
-    set_fill_color(old_fill_color);
+
+    if blank_needed then begin
+        old_pen_color := current_pen_color;
+        old_fill_color := current_fill_color;
+        set_pen_color(clWhite);
+        set_fill_color(clWhite);
+        DrawRect(x-margin, y-margin, w+2*margin, h+2*margin, 3, True, True);
+        set_pen_color(old_pen_color);
+        set_fill_color(old_fill_color);
+    end;
 
     WriteText(x, y, text);
   end;
