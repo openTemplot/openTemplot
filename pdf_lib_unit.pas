@@ -23,6 +23,9 @@ type
     tpMiddleLeft, tpMiddleCentre, tpMiddleRight,
     tpTopLeft, tpTopCentre, tpTopRight);
 
+  Tpdf_textmode = (tmFill, tmStroke, tmFillStroke, tmNone,
+    tmFillPath, tmStrokePath, tmFillStrokePath, tmpath);
+
   Tpdf_page = class(TPDFPage)
   private
     Width: Single;
@@ -38,8 +41,6 @@ type
     function fontNum(const AFontName: string): Integer;
   public
     constructor Create(AOwner: TPDFDocument);
-    procedure WriteComment(comment: String);
-    procedure set_landscape();
     procedure draw_line(dots_x1, dots_y1, dots_x2, dots_y2: Integer); overload;
     procedure draw_line(MvTo, LineTo: TPoint); overload;
     procedure draw_line_style(dots_x1, dots_y1, dots_x2, dots_y2: Integer;
@@ -194,6 +195,15 @@ end;
 
 //_______________________________________________________________________________________
 
+procedure TPDF_page.set_textmode(mode: TPDF_textmode);
+
+begin
+  //int_mode = integer(mode);
+  AddObject(TPDFFreeFormString.Create(Document, IntToStr(integer(mode)) + ' Tr' + CRLF));
+end;
+
+//_______________________________________________________________________________________
+
 procedure TPDF_page.draw_line(dots_x1, dots_y1, dots_x2, dots_y2: Integer);
 
 var
@@ -256,6 +266,13 @@ end;
 procedure TPDF_page.draw_open_line(MvTo, LineTo: TPoint; colour: Integer);
 begin
   draw_open_line(MvTo.x, MvTo.y, LineTo.x, LineTo.y, colour);
+end;
+
+//_______________________________________________________________________________________
+
+procedure TPDF_Page.write_comment(comment: String);
+begin
+  AddObject(TPDFFreeFormString.Create(Document, '% ' + comment + CRLF));
 end;
 
 //_______________________________________________________________________________________
