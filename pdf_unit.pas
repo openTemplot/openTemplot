@@ -646,6 +646,147 @@ var
   end;
   /////////////////////////////
 
+  procedure draw_grid(grid_left, grid_top: extended; page: TPDF_page);
+
+  begin
+  //          Font.Assign(print_labels_font);
+    with page do begin
+      write_comment(' ----==== Grid Start ====----');
+      save_graphics_state();
+
+      set_font(pdf_font_times, 8);
+      if printgrid_i = 1 then begin
+        case grid_labels_code_i of
+          1:
+            grid_str := 'feet';     //  labels in feet.
+          2:
+            grid_str := 'inches';   //  labels in inches.
+          3:
+            grid_str := 'proto-feet'; //  labels in prototype feet.
+          4:
+            grid_str := 'cm';       //  labels in cm.
+          6:
+            grid_str := 'mm';       //  labels in mm.
+          else
+            run_error(213);
+        end;//case
+
+        {if impact>0 then pen_width:=1                   // impact printer or plotter.
+                    else}
+
+        //  draw horizontal grid lines (across width)...
+
+        if (banner_paper = True) or (print_pages_top_origin <> 0)
+        then
+          now_gridx := 0 - gridx
+        else
+          now_gridx := 0;        //  init grid lines. no need for first line (gets overwritten by trim margins).
+
+        repeat
+          now_gridx := now_gridx + gridx;
+          grid_now_dots := Round((now_gridx - grid_top) * scal_out) + page_top_dots;
+          if grid_now_dots < 0 then
+            CONTINUE;
+
+          if (now_gridx = 0) and (current_pen_style() = psSolid)
+          then
+            set_pen_width(pen_width + 2);    // thicker datum line (only appears if page origin is negative).
+
+          draw_line_style(left_blanking_dots, grid_now_dots,
+            printer_width_indexmax_dots, grid_now_dots, pdf_lsGrid);
+          set_pen_style(psSolid);
+
+          case grid_labels_code_i of
+            1:
+              grid_label := now_gridx / 30480;       //  labels in feet.
+            2:
+              grid_label := now_gridx / 2540;        //  labels in inches.
+            3:
+              grid_label := now_gridx / (100 * scale); //  labels in prototype feet.
+            4:
+              grid_label := now_gridx / 1000;        //  labels in cm.
+            6:
+              grid_label := now_gridx / 100;         //  labels in mm.
+            else begin
+              grid_label := 0;   // keep the compiler happy.
+              run_error(223);
+            end;
+          end;//case
+
+          grid_label_str := FormatFloat('0.###', grid_label);
+
+          set_fill_color(clLime);
+          write_text(left_blanking_dots,
+            grid_now_dots,
+            grid_label_str + ' ',
+            tpMiddleLeft); //  add labels.
+
+        until grid_now_dots > page_bottom_dots;
+
+        //  draw vertical grid lines (down length)...
+
+        if print_pages_left_origin <> 0 then
+          now_gridy := 0 - gridy
+        else
+          now_gridy := 0;        //  init grid lines. no need for first line (gets overwritten by trim margin).
+
+        repeat
+          now_gridy := now_gridy + gridy;
+          grid_now_dots := Round((now_gridy - grid_left) * scaw_out) + page_left_dots;
+          if grid_now_dots < 0 then
+            CONTINUE;
+
+          if (now_gridy = 0) and (current_pen_style = psSolid) then
+            set_pen_width(pen_width + 2)    // thicker datum line (only appears if page origin is negative).
+          else
+            set_pen_width(pen_width);
+
+          draw_line_style(grid_now_dots, top_blanking_dots, grid_now_dots,
+            printer_length_indexmax_dots, pdf_lsGrid);
+
+          //    if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+
+          case grid_labels_code_i of
+            1:
+              grid_label := now_gridy / 30480;       //  labels in feet.
+            2:
+              grid_label := now_gridy / 2540;        //  labels in inches.
+            3:
+              grid_label := now_gridy / (100 * scale); //  labels in prototype feet.
+            4:
+              grid_label := now_gridy / 1000;        //  labels in cm.
+            6:
+              grid_label := now_gridy / 100;         //  labels in mm.
+            else begin
+              grid_label := 0;   // keep the compiler happy.
+              run_error(224);
+            end;
+          end;//case
+
+          grid_label_str := FormatFloat('0.###', grid_label);
+
+          write_text(grid_now_dots{-(TextWidth(grid_label_str) div 2)},
+            page_top_dots - (printmargin_wide div 2) - halfmm_dots{-TextHeight('A')},
+            grid_label_str
+            , tpBottomCentre); //  add labels.
+
+        until grid_now_dots > page_right_dots;
+
+        // finally add the units string...
+        write_text(left_blanking_dots,
+          page_top_dots - (printmargin_wide div 2) - halfmm_dots{-TextHeight('A')},
+          grid_str);  // add the units string.
+
+        set_pen_style(psSolid);
+      end;
+
+      restore_graphics_state();
+      write_comment(' ----==== Grid End ====----');
+    end;
+
+  end;
+  /////////////////////////////
+
   procedure draw_marks(grid_left, grid_top: extended; rail_joints: boolean);
 
   // if rail_joints=True draw only the rail joints, otherwise omit them.
@@ -2180,156 +2321,17 @@ begin
               set_pen_color(clBlack);
             end;
 
-            //        Print background shapes
-            if bgnd_form.output_grid_in_front_checkbox.Checked = True
-            // do shapes and sb first
-            then
-              pdf_shapes_and_sketchboard_items(grid_left, grid_top);      // 206e
-
-            //----------------------------------------
-            //        Print Grid
-
-            //          Font.Assign(print_labels_font);
-            write_comment(' ----==== Grid Start ====----');
-            save_graphics_state();
-
-            set_font(pdf_font_times, 8);
-            if printgrid_i = 1 then begin
-              case grid_labels_code_i of
-                1:
-                  grid_str := 'feet';     //  labels in feet.
-                2:
-                  grid_str := 'inches';   //  labels in inches.
-                3:
-                  grid_str := 'proto-feet'; //  labels in prototype feet.
-                4:
-                  grid_str := 'cm';       //  labels in cm.
-                6:
-                  grid_str := 'mm';       //  labels in mm.
-                else
-                  run_error(213);
-              end;//case
-
-              {if impact>0 then pen_width:=1                   // impact printer or plotter.
-                          else}
-
-              //  draw horizontal grid lines (across width)...
-
-              if (banner_paper = True) or (print_pages_top_origin <> 0)
-              then
-                now_gridx := 0 - gridx
-              else
-                now_gridx := 0;        //  init grid lines. no need for first line (gets overwritten by trim margins).
-
-              repeat
-                now_gridx := now_gridx + gridx;
-                grid_now_dots := Round((now_gridx - grid_top) * scal_out) + page_top_dots;
-                if grid_now_dots < 0 then
-                  CONTINUE;
-
-                if (now_gridx = 0) and (current_pen_style() = psSolid)
-                then
-                  set_pen_width(pen_width + 2);    // thicker datum line (only appears if page origin is negative).
-
-                draw_line_style(left_blanking_dots, grid_now_dots,
-                  printer_width_indexmax_dots, grid_now_dots, pdf_lsGrid);
-                set_pen_style(psSolid);
-
-                case grid_labels_code_i of
-                  1:
-                    grid_label := now_gridx / 30480;       //  labels in feet.
-                  2:
-                    grid_label := now_gridx / 2540;        //  labels in inches.
-                  3:
-                    grid_label := now_gridx / (100 * scale); //  labels in prototype feet.
-                  4:
-                    grid_label := now_gridx / 1000;        //  labels in cm.
-                  6:
-                    grid_label := now_gridx / 100;         //  labels in mm.
-                  else begin
-                    grid_label := 0;   // keep the compiler happy.
-                    run_error(223);
-                  end;
-                end;//case
-
-                grid_label_str := FormatFloat('0.###', grid_label);
-
-                set_fill_color(clLime);
-                write_text(left_blanking_dots,
-                  grid_now_dots,
-                  grid_label_str + ' ',
-                  tpMiddleLeft); //  add labels.
-
-              until grid_now_dots > page_bottom_dots;
-
-              //  draw vertical grid lines (down length)...
-
-              if print_pages_left_origin <> 0 then
-                now_gridy := 0 - gridy
-              else
-                now_gridy := 0;        //  init grid lines. no need for first line (gets overwritten by trim margin).
-
-              repeat
-                now_gridy := now_gridy + gridy;
-                grid_now_dots := Round((now_gridy - grid_left) * scaw_out) + page_left_dots;
-                if grid_now_dots < 0 then
-                  CONTINUE;
-
-                if (now_gridy = 0) and (current_pen_style = psSolid) then
-                  set_pen_width(pen_width + 2)    // thicker datum line (only appears if page origin is negative).
-                else
-                  set_pen_width(pen_width);
-
-                draw_line_style(grid_now_dots, top_blanking_dots, grid_now_dots,
-                  printer_length_indexmax_dots, pdf_lsGrid);
-
-                //    if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
-
-                case grid_labels_code_i of
-                  1:
-                    grid_label := now_gridy / 30480;       //  labels in feet.
-                  2:
-                    grid_label := now_gridy / 2540;        //  labels in inches.
-                  3:
-                    grid_label := now_gridy / (100 * scale); //  labels in prototype feet.
-                  4:
-                    grid_label := now_gridy / 1000;        //  labels in cm.
-                  6:
-                    grid_label := now_gridy / 100;         //  labels in mm.
-                  else begin
-                    grid_label := 0;   // keep the compiler happy.
-                    run_error(224);
-                  end;
-                end;//case
-
-                grid_label_str := FormatFloat('0.###', grid_label);
-
-                write_text(grid_now_dots{-(TextWidth(grid_label_str) div 2)},
-                  page_top_dots - (printmargin_wide div 2) - halfmm_dots{-TextHeight('A')},
-                  grid_label_str
-                  , tpBottomCentre); //  add labels.
-
-              until grid_now_dots > page_right_dots;
-
-              // finally add the units string...
-              write_text(left_blanking_dots,
-                page_top_dots - (printmargin_wide div 2) - halfmm_dots{-TextHeight('A')},
-                grid_str);  // add the units string.
-
-              set_pen_style(psSolid);
-            end;
-
-            restore_graphics_state();
-            write_comment(' ----==== Grid End ====----');
-
-            //        grid finished.
-
-            //----------------------------------------
-
-            if bgnd_form.output_grid_in_front_checkbox.Checked = False
-            // now do shapes and sb over the grid
-            then
-              pdf_shapes_and_sketchboard_items(grid_left, grid_top);    // 206e
+            // --- Background shapes and grid ---
+            if bgnd_form.output_grid_in_front_checkbox.Checked then
+              begin
+                pdf_shapes_and_sketchboard_items(grid_left, grid_top);
+                draw_grid(grid_left, grid_top, pdf_page);
+              end
+            else
+              begin
+                draw_grid(grid_left, grid_top, pdf_page);
+                pdf_shapes_and_sketchboard_items(grid_left, grid_top);
+              end;
 
             if print_entire_pad_flag // control template
             then
