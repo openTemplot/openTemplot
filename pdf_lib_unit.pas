@@ -30,17 +30,16 @@ type
   private
     Width: Single;
     Height: Single;
-    curr_pen_style: TPDFPenStyle;
-    curr_pen_width: Double;
-    curr_pen_color: Integer;
-    curr_fill_color: Integer;
-    curr_font_index: Integer;
-    curr_font_size: Integer;
     function dots_to_px(dots: Integer): double;
     function px_to_dots(px: Double): Integer;
     function fontNum(const AFontName: string): Integer;
   public
     constructor Create(AOwner: TPDFDocument);
+    function current_fill_color(): Integer;
+    function current_font_index(): Integer;
+    function current_pen_color(): Integer;
+    function current_pen_style(): TFPPenStyle;
+    function current_pen_width(): Integer;
     procedure draw_line(dots_x1, dots_y1, dots_x2, dots_y2: Integer); overload;
     procedure draw_line(MvTo, LineTo: TPoint); overload;
     procedure draw_line_style(dots_x1, dots_y1, dots_x2, dots_y2: Integer;
@@ -91,6 +90,18 @@ uses
 
 {$I fontmetrics_stdpdf.inc }
 
+const
+  dpmm = 600 / 25.4; // dots per mm
+  mmpd = 25.4 / 600 ; // mm per dot
+
+var
+  curr_pen_style: TPDFPenStyle;
+  curr_pen_width: Double;
+  curr_pen_color: Integer;
+  curr_fill_color: Integer;
+  curr_font_index: Integer;
+  curr_font_size: Integer;
+
 //=======================================================================================
 
 function c_to_rgb(color: Integer): Integer;
@@ -105,7 +116,7 @@ end;
 
 function dots_to_mm(dots: Integer): Double;
 begin
-  Result := dots * 25.4 / 600;
+  Result := dots * mmpd;
 end;
 
 
@@ -209,9 +220,6 @@ procedure TPDF_page.draw_line(dots_x1, dots_y1, dots_x2, dots_y2: Integer);
 var
   x1, y1, x2, y2: Double;
 
-const
-  dpmm = 600 / 25.4;                 // Dots per mm
-
 begin
   x1 := dots_to_mm(dots_x1);
   y1 := Height - dots_to_mm(dots_y1);
@@ -233,9 +241,6 @@ procedure TPDF_page.draw_line_style(dots_x1, dots_y1, dots_x2, dots_y2: Integer;
 
 var
   x1, y1, x2, y2: Double;
-
-const
-  dpmm = 600 / 25.4;                 // Dots per mm
 
 begin
   x1 := dots_to_mm(dots_x1);

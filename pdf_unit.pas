@@ -7,14 +7,17 @@ interface
 
 uses
   LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, FPCanvas,
+  StdCtrls, ExtCtrls, ComCtrls, TAGraph, FPCanvas,
   pdf_lib_unit;
 
 // T3-OUT WPPDFPRP, WPPDFR1, WPPDFR2, dtpShape,dtpGR32;
 
 type
 
+  { Tpdf_form }
+
   Tpdf_form = class(TForm)
+      Chart1: TChart;
     info_scrollbox: TScrollBox;
     printer_info_label: TLabel;
     page_panel: TPanel;
@@ -370,38 +373,9 @@ begin
 end;
 //__________________________________________________________________________________________
 
-procedure text_out(textoutX, textoutY: integer; str: string);
-
-// wPDF bug  --  blank text backgrounds
-
-var
-  text_rect: TRect;
-
-begin
-  // T3-OUT with pdf_form.pdf_printer.Canvas do begin
-
-  with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
-
-    text_rect.Left := textoutX;
-    text_rect.Top := textoutY;
-    text_rect.Right := textoutX + TextWidth(str);
-    text_rect.Bottom := textoutY + TextHeight(str);
-
-    Brush.Color := clWhite;
-    Brush.Style := bsSolid;
-
-    FillRect(text_rect);
-
-    TextOut(textoutX, textoutY, str);
-
-  end;//with
-end;
-//______________________________________________________________________________
-
 procedure make_pdf_preview_screenshot;   // 214b
 
 var
-  //create_png:TPNGObject;
   create_png: TPortableNetworkGraphic;
 
   file_str: string;       // including path
@@ -524,13 +498,15 @@ var
   //pdf_font_Symbol: Integer;
   //pdf_font_ZapfDingbats: Integer;
 
+  pdf_lsDefault:           integer;
+  pdf_lsGrid:              integer;
   /////////////////////////////
 
   procedure begin_page;
   begin
     pdf_page := pdf_form.pdf_doc.new_page; // Start a new page
     // Portrait by default
-    if export_form.pdf_side_run_button.Checked = True then
+    if export_form.pdf_side_run_button.Checked then
       pdf_page.set_landscape;
   end;
 
@@ -2080,10 +2056,10 @@ begin
                   preview_record_file_made := True;
                 end;
                 if printer_printing = True then begin
-                                       { T3-OUT
-                                                                pdf_form.pdf_printer.EndPage;
-                                                                pdf_form.pdf_printer.StartPage(pdf_width_dots,pdf_height_dots,pdf_width_dpi,pdf_height_dpi,0);    // 0.91.d
-                                       }
+{ T3-OUT
+                    pdf_form.pdf_printer.EndPage;
+                    pdf_form.pdf_printer.StartPage(pdf_width_dots,pdf_height_dots,pdf_width_dpi,pdf_height_dpi,0);    // 0.91.d
+}
                   end_page(False);
                   begin_page;
                 end
@@ -2111,10 +2087,10 @@ begin
                   preview_record_file_made := True;
                 end;
                 if printer_printing = True then begin
-                                       { T3-OUT
-                                                                pdf_form.pdf_printer.EndPage;
-                                                                pdf_form.pdf_printer.StartPage(pdf_width_dots,pdf_height_dots,pdf_width_dpi,pdf_height_dpi,0);    // 0.91.d
-                                       }
+{ T3-OUT
+                    pdf_form.pdf_printer.EndPage;
+                    pdf_form.pdf_printer.StartPage(pdf_width_dots,pdf_height_dots,pdf_width_dpi,pdf_height_dpi,0);    // 0.91.d
+}
                   end_page(False);
                   begin_page;
                 end
@@ -3927,7 +3903,6 @@ begin
               //if Pen.Width<1 then Pen.Width:=1;
 
               set_pen_style(psSolid);
-              //Pen.Mode:=pmCopy;
 
               if pdf_black_white = True then
                 set_pen_color(clBlack)  // overide.
@@ -3964,7 +3939,6 @@ begin
 
               line_to.X := Round((p1.Y - grid_left) * scaw_out) + page_left_dots;
               line_to.Y := Round((p1.X - radcen_arm - grid_top) * scal_out) + page_top_dots;
-              //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
               if check_limits(move_to, line_to) = True then
                 draw_line(move_to, line_to);
             end;
@@ -3985,14 +3959,8 @@ begin
 
               if (check_limits(infill_points[0], infill_points[1]) = True) and
                 (check_limits(infill_points[2], infill_points[3]) = True) then begin
-                //Pen.Width:=1;
-                //Pen.Style:=psSolid;
-                //Pen.Mode:=pmCopy;
-                //
-                //Pen.Color:=clWhite;  // so no overdrawing of timber outlines.
                 set_pen_width(1);
                 set_pen_style(psSolid);
-                //Pen.Mode:=pmCopy;
                 set_pen_color(clWhite);
                 // so no overdrawing of timber outlines.
 
@@ -4366,9 +4334,9 @@ var
         else
           set_pen_railcolour(True);
 
-                        {if (single_colour_flag=True) and (pdf_form.black_edges_checkbox.Checked=False)
-                           then Pen.Color:=printbg_single_colour  // default colour for all background templates.
-                           else Pen.Color:=printbgrail_colour;}
+        {if (single_colour_flag=True) and (pdf_form.black_edges_checkbox.Checked=False)
+           then Pen.Color:=printbg_single_colour  // default colour for all background templates.
+           else Pen.Color:=printbgrail_colour;}
 
         for nk := 1 to array_max do begin
 
@@ -4440,7 +4408,7 @@ var
           with pdf_page do begin
             saved_pen_width :=
               current_pen_width; // 206b
-            //                                                          if current_fill_style<>bsSolid then set_pen_width(saved_pen_width+3);    // 206b  PDF bug, needs a wider line to ensure full blanking if hatched fill
+//            if current_fill_style<>bsSolid then set_pen_width(saved_pen_width+3);    // 206b  PDF bug, needs a wider line to ensure full blanking if hatched fill
             set_pen_color(blank);
             // first blank across..
             draw_line(move_to, line_to);
