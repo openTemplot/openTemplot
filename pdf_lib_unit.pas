@@ -49,6 +49,8 @@ type
       colour: Integer); overload;
     procedure draw_open_line(MvTo, LineTo: TPoint; colour: Integer); overload;
     procedure polygon(dots: array of Tpoint);
+    procedure restore_graphics_state();
+    procedure save_graphics_state();
     procedure set_fill_color(color: Integer);
     procedure set_font(FontIndex: Integer; FontSize: Integer);
     procedure set_landscape();
@@ -78,6 +80,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function new_page(): TPDF_Page;
+    function add_linestyle(dotsWidth: LongInt = 1; color: Integer = clBlack;
+      penStyle: TFPPenStyle = psSolid): Integer;
   end;
 
 
@@ -149,6 +153,26 @@ begin
   Result := pdf_page;                      // ... then return it :-)
 end;
 
+//_______________________________________________________________________________________
+
+function Tpdf_document.Add_LineStyle(DotsWidth: LongInt = 1; color: Integer = clBlack;
+  ppenStyle: TFPPenStyle = psSolid): Integer;
+
+begin
+  curr_pen_width := dots_to_mm(DotsWidth);
+  curr_pen_color := c_to_rgb(color);
+  //inherited SetColor(c_to_rgb(color), True);
+  case PenStyle of
+    psDot:
+      curr_pen_style := ppsDot;
+    psDash:
+      curr_pen_style := ppsDash;
+    else
+      curr_pen_style := ppsSolid;
+  end;
+  Result := AddLineStyleDef(curr_pen_width, curr_pen_color, curr_pen_style);
+end;
+
 
 //=======================================================================================
 
@@ -175,7 +199,6 @@ const
 begin
   Result := round(px * dots_per_px);
 end;
-
 
 //_______________________________________________________________________________________
 procedure TPDF_page.set_landscape();
@@ -368,18 +391,38 @@ begin
   inherited FillStrokePath();
 end;
 
-procedure TPDF_page.set_pen_color(color: Integer);
+//_______________________________________________________________________________________
+
+procedure TPDF_page.restore_graphics_state();
 
 begin
-  curr_pen_color := color;
-  inherited SetColor(c_to_rgb(color), True);
+  AddObject(TPDFPopGraphicsStack.Create(Document));
 end;
+
+//_______________________________________________________________________________________
+
+procedure TPDF_page.save_graphics_state();
+
+begin
+  AddObject(TPDFPushGraphicsStack.Create(Document));
+end;
+
+//_______________________________________________________________________________________
 
 procedure TPDF_page.set_fill_color(color: Integer);
 
 begin
   curr_fill_color := color;
   inherited SetColor(c_to_rgb(color), False);
+end;
+
+//_______________________________________________________________________________________
+
+procedure TPDF_page.set_pen_color(color: Integer);
+
+begin
+  curr_pen_color := color;
+  inherited SetColor(c_to_rgb(color), True);
 end;
 
 //_______________________________________________________________________________________

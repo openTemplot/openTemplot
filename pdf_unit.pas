@@ -522,16 +522,27 @@ var
 
   /////////////////////////////
 
-  procedure set_styles;
+  procedure create_styles;
 
   var
-    penWidth: LongInt;
-    penStyle: TFPPenStyle;
-    penColour: integer;
+    width:  LongInt;      // Pen width
+    colour: Integer;      // Pen colour
+    style:  TFPPenStyle;  // Pen style
 
   begin
-    //with pdf_form.pdf_doc do begin
+    with pdf_form.pdf_doc do begin
+      // Default
+      pdf_lsDefault := add_LineStyle(1, clBlack, psSolid);
 
+      // Grid
+      if pad_form.printed_grid_dotted_menu_entry.Checked then
+        style := psDot
+      else
+        style := psSolid;
+      pdf_lsGrid := add_LineStyle(printgrid_wide, printgrid_colour, style);
+
+      //show_modal_message('Added style ' + IntToStr(pdf_lsGrid));
+    end;
   end;
 
 
@@ -566,7 +577,7 @@ var
       //pdf_font_Symbol
       //pdf_font_ZapfDingbats
     end;
-    set_styles;
+    create_styles;
     begin_page;
   end;
 
@@ -2136,6 +2147,7 @@ begin
           end;
 
           with pdf_page do begin
+            write_comment(' ----==== Start Page ' + page_num_str + ' ====----');
             //        Print watermark Page number
             if (pdf_form.page_ident_checkbox.Checked = True) and (page_count > 3)
             // 214a show large page ident if many pages
@@ -2176,10 +2188,11 @@ begin
 
             //----------------------------------------
             //        Print Grid
-            //          Brush.Color:=clWhite;  // 206e moved here
-            //          Brush.Style:=bsSolid;
 
             //          Font.Assign(print_labels_font);
+            write_comment(' ----==== Grid Start ====----');
+            save_graphics_state();
+
             set_font(pdf_font_times, 8);
             if printgrid_i = 1 then begin
               case grid_labels_code_i of
@@ -2197,22 +2210,8 @@ begin
                   run_error(213);
               end;//case
 
-              set_pen_color(printgrid_colour);         // for grid lines.
-
-              if pad_form.printed_grid_dotted_menu_entry.Checked = True
-              then begin
-                set_fill_color(clWhite);  // 0.93.a gaps in dotted lines.
-                //set_pen_style(psDot);     //out wPDF bug
-                pen_width := 1;         // must be 1 for dots.
-              end
-              else begin
-                set_pen_style(psSolid);
-                              {if impact>0 then pen_width:=1                   // impact printer or plotter.
-                                          else}
-                pen_width := printgrid_wide;
-                if pen_width < 1 then
-                  pen_width := 1;
-              end;
+              {if impact>0 then pen_width:=1                   // impact printer or plotter.
+                          else}
 
               //  draw horizontal grid lines (across width)...
 
@@ -2232,10 +2231,9 @@ begin
                 then
                   set_pen_width(pen_width + 2);    // thicker datum line (only appears if page origin is negative).
 
-                draw_line(left_blanking_dots, grid_now_dots,
-                  printer_width_indexmax_dots, grid_now_dots);
-
-                //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
+                draw_line_style(left_blanking_dots, grid_now_dots,
+                  printer_width_indexmax_dots, grid_now_dots, pdf_lsGrid);
+                set_pen_style(psSolid);
 
                 case grid_labels_code_i of
                   1:
@@ -2282,8 +2280,8 @@ begin
                 else
                   set_pen_width(pen_width);
 
-                draw_line(grid_now_dots, top_blanking_dots, grid_now_dots,
-                  printer_length_indexmax_dots);
+                draw_line_style(grid_now_dots, top_blanking_dots, grid_now_dots,
+                  printer_length_indexmax_dots, pdf_lsGrid);
 
                 //    if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
 
@@ -2320,6 +2318,9 @@ begin
 
               set_pen_style(psSolid);
             end;
+
+            restore_graphics_state();
+            write_comment(' ----==== Grid End ====----');
 
             //        grid finished.
 
