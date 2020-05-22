@@ -400,6 +400,65 @@ begin
 end;
 //______________________________________________________________________________
 
+function wanted_mark(code: Integer): Boolean;     // decide if a particular mark is wanted
+
+// This function determines whether a particular mark (indicated by it's code)
+// is required on the output as determined by the corresponding user settings
+
+// NOTE: it is used by both control template output and background output
+
+begin
+  RESULT := true;
+
+  with print_settings_form do begin;
+    case code of
+      -5, -4, -1, 0: // no name label, timber selector, peg centre, blank
+        RESULT := False;
+      1:
+        RESULT := output_guide_marks_checkbox.Checked;
+      2:
+        RESULT := output_radial_ends_checkbox.Checked;
+      3:
+        RESULT := output_timbering_checkbox.Checked;
+      4:
+        RESULT := output_timbering_checkbox.Checked and
+                  output_timber_centres_checkbox.Checked;
+      5:
+        RESULT := output_timbering_checkbox.Checked;
+      6:
+        RESULT := output_rail_joints_checkbox.Checked;
+      7:
+        RESULT := output_radial_ends_checkbox.Checked;
+      8, 9, 10: // no peg arms, plain-track end marks
+        RESULT := False;
+      14:
+        RESULT := output_timbering_checkbox.Checked and
+                  output_timber_centres_checkbox.Checked;
+      33:
+        RESULT := output_timbering_checkbox.Checked;
+      44, 54:
+        RESULT := output_timbering_checkbox.Checked and
+                  output_timber_centres_checkbox.Checked;
+      55, 93, 95, 99:
+        RESULT := output_timbering_checkbox.Checked;
+      101:
+        RESULT := output_switch_drive_checkbox.Checked;
+      203, 233, 293:
+        RESULT := output_timbering_checkbox.Checked;
+      480..499:
+        RESULT := output_chairs_checkbox.Checked;
+      501..508: // no check-rail labels
+        RESULT := False;
+      600, 601..605:
+        RESULT := output_switch_labels_checkbox.Checked;
+      700..703:
+        RESULT := output_xing_labels_checkbox.Checked;
+    end;
+  end;
+
+end;
+//______________________________________________________________________________
+
 
 procedure pdf_draw;     // draw control template or entire pad on the output.  // 0.91.d pdf
 
@@ -815,85 +874,12 @@ var
 
         mark_code := ptr_1st^.code;              // check this mark wanted.
 
-        if mark_code = 0 then
-          CONTINUE;     // ignore mark entries with code zero (might be the second or third of a multi-mark entry, e.g. for timber infill).
+        if not wanted_mark(mark_code) then
+        CONTINUE;     // skip this mark. -=- -=- -=- -=- -=- -=- -=- -=- -=-
 
-        if print_settings_form.output_rail_joints_checkbox.Checked = False    // 223d
-        then begin
-          case mark_code of
-            6:
-              CONTINUE;     // rail joints not wanted.
-          end;//case
-        end;
-
-        // overwrite rail joints on rails..
-
+        // do only the rail joints if rail_joints=True and ignore them otherwise.
         if rail_joints = (mark_code <> 6) then
-          CONTINUE;  // do only the rail joints if rail_joints=True and ignore them otherwise.
-
-        if print_settings_form.output_timbering_checkbox.Checked =
-          False then begin
-          case mark_code of
-            3, 4, 5, 14, 33, 44, 54, 55, 93, 95, 99, 203, 233, 293:
-              CONTINUE;     // no timbering wanted.
-          end;//case
-        end;
-
-        if print_settings_form.output_timber_centres_checkbox.Checked = False    // 223d
-        then begin
-          case mark_code of
-            4, 14, 44, 54:
-              CONTINUE;     // timber centre-lines not wanted.
-          end;//case
-        end;
-
-        if print_settings_form.output_guide_marks_checkbox.Checked = False    // 223d
-        then begin
-          case mark_code of
-            1:
-              CONTINUE;     // guide marks not wanted.
-          end;//case
-        end;
-
-        if print_settings_form.output_switch_drive_checkbox.Checked = False    // 223d
-        then begin
-          case mark_code of
-            101:
-              CONTINUE;     // switch drive not wanted.
-          end;//case
-        end;
-
-        if print_settings_form.output_chairs_checkbox.Checked = False
-        then begin
-          case mark_code of
-            480..499:
-              CONTINUE;     // no chair outlines wanted  221a
-          end;//case
-        end;
-
-        if print_settings_form.output_radial_ends_checkbox.Checked =
-          False then begin
-          case mark_code of
-            2, 7:
-              CONTINUE;     // no radial ends wanted  206a
-          end;//case
-        end;
-
-        if print_settings_form.output_switch_labels_checkbox.Checked =
-          False then begin
-          case mark_code of
-            600, 601..605:
-              CONTINUE;     // no long marks or switch labels wanted  206b
-          end;//case
-        end;
-
-        if print_settings_form.output_xing_labels_checkbox.Checked =
-          False then begin
-          case mark_code of
-            700..703:
-              CONTINUE;     // no long marks or crossing labels wanted  211b
-          end;//case
-        end;
+          CONTINUE;
 
         if ((mark_code = 203) or (mark_code = 233) or (mark_code = 293)) and
           (i < (mark_index - 1))      // timber infill
@@ -3592,14 +3578,10 @@ var
   num: integer;                  // 208a
 
 begin
-  // T3-OUT  with pdf_form.pdf_printer.Canvas do begin
-  //with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
-  with pdf_page do begin  // T3 rubbish to allow test compilation
+  with pdf_page do begin
 
     //single_colour_flag:=pad_form.use_single_colour_menu_entry.Checked;
 
-    //Pen.Mode:=pmCopy;   // defaults.
-    //Pen.Style:=psSolid;
     set_pen_style(psSolid);
 
     for n := 0 to maxbg_index do begin
@@ -3654,82 +3636,12 @@ begin
 
           code := intarray_get(list_bgnd_marks[4], i);
 
-          case code of
-            -5, -4, -1, 0, 8, 9, 10, 501..508:
-              CONTINUE;     // no name label, timber selector, peg centre, blank, peg arms, plain-track end marks. // 0.94.a no check-rail labels
-          end;//case
+          if not wanted_mark(code) then
+            CONTINUE;     // skip this mark. -=- -=- -=- -=- -=- -=- -=- -=- -=-
 
-          if print_settings_form.output_rail_joints_checkbox.Checked = False    // 223d
-          then begin
-            case code of
-              6:
-                CONTINUE;     // rail joints not wanted.
-            end;//case
-          end;
-
-          // overwrite rail joints on rails..
-
+          // do only the rail joints if rail_joints=True and ignore them otherwise.
           if rail_joints = (code <> 6) then
-            CONTINUE;  // do only the rail joints if rail_joints=True and ignore them otherwise.
-
-          if print_settings_form.output_timbering_checkbox.Checked = False then begin
-            case code of
-              3, 4, 5, 14, 33, 44, 54, 55, 93, 95, 99, 203, 233, 293:
-                CONTINUE;     // no timbering wanted.
-            end;//case
-          end;
-
-          if print_settings_form.output_timber_centres_checkbox.Checked = False    // 223d
-          then begin
-            case code of
-              4, 14, 44, 54:
-                CONTINUE;     // timber centre-lines not wanted.
-            end;//case
-          end;
-
-          if print_settings_form.output_guide_marks_checkbox.Checked = False    // 223d
-          then begin
-            case code of
-              1:
-                CONTINUE;     // guide marks not wanted.
-            end;//case
-          end;
-
-          if print_settings_form.output_switch_drive_checkbox.Checked = False    // 223d
-          then begin
-            case code of
-              101:
-                CONTINUE;     // switch drive not wanted.
-            end;//case
-          end;
-
-          if print_settings_form.output_chairs_checkbox.Checked = False then begin
-            case code of
-              480..499:
-                CONTINUE;     // no chair outlines wanted  221a
-            end;//case
-          end;
-
-          if print_settings_form.output_radial_ends_checkbox.Checked = False then begin
-            case code of
-              2, 7:
-                CONTINUE;     // no radial ends wanted  206a
-            end;//case
-          end;
-
-          if print_settings_form.output_switch_labels_checkbox.Checked = False then begin
-            case code of
-              600, 601..605:
-                CONTINUE;     // no long marks or switch labels wanted  206b
-            end;//case
-          end;
-
-          if print_settings_form.output_xing_labels_checkbox.Checked = False then begin
-            case code of
-              700, 701..703:
-                CONTINUE;     // no long marks or crossing labels wanted  211b
-            end;//case
-          end;
+            CONTINUE;
 
           if ((code = 5) or (code = 55) or (code = 95) or (code = 600) or (code = 700)) and
             (out_factor <> 1.0) then
