@@ -373,6 +373,25 @@ begin
 end;
 //__________________________________________________________________________________________
 
+{ Take a point in 'pad' space coordinates (with an optional x/y adjustment)
+  and relocate to an equivalent point in page space coordinates.
+  This absracts a computation wihich occurs in MANY palces}
+function page_locate(point: Tpoint; grid_left, grid_top: extended; adj: array of extended): Tpoint; overload;
+var
+  loc: Tpoint;
+begin
+  loc.X := Round((point.Y + adj[0] - grid_left) * scaw_out) + page_left_dots;
+  loc.Y := Round((point.X + adj[1] - grid_top)  * scal_out) + page_top_dots;
+  RESULT := loc;
+end;
+
+function page_locate(point: Tpoint; grid_left, grid_top: extended): Tpoint; overload;
+begin
+  RESULT := page_locate(point, grid_left, grid_top, [0, 0]);
+end;
+//__________________________________________________________________________________________
+
+
 procedure make_pdf_preview_screenshot;   // 214b
 
 var
@@ -972,13 +991,9 @@ var
             //if Pen.Style<>psSolid then Pen.Width:=1;   // delphi bug? (patterns only work for lines 1 dot wide.)
             //// pdf if impact>0 then Pen.Width:=1;      // overide for impact printer or plotter.
 
-            move_to.X :=
-              Round((p1.Y + ypd - grid_left) * scaw_out) + page_left_dots;
-            move_to.Y := Round((p1.X - grid_top) * scal_out) + page_top_dots;
+            move_to := page_locate(p1, grid_left, grid_top, [ypd, 0]);
+            line_to := page_locate(p2, grid_left, grid_top, [ypd, 0]);
 
-            line_to.X :=
-              Round((p2.Y + ypd - grid_left) * scaw_out) + page_left_dots;
-            line_to.Y := Round((p2.X - grid_top) * scal_out) + page_top_dots;
             if check_limits(move_to, line_to) = True then
               draw_line(move_to, line_to);
 
@@ -993,11 +1008,7 @@ var
 
             then begin
 
-              move_to.X :=
-                Round((p1.Y + ypd - grid_left) * scaw_out) + page_left_dots;
-              // 208a use the screen number position p1 for the control template (no ID number).
-              move_to.Y :=
-                Round((p1.X - grid_top) * scal_out) + page_top_dots;
+              move_to := page_locate(p1, grid_left, grid_top, [ypd, 0]);
 
               num_str := extract_tbnumber_str(tbnum_str);
               // get next timber numbering string from the acummulated string.
@@ -1069,25 +1080,15 @@ var
             radcen_arm := 400 * scale;
             // 4ft scale arbitrary (scale is for control template).
 
-            move_to.X :=
-              Round((p1.Y + radcen_arm + ypd - grid_left) * scaw_out) + page_left_dots;      // mark centre widthwise.
-            move_to.Y := Round((p1.X - grid_top) * scal_out) + page_top_dots;
+            move_to := page_locate(p1, grid_left, grid_top, [ypd + radcen_arm, 0]);
+            line_to := page_locate(p1, grid_left, grid_top, [ypd - radcen_arm, 0]);
 
-            line_to.X :=
-              Round((p1.Y - radcen_arm + ypd - grid_left) * scaw_out) + page_left_dots;
-            line_to.Y := Round((p1.X - grid_top) * scal_out) + page_top_dots;
             if check_limits(move_to, line_to) = True then
               draw_line(move_to, line_to);
 
-            move_to.X :=
-              Round((p1.Y + ypd - grid_left) * scaw_out) + page_left_dots;                 // mark centre lengthwise
-            move_to.Y :=
-              Round((p1.X + radcen_arm - grid_top) * scal_out) + page_top_dots;
+            move_to := page_locate(p1, grid_left, grid_top, [ypd, radcen_arm]);// mark centre lengthwise
+            line_to := page_locate(p1, grid_left, grid_top, [ypd, -radcen_arm]);
 
-            line_to.X :=
-              Round((p1.Y + ypd - grid_left) * scaw_out) + page_left_dots;
-            line_to.Y :=
-              Round((p1.X - radcen_arm - grid_top) * scal_out) + page_top_dots;
             if check_limits(move_to, line_to) = True then
               draw_line(move_to, line_to);
           end;
@@ -1095,28 +1096,13 @@ var
           if ((mark_code = 203) or (mark_code = 233) or (mark_code = 293)) and
             (ptr_2nd <> nil)        // timber infill...
           then begin
-            infill_points[0].X :=
-              Round((p1.Y + ypd - grid_left) * scaw_out) + page_left_dots;
-            infill_points[0].Y :=
-              Round((p1.X - grid_top) * scal_out) + page_top_dots;
+            infill_points[0] := page_locate(p1, grid_left, grid_top, [ypd, 0]);
+            infill_points[1] := page_locate(p2, grid_left, grid_top, [ypd, 0]);
+            infill_points[2] := page_locate(p3, grid_left, grid_top, [ypd, 0]);
+            infill_points[3] := page_locate(p4, grid_left, grid_top, [ypd, 0]);
 
-            infill_points[1].X :=
-              Round((p2.Y + ypd - grid_left) * scaw_out) + page_left_dots;
-            infill_points[1].Y :=
-              Round((p2.X - grid_top) * scal_out) + page_top_dots;
-
-            infill_points[2].X :=
-              Round((p3.Y + ypd - grid_left) * scaw_out) + page_left_dots;
-            infill_points[2].Y :=
-              Round((p3.X - grid_top) * scal_out) + page_top_dots;
-
-            infill_points[3].X :=
-              Round((p4.Y + ypd - grid_left) * scaw_out) + page_left_dots;
-            infill_points[3].Y :=
-              Round((p4.X - grid_top) * scal_out) + page_top_dots;
-
-            if (check_limits(infill_points[0], infill_points[1]) =
-              True) and (check_limits(infill_points[2], infill_points[3]) = True)
+            if check_limits(infill_points[0], infill_points[1]) and
+               check_limits(infill_points[2], infill_points[3])
             then begin
               set_pen_width(1);
               set_pen_style(psSolid);
@@ -1181,10 +1167,7 @@ var
 
               p1 := ptr_1st^.p1;              // x1,y1 in  1/100ths mm
 
-              move_to.X :=
-                Round((p1.Y + ypd - grid_left) * scaw_out) + page_left_dots;
-              move_to.Y :=
-                Round((p1.X - grid_top) * scal_out) + page_top_dots;
+              move_to := page_locate(p1, grid_left, grid_top, [ypd, 0]);
 
               if check_limit(False, False, move_to) =
                 True then begin
@@ -1858,10 +1841,9 @@ var
 
 
       with sheet[sheet_down, sheet_across] do begin
-        move_to.X := Round((p1.Y + ypd - grid_left) * scaw_out) + page_left_dots;
-        move_to.Y := Round((p1.X - grid_top) * scal_out) + page_top_dots;
-        line_to.X := Round((p2.Y + ypd - grid_left) * scaw_out) + page_left_dots;
-        line_to.Y := Round((p2.X - grid_top) * scal_out) + page_top_dots;
+        move_to := page_locate(p1, grid_left, grid_top, [ypd, 0]);
+        line_to := page_locate(p2, grid_left, grid_top, [ypd, 0]);
+
       end;//with
 
       with pdf_page do begin
@@ -3785,12 +3767,9 @@ begin
 
             //Pen.Mode:=pmCopy;
 
-            move_to.X := Round((p1.Y - grid_left) * scaw_out) + page_left_dots;
-            move_to.Y := Round((p1.X - grid_top) * scal_out) + page_top_dots;
+            move_to := page_locate(p1, grid_left, grid_top);
+            line_to := page_locate(p2, grid_left, grid_top);
 
-            line_to.X := Round((p2.Y - grid_left) * scaw_out) + page_left_dots;
-            line_to.Y := Round((p2.X - grid_top) * scal_out) + page_top_dots;
-            //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
             if check_limits(move_to, line_to) = True then
               draw_line(move_to, line_to);
           end
@@ -3836,41 +3815,26 @@ begin
               radcen_arm := 400 * scale;
               // 4ft scale arbitrary (scale is for control template).
 
-              move_to.X :=
-                Round((p1.Y + radcen_arm - grid_left) * scaw_out) + page_left_dots;
               // mark centre widthwise.
-              move_to.Y := Round((p1.X - grid_top) * scal_out) + page_top_dots;
+              move_to := page_locate(p1, grid_left, grid_top, radcen_arm);
+              line_to := page_locate(p2, grid_left, grid_top, -radcen_arm);
 
-              line_to.X :=
-                Round((p1.Y - radcen_arm - grid_left) * scaw_out) + page_left_dots;
-              line_to.Y := Round((p1.X - grid_top) * scal_out) + page_top_dots;
-              //if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
               if check_limits(move_to, line_to) = True then
                 draw_line(move_to, line_to);
 
-              move_to.X := Round((p1.Y - grid_left) * scaw_out) + page_left_dots;
               // mark centre lengthwise
-              move_to.Y := Round((p1.X + radcen_arm - grid_top) * scal_out) + page_top_dots;
-
-              line_to.X := Round((p1.Y - grid_left) * scaw_out) + page_left_dots;
-              line_to.Y := Round((p1.X - radcen_arm - grid_top) * scal_out) + page_top_dots;
+              move_to := page_locate(p1, grid_left, grid_top, [0, radcen_arm]);
+              line_to := page_locate(p2, grid_left, grid_top, [0, -radcen_arm]);
               if check_limits(move_to, line_to) = True then
                 draw_line(move_to, line_to);
             end;
 
             if (code = 203) or (code = 233) or (code = 293)       // timber infill...
             then begin
-              infill_points[0].X := Round((p1.Y - grid_left) * scaw_out) + page_left_dots;
-              infill_points[0].Y := Round((p1.X - grid_top) * scal_out) + page_top_dots;
-
-              infill_points[1].X := Round((p2.Y - grid_left) * scaw_out) + page_left_dots;
-              infill_points[1].Y := Round((p2.X - grid_top) * scal_out) + page_top_dots;
-
-              infill_points[2].X := Round((p3.Y - grid_left) * scaw_out) + page_left_dots;
-              infill_points[2].Y := Round((p3.X - grid_top) * scal_out) + page_top_dots;
-
-              infill_points[3].X := Round((p4.Y - grid_left) * scaw_out) + page_left_dots;
-              infill_points[3].Y := Round((p4.X - grid_top) * scal_out) + page_top_dots;
+              infill_points[0] := page_locate(p1, grid_left, grid_top);
+              infill_points[1] := page_locate(p2, grid_left, grid_top);
+              infill_points[2] := page_locate(p3, grid_left, grid_top);
+              infill_points[3] := page_locate(p4, grid_left, grid_top);
 
               if (check_limits(infill_points[0], infill_points[1]) = True) and
                 (check_limits(infill_points[2], infill_points[3]) = True) then begin
@@ -3946,13 +3910,11 @@ begin
               if print_settings_form.output_timb_id_prefix_checkbox.Checked =
                 True    // 223d
               then begin
-                move_to.X := Round((p2.Y - grid_left) * scaw_out) + page_left_dots;
-                move_to.Y := Round((p2.X - grid_top) * scal_out) + page_top_dots;
+                move_to := page_locate(p2, grid_left, grid_top);
               end
               else begin
                 // 223d  ID prefix not wanted, use p1 *screen* positions (as for control template)
-                move_to.X := Round((p1.Y - grid_left) * scaw_out) + page_left_dots;
-                move_to.Y := Round((p1.X - grid_top) * scal_out) + page_top_dots;
+                move_to := page_locate(p1, grid_left, grid_top);
               end;
 
               num_str := extract_tbnumber_str(tbnum_str);
@@ -4045,8 +4007,7 @@ begin
                 // x1,y1 in  1/100ths mm
                 p1.Y := intarray_get(list_bgnd_marks[1], i);
 
-                move_to.X := Round((p1.Y - grid_left) * scaw_out) + page_left_dots;
-                move_to.Y := Round((p1.X - grid_top) * scal_out) + page_top_dots;
+                move_to := page_locate(p1, grid_left, grid_top);
 
                 if check_limit(False, False, move_to) = True
                 then begin
