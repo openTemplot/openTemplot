@@ -391,6 +391,30 @@ begin
 end;
 //__________________________________________________________________________________________
 
+function switch_label_text(code: Integer): String;
+begin
+  case code of
+    601:
+      RESULT := 'tips';
+    602:
+      RESULT := 'set (bend)';
+    603:
+      RESULT := 'planing';
+    604:
+      RESULT := 'stock gauge';
+    605:
+      RESULT := 'joggles';
+    701:
+      RESULT := 'intersection FP';
+    702:
+      RESULT := 'blunt nose';
+    703:
+      RESULT := 'blunt tips';
+    else
+      RESULT := '';
+  end;//case
+end;
+//__________________________________________________________________________________________
 
 procedure make_pdf_preview_screenshot;   // 214b
 
@@ -1191,28 +1215,7 @@ var
                 //Brush.Color:=clWhite;
                 set_fill_color(printguide_colour);
 
-                case mark_code of
-                  601:
-                    switch_label_str := 'tips';
-                  602:
-                    switch_label_str := 'set (bend)';
-                  603:
-                    switch_label_str := 'planing';
-                  604:
-                    switch_label_str := 'stock gauge';
-                  605:
-                    switch_label_str := 'joggles';
-
-                  701:
-                    switch_label_str := 'intersection FP';
-                  702:
-                    switch_label_str := 'blunt nose';
-                  703:
-                    switch_label_str := 'blunt tips';
-
-                  else
-                    switch_label_str := '';
-                end;//case
+                switch_label_str := switch_label_text(mark_code);
 
                 write_text(
                   move_to.X,//-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
@@ -4022,28 +4025,7 @@ begin
                   //Brush.Color:=clWhite;
                   set_fill_color(printguide_colour);
 
-                  case code of
-                    601:
-                      switch_label_str := 'tips';
-                    602:
-                      switch_label_str := 'set (bend)';
-                    603:
-                      switch_label_str := 'planing';
-                    604:
-                      switch_label_str := 'stock gauge';
-                    605:
-                      switch_label_str := 'joggles';
-
-                    701:
-                      switch_label_str := 'intersection FP';
-                    702:
-                      switch_label_str := 'blunt nose';
-                    703:
-                      switch_label_str := 'blunt tips';
-
-                    else
-                      switch_label_str := '';
-                  end;//case
+                  switch_label_str := switch_label_text(code);
 
                   //text_out(move_to.X-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
                   //         move_to.Y-(TextHeight(switch_label_str) div 2),
