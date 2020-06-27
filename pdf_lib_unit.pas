@@ -18,6 +18,7 @@ uses
   preview_unit;
 
 type
+  TPDF_PenWidth = Single;
   Tpdf_TextPosn = (
     tpBottomLeft, tpBottomCentre, tpBottomRight,
     tpMiddleLeft, tpMiddleCentre, tpMiddleRight,
@@ -26,46 +27,60 @@ type
   Tpdf_textmode = (tmFill, tmStroke, tmFillStroke, tmNone,
     tmFillPath, tmStrokePath, tmFillStrokePath, tmpath);
 
+  Tpdf_LineStyle = class(TPDFDocumentObject)
+  private
+    FWidth: TPDF_PenWidth;
+    FColour: TColor;
+    FStyle: TFPPenStyle;
+  public
+    constructor Create(AWidth: TPDF_PenWidth; AStyle: TFPPenStyle = psSolid; Acolour: Tcolor = clBlack); overload;
+    property width: TPDFFloat read FWidth;
+    property style: TFPPenStyle read Fstyle;
+    property colour: Tcolor read Fcolour;
+    function str(): String;
+  end;
+
   Tpdf_page = class(TPDFPage)
   private
     Width: Single;
     Height: Single;
-    function dots_to_px(dots: Integer): double;
-    function px_to_dots(px: Double): Integer;
+    function mm_to_px(mm: double): double;
+    function px_to_mm(px: Double): double;
     function fontNum(const AFontName: string): Integer;
   public
     constructor Create(AOwner: TPDFDocument);
-    function current_fill_color(): Integer;
+    function current_fill_colour(): Integer;
     function current_font_index(): Integer;
-    function current_pen_color(): Integer;
+    function current_pen_colour(): Integer;
     function current_pen_style(): TFPPenStyle;
-    function current_pen_width(): Integer;
+    function current_pen_width(): Double;
     procedure draw_line(dots_x1, dots_y1, dots_x2, dots_y2: Integer); overload;
     procedure draw_line(MvTo, LineTo: TPoint); overload;
     procedure draw_line_style(dots_x1, dots_y1, dots_x2, dots_y2: Integer;
-      style: Integer); overload;
-    procedure draw_line_style(MvTo, LineTo: TPoint; style: Integer); overload;
+      style: Tpdf_LineStyle); overload;
+    procedure draw_line_style(MvTo, LineTo: TPoint; style: Tpdf_LineStyle); overload;
     procedure draw_open_line(dots_x1, dots_y1, dots_x2, dots_y2: Integer;
       colour: Integer); overload;
     procedure draw_open_line(MvTo, LineTo: TPoint; colour: Integer); overload;
     procedure polygon(dots: array of Tpoint);
     procedure restore_graphics_state();
     procedure save_graphics_state();
-    procedure set_fill_color(color: Integer);
+    procedure set_fill_colour(colour: Integer);
     procedure set_font(FontIndex: Integer; FontSize: Integer);
     procedure set_landscape();
+    procedure set_linestyle(LineStyle: Tpdf_linestyle);
     procedure set_textmode(mode: TPDF_textmode);
-    procedure set_pen_color(color: Integer);
+    procedure set_pen_colour(colour: Integer);
     procedure set_pen_style(APenStyle: TFPPenStyle = psSolid);
-    procedure set_pen_width(Width: LongInt = 1);
-    procedure write_comment(comment: String);
-    procedure write_text(dots_x, dots_y: Integer; Text: String); overload;
-    procedure write_text(dots_x, dots_y: Integer; Text: String; base: Tpdf_TextPosn); overload;
-    procedure write_text(dots_x, dots_y: Integer; Text: String; blank_needed: Boolean);
+    procedure set_pen_width(Width: TPDF_PenWidth);
+    procedure write_comment(comment: UTF8String);
+    procedure write_text(dots_x, dots_y: Integer; Text: UTF8String); overload;
+    procedure write_text(dots_x, dots_y: Integer; Text: UTF8String; base: Tpdf_TextPosn); overload;
+    procedure write_text(dots_x, dots_y: Integer; Text: UTF8String; blank_needed: Boolean);
       overload;
-    procedure write_text(dots_x, dots_y: Integer; Text: String; base: Tpdf_TextPosn;
+    procedure write_text(dots_x, dots_y: Integer; Text: UTF8String; base: Tpdf_TextPosn;
       blank_needed: Boolean); overload;
-    procedure write_text(dots_x, dots_y: Integer; Text: String; shift: array of Single;
+    procedure write_text(dots_x, dots_y: Integer; Text: UTF8String; shift: array of Single;
       blank_needed: Boolean); overload;
 
     // The following are copied from fpPDF
@@ -79,9 +94,8 @@ type
     pdf_section: TPDFSection;
   public
     constructor Create(AOwner: TComponent); override;
+    function create_linestyle(AWidth: Double; Acolour: Tcolor; APenStyle: TFPPenStyle = psSolid): Tpdf_lineStyle;
     function new_page(): TPDF_Page;
-    function add_linestyle(dotsWidth: LongInt = 1; color: Integer = clBlack;
-      penStyle: TFPPenStyle = psSolid): Integer;
   end;
 
 
@@ -101,20 +115,20 @@ const
 var
   curr_pen_style: TPDFPenStyle;
   curr_pen_width: Double;
-  curr_pen_color: Integer;
-  curr_fill_color: Integer;
+  curr_pen_colour: Integer;
+  curr_fill_colour: Integer;
   curr_font_index: Integer;
   curr_font_size: Integer;
 
 //=======================================================================================
 
-function c_to_rgb(color: Integer): Integer;
+function c_to_rgb(colour: Integer): Integer;
 var
   r, g, b: Integer;
 begin
-  r := (color) and $ff;
-  g := (color shr 8) and $ff;
-  b := (color shr 16) and $ff;
+  r := (colour) and $ff;
+  g := (colour shr 8) and $ff;
+  b := (colour shr 16) and $ff;
   Result := (((r shl 8) or g) shl 8) or b;
 end;
 
@@ -143,6 +157,13 @@ begin
 end;
 
 //_______________________________________________________________________________________
+
+function Tpdf_Document.create_linestyle(AWidth: Double; Acolour: Tcolor; APenStyle: TFPPenStyle = psSolid): Tpdf_lineStyle;
+begin
+  Result := Tpdf_LineStyle.Create(AWidth, APenStyle, Acolour);
+end;
+
+//_______________________________________________________________________________________
 function Tpdf_document.new_page: TPDF_Page;
 var
   pdf_page: TPDF_Page;
@@ -152,27 +173,6 @@ begin
   pdf_section.AddPage(pdf_page);           // ... add it to the Section ...
   Result := pdf_page;                      // ... then return it :-)
 end;
-
-//_______________________________________________________________________________________
-
-function Tpdf_document.Add_LineStyle(DotsWidth: LongInt = 1; color: Integer = clBlack;
-  ppenStyle: TFPPenStyle = psSolid): Integer;
-
-begin
-  curr_pen_width := dots_to_mm(DotsWidth);
-  curr_pen_color := c_to_rgb(color);
-  //inherited SetColor(c_to_rgb(color), True);
-  case PenStyle of
-    psDot:
-      curr_pen_style := ppsDot;
-    psDash:
-      curr_pen_style := ppsDash;
-    else
-      curr_pen_style := ppsSolid;
-  end;
-  Result := AddLineStyleDef(curr_pen_width, curr_pen_color, curr_pen_style);
-end;
-
 
 //=======================================================================================
 
@@ -184,30 +184,39 @@ end;
 
 //_______________________________________________________________________________________
 
-function TPDF_page.dots_to_px(dots: LongInt): double;
+function TPDF_page.mm_to_px(mm: double): double;
 const
-  px_per_dot = 72 / 600;           // px per inch / dots per inch
+  px_per_mm = 72 / 25.4;           // px per inch / mm per inch
 begin
-  Result := dots * px_per_dot;
+  Result := mm * px_per_mm;
 end;
 
 //_______________________________________________________________________________________
 
-function TPDF_page.px_to_dots(px: Double): Integer;
+function TPDF_page.px_to_mm(px: Double): double;
 const
-  dots_per_px = 600 / 72;            // dots per inch / px per inch
+  mm_per_px = 25.4 / 72;            // mm per inch / px per inch
 begin
-  Result := round(px * dots_per_px);
+  Result := round(px * mm_per_px);
 end;
 
 //_______________________________________________________________________________________
+
 procedure TPDF_page.set_landscape();
 begin
   orientation := ppoLandscape;
   Height := 210;
 end;
-
 //_______________________________________________________________________________________
+
+procedure TPDF_page.set_linestyle(LineStyle: Tpdf_LineStyle);
+begin
+  Set_pen_width(LineStyle.width);
+  Set_pen_colour(LineStyle.colour);
+  Set_pen_style(LineStyle.style);
+end;
+//_______________________________________________________________________________________
+
 procedure TPDF_page.set_pen_style(APenStyle: TFPPenStyle = psSolid);
 begin
   case APenStyle of
@@ -222,9 +231,12 @@ begin
 end;
 
 //_______________________________________________________________________________________
-procedure TPDF_page.set_pen_width(Width: LongInt = 1);
+procedure TPDF_page.set_pen_width(Width: TPDF_PenWidth);
 begin
-  curr_pen_width := dots_to_px(Width);
+  if Width <> current_pen_width then begin
+    curr_pen_width := Width;
+    AddObject(TPDFFreeFormString.Create(Document, FloatStr(mm_to_px(curr_pen_width)) + ' w' + CRLF));
+  end;
 end;
 
 //_______________________________________________________________________________________
@@ -248,7 +260,7 @@ begin
   y1 := Height - dots_to_mm(dots_y1);
   x2 := dots_to_mm(dots_x2);
   y2 := Height - dots_to_mm(dots_y2);
-  DrawLine(x1, y1, x2, y2, curr_pen_width, True);
+  DrawLine(x1, y1, x2, y2, mm_to_px(curr_pen_width), True);
 end;
 
 //_______________________________________________________________________________________
@@ -260,7 +272,7 @@ end;
 
 //_______________________________________________________________________________________
 
-procedure TPDF_page.draw_line_style(dots_x1, dots_y1, dots_x2, dots_y2: Integer; style: Integer);
+procedure TPDF_page.draw_line_style(dots_x1, dots_y1, dots_x2, dots_y2: Integer; style: Tpdf_LineStyle);
 
 var
   x1, y1, x2, y2: Double;
@@ -270,12 +282,13 @@ begin
   y1 := Height - dots_to_mm(dots_y1);
   x2 := dots_to_mm(dots_x2);
   y2 := Height - dots_to_mm(dots_y2);
-  DrawLineStyle(x1, y1, x2, y2, style);
+  set_linestyle(style);
+  DrawLine(x1, y1, x2, y2, mm_to_px(style.width));
 end;
 
 //_______________________________________________________________________________________
 
-procedure TPDF_page.draw_line_style(MvTo, LineTo: TPoint; style: Integer);
+procedure TPDF_page.draw_line_style(MvTo, LineTo: TPoint; style: Tpdf_LineStyle);
 begin
   draw_line_style(MvTo.x, MvTo.y, LineTo.x, LineTo.y, style);
 end;
@@ -298,31 +311,31 @@ end;
 
 //_______________________________________________________________________________________
 
-procedure TPDF_Page.write_comment(comment: String);
+procedure TPDF_Page.write_comment(comment: UTF8String);
 begin
   AddObject(TPDFFreeFormString.Create(Document, '% ' + comment + CRLF));
 end;
 
 //_______________________________________________________________________________________
 
-procedure TPDF_page.write_text(dots_x, dots_y: Integer; Text: String); overload;
+procedure TPDF_page.write_text(dots_x, dots_y: Integer; Text: UTF8String); overload;
 begin
   write_text(dots_x, dots_y, Text, tpBottomLeft);
 end;
 
-procedure TPDF_page.write_text(dots_x, dots_y: Integer; Text: String;
+procedure TPDF_page.write_text(dots_x, dots_y: Integer; Text: UTF8String;
   base: Tpdf_TextPosn); overload;
 begin
   write_text(dots_x, dots_y, Text, base, False);
 end;
 
-procedure TPDF_page.write_text(dots_x, dots_y: Integer; Text: String;
+procedure TPDF_page.write_text(dots_x, dots_y: Integer; Text: UTF8String;
   blank_needed: Boolean); overload;
 begin
   write_text(dots_x, dots_y, Text, tpBottomLeft, blank_needed);
 end;
 
-procedure TPDF_page.write_text(dots_x, dots_y: Integer; Text: String;
+procedure TPDF_page.write_text(dots_x, dots_y: Integer; Text: UTF8String;
   base: Tpdf_TextPosn; blank_needed: Boolean); overload;
 
 const
@@ -338,15 +351,15 @@ begin
 end;
 
 
-procedure TPDF_page.write_text(dots_x, dots_y: Integer; Text: String;
+procedure TPDF_page.write_text(dots_x, dots_y: Integer; Text: UTF8String;
   shift: array of single; blank_needed: Boolean); overload;
 const
   margin = 0.1; // 0.1mm margin on blanking box
 var
   x, y: Double; // co-ordinates in mm
   w, h: Double; // width and height of text
-  old_pen_color: Integer;
-  old_fill_color: Integer;
+  old_pen_colour: Integer;
+  old_fill_colour: Integer;
 
 begin
   // convert the dot co-ordinates to mm ...
@@ -363,13 +376,13 @@ begin
 
 
   if blank_needed then begin
-    old_pen_color := current_pen_color;
-    old_fill_color := current_fill_color;
-    set_pen_color(clWhite);
-    set_fill_color(clWhite);
+    old_pen_colour := current_pen_colour;
+    old_fill_colour := current_fill_colour;
+    set_pen_colour(clWhite);
+    set_fill_colour(clWhite);
     DrawRect(x - margin, y - margin, w + 2 * margin, h + 2 * margin, 3, True, True);
-    set_pen_color(old_pen_color);
-    set_fill_color(old_fill_color);
+    set_pen_colour(old_pen_colour);
+    set_fill_colour(old_fill_colour);
   end;
 
   WriteText(x, y, Text);
@@ -409,29 +422,29 @@ end;
 
 //_______________________________________________________________________________________
 
-procedure TPDF_page.set_fill_color(color: Integer);
+procedure TPDF_page.set_fill_colour(colour: Integer);
 
 begin
-  curr_fill_color := color;
-  inherited SetColor(c_to_rgb(color), False);
+  curr_fill_colour := colour;
+  inherited SetColor(c_to_rgb(colour), False);
 end;
 
 //_______________________________________________________________________________________
 
-procedure TPDF_page.set_pen_color(color: Integer);
+procedure TPDF_page.set_pen_colour(colour: Integer);
 
 begin
-  curr_pen_color := color;
-  inherited SetColor(c_to_rgb(color), True);
+  if colour <> curr_pen_colour then begin;
+    curr_pen_colour := colour;
+    inherited SetColor(c_to_rgb(colour), True);
+  end;
 end;
 
 //_______________________________________________________________________________________
 
-function TPDF_page.current_pen_width(): Integer;
+function TPDF_page.current_pen_width(): Double;
 begin
-  //RESULT := mm_to_dots(curr_pen_width);
-  //RESULT := round(curr_pen_width);
-  Result := px_to_dots(curr_pen_width);
+  Result := curr_pen_width;
 end;
 
 function TPDF_page.current_pen_style(): TFPPenStyle;
@@ -446,14 +459,14 @@ begin
   end;
 end;
 
-function TPDF_page.current_pen_color(): Integer;
+function TPDF_page.current_pen_colour(): Integer;
 begin
-  Result := curr_pen_color;
+  Result := curr_pen_colour;
 end;
 
-function TPDF_page.current_fill_color(): Integer;
+function TPDF_page.current_fill_colour(): Integer;
 begin
-  Result := curr_fill_color;
+  Result := curr_fill_colour;
 end;
 
 function TPDF_page.current_font_index(): Integer;
@@ -584,5 +597,23 @@ end;
 
 //_______________________________________________________________________________________
 
+
+constructor Tpdf_LineStyle.Create(AWidth: TPDFFloat; AStyle: TFPPenStyle = psSolid; Acolour: Tcolor = clBlack);
+begin
+  FWidth := AWidth;
+  Fstyle := Astyle;
+  Fcolour := Acolour;
+  end;
+
+//_______________________________________________________________________________________
+
+function Tpdf_LineStyle.str(): String;
+begin
+  Result := 'Width: ' + FloatStr(width)
+          + ', Style: ' + inttostr(integer(style))
+          + ', Colour: ' + inttostr(colour);
+  end;
+
+//_______________________________________________________________________________________
 
 end.

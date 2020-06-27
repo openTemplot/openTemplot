@@ -1,4 +1,25 @@
+{
+This unit is still very much a
 
+             -----   WORK IN PROGRESS   ------
+
+Aside from the fact that it is far from being a thing of beauty,
+I have a list of things still to do, including:
+
+- missing funtionality
+ o do "mapping" colours
+ o do timber infill styles
+ o do selectable fonts
+ o etc
+
+- general code refactoring
+ o factor out a pdf_control() as a mirror of pdf_bgnd()
+ o merge pdf_control() and pdf_bgnd()
+ o avoid double conversion of line widths :  mm -> dots -> mm
+ o use LeftStr() to get string prefix
+ o and lots of etc
+
+}
 unit pdf_unit;
 
 {$MODE Delphi}
@@ -17,7 +38,7 @@ type
   { Tpdf_form }
 
   Tpdf_form = class(TForm)
-      Chart1: TChart;
+    Chart1: TChart;
     info_scrollbox: TScrollBox;
     printer_info_label: TLabel;
     page_panel: TPanel;
@@ -141,6 +162,8 @@ const
 
   pen_color: Integer = -1;
 
+  min_penwidth: TPDF_PenWidth = 0.1; // in mm, of course, like all line thicknesses
+
 var
   button_clicked: boolean = False;
   banner_changed: boolean = False;
@@ -161,27 +184,59 @@ var
 
   form_scaling: boolean = False;
 
-  printgrid_wide: integer = 1;      // dots line thickness default.
-  printpicborder_wide: integer = 1; // dots.
+      // all line thicknesses are in mm
+  printgrid_wide: TPDF_PenWidth;      // default.
+  printpicborder_wide: TPDF_PenWidth;
+  printmargin_wide: TPDF_PenWidth;
+  printshape_wide: TPDF_PenWidth;
+  printrail_wide: TPDF_PenWidth;
+  printtimber_wide: TPDF_PenWidth;
+  printmark_wide: TPDF_PenWidth;
+  printcl_wide: TPDF_PenWidth;        // track centre-line  0.79.a
 
-  printmargin_wide: integer = 3;    // dots.
-  printshape_wide: integer = 2;     // dots.
-  printrail_wide: integer = 2;      // dots.
-  printtimber_wide: integer = 2;    // dots.
-  printmark_wide: integer = 2;      // dots.
-
-  printcl_wide: integer = 1;        // dots.  track centre-line  0.79.a
 
   his_pdf_file_name: string = '';
+
+// all standard pdf fonts - useage preferred to reduce file size
+  pdf_font_times: Integer;
+  pdf_font_times_B: Integer;
+  //pdf_font_times_I: Integer;
+  //pdf_font_times_BI: Integer;
+  pdf_font_helv: Integer;
+  //pdf_font_helv_B: Integer;
+  //pdf_font_helv_I: Integer;
+  //pdf_font_helv_BI: Integer;
+  //pdf_font_courier: Integer;
+  //pdf_font_courier_B: Integer;
+  //pdf_font_courier_I: Integer;
+  //pdf_font_courier_BI: Integer;
+  //pdf_font_Symbol: Integer;
+  //pdf_font_ZapfDingbats: Integer;
+
+  lsGrid: Tpdf_LineStyle;
+  lsWatermark: Tpdf_LineStyle;
+  lsMark_Default: Tpdf_LineStyle;
+  lsMark_Guide: Tpdf_LineStyle;
+  lsMark_CurvingRadCentre: Tpdf_LineStyle;
+  lsMark_RadialEnd: Tpdf_LineStyle;
+  lsMark_TimberOutline:     Tpdf_LineStyle;
+  lsMark_TimberCentreline:  Tpdf_LineStyle;
+  lsMark_TimberRivetCentreline:  Tpdf_LineStyle;
+  lsMark_TimberReducedEnd:  Tpdf_LineStyle;
+  lsMark_RailJoint: Tpdf_LineStyle;
+  lsMark_Slewing: Tpdf_LineStyle;
+  lsMark_PegArm: Tpdf_LineStyle;
+  lsMark_PlainTrackStart: Tpdf_LineStyle;
+  lsMark_ShovingCentreline: Tpdf_LineStyle;
+  lsMark_SwitchDrive: Tpdf_LineStyle;
+  lsMark_TimberLongmarks: Tpdf_LineStyle;
 
 procedure pdf_bgnd(grid_left, grid_top: extended; pdf_page: TPDF_page); forward;
 // print background items.
 procedure pdf_bgnd_shapes(grid_left, grid_top: extended); forward; // print all background shapes.
-
-// T3-OUT  procedure pdf_sketchboard_items(on_canvas:TCanvas; grid_left,grid_top:extended);forward;   // 206e
-
 procedure pdf_rotate_bitmap(i: integer); forward;     // rotate bitmap for picture shape.
 
+// T3-OUT  procedure pdf_sketchboard_items(on_canvas:TCanvas; grid_left,grid_top:extended);forward;   // 206e
 // T3-OUT  procedure pdf_rotate_metafile(i:integer);forward;   // rotate metafile supplied 90degs clockwise.   213b
 
 //_______________________________________________________________________________________
@@ -215,6 +270,13 @@ begin
 
   end;//with
 end;
+//___________________________________________________________________________________
+
+function mm_to_dots(mm: Double): Integer;
+begin
+  Result := round((mm / 25.4) * pdf_width_dpi);
+end;
+
 //___________________________________________________________________________________
 
 function calc_intensity(colour: integer): integer;
@@ -354,21 +416,35 @@ var
     if Result < 1 then
       Result := 1;
   end;
+
+  ///////////////////////////////////////////////
+
+  function scale_thickness(thickness: double): double;
+    // scale line thickness, if needed
+
+  begin
+    if pad_form.adjust_line_thickness_menu_entry.Checked then
+      Result := thickness * out_factor
+    else
+      Result := thickness;
+
+  end;
   ///////////////////////////////////////////////
 
 begin
   av_dpi := (nom_width_dpi + nom_length_dpi) / 2;
 
-  printgrid_wide := calc_thick(printgrid_thick, False);
-  // don't reduce line thickness for scaled output - the paper size is still the same.
-  printmargin_wide := calc_thick(printmargin_thick, False);  // ditto.
+  printgrid_wide := printgrid_thick;
+  //// don't reduce line thickness for scaled output - the paper size is still the same.
+  printmargin_wide := printmargin_thick;  // ditto.
 
-  printshape_wide := calc_thick(printshape_thick, True);
-  printpicborder_wide := calc_thick(printpicborder_thick, True);
-  printrail_wide := calc_thick(printrail_thick, True);
-  printtimber_wide := calc_thick(printtimber_thick, True);
-  printcl_wide := calc_thick(printcl_thick, True);    // 0.79.a
-  printmark_wide := calc_thick(printmark_thick, True);
+  printshape_wide := scale_thickness(printshape_thick);
+  printpicborder_wide := scale_thickness(printpicborder_thick);
+  printrail_wide := scale_thickness(printrail_thick);
+  printtimber_wide := scale_thickness(printtimber_thick);
+  printcl_wide := scale_thickness(printcl_thick);    // 0.79.a
+  printmark_wide := scale_thickness(printmark_thick);
+
 
 end;
 //__________________________________________________________________________________________
@@ -411,7 +487,7 @@ begin
     703:
       RESULT := 'blunt tips';
     else
-      RESULT := '';
+      RESULT := 'code ' + inttostr(code) + ' mark';
   end;//case
 end;
 //__________________________________________________________________________________________
@@ -455,7 +531,7 @@ begin
 
   with print_settings_form do begin;
     case code of
-      -5, -4, -1, 0: // no name label, timber selector, peg centre, blank
+      -5 .. 0: // no name label, timber selector, curve rad or peg centre, blank
         RESULT := False;
       1:
         RESULT := output_guide_marks_checkbox.Checked;
@@ -496,9 +572,73 @@ begin
         RESULT := output_switch_labels_checkbox.Checked;
       700..703:
         RESULT := output_xing_labels_checkbox.Checked;
+      else
+        show_modal_message('Unhandled code ' + IntToStr(code) + 'in pdf_unit.wanted_mark().');
     end;
   end;
 
+end;
+//______________________________________________________________________________
+
+function choose_mark_linestyle(pdf_page: TPDF_page; code: Integer; control: boolean): Tpdf_LineStyle; overload;
+// return the line style for a particular mark code
+
+begin
+  case code of
+    -2, -3:                   // curving rad centres
+      Result := lsMark_CurvingRadCentre;
+    1, 101:                   // guide marks. switch drive
+      Result := lsMark_Guide;
+    2:                        // rad end marks
+      Result := lsMark_RadialEnd;
+    3, 33, 93:                // timber outlines
+      Result := lsMark_TimberOutline;
+    4,44:                     // timber centre-lines
+      Result := lsMark_TimberCentreline;
+    5,55,95:                  // timber reduced ends.
+      Result := lsMark_TimberReducedEnd;
+    6:                        // rail joint marks.
+      Result := lsMArk_RailJoint;
+    7:                        // transition & slewing ends
+      Result := lsMark_Slewing;
+    14:                       // timber centre-lines with rail centre-lines (for rivet locations?).
+      Result := lsMark_TimberRivetCentreline;
+    600, 700:                 //  long marks
+      Result := lsMark_TimberLongmarks;
+    else
+      Result := lsMark_Default;
+  end;
+
+
+  // ! ! ! THIS SHOULD NOT BE IN HERE ! ! !  --  FIND IT A NEW HOME --
+
+  // do fill colours
+  with pdf_page do begin
+      case code of
+        99: begin                             // timber numbering
+          set_fill_colour(clBlack);
+          if not control and (mapping_colours_print < 0) then
+              set_pen_colour(printbg_single_colour);
+          end;
+        203, 233, 293: begin                  // timber infill
+          set_pen_colour(clwhite);             // so don't overdraw timber outlines.
+          if pdf_black_white then
+            set_fill_colour(clBlack)
+          else
+            set_fill_colour(printtimber_infill_colour);
+          end;
+        600..605, 700..703:                   // timber numbers
+          set_fill_colour(printguide_colour);
+        else                                  // -- DEFAULT --
+          set_fill_colour(clRed);       // Let's make it obvious when we mess up!
+      end;
+  end; // with pdf_page
+
+end;
+
+function choose_mark_linestyle(pdf_page: TPDF_page; code: Integer): Tpdf_LineStyle; overload;
+begin
+  Result := choose_mark_linestyle(pdf_page, code, True);
 end;
 //______________________________________________________________________________
 
@@ -555,7 +695,7 @@ var
   x_dots, y_dots: integer;
   bangrid_dots: integer;
 
-  pen_width: integer;
+  pen_width: TPDF_PenWidth;
 
   ptr_1st, ptr_2nd: ^Tmark;          // pointers to a Tmark record.   ###
   markmax: integer;
@@ -584,24 +724,6 @@ var
 
   pdf_page: TPDF_Page;
 
-  // all standard pdf fonts - useage preferred to reduce file size
-  pdf_font_times: Integer;
-  //pdf_font_times_B: Integer;
-  //pdf_font_times_I: Integer;
-  //pdf_font_times_BI: Integer;
-  pdf_font_helv: Integer;
-  //pdf_font_helv_B: Integer;
-  //pdf_font_helv_I: Integer;
-  //pdf_font_helv_BI: Integer;
-  //pdf_font_courier: Integer;
-  //pdf_font_courier_B: Integer;
-  //pdf_font_courier_I: Integer;
-  //pdf_font_courier_BI: Integer;
-  //pdf_font_Symbol: Integer;
-  //pdf_font_ZapfDingbats: Integer;
-
-  pdf_lsDefault:           integer;
-  pdf_lsGrid:              integer;
   /////////////////////////////
 
   procedure begin_page;
@@ -627,23 +749,51 @@ var
   procedure create_styles;
 
   var
-    width:  LongInt;      // Pen width
-    colour: Integer;      // Pen colour
-    style:  TFPPenStyle;  // Pen style
+    width:  TPDF_PenWidth;  // Pen width
+    colour: Tcolor;         // Pen colour
+    style:  TFPPenStyle;    // Pen style
+
+    //+++++++++++++++++++++++++//
+    function colour_using(colour: Integer): Integer;
+    begin
+      if pdf_black_white then
+        Result := clBlack
+      else
+        Result := colour;
+    end;
+    //+++++++++++++++++++++++++//
 
   begin
     with pdf_form.pdf_doc do begin
-      // Default
-      pdf_lsDefault := add_LineStyle(1, clBlack, psSolid);
-
       // Grid
       if pad_form.printed_grid_dotted_menu_entry.Checked then
         style := psDot
       else
         style := psSolid;
-      pdf_lsGrid := add_LineStyle(printgrid_wide, printgrid_colour, style);
+      lsGrid := create_LineStyle(printgrid_wide, printgrid_colour, style);
 
-      //show_modal_message('Added style ' + IntToStr(pdf_lsGrid));
+      // Watermark
+      if pdf_black_white then
+        lsWatermark := create_LineStyle(0.5, clBlack, psSolid)
+      else
+        lsWatermark := create_LineStyle(1, $00D0D0D0, psSolid); // pale-ish grey
+
+      // Marks
+      lsMark_Default := create_LineStyle(1, clBlack, psSolid);
+      lsMark_CurvingRadCentre := create_LineStyle(printmark_wide, clBlack, psSolid);
+      lsMark_Guide := create_LineStyle(printmark_wide, colour_using(printguide_colour), psSolid);
+      lsMark_RadialEnd := create_LineStyle(printmark_wide, colour_using(printalign_colour), psSolid);
+      lsMark_TimberOutline := create_LineStyle(printtimber_wide, colour_using(printtimber_colour), psSolid);
+      lsMark_TimberCentreline := create_LineStyle(min_penwidth, clBlack, psDash);
+      lsMark_TimberRivetCentreline := create_LineStyle(1, clBlack, psSolid);
+      lsMark_TimberReducedEnd := create_LineStyle(1, clBlack, psDot);
+      lsMark_RailJoint := create_LineStyle(printmark_wide, colour_using(printjoint_colour), psSolid);
+      lsMark_Slewing := lsMark_RadialEnd;
+      lsMark_PegArm := lsMark_Default;
+      lsMark_PlainTrackStart := lsMark_Default;
+      lsMark_ShovingCentreline := create_LineStyle(printrail_wide, clBlack, psSolid);
+      lsMark_TimberLongmarks := create_LineStyle(round(printrail_wide * 1.5), colour_using(printguide_colour), psSolid);
+
     end;
   end;
 
@@ -665,7 +815,7 @@ var
       end;
       // add fonts to doc
       pdf_font_times := Addfont('Times-Roman');
-      //pdf_font_times_B := Addfont('Times-Bold');
+      pdf_font_times_B := Addfont('Times-Bold');
       //pdf_font_times_I := Addfont('Times-Oblique');
       //pdf_font_times_BI := Addfont('Times-BoldOblique');
       pdf_font_helv := Addfont('Helvetica');
@@ -756,7 +906,7 @@ var
       write_comment(' ----==== Grid Start ====----');
       save_graphics_state();
 
-      set_font(pdf_font_times, 8);
+      set_font(pdf_font_times_B, 8);
       if printgrid_i = 1 then begin
         case grid_labels_code_i of
           1:
@@ -792,11 +942,12 @@ var
 
           if (now_gridx = 0) and (current_pen_style() = psSolid)
           then
-            set_pen_width(pen_width + 2);    // thicker datum line (only appears if page origin is negative).
+            set_pen_width(pen_width*1.5);    // thicker datum line (only appears if page origin is negative).
+
+          set_linestyle(lsGrid);
 
           draw_line_style(left_blanking_dots, grid_now_dots,
-            printer_width_indexmax_dots, grid_now_dots, pdf_lsGrid);
-          set_pen_style(psSolid);
+            printer_width_indexmax_dots, grid_now_dots, lsGrid);
 
           case grid_labels_code_i of
             1:
@@ -817,11 +968,11 @@ var
 
           grid_label_str := FormatFloat('0.###', grid_label);
 
-          set_fill_color(clLime);
+          set_fill_colour(clLime);
           write_text(left_blanking_dots,
             grid_now_dots,
             grid_label_str + ' ',
-            tpMiddleLeft); //  add labels.
+            tpMiddleLeft, True); //  add labels.
 
         until grid_now_dots > page_bottom_dots;
 
@@ -839,12 +990,12 @@ var
             CONTINUE;
 
           if (now_gridy = 0) and (current_pen_style = psSolid) then
-            set_pen_width(pen_width + 2)    // thicker datum line (only appears if page origin is negative).
+            set_pen_width(pen_width * 1.5)    // thicker datum line (only appears if page origin is negative).
           else
             set_pen_width(pen_width);
 
-          draw_line_style(grid_now_dots, top_blanking_dots, grid_now_dots,
-            printer_length_indexmax_dots, pdf_lsGrid);
+          draw_line(grid_now_dots, top_blanking_dots, grid_now_dots,
+            printer_length_indexmax_dots);
 
           //    if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
 
@@ -868,15 +1019,15 @@ var
           grid_label_str := FormatFloat('0.###', grid_label);
 
           write_text(grid_now_dots{-(TextWidth(grid_label_str) div 2)},
-            page_top_dots - (printmargin_wide div 2) - halfmm_dots{-TextHeight('A')},
+            page_top_dots - (mm_to_dots(printmargin_wide) div 2) - halfmm_dots{-TextHeight('A')},
             grid_label_str
-            , tpBottomCentre); //  add labels.
+            , tpBottomCentre, True); //  add labels.
 
         until grid_now_dots > page_right_dots;
 
         // finally add the units string...
         write_text(left_blanking_dots,
-          page_top_dots - (printmargin_wide div 2) - halfmm_dots{-TextHeight('A')},
+          page_top_dots - (mm_to_dots(printmargin_wide) div 2) - halfmm_dots{-TextHeight('A')},
           grid_str);  // add the units string.
 
         set_pen_style(psSolid);
@@ -895,6 +1046,7 @@ var
   var
     i: integer;
     s: string;  // 208a
+    linestyle: Tpdf_LineStyle;
 
   begin
     markmax := intarray_max(marks_list_ptr);  // max index for the present list.
@@ -924,6 +1076,8 @@ var
         if rail_joints = (mark_code <> 6) then
           CONTINUE;
 
+        linestyle := choose_mark_linestyle(pdf_page, mark_code);
+
         case mark_code of
 
           1..7, 11..98, 100..199, 600, 700: begin
@@ -931,74 +1085,15 @@ var
             p1 := ptr_1st^.p1;      // x1,y1 in  1/100ths mm
             p2 := ptr_1st^.p2;      // x2,y2 in  1/100ths mm
 
-            set_pen_width(1);
-            set_pen_style(psSolid); // default init.
-
-            case mark_code of
-              1, 101:
-                set_pen_width(printmark_wide);    // guide marks. switch drive
-              2:
-                set_pen_width(printmark_wide);    // rad end marks.
-              3, 33, 93:
-                set_pen_width(printtimber_wide);  // timber outlines.
-
-              //4,44: Pen.Style:=psDash;  //out wPDF bug     // timber centre-lines.
-
-              //5,55,95: Pen.Style:=psDot;  //out wPDF bug    // timber reduced ends.
-
-              6:
-                set_pen_width(printmark_wide);    // rail joint marks.
-              7:
-                set_pen_width(printmark_wide);    // transition ends.
-
-              14, 54:
-                set_pen_width(printrail_wide);
-              // timber centre-lines with rail centre-lines (for rivet locations?).
-
-              600, 700:
-                set_pen_width(printrail_wide + printrail_wide div 2);    //  206b 211b long marks
-
-              else
-                set_pen_width(1);
-
-            end;//case
-
-            // overides...
-
-            // out 0.73.a 12-8-01 (now done in thickness setup) if out_factor<1 then Pen.Width:=Round(Pen.Width*out_factor); // scale down the line width.
-
-            //if Pen.Width<1 then Pen.Width:=1;
-            //if Pen.Style<>psSolid then Pen.Width:=1;   // delphi bug? (patterns only work for lines 1 dot wide.)
-            //// pdf if impact>0 then Pen.Width:=1;      // overide for impact printer or plotter.
-
-            if pdf_black_white = True then
-              set_pen_color(clBlack)
-            else
-              case mark_code of
-                1, 101, 600, 700:
-                  set_pen_color(printguide_colour);
-                // guide marks.  switch drive  206b 600 added, 211b 700 added
-                2:
-                  set_pen_color(printalign_colour);  // rad end marks.
-                3, 33, 93:
-                  set_pen_color(printtimber_colour); // timber outlines.
-                6:
-                  set_pen_color(printjoint_colour);  // rail joint marks.
-                7:
-                  set_pen_color(printalign_colour);         // transition/slewing ends.
-                else
-                  set_pen_color(calc_intensity(clBlack));   // thin dotted lines in black only.
-              end;//case
-
             move_to := page_locate(p1, grid_left, grid_top, [ypd, 0]);
             line_to := page_locate(p2, grid_left, grid_top, [ypd, 0]);
 
             if check_limits(move_to, line_to) = True then
-              draw_line(move_to, line_to);
+              draw_line_style(move_to, line_to, linestyle);
 
           end;
 
-          99: begin                         // Timber numbering...
+        99: begin                         // Timber numbering...
             p1 := ptr_1st^.p1;              // x1,y1 in  1/100ths mm
 
             if
@@ -1042,8 +1137,8 @@ var
                 //Brush.Style:=bsSolid;
                 //Brush.Color:=clWhite;
 
-                set_fill_color(clBlack);    // !!! THIS IS WRONG !!!!
-                set_font(1, 8);
+                set_fill_colour(clBlack);    // !!! THIS IS WRONG !!!!
+                set_font(pdf_font_helv, 8);
 
                 write_text(move_to.X,
                   move_to.Y,
@@ -1057,21 +1152,7 @@ var
             end;
           end;
 
-          -2, -3: begin                        // curving rad centres...
-
-            {if impact>0 then Pen.Width:=1                 // impact printer or plotter.
-                      else}
-
-            //Pen.Width:=printmark_wide;  // guide marks.
-            set_pen_width(round(max(printmark_wide, 1)));
-            // guide marks.
-
-            // out 0.73.a 12-8-01 (now done in thickness setup) if out_factor<1 then Pen.Width:=Round(Pen.Width*out_factor); // scale down the line width.
-
-            //if Pen.Width<1 then Pen.Width:=1;
-
-            set_pen_style(psSolid);
-            set_pen_color(calc_intensity(clBlack));
+        -2, -3: begin                        // curving rad centres...
 
             p1 := ptr_1st^.p1;        // x1,y1 in  1/100ths mm
             radcen_arm := 400 * scale;
@@ -1081,16 +1162,16 @@ var
             line_to := page_locate(p1, grid_left, grid_top, [ypd - radcen_arm, 0]);
 
             if check_limits(move_to, line_to) = True then
-              draw_line(move_to, line_to);
+              draw_line_style(move_to, line_to, linestyle);
 
             move_to := page_locate(p1, grid_left, grid_top, [ypd, radcen_arm]);// mark centre lengthwise
             line_to := page_locate(p1, grid_left, grid_top, [ypd, -radcen_arm]);
 
             if check_limits(move_to, line_to) = True then
-              draw_line(move_to, line_to);
+              draw_line_style(move_to, line_to, linestyle);
           end;
 
-          203, 233, 293: begin                 // timber infill
+        203, 233, 293: begin                 // timber infill
             if i >= (mark_index - 1) then
               BREAK; // Is this really needed???
             ptr_2nd := Pointer(intarray_get(marks_list_ptr, i + 1));
@@ -1109,22 +1190,7 @@ var
             infill_points[3] := page_locate(p4, grid_left, grid_top, [ypd, 0]);
 
             if check_limits(infill_points[0], infill_points[1]) and
-               check_limits(infill_points[2], infill_points[3])
-            then begin
-              set_pen_width(1);
-              set_pen_style(psSolid);
-              set_pen_color(clWhite);
-              // so no overdrawing of timber outlines.
-
-              if pdf_black_white = True
-              then
-                set_fill_color(clBlack)
-              else begin
-                //if impact>0 then set_fill_color(printtimber_colour)            // colour plotter.
-                //            else
-                set_fill_color(
-                  printtimber_infill_colour);
-              end;
+              check_limits(infill_points[2], infill_points[3]) then begin
 
               case print_timb_infill_style of
                 0:
@@ -1195,9 +1261,9 @@ var
 
                 //Brush.Style:=bsSolid;
                 //Brush.Color:=clWhite;
-                set_fill_color(printguide_colour);
 
                 switch_label_str := switch_label_text(mark_code);
+              //set_fill_color(printguide_colour);
 
                 write_text(
                   move_to.X,//-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
@@ -1210,10 +1276,7 @@ var
               end;
 
             end;
-
-          end;//case
-
-        end;
+        end;//case
       end;//next mark i
     end;//with pdf_page
   end;
@@ -1249,7 +1312,7 @@ var
       (aq = 11) or ((aq > 15) and (aq < 24))) and (aqyn[aq] = True) then begin
       with pdf_page do begin
 
-        set_pen_color(pencol);
+        set_pen_colour(pencol);
         set_pen_style(psSolid);
 
         move_to.X := get_w_dots(aq, 0);
@@ -1298,7 +1361,7 @@ var
       start_index, stop_index, edge, blank: integer);
 
     var
-      saved_pen_width: integer;    // 206b
+      saved_pen_width: TPDF_PenWidth;    // 206b
 
     begin
 
@@ -1313,14 +1376,13 @@ var
 
             saved_pen_width :=
               current_pen_width; // 206b
-            //                                                          if current_fill_style<>bsSolid then set_pen_width(saved_pen_width+3);    // 206b  PDF bug, needs a wider line to ensure full blanking if hatched fill
-            set_pen_color(blank);
+            set_pen_colour(blank);
             // first blank across..
             draw_line(move_to, line_to);
 
             set_pen_width(saved_pen_width);
             // 206b restore original width
-            set_pen_color(edge);
+            set_pen_colour(edge);
             // then restore the corner points..
             draw_line(move_to, move_to);
 
@@ -1337,9 +1399,9 @@ var
 
       if (rail = 16) or (rail = 20)   // 0.93.a platforms
       then
-        set_pen_color(printplat_edge_colour)
+        set_pen_colour(printplat_edge_colour)
       else
-        set_pen_color(printcurail_colour);
+        set_pen_colour(printcurail_colour);
       //  1 = virtual black. Bug in HP driver if black (0) specified.
 
       set_pen_style(psSolid);
@@ -1355,9 +1417,9 @@ var
         // data not for both edges?
         then begin
           if aqyn[aq] = True then
-            draw_outline_railedge(aq, current_fill_color);
+            draw_outline_railedge(aq, current_fill_colour);
           if aqyn[aq + outer_add] = True then
-            draw_outline_railedge(aq + outer_add, current_fill_color);
+            draw_outline_railedge(aq + outer_add, current_fill_colour);
           EXIT;
         end;
 
@@ -1453,7 +1515,7 @@ var
         else begin
           if (rail = 16) or (rail = 20)   // 0.93.a platforms
           then begin
-            set_pen_color(printplat_infill_colour);
+            set_pen_colour(printplat_infill_colour);
 
             //case print_platform_infill_style of
             //        0: Brush.Style:=bsClear;
@@ -1476,14 +1538,14 @@ var
               (rail = 18)) or
               ((draw_ms_trackbed_cess_edge = True) and (rail = 22))   // 215a
             then begin
-              set_pen_color(sb_track_bgnd_colour);
+              set_pen_colour(sb_track_bgnd_colour);
               // cess use same colour as track background
               //Brush.Style:=bsFDiagonal;
             end
             else begin   // normal rails...
 
               //Brush.Color:=printrail_infill_colour_cu;
-              set_fill_color(
+              set_fill_colour(
                 printrail_infill_colour_cu);
 
               //case rail_infill_i of
@@ -1505,7 +1567,7 @@ var
           Polygon(Slice(dots, dots_index + 1));
           // +1, number of points, not index.  must have 4 points.
 
-          edge_colour := current_fill_color;  // existing rail edges.
+          edge_colour := current_fill_colour;  // existing rail edges.
 
           //if Brush.Style=bsSolid
           //   then blanking_colour:=Brush.Color       // infill colour.
@@ -1641,11 +1703,11 @@ var
           True then begin
           with pdf_page do begin
 
-            set_pen_color(blank);
+            set_pen_colour(blank);
             // first blank across..
             draw_line(move_to, line_to);
 
-            set_pen_color(edge);
+            set_pen_colour(edge);
             // then restore the corner points..
             draw_line(move_to, move_to);
             draw_line(line_to, line_to);
@@ -1772,15 +1834,15 @@ var
 
       with pdf_page do begin
 
-        set_pen_color(printcurail_colour);
+        set_pen_colour(printcurail_colour);
         //  1 = virtual black. Bug in HP driver if black (0) specified.
         //  (but not on "econofast" print !).
         set_pen_style(psSolid);
-        set_fill_color(printrail_infill_colour_cu);
+        set_fill_colour(printrail_infill_colour_cu);
 
         if {(}pdf_black_white = True  {) or (impact>0)}
         then begin
-          set_fill_color(clWhite);
+          set_fill_colour(clWhite);
         end;
         //else case rail_infill_i of
         //           1: Brush.Style:=bsBDiagonal;   // hatched
@@ -1797,7 +1859,7 @@ var
           Polygon(Slice(dots, dots_index + 1));
           // +1, number of points, not index.  must have at least 5 points.
 
-          edge_colour := current_pen_color;  // existing rail edges.
+          edge_colour := current_pen_colour;  // existing rail edges.
 
           //if Brush.Style=bsSolid then blanking_colour:=Brush.Color   // infill colour.
           //                       else blanking_colour:=clWhite;
@@ -1832,7 +1894,7 @@ var
       end;//with
 
       with pdf_page do begin
-        set_pen_color(printcurail_colour);
+        set_pen_colour(printcurail_colour);
         //  1 = virtual black. Bug in HP driver if black (0) specified.
         //  (but not on "econofast" print !).
         set_pen_style(psSolid);
@@ -2242,36 +2304,30 @@ begin
 
           with pdf_page do begin
             write_comment(' ----==== Start Page ' + page_num_str + ' ====----');
-            //        Print watermark Page number
+
+            //        Print watermark Page number if many pages
             if (pdf_form.page_ident_checkbox.Checked = True) and (page_count > 3)
-            // 214a show large page ident if many pages
             then begin
-              Set_Font(pdf_font_helv, 220);
-              // 220 trial and error for A4
-              // TODO: link this to page size
+              Set_Font(pdf_font_helv, round(min(pdf_width_mm, pdf_height_mm) * 1.25));
 
-              if pdf_black_white = True then begin
-                set_pen_color(clBlack);
-                set_pen_width(2);
-              end
-              else begin
-                set_pen_color($00D0D0D0);   // pale-ish grey
-                set_pen_color(clRed);   // pale-ish grey
-                set_pen_width(10);
-              end;
-              set_fill_color(clWhite);
+              //if pdf_black_white = True then begin
+              //  set_pen_color(clBlack);
+              //  set_pen_width(2);
+              //end
+              //else begin
+              //  set_pen_color($00D0D0D0);   // pale-ish grey
+              //  set_pen_width(100);
+              //end;
+              //set_fill_color(clWhite);
 
-              // TODO: Link these to page size
+              set_linestyle(lsWatermark);
+
               ident_left := round(pdf_width_dots / 2);
               ident_top := round(pdf_height_dots / 2);
 
-              set_textmode(tmFillStroke);
+              set_textmode(tmStroke);
               Write_Text(ident_left, ident_top, page_num_str, tpMiddleCentre);
               set_textmode(tmFill);
-
-              //Brush.Style:=bsSolid;  // reset..
-              set_pen_width(1);
-              set_pen_color(clBlack);
             end;
 
             // --- Background shapes and grid ---
@@ -2317,12 +2373,12 @@ begin
                 if dummy_template = True   // 212a
                 then begin
                   set_pen_style(psSolid);
-                  set_pen_color(printshape_colour);
-                  set_pen_width(round(max(printshape_wide, 1)));
+                  set_pen_colour(printshape_colour);
+                  set_pen_width(max(printshape_wide, min_penwidth));
                 end
                 else begin
-                  set_pen_color(printcurail_colour);
-                  set_pen_width(round(max(printcl_wide, 1)));
+                  set_pen_colour(printcurail_colour);
+                  set_pen_width(max(printcl_wide, min_penwidth));
                 end;
 
                 for aq := 24 to 25 do begin
@@ -2346,7 +2402,7 @@ begin
               print_settings_form.output_rails_checkbox.Checked =
                 True then begin
                 //  draw turnout rails...
-                set_pen_width(round(max(printrail_wide, 1)));
+                set_pen_width(max(printrail_wide, min_penwidth));
 
                 if (rail_infill_i = 0)
                 // out for pdf, was  or ((scale*out_factor)<0.75)   // less than 18.75% for 4mm scale (control template) (10.71% for 7mm).
@@ -2466,7 +2522,7 @@ begin
 
             // now the trim margins....
 
-            set_pen_color(printmargin_colour);
+            set_pen_colour(printmargin_colour);
             set_pen_style(psSolid);
             set_pen_width(printmargin_wide);
 
@@ -2589,16 +2645,16 @@ begin
             //              Brush.Color:=clWhite;
             //              Brush.Style:=bsSolid;
 
-            set_fill_color(clBlack);
+            set_fill_colour(clBlack);
             set_font(pdf_font_helv, 7);
 
-            write_text(left_blanking_dots, top_blanking_dots, top_str);
+            write_text(left_blanking_dots, top_blanking_dots, top_str, tpTopLeft);
             // name and "who for?" string at topleft.
 
             // small text inside the margins...
 
             set_font(pdf_font_helv, 6);
-            set_pen_color(calc_intensity(clBlack));
+            set_pen_colour(calc_intensity(clBlack));
 
             // mods 208g  20-04-2014  show page origin dims on templates...
 
@@ -2643,22 +2699,22 @@ begin
             //Font.Assign(print_corner_page_numbers_font);                           // 0.93.a
             //if print_corner_page_numbers_font.Size>8 then Brush.Style:=bsClear;
 
-            write_text(page_left_dots + printmargin_wide + 3,
-              page_top_dots + printmargin_wide + 2,
+            write_text(page_left_dots + mm_to_dots(printmargin_wide) + 3,
+              page_top_dots + mm_to_dots(printmargin_wide) + 2,
               this_page_begin_str,
               tpTopLeft);           // top left corner
-            write_text(page_left_dots + printmargin_wide + 3,
-              page_bottom_dots{+Font.Height} - printmargin_wide - 4,
+            write_text(page_left_dots + mm_to_dots(printmargin_wide) + 3,
+              page_bottom_dots{+Font.Height} - mm_to_dots(printmargin_wide) - 4,
               page_num_str + '   ' + box_project_title_str +
               '   ' + DateToStr(Date) + ' ' + TimeToStr(Time));  // bottom left corner
             write_text(
-              page_right_dots - printmargin_wide{-TextWidth(all_pages_origin_str+page_num_str)} - 200,
-              page_top_dots + printmargin_wide + 2,
+              page_right_dots - mm_to_dots(printmargin_wide){-TextWidth(all_pages_origin_str+page_num_str)} - 200,
+              page_top_dots + mm_to_dots(printmargin_wide) + 2,
               all_pages_origin_str + page_num_str,
               tpTopRight);         // top right corner
             write_text(
-              page_right_dots - printmargin_wide{-TextWidth(this_page_end_str)} - 200,
-              page_bottom_dots{+Font.Height} - printmargin_wide - 4,
+              page_right_dots - mm_to_dots(printmargin_wide){-TextWidth(this_page_end_str)} - 200,
+              page_bottom_dots{+Font.Height} - mm_to_dots(printmargin_wide) - 4,
               this_page_end_str,
               tpBottomRight);      // bottom right corner
             //        end;
@@ -2668,8 +2724,8 @@ begin
             then
             begin
               //                        Font.Assign(set_font('Arial',7,[],printmargin_colour));
-              write_text(page_left_dots + printmargin_wide, page_top_dots +
-                printmargin_wide{-(Font.Height*5)},
+              write_text(page_left_dots + mm_to_dots(printmargin_wide), page_top_dots +
+                mm_to_dots(printmargin_wide){-(Font.Height*5)},
                 '  Warning :  Data distortions are in force.  This template may not be dimensionally accurate.');
             end;
 
@@ -2680,7 +2736,7 @@ begin
             //              Brush.Style:=bsClear;   // transparent over detail.
 
             write_text(left_blanking_dots,
-              page_bottom_dots + (printmargin_wide div 2) + halfmm_dots,
+              page_bottom_dots + (mm_to_dots(printmargin_wide) div 2) + halfmm_dots,
               page_str + bottom_str,
               tpTopLeft, True); // add the bottom string last.
 
@@ -3181,7 +3237,7 @@ begin
     for i := 0 to maxbg_index do begin
       Pen.Style := psSolid;
       Pen.Color := printshape_colour;   // it changes for a label or monochrome picture.
-      Pen.Width := printshape_wide;     // it changes for a picture border.
+      Pen.Width := mm_to_dots(printshape_wide);     // it changes for a picture border.
 
       now_shape := Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgnd_shape;
       // next shape.
@@ -3395,7 +3451,7 @@ begin
                   if pdf_form.include_pictures_checkbox.Checked =
                     True {pdf_form.picture_outlines_radio.Checked=False}
                   then
-                    Pen.Width := printpicborder_wide;    // picture borders thinner unless an outline only.
+                    Pen.Width := mm_to_dots(printpicborder_wide);    // picture borders thinner unless an outline only.
                   Pen.Color := printshape_colour;
                   Brush.Color := clWhite;
                   Brush.Style := bsClear;
@@ -3544,8 +3600,11 @@ var
   s, idnum_str, idtb_str: string;  // 208a
   num: integer;                  // 208a
 
+  line_style: TPDF_LineStyle;
+
 begin
   with pdf_page do begin
+    write_comment('--- Starting Marks ---');
 
     //single_colour_flag:=pad_form.use_single_colour_menu_entry.Checked;
 
@@ -3614,143 +3673,28 @@ begin
             (out_factor <> 1.0) then
             CONTINUE;   // reduced ends are meaningless if not full-size.   206b 600 added. 211b 700 added
 
-          if ((code = 203) or (code = 233) or (code = 293)) and (i < array_max)         // timber infill
-          then begin
-            p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
-            p1.Y := intarray_get(list_bgnd_marks[1], i);
-
-            p2.X := intarray_get(list_bgnd_marks[2], i);    // x2,y2 in  1/100ths mm
-            p2.Y := intarray_get(list_bgnd_marks[3], i);
-
-            p3.X := intarray_get(list_bgnd_marks[0], i + 1);    // x3,y3 in  1/100ths mm
-            p3.Y := intarray_get(list_bgnd_marks[1], i + 1);
-
-            p4.X := intarray_get(list_bgnd_marks[2], i + 1);    // x4,y4 in  1/100ths mm
-            p4.Y := intarray_get(list_bgnd_marks[3], i + 1);
-          end
-          else begin         // keep compiler happy...
-            p1.X := 0;
-            p1.Y := 0;
-
-            p2.X := 0;
-            p2.Y := 0;
-
-            p3.X := 0;
-            p3.Y := 0;
-
-            p4.X := 0;
-            p4.Y := 0;
-          end;
-
-          //if not ((code > 0) and (code < 200) and (code <> 99))
-          //  show_modal_message('Code is ' + IntToStr(code));
-
-
-          //if ((code > 0) and (code < 200) and (code <> 99))  // 223d
-          //  or (code = 600) or (code = 700)       // 206b 211b overwrite switch marks on output
-          //then begin
-
+          line_style := choose_mark_linestyle(pdf_page, code, False);
 
           case code  of
           1..98, 100.. 199, 600, 700: begin
-
+          write_comment('Mark ' + inttostr(code) + ' using ' + line_style.str());
             p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
             p1.Y := intarray_get(list_bgnd_marks[1], i);
 
             p2.X := intarray_get(list_bgnd_marks[2], i);    // x2,y2 in  1/100ths mm
             p2.Y := intarray_get(list_bgnd_marks[3], i);
 
-            //{if impact>0 then Pen.Width:=1        // impact printer or plotter.
-            //            else begin}
-            //                  case code of
-            //                    1,101: Pen.Width:=printmark_wide;    // guide marks.  switch drive
-            //                        2: Pen.Width:=printmark_wide;    // rad end marks.
-            //                  3,33,93: Pen.Width:=printtimber_wide;  // timber outlines.
-            //                     4,44: Pen.Width:=1;                  // timber centre-lines.
-            //                  5,55,95: Pen.Width:=1;                  // timber reduced ends.
-            //                        6: Pen.Width:=printmark_wide;    // rail joint marks.
-            //                        7: Pen.Width:=printmark_wide;    // transition ends.
-            //                    14,54: Pen.Width:=printrail_wide;    // timber centre-lines with rail centre-lines (for rivet locations?).
-            //
-            //                  600,700: Pen.Width:=printrail_wide + printrail_wide div 2;    //  206b 211b long marks
-            //
-            //                      else Pen.Width:=1;                 // others not drawn.
-            //                  end;//case
-            //
-            //                  // out 0.73.a 12-8-01 (now done in thickness setup) if out_factor<1 then Pen.Width:=Round(Pen.Width*out_factor); // scale down the line width.
-            //                  if Pen.Width<1 then Pen.Width:=1;
-            //                //end;
-                     {if impact>0 then Pen.Width:=1        // impact printer or plotter.
-                                 else begin}
-            case code of
-              1, 101:
-                set_pen_width(printmark_wide);    // guide marks.  switch drive
-              2:
-                set_pen_width(printmark_wide);    // rad end marks.
-              3, 33, 93:
-                set_pen_width(printtimber_wide);  // timber outlines.
-              4, 44:
-                set_pen_width(1);                 // timber centre-lines.
-              5, 55, 95:
-                set_pen_width(1);                 // timber reduced ends.
-              6:
-                set_pen_width(printmark_wide);    // rail joint marks.
-              7:
-                set_pen_width(printmark_wide);    // transition ends.
-              14, 54:
-                set_pen_width(printrail_wide);
-              // timber centre-lines with rail centre-lines (for rivet locations?).
-
-              600, 700:
-                set_pen_width(printrail_wide + printrail_wide div 2);    //  206b 211b long marks
-
-              else
-                set_pen_width(1);                 // others not drawn.
-            end;//case
-
-            // out 0.73.a 12-8-01 (now done in thickness setup) if out_factor<1 then Pen.Width:=Round(Pen.Width*out_factor); // scale down the line width.
-            //if Pen.Width<1 then Pen.Width:=1;
-            //end;
-{ out wPDF bug on dotted lines)
-                    case code of
-                        4,44: Pen.Style:=psDash;    // timber centre-lines (not for rivets).
-                     5,55,95: Pen.Style:=psDot;     // timber reduced ends.
-                         else Pen.Style:=psSolid;   // all the rest.
-                    end;//case
-}
-            //Pen.Style:=psSolid;
-            set_pen_style(psSolid);
-
-            //if Pen.Style<>psSolid then Pen.Width:=1;   // delphi bug? (patterns only work for lines 1 dot wide.)
-
-            if pdf_black_white = True then
-              set_pen_color(clBlack)
+            if pdf_black_white then
+              set_pen_colour(clBlack)
             else begin
-              if using_mapping_colour = True then
-                set_pen_color(mapping_colour)
-              else begin
+              if using_mapping_colour then
+                set_pen_colour(mapping_colour)
+              else
                 if mapping_colours_print < 0
                 // 0=normal, 1=rails only, 2=timbers only, 3=rails and timber outlines, 4:=use the PAD colour instead, -1=single colour.
                 then
-                  set_pen_color(printbg_single_colour)     // single colour for all of background templates.
-                else begin
-                  case code of
-                    1, 101, 600, 700:
-                      set_pen_color(printguide_colour);  // guide marks. switch drive 206b 600 added, 211b 700 added
-                    2:
-                      set_pen_color(printalign_colour);  // rad end marks.
-                    3, 33, 93:
-                      set_pen_color(printtimber_colour); // timber outlines.
-                    6:
-                      set_pen_color(printjoint_colour);  // rail joints.
-                    7:
-                      set_pen_color(printalign_colour);        // transition ends.
-                    else
-                      set_pen_color(calc_intensity(clBlack));
-                      // thin dotted lines in black only for timber centres and reduced ends.
-                  end;//case
-                end;
-              end;
+                  set_pen_colour(printbg_single_colour)
+                // single colour for all of background templates.
             end;
 
             //Pen.Mode:=pmCopy;
@@ -3759,22 +3703,10 @@ begin
             line_to := page_locate(p2, grid_left, grid_top);
 
             if check_limits(move_to, line_to) = True then
-              draw_line(move_to, line_to);
+              draw_line_style(move_to, line_to, line_style);
           end;
 
-          //else begin
-          //  if ((code = -2) or (code = -3)) and
-          //    {(pad_form.print_radial_centres_menu_entry.Checked=True)}// 0.82.b
-          //    (print_settings_form.output_radial_centres_checkbox.Checked = True)
-          //  // draw curving rad centres...
-          //  then begin
         -2, -3: begin
-              //Pen.Width:=printmark_wide;  // guide marks.
-              //if Pen.Width<1 then Pen.Width:=1;
-              //
-              //Pen.Style:=psSolid;
-              //Pen.Mode:=pmCopy;
-              //
               //if pdf_black_white=True
               //   then Pen.Color:=clBlack  // overide.
               //   else begin
@@ -3783,21 +3715,16 @@ begin
               //             then Pen.Color:=calc_intensity(clBlack)
               //             else Pen.Color:=printbg_single_colour;
               //        end;
-              set_pen_width(printmark_wide);  // guide marks.
-              //if Pen.Width<1 then Pen.Width:=1;
-
-              set_pen_style(psSolid);
 
               if pdf_black_white = True then
-                set_pen_color(clBlack)  // overide.
-              else begin
+                set_pen_colour(clBlack)  // overide.
+              else
                 //if single_colour_flag=False then set_pen_color:=clBlack;
-                if mapping_colours_print <> -1
-                then
-                  set_pen_color(calc_intensity(clBlack))
-                else
-                  set_pen_color(printbg_single_colour);
-              end;
+                //if mapping_colours_print <> -1 then
+                //  set_pen_color(calc_intensity(clBlack))
+                //else
+                if mapping_colours_print = -1 then
+                  set_pen_colour(printbg_single_colour);
 
               p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
               p1.Y := intarray_get(list_bgnd_marks[1], i);
@@ -3810,18 +3737,47 @@ begin
               line_to := page_locate(p2, grid_left, grid_top, -radcen_arm);
 
               if check_limits(move_to, line_to) = True then
-                draw_line(move_to, line_to);
+                draw_line_style(move_to, line_to, line_style);
 
               // mark centre lengthwise
               move_to := page_locate(p1, grid_left, grid_top, [0, radcen_arm]);
               line_to := page_locate(p2, grid_left, grid_top, [0, -radcen_arm]);
               if check_limits(move_to, line_to) = True then
-                draw_line(move_to, line_to);
+                draw_line_style(move_to, line_to, line_style);
             end;
 
             //if (code = 203) or (code = 233) or (code = 293)       // timber infill...
             //then begin
-            203, 233, 293: begin              // timber infill...
+          203, 233, 293: begin              // timber infill...
+
+              if i < array_max
+              then begin
+                p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
+                p1.Y := intarray_get(list_bgnd_marks[1], i);
+
+                p2.X := intarray_get(list_bgnd_marks[2], i);    // x2,y2 in  1/100ths mm
+                p2.Y := intarray_get(list_bgnd_marks[3], i);
+
+                p3.X := intarray_get(list_bgnd_marks[0], i + 1);    // x3,y3 in  1/100ths mm
+                p3.Y := intarray_get(list_bgnd_marks[1], i + 1);
+
+                p4.X := intarray_get(list_bgnd_marks[2], i + 1);    // x4,y4 in  1/100ths mm
+                p4.Y := intarray_get(list_bgnd_marks[3], i + 1);
+              end
+              else begin         // keep compiler happy...
+                p1.X := 0;
+                p1.Y := 0;
+
+                p2.X := 0;
+                p2.Y := 0;
+
+                p3.X := 0;
+                p3.Y := 0;
+
+                p4.X := 0;
+                p4.Y := 0;
+              end;
+
               infill_points[0] := page_locate(p1, grid_left, grid_top);
               infill_points[1] := page_locate(p2, grid_left, grid_top);
               infill_points[2] := page_locate(p3, grid_left, grid_top);
@@ -3829,24 +3785,15 @@ begin
 
               if (check_limits(infill_points[0], infill_points[1]) = True) and
                 (check_limits(infill_points[2], infill_points[3]) = True) then begin
-                set_pen_width(1);
-                set_pen_style(psSolid);
-                set_pen_color(clWhite);
-                // so no overdrawing of timber outlines.
 
-                if pdf_black_white = True
-                then
-                  set_pen_color(clBlack)
+                if pdf_black_white = True then
+                  set_pen_colour(clBlack)
                 else begin
                   //if single_colour_flag=False
-                  if mapping_colours_print <>
-                    -1 then begin
-                                                            {if impact>0 then Brush.Color:=printtimber_colour            // colour plotter, use same as timber outlines.
-                                                                        else}
-                    set_fill_color(printtimber_infill_colour);
-                  end
+                  if mapping_colours_print <> -1 then
+                    set_fill_colour(printtimber_infill_colour)
                   else
-                    set_fill_color(printbg_single_colour);
+                    set_fill_colour(printbg_single_colour);
                 end;
 
                 // 0.95.a  PDF bug-fix...
@@ -3884,11 +3831,6 @@ begin
               end;
             end;
 
-            //if (code = 99) and ((pad_form.print_timber_numbering_menu_entry.Checked =
-            //  True) or ((out_factor > 0.99) and
-            //  (pad_form.numbering_fullsize_only_menu_entry.Checked = True))) and
-            //  (print_settings_form.output_timber_numbers_checkbox.Checked = True)
-            //// 223d
           99: begin                           // Timber Labels
             if (pad_form.print_timber_numbering_menu_entry.Checked
               or  ((out_factor > 0.99)
@@ -3900,18 +3842,14 @@ begin
               p1.Y := intarray_get(list_bgnd_marks[1], i);
 
               p2.X := intarray_get(list_bgnd_marks[2], i);
-              // x2,y2 in  1/100ths mm  numbers on output
               p2.Y := intarray_get(list_bgnd_marks[3], i);
 
-              if print_settings_form.output_timb_id_prefix_checkbox.Checked =
-                True    // 223d
-              then begin
-                move_to := page_locate(p2, grid_left, grid_top);
-              end
-              else begin
+              if print_settings_form.output_timb_id_prefix_checkbox.Checked
+              then
+                move_to := page_locate(p2, grid_left, grid_top)
+              else
                 // 223d  ID prefix not wanted, use p1 *screen* positions (as for control template)
                 move_to := page_locate(p1, grid_left, grid_top);
-              end;
 
               num_str := extract_tbnumber_str(tbnum_str);
               // get next timber numbering string from the acummulated string.
@@ -3939,13 +3877,6 @@ begin
               then begin
                 //Font.Assign(print_timber_numbers_font);
 
-                if pdf_black_white = True           // overides..
-                then
-                  set_pen_color(clBlack)
-                else begin
-                  if mapping_colours_print < 0 then
-                    set_pen_color(printbg_single_colour);
-                end;
 
                 if pad_form.scale_timber_numbering_menu_entry.Checked =
                   True then begin
@@ -3953,9 +3884,6 @@ begin
                   //if fontsize<4 then CONTINUE;      // minimum to be legible.
                   //Font.Size:=Round(fontsize);
                 end;
-
-                //Brush.Style:=bsSolid;
-                //Brush.Color:=clWhite;
 
                 if
                 print_settings_form.output_timb_id_prefix_checkbox.Checked = True    // 223d
@@ -3972,15 +3900,8 @@ begin
                   idtb_str := num_str;
                 end;
 
-                //idtb_str:=' '+idtb_str+' ';
-
-                //text_out(move_to.X-(TextWidth(idtb_str) div 2),
-                //        move_to.Y-(TextHeight(idtb_str) div 2),
-                //        idtb_str);
-
-                //                                        set_pen_color(clBlack);     // !!! THIS IS WRONG !!!!
-                set_fill_color(clBlack);    // !!! THIS IS WRONG !!!!
-                set_font(1, 8);
+                set_fill_colour(clBlack);    // !!! THIS IS WRONG !!!!
+                set_font(pdf_font_helv, 8);
 
                 write_text(move_to.X,//-(TextWidth(idtb_str) div 2),
                   move_to.Y,//-(TextHeight(idtb_str) div 2),
@@ -3989,12 +3910,11 @@ begin
 
                 //Font.Assign(print_labels_font);      // reset for grid labels
               end;
-            end;//numbering
+            end;
+          end;//numbering
 
 
-            //case code of     // switch labels 206b
-
-            601..605, 701..703: begin
+          601..605, 701..703: begin
 
                 if out_factor <> 1.0 then
                   CONTINUE;     // on full size prints only
@@ -4010,23 +3930,18 @@ begin
                   //Font.Assign(print_timber_numbers_font);
                   //
                   //Font.Style:=[fsBold,fsItalic];
-                  set_pen_color(printguide_colour);
+                  //set_pen_color(printguide_colour);
 
                   //if scale>3 then Font.Size:=Font.Size+1; // a bit bigger above 3mm/ft
                   //
                   //Brush.Style:=bsSolid;
                   //Brush.Color:=clWhite;
-                  set_fill_color(printguide_colour);
+                  //set_fill_color(printguide_colour);
 
                   switch_label_str := switch_label_text(code);
 
-                  //text_out(move_to.X-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
-                  //         move_to.Y-(TextHeight(switch_label_str) div 2),
-                  //         ' '+switch_label_str+' ');
                   write_text(move_to.X,
-                    //-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
                     move_to.Y,
-                    //-(TextHeight(switch_label_str) div 2),
                     switch_label_str,
                     tpMiddleCentre, True);
 
@@ -4037,6 +3952,7 @@ begin
             end;//case
 
         end;//next i background mark
+        write_comment('==> MARK CODES FINISHED <==');
 
       end;//with now_keep
     end;//next n template
@@ -4087,7 +4003,7 @@ var
     with pdf_page do begin
 
       if pdf_black_white then begin
-        set_pen_color(clBlack);
+        set_pen_colour(clBlack);
         EXIT;
       end;
 
@@ -4096,15 +4012,15 @@ var
       then begin
         if (rail = 16) or (rail = 20)                  // 0.93.a platforms
         then
-          set_pen_color(printplat_edge_colour)
+          set_pen_colour(printplat_edge_colour)
         else
-          set_pen_color(printbgrail_colour);
+          set_pen_colour(printbgrail_colour);
         EXIT;
       end;
 
       if using_mapping_colour and ((pdf_form.black_edges_checkbox.Checked = False) or
         (rail_edges = False)) then begin
-        set_pen_color(mapping_colour);
+        set_pen_colour(mapping_colour);
         EXIT;
       end;
 
@@ -4112,7 +4028,7 @@ var
         (rail_edges = False))
       // 0=normal, 1=rails only, 2=timbers only, 3=rails and timber outlines, 4:=use the PAD colour instead, -1=single colour.
       then begin
-        set_pen_color(printbg_single_colour);
+        set_pen_colour(printbg_single_colour);
         // single colour for all of background templates.
         EXIT;
       end;
@@ -4121,9 +4037,9 @@ var
 
       if (rail = 16) or (rail = 20)   // 0.93.a platforms
       then
-        set_pen_color(printplat_edge_colour)
+        set_pen_colour(printplat_edge_colour)
       else
-        set_pen_color(printbgrail_colour);
+        set_pen_colour(printbgrail_colour);
 
     end;//with
   end;
@@ -4179,7 +4095,7 @@ var
       with pdf_page do begin
 
         if blank_it = True then
-          set_pen_color(blanking_colour)
+          set_pen_colour(blanking_colour)
         else
           set_pen_railcolour(True);
 
@@ -4242,7 +4158,7 @@ var
       start_index, stop_index, edge, blank: integer);
 
     var
-      saved_pen_width: integer;    // 206b
+      saved_pen_width: TPDF_PenWidth;    // 206b
 
     begin
 
@@ -4258,14 +4174,14 @@ var
             saved_pen_width :=
               current_pen_width; // 206b
 //            if current_fill_style<>bsSolid then set_pen_width(saved_pen_width+3);    // 206b  PDF bug, needs a wider line to ensure full blanking if hatched fill
-            set_pen_color(blank);
+            set_pen_colour(blank);
             // first blank across..
             draw_line(move_to, line_to);
 
             set_pen_width(saved_pen_width);
             // 206b restore original width
 
-            set_pen_color(edge);
+            set_pen_colour(edge);
             // then restore the corner points..
             draw_line(move_to, move_to);
 
@@ -4390,12 +4306,12 @@ var
         if (rail = 16) or (rail = 20)   // 0.93.a platforms
         then begin
           if ((using_mapping_colour = True) and
-            (current_pen_color = mapping_colour)) or ((mapping_colours_print < 0) and
-            (current_pen_color = printbg_single_colour))   // 206b
+            (current_pen_colour = mapping_colour)) or ((mapping_colours_print < 0) and
+            (current_pen_colour = printbg_single_colour))   // 206b
           then
-            set_fill_color(current_pen_color)
+            set_fill_colour(current_pen_colour)
           else
-            set_fill_color(printplat_infill_colour);
+            set_fill_colour(printplat_infill_colour);
 
           //case print_platform_infill_style of
           //        0: Brush.Style:=bsClear;
@@ -4418,24 +4334,24 @@ var
             or ((this_one_trackbed_cess_ms = True) and (rail = 22))  // 215a
           then begin
             if ((using_mapping_colour = True) and
-              (current_pen_color = mapping_colour)) or ((mapping_colours_print < 0) and
-              (current_pen_color = printbg_single_colour)) then
-              set_fill_color(current_pen_color)
+              (current_pen_colour = mapping_colour)) or ((mapping_colours_print < 0) and
+              (current_pen_colour = printbg_single_colour)) then
+              set_fill_colour(current_pen_colour)
             else
-              set_fill_color(sb_track_bgnd_colour);      // cess use same colour as track background
+              set_fill_colour(sb_track_bgnd_colour);      // cess use same colour as track background
             //  Brush.Style:=bsBDiagonal;
           end
           else begin   // normal rails...
 
             if ((using_mapping_colour = True) and
-              (current_fill_color = mapping_colour)) or ((mapping_colours_print < 0) and
-              (current_fill_color = printbg_single_colour)) then
-              set_fill_color(calc_intensity(clSilver))  // 214b  - was clGray
+              (current_fill_colour = mapping_colour)) or ((mapping_colours_print < 0) and
+              (current_fill_colour = printbg_single_colour)) then
+              set_fill_colour(calc_intensity(clSilver))  // 214b  - was clGray
             else begin
               if fb_kludge_this > 0 then
-                set_fill_color(printrail_infill_colour_cu)  // 0.94.a
+                set_fill_colour(printrail_infill_colour_cu)  // 0.94.a
               else
-                set_fill_color(printrail_infill_colour_bg);
+                set_fill_colour(printrail_infill_colour_bg);
             end;
 
             //case rail_infill_i of
@@ -4453,14 +4369,14 @@ var
         end;
 
         if pdf_black_white = True then begin
-          set_fill_color(clWhite);               // overide
+          set_fill_colour(clWhite);               // overide
         end;
 
         if dots_index > 2 then begin
           polygon(Slice(dots, dots_index + 1));
           // +1, number of points, not index.  must have 4 points.
 
-          edge_colour := current_pen_color;  // existing rail edges.
+          edge_colour := current_pen_colour;  // existing rail edges.
 
           //if Brush.Style=bsSolid then blanking_colour:=Brush.Color   // infill colour.
           //                       else blanking_colour:=clWhite;
@@ -4590,11 +4506,11 @@ var
           line_to) = True then begin
           with pdf_page do begin
 
-            set_pen_color(blank);
+            set_pen_colour(blank);
             // first blank across..
             draw_line(move_to, line_to);
 
-            set_pen_color(edge);
+            set_pen_colour(edge);
             // then restore the corner points..
             draw_line(move_to, move_to);
 
@@ -4747,14 +4663,14 @@ var
 
           if {(} pdf_black_white = True {) or (impact>0)}
           {or (mapping_colours_print<0)} then begin
-            set_fill_color(clWhite);              // overide
+            set_fill_colour(clWhite);              // overide
           end;
 
           if dots_index > 4 then begin
             polygon(Slice(dots, dots_index + 1));
             // +1, number of points, not index.  must have at least 5 points.
 
-            edge_colour := current_pen_color;
+            edge_colour := current_pen_colour;
             // existing rail edges.
 
             //if Brush.Style=bsSolid then blanking_colour:=Brush.Color   // infill colour.
@@ -4877,7 +4793,7 @@ var
         if check_limits(move_to, line_to) = True
         then begin
           with pdf_page do begin
-            set_pen_color(blank);
+            set_pen_colour(blank);
             // first blank across..
             draw_open_line(move_to, line_to, edge);
           end;//with
@@ -4999,7 +4915,7 @@ var
 
         set_pen_railcolour(True);
 
-        set_pen_width(round(max(1, printrail_wide)));
+        set_pen_width(max(printrail_wide, min_penwidth));
 
         {if (single_colour_flag=True) and (pdf_form.black_edges_checkbox.Checked=False)
            then Pen.Color:=printbg_single_colour  // default colour for all background templates.
@@ -5011,9 +4927,9 @@ var
 }
 
         if using_mapping_colour = True then
-          set_fill_color(mapping_colour)
+          set_fill_colour(mapping_colour)
         else
-          set_fill_color(sb_diagram_colour);  // 209c  was printrail_infill_colour_bg;
+          set_fill_colour(sb_diagram_colour);  // 209c  was printrail_infill_colour_bg;
 
         //        case rail_infill_i of
         //                        1: Brush.Style:=bsBDiagonal;   // hatched
@@ -5039,7 +4955,7 @@ var
           // blank out template boundaries...
 
           if output_include_boundaries = False then begin
-            edge_colour := current_pen_color;  // existing rail edges.
+            edge_colour := current_pen_colour;  // existing rail edges.
             //
             //          if Brush.Style=bsSolid then blanking_colour:=Brush.Color   // infill colour.
             //                                 else blanking_colour:=clWhite;
@@ -5067,10 +4983,10 @@ var
             and (intarray_max(list_bgnd_rails[1, 0]) <> 0)    // data for straight switch rail
             and (intarray_max(list_bgnd_rails[2, 0]) <> 0)    // data for curved stock rail
           then begin
-            if current_fill_color = clWhite then
-              set_pen_color(clBlack)
+            if current_fill_colour = clWhite then
+              set_pen_colour(clBlack)
             else
-              set_pen_color(clWhite);     // white points mark
+              set_pen_colour(clWhite);     // white points mark
 
             x_dots := pbg_get_w_dots(1, 0);  // ms toe.
             y_dots := pbg_get_l_dots(1, 0);
@@ -5192,12 +5108,12 @@ begin          // print background templates...
               // 212a   dummy template as bgnd shapes
               then begin
                 set_pen_style(psSolid);
-                set_pen_color(printshape_colour);
+                set_pen_colour(printshape_colour);
                 set_pen_width(printshape_wide);
               end
               else begin
                 set_pen_railcolour(False);
-                set_pen_width(trunc(max(printcl_wide, 1)));
+                set_pen_width(max(printcl_wide, min_penwidth));
                 set_pen_style(psDash);
               end;
 
