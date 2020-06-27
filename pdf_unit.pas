@@ -448,7 +448,7 @@ function wanted_mark(code: Integer): Boolean;     // decide if a particular mark
 // This function determines whether a particular mark (indicated by it's code)
 // is required on the output as determined by the corresponding user settings
 
-// NOTE: it is used by both control template output and background output
+  // NOTE: it is used for both control template output and background output
 
 begin
   RESULT := true;
@@ -924,56 +924,12 @@ var
         if rail_joints = (mark_code <> 6) then
           CONTINUE;
 
-        if ((mark_code = 203) or (mark_code = 233) or (mark_code = 293)) and
-          (i < (mark_index - 1))      // timber infill
-        then begin
-          ptr_2nd := Pointer(intarray_get(marks_list_ptr, i + 1));
-          // pointer to the second infill Tmark record.
-          if ptr_2nd = nil then
-            BREAK;
+        case mark_code of
 
-          p1 := ptr_1st^.p1;              // x1,y1 in  1/100ths mm
-          p2 := ptr_1st^.p2;              // x2,y2 in  1/100ths mm
-          p3 := ptr_2nd^.p1;              // x3,y3 in  1/100ths mm
-          p4 := ptr_2nd^.p2;              // x4,y4 in  1/100ths mm
-        end
-        else
-          ptr_2nd := nil;    // keep compiler happy.
+          1..7, 11..98, 100..199, 600, 700: begin
 
-        if ((mark_code > 0) and (mark_code < 200) and (mark_code <> 8) and
-          (mark_code <> 9) and (mark_code <> 10))
-          // ignore peg, rad centres, timber selector and peg arms, plain track start, label.
-          or (mark_code = 600) or (mark_code = 700)
-        // 206b 211b overwrite switch marks on output
-        then begin
-
-          if ((mark_code = 5) or (mark_code = 55) or (mark_code = 95) or
-            (mark_code = 600) or (mark_code = 700)) and (out_factor <> 1.0) then
-            CONTINUE;   // reduced ends are meaningless if not full-size. 206b 600 added - 211b 700 added
-
-          p1 := ptr_1st^.p1;              // x1,y1 in  1/100ths mm
-
-          if mark_code <> 99 then begin
-            p2 := ptr_1st^.p2;    // x2,y2 in  1/100ths mm
-
-            if pdf_black_white = True
-            then
-              set_pen_color(clBlack)
-            else
-              case mark_code of
-                1, 101, 600, 700:
-                  set_pen_color(printguide_colour);  // guide marks.  switch drive  206b 600 added, 211b 700 added
-                2:
-                  set_pen_color(printalign_colour);  // rad end marks.
-                3, 33, 93:
-                  set_pen_color(printtimber_colour); // timber outlines.
-                6:
-                  set_pen_color(printjoint_colour);  // rail joint marks.
-                7:
-                  set_pen_color(printalign_colour);         // transition/slewing ends.
-                else
-                  set_pen_color(calc_intensity(clBlack));   // thin dotted lines in black only.
-              end;//case
+            p1 := ptr_1st^.p1;      // x1,y1 in  1/100ths mm
+            p2 := ptr_1st^.p2;      // x2,y2 in  1/100ths mm
 
             set_pen_width(1);
             set_pen_style(psSolid); // default init.
@@ -1015,15 +971,36 @@ var
             //if Pen.Style<>psSolid then Pen.Width:=1;   // delphi bug? (patterns only work for lines 1 dot wide.)
             //// pdf if impact>0 then Pen.Width:=1;      // overide for impact printer or plotter.
 
+            if pdf_black_white = True then
+              set_pen_color(clBlack)
+            else
+              case mark_code of
+                1, 101, 600, 700:
+                  set_pen_color(printguide_colour);
+                // guide marks.  switch drive  206b 600 added, 211b 700 added
+                2:
+                  set_pen_color(printalign_colour);  // rad end marks.
+                3, 33, 93:
+                  set_pen_color(printtimber_colour); // timber outlines.
+                6:
+                  set_pen_color(printjoint_colour);  // rail joint marks.
+                7:
+                  set_pen_color(printalign_colour);         // transition/slewing ends.
+                else
+                  set_pen_color(calc_intensity(clBlack));   // thin dotted lines in black only.
+              end;//case
+
             move_to := page_locate(p1, grid_left, grid_top, [ypd, 0]);
             line_to := page_locate(p2, grid_left, grid_top, [ypd, 0]);
 
             if check_limits(move_to, line_to) = True then
               draw_line(move_to, line_to);
 
-          end
+          end;
 
-          else begin    // code 99...
+          99: begin                         // Timber numbering...
+            p1 := ptr_1st^.p1;              // x1,y1 in  1/100ths mm
+
             if
             ((pad_form.print_timber_numbering_menu_entry.Checked = True) or
               ((out_factor > 0.99) and (pad_form.numbering_fullsize_only_menu_entry.Checked = True)))
@@ -1079,16 +1056,12 @@ var
               end;
             end;
           end;
-        end
-        else begin   // other codes...
 
-          if ((mark_code = -2) or (mark_code = -3))
-          {and (pad_form.print_radial_centres_menu_entry.Checked=True)}
-          // 0.82.b                                 (print_settings_form.output_radial_centres_checkbox.Checked=True)
+          -2, -3: begin                        // curving rad centres...
 
-          then begin       // draw curving rad centres...
-                                        {if impact>0 then Pen.Width:=1                 // impact printer or plotter.
-                                                    else}
+            {if impact>0 then Pen.Width:=1                 // impact printer or plotter.
+                      else}
+
             //Pen.Width:=printmark_wide;  // guide marks.
             set_pen_width(round(max(printmark_wide, 1)));
             // guide marks.
@@ -1117,9 +1090,19 @@ var
               draw_line(move_to, line_to);
           end;
 
-          if ((mark_code = 203) or (mark_code = 233) or (mark_code = 293)) and
-            (ptr_2nd <> nil)        // timber infill...
-          then begin
+          203, 233, 293: begin                 // timber infill
+            if i >= (mark_index - 1) then
+              BREAK; // Is this really needed???
+            ptr_2nd := Pointer(intarray_get(marks_list_ptr, i + 1));
+            // pointer to the second infill Tmark record.
+            if ptr_2nd = nil then
+              BREAK;
+
+            p1 := ptr_1st^.p1;              // x1,y1 in  1/100ths mm
+            p2 := ptr_1st^.p2;              // x2,y2 in  1/100ths mm
+            p3 := ptr_2nd^.p1;              // x3,y3 in  1/100ths mm
+            p4 := ptr_2nd^.p2;              // x4,y4 in  1/100ths mm
+
             infill_points[0] := page_locate(p1, grid_left, grid_top, [ypd, 0]);
             infill_points[1] := page_locate(p2, grid_left, grid_top, [ypd, 0]);
             infill_points[2] := page_locate(p3, grid_left, grid_top, [ypd, 0]);
@@ -1182,7 +1165,6 @@ var
             end;
           end;
 
-          case mark_code of     // switch labels 206b
 
             601..605, 701..703: begin
 
@@ -3660,14 +3642,17 @@ begin
             p4.Y := 0;
           end;
 
-          if ((code > 0) and (code < 200) and (code <> 99))  // 223d
-            or (code = 600) or (code = 700)       // 206b 211b overwrite switch marks on output
+          //if not ((code > 0) and (code < 200) and (code <> 99))
+          //  show_modal_message('Code is ' + IntToStr(code));
 
-          then begin
-            //Brush.Color:=clWhite;  // 0.93.a gaps in dotted lines.
-            //Brush.Style:=bsClear;
-            //TextOut(0,0,'');
 
+          //if ((code > 0) and (code < 200) and (code <> 99))  // 223d
+          //  or (code = 600) or (code = 700)       // 206b 211b overwrite switch marks on output
+          //then begin
+
+
+          case code  of
+          1..98, 100.. 199, 600, 700: begin
 
             p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
             p1.Y := intarray_get(list_bgnd_marks[1], i);
@@ -3775,13 +3760,15 @@ begin
 
             if check_limits(move_to, line_to) = True then
               draw_line(move_to, line_to);
-          end
-          else begin
-            if ((code = -2) or (code = -3)) and
-              {(pad_form.print_radial_centres_menu_entry.Checked=True)}// 0.82.b
-              (print_settings_form.output_radial_centres_checkbox.Checked = True)
-            // draw curving rad centres...
-            then begin
+          end;
+
+          //else begin
+          //  if ((code = -2) or (code = -3)) and
+          //    {(pad_form.print_radial_centres_menu_entry.Checked=True)}// 0.82.b
+          //    (print_settings_form.output_radial_centres_checkbox.Checked = True)
+          //  // draw curving rad centres...
+          //  then begin
+        -2, -3: begin
               //Pen.Width:=printmark_wide;  // guide marks.
               //if Pen.Width<1 then Pen.Width:=1;
               //
@@ -3832,8 +3819,9 @@ begin
                 draw_line(move_to, line_to);
             end;
 
-            if (code = 203) or (code = 233) or (code = 293)       // timber infill...
-            then begin
+            //if (code = 203) or (code = 233) or (code = 293)       // timber infill...
+            //then begin
+            203, 233, 293: begin              // timber infill...
               infill_points[0] := page_locate(p1, grid_left, grid_top);
               infill_points[1] := page_locate(p2, grid_left, grid_top);
               infill_points[2] := page_locate(p3, grid_left, grid_top);
@@ -3896,11 +3884,16 @@ begin
               end;
             end;
 
-            if (code = 99) and
-              ((pad_form.print_timber_numbering_menu_entry.Checked = True) or
-              ((out_factor > 0.99) and (pad_form.numbering_fullsize_only_menu_entry.Checked = True)))
+            //if (code = 99) and ((pad_form.print_timber_numbering_menu_entry.Checked =
+            //  True) or ((out_factor > 0.99) and
+            //  (pad_form.numbering_fullsize_only_menu_entry.Checked = True))) and
+            //  (print_settings_form.output_timber_numbers_checkbox.Checked = True)
+            //// 223d
+          99: begin                           // Timber Labels
+            if (pad_form.print_timber_numbering_menu_entry.Checked
+              or  ((out_factor > 0.99)
+                and (pad_form.numbering_fullsize_only_menu_entry.Checked = True)))
               and (print_settings_form.output_timber_numbers_checkbox.Checked = True)
-            // 223d
 
             then begin
               p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
@@ -3999,9 +3992,9 @@ begin
             end;//numbering
 
 
-            case code of     // switch labels 206b
+            //case code of     // switch labels 206b
 
-              601..605, 701..703: begin
+            601..605, 701..703: begin
 
                 if out_factor <> 1.0 then
                   CONTINUE;     // on full size prints only
@@ -4042,8 +4035,6 @@ begin
               end;
 
             end;//case
-
-          end;//other codes
 
         end;//next i background mark
 
