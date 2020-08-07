@@ -36,7 +36,7 @@ type
     constructor Create(AWidth: TPDF_PenWidth; AStyle: TFPPenStyle = psSolid; Acolour: Tcolor = clBlack); overload;
     property width: TPDFFloat read FWidth;
     property style: TFPPenStyle read Fstyle;
-    property colour: Tcolor read Fcolour;
+    property colour: Tcolor read Fcolour write Fcolour;
     function str(): String;
   end;
 
@@ -62,7 +62,8 @@ type
     procedure draw_open_line(dots_x1, dots_y1, dots_x2, dots_y2: Integer;
       colour: Integer); overload;
     procedure draw_open_line(MvTo, LineTo: TPoint; colour: Integer); overload;
-    procedure polygon(dots: array of Tpoint);
+    procedure polygon(dots: array of Tpoint); overload;
+    procedure polygon_style(dots: array of Tpoint; style: Tpdf_linestyle); overload;
     procedure restore_graphics_state();
     procedure save_graphics_state();
     procedure set_fill_colour(colour: Integer);
@@ -113,7 +114,7 @@ const
   mmpd = 25.4 / 600 ; // mm per dot
 
 var
-  curr_pen_style: TPDFPenStyle;
+  curr_pen_style: TFPPenStyle;
   curr_pen_width: Double;
   curr_pen_colour: Integer;
   curr_fill_colour: Integer;
@@ -219,13 +220,16 @@ end;
 
 procedure TPDF_page.set_pen_style(APenStyle: TFPPenStyle = psSolid);
 begin
-  case APenStyle of
-    psDot:
-      curr_pen_style := ppsDot;
-    psDash:
-      curr_pen_style := ppsDash;
-    else
-      curr_pen_style := ppsSolid;
+  if APenStyle <> curr_pen_style then begin
+    curr_pen_style := APenStyle;
+    case APenStyle of
+      psDot:
+        SetPenStyle(ppsDot);
+      psDash:
+        SetPenStyle(ppsDash);
+      else
+        SetPenStyle(ppsSolid);
+    end;
   end;
 
 end;
@@ -390,7 +394,7 @@ end;
 
 //_______________________________________________________________________________________
 
-procedure TPDF_page.polygon(dots: array of Tpoint);
+procedure TPDF_page.polygon(dots: array of Tpoint); overload;
 var
   points: array of TPDFcoord;
   i: integer;
@@ -400,8 +404,17 @@ begin
     points[i].X := dots_to_mm(dots[i].x);
     points[i].Y := Height - dots_to_mm(dots[i].y);
   end;
+  write_comment('Drawing polygon with linewidth = ' + floattostr(curr_pen_width));
   inherited DrawPolygon(points, curr_pen_width);
   inherited FillStrokePath();
+end;
+
+//_______________________________________________________________________________________
+
+procedure TPDF_page.polygon_style(dots: array of Tpoint; style: Tpdf_linestyle); overload;
+begin
+  set_linestyle(style);
+  polygon(dots);
 end;
 
 //_______________________________________________________________________________________
@@ -449,14 +462,7 @@ end;
 
 function TPDF_page.current_pen_style(): TFPPenStyle;
 begin
-  case curr_pen_style of
-    ppsSolid:
-      Result := psSolid;
-    ppsDot:
-      Result := psDot;
-    ppsDash:
-      Result := psDash;
-  end;
+  Result := curr_pen_style;
 end;
 
 function TPDF_page.current_pen_colour(): Integer;

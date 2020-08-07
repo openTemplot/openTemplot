@@ -13,10 +13,12 @@ I have a list of things still to do, including:
  o etc
 
 - general code refactoring
- o factor out a pdf_control() as a mirror of pdf_bgnd()
- o merge pdf_control() and pdf_bgnd()
- o avoid double conversion of line widths :  mm -> dots -> mm
+ o factor out a pdf_control() procedure as a mirror of pdf_bgnd()
+ o merge pdf_control() and pdf_bgnd() into s aingle procedure
+
+- minor niggles
  o use LeftStr() to get string prefix
+ o eliminate ':= True' all over the place
  o and lots of etc
 
 }
@@ -28,7 +30,7 @@ interface
 
 uses
   LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, TAGraph, FPCanvas,
+  StdCtrls, ExtCtrls, ComCtrls, FPCanvas,
   pdf_lib_unit;
 
 // T3-OUT WPPDFPRP, WPPDFR1, WPPDFR2, dtpShape,dtpGR32;
@@ -38,7 +40,6 @@ type
   { Tpdf_form }
 
   Tpdf_form = class(TForm)
-    Chart1: TChart;
     info_scrollbox: TScrollBox;
     printer_info_label: TLabel;
     page_panel: TPanel;
@@ -215,6 +216,9 @@ var
 
   lsGrid: Tpdf_LineStyle;
   lsWatermark: Tpdf_LineStyle;
+  lsCentreline_normal: Tpdf_LineStyle;
+  lsCentreline_dummy: Tpdf_LineStyle;
+
   lsMark_Default: Tpdf_LineStyle;
   lsMark_Guide: Tpdf_LineStyle;
   lsMark_CurvingRadCentre: Tpdf_LineStyle;
@@ -230,6 +234,11 @@ var
   lsMark_ShovingCentreline: Tpdf_LineStyle;
   lsMark_SwitchDrive: Tpdf_LineStyle;
   lsMark_TimberLongmarks: Tpdf_LineStyle;
+
+  lsRail: Tpdf_LineStyle;
+  lsPlatform: Tpdf_LineStyle;
+  lsBlanking: Tpdf_LineStyle;
+  lsEdge: Tpdf_LineStyle;
 
 procedure pdf_bgnd(grid_left, grid_top: extended; pdf_page: TPDF_page); forward;
 // print background items.
@@ -794,6 +803,14 @@ var
       lsMark_ShovingCentreline := create_LineStyle(printrail_wide, clBlack, psSolid);
       lsMark_TimberLongmarks := create_LineStyle(round(printrail_wide * 1.5), colour_using(printguide_colour), psSolid);
 
+      // Rails
+      lsCentreline_normal  := create_LineStyle(printcl_wide, printbgrail_colour, psDash);
+      lsCentreline_dummy  := create_LineStyle(printshape_wide, printshape_colour, psSolid);
+      // Note that the colours of these styles may be changed on a per template basis
+      lsRail := create_LineStyle(printrail_wide, clBlack, psSolid);
+      lsPlatform := create_LineStyle(printrail_wide, clBlack, psSolid);
+      lsBlanking := create_LineStyle(printrail_wide, clBlack, psSolid);
+      lsEdge := create_LineStyle(printrail_wide, clBlack, psSolid);
     end;
   end;
 
@@ -971,7 +988,7 @@ var
           set_fill_colour(clLime);
           write_text(left_blanking_dots,
             grid_now_dots,
-            grid_label_str + ' ',
+            ' ' + grid_label_str,
             tpMiddleLeft, True); //  add labels.
 
         until grid_now_dots > page_bottom_dots;
@@ -1019,7 +1036,7 @@ var
           grid_label_str := FormatFloat('0.###', grid_label);
 
           write_text(grid_now_dots{-(TextWidth(grid_label_str) div 2)},
-            page_top_dots - (mm_to_dots(printmargin_wide) div 2) - halfmm_dots{-TextHeight('A')},
+            page_top_dots - (mm_to_dots(printmargin_wide)) - halfmm_dots{-TextHeight('A')},
             grid_label_str
             , tpBottomCentre, True); //  add labels.
 
@@ -1030,7 +1047,6 @@ var
           page_top_dots - (mm_to_dots(printmargin_wide) div 2) - halfmm_dots{-TextHeight('A')},
           grid_str);  // add the units string.
 
-        set_pen_style(psSolid);
       end;
 
       restore_graphics_state();
@@ -1070,7 +1086,7 @@ var
         mark_code := ptr_1st^.code;              // check this mark wanted.
 
         if not wanted_mark(mark_code) then
-        CONTINUE;     // skip this mark. -=- -=- -=- -=- -=- -=- -=- -=- -=-
+        CONTINUE;     // skip this mark.
 
         // do only the rail joints if rail_joints=True and ignore them otherwise.
         if rail_joints = (mark_code <> 6) then
@@ -1078,7 +1094,7 @@ var
 
         linestyle := choose_mark_linestyle(pdf_page, mark_code);
 
-        case mark_code of
+        case mark_code of  // Process based on mark type .....
 
           1..7, 11..98, 100..199, 600, 700: begin
 
@@ -3663,7 +3679,7 @@ begin
           code := intarray_get(list_bgnd_marks[4], i);
 
           if not wanted_mark(code) then
-            CONTINUE;     // skip this mark. -=- -=- -=- -=- -=- -=- -=- -=- -=-
+            CONTINUE;     // skip this mark.
 
           // do only the rail joints if rail_joints=True and ignore them otherwise.
           if rail_joints = (code <> 6) then
@@ -3956,7 +3972,7 @@ begin
 
       end;//with now_keep
     end;//next n template
-  end;//with pdf_form.pdf_printer.Canvas
+  end;//with pdf_page
 end;
 //__________________________________________________________________________________________
 
@@ -3994,6 +4010,8 @@ var
   this_one_trackbed_cess_ms: boolean;       // 206b
   this_one_trackbed_cess_ts: boolean;       // 206b
 
+  linestyle: Tpdf_linestyle;
+  this_template: Ttemplate;
 
   ////////////////////////////////////////////////////////////
 
@@ -4042,6 +4060,57 @@ var
         set_pen_colour(printbgrail_colour);
 
     end;//with
+  end;
+
+
+  ////////////////////////////////////////////////////////////
+
+  procedure set_rail_linestyle_colours();
+
+  begin
+    // Default to normal output...
+
+    lsRail.colour := printbgrail_colour;
+    lsPlatform.colour := printplat_edge_colour;
+    lsBlanking.colour := printbgrail_colour;
+    lsEdge.colour := printbgrail_colour;
+
+    // ... then check for special cases ...
+
+    if pdf_black_white then begin       // all black
+      lsRail.colour := clBlack;
+      lsPlatform.colour := clBlack;
+      lsBlanking.colour := clBlack;
+      lsEdge.colour := clBlack;
+      EXIT;
+    end;
+
+    if output_diagram_mode then begin   // all black except platforms
+        lsRail.colour := clBlack;
+        lsPlatform.colour := printplat_edge_colour;
+        lsBlanking.colour := clBlack;
+        lsEdge.colour := clBlack;
+        EXIT;
+    end;
+
+    if using_mapping_colour and (pdf_form.black_edges_checkbox.Checked = False) then begin  // mapping colour
+      lsRail.colour := mapping_colour;
+      lsPlatform.colour := mapping_colour;
+      lsBlanking.colour := mapping_colour;
+      lsEdge.colour := mapping_colour;
+      EXIT;
+    end;
+
+    if (mapping_colours_print < 0) and (pdf_form.black_edges_checkbox.Checked = False)
+    // 0=normal, 1=rails only, 2=timbers only, 3=rails and timber outlines, 4:=use the PAD colour instead, -1=single colour.
+    then begin                          // single colour
+      lsRail.colour := printbg_single_colour;
+      lsPlatform.colour := printbg_single_colour;
+      lsBlanking.colour := printbg_single_colour;
+      lsEdge.colour := printbg_single_colour;
+      EXIT;
+    end;
+
   end;
   ///////////////////////////////////////////////////////////////
 
@@ -4095,9 +4164,11 @@ var
       with pdf_page do begin
 
         if blank_it = True then
-          set_pen_colour(blanking_colour)
+          //set_pen_colour(blanking_colour)
+          linestyle := lsBlanking
         else
-          set_pen_railcolour(True);
+          //set_pen_railcolour(True);
+          linestyle := lsRail;
 
         {if (single_colour_flag=True) and (pdf_form.black_edges_checkbox.Checked=False)
            then Pen.Color:=printbg_single_colour  // default colour for all background templates.
@@ -4113,7 +4184,7 @@ var
 
           if check_limits(move_to, line_to) = True then
           begin
-            draw_line(move_to, line_to);
+            draw_line_style(move_to, line_to, linestyle);
           end;
           move_to := line_to;
         end;//next nk
@@ -4157,8 +4228,9 @@ var
     procedure pbg_modify_rail_end(
       start_index, stop_index, edge, blank: integer);
 
-    var
-      saved_pen_width: TPDF_PenWidth;    // 206b
+    //var
+    //  // Asuming PDF works, no need for screwing around with pen width here
+    //  saved_pen_width: TPDF_PenWidth;    // 206b
 
     begin
 
@@ -4171,21 +4243,21 @@ var
           line_to) = True then begin
 
           with pdf_page do begin
-            saved_pen_width :=
-              current_pen_width; // 206b
+            //saved_pen_width :=
+            //  current_pen_width; // 206b
 //            if current_fill_style<>bsSolid then set_pen_width(saved_pen_width+3);    // 206b  PDF bug, needs a wider line to ensure full blanking if hatched fill
-            set_pen_colour(blank);
+            //set_pen_colour(blank);
             // first blank across..
-            draw_line(move_to, line_to);
+            draw_line_style(move_to, line_to, lsBlanking);
 
-            set_pen_width(saved_pen_width);
+            //set_pen_width(saved_pen_width);
             // 206b restore original width
 
-            set_pen_colour(edge);
+            //set_pen_colour(edge);
             // then restore the corner points..
-            draw_line(move_to, move_to);
+            draw_line_style(move_to, move_to, lsEdge);
 
-            draw_line(line_to, line_to);
+            draw_line_style(line_to, line_to, lsEdge);
           end;//with
         end;
       end;
@@ -4297,7 +4369,8 @@ var
 
       with pdf_page do begin
 
-        set_pen_railcolour(True);
+//        set_pen_railcolour(True);
+//        set_pen_width(printrail_wide);
 
                         {if (single_colour_flag=True) and (pdf_form.black_edges_checkbox.Checked=False)
                            then Pen.Color:=printbg_single_colour  // default colour for all background templates.
@@ -4305,13 +4378,13 @@ var
 
         if (rail = 16) or (rail = 20)   // 0.93.a platforms
         then begin
-          if ((using_mapping_colour = True) and
-            (current_pen_colour = mapping_colour)) or ((mapping_colours_print < 0) and
-            (current_pen_colour = printbg_single_colour))   // 206b
-          then
-            set_fill_colour(current_pen_colour)
-          else
-            set_fill_colour(printplat_infill_colour);
+          //if ((using_mapping_colour = True) and
+          //  (current_pen_colour = mapping_colour)) or ((mapping_colours_print < 0) and
+          //  (current_pen_colour = printbg_single_colour))   // 206b
+          //then
+          //  set_fill_colour(current_pen_colour)
+          //else
+          //  set_fill_colour(printplat_infill_colour);
 
           //case print_platform_infill_style of
           //        0: Brush.Style:=bsClear;
@@ -4368,12 +4441,17 @@ var
           end;
         end;
 
-        if pdf_black_white = True then begin
-          set_fill_colour(clWhite);               // overide
+        //if pdf_black_white = True then begin
+        //  set_fill_colour(clWhite);               // overide
+        //end;
+        //set_pen_width(printrail_wide);
+
+        case rail of
+          1: set_pen_colour(clRed);
         end;
 
         if dots_index > 2 then begin
-          polygon(Slice(dots, dots_index + 1));
+          polygon_style(Slice(dots, dots_index + 1), lsRail);
           // +1, number of points, not index.  must have 4 points.
 
           edge_colour := current_pen_colour;  // existing rail edges.
@@ -4457,7 +4535,7 @@ var
           end;
 
         end;
-      end;//with Canvas
+      end;//with Page
     end;//with background template
   end;
   ////////////////////////////////////////////////////////////////////////
@@ -4637,6 +4715,8 @@ var
         with pdf_page do begin
 
           set_pen_railcolour(True);
+          set_pen_width(printrail_wide);
+
 
                                   {if (single_colour_flag=True) and (pdf_form.black_edges_checkbox.Checked=False)
                                      then Pen.Color:=printbg_single_colour  // default colour for all background templates.
@@ -4705,7 +4785,8 @@ var
 
         with pdf_page do begin
 
-          set_pen_railcolour(True);
+          //set_pen_railcolour(True);
+          linestyle := lsRail;
 
                                   {if (single_colour_flag=True) and (pdf_form.black_edges_checkbox.Checked=False)
                                      then Pen.Color:=printbg_single_colour  // default colour for all background templates.
@@ -4718,7 +4799,7 @@ var
           line_to.Y := Round((p2.X - grid_top) * scal_out) + page_top_dots;
 
           if check_limits(move_to, line_to) = True then
-            draw_line(move_to, line_to);
+            draw_line_style(move_to, line_to, linestyle);
         end;//with
       end;
     end;//with
@@ -5030,30 +5111,38 @@ begin          // print background templates...
 
     //  now print bgnd track centre-lines and turnout rails...
 
-    for n := 0 to max_list_index do begin
-      if Ttemplate(keeps_list.Objects[n]).bg_copied = False then
+    for n := 0 to max_list_index do begin         // step through templates
+      this_template := Ttemplate(keeps_list.Objects[n]);
+      //if Ttemplate(keeps_list.Objects[n]).bg_copied = False then
+      if not this_template.bg_copied then
         CONTINUE;  // no data, not on background.
 
-      if (Ttemplate(keeps_list.Objects[n]).group_selected = False) and
+      //if (Ttemplate(keeps_list.Objects[n]).group_selected = False) and
+      if (not this_template.group_selected) and
         (print_group_only_flag = True) then
         CONTINUE;  // not in group. 0.78.b 10-12-02.
 
-      if (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.fb_kludge_template_code > 0)  // 209c
+      //if (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.fb_kludge_template_code > 0)  // 209c
+      if (this_template.template_info.keep_dims.box_dims1.fb_kludge_template_code > 0)  // 209c
         and (print_settings_form.output_fb_foot_lines_checkbox.Checked = False) then
         CONTINUE;                                                      // foot lines not wanted.
 
       this_one_platforms_trackbed :=
-        Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.
+      //Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.
+      this_template.template_info.keep_dims.box_dims1.
         platform_trackbed_info.adjacent_edges_keep;           // True = platforms and trackbed edges   206b
 
       //this_one_trackbed_cess:=Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.platform_trackbed_info.draw_trackbed_cess_edge_keep;  // True = cess width instead of trackbed cutting line   206b
 
-      this_one_trackbed_cess_ms := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.platform_trackbed_info.draw_ms_trackbed_cess_edge_keep;
+      //this_one_trackbed_cess_ms := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.platform_trackbed_info.draw_ms_trackbed_cess_edge_keep;
+      this_one_trackbed_cess_ms := this_template.template_info.keep_dims.box_dims1.platform_trackbed_info.draw_ms_trackbed_cess_edge_keep;
       // True = cess width instead of trackbed cutting line 215a
-      this_one_trackbed_cess_ts := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.platform_trackbed_info.draw_ts_trackbed_cess_edge_keep;
+      //this_one_trackbed_cess_ts := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.platform_trackbed_info.draw_ts_trackbed_cess_edge_keep;
+      this_one_trackbed_cess_ts := this_template.template_info.keep_dims.box_dims1.platform_trackbed_info.draw_ts_trackbed_cess_edge_keep;
       // True = cess width instead of trackbed cutting line 215a
 
-      now_keep := Ttemplate(keeps_list.Objects[n]).bgnd_keep;    // next background keep.
+      //now_keep := Ttemplate(keeps_list.Objects[n]).bgnd_keep;    // next background keep.
+      now_keep := this_template.bgnd_keep;    // next background keep.
 
       with now_keep do begin
 
@@ -5061,7 +5150,8 @@ begin          // print background templates...
 
         using_mapping_colour := False;  // default init.
 
-        with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims do begin
+        //with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims do begin
+        with this_template.template_info.keep_dims do begin
 
           if box_dims1.bgnd_code_077 <> 1 then
             CONTINUE;    // 0.77.b BUG???
@@ -5091,6 +5181,7 @@ begin          // print background templates...
 
           fb_kludge_this := box_dims1.fb_kludge_template_code;  // 0.94.a
 
+          set_rail_linestyle_colours();
           if fb_kludge_this = 0   // no track centre-lines or diagram mode for kludge templates  212a
           then begin
 
@@ -5104,18 +5195,10 @@ begin          // print background templates...
 
             then begin
 
-              if box_dims1.align_info.dummy_template_flag = True
-              // 212a   dummy template as bgnd shapes
-              then begin
-                set_pen_style(psSolid);
-                set_pen_colour(printshape_colour);
-                set_pen_width(printshape_wide);
-              end
-              else begin
-                set_pen_railcolour(False);
-                set_pen_width(max(printcl_wide, min_penwidth));
-                set_pen_style(psDash);
-              end;
+              if box_dims1.align_info.dummy_template_flag then
+                linestyle := lsCentreline_dummy
+              else
+                linestyle := lsCentreline_normal;
 
               for aq := 24 to 25 do begin         // track centre-lines.
 
@@ -5139,7 +5222,7 @@ begin          // print background templates...
                   //
                   //                                  if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
                   //                                  move_to:=line_to;
-                  draw_line(
+                  draw_line_style(
                     Round(
                     (intarray_get(list_bgnd_rails[aq, 1], nk - 1) - grid_left) * scaw_out) + page_left_dots,
                     Round(
@@ -5147,8 +5230,8 @@ begin          // print background templates...
                     Round(
                     (intarray_get(list_bgnd_rails[aq, 1], nk) - grid_left) * scaw_out) + page_left_dots,
                     Round(
-                    (intarray_get(list_bgnd_rails[aq, 0], nk) - grid_top) * scaw_out) + page_top_dots
-                    );
+                    (intarray_get(list_bgnd_rails[aq, 0], nk) - grid_top) * scaw_out) + page_top_dots,
+                    linestyle);
                 end;//next nk
 
               end;//next aq
@@ -5163,8 +5246,8 @@ begin          // print background templates...
           //drawn_full_aq1:=True;    // default init flags.
           //drawn_full_aq2:=True;
 
-          set_pen_style(psSolid);
 
+//          set_pen_style(psSolid);
           if (rail_infill_i =
             0)  // out for pdf, was  or ((scale*out_factor)<0.75)   // less than 18.75% for 4mm scale (control template) (10.71% for 7mm).
             and (output_diagram_mode = False) then
@@ -5172,7 +5255,7 @@ begin          // print background templates...
             //  n.b. this mode does not automatically close the rail-ends.
             //  no infill for platforms
 
-            set_pen_railcolour(True);
+//            set_pen_railcolour(True);
 
                             {if (single_colour_flag=True) and (pdf_form.black_edges_checkbox.Checked=False)
                                then Pen.Color:=printbg_single_colour  // default colour for all background templates.
@@ -5253,7 +5336,7 @@ begin          // print background templates...
 
               // finally draw in the planing gauge-faces - no infill...
 
-              set_pen_railcolour(True);
+              //set_pen_railcolour(True);
 
                                       {if (single_colour_flag=True) and (pdf_form.black_edges_checkbox.Checked=False)
                                         then Pen.Color:=printbg_single_colour  // default colour for all background templates.
@@ -5271,7 +5354,7 @@ begin          // print background templates...
                   line_to.Y := pbg_get_l_dots(aq, now);
                   if check_limits(move_to, line_to) =
                     True then begin
-                    draw_line(move_to, line_to);
+                    draw_line_style(move_to, line_to, lsRail);
                   end;
                   move_to := line_to;
                 end;//for
@@ -5288,7 +5371,7 @@ begin          // print background templates...
                   line_to.Y := pbg_get_l_dots(aq, now);
                   if check_limits(move_to,
                     line_to) = True then begin
-                    draw_line(move_to, line_to);
+                      draw_line_style(move_to, line_to, lsRail);
                   end;
                   move_to := line_to;
                 end;//for
@@ -5303,7 +5386,7 @@ begin          // print background templates...
 
       end;//with bgnd_keep
     end;//for next n template
-  end;//with pdf_form.pdf_printer.Canvas
+  end;//with pdf_page
 
   // finally add the rail-joint marks over the rail infill...   // 209c moved outside loop
 
