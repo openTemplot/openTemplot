@@ -10,6 +10,7 @@ I have a list of things still to do, including:
  o do "mapping" colours
  o do timber infill styles
  o do selectable fonts
+ o do scaling of fonts
  o etc
 
 - general code refactoring
@@ -17,7 +18,6 @@ I have a list of things still to do, including:
  o merge pdf_control() and pdf_bgnd() into s aingle procedure
 
 - minor niggles
- o use LeftStr() to get string prefix
  o and lots of etc
 
 }
@@ -1128,12 +1128,8 @@ var
               if (not pad_form.timber_numbering_on_plain_track_menu_entry.Checked)   // 208a
                 and (num_str <> 'A1')
               then begin
-                s := Copy(num_str, 1, 1);
-
-                if (s = 'A') or
-                  (s = 'E') or (s = 'R') or (s = 'N')    // not wanted on plain track,
-                then
-                  CONTINUE;
+                s := LeftStr(num_str, 1);
+                if Pos(s, 'AERN') > 0 then CONTINUE;    // not wanted on plain track
               end;
 
               if check_limit(False, False, move_to)
@@ -1408,7 +1404,7 @@ var
   begin
     with pdf_page do begin
 
-      if (rail = 16) or (rail = 20)   // 0.93.a platforms
+      if rail in [16, 20]             // 0.93.a platforms
       then
         set_pen_colour(printplat_edge_colour)
       else
@@ -1524,7 +1520,7 @@ var
           //Brush.Color:=clWhite;
         end
         else begin
-          if (rail = 16) or (rail = 20)   // 0.93.a platforms
+          if rail in [16, 20]   // 0.93.a platforms
           then begin
             set_pen_colour(printplat_infill_colour);
 
@@ -1545,8 +1541,7 @@ var
             //end;//case
           end
           else begin
-            if (draw_ts_trackbed_cess_edge and
-              (rail = 18)) or
+            if (draw_ts_trackbed_cess_edge and (rail = 18)) or
               (draw_ms_trackbed_cess_edge and (rail = 22))   // 215a
             then begin
               set_pen_colour(sb_track_bgnd_colour);
@@ -1609,8 +1604,7 @@ var
           // remove polygon lines across stock rail ends...
           // and trackbed ends  206b
 
-          if (rail = 0) or (rail = 3) or (rail = 18) or
-            (rail = 22)   // 18,22 added 206b
+          if rail in [0, 3, 18, 22]   // 18,22 added 206b
           then begin
             modify_rail_end(
               0, dots_index, edge_colour, blanking_colour);  // toe or approach end.
@@ -1659,7 +1653,7 @@ var
           end;
 
 
-          if (rail = 26) or (rail = 28)
+          if rail in [26, 28]
           then begin
             modify_rail_end(
               0, dots_index, edge_colour, blanking_colour);  // centre of K-crossing check rails.
@@ -3869,13 +3863,10 @@ begin
               if not pad_form.timber_numbering_on_plain_track_menu_entry.Checked
                         // 208a
               then begin
-                s := Copy(num_str, 1, 1);
-
-                if (s = 'A') or (s = 'E') or (s = 'R') or
-                  (s = 'N')    // not wanted on plain track,
+                s := LeftStr(num_str, 1);
+                if pos(s, 'AERN') > 0    // not wanted on plain track,
                 then begin
-                  if Copy(num_str, Length(num_str), 1) =
-                    '1'   // every 10 sleepers
+                  if RightStr(num_str, 1) = '1'   // every 10 sleepers
                   then
                     num_str := ''                      // show template ID only
                   else
@@ -4022,7 +4013,7 @@ var
       if output_diagram_mode
       // 0.94.a  don't use mapping colour for rail edges (used for infill instead).
       then begin
-        if (rail = 16) or (rail = 20)                  // 0.93.a platforms
+        if rail in [16, 20]                  // 0.93.a platforms
         then
           set_pen_colour(printplat_edge_colour)
         else
@@ -4047,7 +4038,7 @@ var
 
       // normal output...
 
-      if (rail = 16) or (rail = 20)   // 0.93.a platforms
+      if rail in [16, 20]   // 0.93.a platforms
       then
         set_pen_colour(printplat_edge_colour)
       else
@@ -4369,7 +4360,7 @@ var
                            then Pen.Color:=printbg_single_colour  // default colour for all background templates.
                            else Pen.Color:=printbgrail_colour;}
 
-        if (rail = 16) or (rail = 20)   // 0.93.a platforms
+        if rail in [16, 20]   // 0.93.a platforms
         then begin
           //if ((using_mapping_colour = True) and
           //  (current_pen_colour = mapping_colour)) or ((mapping_colours_print < 0) and
@@ -4455,14 +4446,13 @@ var
           //      // remove polygon line across end of planing (not for fixed-diamond)..
           //      // (for gaunt template this removes the polygon line across the rail end)
 
-          if (not fixed_diamond_ends) and ((rail = 1) or (rail = 2)) then
+          if (not fixed_diamond_ends) and (rail in [1, 2]) then
             pbg_modify_rail_end(0, dots_index, edge_colour, blanking_colour);
 
           // remove polygon lines across stock rail ends...
           // and trackbed ends  206b
 
-          if (rail = 0) or (rail = 3) or (rail = 18) or
-            (rail = 22)   // 18,22 added 206b
+          if rail in[0, 3, 18, 22]   // 18,22 added 206b
           then begin
             pbg_modify_rail_end(
               0, dots_index, edge_colour, blanking_colour);  // toe or approach end.
@@ -4520,7 +4510,7 @@ var
             end;
           end;//with
 
-          if (rail = 26) or (rail = 28)
+          if rail in [26, 28]
           then
           begin
             pbg_modify_rail_end(
@@ -5307,7 +5297,7 @@ begin          // print background templates...
                 end;//case
                 rail := rail + 2;
                 if output_diagram_mode and
-                  (not output_include_trackbed_edges) and ((rail = 18) or (rail = 22)) then
+                  (not output_include_trackbed_edges) and (rail in [18, 22]) then
                   rail := rail + 2;  // 206b no trackbed/cess in diagram mode
               until rail > 22;
             end;
