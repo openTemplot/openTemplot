@@ -1,0 +1,93 @@
+object prefs_form: Tprefs_form
+  Left = 228
+  Height = 260
+  Top = 238
+  Width = 280
+  BorderStyle = bsDialog
+  Caption = '  select  preferences  file ...'
+  ClientHeight = 260
+  ClientWidth = 280
+  Color = clBtnFace
+  DesignTimePPI = 120
+  Font.Color = clWindowText
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poScreenCenter
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object hidden_label: TLabel
+    Left = 174
+    Height = 12
+    Top = 234
+    Width = 7
+    AutoSize = False
+    Caption = '  '
+    Font.Color = clWindowText
+    Font.Height = -10
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    OnClick = hidden_labelClick
+  end
+  object datestamp_label: TLabel
+    Left = 0
+    Height = 4
+    Top = 256
+    Width = 280
+    AutoSize = False
+    Font.Color = clGray
+    Font.Height = -7
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object file_list_box: TFileListBox
+    Left = 0
+    Height = 221
+    Top = 0
+    Width = 280
+    Align = alTop
+    Directory = 'C:\lazarus'
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ItemHeight = 0
+    Mask = '*.sk1'
+    ParentFont = False
+    TabOrder = 0
+  end
+  object ok_button: TButton
+    Left = 212
+    Height = 25
+    Top = 228
+    Width = 61
+    Caption = 'OK'
+    Default = True
+    ModalResult = 1
+    TabOrder = 1
+  end
+  object cancel_button: TButton
+    Left = 8
+    Height = 25
+    Top = 228
+    Width = 60
+    Cancel = True
+    Caption = 'cancel'
+    ModalResult = 2
+    TabOrder = 2
+  end
+  object delete_button: TButton
+    Left = 80
+    Height = 25
+    Top = 228
+    Width = 60
+    Caption = 'delete'
+    OnClick = delete_buttonClick
+    TabOrder = 3
+  end
+end

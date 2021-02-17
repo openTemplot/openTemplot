@@ -1,0 +1,47 @@
+object old_startup_form: Told_startup_form
+  Cursor = crHourGlass
+  Left = 466
+  Height = 150
+  Top = 527
+  Width = 616
+  Caption = '      welcome  to  Templot  . . .'
+  ClientHeight = 150
+  ClientWidth = 616
+  Color = 14729376
+  DesignTimePPI = 120
+  Enabled = False
+  Font.Color = 30719
+  Font.Height = -33
+  Font.Name = 'Comic Sans MS'
+  Font.Style = [fsBold]
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '2.0.4.0'
+  Scaled = False
+  object version_label: TLabel
+    Left = 16
+    Height = 18
+    Top = 12
+    Width = 40
+    Caption = '2.06.c'
+    Font.Color = clBlue
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object starting_text_static: TStaticText
+    Left = 164
+    Height = 25
+    Top = 100
+    Width = 426
+    Caption = 'Welcome  to  Templot'
+    Font.Color = 14513920
+    Font.Height = -17
+    Font.Name = 'Verdana'
+    Font.Style = [fsBold, fsItalic]
+    ParentFont = False
+    TabOrder = 0
+  end
+end

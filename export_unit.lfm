@@ -1,0 +1,1092 @@
+object export_form: Texport_form
+  Left = 189
+  Height = 588
+  Top = 169
+  Width = 704
+  HorzScrollBar.Smooth = True
+  HorzScrollBar.Tracking = True
+  VertScrollBar.Smooth = True
+  VertScrollBar.Tracking = True
+  BorderIcons = [biSystemMenu]
+  Caption = '      export  a  file ...'
+  ClientHeight = 588
+  ClientWidth = 704
+  Color = 16310480
+  DesignTimePPI = 120
+  Font.Color = clWindowText
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  KeyPreview = True
+  OnActivate = FormActivate
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  OnResize = FormResize
+  Position = poScreenCenter
+  LCLVersion = '2.0.6.0'
+  Scaled = False
+  object Label9: TLabel
+    Left = 28
+    Height = 17
+    Top = 6
+    Width = 660
+    AutoSize = False
+    Caption = 'Exporting a file means creating a file from your track plan in a format suitable for use in other programs.'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label14: TLabel
+    Left = 28
+    Height = 17
+    Top = 52
+    Width = 520
+    AutoSize = False
+    Caption = 'These export functions do not save your track templates for reloading next time --'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object datestamp_label: TLabel
+    Left = 0
+    Height = 4
+    Top = 584
+    Width = 704
+    AutoSize = False
+    Font.Color = clGray
+    Font.Height = -7
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label15: TLabel
+    Left = 24
+    Height = 17
+    Top = 29
+    Width = 511
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'If the exported file is mainly for display purposes, see also the option of using the'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object Shape1: TShape
+    Left = 577
+    Height = 33
+    Top = 60
+    Width = 117
+    Pen.Color = clWhite
+  end
+  object Label18: TLabel
+    Left = 16
+    Height = 17
+    Top = 69
+    Width = 229
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'to do that click the menu item:'
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object include_groupbox: TGroupBox
+    Left = 12
+    Height = 102
+    Top = 226
+    Width = 307
+    Caption = ' templates  for  export :  '
+    ClientHeight = 79
+    ClientWidth = 303
+    Color = 16777198
+    Font.Color = clGreen
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 1
+    object Label13: TLabel
+      Left = 173
+      Height = 18
+      Top = 58
+      Width = 90
+      AutoSize = False
+      Caption = '(not for DXF)'
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+    end
+    object export_all_radiobutton: TRadioButton
+      Left = 18
+      Height = 23
+      Top = 12
+      Width = 260
+      Caption = 'all background templates (track plan)'
+      Checked = True
+      Font.Color = clGreen
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      TabStop = True
+    end
+    object export_group_only_radiobutton: TRadioButton
+      Left = 18
+      Height = 23
+      Top = 35
+      Width = 158
+      Caption = 'group templates only'
+      Font.Color = clGreen
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+    end
+    object export_control_template_radiobutton: TRadioButton
+      Left = 18
+      Height = 23
+      Top = 58
+      Width = 152
+      Caption = 'the control template'
+      Font.Color = clGreen
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 2
+    end
+  end
+  object pdf_groupbox: TGroupBox
+    Left = 12
+    Height = 166
+    Top = 336
+    Width = 307
+    Caption = ' export  a  document  ( PDF ) :  '
+    ClientHeight = 143
+    ClientWidth = 303
+    Color = 13693183
+    Font.Color = clMaroon
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 2
+    object Label3: TLabel
+      Left = 10
+      Height = 16
+      Top = 14
+      Width = 69
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'long side:'
+      Font.Color = clMaroon
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label4: TLabel
+      Left = 132
+      Height = 16
+      Top = 14
+      Width = 34
+      AutoSize = False
+      Caption = 'mm'
+      Font.Color = clMaroon
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label5: TLabel
+      Left = 6
+      Height = 16
+      Top = 40
+      Width = 73
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'short side:'
+      Font.Color = clMaroon
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label6: TLabel
+      Left = 132
+      Height = 16
+      Top = 40
+      Width = 34
+      AutoSize = False
+      Caption = 'mm'
+      Font.Color = clMaroon
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label7: TLabel
+      Left = 158
+      Height = 16
+      Top = 84
+      Width = 73
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'resolution:'
+      Font.Color = clMaroon
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label8: TLabel
+      Left = 276
+      Height = 15
+      Top = 84
+      Width = 24
+      AutoSize = False
+      Caption = 'DPI'
+      Font.Color = clMaroon
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object pdf_long_mm_edit: TEdit
+      Left = 82
+      Height = 20
+      Hint = ' long  side  of  PDF  page  -  min 50 mm    max 25000 mm '
+      Top = 12
+      Width = 48
+      AutoSize = False
+      AutoSelect = False
+      Color = clWhite
+      Font.Color = clBlue
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+      Text = '260'
+    end
+    object pdf_short_mm_edit: TEdit
+      Left = 82
+      Height = 20
+      Hint = ' short  side  of  PDF  page  -  min 25 mm    max 12500 mm '
+      Top = 38
+      Width = 48
+      AutoSize = False
+      AutoSelect = False
+      Color = clWhite
+      Font.Color = clBlue
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+      Text = '180'
+    end
+    object pdf_dpi_edit: TEdit
+      Left = 234
+      Height = 20
+      Hint = ' PDF  resolution  -  min 50 DPI    max 4800 DPI '
+      Top = 82
+      Width = 40
+      AutoSize = False
+      AutoSelect = False
+      Color = clWhite
+      Font.Color = clBlue
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 5
+      Text = '600'
+    end
+    object create_pdf_button: TButton
+      Left = 176
+      Height = 29
+      Top = 110
+      Width = 122
+      Caption = 'create  PDF ...'
+      Font.Color = clBlack
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = create_pdf_buttonClick
+      ParentFont = False
+      TabOrder = 6
+    end
+    object pdf_help_button: TButton
+      Left = 194
+      Height = 23
+      Top = 14
+      Width = 95
+      Caption = '? PDF - help'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 7
+    end
+    object pdf_end_run_radiobutton: TRadioButton
+      Left = 14
+      Height = 23
+      Top = 96
+      Width = 115
+      Caption = 'end-run pages'
+      Checked = True
+      Font.Color = clMaroon
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 3
+      TabStop = True
+    end
+    object pdf_side_run_button: TRadioButton
+      Left = 14
+      Height = 23
+      Top = 118
+      Width = 117
+      Caption = 'side-run pages'
+      Font.Color = clMaroon
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 4
+    end
+    object pdf_size_inside_trim_margins_checkbox: TCheckBox
+      Left = 10
+      Height = 23
+      Hint = ' untick to set document size '
+      Top = 62
+      Width = 192
+      Caption = 'size between trim margins'
+      Checked = True
+      Font.Color = clMaroon
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      State = cbChecked
+      TabOrder = 2
+    end
+  end
+  object image_groupbox: TGroupBox
+    Left = 337
+    Height = 482
+    Top = 100
+    Width = 355
+    Caption = ' export  an  image  file :  '
+    ClientHeight = 459
+    ClientWidth = 351
+    Color = 15794175
+    Font.Color = clMaroon
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 4
+    object export_metafile_groupbox: TGroupBox
+      Left = 12
+      Height = 93
+      Top = 362
+      Width = 327
+      Caption = ' export  metafile  ( EMF ) :  '
+      ClientHeight = 70
+      ClientWidth = 323
+      Color = 13693183
+      Font.Color = clMaroon
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      TabOrder = 7
+      object emf_dpi_label: TLabel
+        Left = 6
+        Height = 16
+        Top = 12
+        Width = 105
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'EMF resolution:'
+        Font.Color = clMaroon
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object dpi_label: TLabel
+        Left = 156
+        Height = 15
+        Top = 12
+        Width = 30
+        AutoSize = False
+        Caption = 'DPI'
+        Font.Color = clMaroon
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object metafile_dpi_edit: TEdit
+        Left = 114
+        Height = 20
+        Hint = ' EMF  image  resolution  -  min 50 DPI    max 1200 DPI '
+        Top = 10
+        Width = 40
+        AutoSize = False
+        AutoSelect = False
+        Color = clWhite
+        Font.Color = clBlue
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        Text = '600'
+      end
+      object create_metafile_button: TButton
+        Left = 172
+        Height = 29
+        Top = 38
+        Width = 145
+        Caption = 'create  metafile ...'
+        Font.Color = clBlack
+        Font.Height = -15
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        OnClick = create_metafile_buttonClick
+        ParentFont = False
+        TabOrder = 1
+      end
+      object metafiles_help_button: TButton
+        Left = 192
+        Height = 23
+        Top = 6
+        Width = 125
+        Caption = '? metafiles - help'
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 2
+      end
+    end
+    object png_groupbox: TGroupBox
+      Left = 12
+      Height = 120
+      Top = 236
+      Width = 327
+      Caption = ' export  image  ( PNG,  JPG,  BMP ) :  '
+      ClientHeight = 97
+      ClientWidth = 323
+      Color = 16772829
+      Font.Color = clNavy
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      TabOrder = 6
+      object Label1: TLabel
+        Left = 6
+        Height = 16
+        Top = 72
+        Width = 53
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'width:'
+        Font.Color = clNavy
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object Label11: TLabel
+        Left = 112
+        Height = 16
+        Top = 72
+        Width = 34
+        AutoSize = False
+        Caption = 'dots'
+        Font.Color = clNavy
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object Label12: TLabel
+        Left = 56
+        Height = 16
+        Top = 40
+        Width = 137
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'background colour:'
+        Font.Color = clNavy
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object image_width_edit: TEdit
+        Left = 62
+        Height = 20
+        Hint = ' image  width  -  min 60 dots    max 12000 dots '
+        Top = 70
+        Width = 48
+        AutoSize = False
+        AutoSelect = False
+        Color = clWhite
+        Font.Color = clBlue
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        Text = '4000'
+      end
+      object create_image_file_button: TButton
+        Left = 160
+        Height = 29
+        Top = 64
+        Width = 157
+        Caption = 'create  image  file ...'
+        Font.Color = clBlack
+        Font.Height = -15
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        OnClick = create_image_file_buttonClick
+        ParentFont = False
+        TabOrder = 2
+      end
+      object png_help_button: TButton
+        Left = 176
+        Height = 23
+        Top = 6
+        Width = 141
+        Caption = '? image  files - help'
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        OnClick = png_help_buttonClick
+        ParentFont = False
+        TabOrder = 3
+      end
+      object img_bgnd_colour_panel: TPanel
+        Left = 196
+        Height = 25
+        Top = 35
+        Width = 121
+        Alignment = taLeftJustify
+        BevelOuter = bvNone
+        ClientHeight = 25
+        ClientWidth = 121
+        Color = clWhite
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+        ParentShowHint = False
+        TabOrder = 1
+        OnClick = img_bgnd_buttonClick
+        object img_bgnd_button: TButton
+          Left = 46
+          Height = 19
+          Top = 1
+          Width = 69
+          Caption = 'change ...'
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = img_bgnd_buttonClick
+          ParentFont = False
+          TabOrder = 0
+        end
+      end
+    end
+    object boundary_groupbox: TGroupBox
+      Left = 12
+      Height = 135
+      Top = 96
+      Width = 327
+      Caption = ' image  boundary :  '
+      ClientHeight = 114
+      ClientWidth = 323
+      Color = 16777198
+      Font.Color = clGreen
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      TabOrder = 5
+      object fit_all_radiobutton: TRadioButton
+        Left = 14
+        Height = 23
+        Top = 8
+        Width = 102
+        Caption = 'fit templates'
+        Checked = True
+        TabOrder = 0
+        TabStop = True
+      end
+      object image_rectangle_groupbox: TGroupBox
+        Left = 22
+        Height = 55
+        Top = 54
+        Width = 293
+        Caption = ' '
+        ClientHeight = 34
+        ClientWidth = 289
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 3
+        object draw_export_rectangle_button: TButton
+          Left = 5
+          Height = 23
+          Top = 8
+          Width = 154
+          Caption = 'draw  new  rectangle'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = draw_export_rectangle_buttonClick
+          ParentFont = False
+          TabOrder = 0
+        end
+        object rectangle_clear_button: TButton
+          Left = 170
+          Height = 23
+          Top = 8
+          Width = 49
+          Caption = 'clear'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = rectangle_clear_buttonClick
+          ParentFont = False
+          TabOrder = 1
+        end
+        object rectangle_set_button: TButton
+          Left = 230
+          Height = 23
+          Top = 8
+          Width = 53
+          Caption = 'set ...'
+          OnClick = rectangle_set_buttonClick
+          TabOrder = 2
+        end
+      end
+      object fit_shapes_radiobutton: TRadioButton
+        Left = 14
+        Height = 23
+        Top = 30
+        Width = 183
+        Caption = 'fit all background shapes'
+        TabOrder = 1
+      end
+      object use_current_rectangle_radiobutton: TRadioButton
+        Left = 14
+        Height = 23
+        Top = 52
+        Width = 160
+        Caption = 'boundary  rectangle :'
+        TabOrder = 2
+      end
+    end
+    object export_include_grid_checkbox: TCheckBox
+      Left = 18
+      Height = 23
+      Top = 36
+      Width = 134
+      Caption = 'include grid lines'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = export_include_grid_checkboxClick
+      ParentFont = False
+      TabOrder = 2
+    end
+    object export_include_grid_labels_checkbox: TCheckBox
+      Left = 158
+      Height = 23
+      Top = 44
+      Width = 122
+      Caption = 'with grid labels'
+      Checked = True
+      Enabled = False
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      State = cbChecked
+      TabOrder = 3
+    end
+    object export_include_picture_shapes_checkbox: TCheckBox
+      Left = 18
+      Height = 23
+      Top = 10
+      Width = 211
+      Caption = 'include picture shape images'
+      Checked = True
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = export_include_picture_shapes_checkboxClick
+      ParentFont = False
+      State = cbChecked
+      TabOrder = 0
+    end
+    object export_include_picture_borders_checkbox: TCheckBox
+      Left = 234
+      Height = 23
+      Top = 18
+      Width = 103
+      Caption = 'with borders'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+    end
+    object export_track_background_checkbox: TCheckBox
+      Left = 18
+      Height = 23
+      Top = 68
+      Width = 275
+      Caption = 'add track background in diagram mode'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 4
+    end
+  end
+  object help_button: TButton
+    Left = 581
+    Height = 25
+    Top = 64
+    Width = 109
+    Caption = '? export - help'
+    TabOrder = 5
+  end
+  object save_static_label: TStaticText
+    Cursor = crHandPoint
+    Left = 248
+    Height = 17
+    Top = 69
+    Width = 200
+    Caption = 'files > save all templates ...'
+    Font.Color = clBlue
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold, fsUnderline]
+    OnClick = save_static_labelClick
+    ParentFont = False
+    TabOrder = 7
+  end
+  object dxf_groupbox: TGroupBox
+    Left = 12
+    Height = 72
+    Top = 510
+    Width = 307
+    Caption = ' export  a  CAD  file  ( DXF ) :  '
+    ClientHeight = 49
+    ClientWidth = 303
+    Color = 12648447
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 3
+    object Label2: TLabel
+      Left = 6
+      Height = 32
+      Top = 14
+      Width = 170
+      AutoSize = False
+      Caption = 'The above colours and styles are not used in DXF files.'
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+    object export_dxf_button: TButton
+      Left = 176
+      Height = 29
+      Top = 15
+      Width = 122
+      Caption = 'create  DXF ...'
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      OnClick = export_dxf_buttonClick
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object sketchboard_static_label: TStaticText
+    Cursor = crHandPoint
+    Left = 540
+    Height = 20
+    Top = 29
+    Width = 81
+    Caption = 'sketchboard'
+    Font.Color = clBlue
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold, fsUnderline]
+    OnClick = sketchboard_static_labelClick
+    ParentFont = False
+    TabOrder = 8
+  end
+  object style_groupbox: TGroupBox
+    Left = 12
+    Height = 118
+    Top = 100
+    Width = 307
+    Caption = ' colours  and  styles :  '
+    ClientHeight = 95
+    ClientWidth = 303
+    Color = 16767192
+    Font.Color = clNavy
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 0
+    object Label17: TLabel
+      Left = 18
+      Height = 51
+      Top = 48
+      Width = 285
+      AutoSize = False
+      Caption = 'To set the export colours, line thicknesses and styles, use the settings on the output menu on the trackpad. (not for DXF)'
+      Font.Color = clNavy
+      Font.Height = -13
+      Font.Name = 'Arial'
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+    object Label10: TLabel
+      Left = 6
+      Height = 16
+      Top = 6
+      Width = 70
+      AutoSize = False
+      Caption = 'export in:'
+      Font.Color = clNavy
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object export_colour_radiobutton: TRadioButton
+      Left = 10
+      Height = 23
+      Top = 26
+      Width = 64
+      Caption = 'colour'
+      Checked = True
+      Font.Color = clNavy
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      TabStop = True
+    end
+    object export_grey_radiobutton: TRadioButton
+      Left = 82
+      Height = 23
+      Top = 26
+      Width = 100
+      Caption = 'grey shades'
+      Font.Color = clNavy
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+    end
+    object export_black_radiobutton: TRadioButton
+      Left = 190
+      Height = 23
+      Top = 26
+      Width = 110
+      Caption = 'black && white'
+      Font.Color = clNavy
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 2
+    end
+  end
+  object blue_corner_panel: TPanel
+    Left = 0
+    Height = 30
+    Top = 0
+    Width = 20
+    BevelOuter = bvNone
+    ClientHeight = 30
+    ClientWidth = 20
+    Color = clBlue
+    Font.Color = clBlack
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 9
+    TabStop = True
+    object size_updown: TUpDown
+      Tag = 4
+      Left = 0
+      Height = 24
+      Hint = ' enlarge / reduce '
+      Top = 1
+      Width = 16
+      Max = 10
+      Min = 1
+      OnClick = size_updownClick
+      ParentShowHint = False
+      Position = 4
+      ShowHint = True
+      TabOrder = 0
+    end
+  end
+  object dummy_button: TButton
+    Left = 684
+    Height = 1
+    Top = 40
+    Width = 1
+    Caption = ' '
+    TabOrder = 10
+  end
+  object hide_panel: TPanel
+    Left = 636
+    Height = 25
+    Top = 26
+    Width = 60
+    Alignment = taLeftJustify
+    Caption = '  hide'
+    ClientHeight = 25
+    ClientWidth = 60
+    Color = clYellow
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 6
+    OnClick = hide_panelClick
+    object hide_button: TButton
+      Left = 40
+      Height = 15
+      Top = 6
+      Width = 15
+      Cancel = True
+      Caption = '  '
+      OnClick = hide_panelClick
+      TabOrder = 0
+    end
+  end
+  object bgnd_shape_image: TImage
+    Left = 480
+    Height = 16
+    Top = 79
+    Width = 78
+    StretchOutEnabled = False
+    StretchInEnabled = False
+    Visible = False
+  end
+  object save_emf_dialog: TSavePictureDialog
+    Title = '    create  EMF  metafile ...'
+    DefaultExt = '.emf'
+    FileName = 'metafile.emf'
+    Filter = 'EMF metafile ( .emf)|*.emf'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofExtensionDifferent, ofPathMustExist, ofEnableSizing]
+    left = 396
+    top = 20
+  end
+  object save_imagefile_dialog: TSavePictureDialog
+    Title = '    create  image  file ...'
+    FileName = 'imagefile.png'
+    Filter = 'PNG image ( .png)|*.png|GIF image ( .gif)|*.gif|JPEG image ( .jpg  .jp  .jpeg)|*.jpg;*.jp;*.jpeg|BMP image (  .bmp)|*.bmp'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofExtensionDifferent, ofPathMustExist, ofEnableSizing]
+    left = 132
+    top = 20
+  end
+end

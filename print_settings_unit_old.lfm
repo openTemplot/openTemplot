@@ -1,0 +1,297 @@
+object print_settings_form: Tprint_settings_form
+  Left = 333
+  Height = 510
+  Top = 234
+  Width = 480
+  HorzScrollBar.Tracking = True
+  VertScrollBar.Tracking = True
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSizeToolWin
+  Caption = '       output  elements'
+  ClientHeight = 510
+  ClientWidth = 480
+  Color = 16777208
+  DesignTimePPI = 120
+  Font.Color = clBlack
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object top_label: TLabel
+    Left = 32
+    Height = 20
+    Top = 12
+    Width = 400
+    AutoSize = False
+    Caption = 'Select the template elements to be included in the output: '
+    Font.Color = clNavy
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object datestamp_label: TLabel
+    Left = 0
+    Height = 4
+    Top = 506
+    Width = 480
+    AutoSize = False
+    Font.Color = clGray
+    Font.Height = -7
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object spacer_label: TLabel
+    Left = 4
+    Height = 10
+    Top = 190
+    Width = 4
+    AutoSize = False
+    ParentColor = False
+  end
+  object Label1: TLabel
+    Left = 12
+    Height = 33
+    Top = 264
+    Width = 461
+    AutoSize = False
+    Caption = 'The above settings apply to detail-mode output for printed templates, PDF files, image files, and sketchboard trackplan items.'
+    Font.Color = clNavy
+    Font.Height = -13
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object Label2: TLabel
+    Left = 156
+    Height = 16
+    Top = 182
+    Width = 186
+    AutoSize = False
+    Caption = '(for print and PDF only, at 100% size)'
+    Font.Color = clNavy
+    Font.Height = -11
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label3: TLabel
+    Left = 187
+    Height = 16
+    Top = 346
+    Width = 230
+    AutoSize = False
+    Caption = '(sketchboard items for print and PDF only)'
+    Font.Color = clNavy
+    Font.Height = -11
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label4: TLabel
+    Left = 12
+    Height = 56
+    Top = 372
+    Width = 450
+    AutoSize = False
+    Caption = 'The above settings apply to detail-mode and diagram-mode output for printed templates, PDF files, image files, and sketchboard trackplan items.'
+    Font.Color = clNavy
+    Font.Height = -13
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object Label5: TLabel
+    Left = 12
+    Height = 34
+    Top = 434
+    Width = 450
+    AutoSize = False
+    Caption = 'To control the order in which these elements are output, select the options on the background shapes dialog (general options tab).'
+    Font.Color = clNavy
+    Font.Height = -13
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object Label6: TLabel
+    Left = 182
+    Height = 16
+    Top = 210
+    Width = 186
+    AutoSize = False
+    Caption = '(for print and PDF only, at 100% size)'
+    Font.Color = clNavy
+    Font.Height = -11
+    Font.Name = 'Arial'
+    ParentColor = False
+    ParentFont = False
+  end
+  object blue_corner_panel: TPanel
+    Left = 0
+    Height = 30
+    Top = 0
+    Width = 20
+    BevelOuter = bvNone
+    ClientHeight = 30
+    ClientWidth = 20
+    Color = clBlue
+    Font.Color = clBlack
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 11
+    object size_updown: TUpDown
+      Tag = 4
+      Left = 0
+      Height = 24
+      Top = 1
+      Width = 16
+      Max = 10
+      Min = 1
+      OnClick = size_updownClick
+      Position = 4
+      TabOrder = 0
+      Wrap = False
+    end
+  end
+  object close_panel: TPanel
+    Left = 384
+    Height = 27
+    Top = 476
+    Width = 90
+    Alignment = taLeftJustify
+    Caption = '  continue'
+    ClientHeight = 27
+    ClientWidth = 90
+    Color = clLime
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 0
+    OnClick = close_buttonClick
+    object close_button: TButton
+      Left = 68
+      Height = 16
+      Top = 4
+      Width = 16
+      Cancel = True
+      Caption = '  '
+      Default = True
+      OnClick = close_buttonClick
+      TabOrder = 0
+    end
+  end
+  object output_rails_checkbox: TCheckBox
+    Left = 40
+    Height = 23
+    Top = 39
+    Width = 51
+    Caption = 'rails'
+    Checked = True
+    State = cbChecked
+    TabOrder = 1
+  end
+  object output_centrelines_checkbox: TCheckBox
+    Left = 40
+    Height = 23
+    Top = 67
+    Width = 137
+    Caption = 'track  centre-lines'
+    Checked = True
+    State = cbChecked
+    TabOrder = 2
+  end
+  object output_timbering_checkbox: TCheckBox
+    Left = 40
+    Height = 23
+    Top = 95
+    Width = 85
+    Caption = 'timbering'
+    Checked = True
+    State = cbChecked
+    TabOrder = 3
+  end
+  object output_radial_centres_checkbox: TCheckBox
+    Left = 40
+    Height = 23
+    Top = 235
+    Width = 115
+    Caption = 'radial  centres'
+    TabOrder = 7
+  end
+  object output_bgnd_shapes_checkbox: TCheckBox
+    Left = 40
+    Height = 23
+    Top = 315
+    Width = 151
+    Caption = 'background  shapes'
+    Checked = True
+    State = cbChecked
+    TabOrder = 9
+  end
+  object output_fb_foot_lines_checkbox: TCheckBox
+    Left = 40
+    Height = 23
+    Top = 123
+    Width = 254
+    Caption = 'rail-foot  edges  on  flat-bottom  rails'
+    Checked = True
+    State = cbChecked
+    TabOrder = 4
+  end
+  object output_radial_ends_checkbox: TCheckBox
+    Left = 40
+    Height = 23
+    Top = 151
+    Width = 139
+    Caption = 'radial  end  marks'
+    Checked = True
+    State = cbChecked
+    TabOrder = 5
+  end
+  object output_switch_labels_checkbox: TCheckBox
+    Left = 40
+    Height = 23
+    Top = 179
+    Width = 110
+    Caption = 'switch  labels'
+    Checked = True
+    State = cbChecked
+    TabOrder = 6
+  end
+  object output_sketchboard_items_checkbox: TCheckBox
+    Left = 40
+    Height = 23
+    Top = 343
+    Width = 139
+    Caption = 'sketchboard items'
+    Checked = True
+    State = cbChecked
+    TabOrder = 10
+  end
+  object output_xing_labels_checkbox: TCheckBox
+    Left = 40
+    Height = 23
+    Top = 207
+    Width = 135
+    Caption = 'V-crossing  labels'
+    Checked = True
+    State = cbChecked
+    TabOrder = 8
+  end
+end

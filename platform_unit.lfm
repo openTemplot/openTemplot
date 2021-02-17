@@ -1,0 +1,723 @@
+object platform_form: Tplatform_form
+  Left = 20
+  Height = 146
+  Top = 200
+  Width = 800
+  HorzScrollBar.Smooth = True
+  HorzScrollBar.Tracking = True
+  HorzScrollBar.Visible = False
+  VertScrollBar.Smooth = True
+  VertScrollBar.Tracking = True
+  VertScrollBar.Visible = False
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSizeToolWin
+  Caption = '        platforms  . . .'
+  ClientHeight = 146
+  ClientWidth = 800
+  Color = 15852503
+  DesignTimePPI = 120
+  Font.Color = clWindowText
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnShow = FormShow
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object help_shape: TShape
+    Left = 742
+    Height = 28
+    Top = 2
+    Width = 58
+    Pen.Color = clWhite
+  end
+  object help_button: TButton
+    Left = 745
+    Height = 22
+    Top = 5
+    Width = 52
+    Caption = '? &help'
+    OnClick = help_buttonClick
+    TabOrder = 2
+  end
+  object blue_corner_panel: TPanel
+    Left = 0
+    Height = 50
+    Top = 0
+    Width = 20
+    BevelOuter = bvNone
+    ClientHeight = 50
+    ClientWidth = 20
+    Color = clBlue
+    Font.Color = clBlack
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 3
+    object size_updown: TUpDown
+      Tag = 4
+      Left = 0
+      Height = 24
+      Top = 1
+      Width = 16
+      Max = 10
+      Min = 1
+      OnClick = size_updownClick
+      Position = 4
+      TabOrder = 0
+      Wrap = False
+    end
+    object colour_panel: TPanel
+      Left = 0
+      Height = 16
+      Top = 28
+      Width = 15
+      ClientHeight = 16
+      ClientWidth = 15
+      TabOrder = 1
+      OnClick = colour_patchClick
+      object colour_patch: TImage
+        Left = 1
+        Height = 14
+        Top = 1
+        Width = 13
+        Align = alClient
+        AutoSize = True
+        OnClick = colour_patchClick
+        Picture.Data = {
+          07544269746D6170B6040000424DB60400000000000036000000280000001800
+          0000100000000100180000000000800400008412000084120000000000000000
+          0000008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF00008080008080008080008080008080008080008080008080FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF
+          0000FF0000FF0000FF0000808000808000808000808000808000808000808000
+          8080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF00FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000FF000080800080800080800080800080
+          80008080008080008080FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008080008080
+          008080008080008080008080008080008080FF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FF00FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          FF000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          00000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF00
+          00FF0000FF0000FF00000000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+          00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFFFF0000FF0000
+          FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF0000FF0000FF0000
+          FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00000000FF0000FF
+          0000FF0000FF0000FF0000FF0000FF0000FF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFFFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+          0000
+        }
+        Stretch = True
+      end
+    end
+  end
+  object hide_panel: TPanel
+    Left = 744
+    Height = 25
+    Top = 95
+    Width = 56
+    Alignment = taLeftJustify
+    Caption = ' hide'
+    ClientHeight = 25
+    ClientWidth = 56
+    Color = clYellow
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 0
+    OnClick = hide_panelClick
+    object hide_button: TButton
+      Left = 37
+      Height = 14
+      Top = 6
+      Width = 14
+      Caption = '  '
+      OnClick = hide_panelClick
+      TabOrder = 0
+    end
+  end
+  object platform_pagecontrol: TPageControl
+    Left = 24
+    Height = 143
+    Top = 1
+    Width = 714
+    ActivePage = ts_platform_tabsheet
+    Font.Color = clBlack
+    Font.Height = -15
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabIndex = 0
+    TabOrder = 1
+    object ts_platform_tabsheet: TTabSheet
+      Caption = ' TS  turnout-side  platform '
+      ClientHeight = 112
+      ClientWidth = 706
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      object ts_panel: TPanel
+        Left = 0
+        Height = 112
+        Top = 0
+        Width = 706
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 112
+        ClientWidth = 706
+        Color = 13695231
+        ParentColor = False
+        TabOrder = 1
+        Visible = False
+        object ts_width_button: TButton
+          Left = 460
+          Height = 22
+          Top = 3
+          Width = 68
+          Caption = 'width ...'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = ts_width_buttonClick
+          ParentFont = False
+          TabOrder = 1
+        end
+        object ts_mouse_groupbox: TGroupBox
+          Left = 4
+          Height = 75
+          Top = 29
+          Width = 496
+          Caption = ' TS  mouse actions :  '
+          ClientHeight = 54
+          ClientWidth = 492
+          Font.Color = clMaroon
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 3
+          object Label2: TLabel
+            Left = 358
+            Height = 20
+            Top = 0
+            Width = 42
+            Alignment = taRightJustify
+            AutoSize = False
+            Caption = 'skew:'
+            ParentColor = False
+          end
+          object mouse_ts_length_button: TButton
+            Left = 112
+            Height = 22
+            Top = 16
+            Width = 56
+            Caption = 'length'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = mouse_ts_length_buttonClick
+            ParentFont = False
+            TabOrder = 1
+          end
+          object mouse_ts_start_button: TButton
+            Left = 6
+            Height = 22
+            Top = 16
+            Width = 102
+            Caption = 'start  position'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = mouse_ts_start_buttonClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object mouse_ts_skew2_button: TButton
+            Left = 448
+            Height = 22
+            Top = 16
+            Width = 38
+            Caption = 'end'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = mouse_ts_skew2_buttonClick
+            ParentFont = False
+            TabOrder = 2
+          end
+          object mouse_ts_skew1_button: TButton
+            Left = 402
+            Height = 22
+            Top = 16
+            Width = 42
+            Caption = 'start'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = mouse_ts_skew1_buttonClick
+            ParentFont = False
+            TabOrder = 3
+          end
+          object ts_mouse_width_groupbox: TGroupBox
+            Left = 174
+            Height = 50
+            Top = 0
+            Width = 182
+            ClientHeight = 29
+            ClientWidth = 178
+            TabOrder = 4
+            object Label1: TLabel
+              Left = 0
+              Height = 18
+              Top = 0
+              Width = 45
+              Alignment = taRightJustify
+              AutoSize = False
+              Caption = 'width:'
+              ParentColor = False
+            end
+            object mouse_ts_width1_button: TButton
+              Left = 48
+              Height = 22
+              Top = 6
+              Width = 62
+              Caption = 'at  start'
+              Font.Color = clBlack
+              Font.Height = -13
+              Font.Name = 'Arial'
+              Font.Style = [fsBold]
+              OnClick = mouse_ts_width1_buttonClick
+              ParentFont = False
+              TabOrder = 0
+            end
+            object mouse_ts_width2_button: TButton
+              Left = 114
+              Height = 22
+              Top = 6
+              Width = 58
+              Caption = 'at  end'
+              Font.Color = clBlack
+              Font.Height = -13
+              Font.Name = 'Arial'
+              Font.Style = [fsBold]
+              OnClick = mouse_ts_width2_buttonClick
+              ParentFont = False
+              TabOrder = 1
+            end
+          end
+        end
+        object ts_position_button: TButton
+          Left = 260
+          Height = 22
+          Top = 3
+          Width = 194
+          Caption = 'TS  position  and  length ...'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = ts_position_buttonClick
+          ParentFont = False
+          TabOrder = 0
+        end
+        object ts_spacing_button: TButton
+          Left = 534
+          Height = 22
+          Top = 3
+          Width = 160
+          Caption = 'front  edge  spacing ...'
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = ts_spacing_buttonClick
+          ParentFont = False
+          TabOrder = 2
+        end
+        object ts_edge_groupbox: TGroupBox
+          Left = 506
+          Height = 56
+          Top = 40
+          Width = 192
+          Caption = ' output shows edges at :  '
+          ClientHeight = 35
+          ClientWidth = 188
+          Font.Color = clMaroon
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 4
+          object ts_platform_start_edge_checkbox: TCheckBox
+            Left = 10
+            Height = 23
+            Top = 8
+            Width = 51
+            Caption = 'start'
+            Checked = True
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = ts_platform_checkboxClick
+            ParentFont = False
+            State = cbChecked
+            TabOrder = 0
+          end
+          object ts_platform_end_edge_checkbox: TCheckBox
+            Left = 72
+            Height = 23
+            Top = 8
+            Width = 48
+            Caption = 'end'
+            Checked = True
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = ts_platform_checkboxClick
+            ParentFont = False
+            State = cbChecked
+            TabOrder = 1
+          end
+          object ts_platform_rear_edge_checkbox: TCheckBox
+            Left = 132
+            Height = 23
+            Top = 8
+            Width = 50
+            Caption = 'rear'
+            Checked = True
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = ts_platform_checkboxClick
+            ParentFont = False
+            State = cbChecked
+            TabOrder = 2
+          end
+        end
+      end
+      object ts_platform_checkbox: TCheckBox
+        Left = 20
+        Height = 23
+        Top = 5
+        Width = 192
+        Caption = 'add  turnout-side  platform'
+        Color = 15852503
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        OnClick = ts_platform_checkboxClick
+        ParentColor = False
+        ParentFont = False
+        TabOrder = 0
+      end
+    end
+    object ms_platform_tabsheet: TTabSheet
+      Caption = ' MS  main-side  platform '
+      ClientHeight = 112
+      ClientWidth = 706
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ImageIndex = 1
+      ParentFont = False
+      object ms_panel: TPanel
+        Left = 0
+        Height = 112
+        Top = 0
+        Width = 706
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 112
+        ClientWidth = 706
+        Color = 13172712
+        ParentColor = False
+        TabOrder = 1
+        object ms_mouse_groupbox: TGroupBox
+          Left = 4
+          Height = 75
+          Top = 29
+          Width = 496
+          Caption = ' MS  mouse actions :  '
+          ClientHeight = 54
+          ClientWidth = 492
+          Font.Color = clGreen
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 3
+          object Label3: TLabel
+            Left = 358
+            Height = 20
+            Top = 0
+            Width = 42
+            Alignment = taRightJustify
+            AutoSize = False
+            Caption = 'skew:'
+            ParentColor = False
+          end
+          object mouse_ms_length_button: TButton
+            Left = 112
+            Height = 22
+            Top = 16
+            Width = 56
+            Caption = 'length'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = mouse_ms_length_buttonClick
+            ParentFont = False
+            TabOrder = 1
+          end
+          object mouse_ms_start_button: TButton
+            Left = 6
+            Height = 22
+            Top = 16
+            Width = 102
+            Caption = 'start  position'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = mouse_ms_start_buttonClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object mouse_ms_skew2_button: TButton
+            Left = 448
+            Height = 22
+            Top = 16
+            Width = 38
+            Caption = 'end'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = mouse_ms_skew2_buttonClick
+            ParentFont = False
+            TabOrder = 2
+          end
+          object mouse_ms_skew1_button: TButton
+            Left = 402
+            Height = 22
+            Top = 16
+            Width = 42
+            Caption = 'start'
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = mouse_ms_skew1_buttonClick
+            ParentFont = False
+            TabOrder = 3
+          end
+          object ms_mouse_width_groupbox: TGroupBox
+            Left = 174
+            Height = 50
+            Top = 0
+            Width = 182
+            ClientHeight = 29
+            ClientWidth = 178
+            TabOrder = 4
+            object Label4: TLabel
+              Left = 0
+              Height = 18
+              Top = 0
+              Width = 45
+              Alignment = taRightJustify
+              AutoSize = False
+              Caption = 'width:'
+              ParentColor = False
+            end
+            object mouse_ms_width1_button: TButton
+              Left = 48
+              Height = 22
+              Top = 6
+              Width = 62
+              Caption = 'at  start'
+              Font.Color = clBlack
+              Font.Height = -13
+              Font.Name = 'Arial'
+              Font.Style = [fsBold]
+              OnClick = mouse_ms_width1_buttonClick
+              ParentFont = False
+              TabOrder = 0
+            end
+            object mouse_ms_width2_button: TButton
+              Left = 114
+              Height = 22
+              Top = 6
+              Width = 58
+              Caption = 'at  end'
+              Font.Color = clBlack
+              Font.Height = -13
+              Font.Name = 'Arial'
+              Font.Style = [fsBold]
+              OnClick = mouse_ms_width2_buttonClick
+              ParentFont = False
+              TabOrder = 1
+            end
+          end
+        end
+        object ms_width_button: TButton
+          Left = 460
+          Height = 22
+          Top = 3
+          Width = 68
+          Caption = 'width ...'
+          Font.Color = clMaroon
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = ms_width_buttonClick
+          ParentFont = False
+          TabOrder = 1
+        end
+        object ms_position_button: TButton
+          Left = 260
+          Height = 22
+          Top = 3
+          Width = 194
+          Caption = 'MS  position  and  length ...'
+          Font.Color = clMaroon
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = ms_position_buttonClick
+          ParentFont = False
+          TabOrder = 0
+        end
+        object ms_spacing_button: TButton
+          Left = 534
+          Height = 22
+          Top = 3
+          Width = 160
+          Caption = 'front  edge  spacing ...'
+          Font.Color = clMaroon
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          OnClick = ms_spacing_buttonClick
+          ParentFont = False
+          TabOrder = 2
+        end
+        object ms_edge_groupbox: TGroupBox
+          Left = 506
+          Height = 56
+          Top = 40
+          Width = 192
+          Caption = ' output shows edges at :  '
+          ClientHeight = 35
+          ClientWidth = 188
+          Font.Color = clGreen
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 4
+          object ms_platform_start_edge_checkbox: TCheckBox
+            Left = 10
+            Height = 23
+            Top = 8
+            Width = 51
+            Caption = 'start'
+            Checked = True
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = ts_platform_checkboxClick
+            ParentFont = False
+            State = cbChecked
+            TabOrder = 0
+          end
+          object ms_platform_rear_edge_checkbox: TCheckBox
+            Left = 132
+            Height = 23
+            Top = 8
+            Width = 50
+            Caption = 'rear'
+            Checked = True
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = ts_platform_checkboxClick
+            ParentFont = False
+            State = cbChecked
+            TabOrder = 2
+          end
+          object ms_platform_end_edge_checkbox: TCheckBox
+            Left = 72
+            Height = 23
+            Top = 8
+            Width = 48
+            Caption = 'end'
+            Checked = True
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Style = [fsBold]
+            OnClick = ts_platform_checkboxClick
+            ParentFont = False
+            State = cbChecked
+            TabOrder = 1
+          end
+        end
+      end
+      object ms_platform_checkbox: TCheckBox
+        Left = 20
+        Height = 23
+        Top = 5
+        Width = 179
+        Caption = 'add  main-side  platform'
+        Color = 15852503
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        OnClick = ts_platform_checkboxClick
+        ParentColor = False
+        ParentFont = False
+        TabOrder = 0
+      end
+    end
+  end
+end

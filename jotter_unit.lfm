@@ -1,0 +1,236 @@
+object jotter_form: Tjotter_form
+  Left = 159
+  Height = 250
+  Top = 320
+  Width = 400
+  ActiveControl = jotter_memo
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSizeToolWin
+  Caption = '   jotter    •     X-Y  read-out'
+  ClientHeight = 250
+  ClientWidth = 400
+  Color = clBtnFace
+  DesignTimePPI = 120
+  Font.Color = clMaroon
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = [fsBold]
+  FormStyle = fsStayOnTop
+  KeyPreview = True
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  OnResize = FormResize
+  PopupMenu = jotter_popup_menu
+  Position = poScreenCenter
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object jotter_memo: TMemo
+    Left = 0
+    Height = 210
+    Top = 40
+    Width = 400
+    Color = 16777168
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Lines.Strings = (
+      ''
+      '    [ Left-click  to  type ]'
+      '    [ Right-click  for  options ]'
+      '    [ ESC key  to  exit ]'
+      '    [ CTRL-J  to  hide ]'
+      '    [ F1  for  help ]'
+      ''
+      '    [ ALT+left click on pad to zero dX,dY ]'
+      ''
+      '          your  jottings...'
+    )
+    OnDblClick = jotter_memoDblClick
+    ParentFont = False
+    ScrollBars = ssVertical
+    TabOrder = 0
+  end
+  object jotter_abs_xy_readout_panel: TPanel
+    Left = 0
+    Height = 20
+    Top = 0
+    Width = 400
+    Alignment = taLeftJustify
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    Caption = '   X = 000.00     Y = 000.00    mm on grid'
+    Color = clWhite
+    Font.Color = clNavy
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 1
+  end
+  object jotter_rel_xy_readout_panel: TPanel
+    Left = 0
+    Height = 20
+    Top = 20
+    Width = 400
+    Alignment = taLeftJustify
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    Caption = ' dX = 000.00   dY = 000.00    Diag = 000.00   mm  moved  '
+    Color = clWhite
+    ParentColor = False
+    TabOrder = 2
+    OnClick = jotter_set_readout_origin_popup_entryClick
+  end
+  object print_memo: TMemo
+    Left = 116
+    Height = 29
+    Top = 213
+    Width = 90
+    Lines.Strings = (
+      'print_memo'
+    )
+    TabOrder = 3
+    Visible = False
+  end
+  object jotter_popup_menu: TPopupMenu
+    left = 156
+    top = 84
+    object jotter1: TMenuItem
+      Caption = 'JOTTER   •    X-Y  READ-OUT'
+      Enabled = False
+    end
+    object N6: TMenuItem
+      Caption = '-'
+    end
+    object jotter_cut_popup_entry: TMenuItem
+      Caption = 'cut'
+      OnClick = jotter_cut_popup_entryClick
+    end
+    object jotter_copy_popup_entry: TMenuItem
+      Caption = 'copy'
+      OnClick = jotter_copy_popup_entryClick
+    end
+    object jotter_copy_all_popup_entry: TMenuItem
+      Caption = 'copy  all'
+      OnClick = jotter_copy_all_popup_entryClick
+    end
+    object jotter_paste_popup_entry: TMenuItem
+      Caption = 'paste'
+      OnClick = jotter_paste_popup_entryClick
+    end
+    object jotter_wrap_lines_popup_entry: TMenuItem
+      Caption = 'wrap  lines'
+      Checked = True
+      OnClick = jotter_wrap_lines_popup_entryClick
+    end
+    object jotter_select_all_popup_entry: TMenuItem
+      Caption = 'select  all  text'
+      OnClick = jotter_select_all_popup_entryClick
+    end
+    object N3: TMenuItem
+      Caption = '-'
+    end
+    object jotter_add_current_info_popup_entry: TMenuItem
+      Caption = 'add  the  control  template  info'
+      OnClick = jotter_add_current_info_popup_entryClick
+    end
+    object N4: TMenuItem
+      Caption = '-'
+    end
+    object jotter_restore_previous_popup_entry: TMenuItem
+      Caption = 'restore  previous  text'
+      OnClick = jotter_restore_previous_popup_entryClick
+    end
+    object jotter_obtain_popup_entry: TMenuItem
+      Caption = 'obtain  text ...'
+      OnClick = jotter_obtain_popup_entryClick
+    end
+    object jotter_save_popup_entry: TMenuItem
+      Caption = 'save  text ...'
+      OnClick = jotter_save_popup_entryClick
+    end
+    object jotter_print_popup_entry: TMenuItem
+      Caption = 'print  text ...'
+      OnClick = jotter_print_popup_entryClick
+    end
+    object jotter_clear_popup_entry: TMenuItem
+      Caption = 'clear  text'
+      OnClick = jotter_clear_popup_entryClick
+    end
+    object N2: TMenuItem
+      Caption = '-'
+    end
+    object jotter_set_readout_origin_popup_entry: TMenuItem
+      Caption = 'set  read-out  origin ...'
+      OnClick = jotter_set_readout_origin_popup_entryClick
+    end
+    object jotter_readouts_only_popup_entry: TMenuItem
+      Caption = 'show  read-outs  only'
+      OnClick = jotter_readouts_only_popup_entryClick
+    end
+    object readout_units_popup_entry: TMenuItem
+      Caption = 'read-out  units'
+      object as_grid_units_popup_entry: TMenuItem
+        Caption = 'as  grid'
+        Checked = True
+        GroupIndex = 10
+        RadioItem = True
+        OnClick = as_grid_units_popup_entryClick
+      end
+      object mm_units_popup_entry: TMenuItem
+        Caption = 'mm'
+        GroupIndex = 10
+        RadioItem = True
+        OnClick = mm_units_popup_entryClick
+      end
+      object inches_units_popup_entry: TMenuItem
+        Caption = 'inches'
+        GroupIndex = 10
+        RadioItem = True
+        OnClick = inches_units_popup_entryClick
+      end
+    end
+    object expand_jotter_popup_entry: TMenuItem
+      Caption = 'expand  jotter'
+      OnClick = expand_jotter_popup_entryClick
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object jotter_fonts_popup_entry: TMenuItem
+      Caption = 'fonts ...'
+      OnClick = jotter_fonts_popup_entryClick
+    end
+    object jotter_colours_popup_entry: TMenuItem
+      Caption = 'colours ...'
+      OnClick = jotter_colours_popup_entryClick
+    end
+    object N5: TMenuItem
+      Caption = '-'
+    end
+    object jotter_help_popup_entry: TMenuItem
+      Caption = '?  help'
+      OnClick = jotter_help_popup_entryClick
+    end
+  end
+  object jotter_open_dialog: TOpenDialog
+    Title = 'obtain  jotter  text  from  file ...'
+    DefaultExt = '.txt'
+    Options = [ofHideReadOnly, ofShowHelp, ofFileMustExist, ofEnableSizing]
+    left = 52
+    top = 112
+  end
+  object jotter_save_dialog: TSaveDialog
+    Title = 'save  jotter  text  to  file ...'
+    DefaultExt = '.txt'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofShowHelp, ofEnableSizing]
+    left = 52
+    top = 168
+  end
+  object PrintDialog1: TPrintDialog
+    left = 281
+    top = 83
+  end
+end

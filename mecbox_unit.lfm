@@ -1,0 +1,29 @@
+object mecbox_form: Tmecbox_form
+  Left = 979
+  Height = 288
+  Top = 411
+  Width = 507
+  Caption = '    MECBOX'
+  Color = clBtnFace
+  DesignTimePPI = 120
+  Font.Color = clWindowText
+  Font.Height = -13
+  Font.Name = 'MS Sans Serif'
+  LCLVersion = '1.8.4.0'
+  Scaled = False
+  object load_mecbox_dialog: TOpenDialog
+    DefaultExt = '.mecbox'
+    FileName = '*.mecbox'
+    Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
+    left = 252
+    top = 84
+  end
+  object save_mecbox_dialog: TSaveDialog
+    Title = '    save  boxful  of  templates  as ...'
+    DefaultExt = '.mecbox'
+    FileName = 'my_mecbox_file.mecbox'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofShowHelp, ofEnableSizing]
+    left = 128
+    top = 160
+  end
+end
