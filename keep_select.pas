@@ -4577,13 +4577,13 @@ begin
                  //###
 
           if marks_list_ptr=nil then EXIT;        // pointer to marks list not valid.
-          markmax:=intarray_max(marks_list_ptr);  // max index for the present list.
+          markmax:=High(marks_list_ptr);  // max index for the present list.
 
           if mark_index>markmax then mark_index:=markmax;  // ??? shouldn't be.
 
           for i:=0 to (mark_index-1) do    // (mark_index is always the next free slot)
               begin
-                ptr:=Pointer(intarray_get(marks_list_ptr,i));  // pointer to the next Tmark record.
+                ptr:=@marks_list_ptr[i];  // pointer to the next Tmark record.
                 if ptr=nil then EXIT;
 
                 code:=ptr^.code;              // check this mark wanted.
@@ -5923,7 +5923,7 @@ begin
                      // copy mark data from list (not rail ends) ...
 
                   if marks_list_ptr=nil then EXIT;                 // pointer to marks list not valid.
-                  markmax:=intarray_max(marks_list_ptr);           // max index for the present list.
+                  markmax:=High(marks_list_ptr);           // max index for the present list.
                   if mark_index>markmax then mark_index:=markmax;  // ??? shouldn't be.
 
                   for i:=0 to 4 do begin
@@ -5934,7 +5934,7 @@ begin
                   end;//for
 
                   for i:=0 to (mark_index-1) do begin              // (mark_index is always the next free slot)
-                    ptr:=Pointer(intarray_get(marks_list_ptr,i));  // pointer to the next Tmark record.
+                    ptr:=@marks_list_ptr[i];  // pointer to the next Tmark record.
                     if ptr=nil then EXIT;
 
                     intarray_set(list_bgnd_marks[0],i,ptr^.p1.X);

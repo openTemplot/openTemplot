@@ -1553,7 +1553,7 @@ begin
             if i=5 then EXIT;
           end;
 
-  markmax:=intarray_max(marks_list_ptr);  // max index for the present list.
+  markmax:=High(marks_list_ptr);  // max index for the present list.
 
   if mark_index>markmax then mark_index:=markmax;  // ??? shouldn't be.
 
@@ -1564,7 +1564,7 @@ begin
 
   for i:=0 to (mark_index-1) do begin     // (mark_index is always the next free slot)
     try
-      ptr_1st:=Pointer(intarray_get(marks_list_ptr,i));  // pointer to the next Tmark record.
+      ptr_1st:=@marks_list_ptr[i];  // pointer to the next Tmark record.
       if ptr_1st=nil then EXIT;
 
       code:=ptr_1st^.code;

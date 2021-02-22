@@ -7,10 +7,9 @@ object pad_form: Tpad_form
   VertScrollBar.Tracking = True
   AllowDropFiles = True
   Caption = '          trackpad'
-  ClientHeight = 723
+  ClientHeight = 728
   ClientWidth = 1268
   Color = clSilver
-  DesignTimePPI = 120
   Font.Color = clNavy
   Font.Height = -13
   Font.Name = 'Arial'
@@ -34,7 +33,7 @@ object pad_form: Tpad_form
   OnPaint = FormPaint
   OnResize = FormResize
   ShowHint = True
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.10.0'
   Scaled = False
   object pad_timber_font_label: TLabel
     Left = 156
@@ -75,7 +74,7 @@ object pad_form: Tpad_form
   object time_now_panel: TPanel
     Left = 1138
     Height = 29
-    Top = 691
+    Top = 696
     Width = 88
     Anchors = [akRight, akBottom]
     BevelOuter = bvNone
@@ -1292,7 +1291,7 @@ object pad_form: Tpad_form
     Left = 1244
     Height = 160
     Hint = ' change program size to suit your screen '
-    Top = 563
+    Top = 568
     Width = 24
     Max = 7
     Min = 1
@@ -1312,7 +1311,7 @@ object pad_form: Tpad_form
     Left = 1244
     Height = 20
     Hint = 'whats this?'
-    Top = 543
+    Top = 548
     Width = 24
     Alignment = taCenter
     Anchors = [akRight, akBottom]
@@ -1517,7 +1516,7 @@ object pad_form: Tpad_form
   object scaling_labels_panel: TPanel
     Left = 1072
     Height = 160
-    Top = 563
+    Top = 568
     Width = 172
     Anchors = [akRight, akBottom]
     BevelOuter = bvNone
@@ -1668,8 +1667,8 @@ object pad_form: Tpad_form
     end
   end
   object pad_menu_bar: TMainMenu
-    left = 220
-    top = 247
+    Left = 220
+    Top = 247
     object files_menu: TMenuItem
       Caption = '&files'
       GroupIndex = 250
@@ -10061,8 +10060,8 @@ object pad_form: Tpad_form
   object pad_popup_menu: TPopupMenu
     AutoPopup = False
     OnPopup = pad_popup_menuPopup
-    left = 560
-    top = 280
+    Left = 560
+    Top = 280
     object cancel1: TMenuItem
       Caption = 'cancel  menu'
     end
@@ -10324,18 +10323,18 @@ object pad_form: Tpad_form
   object red_lamp_timer: TTimer
     Interval = 200
     OnTimer = red_lamp_timerTimer
-    left = 564
-    top = 171
+    Left = 564
+    Top = 171
   end
   object print_setup_dialog: TPrinterSetupDialog
-    left = 844
-    top = 320
+    Left = 844
+    Top = 320
   end
   object selection_popup: TPopupMenu
     AutoPopup = False
     OnPopup = selection_popupPopup
-    left = 384
-    top = 248
+    Left = 384
+    Top = 248
     object top_name_info_popup_entry: TMenuItem
       Caption = 'I    no-name'
       OnClick = info_popup_entryClick
@@ -11220,27 +11219,27 @@ object pad_form: Tpad_form
     Enabled = False
     Interval = 100
     OnTimer = trans_calc_timerTimer
-    left = 740
-    top = 144
+    Left = 740
+    Top = 144
   end
   object save_screenshot_dialog: TSavePictureDialog
     Title = '    create  screenshot  image  file ...'
     FileName = 'imagefile.png'
     Filter = 'PNG image ( .png)|*.png'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofExtensionDifferent, ofPathMustExist, ofEnableSizing]
-    left = 724
-    top = 228
+    Left = 724
+    Top = 228
   end
   object http_timer: TTimer
     Enabled = False
     Interval = 200
     OnTimer = http_timerTimer
-    left = 720
-    top = 296
+    Left = 720
+    Top = 296
   end
   object reminder_popup_menu: TPopupMenu
-    left = 600
-    top = 408
+    Left = 600
+    Top = 408
     object edit_popup_entry: TMenuItem
       Caption = 'edit ...'
       OnClick = edit_popup_entryClick
@@ -11262,7 +11261,7 @@ object pad_form: Tpad_form
     DefaultExt = '.sk5'
     FileName = '*.sk5'
     Options = [ofHideReadOnly, ofShowHelp, ofPathMustExist, ofFileMustExist, ofEnableSizing]
-    left = 764
-    top = 404
+    Left = 764
+    Top = 404
   end
 end
