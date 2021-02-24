@@ -73,6 +73,7 @@ object mint_form: Tmint_form
     PrintMarginTop = 1
     PrintScale = 1.25
     ScrollBars = ssNone
+    OnHotSpotClick = mint_html_viewHotSpotClick
     TabOrder = 12
     TabStop = True
   end

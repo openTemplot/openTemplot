@@ -110,6 +110,7 @@ object file_viewer_form: Tfile_viewer_form
     PrintMarginRight = 1
     PrintMarginTop = 1
     PrintScale = 1.25
+    OnHotSpotClick = html_file_viewerHotSpotClick
     OnImageRequest = html_file_viewerImageRequest
     ShowHint = True
     TabOrder = 1

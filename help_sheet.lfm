@@ -74,6 +74,7 @@ object help_form: Thelp_form
     PrintMarginTop = 1
     PrintScale = 1.25
     ScrollBars = ssVertical
+    OnHotSpotClick = html_viewHotSpotClick
     PopupMenu = help_popup_menu
     TabOrder = 1
     TabStop = True

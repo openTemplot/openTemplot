@@ -32,7 +32,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, FileCtrl, ComCtrls, Grids, Outline, {DirOutln,} ExtCtrls,
-  Htmlview;
+  Htmlview, HtmlGlobals;
 
 type
 
@@ -74,6 +74,8 @@ type
     procedure close_buttonClick(Sender: TObject);
     procedure FormKeyDown(Sender:TObject; var Key:Word; Shift:TShiftState);
     procedure FormActivate(Sender: TObject);
+    procedure html_file_viewerHotSpotClick(Sender: TObject;
+      const SRC: ThtString; var Handled: Boolean);
     procedure refresh_buttonClick(Sender: TObject);
     procedure open_folder_buttonClick(Sender: TObject);
     procedure size_updownClick(Sender: TObject; Button: TUDBtnType);
@@ -1192,6 +1194,13 @@ begin
   Screen.Cursors[mouse_action_cursor]:=LoadCursor(0,IDC_SIZENS);
 
 end;
+
+procedure Tfile_viewer_form.html_file_viewerHotSpotClick(Sender: TObject;
+  const SRC: ThtString; var Handled: Boolean);
+begin
+  htmlviewer_hot_spot_clicked(Sender, SRC, Handled);
+end;
+
 //______________________________________________________________________________
 
 procedure Tfile_viewer_form.FormDeactivate(Sender: TObject);

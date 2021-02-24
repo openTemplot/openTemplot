@@ -645,6 +645,7 @@ object alert_box: Talert_box
     PrintMarginTop = 1
     PrintScale = 1.25
     ScrollBars = ssVertical
+    OnHotSpotClick = alert_html_viewerHotSpotClick
     PopupMenu = html_popup_menu
     TabOrder = 9
   end

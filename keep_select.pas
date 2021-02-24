@@ -40,7 +40,7 @@ interface
     { OT-FIRST , WPPDFPRP,
   WPPDFR1, WPPDFR2,} Htmlview,
 
-    pad_unit;      // moved 290a
+    pad_unit, HtmlGlobals;      // moved 290a
 
   type
 
@@ -368,6 +368,8 @@ interface
     procedure FormActivate(Sender: TObject);
     procedure colour_patchClick(Sender: TObject);
     procedure import_mecbox_menu_entryClick(Sender: TObject);
+    procedure keep_html_viewHotSpotClick(Sender: TObject; const SRC: ThtString;
+      var Handled: Boolean);
     procedure size_updownClick(Sender: TObject; Button: TUDBtnType);
     procedure store_current_as_unused_buttonClick(Sender: TObject);
     procedure info_radio_buttonClick(Sender: TObject);
@@ -10594,6 +10596,13 @@ procedure Tkeep_form.import_mecbox_menu_entryClick(Sender: TObject);
 begin
   import_mecbox('');    // in mecbox_unit
 end;
+
+procedure Tkeep_form.keep_html_viewHotSpotClick(Sender: TObject;
+  const SRC: ThtString; var Handled: Boolean);
+begin
+  htmlviewer_hot_spot_clicked(Sender, SRC, Handled);
+end;
+
 //________________________________________________________________________________________
 
 
