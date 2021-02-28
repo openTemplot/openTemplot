@@ -31621,7 +31621,7 @@ end;
 function intarray_get(p:Pointer; index:integer):integer;   // return value at this index.
 
 var
-  address:integer;
+  address:PtrInt;
   pint:^integer;     // pointer to integer.
 
 begin
@@ -31629,7 +31629,7 @@ begin
   pint:=p;
   if (index<0) or (index>pint^) then run_error(192);     // max index is at first slot.
 
-  address:=Integer(p)+(index+1)*int_size;  // +1 because data starts at the second slot.
+  address:=PtrInt(p)+(index+1)*int_size;  // +1 because data starts at the second slot.
   pint:=Pointer(address);
   RESULT:=pint^;                   // return integer data from this address.
 end;
@@ -31638,7 +31638,7 @@ end;
 procedure intarray_set(p:Pointer; index:integer; d:integer);   // enter new value d at this index.
 
 var
-  address:integer;
+  address:PtrInt;
   pint:^integer;     // pointer to integer.
 
 begin
@@ -31646,7 +31646,7 @@ begin
   pint:=p;
   if (index<0) or (index>pint^) then run_error(194);     // max index is at first slot.
 
-  address:=Integer(p)+(index+1)*int_size;  // +1 because data starts at the second slot.
+  address:=PtrInt(p)+(index+1)*int_size;  // +1 because data starts at the second slot.
   pint:=Pointer(address);
   pint^:=d;                                // write integer at this address.
 end;
