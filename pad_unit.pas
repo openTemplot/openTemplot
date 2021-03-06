@@ -5143,7 +5143,8 @@ uses
   startup_unit, print_now_box,
   export_unit, platform_unit, math2_unit,
   check_diffs_unit, image_viewer_unit, mouse_colour_unit,
-  { OT-FIRST file_viewer, ebook_unit, companion_load_unit, web_browser_unit,}
+  file_viewer,
+  { OT-FIRST ebook_unit, companion_load_unit, web_browser_unit,}
   prefs_unit,  map_loader_unit, trackbed_unit, make_slip_unit, create_tandem, xtc_unit,
   data_memo_unit,
   mecbox_unit, export_draw_unit,         // 291a
@@ -26546,11 +26547,8 @@ end;
 procedure Tpad_form.pad_file_viewer_menu_entryClick(Sender: TObject);   // 208d
 
 begin
-  do_open_source_bang('FILE VIEWER');  // OT-FIRST
-{ OT-FIRST
   keep_form_was_showing:=False;
   do_show_modal(file_viewer_form);       // 212a  ShowModal
-}
 end;
 //______________________________________________________________________________
 

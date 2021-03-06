@@ -25,7 +25,7 @@
       <MajorVersionNr Value="2"/>
       <MinorVersionNr Value="92"/>
       <RevisionNr Value="1"/>
-      <BuildNr Value="148"/>
+      <BuildNr Value="160"/>
       <StringTable InternalName="Templot3" LegalCopyright="(c) Martin Wynne 2019" ProductName="Templot3/TemplotMEC" ProductVersion="2.92.a"/>
     </VersionInfo>
     <BuildModes Count="1">
@@ -386,11 +386,14 @@
       </SyntaxOptions>
     </Parsing>
     <CodeGeneration>
+      <Optimizations>
+        <OptimizationLevel Value="0"/>
+      </Optimizations>
       <SmallerCode Value="True"/>
     </CodeGeneration>
     <Linking>
       <Debugging>
-        <GenerateDebugInfo Value="False"/>
+        <DebugInfoType Value="dsDwarf2Set"/>
       </Debugging>
     </Linking>
     <Other>

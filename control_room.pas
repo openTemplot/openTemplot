@@ -4521,11 +4521,8 @@ end;
 procedure Tcontrol_room_form.room_file_viewer_menu_entryClick(Sender: TObject);    // 208d
 
 begin
-  do_open_source_bang('FILE VIEWER');  // OT-FIRST
- { OT-FIRST
   //keep_form_was_showing:=False;
   do_show_modal(file_viewer_form);  // 212a
- }
 end;
 //______________________________________________________________________________
 

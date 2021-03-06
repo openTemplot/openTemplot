@@ -1,14 +1,13 @@
 object file_viewer_form: Tfile_viewer_form
   Cursor = crArrow
-  Left = 1274
-  Height = 740
-  Top = 232
-  Width = 1000
+  Left = 443
+  Height = 742
+  Top = 221
+  Width = 1190
   Caption = '          Templot  .box  file  viewer'
-  ClientHeight = 740
-  ClientWidth = 1000
+  ClientHeight = 742
+  ClientWidth = 1190
   Color = 15794175
-  DesignTimePPI = 120
   Font.Color = clBlack
   Font.Height = -15
   Font.Name = 'Arial'
@@ -23,34 +22,8 @@ object file_viewer_form: Tfile_viewer_form
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   Position = poScreenCenter
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.10.0'
   Scaled = False
-  object Label1: TLabel
-    Left = 8
-    Height = 16
-    Top = 38
-    Width = 129
-    AutoSize = False
-    Caption = 'select a drive:'
-    Font.Color = clNavy
-    Font.Height = -13
-    Font.Name = 'Arial'
-    ParentColor = False
-    ParentFont = False
-  end
-  object Label2: TLabel
-    Left = 8
-    Height = 16
-    Top = 106
-    Width = 109
-    AutoSize = False
-    Caption = 'select a folder:'
-    Font.Color = clNavy
-    Font.Height = -13
-    Font.Name = 'Arial'
-    ParentColor = False
-    ParentFont = False
-  end
   object help_shape: TShape
     Left = 206
     Height = 28
@@ -86,54 +59,6 @@ object file_viewer_form: Tfile_viewer_form
     ParentFont = False
     TabOrder = 0
   end
-  object html_file_viewer: THtmlViewer
-    Left = 280
-    Height = 740
-    Top = 0
-    Width = 720
-    BorderStyle = htNone
-    DefBackground = 15794175
-    DefFontColor = clBlack
-    DefFontName = 'Arial'
-    DefFontSize = 8
-    DefOverLinkColor = clRed
-    DefPreFontName = 'Courier New'
-    DefVisitedLinkColor = clBlue
-    HistoryMaxCount = 10
-    HtOptions = [htOverLinksActive, htPrintTableBackground, htPrintMonochromeBlack]
-    ImageCacheCount = 0
-    MarginHeight = 0
-    MarginWidth = 4
-    NoSelect = False
-    PrintMarginBottom = 1
-    PrintMarginLeft = 1
-    PrintMarginRight = 1
-    PrintMarginTop = 1
-    PrintScale = 1.25
-    OnHotSpotClick = html_file_viewerHotSpotClick
-    OnImageRequest = html_file_viewerImageRequest
-    ShowHint = True
-    TabOrder = 1
-    TabStop = True
-    OnMouseMove = html_file_viewerMouseMove
-    object mouse_hover_panel: TPanel
-      Left = 144
-      Height = 22
-      Top = 96
-      Width = 90
-      BevelOuter = bvNone
-      BorderStyle = bsSingle
-      Caption = 'reload this file'
-      Color = clWhite
-      Font.Color = clRed
-      Font.Height = -13
-      Font.Name = 'Arial'
-      ParentColor = False
-      ParentFont = False
-      TabOrder = 4
-      Visible = False
-    end
-  end
   object blue_corner_panel: TPanel
     Left = 0
     Height = 27
@@ -149,7 +74,7 @@ object file_viewer_form: Tfile_viewer_form
     Font.Style = [fsBold]
     ParentColor = False
     ParentFont = False
-    TabOrder = 3
+    TabOrder = 2
     TabStop = True
     object size_updown: TUpDown
       Tag = 4
@@ -175,7 +100,7 @@ object file_viewer_form: Tfile_viewer_form
     BevelOuter = bvNone
     ClientHeight = 180
     ClientWidth = 278
-    TabOrder = 2
+    TabOrder = 1
     object found_label: TLabel
       Left = 184
       Height = 18
@@ -272,9 +197,9 @@ object file_viewer_form: Tfile_viewer_form
     end
     object images_clickable_checkbox: TCheckBox
       Left = 42
-      Height = 23
+      Height = 20
       Top = 146
-      Width = 131
+      Width = 127
       Caption = 'images clickable'
       Checked = True
       Font.Color = clBlack
@@ -288,9 +213,9 @@ object file_viewer_form: Tfile_viewer_form
     end
     object name_labels_checkbox: TCheckBox
       Left = 42
-      Height = 23
+      Height = 20
       Top = 98
-      Width = 162
+      Width = 158
       Caption = 'template name labels'
       Font.Color = clBlack
       Font.Height = -13
@@ -302,9 +227,9 @@ object file_viewer_form: Tfile_viewer_form
     end
     object instant_show_checkbox: TCheckBox
       Left = 42
-      Height = 23
+      Height = 20
       Top = 122
-      Width = 133
+      Width = 129
       Caption = 'instant show files'
       Font.Color = clBlack
       Font.Height = -13
@@ -344,20 +269,73 @@ object file_viewer_form: Tfile_viewer_form
       end
     end
   end
-  object folder_tree: TTreeView
+  object folder_view: TShellTreeView
     Left = 8
-    Height = 424
-    Top = 128
-    Width = 264
-    TabOrder = 4
-  end
-  object get_folders_button: TButton
-    Left = 56
-    Height = 30
+    Height = 489
     Top = 64
-    Width = 108
-    Caption = 'get  folders'
-    OnClick = get_folders_buttonClick
-    TabOrder = 5
+    Width = 265
+    FileSortType = fstNone
+    TabOrder = 3
+    ObjectTypes = [otFolders]
+    ShellListView = box_file_listview
+  end
+  object file_panel: TPanel
+    Left = 288
+    Height = 664
+    Top = 64
+    Width = 888
+    Caption = 'file_panel'
+    ClientHeight = 664
+    ClientWidth = 888
+    TabOrder = 4
+    object box_file_listview: TShellListView
+      AnchorSideRight.Control = Splitter1
+      Left = 1
+      Height = 662
+      Top = 1
+      Width = 276
+      Align = alLeft
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      Color = clDefault
+      Mask = '*.box3'
+      MultiSelect = True
+      TabOrder = 0
+      OnSelectItem = box_file_listviewSelectItem
+      ObjectTypes = [otNonFolders]
+      ShellTreeView = folder_view
+    end
+    object Splitter1: TSplitter
+      AnchorSideTop.Control = file_panel
+      AnchorSideBottom.Control = file_panel
+      AnchorSideBottom.Side = asrBottom
+      Left = 277
+      Height = 662
+      Top = 1
+      Width = 3
+      Align = alNone
+      Anchors = [akTop, akBottom]
+      Beveled = True
+    end
+    object html_preview: THtmlViewer
+      AnchorSideLeft.Control = Splitter1
+      AnchorSideLeft.Side = asrBottom
+      Left = 280
+      Height = 662
+      Top = 1
+      Width = 607
+      BorderStyle = htFocused
+      HistoryMaxCount = 0
+      NoSelect = True
+      PrintMarginBottom = 2
+      PrintMarginLeft = 2
+      PrintMarginRight = 2
+      PrintMarginTop = 2
+      PrintScale = 1
+      OnBitmapRequest = html_previewBitmapRequest
+      OnHotSpotClick = html_previewHotSpotClick
+      Align = alRight
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      TabOrder = 2
+    end
   end
 end
