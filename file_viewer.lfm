@@ -275,7 +275,11 @@ object file_viewer_form: Tfile_viewer_form
     Top = 64
     Width = 265
     FileSortType = fstNone
+    HideSelection = False
+    ReadOnly = True
+    RowSelect = True
     TabOrder = 3
+    Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoRowSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips]
     ObjectTypes = [otFolders]
     ShellListView = box_file_listview
   end
@@ -297,8 +301,10 @@ object file_viewer_form: Tfile_viewer_form
       Align = alLeft
       Anchors = [akTop, akLeft, akRight, akBottom]
       Color = clDefault
+      HideSelection = False
       Mask = '*.box3'
-      MultiSelect = True
+      ReadOnly = True
+      RowSelect = True
       TabOrder = 0
       OnSelectItem = box_file_listviewSelectItem
       ObjectTypes = [otNonFolders]
