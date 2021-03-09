@@ -1339,9 +1339,9 @@ begin
       version_as_loaded:=templot_version;    // 0.78.d keep a note in the template of the version it was loaded as.
 
       if loaded_version>templot_version then loaded_version:=templot_version;   // loaded_version is a global reminder of the earliest loaded template.
-      if templot_version>program_version then later_file:=True;                 // file was produced by a later file than this.
+      if templot_version>file_version then later_file:=True;                 // file was produced by a later file than this.
 
-      if templot_version<>program_version              // template not saved by this version.
+      if templot_version<>file_version              // template not saved by this version.
          then begin
                 if templot_version=0 then align_info.cl_only_flag:=False;  // so update the file..
 
@@ -2064,7 +2064,7 @@ begin
                           //
                         end;
 
-                templot_version:=program_version;      // file now corresponds to current.
+                templot_version:=file_version;      // file now corresponds to current.
                 RESULT:=True;                          // and flag not saved.
               end;// if version differs
 
@@ -2515,16 +2515,16 @@ begin
           end;//next i
                              // now add the DATA BLOCKS section...
 
-          s:='_85A_|'+version_build+'    ';  // start marker.
+          s:='_85A_|    ';  // start marker.
 
           UniqueString(s);  // make sure it's in continuous memory.
 
-          BlockWrite(box_file, s[1], 8, number_written);   // 8 bytes of ' _85A_|.x ' as a DATA BLOCKS start marker.
+          BlockWrite(box_file, s[1], 8, number_written);   // 8 bytes of '_85A_|  ' as a DATA BLOCKS start marker.
           if number_written<>8
              then begin file_write_error; RESULT:=False; EXIT; end;
 
           with block_start do begin
-            version_number:=program_version;
+            version_number:=file_version;
             zero1:=0;
             zero2:=0;
             zero3:=0;
@@ -3386,7 +3386,7 @@ begin
                       'The file which you just reloaded contained one or more templates from a later version of Templot0 than this one.'
                      +' Some features may not be available or may be drawn differently.'
                      +'||The earliest loaded template was from version  '+FormatFloat('0.00',loaded_version/100)
-                     +'|This version of Templot0 is  '+FormatFloat('0.00',program_version/100)
+                     +'|This version of Templot0 is  '+GetVersionString(voShort)
                      +'||Please refer to the Templot web site at  templot.com  for information about upgrading to the latest version, or click| <A HREF="online_ref980.85a">more information online</A> .',
                      '','','','','','continue',0);
             end;
@@ -3398,7 +3398,7 @@ begin
                      +'||These have been modified to make them compatible with this version, but some features may now be drawn differently or require adjustment.'
                      //+'||To re-create the templates from scratch in line with this version, click the blue bar below or select the PROGRAM > NORMALIZE ALL TEMPLATES menu item on the PROGRAM PANEL window.'
                      +'||The earliest loaded template was from version  '+FormatFloat('0.00',loaded_version/100)
-                     +'|This version of Templot0 is  '+FormatFloat('0.00',program_version/100)
+                     +'|This version of Templot0 is  '+GetVersionString(voShort)
                      +'||Click for <A HREF="online_ref980.85a">more information online</A> about the differences between these two versions.'
                      //+'||Please refer to the Templot web site at  templot.com  for information about the differences between these two versions.'
                      +'||green_panel_begin tree.gif The template name labels are now shown in the boxed style by default.'

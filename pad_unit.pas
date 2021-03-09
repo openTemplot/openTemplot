@@ -12760,7 +12760,7 @@ begin
   arrow_button_dummy_trackbar.Width:=0; // so still "Visible=True" but not actually visible on pad.
                                         // used to receive arrow keys, which can then be intercepted.
 
-  pad_about_templotmec_menu_entry.Caption:='&about  '+Application.Title+'   ( v : '+FormatFloat('0.00',program_version/100)+version_build+' )';   // OT-FIRST
+  pad_about_templotmec_menu_entry.Caption:='&about  '+Application.Title+'   ( v : '+GetVersionString(voFull)+' )';   // OT-FIRST
 
   old_pre_templot2_files_menu_entry.Enabled:=DirectoryExists('C:\TEMPLOT\BOX-FILES');  // 207a
 

@@ -4733,7 +4733,7 @@ begin
 
                            // show the main details:
 
-          Add('template generated at '+TimeToStr(Time)+' on '+DateToStr(Date)+' using Templot0 v:'+FormatFloat('0.00',program_version/100)+version_build);
+          Add('template generated at '+TimeToStr(Time)+' on '+DateToStr(Date)+' using Templot0 v:'+GetVersionString(voFull));
           Add('scale = '+round_str(scale,2)+' mm/ft     scale ratio = 1:'+round_str(304.8/scale,2));
           Add('track gauge = '+round_str(g,2)+'    flangeway gap = '+round_str(fw,2));
 
@@ -24202,7 +24202,7 @@ begin
     bgnd_code_077:=0;                  // can't go on background until in keeps box.
     pre077_bgnd_flag:=False;           // in case reloaded in older version than 0.77.a
 
-    templot_version:=program_version;  // program version number (*100, e.g Templot0 v:1.3 = 130).
+    templot_version:=file_version;
 
     gauge_index:=gauge_i;            // index into the gauge list. Only for showing the list,
                                      // the data comes from the file.

@@ -318,7 +318,7 @@ begin
 
     Clear;  // init
 
-    Values['templot_user_preferences']:=str_prefix+'from '+Application.Title+' version '+FormatFloat('0.00',program_version/100)+version_build;
+    Values['templot_user_preferences']:=str_prefix+'from '+Application.Title+' version '+GetVersionString(voFull);
     Values['saved_at']:=str_prefix+FormatDateTime('hh:nn:ss "on" dd/mm/yyyy',Date+Time);
     Add('');
 

@@ -470,7 +470,7 @@ begin
 
 
 
-  footer_str:='<HR NOSHADE><P CLASS="version">v: '+FormatFloat('0.00',program_version/100)+version_build+'&nbsp; &copy; &nbsp;</P></BODY></HTML>';
+  footer_str:='<HR NOSHADE><P CLASS="version">v: '+GetVersionString(voFull)+'&nbsp; &copy; &nbsp;</P></BODY></HTML>';
 
   with help_form do begin
 
@@ -490,7 +490,7 @@ begin
 
        -300: Caption:='    program  information';          // 0.93.a
 
-       -250: Caption:='    about  '+Application.Title+'  v: '+FormatFloat('0.00',program_version/100)+version_build;
+       -250: Caption:='    about  '+Application.Title+'  v: '+GetVersionString(voFull);
        -200: Caption:='    saved  program  preferences';
        -150: Caption:='    welcome  to  '+Application.Title;
 
@@ -656,7 +656,7 @@ begin
      then msg:=html_path_str+msg   // make full file path
 
      else begin
-            if cap_code>-100 then msg:=msg+'<SPAN STYLE="FONT-WEIGHT:NORMAL; FONT-SIZE:13px;">|____________| v: '+FormatFloat('0.00',program_version/100)+version_build+' &nbsp; ©</SPAN>';  // add footer
+            if cap_code>-100 then msg:=msg+'<SPAN STYLE="FONT-WEIGHT:NORMAL; FONT-SIZE:13px;">|____________| v: '+GetVersionString(voFull)+' &nbsp; ©</SPAN>';  // add footer
           end;
 
   show_help_form;    // now show it.

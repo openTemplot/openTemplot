@@ -3881,9 +3881,9 @@ begin
 
       with header_node do begin
 
-        WriteString('program_name','Templot3 background shapes, saved from version '+round_str(program_version/100,2)+version_build,'');
+        WriteString('program_name','Templot3 background shapes, saved from version '+GetVersionString(voFull));
 
-        WriteInteger('program_version',program_version,0);
+        WriteInteger('file_version',file_version,0);
 
         WriteString('file_date',DateTimeToStr(Now),'');
 
