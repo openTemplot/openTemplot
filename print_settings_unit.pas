@@ -158,7 +158,8 @@ implementation
 
 {$R *.LFM}
 
-uses control_room,pad_unit,math_unit,keep_select,help_sheet,shove_timber,wait_message;
+uses control_room,pad_unit,math_unit,keep_select,help_sheet,shove_timber,wait_message,
+  shoved_timber;
 
 //______________________________________________________________________________
 

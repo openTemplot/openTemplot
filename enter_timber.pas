@@ -67,7 +67,8 @@ implementation
 
 {$R *.lfm}
 
-uses control_room, pad_unit, math_unit, shove_timber, alert_unit;
+uses control_room, pad_unit, math_unit, shove_timber, alert_unit,
+  shoved_timber;
 
 //___________________________________________________________________________________________
 

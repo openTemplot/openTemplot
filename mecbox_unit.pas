@@ -55,7 +55,8 @@ var
 implementation
 
 uses keep_select, wait_message, pad_unit, info_unit, control_room, alert_unit,
-     math_unit, shove_timber,  rail_options_unit;
+     math_unit, shove_timber,  rail_options_unit,
+     shoved_timber;
 
 {$R *.lfm}
 

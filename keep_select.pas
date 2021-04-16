@@ -40,7 +40,9 @@ interface
     { OT-FIRST , WPPDFPRP,
   WPPDFR1, WPPDFR2,} Htmlview,
 
-    pad_unit, HtmlGlobals;      // moved 290a
+    shoved_timber,
+    pad_unit,
+    HtmlGlobals;      // moved 290a
 
   type
 

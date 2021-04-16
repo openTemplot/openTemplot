@@ -757,7 +757,8 @@ uses
   ActiveX,                 // IMalloc
   ShlObj, trackbed_unit,   // Needed for the CSIDL constants
 
-  {IcsMD5,} make_slip_unit, create_tandem;    // 217a
+  {IcsMD5,} make_slip_unit, create_tandem,     // 217a
+  shoved_timber;
 
 {$R *.lfm}
 

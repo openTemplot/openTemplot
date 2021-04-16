@@ -25,7 +25,7 @@
       <MajorVersionNr Value="2"/>
       <MinorVersionNr Value="92"/>
       <RevisionNr Value="1"/>
-      <BuildNr Value="164"/>
+      <BuildNr Value="165"/>
       <StringTable InternalName="Templot3" LegalCopyright="(c) Martin Wynne 2019" ProductName="Templot3/TemplotMEC" ProductVersion="2.92.a"/>
     </VersionInfo>
     <BuildModes Count="1">
@@ -51,7 +51,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="53">
+    <Units Count="54">
       <Unit0>
         <Filename Value="templotmec.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -368,6 +368,10 @@
         <Filename Value="export_draw_unit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit52>
+      <Unit53>
+        <Filename Value="model\shoved_timber.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit53>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -377,7 +381,7 @@
       <Filename Value="output\templotmec"/>
     </Target>
     <SearchPaths>
-      <OtherUnitFiles Value="synapse_units;html_viewer_units;xml_units"/>
+      <OtherUnitFiles Value="synapse_units;html_viewer_units;xml_units;model"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
