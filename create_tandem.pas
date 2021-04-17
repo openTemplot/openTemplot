@@ -80,7 +80,8 @@ implementation
 
 uses
   pad_unit,math_unit,math2_unit,keep_select,alert_unit, info_unit, control_room, shove_timber,
-  switch_select, { OT-FIRST web_browser_unit,} wait_message, help_sheet;
+  switch_select, { OT-FIRST web_browser_unit,} wait_message, help_sheet,
+  shoved_timber;
 
 var
   saved_current:Ttemplate_info;
@@ -290,7 +291,7 @@ begin
             pad_form.ss_tandem_begin_menu_entry.Enabled:=False;           // no re-entry until we are ready ..
             pad_form.ss_tandem_continue_menu_entry.Enabled:=False;
 
-            saved_current.keep_shove_list:=TStringList.Create;
+            saved_current.keep_shove_list := Tshoved_timber_list.Create;
 
             fill_kd(saved_current);                              // save existing control template
             saved_name_str:=current_name_str;
@@ -407,7 +408,7 @@ begin
 
                         //tandem_in_progress_id_str:='';    // tandem finished
 
-                        free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+                        saved_current.keep_shove_list.Free;
 
                         pad_form.ds_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
                         pad_form.ss_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
@@ -499,7 +500,7 @@ begin
 
                         //tandem_in_progress_id_str:='';    // tandem finished
 
-                        free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+                        saved_current.keep_shove_list.Free;
 
                         pad_form.ds_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
                         pad_form.ss_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
@@ -545,7 +546,7 @@ begin
 
             //tandem_in_progress_id_str:='';    // tandem finished
 
-            free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+            saved_current.keep_shove_list.Free;
 
             pad_form.ds_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
             pad_form.ss_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
@@ -934,7 +935,7 @@ begin
   finally
     creating_tandem:=False;
 
-    free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+    saved_current.keep_shove_list.Free;
 
     pad_form.ds_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
     pad_form.ss_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
@@ -1248,7 +1249,7 @@ begin
             pad_form.ss_tandem_continue_menu_entry.Enabled:=False;
 
 
-            saved_current.keep_shove_list:=TStringList.Create;
+            saved_current.keep_shove_list := Tshoved_timber_list.Create;
 
             fill_kd(saved_current);                              // save existing control template
             saved_name_str:=current_name_str;
@@ -1413,7 +1414,7 @@ begin
 
                         //tandem_in_progress_id_str:='';    // tandem finished
 
-                        free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+                        saved_current.keep_shove_list.Free;
 
                         pad_form.ds_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
                         pad_form.ss_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
@@ -1490,7 +1491,7 @@ begin
 
                         creating_tandem:=False;
 
-                        free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+                        saved_current.keep_shove_list.Free;
 
                         pad_form.ds_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
                         pad_form.ss_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
@@ -1534,7 +1535,7 @@ begin
 
             creating_tandem:=False;
 
-            free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+            saved_current.keep_shove_list.Free;
 
             pad_form.ds_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
             pad_form.ss_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
@@ -1563,7 +1564,7 @@ begin
 
             creating_tandem:=False;
 
-            free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+            saved_current.keep_shove_list.Free;
 
             pad_form.ds_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
             pad_form.ss_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
@@ -1604,7 +1605,7 @@ begin
 
             creating_tandem:=False;
 
-            free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+            saved_current.keep_shove_list.Free;
 
             pad_form.ds_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
             pad_form.ss_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
@@ -1998,7 +1999,7 @@ begin
 
     creating_tandem:=False;
 
-    free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+    saved_current.keep_shove_list.Free;
 
     pad_form.ds_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later
     pad_form.ss_tandem_begin_menu_entry.Enabled:=True;     // so can start a new one later

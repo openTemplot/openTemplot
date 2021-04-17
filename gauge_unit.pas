@@ -163,7 +163,8 @@ implementation
 
 uses
   Printers, Clipbrd, control_room, pad_unit, entry_sheet, help_sheet, chat_unit, math_unit, alert_unit,
-  colour_unit, keep_select, info_unit, print_unit, shove_timber, print_settings_unit;
+  colour_unit, keep_select, info_unit, print_unit, shove_timber, print_settings_unit,
+  shoved_timber;
 
 const
 
@@ -290,7 +291,7 @@ begin
 
   count:=keeps_list.Count;
 
-  save_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+  save_current.keep_shove_list := Tshoved_timber_list.Create;
   fill_kd(save_current);
   save_name:=current_name_str;
 
@@ -357,7 +358,7 @@ begin
 
     pad_form.show_bgnd_keeps_menu_entry.Checked:=save_bgnd_option;   // restore, radio item.
 
-    free_shove_list(save_current.keep_shove_list);   // free the local stringlist.
+    save_current.keep_shove_list.Free;
 
     Screen.Cursor:=crDefault;
     do_rollback:=False;

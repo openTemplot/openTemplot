@@ -33,7 +33,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, Buttons, Menus, ExtCtrls, ComCtrls, FileCtrl{ OT-FIRST, Psock, NMHttp};
+  StdCtrls, Buttons, Menus, ExtCtrls, ComCtrls, FileCtrl, { OT-FIRST, Psock, NMHttp}
+  shoved_timber;
 
 type
 
@@ -548,7 +549,7 @@ var
   tag_list:TStringList;                  // 206b
 
   printer_list:TStringList;
-  current_shove_list:TStringList;        // v:0.71.a  27-4-01.
+  current_shove_list:Tshoved_timber_list;
   info_text_list:TStringList;            // 0.78.a    15-11-02.
 
   custom_colour_list:TStringList;        // 0.91
@@ -757,8 +758,7 @@ uses
   ActiveX,                 // IMalloc
   ShlObj, trackbed_unit,   // Needed for the CSIDL constants
 
-  {IcsMD5,} make_slip_unit, create_tandem,     // 217a
-  shoved_timber;
+  {IcsMD5,} make_slip_unit, create_tandem;     // 217a
 
 {$R *.lfm}
 
@@ -2968,10 +2968,6 @@ begin
                           end;//with bgnd_keep
                         end;
 
-                with template_info.keep_shove_list do begin
-                  if Count>0 then for index:=0 to Count-1 do Tshoved_timber(Objects[index]).Free;
-                end;//with
-
                 template_info.keep_shove_list.Free;
 
               end;//with template.
@@ -3008,14 +3004,11 @@ begin
 
   user_prefs_list.Free;        // 0.91.d
 
-  for index:=0 to undo_c do free_shove_list(rollback_reg[index].rollback_info.keep_shove_list);
+  for index:=0 to undo_c do rollback_reg[index].rollback_info.keep_shove_list.Free;
 
-  with current_shove_list do begin
-    if Count>0 then for index:=0 to Count-1 do Tshoved_timber(Objects[index]).Free;
-    Free;
-  end;//with
+  current_shove_list.Free;
 
-  for index:=0 to 2 do free_shove_list(parking_bay[index].keep_shove_list);      // added 0.93.a
+  for index:=0 to 2 do parking_bay[index].keep_shove_list.Free;
 
   offdraw_bmp.Free;
   backdrop_bmp.Free;
@@ -3778,7 +3771,7 @@ begin
 
   tag_list:=TStringList.Create;                  // 206b
 
-  current_shove_list:=TStringList.Create;        // v:0.71.a  27-4-01.
+  current_shove_list := Tshoved_timber_list.Create;
 
   custom_colour_list:=TStringList.Create;        // 0.91
 

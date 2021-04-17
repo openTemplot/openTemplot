@@ -928,7 +928,7 @@ begin
     end;//with
 
     template_info.keep_dims.box_dims1.pre077_bgnd_flag:=False;      // unused template. no longer used 0.77.a but needed in file if reloaded into older version.
-    template_info.keep_shove_list:=TStringList.Create;              // the list of shoved timbers. (v:0.71.a  27-4-01).
+    template_info.keep_shove_list := Tshoved_timber_list.Create;
   end;//with
 end;
 //_________________________________________________________________________________________
@@ -983,7 +983,7 @@ var
 
 begin
   RESULT:=False;                                       // default init.
-  save_template.keep_shove_list:=TStringList.Create;   // local variable not initialised.
+  save_template.keep_shove_list := Tshoved_timber_list.Create;
   fill_kd(save_template);                            // temporarily store the existing settings (control template or box).
   try
 
@@ -1105,7 +1105,7 @@ begin
 
   finally
     copy_keep(save_template);                       // restore previous settings
-    free_shove_list(save_template.keep_shove_list); // free the local stringlist.
+    save_template.keep_shove_list.Free;
   end;//try
 end;
 //______________________________________________________________________________________
@@ -1180,7 +1180,7 @@ begin
   n:=list_position;
   if (n>=keeps_list.Count) or (n<0) then EXIT;
 
-  ti.keep_shove_list:=TStringList.Create;                                               // local stringlist not initialised.
+  ti.keep_shove_list := Tshoved_timber_list.Create;
 
   try
     copy_template_info_from_to(False,Ttemplate(keeps_list.Objects[n]).template_info,ti);  // current keep data
@@ -1266,10 +1266,7 @@ begin
                       end;
             end;
 
-    with Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list do begin
-      if Count>0 then for i:=0 to Count-1 do Tshoved_timber(Objects[i]).Free;
-      Free;
-    end;//with
+    Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
 
     Ttemplate(keeps_list.Objects[n]).Free;
     keeps_list.Delete(n);
@@ -1279,7 +1276,7 @@ begin
 
     current_state(-1);
   finally
-    free_shove_list(ti.keep_shove_list);   // free the local stringlist.
+    ti.keep_shove_list.Free;
   end;//try
 end;
 //_________________________________________________________________________________________
@@ -2161,10 +2158,7 @@ var
 
                                     // delete it...
 
-                                  with Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list do begin
-                                    if Count>0 then for i:=0 to Count-1 do Tshoved_timber(Objects[i]).Free;
-                                    Free;
-                                  end;//with
+                                  Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
 
                                   Ttemplate(keeps_list.Objects[n]).Free;
                                   keeps_list.Delete(n);
@@ -2196,9 +2190,9 @@ var
                                    with shoves_048[ns] do begin
                                      if ns<next_ti.keep_shove_list.Count
                                         then begin
-                                               with Tshoved_timber(next_ti.keep_shove_list.Objects[ns]) do begin
+                                               with next_ti.keep_shove_list[ns] do begin
 
-                                                 sv_str:=next_ti.keep_shove_list.Strings[ns];  // timber number string.
+                                                 sv_str:=next_ti.keep_shove_list[ns].timber_string;  // timber number string.
                                                  sv_code:=shove_data.sv_code;                 // 0=empty slot, -1=omit this timber,  1=shove this timber.
 
                                                  sv_x:=shove_data.sv_x;    // xtb modifier.
@@ -2399,7 +2393,7 @@ begin
 
     saved_cursor:=Screen.Cursor;
 
-    next_ti.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+    next_ti.keep_shove_list := Tshoved_timber_list.Create;
 
     try
       if rolling_backup=0 then Screen.Cursor:=crHourGlass;   // 0.93.a test added     // could take a while if big file.
@@ -2585,8 +2579,8 @@ begin
 
                       for st:=0 to shove_count-1 do begin
 
-                        shove_timber_data.sf_str:=next_ti.keep_shove_list.Strings[st];
-                        shove_timber_data.sf_shove_data:=Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data;
+                        shove_timber_data.sf_str := next_ti.keep_shove_list[st].timber_string;
+                        shove_timber_data.sf_shove_data := next_ti.keep_shove_list[st].shove_data;
 
                         BlockWrite(box_file, shove_timber_data, SizeOf(Tshove_for_file), number_written);      // first the count of shoved timbers.
                         if number_written<>SizeOf(Tshove_for_file)
@@ -2648,7 +2642,7 @@ begin
       RESULT:=True;
 
     finally
-      free_shove_list(next_ti.keep_shove_list);   // free the local stringlist.
+      next_ti.keep_shove_list.Free;
       Screen.Cursor:=saved_cursor;
     end;//try
 
@@ -2781,8 +2775,9 @@ var
                                                                       end;
 
                                                               try
-                                                                st:=AddObject(shove_timber_data.sf_str,Tshoved_timber.Create);
-                                                                Tshoved_timber(Objects[st]).shove_data:=shove_timber_data.sf_shove_data;
+                                                                st:=Add(Tshoved_timber.Create);
+                                                                Items[st].timber_string := shove_timber_data.sf_str;
+                                                                Items[st].shove_data := shove_timber_data.sf_shove_data;
                                                               except
                                                                 EXIT;       // memory problem?
                                                               end;//try
@@ -2839,7 +2834,7 @@ var
 
                       if make_lib=True then old_next_data.old_keep_dims1.box_dims1.bgnd_code_077:=-1;  // make it a library template.
 
-                      this_ti.keep_shove_list:=TStringList.Create;  // init.
+                      this_ti.keep_shove_list := Tshoved_timber_list.Create;
 
                       this_ti.keep_dims:=Tkeep_dims(old_next_data);
 
@@ -3143,7 +3138,7 @@ begin
           end;
 
                                                       // added 0.78.d 19-02-03...
-  saved_control.keep_shove_list:=TStringList.Create;  // local stringlist not initialised.
+  saved_control.keep_shove_list := Tshoved_timber_list.Create;
   fill_kd(saved_control);                             // save control template.
   saved_control_name_str:=current_name_str;
   saved_control_memo_str:=current_memo_str;
@@ -3378,7 +3373,7 @@ begin
       current_memo_str:=saved_control_memo_str;
       info_form.ref_name_label.Caption:=current_name_str;
 
-      free_shove_list(saved_control.keep_shove_list);   // free the local stringlist.
+      saved_control.keep_shove_list.Free;
 
     end;//try
 
@@ -3539,7 +3534,7 @@ begin
 
     current_memo_str:=memo_list.Strings[n];
 
-    ti.keep_shove_list:=TStringList.Create;     // local stringlist not initialised.
+    ti.keep_shove_list := Tshoved_timber_list.Create;
 
     try
       copy_template_info_from_to(False, Ttemplate(keeps_list.Objects[n]).template_info, ti);
@@ -3607,7 +3602,7 @@ begin
          else statusbar_click(False);        // default is to copy the name.
 
     finally
-      free_shove_list(ti.keep_shove_list);
+      ti.keep_shove_list.Free;
     end;//try
   end;//with keep_form.
 
@@ -4399,7 +4394,7 @@ begin
      then EXIT;   // no drawing if the box is closed or the box is empty or the index is out of range.
                   // otherwise onActivate code will not have been done.
 
-  pad_ti.keep_shove_list:=TStringList.Create;  // local stringlist not initialised.
+  pad_ti.keep_shove_list := Tshoved_timber_list.Create;
   try
     fill_kd(pad_ti);        // fill the keep record with the saved control template.
 
@@ -4880,7 +4875,7 @@ begin
     end;//with Canvas
   finally
     copy_keep(pad_ti);                         // restore the control template on the pad.
-    free_shove_list(pad_ti.keep_shove_list);   // free the local stringlist.
+    pad_ti.keep_shove_list.Free;
   end;//try
 end;
 //_______________________________________________________________________________________________________________________________
@@ -4981,7 +4976,7 @@ begin
                     end;
           end;
 
-  new_ti.keep_shove_list:=TStringList.Create;  // local stringlist not initialised.
+  new_ti.keep_shove_list := Tshoved_timber_list.Create;
   try
     fill_kd(new_ti);               // fill the keep record with the control template data.
 
@@ -5040,7 +5035,7 @@ begin
             end;
 
   finally
-    free_shove_list(new_ti.keep_shove_list);   // free the local stringlist.
+    new_ti.keep_shove_list.Free;
   end;//try
 end;
 //____________________________________________________________________________________________
@@ -5108,11 +5103,7 @@ begin
             for n:=0 to keeps_list.Count-1 do begin
 
 
-              with Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list do begin
-                if Count>0 then for i:=0 to Count-1 do Tshoved_timber(Objects[i]).Free;
-                Free;
-              end;//with
-
+              Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
               Ttemplate(keeps_list.Objects[n]).Free;
 
             end;//next n
@@ -5145,11 +5136,7 @@ begin
 
   if (n>=0) and (n<keeps_list.Count)
      then begin
-            with Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list do begin
-              if Count>0 then for i:=0 to Count-1 do Tshoved_timber(Objects[i]).Free;
-              Free;
-            end;//with
-
+            Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
             Ttemplate(keeps_list.Objects[n]).Free;
             keeps_list.Delete(n);
             memo_list.Delete(n);
@@ -5780,7 +5767,7 @@ begin
 
   if keep_form.Active=True then keep_form.Cursor:=crHourGlass;        // might take a while.
 
-  saved_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+  saved_current.keep_shove_list := Tshoved_timber_list.Create;
   fill_kd(saved_current);                              // save control template for restore.
   saved_name_str:=current_name_str;
   saved_current_memo_str:=current_memo_str;
@@ -5807,7 +5794,7 @@ begin
     current_name_str:=saved_name_str;
     current_memo_str:=saved_current_memo_str;
     info_form.ref_name_label.Caption:=current_name_str;
-    free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+    saved_current.keep_shove_list.Free;
 
     keep_form.Cursor:=crDefault;
   end;//try
@@ -5874,7 +5861,7 @@ begin
               if Ttemplate(keeps_list.Objects[list_index]).bg_copied=True then EXIT;                            // already on background.
               if Ttemplate(keeps_list.Objects[list_index]).template_info.keep_dims.box_dims1.bgnd_code_077=-1 then EXIT;  // ??? library template.
 
-              ti.keep_shove_list:=TStringList.Create;
+              ti.keep_shove_list := Tshoved_timber_list.Create;
 
               try
                 copy_template_info_from_to(False, Ttemplate(keeps_list.Objects[list_index]).template_info,ti);  // get the keep data.
@@ -6080,7 +6067,7 @@ begin
                 end;//with Ttemplate
 
               finally
-                free_shove_list(ti.keep_shove_list);  // free the local stringlist.
+                ti.keep_shove_list.Free;
               end;//try
             end;//with keep_form
 
@@ -6692,11 +6679,7 @@ begin
       if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.now_time=ident    // found a duplicate
          then begin
 
-                with Ttemplate(keeps_list.Objects[i]).template_info.keep_shove_list do begin
-                  if Count>0 then for nn:=0 to Count-1 do Tshoved_timber(Objects[nn]).Free;
-                  Free;
-                end;//with
-
+                Ttemplate(keeps_list.Objects[i]).template_info.keep_shove_list.Free;
                 Ttemplate(keeps_list.Objects[i]).Free;
                 keeps_list.Delete(i);                      // delete it. i now points to next line so no need to inc.
                 memo_list.Delete(i);
@@ -6852,11 +6835,7 @@ begin
 
     if Ttemplate(keeps_list.Objects[n]).bg_copied=True then wipe_it(n);  // ??? not a background template but data on background!
 
-    with Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list do begin
-      if Count>0 then for i:=0 to Count-1 do Tshoved_timber(Objects[i]).Free;
-      Free;
-    end;//with
-
+    Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
     Ttemplate(keeps_list.Objects[n]).Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
@@ -6922,11 +6901,7 @@ begin
 
     if Ttemplate(keeps_list.Objects[n]).bg_copied=True then wipe_it(n);  // ??? library template but data on background!
 
-    with Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list do begin
-      if Count>0 then for i:=0 to Count-1 do Tshoved_timber(Objects[i]).Free;
-      Free;
-    end;//with
-
+    Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
     Ttemplate(keeps_list.Objects[n]).Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
@@ -6997,11 +6972,7 @@ begin
 
     if Ttemplate(keeps_list.Objects[n]).bg_copied=True then wipe_it(n);  // any data on background
 
-    with Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list do begin
-      if Count>0 then for i:=0 to Count-1 do Tshoved_timber(Objects[i]).Free;
-      Free;
-    end;//with
-
+    Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
     Ttemplate(keeps_list.Objects[n]).Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
@@ -7322,7 +7293,7 @@ var
 
 begin
 
-  save_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+  save_current.keep_shove_list := Tshoved_timber_list.Create;
 
   try
     if egg_timer=True then Screen.Cursor:=crHourglass;
@@ -7427,7 +7398,7 @@ begin
     backup_wanted:=True;
     redraw_pad(True,False);
 
-    free_shove_list(save_current.keep_shove_list);   // free the local stringlist.
+    save_current.keep_shove_list.Free;
     if egg_timer=True then Screen.Cursor:=crDefault;
   end;//try
 end;
@@ -7932,7 +7903,7 @@ begin
 
   if keeps_list.Count<1 then EXIT;
 
-  save_current.keep_shove_list:=TStringList.Create;      // local stringlist not initialised.
+  save_current.keep_shove_list := Tshoved_timber_list.Create;
 
   try
     Screen.Cursor:=crHourGlass;        // might take a while.
@@ -7953,7 +7924,7 @@ begin
     current_state(-1);
     //]]]if open_bgnd_list_menu_entry.Checked=True then do_bgkeeps;
   finally
-    free_shove_list(save_current.keep_shove_list);   // free the local stringlist.
+    save_current.keep_shove_list.Free;
     Screen.Cursor:=crDefault;
   end;//try
   backup_wanted:=True;
@@ -8000,7 +7971,7 @@ begin
   Screen.Cursor:=crHourGlass;        // might take a while.
   if Application.Terminated=False then Application.ProcessMessages;
 
-  save_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+  save_current.keep_shove_list := Tshoved_timber_list.Create;
   fill_kd(save_current);
 
   try
@@ -8032,7 +8003,7 @@ begin
   finally
     current_state(-1);
     copy_keep(save_current);
-    free_shove_list(save_current.keep_shove_list);   // free the local stringlist.
+    save_current.keep_shove_list.Free;
     Screen.Cursor:=crDefault;
   end;//try
 
@@ -9287,7 +9258,7 @@ var
 begin
   if any_selected=0 then EXIT;
 
-  save_current.keep_shove_list:=TStringList.Create;  // local stringlist not initialised.
+  save_current.keep_shove_list := Tshoved_timber_list.Create;
 
   try
     if egg_timer=true then Screen.Cursor:=crHourglass;
@@ -9383,7 +9354,7 @@ begin
     end;//next n
   finally
     copy_keep(save_current);                         // draw the old template on the pad.
-    free_shove_list(save_current.keep_shove_list);   // free the local stringlist.
+    save_current.keep_shove_list.Free;
     backup_wanted:=True;
     redraw_pad(True,False);
     if egg_timer=True then Screen.Cursor:=crDefault;
@@ -9529,7 +9500,7 @@ begin
 
   count:=keeps_list.Count;
 
-  save_current.keep_shove_list:=TStringList.Create;     // local stringlist not initialised.
+  save_current.keep_shove_list := Tshoved_timber_list.Create;
   fill_kd(save_current);
   save_current_memo_str:=current_memo_str;
 
@@ -9591,7 +9562,7 @@ begin
     pad_form.show_bgnd_keeps_menu_entry.Checked:=save_bgnd_option;   // restore, radio item.
     current_memo_str:=save_current_memo_str;
 
-    free_shove_list(save_current.keep_shove_list);   // free the local stringlist.
+    save_current.keep_shove_list.Free;
     do_rollback:=False;
     redraw(True);
   end;//try

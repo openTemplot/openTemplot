@@ -54,7 +54,8 @@ function grow_prune_to_meet(boundary1,boundary2:Tnotch; index1,index2:integer; g
 implementation
 
 uses
-  control_room, math_unit, info_unit, keep_select, shove_timber, alert_unit, help_sheet, grid_unit, wait_message;
+  control_room, math_unit, info_unit, keep_select, shove_timber, alert_unit, help_sheet, grid_unit, wait_message,
+  shoved_timber;
 
 var
   dummy:extended=0;
@@ -396,7 +397,7 @@ begin
 
         // save the control ...
 
-  saved_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+  saved_current.keep_shove_list := Tshoved_timber_list.Create;
   fill_kd(saved_current);                              // save control template
   saved_name_str:=current_name_str;
   saved_memo_str:=current_memo_str;
@@ -494,7 +495,7 @@ begin
 
   finally
     restore_current;                                  // restore the original control
-    free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+    saved_current.keep_shove_list.Free;
   end;//try
 end;
 //______________________________________________________________________________
@@ -1041,7 +1042,7 @@ var
 begin
   RESULT:=False; // init fail result
 
-  saved_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+  saved_current.keep_shove_list := Tshoved_timber_list.Create;
   fill_kd(saved_current);                              // save control template
   saved_name_str:=current_name_str;
   saved_memo_str:=current_memo_str;
@@ -1070,7 +1071,7 @@ begin
   redraw(True);
 
   finally
-    free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+    saved_current.keep_shove_list.Free;
   end;//try
 end;
 //______________________________________________________________________________

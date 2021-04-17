@@ -80,10 +80,10 @@ var
 begin                          // fill dropdown with shoved timbers.
   shove_combo.Items.Clear;
 
-  if current_shove_list.Count>0
-     then begin
-            for n:=0 to current_shove_list.Count-1 do shove_combo.Items.Add(current_shove_list.Strings[n]);
-          end;
+  for n := 0 to current_shove_list.Count-1 do
+    begin
+    shove_combo.Items.Add(current_shove_list[n].timber_string);
+    end;
 
   if current_shove_str=''
      then begin
@@ -162,11 +162,11 @@ begin
                 n:=find_shove(current_shove_str,True);     // find it or create an empty slot.
                 if n>=0                                    // valid slot.
                    then begin
-                          with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
+                          with current_shove_list[n].shove_data do begin
                             if sv_code=0              // new slot.
                                then begin
                                       sv_code:=1;                                        // flag to shove this timber.
-                                      current_shove_list.Strings[n]:=current_shove_str;  // and add it to list.
+                                      current_shove_list[n].timber_string := current_shove_str;  // and add it to list.
                                     end;
                             shove_buttons(True,sv_code,n);
                           end;//with

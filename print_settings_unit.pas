@@ -286,10 +286,10 @@ begin
 
   Application.ProcessMessages;
 
-  save_current.keep_shove_list:=TStringList.Create;      // local stringlist
+  save_current.keep_shove_list := Tshoved_timber_list.Create;
   fill_kd(save_current);                               // save the current control template data.
 
-  ti.keep_shove_list:=TStringList.Create;  // local stringlist
+  ti.keep_shove_list := Tshoved_timber_list.Create;
 
   save_bgnd_option:=pad_form.show_bgnd_keeps_menu_entry.Checked;   // don't want a complete redraw for every template added.
   pad_form.hide_bgnd_keeps_menu_entry.Checked:=True;               // so switch bgnd off radio item.
@@ -376,8 +376,8 @@ begin
     pad_form.show_bgnd_keeps_menu_entry.Checked:=save_bgnd_option;   // restore, radio item.
 
     copy_keep(save_current);                         // reset current control template
-    free_shove_list(save_current.keep_shove_list);   // free the local stringlist.
-    free_shove_list(ti.keep_shove_list);             // free the local stringlist.
+    save_current.keep_shove_list.Free;
+    ti.keep_shove_list.Free;
     Screen.Cursor:=crDefault;
 
     wait_form.Close;
@@ -413,10 +413,7 @@ begin
 
     if Ttemplate(keeps_list.Objects[n]).bg_copied=True then wipe_it(n);  // any data on background
 
-    with Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list do begin
-      if Count>0 then for i:=0 to Count-1 do Tshoved_timber(Objects[i]).Free;
-      Free;
-    end;//with
+    Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
 
     Ttemplate(keeps_list.Objects[n]).Free;
     keeps_list.Delete(n);

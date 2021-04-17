@@ -606,17 +606,17 @@ var
 
                                 Add(' ');  // spacer
 
-                                Values['9800-s']:=next_ti.keep_shove_list.Strings[st];   // timber number string.
+                                Values['9800-s']:=next_ti.keep_shove_list[st].timber_string;
 
-                                Values['9900-i']:=IntToStr(Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_code);
-                                Values['9905-e']:=force_dot_decimal(Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_x);
-                                Values['9910-e']:=force_dot_decimal(Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_k);
-                                Values['9915-e']:=force_dot_decimal(Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_o);
-                                Values['9920-e']:=force_dot_decimal(Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_l);
-                                Values['9925-e']:=force_dot_decimal(Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_w);
-                                Values['9930-e']:=force_dot_decimal(Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_c);
-                                Values['9935-e']:=force_dot_decimal(Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_t);
-                                Values['9940-i']:=IntToStr(Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_sp_int);
+                                Values['9900-i']:=IntToStr(next_ti.keep_shove_list[st].shove_data.sv_code);
+                                Values['9905-e']:=force_dot_decimal(next_ti.keep_shove_list[st].shove_data.sv_x);
+                                Values['9910-e']:=force_dot_decimal(next_ti.keep_shove_list[st].shove_data.sv_k);
+                                Values['9915-e']:=force_dot_decimal(next_ti.keep_shove_list[st].shove_data.sv_o);
+                                Values['9920-e']:=force_dot_decimal(next_ti.keep_shove_list[st].shove_data.sv_l);
+                                Values['9925-e']:=force_dot_decimal(next_ti.keep_shove_list[st].shove_data.sv_w);
+                                Values['9930-e']:=force_dot_decimal(next_ti.keep_shove_list[st].shove_data.sv_c);
+                                Values['9935-e']:=force_dot_decimal(next_ti.keep_shove_list[st].shove_data.sv_t);
+                                Values['9940-i']:=IntToStr(next_ti.keep_shove_list[st].shove_data.sv_sp_int);
 
                                 Add(' ');  // spacer
 
@@ -717,7 +717,7 @@ begin
 
   encoded_list:=TStringList.Create;
 
-  next_ti.keep_shove_list:=TStringList.Create;   // init local stringlist
+  next_ti.keep_shove_list := Tshoved_timber_list.Create;
 
   for i:=0 to keeps_list.Count-1 do begin     // first write the template data.
 
@@ -1313,21 +1313,22 @@ var
                       if Values['9800-s']<>''
                          then begin
                                 try
-                                  st:=next_ti.keep_shove_list.AddObject(Values['9800-s'],Tshoved_timber.Create);   // create a new line in shove list
+                                  st := next_ti.keep_shove_list.Add(Tshoved_timber.Create);   // create a new line in shove list
+                                  next_ti.keep_shove_list[st].timber_string := Values['9800-s'];
                                 except
                                   val_code:=1;
                                   BREAK;
                                 end;
 
-                                if Values['9900-i']<>'' then Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_code:=StrToInt(Values['9900-i']);
-                                if Values['9905-e']<>'' then begin VAL(Values['9905-e'],Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_x,val_code); if val_code<>0 then BREAK; end;
-                                if Values['9910-e']<>'' then begin VAL(Values['9910-e'],Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_k,val_code); if val_code<>0 then BREAK; end;
-                                if Values['9915-e']<>'' then begin VAL(Values['9915-e'],Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_o,val_code); if val_code<>0 then BREAK; end;
-                                if Values['9920-e']<>'' then begin VAL(Values['9920-e'],Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_l,val_code); if val_code<>0 then BREAK; end;
-                                if Values['9925-e']<>'' then begin VAL(Values['9925-e'],Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_w,val_code); if val_code<>0 then BREAK; end;
-                                if Values['9930-e']<>'' then begin VAL(Values['9930-e'],Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_c,val_code); if val_code<>0 then BREAK; end;
-                                if Values['9935-e']<>'' then begin VAL(Values['9935-e'],Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_t,val_code); if val_code<>0 then BREAK; end;
-                                if Values['9940-i']<>'' then Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data.sv_sp_int:=StrToInt(Values['9940-i']);
+                                if Values['9900-i']<>'' then next_ti.keep_shove_list[st].shove_data.sv_code:=StrToInt(Values['9900-i']);
+                                if Values['9905-e']<>'' then begin VAL(Values['9905-e'],next_ti.keep_shove_list[st].shove_data.sv_x,val_code); if val_code<>0 then BREAK; end;
+                                if Values['9910-e']<>'' then begin VAL(Values['9910-e'],next_ti.keep_shove_list[st].shove_data.sv_k,val_code); if val_code<>0 then BREAK; end;
+                                if Values['9915-e']<>'' then begin VAL(Values['9915-e'],next_ti.keep_shove_list[st].shove_data.sv_o,val_code); if val_code<>0 then BREAK; end;
+                                if Values['9920-e']<>'' then begin VAL(Values['9920-e'],next_ti.keep_shove_list[st].shove_data.sv_l,val_code); if val_code<>0 then BREAK; end;
+                                if Values['9925-e']<>'' then begin VAL(Values['9925-e'],next_ti.keep_shove_list[st].shove_data.sv_w,val_code); if val_code<>0 then BREAK; end;
+                                if Values['9930-e']<>'' then begin VAL(Values['9930-e'],next_ti.keep_shove_list[st].shove_data.sv_c,val_code); if val_code<>0 then BREAK; end;
+                                if Values['9935-e']<>'' then begin VAL(Values['9935-e'],next_ti.keep_shove_list[st].shove_data.sv_t,val_code); if val_code<>0 then BREAK; end;
+                                if Values['9940-i']<>'' then next_ti.keep_shove_list[st].shove_data.sv_sp_int:=StrToInt(Values['9940-i']);
 
                               end;
 
@@ -1359,7 +1360,7 @@ begin
   input_list:=TStringList.Create;
   decode_list:=TStringList.Create;
 
-  next_ti.keep_shove_list:=TStringList.Create;  // local stringlist
+  next_ti.keep_shove_list := Tshoved_timber_list.Create;
 
   input_list.LoadFromFile(file_str);
 
@@ -1476,7 +1477,7 @@ begin
 
         // and recreate shove list for next template..
 
-      next_ti.keep_shove_list:=TStringList.Create;
+      next_ti.keep_shove_list := Tshoved_timber_list.Create;
 
       valid_template:=True;
       

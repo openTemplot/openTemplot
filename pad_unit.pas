@@ -35,7 +35,9 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Menus, StdCtrls, ExtCtrls, ComCtrls, Buttons,
 
-   ExtDlgs, ImgList, PrintersDlgs { OT-FIRST ,} { OT-FIRST ReadHTML,} { OT-FIRST framview} {,
+  ExtDlgs, ImgList, PrintersDlgs,
+  shoved_timber
+  { OT-FIRST ,} { OT-FIRST ReadHTML,} { OT-FIRST framview} {,
   OleCtnrs, OleCtrls, SHDocVw};
 
   {dtpGR32, Grids, Outline, DirOutln, ExtDlgs, Htmlview;  // 0.91.d  }
@@ -4433,7 +4435,7 @@ type
   Ttemplate_info=record       // template data.
 
                     keep_dims:Tkeep_dims;           // all the template dimemsions.
-                    keep_shove_list:TStringList;    // the list of shoved timbers. (v:0.71.a  27-4-01).
+                    keep_shove_list:Tshoved_timber_list;    // the list of shoved timbers. (v:0.71.a  27-4-01).
                  end;//record
 
 
@@ -16163,8 +16165,8 @@ begin
 
   if check_control_template_is_valid('split')=False then EXIT;  // 0.93.a  zero length
 
-  cur_tem.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
-  new_tem.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+  cur_tem.keep_shove_list := Tshoved_timber_list.Create;
+  new_tem.keep_shove_list := Tshoved_timber_list.Create;
   try
     fill_kd(cur_tem);  // first save the current.
 
@@ -16236,8 +16238,8 @@ begin
     rail_options_form.restore_all_button.Click;  // 211c
 
   finally
-    free_shove_list(cur_tem.keep_shove_list);   // free the local stringlist.
-    free_shove_list(new_tem.keep_shove_list);   // free the local stringlist.
+    cur_tem.keep_shove_list.Free;
+    new_tem.keep_shove_list.Free;
     show_and_redraw(True,True);                 // in case copy caused a current hide.
   end;//try
 end;
@@ -16289,7 +16291,7 @@ begin
   new_len:=turnoutx-pegx;    // save for the new curent template
 
   try
-    cur_tem.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+    cur_tem.keep_shove_list := Tshoved_timber_list.Create;
     fill_kd(cur_tem);                              // first save the current.
 
     turnoutx:=pegx;                       // shorten existing to peg
@@ -16344,7 +16346,7 @@ begin
             end;
 
   finally
-    free_shove_list(cur_tem.keep_shove_list);   // free the local stringlist.
+    cur_tem.keep_shove_list.Free;
     show_and_redraw(True,True);                 // in case copy caused a current hide.
   end;//try
 end;
@@ -18076,7 +18078,7 @@ begin
 
     turnout_i:=1;      // length locked at turnoutx.  so that plain track or approach and exit tracks can be drawn.
 
-    saved_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+    saved_current.keep_shove_list := Tshoved_timber_list.Create;
     fill_kd(saved_current);                              // save control template for restore.
     saved_name_str:=current_name_str;
     saved_current_memo_str:=current_memo_str;
@@ -18112,7 +18114,7 @@ begin
 
     info_form.ref_name_label.Caption:=current_name_str;
 
-    free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+    saved_current.keep_shove_list.Free;
 
     save_done:=False;
     backup_wanted:=True;
@@ -19429,7 +19431,7 @@ begin
   try
     turnout_i:=1;      // length locked at turnoutx.  so that plain track or approach and exit tracks can be drawn.
 
-    saved_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+    saved_current.keep_shove_list := Tshoved_timber_list.Create;
     fill_kd(saved_current);                              // save control template for restore.
     saved_name_str:=current_name_str;
     saved_current_memo_str:=current_memo_str;
@@ -19446,7 +19448,7 @@ begin
 
     info_form.ref_name_label.Caption:=current_name_str;
 
-    free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+    saved_current.keep_shove_list.Free;
 
     save_done:=False;
     backup_wanted:=True;
