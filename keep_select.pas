@@ -2193,7 +2193,7 @@ var
                                                with next_ti.keep_shove_list[ns] do begin
 
                                                  sv_str:=next_ti.keep_shove_list[ns].timber_string;  // timber number string.
-                                                 sv_code:=shove_data.sv_code;                 // 0=empty slot, -1=omit this timber,  1=shove this timber.
+                                                 sv_code := Ord(shove_data.sv_code);
 
                                                  sv_x:=shove_data.sv_x;    // xtb modifier.
                                                  sv_k:=shove_data.sv_k;    // angle modifier.

@@ -163,9 +163,9 @@ begin
                 if n>=0                                    // valid slot.
                    then begin
                           with current_shove_list[n].shove_data do begin
-                            if sv_code=0              // new slot.
+                            if sv_code = svcEmpty
                                then begin
-                                      sv_code:=1;                                        // flag to shove this timber.
+                                      sv_code := svcShove;
                                       current_shove_list[n].timber_string := current_shove_str;  // and add it to list.
                                     end;
                             shove_buttons(True,sv_code,n);
@@ -175,7 +175,7 @@ begin
                         end
                    else begin
                           current_shove_str:='';         // !!! error?
-                          shove_buttons(False,0,-1);
+                          shove_buttons(False, svcEmpty, -1);
                         end;
                 EXIT;         // found this timber number.
               end;

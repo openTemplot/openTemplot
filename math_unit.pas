@@ -13151,7 +13151,7 @@ begin
       )
        then begin
               shove_index:=find_shove(current_shove_str,False);
-              shove_buttons(True,0,shove_index);
+              shove_buttons(True, svcEmpty, shove_index);
             end;
 
   if (shift_mod=1) and (cancelling_adjusts=False)
@@ -22035,14 +22035,14 @@ begin
        then begin
               for n:=0 to current_shove_list.Count-1 do begin
                 with current_shove_list[n].shove_data do begin
-                  if (marktext_str=current_shove_list[n].timber_string) and (sv_code=-1) then EXIT; // omit this timber, shove list.
+                  if (marktext_str=current_shove_list[n].timber_string) and (sv_code = svcOmit) then EXIT; // omit this timber, shove list.
                 end;//with
               end;//next
             end
        else begin                             // show numbers for omitted timbers when shoving...
               for n:=0 to current_shove_list.Count-1 do begin
                 with current_shove_list[n].shove_data do begin
-                  if (marktext_str=current_shove_list[n].timber_string) and (sv_code=-1)
+                  if (marktext_str=current_shove_list[n].timber_string) and (sv_code = svcOmit)
                      then begin                   // find somewhere to put it, timber centre-line calcs will be omitted.
                             pnum.x:=xtb;
                             pnum.y:=tbnumy_screen/2;            //  /2 arbitrary, to hihglight omitting.
@@ -22191,11 +22191,11 @@ begin
 
   for n:=0 to current_shove_list.Count-1 do begin
     with current_shove_list[n].shove_data do begin
-      if (str=current_shove_list[n].timber_string) and (sv_code<>0)   // this timber number is in shove list.
+      if (str=current_shove_list[n].timber_string) and (sv_code <> svcEmpty)   // this timber number is in shove list.
          then begin
                 if (shove_timber_form.Showing=True) and (shove_timber_form.show_all_blue_checkbox.Checked=True) then shove_this:=40;  // will be drawn highlighted in blue or red.
 
-                if sv_code=-1            // this value in the list is a flag.
+                if sv_code = svcOmit     // this value in the list is a flag.
                    then omit:=True       // he wants this timber omitted.
                    else begin
                           xshove:=sv_x;
@@ -22460,11 +22460,11 @@ begin
 
   for n:=0 to current_shove_list.Count-1 do begin
     with current_shove_list[n].shove_data do begin
-      if (str=current_shove_list[n].timber_string) and (sv_code<>0)              // this timber number is in shove list.
+      if (str=current_shove_list[n].timber_string) and (sv_code <> svcEmpty)              // this timber number is in shove list.
          then begin
                 if (shove_timber_form.Showing=True) and (shove_timber_form.show_all_blue_checkbox.Checked=True) then shove_this:=90;  // draw highlighted blue if required (may be overidden later for red if currently selected).
 
-                if sv_code=-1                         // this value in the list is a flag.
+                if sv_code = svcOmit                         // this value in the list is a flag.
                    then EXIT//omit:=True              // he wants this timber omitted.
                    else begin
                           xns:=xns+sv_x-sv_w;         // he wants it shoved along and/or widened/narrowed.
@@ -23241,7 +23241,7 @@ begin
      then begin
             current_shove_str:='';      // de-select any shoved timber.
             shovetimbx:=0;
-            shove_buttons(False,0,-1);
+            shove_buttons(False, svcEmpty, -1);
           end;
 
   enable_peg_positions;    // to enable/disable the peg options for Ctrl-# KB shortcuts.
@@ -27640,9 +27640,9 @@ begin
            or (sv_t<>0)        // spare (thickness 3-D modifier - nyi).
            or (sv_sp_int<>0)   // spare.
 
-           or (sv_code=-1)  )  // omitted.
+           or (sv_code = svcOmit)  )  // omitted.
 
-      and (sv_code<>0)        // valid slot.
+      and (sv_code <> svcEmpty)        // valid slot.
 
           then begin
                  INC(n);
@@ -27694,7 +27694,7 @@ begin
     with Items[n].shove_data do
       begin    // init the data.
 
-      sv_code := 0;     // 0=empty slot, -1=omit this timber,  1=shove this timber.
+      sv_code := svcEmpty;
       sv_x := 0;        // xtb modifier.
       sv_k := 0;        // angle modifier.
       sv_o := 0;        // offset modifier (near end).
@@ -27722,7 +27722,7 @@ begin
             current_shove_list[shove_index].timber_string := current_shove_str;
             with current_shove_list[shove_index].shove_data do begin
 
-              sv_code:=1;                           // might be an empty slot, or omitted.
+              sv_code := svcShove;                  // might be an empty slot, or omitted.
               sv_x:=shovex;                         // enter (or re-enter) current data.
               //sv_k:=shovek;
               //sv_o:=shoveo;
@@ -27752,7 +27752,7 @@ begin
      then begin
             current_shove_list[shove_index].timber_string := current_shove_str;
             with current_shove_list[shove_index].shove_data do begin
-              sv_code:=1;
+              sv_code := svcShove;
               //sv_x:=shovex;                // enter (or re-enter) current data.
               //sv_k:=shovek;
               sv_o:=shoveo;
@@ -27781,7 +27781,7 @@ begin
      then begin
             current_shove_list[shove_index].timber_string := current_shove_str;
             with current_shove_list[shove_index].shove_data do begin
-              sv_code:=1;
+              sv_code := svcShove;
               //sv_x:=shovex;                // enter (or re-enter) current data.
               //sv_k:=shovek;
               //sv_o:=shoveo;
@@ -27811,7 +27811,7 @@ begin
             current_shove_list[shove_index].timber_string := current_shove_str;
             with current_shove_list[shove_index].shove_data do begin
 
-              sv_code:=1;                           // might be an empty slot, or omitted.
+              sv_code := svcShove;                           // might be an empty slot, or omitted.
               //sv_x:=shovex;                         // enter (or re-enter) current data.
               //sv_k:=shovek;
               //sv_o:=shoveo;
@@ -27841,7 +27841,7 @@ begin
             current_shove_list[shove_index].timber_string := current_shove_str;
             with current_shove_list[shove_index].shove_data do begin
 
-              sv_code:=1;              // might be an empty slot, or omitted.
+              sv_code := svcShove;              // might be an empty slot, or omitted.
               //sv_x:=shovex;          // enter (or re-enter) current data.
               //sv_k:=shovek;
               //sv_o:=shoveo;
@@ -27871,7 +27871,7 @@ begin
             current_shove_list[shove_index].timber_string := current_shove_str;
             with current_shove_list[shove_index].shove_data do begin
 
-              sv_code:=1;                           // might be an empty slot, or omitted.
+              sv_code := svcShove;                           // might be an empty slot, or omitted.
               //sv_x:=shovex;                       // enter (or re-enter) current data.
               sv_k:=shovek;
               //sv_o:=shoveo;
@@ -29345,9 +29345,9 @@ begin
                 if n>=0                                // found a slot.
                    then begin
                           with current_shove_list[n].shove_data do begin
-                            if sv_code=0
+                            if sv_code = svcEmpty
                                then begin
-                                      sv_code:=1;                                        // flag to shove this timber if not already in list.
+                                      sv_code := svcShove;                                        // flag to shove this timber if not already in list.
                                       current_shove_list[n].timber_string := current_shove_str;
                                     end;
                             shove_buttons(True,sv_code,n);
@@ -29355,7 +29355,7 @@ begin
                         end
                    else begin
                           current_shove_str:='';         // !!! no room for it ?
-                          shove_buttons(False,0,-1);
+                          shove_buttons(False, svcEmpty,-1);
                         end;
                 redraw(True);
                 EXIT;

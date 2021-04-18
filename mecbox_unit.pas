@@ -608,7 +608,7 @@ var
 
                                 Values['9800-s']:=next_ti.keep_shove_list[st].timber_string;
 
-                                Values['9900-i']:=IntToStr(next_ti.keep_shove_list[st].shove_data.sv_code);
+                                Values['9900-i']:=IntToStr(Ord(next_ti.keep_shove_list[st].shove_data.sv_code));
                                 Values['9905-e']:=force_dot_decimal(next_ti.keep_shove_list[st].shove_data.sv_x);
                                 Values['9910-e']:=force_dot_decimal(next_ti.keep_shove_list[st].shove_data.sv_k);
                                 Values['9915-e']:=force_dot_decimal(next_ti.keep_shove_list[st].shove_data.sv_o);
@@ -1320,7 +1320,7 @@ var
                                   BREAK;
                                 end;
 
-                                if Values['9900-i']<>'' then next_ti.keep_shove_list[st].shove_data.sv_code:=StrToInt(Values['9900-i']);
+                                if Values['9900-i']<>'' then next_ti.keep_shove_list[st].shove_data.sv_code:=Tshove_code(StrToInt(Values['9900-i']));
                                 if Values['9905-e']<>'' then begin VAL(Values['9905-e'],next_ti.keep_shove_list[st].shove_data.sv_x,val_code); if val_code<>0 then BREAK; end;
                                 if Values['9910-e']<>'' then begin VAL(Values['9910-e'],next_ti.keep_shove_list[st].shove_data.sv_k,val_code); if val_code<>0 then BREAK; end;
                                 if Values['9915-e']<>'' then begin VAL(Values['9915-e'],next_ti.keep_shove_list[st].shove_data.sv_o,val_code); if val_code<>0 then BREAK; end;

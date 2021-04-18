@@ -12,11 +12,11 @@ uses
   Generics.Collections;
 
 type
+  Tshove_code = (svcOmit = -1, svcEmpty = 0, svcShove = 1);
 
   Tshove_data = record     // shove data for a single timber ( version 0.71 11-4-01 ).
 
-    sv_code: integer;
-    // 0=empty slot, -1=omit this timber,  1=shove this timber.
+    sv_code: Tshove_code;
     sv_x: extended;    // xtb modifier.
     sv_k: extended;    // angle modifier.
     sv_o: extended;    // offset modifier (near end).
