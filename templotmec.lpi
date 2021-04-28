@@ -207,7 +207,9 @@
       <Unit25>
         <Filename Value="shove_timber.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="shove_timber_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit25>
       <Unit26>
         <Filename Value="stay_visible_unit.pas"/>
@@ -241,7 +243,9 @@
       <Unit31>
         <Filename Value="enter_timber.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="enter_timber_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit31>
       <Unit32>
         <Filename Value="jotter_unit.pas"/>

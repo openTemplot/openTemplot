@@ -604,18 +604,6 @@ T048_shoves=array[0..shovedim_c_048] of Told_shove;   // timber shove info for t
                                                       // but is not used in the program.
 
 
-Tshove_for_file=record    // Used in the SHOVE DATA BLOCKS in the 071 files.
-                          // But not used within the program - see Ttimber_shove.shove_data instead.
-                          // Conversion takes place in 071 on loading.
-
-                  sf_str:string[6];           // timber number string.
-
-                  alignment_byte_1:byte;   // D5 0.81 12-06-05
-
-                  sf_shove_data:Tshove_data;  // all the data.
-
-                end;//record
-
 // Tkeep_dims has the shove timber data omitted.  v:0.71.a  29-4-01.
 
 Tkeep_dims1=record      // first part of Tkeep_dims
@@ -2184,25 +2172,25 @@ var
                                var
                                  ns:integer;
                                  shoves_048:T048_shoves;
+                                 shove: Tshoved_timber;
 
                                begin
                                  for ns:=0 to shovedim_c_048 do begin      // 0..29  , 30 shoved timbers max in 048 format.
                                    with shoves_048[ns] do begin
                                      if ns<next_ti.keep_shove_list.Count
                                         then begin
-                                               with next_ti.keep_shove_list[ns] do begin
+                                               shove := next_ti.keep_shove_list[ns];
 
-                                                 sv_str:=next_ti.keep_shove_list[ns].timber_string;  // timber number string.
-                                                 sv_code := Ord(shove_data.sv_code);
+                                                 sv_str := shove.timber_string;  // timber number string.
+                                                 sv_code := Ord(shove.sv_code);
 
-                                                 sv_x:=shove_data.sv_x;    // xtb modifier.
-                                                 sv_k:=shove_data.sv_k;    // angle modifier.
-                                                 sv_o:=shove_data.sv_o;    // offset modifier (near end).
-                                                 sv_l:=shove_data.sv_l;    // length modifier (far end).
-                                                 sv_w:=shove_data.sv_w;    // width modifier (per side).
+                                                 sv_x:=shove.sv_x;    // xtb modifier.
+                                                 sv_k:=shove.sv_k;    // angle modifier.
+                                                 sv_o:=shove.sv_o;    // offset modifier (near end).
+                                                 sv_l:=shove.sv_l;    // length modifier (far end).
+                                                 sv_w:=shove.sv_w;    // width modifier (per side).
                                                  sv_t:=0;                  // nyi - integer.
 
-                                               end;//with
                                              end
                                         else begin       // no more data available.
 
@@ -2578,9 +2566,7 @@ begin
                then begin
 
                       for st:=0 to shove_count-1 do begin
-
-                        shove_timber_data.sf_str := next_ti.keep_shove_list[st].timber_string;
-                        shove_timber_data.sf_shove_data := next_ti.keep_shove_list[st].shove_data;
+                        shove_timber_data.copy_from(next_ti.keep_shove_list[st]);
 
                         BlockWrite(box_file, shove_timber_data, SizeOf(Tshove_for_file), number_written);      // first the count of shoved timbers.
                         if number_written<>SizeOf(Tshove_for_file)
@@ -2775,9 +2761,7 @@ var
                                                                       end;
 
                                                               try
-                                                                st:=Add(Tshoved_timber.Create);
-                                                                Items[st].timber_string := shove_timber_data.sf_str;
-                                                                Items[st].shove_data := shove_timber_data.sf_shove_data;
+                                                                st:=Add(Tshoved_timber.CreateFrom(shove_timber_data));
                                                               except
                                                                 EXIT;       // memory problem?
                                                               end;//try

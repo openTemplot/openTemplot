@@ -162,20 +162,14 @@ begin
                 n:=find_shove(current_shove_str,True);     // find it or create an empty slot.
                 if n>=0                                    // valid slot.
                    then begin
-                          with current_shove_list[n].shove_data do begin
-                            if sv_code = svcEmpty
-                               then begin
-                                      sv_code := svcShove;
-                                      current_shove_list[n].timber_string := current_shove_str;  // and add it to list.
-                                    end;
-                            shove_buttons(True,sv_code,n);
-                          end;//with
+                          current_shove_list[n].make_shoved;
+                          shove_buttons(True, n);
 
                           RESULT:=True;
                         end
                    else begin
                           current_shove_str:='';         // !!! error?
-                          shove_buttons(False, svcEmpty, -1);
+                          shove_buttons(False, -1);
                         end;
                 EXIT;         // found this timber number.
               end;

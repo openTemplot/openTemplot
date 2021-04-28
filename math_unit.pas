@@ -10818,7 +10818,7 @@ procedure trail_shove_along(X:integer);
 
 begin
   shovex:=shovex_now+(X-shove_now_x)/fx/shove_mouse_factor/2;                      // /2 arbitrary.
-  current_shove_list[shove_index].shove_data.sv_x:=shovex;
+  current_shove_list[shove_index].sv_x:=shovex;
 
   shovetimbx:=shovetimbx_now+(X-shovetimb_now)/fx/shove_mouse_factor/2;
 
@@ -10831,7 +10831,7 @@ procedure trail_shove_throw(Y:integer);
 
 begin
   shoveo:=shoveo_now+(Y-shove_now_y)*ffy*hand_i/shove_mouse_factor;
-  current_shove_list[shove_index].shove_data.sv_o:=shoveo;
+  current_shove_list[shove_index].sv_o:=shoveo;
 end;
 //________________________________________________________________________________________
 
@@ -10839,7 +10839,7 @@ procedure trail_shove_crab(X:integer);
 
 begin
   shovec:=shovec_now+(X-shove_now_x)/fx/shove_mouse_factor/2;     // /2 arbitrary.
-  current_shove_list[shove_index].shove_data.sv_c:=shovec;
+  current_shove_list[shove_index].sv_c:=shovec;
 end;
 //________________________________________________________________________________________
 
@@ -10847,7 +10847,7 @@ procedure trail_shove_length(Y:integer);
 
 begin
   shovel:=shovel_now+(Y-shove_now_y)*ffy*hand_i/shove_mouse_factor;
-  current_shove_list[shove_index].shove_data.sv_l:=shovel;
+  current_shove_list[shove_index].sv_l:=shovel;
 end;
 //________________________________________________________________________________________
 
@@ -10855,7 +10855,7 @@ procedure trail_shove_width(X:integer);
 
 begin
   shovew:=shovew_now+(X-shove_now_x)/fx/shove_mouse_factor/4;                      // /4 arbitrary.
-  current_shove_list[shove_index].shove_data.sv_w:=shovew;
+  current_shove_list[shove_index].sv_w:=shovew;
 end;
 //________________________________________________________________________________________
 
@@ -10864,7 +10864,7 @@ procedure trail_shove_twist(Y:integer);
 begin
   shovek:=shovek_now+(Y-shove_now_y)*ffy*hand_i/(shove_mouse_factor*screenx);
   normalize_angle(shovek);
-  current_shove_list[shove_index].shove_data.sv_k:=shovek;
+  current_shove_list[shove_index].sv_k:=shovek;
 end;
 //________________________________________________________________________________________
 
@@ -13151,7 +13151,7 @@ begin
       )
        then begin
               shove_index:=find_shove(current_shove_str,False);
-              shove_buttons(True, svcEmpty, shove_index);
+              shove_buttons(True, shove_index);
             end;
 
   if (shift_mod=1) and (cancelling_adjusts=False)
@@ -17281,14 +17281,7 @@ begin
                                           get_cpi;      // use these modified values.
 
                                           for n:=0 to current_shove_list.Count-1 do begin  // rescale (!!! scale ratio, not gauge) the timber shove dims ...
-                                            with current_shove_list[n].shove_data do begin     // shove data records.
-                                              sv_x:=sv_x*mod_scale_ratio;        // xtb modifier.
-                                              //sv_k                             // angle modifier (no change).
-                                              sv_o:=sv_o*mod_scale_ratio;        // offset modifier (near end).
-                                              sv_l:=sv_l*mod_scale_ratio;        // length modifier (far end).
-                                              sv_w:=sv_w*mod_scale_ratio;        // width modifier (per side).
-                                              sv_t:=sv_t*mod_scale_ratio;        // thickness modifier (nyi).
-                                            end;//with
+                                            current_shove_list[n].rescale(mod_scale_ratio);
                                           end;//for
 
 
@@ -22034,15 +22027,12 @@ begin
     if shove_timber_form.Showing=False        // not shoving.
        then begin
               for n:=0 to current_shove_list.Count-1 do begin
-                with current_shove_list[n].shove_data do begin
-                  if (marktext_str=current_shove_list[n].timber_string) and (sv_code = svcOmit) then EXIT; // omit this timber, shove list.
-                end;//with
+                  if (marktext_str=current_shove_list[n].timber_string) and (current_shove_list[n].sv_code = svcOmit) then EXIT; // omit this timber, shove list.
               end;//next
             end
        else begin                             // show numbers for omitted timbers when shoving...
               for n:=0 to current_shove_list.Count-1 do begin
-                with current_shove_list[n].shove_data do begin
-                  if (marktext_str=current_shove_list[n].timber_string) and (sv_code = svcOmit)
+                  if (marktext_str=current_shove_list[n].timber_string) and (current_shove_list[n].sv_code = svcOmit)
                      then begin                   // find somewhere to put it, timber centre-line calcs will be omitted.
                             pnum.x:=xtb;
                             pnum.y:=tbnumy_screen/2;            //  /2 arbitrary, to hihglight omitting.
@@ -22053,7 +22043,6 @@ begin
                             p2.y:=p1.y;
 
                           end;
-                end;//with
               end;//next
             end;
 
@@ -22132,6 +22121,8 @@ var                                // enter with xtb, yns, yfs, tbq
   dummy:extended;
   x_curmod,x_curtimb,y_curmod,y_curtimb,k_curtimb:extended;
 
+  shove: Tshoved_timber;
+
                   ////////////////////////////////////////////////////////////
 
                   procedure calc_fill_timber_mark(code:integer);
@@ -22190,26 +22181,25 @@ begin
                      // see if this one gets shoved or omitted...
 
   for n:=0 to current_shove_list.Count-1 do begin
-    with current_shove_list[n].shove_data do begin
-      if (str=current_shove_list[n].timber_string) and (sv_code <> svcEmpty)   // this timber number is in shove list.
+    shove := current_shove_list[n];
+      if (str=shove.timber_string) and (shove.sv_code <> svcEmpty)   // this timber number is in shove list.
          then begin
                 if (shove_timber_form.Showing=True) and (shove_timber_form.show_all_blue_checkbox.Checked=True) then shove_this:=40;  // will be drawn highlighted in blue or red.
 
-                if sv_code = svcOmit     // this value in the list is a flag.
+                if shove.sv_code = svcOmit     // this value in the list is a flag.
                    then omit:=True       // he wants this timber omitted.
                    else begin
-                          xshove:=sv_x;
-                          kshove:=sv_k;
-                          oshove:=sv_o;
-                          lshove:=sv_l;
-                          wshove:=sv_w;
-                          cshove:=sv_c;
+                          xshove:=shove.sv_x;
+                          kshove:=shove.sv_k;
+                          oshove:=shove.sv_o;
+                          lshove:=shove.sv_l;
+                          wshove:=shove.sv_w;
+                          cshove:=shove.sv_c;
 
                           xtimbcl:=xtb+xshove;   // he wants it shoved.
                         end;
                 BREAK;
               end;
-    end;//with
   end;//for
                     // see if this one is selected for shoving...
 
@@ -22358,6 +22348,7 @@ var
   num_bridge:integer;
 
   bridge_over_ride:boolean;
+  shove: Tshoved_timber;
 
                   ////////////////////////////////////////////////////////////
 
@@ -22459,38 +22450,37 @@ begin
                     // see if this one gets shoved or omitted...
 
   for n:=0 to current_shove_list.Count-1 do begin
-    with current_shove_list[n].shove_data do begin
-      if (str=current_shove_list[n].timber_string) and (sv_code <> svcEmpty)              // this timber number is in shove list.
+    shove := current_shove_list[n];
+      if (str=shove.timber_string) and (shove.sv_code <> svcEmpty)              // this timber number is in shove list.
          then begin
                 if (shove_timber_form.Showing=True) and (shove_timber_form.show_all_blue_checkbox.Checked=True) then shove_this:=90;  // draw highlighted blue if required (may be overidden later for red if currently selected).
 
-                if sv_code = svcOmit                         // this value in the list is a flag.
+                if shove.sv_code = svcOmit                         // this value in the list is a flag.
                    then EXIT//omit:=True              // he wants this timber omitted.
                    else begin
-                          xns:=xns+sv_x-sv_w;         // he wants it shoved along and/or widened/narrowed.
-                          xfs:=xfs+sv_x+sv_w;
+                          xns:=xns+shove.sv_x-shove.sv_w;         // he wants it shoved along and/or widened/narrowed.
+                          xfs:=xfs+shove.sv_x+shove.sv_w;
 
                           if xfs<(xns-inscale/2)      // if shoving produces a negative width (by more than 1/2" scale), average the sides to the centre-line.
                              then begin
                                     xfs:=(xfs+xns)/2;
                                     xns:=xfs;
-                                    sv_w:=0;          // reset normal to prevent further narrowing.
+                                    shove.sv_w:=0;          // reset normal to prevent further narrowing.
                                   end;
 
-                          keq:=keq+sv_k;              // and/or twisted.
+                          keq:=keq+shove.sv_k;              // and/or twisted.
 
-                          yns:=yns+sv_o;              // and/or shoved across.
-                          ynsred:=ynsred+sv_o;
+                          yns:=yns+shove.sv_o;              // and/or shoved across.
+                          ynsred:=ynsred+shove.sv_o;
 
-                          yfs:=yfs+sv_o+sv_l;
-                          yfsred:=yfsred+sv_o+sv_l;
+                          yfs:=yfs+shove.sv_o+shove.sv_l;
+                          yfsred:=yfsred+shove.sv_o+shove.sv_l;
 
-                          throw:=sv_o;   // for read-out panel..
-                          crab:=sv_c;
+                          throw:=shove.sv_o;   // for read-out panel..
+                          crab:=shove.sv_c;
                         end;
                 BREAK;
               end;
-    end;//with
   end;//for
 
   xtimbcl:=(xns+xfs)/2;  // timber centre.
@@ -23241,7 +23231,7 @@ begin
      then begin
             current_shove_str:='';      // de-select any shoved timber.
             shovetimbx:=0;
-            shove_buttons(False, svcEmpty, -1);
+            shove_buttons(False, -1);
           end;
 
   enable_peg_positions;    // to enable/disable the peg options for Ctrl-# KB shortcuts.
@@ -27626,33 +27616,19 @@ var
   n:integer;
 
 begin
-  n:=0;
-  while n<current_shove_list.Count do begin
+  n := 0;
+  while n < current_shove_list.Count do
+    begin
+    if current_shove_list[n].can_restore then
+      begin
+      Inc(n);
+      end
+    else
+      begin
+      current_shove_list.Delete(n);
+      end;
 
-    with current_shove_list[n].shove_data do begin
-
-      if (    (sv_x<>0)        // xtb modifier.
-           or (sv_k<>0)        // angle modifier.
-           or (sv_o<>0)        // offset modifier (near end).
-           or (sv_l<>0)        // length modifier (far end).
-           or (sv_w<>0)        // width modifier (per side).
-           or (sv_c<>0)        // crab modifier (per side).
-           or (sv_t<>0)        // spare (thickness 3-D modifier - nyi).
-           or (sv_sp_int<>0)   // spare.
-
-           or (sv_code = svcOmit)  )  // omitted.
-
-      and (sv_code <> svcEmpty)        // valid slot.
-
-          then begin
-                 INC(n);
-                 CONTINUE; // leave this one.
-               end;
-    end;//with
-
-    current_shove_list.Delete(n);
-
-  end;//while    // no need to increment n, it is now pointing to the next entry.
+    end;
 end;
 //___________________________________________________________________________________________
 
@@ -27691,20 +27667,6 @@ begin
     n := Add(Tshoved_timber.Create);          // create new entry and return the index.
     Items[n].timber_string := str;
 
-    with Items[n].shove_data do
-      begin    // init the data.
-
-      sv_code := svcEmpty;
-      sv_x := 0;        // xtb modifier.
-      sv_k := 0;        // angle modifier.
-      sv_o := 0;        // offset modifier (near end).
-      sv_l := 0;        // length modifier (far end).
-      sv_w := 0;        // width modifier (per side).
-      sv_c := 0;        // crab modifier (per side).
-      sv_t := 0;        // spare (thickness 3-D modifier - nyi).
-      sv_sp_int := 0;   // spare integer.
-
-      end;//with
     end;//with
 
   Result := n;
@@ -27719,22 +27681,12 @@ begin
 
   if shove_index<>-1
      then begin
-            current_shove_list[shove_index].timber_string := current_shove_str;
-            with current_shove_list[shove_index].shove_data do begin
-
-              sv_code := svcShove;                  // might be an empty slot, or omitted.
-              sv_x:=shovex;                         // enter (or re-enter) current data.
-              //sv_k:=shovek;
-              //sv_o:=shoveo;
-              //sv_l:=shovel;
-              //sv_w:=shovew;
-              //sv_c:=shovec;
+            current_shove_list[shove_index].set_shovex(shovex);
 
               mouse_action_selected('    shove  timber  along ...','shove  timber  along',current_shove_str+'  along  by : '+captext(shovex)+' mm');
               shove_along_mod:=1;
               full_draw:=True;     //  otherwise can't see the timbers.
               EXIT;
-            end;//with
           end;
 
   shove_index:=0;   // safety - don't leave it invalid.
@@ -27750,21 +27702,12 @@ begin
 
   if shove_index<>-1
      then begin
-            current_shove_list[shove_index].timber_string := current_shove_str;
-            with current_shove_list[shove_index].shove_data do begin
-              sv_code := svcShove;
-              //sv_x:=shovex;                // enter (or re-enter) current data.
-              //sv_k:=shovek;
-              sv_o:=shoveo;
-              //sv_l:=shovel;
-              //sv_w:=shovew;
-              //sv_c:=shovec;
+            current_shove_list[shove_index].set_offset(shoveo);
 
               mouse_action_selected('    throw  timber  endways ...','throw  timber  endways',current_shove_str+'  throw  by : '+captext(shoveo)+' mm');
               shove_throw_mod:=1;
               full_draw:=True;         //  otherwise can't see the timbers.
               EXIT;
-            end;//with
           end;
 
   shove_index:=0;   // safety - don't leave it invalid.
@@ -27779,21 +27722,11 @@ begin
 
   if shove_index<>-1
      then begin
-            current_shove_list[shove_index].timber_string := current_shove_str;
-            with current_shove_list[shove_index].shove_data do begin
-              sv_code := svcShove;
-              //sv_x:=shovex;                // enter (or re-enter) current data.
-              //sv_k:=shovek;
-              //sv_o:=shoveo;
-              //sv_l:=shovel;
-              //sv_w:=shovew;
-              sv_c:=shovec;
-
+            current_shove_list[shove_index].set_crab(shovec);
               mouse_action_selected('    crab  timber  sideways ...','crab  timber  sideways',current_shove_str+'  crab  by : '+captext(shovec)+' mm');
               shove_crab_mod:=1;
               full_draw:=True;         //  otherwise can't see the timbers.
               EXIT;
-            end;//with
           end;
 
   shove_index:=0;   // safety - don't leave it invalid.
@@ -27808,22 +27741,11 @@ begin
 
   if shove_index<>-1
      then begin
-            current_shove_list[shove_index].timber_string := current_shove_str;
-            with current_shove_list[shove_index].shove_data do begin
-
-              sv_code := svcShove;                           // might be an empty slot, or omitted.
-              //sv_x:=shovex;                         // enter (or re-enter) current data.
-              //sv_k:=shovek;
-              //sv_o:=shoveo;
-              sv_l:=shovel;
-              //sv_w:=shovew;
-              //sv_c:=shovec;
-
+            current_shove_list[shove_index].set_length(shovel);
               mouse_action_selected('    lengthen  timber ...','lengthen  timber',current_shove_str+'  lengthened  by : '+captext(shovel)+' mm');
               shove_length_mod:=1;
               full_draw:=True;      //  otherwise can't see the timbers.
               EXIT;
-            end;//with
           end;
 
   shove_index:=0;   // safety - don't leave it invalid.
@@ -27838,22 +27760,11 @@ begin
 
   if shove_index<>-1
      then begin
-            current_shove_list[shove_index].timber_string := current_shove_str;
-            with current_shove_list[shove_index].shove_data do begin
-
-              sv_code := svcShove;              // might be an empty slot, or omitted.
-              //sv_x:=shovex;          // enter (or re-enter) current data.
-              //sv_k:=shovek;
-              //sv_o:=shoveo;
-              //sv_l:=shovel;
-              sv_w:=shovew;
-              //sv_c:=shovec;
-
+            current_shove_list[shove_index].set_width(shovew);
               mouse_action_selected('    widen  timber ...','widen  timber',current_shove_str+'  widened  by : '+captext(shovew*2)+' mm');
               shove_width_mod:=1;
               full_draw:=True;     //  otherwise can't see the timbers.
               EXIT;
-            end;//with
           end;
 
   shove_index:=0;   // safety - don't leave it invalid.
@@ -27868,22 +27779,12 @@ begin
 
   if shove_index<>-1
      then begin
-            current_shove_list[shove_index].timber_string := current_shove_str;
-            with current_shove_list[shove_index].shove_data do begin
-
-              sv_code := svcShove;                           // might be an empty slot, or omitted.
-              //sv_x:=shovex;                       // enter (or re-enter) current data.
-              sv_k:=shovek;
-              //sv_o:=shoveo;
-              //sv_l:=shovel;
-              //sv_w:=shovew;
-              //sv_c:=shovec;
+            current_shove_list[shove_index].set_twist(shovek);
 
               mouse_action_selected('    twist  timber ...','twist  timber',current_shove_str+'  twisted  by : '+captext(shovek*180/Pi)+' degrees'+k_ram_str(shovek));
               shove_twist_mod:=1;
               full_draw:=True;      //  otherwise can't see the timbers.
               EXIT;
-            end;//with
           end;
 
   shove_index:=0;   // safety - don't leave it invalid.
@@ -29344,18 +29245,15 @@ begin
                 n:=find_shove(current_shove_str,True); // find it or an empty slot, or warn him if no room.
                 if n>=0                                // found a slot.
                    then begin
-                          with current_shove_list[n].shove_data do begin
-                            if sv_code = svcEmpty
+                          if current_shove_list[n].sv_code = svcEmpty
                                then begin
-                                      sv_code := svcShove;                                        // flag to shove this timber if not already in list.
-                                      current_shove_list[n].timber_string := current_shove_str;
+                                      current_shove_list[n].sv_code := svcShove;                     // flag to shove this timber if not already in list.
                                     end;
-                            shove_buttons(True,sv_code,n);
-                          end;//with
+                            shove_buttons(True, n);
                         end
                    else begin
                           current_shove_str:='';         // !!! no room for it ?
-                          shove_buttons(False, svcEmpty,-1);
+                          shove_buttons(False, -1);
                         end;
                 redraw(True);
                 EXIT;
