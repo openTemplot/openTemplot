@@ -573,36 +573,7 @@ interface
 
 // 290a - these type declarations moved into the interface for mecbox_unit
 
-const
-
-shovedim_c_048=29;     // up to 30 timbers could be shoved pre version 0.71.a
-
 type
-
-Told_shove=record    // old Tshove record - shove data for a single timber.
-                     // as used in program pre version 0.71.a and still used for the
-                     // old_shove_info entry in the turnout_info part of a keep_data record on file.
-                     // (array of 0..29 of these records). For compatibility when loaded into versions pre 071.
-                     // (The first 30 shoved timbers in a template).
-                     // 68 bytes per record.
-
-         sv_code :integer;     // 0=empty slot, -1=omit this timber,  1=shove this timber.
-         sv_str  :string[8];   // timber number string.
-
-         alignment_byte_1:byte;   // D5 0.81 12-06-05
-
-         sv_x    :extended;    // xtb modifier.
-         sv_k    :extended;    // angle modifier.
-         sv_o    :extended;    // offset modifier (near end).
-         sv_l    :extended;    // length modifier (far end).
-         sv_w    :extended;    // width modifier (per side).
-         sv_t    :integer;     // nyi - thickness modifier in 1000ths of mm. (was spare integer).
-       end;
-
-T048_shoves=array[0..shovedim_c_048] of Told_shove;   // timber shove info for this turnout (first 30 shoved timbers only).
-                                                      // this data goes in the files for compatibility with old program versions,
-                                                      // but is not used in the program.
-
 
 // Tkeep_dims has the shove timber data omitted.  v:0.71.a  29-4-01.
 
@@ -622,7 +593,6 @@ Told_keep_data=record    // this matches the old Tkeep_data record pre 071 inclu
                          // used on loading files.
 
                  old_keep_dims1:Tkeep_dims1;
-                 //old_keep_shoves:T048_shoves;        // removed from OT format
                  old_keep_dims2:Tkeep_dims2;
 
                end;//record.
@@ -2101,7 +2071,6 @@ function save_box(this_one, which_ones, rolling_backup:integer; save_str:string)
 var
   fsize:integer;
   box_str, backup_del_str:string;
-  old_048_shoves:T048_shoves;              // old 048 shove data record.
 
   next_ti:Ttemplate_info;    // new 071 data type.
   group_count:integer;
@@ -2167,47 +2136,6 @@ var
                                end;
                                /////////////////////////////////////////////////////////////
 
-                               function create_048_shoves(next_ti:Ttemplate_info):T048_shoves;  // convert data to old 048 format.
-
-                               var
-                                 ns:integer;
-                                 shoves_048:T048_shoves;
-                                 shove: Tshoved_timber;
-
-                               begin
-                                 for ns:=0 to shovedim_c_048 do begin      // 0..29  , 30 shoved timbers max in 048 format.
-                                   with shoves_048[ns] do begin
-                                     if ns<next_ti.keep_shove_list.Count
-                                        then begin
-                                               shove := next_ti.keep_shove_list[ns];
-
-                                                 sv_str := shove.timber_string;  // timber number string.
-                                                 sv_code := Ord(shove.sv_code);
-
-                                                 sv_x:=shove.sv_x;    // xtb modifier.
-                                                 sv_k:=shove.sv_k;    // angle modifier.
-                                                 sv_o:=shove.sv_o;    // offset modifier (near end).
-                                                 sv_l:=shove.sv_l;    // length modifier (far end).
-                                                 sv_w:=shove.sv_w;    // width modifier (per side).
-                                                 sv_t:=0;                  // nyi - integer.
-
-                                             end
-                                        else begin       // no more data available.
-
-                                               sv_code:=0;     // 0=empty slot, -1=omit this timber,  1=shove this timber.
-                                               sv_str:='';     // timber number string.
-                                               sv_x:=0;        // xtb modifier.
-                                               sv_k:=0;        // angle modifier.
-                                               sv_o:=0;        // offset modifier (near end).
-                                               sv_l:=0;        // length modifier (far end).
-                                               sv_w:=0;        // width modifier (per side).
-                                               sv_t:=0;        // nyi.
-                                             end;
-                                   end;//with
-                                 end;
-                                 RESULT:=shoves_048;
-                               end;
-                               //////////////////////////////////////////////////////////////
 
 begin
   RESULT:=False;      // init default.
