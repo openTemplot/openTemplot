@@ -798,7 +798,7 @@ var
   include_xing_timbers:boolean=True;
 
   approach_rails_only:boolean=False;  // 218a
-  
+
 
   f5_quarter_steps:boolean=True;       // mouse adjusts crossing angles in 1/4 steps.
   f9_quarter_steps:boolean=False;   // F9 mouse action any V-crossing angle.
@@ -1355,7 +1355,8 @@ uses
   calibration_unit, { OT-FIRST pdf_unit,} export_unit, platform_unit, data_memo_unit,
 
   math2_unit, check_diffs_unit, rail_options_unit, { OT-FIRST file_viewer, chairs_unit,}
-  trackbed_unit, create_tandem, xtc_unit;
+  trackbed_unit, create_tandem, xtc_unit,
+  shoved_timber;
 
 const
 
@@ -2016,12 +2017,7 @@ end;
 
 procedure clear_shovedata;     // clear any current timber shoves.
 
-var
-  n:integer;
-
 begin
-
-  if current_shove_list.Count>0 then for n:=0 to current_shove_list.Count-1 do Tshoved_timber(current_shove_list.Objects[n]).Free;
   current_shove_list.Clear;
 end;
 //_________________________________________________________________________________________
@@ -2598,7 +2594,7 @@ begin
 
   cess_ms_width_ins:=27;         // Single   215a  2ft-3in full-size cess width MS
   cess_ts_width_ins:=27;
-         
+
   //draw_trackbed_cess_edge:=False;           out of use 215a
 
   draw_ms_trackbed_cess_edge:=False;       // 215a
@@ -4733,7 +4729,7 @@ begin
 
                            // show the main details:
 
-          Add('template generated at '+TimeToStr(Time)+' on '+DateToStr(Date)+' using Templot0 v:'+FormatFloat('0.00',program_version/100)+version_build);
+          Add('template generated at '+TimeToStr(Time)+' on '+DateToStr(Date)+' using Templot0 v:'+GetVersionString(voFull));
           Add('scale = '+round_str(scale,2)+' mm/ft     scale ratio = 1:'+round_str(304.8/scale,2));
           Add('track gauge = '+round_str(g,2)+'    flangeway gap = '+round_str(fw,2));
 
@@ -5362,7 +5358,7 @@ begin
                      -1: Add(indent_str+'knuckle bend = sharp');
                       0: Add(indent_str+'knuckle bend radius (normal) = '+round_str(knuck_rad,2));
                       1: Add(indent_str+'knuckle bend radius (custom) = '+round_str(knuck_rad,2));
-                   end;//case   
+                   end;//case
 
                    Add(indent_str+'blunt nose to timber A = '+round_str(bn_to_a*inscale,2));
                    Add(indent_str+'width of blunt nose = '+round_str(bn_wide*inscale,2));
@@ -5719,7 +5715,7 @@ begin
 end;
 //_________________________________________________________________________________________
 
-function new_marks_list(var list_p:Pointer):boolean;     //###
+function new_marks_list(var marks:Tmark_array):boolean;     //###
 
                         // return pointer to array of pointers to Tmark records.
 var
@@ -5734,22 +5730,9 @@ var
 begin
   RESULT:=True;                                 // assume good result.
 
-  if list_p<>nil
+  if marks<>nil
      then begin                                 // first free any previous memory.
-            array_max:=intarray_max(list_p);
-            for n:=0 to array_max do begin
-              p:=Pointer(intarray_get(list_p,n));
-              if p<>nil
-                 then begin
-                        try
-                          Dispose(p);
-                        except
-                          RESULT:=False;
-                          EXIT;
-                        end;//try
-                      end;
-            end;//for
-            intarray_free(list_p);
+            SetLength(marks, 0);
           end;
 
                 // estimate number of marks needed...
@@ -5809,22 +5792,11 @@ begin
 
   mark_count:=mark_count+24;     // 24 more for luck.
 
-  list_p:=intarray_create(mark_count,False);    // array of pointers to Tmark records.
-  if list_p<>nil
-     then begin
-            for n:=0 to mark_count do begin
-              try
-                New(p);
-              except
-                RESULT:=False;
-                p:=nil;
-              end;//try
-
-              intarray_set(list_p,n,Integer(p));  // put pointer to each mark (or nil) in array.
-            end;//for
-          end
-     else RESULT:=False;
-
+  try
+    SetLength(marks, mark_count);
+  except
+    RESULT := False;
+  end;
 end;
 //___________________________________________________________________________________________
 
@@ -7408,7 +7380,7 @@ begin
                  9: begin                        // ditto, outer-edges.
                       //xb:=wingcox;
                       xb:=wingcox_plus;      // 214a start at end of knuckle_rad.
-                      
+
                       xe:=flarecox;
                       docrossing(aq,{fl,}xb,xe,1);
 
@@ -10846,7 +10818,7 @@ procedure trail_shove_along(X:integer);
 
 begin
   shovex:=shovex_now+(X-shove_now_x)/fx/shove_mouse_factor/2;                      // /2 arbitrary.
-  Tshoved_timber(current_shove_list.Objects[shove_index]).shove_data.sv_x:=shovex;
+  current_shove_list[shove_index].sv_x:=shovex;
 
   shovetimbx:=shovetimbx_now+(X-shovetimb_now)/fx/shove_mouse_factor/2;
 
@@ -10859,7 +10831,7 @@ procedure trail_shove_throw(Y:integer);
 
 begin
   shoveo:=shoveo_now+(Y-shove_now_y)*ffy*hand_i/shove_mouse_factor;
-  Tshoved_timber(current_shove_list.Objects[shove_index]).shove_data.sv_o:=shoveo;
+  current_shove_list[shove_index].sv_o:=shoveo;
 end;
 //________________________________________________________________________________________
 
@@ -10867,7 +10839,7 @@ procedure trail_shove_crab(X:integer);
 
 begin
   shovec:=shovec_now+(X-shove_now_x)/fx/shove_mouse_factor/2;     // /2 arbitrary.
-  Tshoved_timber(current_shove_list.Objects[shove_index]).shove_data.sv_c:=shovec;
+  current_shove_list[shove_index].sv_c:=shovec;
 end;
 //________________________________________________________________________________________
 
@@ -10875,7 +10847,7 @@ procedure trail_shove_length(Y:integer);
 
 begin
   shovel:=shovel_now+(Y-shove_now_y)*ffy*hand_i/shove_mouse_factor;
-  Tshoved_timber(current_shove_list.Objects[shove_index]).shove_data.sv_l:=shovel;
+  current_shove_list[shove_index].sv_l:=shovel;
 end;
 //________________________________________________________________________________________
 
@@ -10883,7 +10855,7 @@ procedure trail_shove_width(X:integer);
 
 begin
   shovew:=shovew_now+(X-shove_now_x)/fx/shove_mouse_factor/4;                      // /4 arbitrary.
-  Tshoved_timber(current_shove_list.Objects[shove_index]).shove_data.sv_w:=shovew;
+  current_shove_list[shove_index].sv_w:=shovew;
 end;
 //________________________________________________________________________________________
 
@@ -10892,7 +10864,7 @@ procedure trail_shove_twist(Y:integer);
 begin
   shovek:=shovek_now+(Y-shove_now_y)*ffy*hand_i/(shove_mouse_factor*screenx);
   normalize_angle(shovek);
-  Tshoved_timber(current_shove_list.Objects[shove_index]).shove_data.sv_k:=shovek;
+  current_shove_list[shove_index].sv_k:=shovek;
 end;
 //________________________________________________________________________________________
 
@@ -10958,7 +10930,7 @@ begin
                     end
                else begin
                       if f5_quarter_steps=True then k3n:=INT(k3n*4+0.5)/4;  //  round unusual crossing angles to nearest .25.
-                      hdkn:=k3n;                                            // F5 maintains regular half-diamond (use F9, F10 for irregular)   
+                      hdkn:=k3n;                                            // F5 maintains regular half-diamond (use F9, F10 for irregular)
                     end;
 
             set_xing_k_i;
@@ -12822,12 +12794,12 @@ begin
 
   if clicked=True
      then begin
-            temp_ti.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+            temp_ti.keep_shove_list := Tshoved_timber_list.Create;
             try
               fill_kd(temp_ti);                            // this sequence updates all the menu check marks, etc..
               copy_keep(temp_ti);
             finally
-              free_shove_list(temp_ti.keep_shove_list);   // free the local stringlist.
+              temp_ti.keep_shove_list.Free;
               show_and_redraw(False,True);                // might be hidden. (allow rollback).
             end;
 
@@ -13179,7 +13151,7 @@ begin
       )
        then begin
               shove_index:=find_shove(current_shove_str,False);
-              shove_buttons(True,0,shove_index);
+              shove_buttons(True, shove_index);
             end;
 
   if (shift_mod=1) and (cancelling_adjusts=False)
@@ -17309,14 +17281,7 @@ begin
                                           get_cpi;      // use these modified values.
 
                                           for n:=0 to current_shove_list.Count-1 do begin  // rescale (!!! scale ratio, not gauge) the timber shove dims ...
-                                            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin     // shove data records.
-                                              sv_x:=sv_x*mod_scale_ratio;        // xtb modifier.
-                                              //sv_k                             // angle modifier (no change).
-                                              sv_o:=sv_o*mod_scale_ratio;        // offset modifier (near end).
-                                              sv_l:=sv_l*mod_scale_ratio;        // length modifier (far end).
-                                              sv_w:=sv_w*mod_scale_ratio;        // width modifier (per side).
-                                              sv_t:=sv_t*mod_scale_ratio;        // thickness modifier (nyi).
-                                            end;//with
+                                            current_shove_list[n].rescale(mod_scale_ratio);
                                           end;//for
 
 
@@ -18262,7 +18227,7 @@ begin
                    // -------- ready to go...
 
   try
-    saved_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+    saved_current.keep_shove_list := Tshoved_timber_list.Create;
     fill_kd(saved_current);                              // save control template in case of error...
     saved_name_str:=current_name_str;
     saved_memo_str:=current_memo_str;
@@ -18645,7 +18610,7 @@ begin
     clicked_keep_index:=-1;          // so can popup again.
     do_rollback:=True;
 
-    free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+    saved_current.keep_shove_list.Free;
     show_and_redraw(True,True);                       // in case copy caused a current hide.
   end;//try
 end;
@@ -19336,11 +19301,11 @@ begin
              //###
 
   if marks_list_ptr=nil then EXIT;        // pointer to marks list not valid.
-  markmax:=intarray_max(marks_list_ptr);  // max index for the present list.
+  markmax:=High(marks_list_ptr);  // max index for the present list.
 
   if mark_index>markmax{_c} then mark_index:=markmax{_c};
 
-  ptr:=Pointer(intarray_get(marks_list_ptr,mark_index));  // pointer to the next Tmark record.
+  ptr:=@marks_list_ptr[mark_index];  // pointer to the next Tmark record.
 
   if ptr=nil then EXIT;
 
@@ -20781,7 +20746,7 @@ begin
     for i:=0 to (mark_index-1){markmax_c} do begin   // (mark_index is always the next free slot)
 
       try
-        ptr_1st:=Pointer(intarray_get(marks_list_ptr,i));  // pointer to the next Tmark record.
+        ptr_1st:=@marks_list_ptr[i];  // pointer to the next Tmark record.
         if ptr_1st=nil then EXIT;
 
 
@@ -20793,7 +20758,7 @@ begin
 
         if ((code=203) or (code=233) or (code=293) or (code=493) ) and (i<(mark_index-1))      // timber infill, chair outlines
            then begin
-                  ptr_2nd:=Pointer(intarray_get(marks_list_ptr,i+1));        // pointer to the second infill Tmark record.
+                  ptr_2nd:=@marks_list_ptr[i+1];        // pointer to the second infill Tmark record.
                   if ptr_2nd=nil then EXIT;
 
                   p3:=ptr_2nd^.p1;              // x3,y3 in  1/100ths mm
@@ -22062,15 +22027,12 @@ begin
     if shove_timber_form.Showing=False        // not shoving.
        then begin
               for n:=0 to current_shove_list.Count-1 do begin
-                with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-                  if (marktext_str=current_shove_list.Strings[n]) and (sv_code=-1) then EXIT; // omit this timber, shove list.
-                end;//with
+                  if (marktext_str=current_shove_list[n].timber_string) and (current_shove_list[n].sv_code = svcOmit) then EXIT; // omit this timber, shove list.
               end;//next
             end
        else begin                             // show numbers for omitted timbers when shoving...
               for n:=0 to current_shove_list.Count-1 do begin
-                with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-                  if (marktext_str=current_shove_list.Strings[n]) and (sv_code=-1)
+                  if (marktext_str=current_shove_list[n].timber_string) and (current_shove_list[n].sv_code = svcOmit)
                      then begin                   // find somewhere to put it, timber centre-line calcs will be omitted.
                             pnum.x:=xtb;
                             pnum.y:=tbnumy_screen/2;            //  /2 arbitrary, to hihglight omitting.
@@ -22081,7 +22043,6 @@ begin
                             p2.y:=p1.y;
 
                           end;
-                end;//with
               end;//next
             end;
 
@@ -22160,6 +22121,8 @@ var                                // enter with xtb, yns, yfs, tbq
   dummy:extended;
   x_curmod,x_curtimb,y_curmod,y_curtimb,k_curtimb:extended;
 
+  shove: Tshoved_timber;
+
                   ////////////////////////////////////////////////////////////
 
                   procedure calc_fill_timber_mark(code:integer);
@@ -22218,26 +22181,25 @@ begin
                      // see if this one gets shoved or omitted...
 
   for n:=0 to current_shove_list.Count-1 do begin
-    with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-      if (str=current_shove_list.Strings[n]) and (sv_code<>0)   // this timber number is in shove list.
+    shove := current_shove_list[n];
+      if (str=shove.timber_string) and (shove.sv_code <> svcEmpty)   // this timber number is in shove list.
          then begin
                 if (shove_timber_form.Showing=True) and (shove_timber_form.show_all_blue_checkbox.Checked=True) then shove_this:=40;  // will be drawn highlighted in blue or red.
 
-                if sv_code=-1            // this value in the list is a flag.
+                if shove.sv_code = svcOmit     // this value in the list is a flag.
                    then omit:=True       // he wants this timber omitted.
                    else begin
-                          xshove:=sv_x;
-                          kshove:=sv_k;
-                          oshove:=sv_o;
-                          lshove:=sv_l;
-                          wshove:=sv_w;
-                          cshove:=sv_c;
+                          xshove:=shove.sv_x;
+                          kshove:=shove.sv_k;
+                          oshove:=shove.sv_o;
+                          lshove:=shove.sv_l;
+                          wshove:=shove.sv_w;
+                          cshove:=shove.sv_c;
 
                           xtimbcl:=xtb+xshove;   // he wants it shoved.
                         end;
                 BREAK;
               end;
-    end;//with
   end;//for
                     // see if this one is selected for shoving...
 
@@ -22386,6 +22348,7 @@ var
   num_bridge:integer;
 
   bridge_over_ride:boolean;
+  shove: Tshoved_timber;
 
                   ////////////////////////////////////////////////////////////
 
@@ -22487,38 +22450,37 @@ begin
                     // see if this one gets shoved or omitted...
 
   for n:=0 to current_shove_list.Count-1 do begin
-    with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-      if (str=current_shove_list.Strings[n]) and (sv_code<>0)              // this timber number is in shove list.
+    shove := current_shove_list[n];
+      if (str=shove.timber_string) and (shove.sv_code <> svcEmpty)              // this timber number is in shove list.
          then begin
                 if (shove_timber_form.Showing=True) and (shove_timber_form.show_all_blue_checkbox.Checked=True) then shove_this:=90;  // draw highlighted blue if required (may be overidden later for red if currently selected).
 
-                if sv_code=-1                         // this value in the list is a flag.
+                if shove.sv_code = svcOmit                         // this value in the list is a flag.
                    then EXIT//omit:=True              // he wants this timber omitted.
                    else begin
-                          xns:=xns+sv_x-sv_w;         // he wants it shoved along and/or widened/narrowed.
-                          xfs:=xfs+sv_x+sv_w;
+                          xns:=xns+shove.sv_x-shove.sv_w;         // he wants it shoved along and/or widened/narrowed.
+                          xfs:=xfs+shove.sv_x+shove.sv_w;
 
                           if xfs<(xns-inscale/2)      // if shoving produces a negative width (by more than 1/2" scale), average the sides to the centre-line.
                              then begin
                                     xfs:=(xfs+xns)/2;
                                     xns:=xfs;
-                                    sv_w:=0;          // reset normal to prevent further narrowing.
+                                    shove.sv_w:=0;          // reset normal to prevent further narrowing.
                                   end;
 
-                          keq:=keq+sv_k;              // and/or twisted.
+                          keq:=keq+shove.sv_k;              // and/or twisted.
 
-                          yns:=yns+sv_o;              // and/or shoved across.
-                          ynsred:=ynsred+sv_o;
+                          yns:=yns+shove.sv_o;              // and/or shoved across.
+                          ynsred:=ynsred+shove.sv_o;
 
-                          yfs:=yfs+sv_o+sv_l;
-                          yfsred:=yfsred+sv_o+sv_l;
+                          yfs:=yfs+shove.sv_o+shove.sv_l;
+                          yfsred:=yfsred+shove.sv_o+shove.sv_l;
 
-                          throw:=sv_o;   // for read-out panel..
-                          crab:=sv_c;
+                          throw:=shove.sv_o;   // for read-out panel..
+                          crab:=shove.sv_c;
                         end;
                 BREAK;
               end;
-    end;//with
   end;//for
 
   xtimbcl:=(xns+xfs)/2;  // timber centre.
@@ -23030,7 +22992,7 @@ begin
                                else rawfs:=rawfs+yaq3-g*0.6;
 
             if tandem_timb=4
-               then rawns:=g*3+rawns*4-rawfs; //rawns+(g-rawfs)/2;                   
+               then rawns:=g*3+rawns*4-rawfs; //rawns+(g-rawfs)/2;
 
 
           end;
@@ -23269,7 +23231,7 @@ begin
      then begin
             current_shove_str:='';      // de-select any shoved timber.
             shovetimbx:=0;
-            shove_buttons(False,0,-1);
+            shove_buttons(False, -1);
           end;
 
   enable_peg_positions;    // to enable/disable the peg options for Ctrl-# KB shortcuts.
@@ -23425,7 +23387,7 @@ begin
   bgkeep_rail_colour:=clBlue;
   bgkeep_timber_colour:=$00608000;         // sage green.
   bgkeep_timberfill_colour:=$00C0C090;
-  
+
   bgkeep_mark_colour:=clBlack;
   bgkeep_peg_colour:=clYellow;
 
@@ -24167,7 +24129,7 @@ var
   rand_label_factor:extended;
 
 begin
-  if keep_info.keep_shove_list=nil then keep_info.keep_shove_list:=TStringList.Create;
+  if keep_info.keep_shove_list=nil then keep_info.keep_shove_list := Tshoved_timber_list.Create;
 
   FillChar(keep_info.keep_dims, SizeOf(keep_info.keep_dims),0);    // all unused bytes to zero.  26-6-00
 
@@ -24226,7 +24188,7 @@ begin
     bgnd_code_077:=0;                  // can't go on background until in keeps box.
     pre077_bgnd_flag:=False;           // in case reloaded in older version than 0.77.a
 
-    templot_version:=program_version;  // program version number (*100, e.g Templot0 v:1.3 = 130).
+    templot_version:=file_version;
 
     gauge_index:=gauge_i;            // index into the gauge list. Only for showing the list,
                                      // the data comes from the file.
@@ -25943,7 +25905,7 @@ begin
           end;
 
   try
-    cur_tem.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+    cur_tem.keep_shove_list := Tshoved_timber_list.Create;
     fill_kd(cur_tem);                              // first save the current.
 
     crop_approach;       // then crop all approach.
@@ -25999,7 +25961,7 @@ begin
     rail_options_form.restore_all_button.Click;  // 211c
 
   finally
-    free_shove_list(cur_tem.keep_shove_list);   // free the local stringlist.
+    cur_tem.keep_shove_list.Free;
     show_and_redraw(True,True);                 // in case copy caused a current hide.
   end;//try
 end;
@@ -26196,7 +26158,7 @@ begin
                '','','','','cancel','continue - make  crossover  at  current  setting    ',0)=5 then EXIT;
           end;
 
-  save_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+  save_current.keep_shove_list := Tshoved_timber_list.Create;
 
   try
     fill_kd(save_current);                              // in case he wants to cancel.
@@ -26325,7 +26287,7 @@ begin
     RESULT:=True;
 
   finally
-    free_shove_list(save_current.keep_shove_list);   // free the local stringlist.
+    save_current.keep_shove_list.Free;
   end;//try
 end;
 //_____________________________________________________________________________________
@@ -26748,7 +26710,7 @@ begin
 
   saved_notch:=get_current_notch;     // save his current notch position.
 
-  save_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+  save_current.keep_shove_list := Tshoved_timber_list.Create;
 
   try
     fill_kd(save_current);                              // in case he wants to cancel.
@@ -26837,7 +26799,7 @@ begin
 
     if spiral=True then os:=pegx-old_trans_end;
     gocalc(0,0);
-    
+
     if slewing=True then slew_s:=pegx-old_slew_end;
     gocalc(0,0);
 
@@ -26850,7 +26812,7 @@ begin
     gocalc(0,0);                               // so can centralize pad.
 
   finally
-    free_shove_list(save_current.keep_shove_list);   // free the local stringlist.
+    save_current.keep_shove_list.Free;
     set_current_notch(saved_notch);                  // restore his notch.
 
     pad_form.pad_on_peg_menu_entry.Click;            // centralize pad on it.
@@ -26965,7 +26927,7 @@ begin
     rollback_reg[i].rollback_name_str:='';    // 0.93.a
     rollback_reg[i].rollback_memo_str:='';    // ...
 
-    rollback_reg[i].rollback_info.keep_shove_list:=TStringList.Create;
+    rollback_reg[i].rollback_info.keep_shove_list := Tshoved_timber_list.Create;
   end;
 
   undo_index:=0;
@@ -26981,7 +26943,7 @@ begin
   notch_index:=0-1;         // increments to zero on first use.
 
 
-  for i:=0 to 2 do parking_bay[i].keep_shove_list:=TStringList.Create;      // added 0.93.a
+  for i:=0 to 2 do parking_bay[i].keep_shove_list := Tshoved_timber_list.Create;
 
 end;
 //__________________________________________________________________________________________
@@ -27654,79 +27616,60 @@ var
   n:integer;
 
 begin
-  n:=0;
-  while n<current_shove_list.Count do begin
+  n := 0;
+  while n < current_shove_list.Count do
+    begin
+    if current_shove_list[n].can_restore then
+      begin
+      Inc(n);
+      end
+    else
+      begin
+      current_shove_list.Delete(n);
+      end;
 
-    with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-
-      if (    (sv_x<>0)        // xtb modifier.
-           or (sv_k<>0)        // angle modifier.
-           or (sv_o<>0)        // offset modifier (near end).
-           or (sv_l<>0)        // length modifier (far end).
-           or (sv_w<>0)        // width modifier (per side).
-           or (sv_c<>0)        // crab modifier (per side).
-           or (sv_t<>0)        // spare (thickness 3-D modifier - nyi).
-           or (sv_sp_int<>0)   // spare.
-
-           or (sv_code=-1)  )  // omitted.
-
-      and (sv_code<>0)        // valid slot.
-
-          then begin
-                 INC(n);
-                 CONTINUE; // leave this one.
-               end;
-    end;//with
-
-    Tshoved_timber(current_shove_list.Objects[n]).Free;
-    current_shove_list.Delete(n);
-
-  end;//while    // no need to increment n, it is now pointing to the next entry.
+    end;
 end;
 //___________________________________________________________________________________________
 
 function find_shove(str:string; create_new:boolean):integer;     // find str in current shove list, or create an empty slot for it.
                                                                  // return -1 if not present and not creating new.
 var
-  n:integer;
+  n: integer;
+  i: integer;
 
 begin
-  RESULT:=-1;                   // init.
+  Result := -1;                   // init.
 
   delete_null_shove_entries;    // first remove any unshoved entries.
 
-  with current_shove_list do begin               // mods for 0.71.a 27-4-01 ...
+  with current_shove_list do
+    begin               // mods for 0.71.a 27-4-01 ...
 
-    if Count>0
-       then begin
-              n:=IndexOf(str);
-              if n>=0
-                 then begin
-                        RESULT:=n;
-                        EXIT;           // already in list.
-                      end;
-            end;
+    n := -1;
+    for i := 0 to Count - 1 do
+      begin
+      if Items[i].timber_string = str then
+        begin
+        n := i;
+        break;
+        end;
+      end;
+    if n >= 0 then
+      begin
+      Result := n;
+      EXIT;           // already in list.
+      end;
 
-    if create_new=False then EXIT;
+    if create_new = False then
+      EXIT;
 
-    n:=AddObject(str,Tshoved_timber.Create);          // create new entry and return the index.
-
-    with Tshoved_timber(Objects[n]).shove_data do begin    // init the data.
-
-           sv_code:=0;     // 0=empty slot, -1=omit this timber,  1=shove this timber.
-           sv_x:=0;        // xtb modifier.
-           sv_k:=0;        // angle modifier.
-           sv_o:=0;        // offset modifier (near end).
-           sv_l:=0;        // length modifier (far end).
-           sv_w:=0;        // width modifier (per side).
-           sv_c:=0;        // crab modifier (per side).
-           sv_t:=0;        // spare (thickness 3-D modifier - nyi).
-           sv_sp_int:=0;   // spare integer.
+    n := Add(Tshoved_timber.Create);          // create new entry and return the index.
+    Items[n].timber_string := str;
 
     end;//with
-  end;//with
 
-  RESULT:=n;
+  Result := n;
 end;
 //______________________________________________________________________________________
 
@@ -27738,22 +27681,12 @@ begin
 
   if shove_index<>-1
      then begin
-            current_shove_list.Strings[shove_index]:=current_shove_str;
-            with Tshoved_timber(current_shove_list.Objects[shove_index]).shove_data do begin
-
-              sv_code:=1;                           // might be an empty slot, or omitted.
-              sv_x:=shovex;                         // enter (or re-enter) current data.
-              //sv_k:=shovek;
-              //sv_o:=shoveo;
-              //sv_l:=shovel;
-              //sv_w:=shovew;
-              //sv_c:=shovec;
+            current_shove_list[shove_index].set_shovex(shovex);
 
               mouse_action_selected('    shove  timber  along ...','shove  timber  along',current_shove_str+'  along  by : '+captext(shovex)+' mm');
               shove_along_mod:=1;
               full_draw:=True;     //  otherwise can't see the timbers.
               EXIT;
-            end;//with
           end;
 
   shove_index:=0;   // safety - don't leave it invalid.
@@ -27769,21 +27702,12 @@ begin
 
   if shove_index<>-1
      then begin
-            current_shove_list.Strings[shove_index]:=current_shove_str;
-            with Tshoved_timber(current_shove_list.Objects[shove_index]).shove_data do begin
-              sv_code:=1;
-              //sv_x:=shovex;                // enter (or re-enter) current data.
-              //sv_k:=shovek;
-              sv_o:=shoveo;
-              //sv_l:=shovel;
-              //sv_w:=shovew;
-              //sv_c:=shovec;
+            current_shove_list[shove_index].set_offset(shoveo);
 
               mouse_action_selected('    throw  timber  endways ...','throw  timber  endways',current_shove_str+'  throw  by : '+captext(shoveo)+' mm');
               shove_throw_mod:=1;
               full_draw:=True;         //  otherwise can't see the timbers.
               EXIT;
-            end;//with
           end;
 
   shove_index:=0;   // safety - don't leave it invalid.
@@ -27798,21 +27722,11 @@ begin
 
   if shove_index<>-1
      then begin
-            current_shove_list.Strings[shove_index]:=current_shove_str;
-            with Tshoved_timber(current_shove_list.Objects[shove_index]).shove_data do begin
-              sv_code:=1;
-              //sv_x:=shovex;                // enter (or re-enter) current data.
-              //sv_k:=shovek;
-              //sv_o:=shoveo;
-              //sv_l:=shovel;
-              //sv_w:=shovew;
-              sv_c:=shovec;
-
+            current_shove_list[shove_index].set_crab(shovec);
               mouse_action_selected('    crab  timber  sideways ...','crab  timber  sideways',current_shove_str+'  crab  by : '+captext(shovec)+' mm');
               shove_crab_mod:=1;
               full_draw:=True;         //  otherwise can't see the timbers.
               EXIT;
-            end;//with
           end;
 
   shove_index:=0;   // safety - don't leave it invalid.
@@ -27827,22 +27741,11 @@ begin
 
   if shove_index<>-1
      then begin
-            current_shove_list.Strings[shove_index]:=current_shove_str;
-            with Tshoved_timber(current_shove_list.Objects[shove_index]).shove_data do begin
-
-              sv_code:=1;                           // might be an empty slot, or omitted.
-              //sv_x:=shovex;                         // enter (or re-enter) current data.
-              //sv_k:=shovek;
-              //sv_o:=shoveo;
-              sv_l:=shovel;
-              //sv_w:=shovew;
-              //sv_c:=shovec;
-
+            current_shove_list[shove_index].set_length(shovel);
               mouse_action_selected('    lengthen  timber ...','lengthen  timber',current_shove_str+'  lengthened  by : '+captext(shovel)+' mm');
               shove_length_mod:=1;
               full_draw:=True;      //  otherwise can't see the timbers.
               EXIT;
-            end;//with
           end;
 
   shove_index:=0;   // safety - don't leave it invalid.
@@ -27857,22 +27760,11 @@ begin
 
   if shove_index<>-1
      then begin
-            current_shove_list.Strings[shove_index]:=current_shove_str;
-            with Tshoved_timber(current_shove_list.Objects[shove_index]).shove_data do begin
-
-              sv_code:=1;              // might be an empty slot, or omitted.
-              //sv_x:=shovex;          // enter (or re-enter) current data.
-              //sv_k:=shovek;
-              //sv_o:=shoveo;
-              //sv_l:=shovel;
-              sv_w:=shovew;
-              //sv_c:=shovec;
-
+            current_shove_list[shove_index].set_width(shovew);
               mouse_action_selected('    widen  timber ...','widen  timber',current_shove_str+'  widened  by : '+captext(shovew*2)+' mm');
               shove_width_mod:=1;
               full_draw:=True;     //  otherwise can't see the timbers.
               EXIT;
-            end;//with
           end;
 
   shove_index:=0;   // safety - don't leave it invalid.
@@ -27887,22 +27779,12 @@ begin
 
   if shove_index<>-1
      then begin
-            current_shove_list.Strings[shove_index]:=current_shove_str;
-            with Tshoved_timber(current_shove_list.Objects[shove_index]).shove_data do begin
-
-              sv_code:=1;                           // might be an empty slot, or omitted.
-              //sv_x:=shovex;                       // enter (or re-enter) current data.
-              sv_k:=shovek;
-              //sv_o:=shoveo;
-              //sv_l:=shovel;
-              //sv_w:=shovew;
-              //sv_c:=shovec;
+            current_shove_list[shove_index].set_twist(shovek);
 
               mouse_action_selected('    twist  timber ...','twist  timber',current_shove_str+'  twisted  by : '+captext(shovek*180/Pi)+' degrees'+k_ram_str(shovek));
               shove_twist_mod:=1;
               full_draw:=True;      //  otherwise can't see the timbers.
               EXIT;
-            end;//with
           end;
 
   shove_index:=0;   // safety - don't leave it invalid.
@@ -29068,7 +28950,7 @@ begin
 
   if main_road_mod=1         then begin adjust_direct(82); EXIT; end;    // 217a
 
-  if gaunt_radius_mod=1      then begin adjust_direct(83); EXIT; end;    // 217b 
+  if gaunt_radius_mod=1      then begin adjust_direct(83); EXIT; end;    // 217b
 
 end;
 //______________________________________________________________________________
@@ -29324,7 +29206,7 @@ begin
 
   if marks_list_ptr=nil then EXIT;        // pointer to marks list not valid.
 
-  markmax:=intarray_max(marks_list_ptr);  // max index for the present list.
+  markmax:=High(marks_list_ptr);  // max index for the present list.
 
   if mark_index>markmax then mark_index:=markmax;  // ??? shouldn't be.
 
@@ -29332,7 +29214,7 @@ begin
 
   for i:=0 to (mark_index-1) do begin     // (mark_index is always the next free slot)
     try
-      ptr_1st:=Pointer(intarray_get(marks_list_ptr,i));  // pointer to the next Tmark record.
+      ptr_1st:=@marks_list_ptr[i];  // pointer to the next Tmark record.
       if ptr_1st=nil then EXIT;
 
       code:=ptr_1st^.code;
@@ -29363,18 +29245,15 @@ begin
                 n:=find_shove(current_shove_str,True); // find it or an empty slot, or warn him if no room.
                 if n>=0                                // found a slot.
                    then begin
-                          with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-                            if sv_code=0
+                          if current_shove_list[n].sv_code = svcEmpty
                                then begin
-                                      sv_code:=1;                                        // flag to shove this timber if not already in list.
-                                      current_shove_list.Strings[n]:=current_shove_str;
+                                      current_shove_list[n].sv_code := svcShove;                     // flag to shove this timber if not already in list.
                                     end;
-                            shove_buttons(True,sv_code,n);
-                          end;//with
+                            shove_buttons(True, n);
                         end
                    else begin
                           current_shove_str:='';         // !!! no room for it ?
-                          shove_buttons(False,0,-1);
+                          shove_buttons(False, -1);
                         end;
                 redraw(True);
                 EXIT;
@@ -29420,7 +29299,7 @@ begin
 
   if marks_list_ptr=nil then EXIT;        // pointer to marks list not valid.
 
-  markmax:=intarray_max(marks_list_ptr);  // max index for the present list.
+  markmax:=High(marks_list_ptr);  // max index for the present list.
 
   if mark_index>markmax then mark_index:=markmax;  // ??? shouldn't be.
 
@@ -29428,7 +29307,7 @@ begin
 
   for i:=0 to (mark_index-1) do begin     // (mark_index is always the next free slot)
     try
-      ptr_1st:=Pointer(intarray_get(marks_list_ptr,i));  // pointer to the next Tmark record.
+      ptr_1st:=@marks_list_ptr[i];  // pointer to the next Tmark record.
       if ptr_1st=nil then EXIT;
 
       code:=ptr_1st^.code;
@@ -29555,13 +29434,13 @@ begin
 
   if marks_list_ptr=nil then EXIT;        // pointer to marks list not valid.
 
-  markmax:=intarray_max(marks_list_ptr);  // max index for the present list.
+  markmax:=High(marks_list_ptr);  // max index for the present list.
 
   if mark_index>markmax then mark_index:=markmax;  // ??? shouldn't be.
 
   for i:=0 to (mark_index-1) do begin     // (mark_index is always the next free slot)
     try
-      ptr_1st:=Pointer(intarray_get(marks_list_ptr,i));  // pointer to the next Tmark record.
+      ptr_1st:=@marks_list_ptr[i];  // pointer to the next Tmark record.
       if ptr_1st=nil then EXIT;
 
       code:=ptr_1st^.code;
@@ -29629,7 +29508,7 @@ begin
 
   if marks_list_ptr=nil then EXIT;        // pointer to marks list not valid.
 
-  markmax:=intarray_max(marks_list_ptr);  // max index for the present list.
+  markmax:=High(marks_list_ptr);  // max index for the present list.
 
   if mark_index>markmax then mark_index:=markmax;  // ??? shouldn't be.
 
@@ -29637,7 +29516,7 @@ begin
 
   for i:=0 to (mark_index-1) do begin     // (mark_index is always the next free slot)
     try
-      ptr_1st:=Pointer(intarray_get(marks_list_ptr,i));  // pointer to the next Tmark record.
+      ptr_1st:=@marks_list_ptr[i];  // pointer to the next Tmark record.
       if ptr_1st=nil then EXIT;
 
       code:=ptr_1st^.code;
@@ -31091,7 +30970,7 @@ var
 begin
 
                                     // mods 0.79.a
-                                    
+
   msg_str:=Trim(msg_str);
 
   for a:=$00 to $1F do repeat i:=Pos(Chr(a),msg_str); if i>0 then Delete(msg_str,i,1); until i=0;
@@ -31112,7 +30991,7 @@ begin
 
   repeat i:=Pos(Chr($60),msg_str); if i>0 then Delete(msg_str,i,1); until i=0;
 
-   // allow $61 - $7A   a-z 
+   // allow $61 - $7A   a-z
 
   for a:=$7B to $FF do repeat i:=Pos(Chr(a),msg_str); if i>0 then Delete(msg_str,i,1); until i=0;
 
@@ -31645,7 +31524,7 @@ end;
 function intarray_get(p:Pointer; index:integer):integer;   // return value at this index.
 
 var
-  address:integer;
+  address:PtrInt;
   pint:^integer;     // pointer to integer.
 
 begin
@@ -31653,7 +31532,7 @@ begin
   pint:=p;
   if (index<0) or (index>pint^) then run_error(192);     // max index is at first slot.
 
-  address:=Integer(p)+(index+1)*int_size;  // +1 because data starts at the second slot.
+  address:=PtrInt(p)+(index+1)*int_size;  // +1 because data starts at the second slot.
   pint:=Pointer(address);
   RESULT:=pint^;                   // return integer data from this address.
 end;
@@ -31662,7 +31541,7 @@ end;
 procedure intarray_set(p:Pointer; index:integer; d:integer);   // enter new value d at this index.
 
 var
-  address:integer;
+  address:PtrInt;
   pint:^integer;     // pointer to integer.
 
 begin
@@ -31670,7 +31549,7 @@ begin
   pint:=p;
   if (index<0) or (index>pint^) then run_error(194);     // max index is at first slot.
 
-  address:=Integer(p)+(index+1)*int_size;  // +1 because data starts at the second slot.
+  address:=PtrInt(p)+(index+1)*int_size;  // +1 because data starts at the second slot.
   pint:=Pointer(address);
   pint^:=d;                                // write integer at this address.
 end;

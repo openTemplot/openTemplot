@@ -40,7 +40,9 @@ interface
     { OT-FIRST , WPPDFPRP,
   WPPDFR1, WPPDFR2,} Htmlview,
 
-    pad_unit;      // moved 290a
+    shoved_timber,
+    pad_unit,
+    HtmlGlobals;      // moved 290a
 
   type
 
@@ -368,6 +370,8 @@ interface
     procedure FormActivate(Sender: TObject);
     procedure colour_patchClick(Sender: TObject);
     procedure import_mecbox_menu_entryClick(Sender: TObject);
+    procedure keep_html_viewHotSpotClick(Sender: TObject; const SRC: ThtString;
+      var Handled: Boolean);
     procedure size_updownClick(Sender: TObject; Button: TUDBtnType);
     procedure store_current_as_unused_buttonClick(Sender: TObject);
     procedure info_radio_buttonClick(Sender: TObject);
@@ -569,48 +573,7 @@ interface
 
 // 290a - these type declarations moved into the interface for mecbox_unit
 
-const
-
-shovedim_c_048=29;     // up to 30 timbers could be shoved pre version 0.71.a
-
 type
-
-Told_shove=record    // old Tshove record - shove data for a single timber.
-                     // as used in program pre version 0.71.a and still used for the
-                     // old_shove_info entry in the turnout_info part of a keep_data record on file.
-                     // (array of 0..29 of these records). For compatibility when loaded into versions pre 071.
-                     // (The first 30 shoved timbers in a template).
-                     // 68 bytes per record.
-
-         sv_code :integer;     // 0=empty slot, -1=omit this timber,  1=shove this timber.
-         sv_str  :string[8];   // timber number string.
-
-         alignment_byte_1:byte;   // D5 0.81 12-06-05
-
-         sv_x    :extended;    // xtb modifier.
-         sv_k    :extended;    // angle modifier.
-         sv_o    :extended;    // offset modifier (near end).
-         sv_l    :extended;    // length modifier (far end).
-         sv_w    :extended;    // width modifier (per side).
-         sv_t    :integer;     // nyi - thickness modifier in 1000ths of mm. (was spare integer).
-       end;
-
-T048_shoves=array[0..shovedim_c_048] of Told_shove;   // timber shove info for this turnout (first 30 shoved timbers only).
-                                                      // this data goes in the files for compatibility with old program versions,
-                                                      // but is not used in the program.
-
-
-Tshove_for_file=record    // Used in the SHOVE DATA BLOCKS in the 071 files.
-                          // But not used within the program - see Ttimber_shove.shove_data instead.
-                          // Conversion takes place in 071 on loading.
-
-                  sf_str:string[6];           // timber number string.
-
-                  alignment_byte_1:byte;   // D5 0.81 12-06-05
-
-                  sf_shove_data:Tshove_data;  // all the data.
-
-                end;//record
 
 // Tkeep_dims has the shove timber data omitted.  v:0.71.a  29-4-01.
 
@@ -630,7 +593,6 @@ Told_keep_data=record    // this matches the old Tkeep_data record pre 071 inclu
                          // used on loading files.
 
                  old_keep_dims1:Tkeep_dims1;
-                 //old_keep_shoves:T048_shoves;        // removed from OT format
                  old_keep_dims2:Tkeep_dims2;
 
                end;//record.
@@ -924,7 +886,7 @@ begin
     end;//with
 
     template_info.keep_dims.box_dims1.pre077_bgnd_flag:=False;      // unused template. no longer used 0.77.a but needed in file if reloaded into older version.
-    template_info.keep_shove_list:=TStringList.Create;              // the list of shoved timbers. (v:0.71.a  27-4-01).
+    template_info.keep_shove_list := Tshoved_timber_list.Create;
   end;//with
 end;
 //_________________________________________________________________________________________
@@ -979,7 +941,7 @@ var
 
 begin
   RESULT:=False;                                       // default init.
-  save_template.keep_shove_list:=TStringList.Create;   // local variable not initialised.
+  save_template.keep_shove_list := Tshoved_timber_list.Create;
   fill_kd(save_template);                            // temporarily store the existing settings (control template or box).
   try
 
@@ -1101,7 +1063,7 @@ begin
 
   finally
     copy_keep(save_template);                       // restore previous settings
-    free_shove_list(save_template.keep_shove_list); // free the local stringlist.
+    save_template.keep_shove_list.Free;
   end;//try
 end;
 //______________________________________________________________________________________
@@ -1176,7 +1138,7 @@ begin
   n:=list_position;
   if (n>=keeps_list.Count) or (n<0) then EXIT;
 
-  ti.keep_shove_list:=TStringList.Create;                                               // local stringlist not initialised.
+  ti.keep_shove_list := Tshoved_timber_list.Create;
 
   try
     copy_template_info_from_to(False,Ttemplate(keeps_list.Objects[n]).template_info,ti);  // current keep data
@@ -1262,10 +1224,7 @@ begin
                       end;
             end;
 
-    with Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list do begin
-      if Count>0 then for i:=0 to Count-1 do Tshoved_timber(Objects[i]).Free;
-      Free;
-    end;//with
+    Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
 
     Ttemplate(keeps_list.Objects[n]).Free;
     keeps_list.Delete(n);
@@ -1275,7 +1234,7 @@ begin
 
     current_state(-1);
   finally
-    free_shove_list(ti.keep_shove_list);   // free the local stringlist.
+    ti.keep_shove_list.Free;
   end;//try
 end;
 //_________________________________________________________________________________________
@@ -1337,9 +1296,9 @@ begin
       version_as_loaded:=templot_version;    // 0.78.d keep a note in the template of the version it was loaded as.
 
       if loaded_version>templot_version then loaded_version:=templot_version;   // loaded_version is a global reminder of the earliest loaded template.
-      if templot_version>program_version then later_file:=True;                 // file was produced by a later file than this.
+      if templot_version>file_version then later_file:=True;                 // file was produced by a later file than this.
 
-      if templot_version<>program_version              // template not saved by this version.
+      if templot_version<>file_version              // template not saved by this version.
          then begin
                 if templot_version=0 then align_info.cl_only_flag:=False;  // so update the file..
 
@@ -2048,7 +2007,7 @@ begin
                             dxf_connector_9:=False;   // CTRL-9
 
                           end;//with
-                          
+
                         end;
 
                 if templot_version<290   // TemplotMEC
@@ -2062,7 +2021,7 @@ begin
                           //
                         end;
 
-                templot_version:=program_version;      // file now corresponds to current.
+                templot_version:=file_version;      // file now corresponds to current.
                 RESULT:=True;                          // and flag not saved.
               end;// if version differs
 
@@ -2112,7 +2071,6 @@ function save_box(this_one, which_ones, rolling_backup:integer; save_str:string)
 var
   fsize:integer;
   box_str, backup_del_str:string;
-  old_048_shoves:T048_shoves;              // old 048 shove data record.
 
   next_ti:Ttemplate_info;    // new 071 data type.
   group_count:integer;
@@ -2157,10 +2115,7 @@ var
 
                                     // delete it...
 
-                                  with Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list do begin
-                                    if Count>0 then for i:=0 to Count-1 do Tshoved_timber(Objects[i]).Free;
-                                    Free;
-                                  end;//with
+                                  Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
 
                                   Ttemplate(keeps_list.Objects[n]).Free;
                                   keeps_list.Delete(n);
@@ -2181,47 +2136,6 @@ var
                                end;
                                /////////////////////////////////////////////////////////////
 
-                               function create_048_shoves(next_ti:Ttemplate_info):T048_shoves;  // convert data to old 048 format.
-
-                               var
-                                 ns:integer;
-                                 shoves_048:T048_shoves;
-
-                               begin
-                                 for ns:=0 to shovedim_c_048 do begin      // 0..29  , 30 shoved timbers max in 048 format.
-                                   with shoves_048[ns] do begin
-                                     if ns<next_ti.keep_shove_list.Count
-                                        then begin
-                                               with Tshoved_timber(next_ti.keep_shove_list.Objects[ns]) do begin
-
-                                                 sv_str:=next_ti.keep_shove_list.Strings[ns];  // timber number string.
-                                                 sv_code:=shove_data.sv_code;                 // 0=empty slot, -1=omit this timber,  1=shove this timber.
-
-                                                 sv_x:=shove_data.sv_x;    // xtb modifier.
-                                                 sv_k:=shove_data.sv_k;    // angle modifier.
-                                                 sv_o:=shove_data.sv_o;    // offset modifier (near end).
-                                                 sv_l:=shove_data.sv_l;    // length modifier (far end).
-                                                 sv_w:=shove_data.sv_w;    // width modifier (per side).
-                                                 sv_t:=0;                  // nyi - integer.
-
-                                               end;//with
-                                             end
-                                        else begin       // no more data available.
-
-                                               sv_code:=0;     // 0=empty slot, -1=omit this timber,  1=shove this timber.
-                                               sv_str:='';     // timber number string.
-                                               sv_x:=0;        // xtb modifier.
-                                               sv_k:=0;        // angle modifier.
-                                               sv_o:=0;        // offset modifier (near end).
-                                               sv_l:=0;        // length modifier (far end).
-                                               sv_w:=0;        // width modifier (per side).
-                                               sv_t:=0;        // nyi.
-                                             end;
-                                   end;//with
-                                 end;
-                                 RESULT:=shoves_048;
-                               end;
-                               //////////////////////////////////////////////////////////////
 
 begin
   RESULT:=False;      // init default.
@@ -2395,7 +2309,7 @@ begin
 
     saved_cursor:=Screen.Cursor;
 
-    next_ti.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+    next_ti.keep_shove_list := Tshoved_timber_list.Create;
 
     try
       if rolling_backup=0 then Screen.Cursor:=crHourGlass;   // 0.93.a test added     // could take a while if big file.
@@ -2513,16 +2427,16 @@ begin
           end;//next i
                              // now add the DATA BLOCKS section...
 
-          s:='_85A_|'+version_build+'    ';  // start marker.
+          s:='_85A_|    ';  // start marker.
 
           UniqueString(s);  // make sure it's in continuous memory.
 
-          BlockWrite(box_file, s[1], 8, number_written);   // 8 bytes of ' _85A_|.x ' as a DATA BLOCKS start marker.
+          BlockWrite(box_file, s[1], 8, number_written);   // 8 bytes of '_85A_|  ' as a DATA BLOCKS start marker.
           if number_written<>8
              then begin file_write_error; RESULT:=False; EXIT; end;
 
           with block_start do begin
-            version_number:=program_version;
+            version_number:=file_version;
             zero1:=0;
             zero2:=0;
             zero3:=0;
@@ -2580,9 +2494,7 @@ begin
                then begin
 
                       for st:=0 to shove_count-1 do begin
-
-                        shove_timber_data.sf_str:=next_ti.keep_shove_list.Strings[st];
-                        shove_timber_data.sf_shove_data:=Tshoved_timber(next_ti.keep_shove_list.Objects[st]).shove_data;
+                        shove_timber_data.copy_from(next_ti.keep_shove_list[st]);
 
                         BlockWrite(box_file, shove_timber_data, SizeOf(Tshove_for_file), number_written);      // first the count of shoved timbers.
                         if number_written<>SizeOf(Tshove_for_file)
@@ -2644,7 +2556,7 @@ begin
       RESULT:=True;
 
     finally
-      free_shove_list(next_ti.keep_shove_list);   // free the local stringlist.
+      next_ti.keep_shove_list.Free;
       Screen.Cursor:=saved_cursor;
     end;//try
 
@@ -2777,8 +2689,7 @@ var
                                                                       end;
 
                                                               try
-                                                                st:=AddObject(shove_timber_data.sf_str,Tshoved_timber.Create);
-                                                                Tshoved_timber(Objects[st]).shove_data:=shove_timber_data.sf_shove_data;
+                                                                st:=Add(Tshoved_timber.CreateFrom(shove_timber_data));
                                                               except
                                                                 EXIT;       // memory problem?
                                                               end;//try
@@ -2835,7 +2746,7 @@ var
 
                       if make_lib=True then old_next_data.old_keep_dims1.box_dims1.bgnd_code_077:=-1;  // make it a library template.
 
-                      this_ti.keep_shove_list:=TStringList.Create;  // init.
+                      this_ti.keep_shove_list := Tshoved_timber_list.Create;
 
                       this_ti.keep_dims:=Tkeep_dims(old_next_data);
 
@@ -3139,7 +3050,7 @@ begin
           end;
 
                                                       // added 0.78.d 19-02-03...
-  saved_control.keep_shove_list:=TStringList.Create;  // local stringlist not initialised.
+  saved_control.keep_shove_list := Tshoved_timber_list.Create;
   fill_kd(saved_control);                             // save control template.
   saved_control_name_str:=current_name_str;
   saved_control_memo_str:=current_memo_str;
@@ -3374,7 +3285,7 @@ begin
       current_memo_str:=saved_control_memo_str;
       info_form.ref_name_label.Caption:=current_name_str;
 
-      free_shove_list(saved_control.keep_shove_list);   // free the local stringlist.
+      saved_control.keep_shove_list.Free;
 
     end;//try
 
@@ -3384,7 +3295,7 @@ begin
                       'The file which you just reloaded contained one or more templates from a later version of Templot0 than this one.'
                      +' Some features may not be available or may be drawn differently.'
                      +'||The earliest loaded template was from version  '+FormatFloat('0.00',loaded_version/100)
-                     +'|This version of Templot0 is  '+FormatFloat('0.00',program_version/100)
+                     +'|This version of Templot0 is  '+GetVersionString(voShort)
                      +'||Please refer to the Templot web site at  templot.com  for information about upgrading to the latest version, or click| <A HREF="online_ref980.85a">more information online</A> .',
                      '','','','','','continue',0);
             end;
@@ -3396,7 +3307,7 @@ begin
                      +'||These have been modified to make them compatible with this version, but some features may now be drawn differently or require adjustment.'
                      //+'||To re-create the templates from scratch in line with this version, click the blue bar below or select the PROGRAM > NORMALIZE ALL TEMPLATES menu item on the PROGRAM PANEL window.'
                      +'||The earliest loaded template was from version  '+FormatFloat('0.00',loaded_version/100)
-                     +'|This version of Templot0 is  '+FormatFloat('0.00',program_version/100)
+                     +'|This version of Templot0 is  '+GetVersionString(voShort)
                      +'||Click for <A HREF="online_ref980.85a">more information online</A> about the differences between these two versions.'
                      //+'||Please refer to the Templot web site at  templot.com  for information about the differences between these two versions.'
                      +'||green_panel_begin tree.gif The template name labels are now shown in the boxed style by default.'
@@ -3535,7 +3446,7 @@ begin
 
     current_memo_str:=memo_list.Strings[n];
 
-    ti.keep_shove_list:=TStringList.Create;     // local stringlist not initialised.
+    ti.keep_shove_list := Tshoved_timber_list.Create;
 
     try
       copy_template_info_from_to(False, Ttemplate(keeps_list.Objects[n]).template_info, ti);
@@ -3603,7 +3514,7 @@ begin
          else statusbar_click(False);        // default is to copy the name.
 
     finally
-      free_shove_list(ti.keep_shove_list);
+      ti.keep_shove_list.Free;
     end;//try
   end;//with keep_form.
 
@@ -4395,7 +4306,7 @@ begin
      then EXIT;   // no drawing if the box is closed or the box is empty or the index is out of range.
                   // otherwise onActivate code will not have been done.
 
-  pad_ti.keep_shove_list:=TStringList.Create;  // local stringlist not initialised.
+  pad_ti.keep_shove_list := Tshoved_timber_list.Create;
   try
     fill_kd(pad_ti);        // fill the keep record with the saved control template.
 
@@ -4577,13 +4488,13 @@ begin
                  //###
 
           if marks_list_ptr=nil then EXIT;        // pointer to marks list not valid.
-          markmax:=intarray_max(marks_list_ptr);  // max index for the present list.
+          markmax:=High(marks_list_ptr);  // max index for the present list.
 
           if mark_index>markmax then mark_index:=markmax;  // ??? shouldn't be.
 
           for i:=0 to (mark_index-1) do    // (mark_index is always the next free slot)
               begin
-                ptr:=Pointer(intarray_get(marks_list_ptr,i));  // pointer to the next Tmark record.
+                ptr:=@marks_list_ptr[i];  // pointer to the next Tmark record.
                 if ptr=nil then EXIT;
 
                 code:=ptr^.code;              // check this mark wanted.
@@ -4876,7 +4787,7 @@ begin
     end;//with Canvas
   finally
     copy_keep(pad_ti);                         // restore the control template on the pad.
-    free_shove_list(pad_ti.keep_shove_list);   // free the local stringlist.
+    pad_ti.keep_shove_list.Free;
   end;//try
 end;
 //_______________________________________________________________________________________________________________________________
@@ -4977,7 +4888,7 @@ begin
                     end;
           end;
 
-  new_ti.keep_shove_list:=TStringList.Create;  // local stringlist not initialised.
+  new_ti.keep_shove_list := Tshoved_timber_list.Create;
   try
     fill_kd(new_ti);               // fill the keep record with the control template data.
 
@@ -5036,7 +4947,7 @@ begin
             end;
 
   finally
-    free_shove_list(new_ti.keep_shove_list);   // free the local stringlist.
+    new_ti.keep_shove_list.Free;
   end;//try
 end;
 //____________________________________________________________________________________________
@@ -5104,11 +5015,7 @@ begin
             for n:=0 to keeps_list.Count-1 do begin
 
 
-              with Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list do begin
-                if Count>0 then for i:=0 to Count-1 do Tshoved_timber(Objects[i]).Free;
-                Free;
-              end;//with
-
+              Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
               Ttemplate(keeps_list.Objects[n]).Free;
 
             end;//next n
@@ -5141,11 +5048,7 @@ begin
 
   if (n>=0) and (n<keeps_list.Count)
      then begin
-            with Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list do begin
-              if Count>0 then for i:=0 to Count-1 do Tshoved_timber(Objects[i]).Free;
-              Free;
-            end;//with
-
+            Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
             Ttemplate(keeps_list.Objects[n]).Free;
             keeps_list.Delete(n);
             memo_list.Delete(n);
@@ -5776,7 +5679,7 @@ begin
 
   if keep_form.Active=True then keep_form.Cursor:=crHourGlass;        // might take a while.
 
-  saved_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+  saved_current.keep_shove_list := Tshoved_timber_list.Create;
   fill_kd(saved_current);                              // save control template for restore.
   saved_name_str:=current_name_str;
   saved_current_memo_str:=current_memo_str;
@@ -5803,7 +5706,7 @@ begin
     current_name_str:=saved_name_str;
     current_memo_str:=saved_current_memo_str;
     info_form.ref_name_label.Caption:=current_name_str;
-    free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+    saved_current.keep_shove_list.Free;
 
     keep_form.Cursor:=crDefault;
   end;//try
@@ -5870,7 +5773,7 @@ begin
               if Ttemplate(keeps_list.Objects[list_index]).bg_copied=True then EXIT;                            // already on background.
               if Ttemplate(keeps_list.Objects[list_index]).template_info.keep_dims.box_dims1.bgnd_code_077=-1 then EXIT;  // ??? library template.
 
-              ti.keep_shove_list:=TStringList.Create;
+              ti.keep_shove_list := Tshoved_timber_list.Create;
 
               try
                 copy_template_info_from_to(False, Ttemplate(keeps_list.Objects[list_index]).template_info,ti);  // get the keep data.
@@ -5923,7 +5826,7 @@ begin
                      // copy mark data from list (not rail ends) ...
 
                   if marks_list_ptr=nil then EXIT;                 // pointer to marks list not valid.
-                  markmax:=intarray_max(marks_list_ptr);           // max index for the present list.
+                  markmax:=High(marks_list_ptr);           // max index for the present list.
                   if mark_index>markmax then mark_index:=markmax;  // ??? shouldn't be.
 
                   for i:=0 to 4 do begin
@@ -5934,7 +5837,7 @@ begin
                   end;//for
 
                   for i:=0 to (mark_index-1) do begin              // (mark_index is always the next free slot)
-                    ptr:=Pointer(intarray_get(marks_list_ptr,i));  // pointer to the next Tmark record.
+                    ptr:=@marks_list_ptr[i];  // pointer to the next Tmark record.
                     if ptr=nil then EXIT;
 
                     intarray_set(list_bgnd_marks[0],i,ptr^.p1.X);
@@ -6076,7 +5979,7 @@ begin
                 end;//with Ttemplate
 
               finally
-                free_shove_list(ti.keep_shove_list);  // free the local stringlist.
+                ti.keep_shove_list.Free;
               end;//try
             end;//with keep_form
 
@@ -6688,11 +6591,7 @@ begin
       if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.now_time=ident    // found a duplicate
          then begin
 
-                with Ttemplate(keeps_list.Objects[i]).template_info.keep_shove_list do begin
-                  if Count>0 then for nn:=0 to Count-1 do Tshoved_timber(Objects[nn]).Free;
-                  Free;
-                end;//with
-
+                Ttemplate(keeps_list.Objects[i]).template_info.keep_shove_list.Free;
                 Ttemplate(keeps_list.Objects[i]).Free;
                 keeps_list.Delete(i);                      // delete it. i now points to next line so no need to inc.
                 memo_list.Delete(i);
@@ -6848,11 +6747,7 @@ begin
 
     if Ttemplate(keeps_list.Objects[n]).bg_copied=True then wipe_it(n);  // ??? not a background template but data on background!
 
-    with Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list do begin
-      if Count>0 then for i:=0 to Count-1 do Tshoved_timber(Objects[i]).Free;
-      Free;
-    end;//with
-
+    Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
     Ttemplate(keeps_list.Objects[n]).Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
@@ -6918,11 +6813,7 @@ begin
 
     if Ttemplate(keeps_list.Objects[n]).bg_copied=True then wipe_it(n);  // ??? library template but data on background!
 
-    with Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list do begin
-      if Count>0 then for i:=0 to Count-1 do Tshoved_timber(Objects[i]).Free;
-      Free;
-    end;//with
-
+    Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
     Ttemplate(keeps_list.Objects[n]).Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
@@ -6993,11 +6884,7 @@ begin
 
     if Ttemplate(keeps_list.Objects[n]).bg_copied=True then wipe_it(n);  // any data on background
 
-    with Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list do begin
-      if Count>0 then for i:=0 to Count-1 do Tshoved_timber(Objects[i]).Free;
-      Free;
-    end;//with
-
+    Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
     Ttemplate(keeps_list.Objects[n]).Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
@@ -7318,7 +7205,7 @@ var
 
 begin
 
-  save_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+  save_current.keep_shove_list := Tshoved_timber_list.Create;
 
   try
     if egg_timer=True then Screen.Cursor:=crHourglass;
@@ -7423,7 +7310,7 @@ begin
     backup_wanted:=True;
     redraw_pad(True,False);
 
-    free_shove_list(save_current.keep_shove_list);   // free the local stringlist.
+    save_current.keep_shove_list.Free;
     if egg_timer=True then Screen.Cursor:=crDefault;
   end;//try
 end;
@@ -7670,7 +7557,7 @@ begin
 
     i:=alert(4,'    template  info  to  printer  or  to  PDF  file ?',
                'Do you want to print the template information,||or create a PDF file?'
-              +'||<I>This function may take a few minutes to finish.</I>'  
+              +'||<I>This function may take a few minutes to finish.</I>'
               +'|||green_panel_begin tree.gif To set the text size and margins click the `0program > printer font + margins...`1 menu item on the program panel, or click the bar below.green_panel_end',
                '','','set  font  and  margins','PDF  file','cancel','print',0);
     case i of
@@ -7928,7 +7815,7 @@ begin
 
   if keeps_list.Count<1 then EXIT;
 
-  save_current.keep_shove_list:=TStringList.Create;      // local stringlist not initialised.
+  save_current.keep_shove_list := Tshoved_timber_list.Create;
 
   try
     Screen.Cursor:=crHourGlass;        // might take a while.
@@ -7949,7 +7836,7 @@ begin
     current_state(-1);
     //]]]if open_bgnd_list_menu_entry.Checked=True then do_bgkeeps;
   finally
-    free_shove_list(save_current.keep_shove_list);   // free the local stringlist.
+    save_current.keep_shove_list.Free;
     Screen.Cursor:=crDefault;
   end;//try
   backup_wanted:=True;
@@ -7996,7 +7883,7 @@ begin
   Screen.Cursor:=crHourGlass;        // might take a while.
   if Application.Terminated=False then Application.ProcessMessages;
 
-  save_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+  save_current.keep_shove_list := Tshoved_timber_list.Create;
   fill_kd(save_current);
 
   try
@@ -8028,7 +7915,7 @@ begin
   finally
     current_state(-1);
     copy_keep(save_current);
-    free_shove_list(save_current.keep_shove_list);   // free the local stringlist.
+    save_current.keep_shove_list.Free;
     Screen.Cursor:=crDefault;
   end;//try
 
@@ -8050,7 +7937,7 @@ procedure Tkeep_form.FormCreate(Sender: TObject);
 begin
 
   slider_panel.Cursor:=open_slider_cursor;
-  
+
   if Screen.Height<700
      then begin
             Top:=2;    // move form top left of screen for lo-res.
@@ -8693,7 +8580,7 @@ var
 
 begin
   if memo_list.Count<1 then EXIT;
-  
+
   su:=memo_list.Strings[list_position];
 
   with jotter_form do begin
@@ -9283,7 +9170,7 @@ var
 begin
   if any_selected=0 then EXIT;
 
-  save_current.keep_shove_list:=TStringList.Create;  // local stringlist not initialised.
+  save_current.keep_shove_list := Tshoved_timber_list.Create;
 
   try
     if egg_timer=true then Screen.Cursor:=crHourglass;
@@ -9379,7 +9266,7 @@ begin
     end;//next n
   finally
     copy_keep(save_current);                         // draw the old template on the pad.
-    free_shove_list(save_current.keep_shove_list);   // free the local stringlist.
+    save_current.keep_shove_list.Free;
     backup_wanted:=True;
     redraw_pad(True,False);
     if egg_timer=True then Screen.Cursor:=crDefault;
@@ -9525,7 +9412,7 @@ begin
 
   count:=keeps_list.Count;
 
-  save_current.keep_shove_list:=TStringList.Create;     // local stringlist not initialised.
+  save_current.keep_shove_list := Tshoved_timber_list.Create;
   fill_kd(save_current);
   save_current_memo_str:=current_memo_str;
 
@@ -9587,7 +9474,7 @@ begin
     pad_form.show_bgnd_keeps_menu_entry.Checked:=save_bgnd_option;   // restore, radio item.
     current_memo_str:=save_current_memo_str;
 
-    free_shove_list(save_current.keep_shove_list);   // free the local stringlist.
+    save_current.keep_shove_list.Free;
     do_rollback:=False;
     redraw(True);
   end;//try
@@ -10588,12 +10475,19 @@ begin
   current_state(-1);
 end;
 //______________________________________________________________________________
- 
+
 procedure Tkeep_form.import_mecbox_menu_entryClick(Sender: TObject);
 
 begin
   import_mecbox('');    // in mecbox_unit
 end;
+
+procedure Tkeep_form.keep_html_viewHotSpotClick(Sender: TObject;
+  const SRC: ThtString; var Handled: Boolean);
+begin
+  htmlviewer_hot_spot_clicked(Sender, SRC, Handled);
+end;
+
 //________________________________________________________________________________________
 
 

@@ -193,7 +193,7 @@ begin
   // OT-FIRST ClientWidth:=616;
   // OT-FIRST ClientHeight:=150;
 
-  version_label.Caption:=FormatFloat('0.00',program_version/100)+version_build;
+  version_label.Caption := GetVersionString(voFull);
 
   // OT-FIRST if Screen.PixelsPerInch>120 then ScaleBy(4,3);  // 211b
 
@@ -521,7 +521,7 @@ begin
 
   end;//with
 
-  do_toolbars;  // 217a 
+  do_toolbars;  // 217a
 
 end;
 //______________________________________________________________________________

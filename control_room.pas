@@ -33,7 +33,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, Buttons, Menus, ExtCtrls, ComCtrls, FileCtrl{ OT-FIRST, Psock, NMHttp};
+  StdCtrls, Buttons, Menus, ExtCtrls, ComCtrls, FileCtrl, { OT-FIRST, Psock, NMHttp}
+  shoved_timber;
 
 type
 
@@ -341,6 +342,8 @@ type
                 { Public declarations }
   end;//class
 
+  Tversion_options = (voFull, voShort);
+
 var
   control_room_form: Tcontrol_room_form;
 
@@ -354,6 +357,23 @@ const
 
   //program_name_str:string='Templot3';
 
+  //
+  // Version information
+  //
+  // program_version: the release version number (*100, e.g. v:1.03 = 103)
+  // version_build:   sub-build for the release, or .dev for in-development
+  // file_version:    version number for saved files. This is a simple integer that should be incremented
+  //                  for any change to the saved file format.
+  //
+  // program_version and version_build should be set appropriately when preparing a release version,
+  //   otherwise set to 0.00.dev during development
+  //
+  // file_version may increase as required during development, as has no direct correlation to the
+  //   program_version
+  //
+  program_version:integer=0;
+  version_build:string='.dev';
+  file_version:integer = 3000;
 
 
   distortion_help_str:string='      Expert  Help  -  Data  Distortions'
@@ -473,7 +493,7 @@ coning_help_str:string='      Coning  Distortions'
   minfp:extended=1.0E-12;         // min float value for our calcs
                                   // (less than this is regarded as zero to avoid rounding errors).
 
-  max_single:single=1.0E10;       // used for sketchboard calcs. 212a                         
+  max_single:single=1.0E10;       // used for sketchboard calcs. 212a
 
   minfp_big:extended=1.0E-6;      // min float value for rounding and tolerancing.
 
@@ -509,12 +529,6 @@ var
   min_export_y:integer=-16000;
 
 
- program_version:integer=292;     // this program version number (*100, e.g. v:1.3 = 130).
-                                  // this is version 2.92, started 25th November 2019
-
-  version_build:string='.a';      // sub-build letter for this version. started 25th November 2019, released: 9th December 2019
-
-
   loaded_version:integer=50000;   // init the loaded data file versions..
   later_file:boolean=False;
 
@@ -533,7 +547,7 @@ var
   tag_list:TStringList;                  // 206b
 
   printer_list:TStringList;
-  current_shove_list:TStringList;        // v:0.71.a  27-4-01.
+  current_shove_list:Tshoved_timber_list;
   info_text_list:TStringList;            // 0.78.a    15-11-02.
 
   custom_colour_list:TStringList;        // 0.91
@@ -603,7 +617,7 @@ var
   auto_dir:boolean=True;
   backup_wanted:boolean=False;
 
-  external_window_showing:boolean=False;  // 0.93.a  for files showing containing folder 
+  external_window_showing:boolean=False;  // 0.93.a  for files showing containing folder
 
   mouse_click_action:integer=-1;   // either click-move-click or drag allowed.
 
@@ -715,6 +729,7 @@ var
 
   procedure do_open_source_bang(str:string);  // OT-FIRST
 
+  function GetVersionString(version_options : Tversion_options) : string;
 
 //______________________________________________________________________________
 
@@ -740,7 +755,7 @@ uses
   ActiveX,                 // IMalloc
   ShlObj, trackbed_unit,   // Needed for the CSIDL constants
 
-  {IcsMD5,} make_slip_unit, create_tandem;    // 217a
+  {IcsMD5,} make_slip_unit, create_tandem;     // 217a
 
 {$R *.lfm}
 
@@ -783,6 +798,20 @@ var
  procedure create_backup_file(final:boolean);forward;
 
  function cleared_bgnd:boolean;forward;
+
+
+ //__________________________________________________________________________________________
+function GetVersionString(version_options: Tversion_options) : string;
+begin
+  case version_options of
+    voShort:
+      Result := FormatFloat('0.00', program_version/100);
+    voFull:
+      Result := FormatFloat('0.00', program_version/100) + version_build;
+  else
+    Result := GetVersionString(voFull);
+  end;
+end;
 
 //__________________________________________________________________________________________
 
@@ -1166,7 +1195,7 @@ try
     notch_on_radial_centre_menu_entry.Enabled:= (ABS(nomrad)<max_rad_test) and (NOT spiral);
     notch_on_1st_radial_centre_menu_entry.Enabled:=(ABS(nomrad1)<max_rad_test) and spiral;
     notch_on_2nd_radial_centre_menu_entry.Enabled:=(ABS(nomrad2)<max_rad_test) and spiral;
-    
+
     make_turnout_road_menu_entry.Enabled:= NOT (plain_track or spiral or slewing or half_diamond);
 
     if keeps_list.Count<1
@@ -2227,7 +2256,7 @@ begin
             +'<P STYLE="text-align:center; margin-top:20px; color:blue; font-family:''Trebuchet MS''; font-size:19px; font-weight:bold; font-style:italic;">precision track design for model railways</P>'
             +'<P STYLE="text-align:center; margin-top:20px; margin-bottom:20px; color:#dd6600; font-size:16px; font-weight:bold;">track &nbsp;plan &nbsp;design&nbsp; &nbsp; • &nbsp; &nbsp;precision &nbsp;construction &nbsp;templates</P>'
             +'<HR NOSHADE>'
-            +'<P CLASS="mainheading" STYLE="text-align:center; font-size:20px; color:#0077DD;">'+Application.Title+' &nbsp;Version &nbsp;'+FormatFloat('0.00',program_version/100)+version_build+'</P>'
+            +'<P CLASS="mainheading" STYLE="text-align:center; font-size:20px; color:#0077DD;">'+Application.Title+' &nbsp;Version &nbsp;'+GetVersionString(voFull)+'</P>'
             +'<P CLASS="centerbold"><A HREF="go_to_templot_com.85a">templot • com</A></P>'
             +'<P CLASS="center"><SPAN STYLE="font-size:12px; color:#555555;">&copy; 2018 &nbsp;released under open-source licence: GNU/GPLv3+<br>program from: &nbsp;https://sourceforge.net/projects/opentemplot/<br>'
             +'licence at: https://www.gnu.org/licenses/<br></SPAN></P>'
@@ -2936,10 +2965,6 @@ begin
                           end;//with bgnd_keep
                         end;
 
-                with template_info.keep_shove_list do begin
-                  if Count>0 then for index:=0 to Count-1 do Tshoved_timber(Objects[index]).Free;
-                end;//with
-
                 template_info.keep_shove_list.Free;
 
               end;//with template.
@@ -2976,14 +3001,11 @@ begin
 
   user_prefs_list.Free;        // 0.91.d
 
-  for index:=0 to undo_c do free_shove_list(rollback_reg[index].rollback_info.keep_shove_list);
+  for index:=0 to undo_c do rollback_reg[index].rollback_info.keep_shove_list.Free;
 
-  with current_shove_list do begin
-    if Count>0 then for index:=0 to Count-1 do Tshoved_timber(Objects[index]).Free;
-    Free;
-  end;//with
+  current_shove_list.Free;
 
-  for index:=0 to 2 do free_shove_list(parking_bay[index].keep_shove_list);      // added 0.93.a
+  for index:=0 to 2 do parking_bay[index].keep_shove_list.Free;
 
   offdraw_bmp.Free;
   backdrop_bmp.Free;
@@ -3746,7 +3768,7 @@ begin
 
   tag_list:=TStringList.Create;                  // 206b
 
-  current_shove_list:=TStringList.Create;        // v:0.71.a  27-4-01.
+  current_shove_list := Tshoved_timber_list.Create;
 
   custom_colour_list:=TStringList.Create;        // 0.91
 
@@ -3803,9 +3825,9 @@ begin
 
   reminder_list.Free;
 
-  about_templot_version_menu_entry.Caption:='about  '+Application.Title+'    ( v : '+FormatFloat('0.00',program_version/100)+version_build+' )';
+  about_templot_version_menu_entry.Caption:='about  '+Application.Title+'    ( v : '+GetVersionString(voFull)+' )';
 
-  version_label.Caption:=FormatFloat('0.00',program_version/100)+version_build;
+  version_label.Caption:=GetVersionString(voFull);
 
   if Application.Title='TemplotMEC'
      then begin
@@ -4521,11 +4543,8 @@ end;
 procedure Tcontrol_room_form.room_file_viewer_menu_entryClick(Sender: TObject);    // 208d
 
 begin
-  do_open_source_bang('FILE VIEWER');  // OT-FIRST
- { OT-FIRST
   //keep_form_was_showing:=False;
   do_show_modal(file_viewer_form);  // 212a
- }
 end;
 //______________________________________________________________________________
 

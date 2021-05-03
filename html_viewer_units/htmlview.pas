@@ -3,8 +3,6 @@ Version   11.8
 Copyright (c) 1995-2008 by L. David Baldwin
 Copyright (c) 2008-2017 by HtmlViewer Team
 
-mods Copyright 2005 Martin Wynne  marked // 85A
-
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
 the Software without restriction, including without limitation the rights to
@@ -29,16 +27,13 @@ are covered by separate copyright notices located in those modules.
 ANGUS - LoadDocument, don't add physical disk file path to URL, it corrupts referrer
 }
 
-
-
 {$I htmlcons.inc}
 
-unit htmlview;
+unit HtmlView;
 
 interface
 
 uses
-
 {$ifdef LCL}
   LclIntf, LclType, LMessages, types, FPimage, HtmlMisc,
 {$else}
@@ -693,9 +688,6 @@ function GetFileMask : String;
 implementation
 
 uses
-
- help_sheet,  // 85A
-
 {$ifdef Compiler24_Plus}
   System.Types,
   System.UITypes,
@@ -1275,7 +1267,7 @@ begin
         if Assigned(OnSoundRequest) then
           OnSoundRequest(Self, '', 0, True);
 
-        // one should not offer same document twice, but ... 
+        // one should not offer same document twice, but ...
         if FDocument <> Document then
           FreeAndNil(FDocument);
 
@@ -1753,31 +1745,7 @@ var
   OldPos: Integer;
   ft: THtmlFileType;
   Handled: Boolean;
-
-  url_str:string;     // 85A
-  url_ext:string[5];  // 85A
-
 begin
-
-  url_str:=URL;
-
-  if (Pos('http://',url_str)=1) or (Pos('https://',url_str)=1)    //  https 212b
-     then begin
-            web_link_clicked(URL); // 212a  // 85A in help_sheet unit
-            EXIT;
-          end;
-
-  url_str:=HTMLExpandFileName(url_str);
-  url_ext:=Uppercase(ExtractFileExt(url_str));
-
-  if url_ext='.85A'
-     then begin
-            program_link_clicked(URL); // 212a  // 85A in help_sheet unit
-            EXIT;
-          end;
-
-
-
   Handled := False;
   ToggleIDExpand(Url, Handled);
   if Handled then
@@ -2285,7 +2253,7 @@ begin
     begin
       FO := Fonts.GetFontObjAt(Pos - StartCurs);
       if FO = nil then Font := nil
-      else Font := FO.TheFont; 
+      else Font := FO.TheFont;
     end;
 end;
 
@@ -2822,7 +2790,7 @@ begin
     if Pos < 0 then
       Pos := 0;
     Pos := Math.Max(0, Math.Min(Pos, Max - PaintPanel.Width));
-    
+
     if Pos <> OrigPos then
     begin
       Position := Pos;
@@ -5320,7 +5288,7 @@ end;
 
 procedure THtmlViewer.SetPrintScale(const Value: Double);
 //BG, 29.08.2009: changed zoom factor limits from 0.25..4 to 0.125..8
-//BG, 07.10.2009: constants for min/max zoom factor. 
+//BG, 07.10.2009: constants for min/max zoom factor.
 const
   CMinPrintScale = 0.125;
   CMaxPrintScale = 8.0;

@@ -31,7 +31,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, Clipbrd,
-  ExtCtrls, StdCtrls, ComCtrls, Spin, Htmlview, Menus, Buttons;
+  ExtCtrls, StdCtrls, ComCtrls, Spin, Htmlview, Menus, Buttons, HtmlGlobals;
 
 type
 
@@ -81,6 +81,8 @@ type
     drop_label: TLabel;
     open_mystuff_button: TButton;
     drop_top_label: TLabel;
+    procedure alert_html_viewerHotSpotClick(Sender: TObject;
+      const SRC: ThtString; var Handled: Boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure alert_panel6Click(Sender: TObject);
@@ -210,7 +212,7 @@ var
   n:integer;
 
   excess_box_height:integer;
-  
+
   //widened_for_small_screen:integer;
 
   reduced_height_count:integer;
@@ -770,7 +772,7 @@ begin
             Left:=Screen.Width div 2 -Width-50;
             Top:=Screen.Height div 5;
           end;
-          
+
   ClientWidth:=439;
   ClientHeight:=437;
   alert_header_label.Height:=alert_panel6.Top-alert_panel5.Top;  //!!! 22-6-00 this is used as the bar-spacing after any re-sizing.
@@ -1104,6 +1106,13 @@ begin
   alert_panel3.Visible:=False;
   alert_panel4.Visible:=False;
 end;
+
+procedure Talert_box.alert_html_viewerHotSpotClick(Sender: TObject;
+  const SRC: ThtString; var Handled: Boolean);
+begin
+  htmlviewer_hot_spot_clicked(Sender, SRC, Handled);
+end;
+
 //______________________________________________________________________________
 
 procedure Talert_box.open_mystuff_buttonClick(Sender: TObject);

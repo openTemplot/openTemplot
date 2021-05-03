@@ -67,7 +67,8 @@ implementation
 
 {$R *.lfm}
 
-uses control_room, pad_unit, math_unit, shove_timber, alert_unit;
+uses control_room, pad_unit, math_unit, shove_timber, alert_unit,
+  shoved_timber;
 
 //___________________________________________________________________________________________
 
@@ -79,10 +80,10 @@ var
 begin                          // fill dropdown with shoved timbers.
   shove_combo.Items.Clear;
 
-  if current_shove_list.Count>0
-     then begin
-            for n:=0 to current_shove_list.Count-1 do shove_combo.Items.Add(current_shove_list.Strings[n]);
-          end;
+  for n := 0 to current_shove_list.Count-1 do
+    begin
+    shove_combo.Items.Add(current_shove_list[n].timber_string);
+    end;
 
   if current_shove_str=''
      then begin
@@ -137,7 +138,7 @@ begin
 
   if marks_list_ptr=nil then EXIT;        // pointer to marks list not valid.
 
-  markmax:=intarray_max(marks_list_ptr);  // max index for the present list.
+  markmax:=High(marks_list_ptr);  // max index for the present list.
 
   if mark_index>markmax then mark_index:=markmax;  // ??? shouldn't be.
 
@@ -145,7 +146,7 @@ begin
 
   for i:=0 to (mark_index-1) do begin     // (mark_index is always the next free slot)
     try
-      ptr_1st:=Pointer(intarray_get(marks_list_ptr,i));  // pointer to the next Tmark record.
+      ptr_1st:=@marks_list_ptr[i];  // pointer to the next Tmark record.
       if ptr_1st=nil then EXIT;
 
       code:=ptr_1st^.code;
@@ -161,20 +162,14 @@ begin
                 n:=find_shove(current_shove_str,True);     // find it or create an empty slot.
                 if n>=0                                    // valid slot.
                    then begin
-                          with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-                            if sv_code=0              // new slot.
-                               then begin
-                                      sv_code:=1;                                        // flag to shove this timber.
-                                      current_shove_list.Strings[n]:=current_shove_str;  // and add it to list.
-                                    end;
-                            shove_buttons(True,sv_code,n);
-                          end;//with
+                          current_shove_list[n].make_shoved;
+                          shove_buttons(True, n);
 
                           RESULT:=True;
                         end
                    else begin
                           current_shove_str:='';         // !!! error?
-                          shove_buttons(False,0,-1);
+                          shove_buttons(False, -1);
                         end;
                 EXIT;         // found this timber number.
               end;

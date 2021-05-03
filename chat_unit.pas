@@ -398,7 +398,7 @@ begin
       x:=x+20.5;                                                                    y:=y2; str:='  slide';   do_text;   // SHIFT-F9
 
       Font.Style:=[];
-      
+
       x:=x+20.5;                                  y:=y1; str:='  shove';   do_text; y:=y2; str:=' timbers';  do_text;   // SHIFT-F10
 
       Font.Style:=[fsBold,fsItalic];
@@ -520,7 +520,7 @@ begin
       Font.Style:=[];
 
       x:=0; y:=197;
-      str:='OPENTEMPLOT  v:'+FormatFloat('0.00',program_version/100)+'  ©  Martin  Wynne'; do_text;      // © = copyright symbol.
+      str:='OPENTEMPLOT  v:'+GetVersionString(voShort)+'  ©  Martin  Wynne'; do_text;      // © = copyright symbol.
 
       EndDoc;
 

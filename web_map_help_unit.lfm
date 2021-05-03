@@ -53,6 +53,7 @@ object web_map_help_form: Tweb_map_help_form
     PrintMarginRight = 2
     PrintMarginTop = 2
     PrintScale = 1
+    OnHotSpotClick = map_help_htmlviewHotSpotClick
     TabOrder = 0
   end
   object show_checkbox: TCheckBox

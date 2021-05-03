@@ -31,9 +31,12 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  Htmlview, StdCtrls, ExtCtrls;
+  Htmlview, StdCtrls, ExtCtrls, HtmlGlobals;
 
 type
+
+  { Tweb_map_help_form }
+
   Tweb_map_help_form = class(TForm)
     map_help_htmlview: THTMLViewer;
     close_panel: TPanel;
@@ -45,6 +48,8 @@ type
     procedure FormResize(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
+    procedure map_help_htmlviewHotSpotClick(Sender: TObject;
+      const SRC: ThtString; var Handled: Boolean);
   private
     { Private declarations }
   public
@@ -175,6 +180,13 @@ begin
   map_help_htmlview.LoadFromString(convert_tagged_string_to_html(0,browser_help_str,False));
 
 end;
+
+procedure Tweb_map_help_form.map_help_htmlviewHotSpotClick(Sender: TObject;
+  const SRC: ThtString; var Handled: Boolean);
+begin
+  htmlviewer_hot_spot_clicked(Sender, SRC, Handled);
+end;
+
 //______________________________________________________________________________
 
 end.

@@ -1176,6 +1176,7 @@ object keep_form: Tkeep_form
     PrintMarginTop = 1
     PrintScale = 1.25
     ScrollBars = ssNone
+    OnHotSpotClick = keep_html_viewHotSpotClick
     TabOrder = 28
     TabStop = True
     Visible = False

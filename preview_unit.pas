@@ -1881,7 +1881,7 @@ begin
       Printer.BeginDoc;
 
       Font.Assign(set_font('Arial',6,[],clBlack));
-      top_str:=' '+DateToStr(Date)+'  '+TimeToStr(Time)+'      TEMPLOT V:'+FormatFloat('0.00',program_version/100)+'  from  Martin  Wynne   templot.com';
+      top_str:=' '+DateToStr(Date)+'  '+TimeToStr(Time)+'      TEMPLOT V:'+GetVersionString(voShort)+'  from  Martin  Wynne   templot.com';
       TextOut(0,0,top_str);
 
       Font.Assign(set_font('Comic Sans MS',8,[],clBlack));
@@ -2086,7 +2086,7 @@ begin
               end;//if bgnd keeps
 
           //  draw turnout rails...     (once only).
-      
+
       if  (print_entire_pad_flag=False) // control template
       and (output_diagram_mode=False)   // 0.93.a  no control template if diagram mode
       and (turnoutx>0)                  // not if invalidated

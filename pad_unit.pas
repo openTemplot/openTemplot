@@ -35,7 +35,9 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Menus, StdCtrls, ExtCtrls, ComCtrls, Buttons,
 
-   ExtDlgs, ImgList, PrintersDlgs { OT-FIRST ,} { OT-FIRST ReadHTML,} { OT-FIRST framview} {,
+  ExtDlgs, ImgList, PrintersDlgs,
+  shoved_timber
+  { OT-FIRST ,} { OT-FIRST ReadHTML,} { OT-FIRST framview} {,
   OleCtnrs, OleCtrls, SHDocVw};
 
   {dtpGR32, Grids, Outline, DirOutln, ExtDlgs, Htmlview;  // 0.91.d  }
@@ -3332,6 +3334,7 @@ type
 	p2        :TPoint;
         code      :integer;
         end;
+  Tmark_array=array of Tmark;
 
   Tpex=record                      // x,y point floats (TPoint is integer).
        x :extended;
@@ -3342,33 +3345,6 @@ type
              min:Tpex;
              max:Tpex;
            end;
-
-
-  Tshove_data=record     // shove data for a single timber ( version 0.71 11-4-01 ).
-
-           sv_code     :integer;     // 0=empty slot, -1=omit this timber,  1=shove this timber.
-           sv_x        :extended;    // xtb modifier.
-           sv_k        :extended;    // angle modifier.
-           sv_o        :extended;    // offset modifier (near end).
-           sv_l        :extended;    // length modifier (far end).
-           sv_w        :extended;    // width modifier (per side).
-           sv_c        :extended;    // crab modifier.  0.78.c  01-02-03.
-           sv_t        :extended;    // spare (thickness 3-D modifier - nyi).
-
-           alignment_byte_1:byte;   // D5 0.81 12-06-05
-           alignment_byte_2:byte;   // D5 0.81 12-06-05
-
-           sv_sp_int   :integer;     // spare integer.
-
-         end;//record
-
-  Tshoved_timber=class(TPersistent)             // v: 0.71.a  27-4-01.
-
-                 public                         // 0.85.a
-
-                   shove_data:Tshove_data;
-
-                 end;//class
 
 
   Tnotch=record      //  a notch position.
@@ -4110,7 +4086,7 @@ type
               k_check_flare:     extended;    // length of flare on k-crossing check rails.
 
               curviform_timbering_keep:boolean;  // 215a                           alignment_byte_1:byte;   // D5 0.81 12-06-05
-              
+
               alignment_byte_2:byte;   // D5 0.81 12-06-05
 
               main_road_code:integer;      //  length of main-side exit road.      //  217a  spare_int2:integer;
@@ -4401,7 +4377,7 @@ type
 
 
                 id_number:integer;         // 208a
-                id_number_str:string[7];   // 208a     -N00000  
+                id_number_str:string[7];   // 208a     -N00000
 
                 spare_boolean1:boolean;    // 208a
                 spare_boolean2:boolean;    // 208a      //spare_str:string[13];
@@ -4459,7 +4435,7 @@ type
   Ttemplate_info=record       // template data.
 
                     keep_dims:Tkeep_dims;           // all the template dimemsions.
-                    keep_shove_list:TStringList;    // the list of shoved timbers. (v:0.71.a  27-4-01).
+                    keep_shove_list:Tshoved_timber_list;    // the list of shoved timbers. (v:0.71.a  27-4-01).
                  end;//record
 
 
@@ -4644,7 +4620,7 @@ var
   dv_copies:array[0..dv_copies_c] of Tdummy_vehicle_corners;  // up to 32 copies 0.98.a
   dv_copies_index:integer=-1;                                 // init num copies -1
 
-  marks_list_ptr:Pointer=nil;     //###  // pointer to list of pointers to Tmarks.
+  marks_list_ptr: Tmark_array;
 
   timb_numbers_str:string='';     // accumulated timber numbering strings with $1B separators.
 
@@ -5142,7 +5118,8 @@ uses
   startup_unit, print_now_box,
   export_unit, platform_unit, math2_unit,
   check_diffs_unit, image_viewer_unit, mouse_colour_unit,
-  { OT-FIRST file_viewer, ebook_unit, companion_load_unit, web_browser_unit,}
+  file_viewer,
+  { OT-FIRST ebook_unit, companion_load_unit, web_browser_unit,}
   prefs_unit,  map_loader_unit, trackbed_unit, make_slip_unit, create_tandem, xtc_unit,
   data_memo_unit,
   mecbox_unit, export_draw_unit,         // 291a
@@ -5837,7 +5814,7 @@ begin
 
   if peg_rail=0 then peg_rail:=8;     // can't have free peg moving - so default to ms centre-line.
 
-  if peg_code=22  then peg_rail:=2;   // 208b on TP aligned to turnout road -- no available centre-line so move peg to turnout rail.  
+  if peg_code=22  then peg_rail:=2;   // 208b on TP aligned to turnout road -- no available centre-line so move peg to turnout rail.
   if peg_code=100 then peg_rail:=2;   // 208b on end of planing  -- no available centre-line so move peg to turnout rail.
 
   // out 213a if peg_code=104 then peg_rail:=2;   // 208b switch heel  -- no available centre-line so move peg to turnout rail.
@@ -11385,7 +11362,7 @@ begin
 
             EXIT;
           end;
-          
+
   top_toolbar_panel.Show;        // may have been hidden by print unit..
   second_toolbar_panel.Show;     // 217a
 
@@ -12758,7 +12735,7 @@ begin
   arrow_button_dummy_trackbar.Width:=0; // so still "Visible=True" but not actually visible on pad.
                                         // used to receive arrow keys, which can then be intercepted.
 
-  pad_about_templotmec_menu_entry.Caption:='&about  '+Application.Title+'   ( v : '+FormatFloat('0.00',program_version/100)+version_build+' )';   // OT-FIRST
+  pad_about_templotmec_menu_entry.Caption:='&about  '+Application.Title+'   ( v : '+GetVersionString(voFull)+' )';   // OT-FIRST
 
   old_pre_templot2_files_menu_entry.Enabled:=DirectoryExists('C:\TEMPLOT\BOX-FILES');  // 207a
 
@@ -13149,7 +13126,7 @@ begin
      then begin
             extend_template_from_zero;  // he reduced it to zero himself.
             EXIT;
-          end;  
+          end;
 
   if (turnoutx=0) and (snap_to_zero_menu_entry.Tag=1)
      then begin
@@ -15221,7 +15198,7 @@ var
 
 begin
   mouse_rotate_sync_wanted:=False;  // not here for mouse action
-  
+
   cancel_adjusts(False);
   if any_selected=0
      then begin
@@ -15479,7 +15456,7 @@ begin
                     '','','','','','O K',0);
             EXIT;
           end;
-          
+
 
   cancel_adjusts(False);
   peg_on_rail9_menu_entry.Click;    // turnout-road centre-line (sets peg_code=20, so do first),
@@ -15612,7 +15589,7 @@ begin
      then begin
             peg_on_joint_end_menu_entry.Click;   // CTRL-1 instead   added 205c
             EXIT;
-          end;  
+          end;
 
   cancel_adjusts(False);
   peg_on_rail8_menu_entry.Click;                // main-road centre-line (sets peg_code=20, so do first),
@@ -16188,8 +16165,8 @@ begin
 
   if check_control_template_is_valid('split')=False then EXIT;  // 0.93.a  zero length
 
-  cur_tem.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
-  new_tem.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+  cur_tem.keep_shove_list := Tshoved_timber_list.Create;
+  new_tem.keep_shove_list := Tshoved_timber_list.Create;
   try
     fill_kd(cur_tem);  // first save the current.
 
@@ -16261,8 +16238,8 @@ begin
     rail_options_form.restore_all_button.Click;  // 211c
 
   finally
-    free_shove_list(cur_tem.keep_shove_list);   // free the local stringlist.
-    free_shove_list(new_tem.keep_shove_list);   // free the local stringlist.
+    cur_tem.keep_shove_list.Free;
+    new_tem.keep_shove_list.Free;
     show_and_redraw(True,True);                 // in case copy caused a current hide.
   end;//try
 end;
@@ -16314,7 +16291,7 @@ begin
   new_len:=turnoutx-pegx;    // save for the new curent template
 
   try
-    cur_tem.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+    cur_tem.keep_shove_list := Tshoved_timber_list.Create;
     fill_kd(cur_tem);                              // first save the current.
 
     turnoutx:=pegx;                       // shorten existing to peg
@@ -16369,7 +16346,7 @@ begin
             end;
 
   finally
-    free_shove_list(cur_tem.keep_shove_list);   // free the local stringlist.
+    cur_tem.keep_shove_list.Free;
     show_and_redraw(True,True);                 // in case copy caused a current hide.
   end;//try
 end;
@@ -16640,7 +16617,7 @@ begin
 
   reset_notch_menu_entry.Click;        // put notch away
   Application.ProcessMessages;
-  
+
   reset_peg_menu_entry.Click;          // peg on CTRL-0
   gocalc(0,0);
 
@@ -17245,7 +17222,7 @@ procedure Tpad_form.rotate_group_90degs_acw_menu_entryClick(Sender: TObject);
 
 begin
   mouse_rotate_sync_wanted:=False;  // not here for mouse action
-  
+
   if any_selected=0
      then begin
             if alert_no_group=True    // alert him, and does he want all?
@@ -17267,7 +17244,7 @@ procedure Tpad_form.rotate_group_90degs_cw_menu_entryClick(Sender: TObject);
 
 begin
   mouse_rotate_sync_wanted:=False;  // not here for mouse action
-  
+
   if any_selected=0
      then begin
             if alert_no_group=True    // alert him, and does he want all?
@@ -18101,7 +18078,7 @@ begin
 
     turnout_i:=1;      // length locked at turnoutx.  so that plain track or approach and exit tracks can be drawn.
 
-    saved_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+    saved_current.keep_shove_list := Tshoved_timber_list.Create;
     fill_kd(saved_current);                              // save control template for restore.
     saved_name_str:=current_name_str;
     saved_current_memo_str:=current_memo_str;
@@ -18137,7 +18114,7 @@ begin
 
     info_form.ref_name_label.Caption:=current_name_str;
 
-    free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+    saved_current.keep_shove_list.Free;
 
     save_done:=False;
     backup_wanted:=True;
@@ -18280,7 +18257,7 @@ begin
 {entry_straight_mod:=1    }  49: adjust_entry_straight_menu_entry.Click;  // 0.91.b
 
       // 0.93.a ...
-      
+
 {plat_ts_start_mod=1      }  50: platform_form.mouse_ts_start_button.Click;
 {plat_ts_length_mod=1     }  51: platform_form.mouse_ts_length_button.Click;
 {plat_ts_width1_mod=1     }  52: platform_form.mouse_ts_width1_button.Click;
@@ -19193,7 +19170,7 @@ begin
                                     +'|||Name or rename this template by entering a new name below.'
                                     +'|||If the existing name includes any prefix tags in square brackets,|take care not to delete or modify them unintentionally.'
                                     +'|Enter the new name after the square brackets.');
-                                    
+
     math_editbox.Text:=keep_name_str;
 
     do_show_modal(math_form);     // 212a  ShowModal
@@ -19454,7 +19431,7 @@ begin
   try
     turnout_i:=1;      // length locked at turnoutx.  so that plain track or approach and exit tracks can be drawn.
 
-    saved_current.keep_shove_list:=TStringList.Create;   // local stringlist not initialised.
+    saved_current.keep_shove_list := Tshoved_timber_list.Create;
     fill_kd(saved_current);                              // save control template for restore.
     saved_name_str:=current_name_str;
     saved_current_memo_str:=current_memo_str;
@@ -19471,7 +19448,7 @@ begin
 
     info_form.ref_name_label.Caption:=current_name_str;
 
-    free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+    saved_current.keep_shove_list.Free;
 
     save_done:=False;
     backup_wanted:=True;
@@ -20888,7 +20865,7 @@ const
 
           +'|green_panel_begintree.gif If inclined bullhead rails are used, this function can be used to show the outer edge of the foot in the larger scales.'
           +' Set the foot width to match the head width.'
-          +'green_panel_end'; 
+          +'green_panel_end';
 
 var
   i:integer;
@@ -20910,7 +20887,7 @@ begin
   until i=6;
 
   rail_section:=2;
-  
+
   railedges(gauge_faces,outer_edges,centre_lines);
   redraw(True);
 end;
@@ -23546,7 +23523,7 @@ procedure Tpad_form.output_diagram_mode_menu_entryClick(Sender: TObject);
 begin
   output_diagram_mode_menu_entry.Checked:=True;  // radio item
   output_diagram_mode:=True;
-end;                                                           
+end;
 //______________________________________________________________________________
 
 procedure Tpad_form.omit_output_boundaries_menu_entryClick(Sender: TObject);
@@ -26545,11 +26522,8 @@ end;
 procedure Tpad_form.pad_file_viewer_menu_entryClick(Sender: TObject);   // 208d
 
 begin
-  do_open_source_bang('FILE VIEWER');  // OT-FIRST
-{ OT-FIRST
   keep_form_was_showing:=False;
   do_show_modal(file_viewer_form);       // 212a  ShowModal
-}
 end;
 //______________________________________________________________________________
 
@@ -27352,7 +27326,7 @@ begin
             knuckle_radius:=od[0];
             knuckle_code:=1;         // use it
           end;
-          
+
   redraw(True);
 end;
 //______________________________________________________________________________
@@ -28535,7 +28509,7 @@ begin
           end;
 end;
 //______________________________________________________________________________
- 
+
 
 end.
 

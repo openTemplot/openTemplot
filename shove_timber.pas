@@ -31,7 +31,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, Buttons;
+  StdCtrls, ExtCtrls, ComCtrls, Buttons,
+  shoved_timber;
 
 type
   Tshove_timber_form = class(TForm)
@@ -154,10 +155,9 @@ var
   show_shove_fs:boolean=False;       // True = show dims in full-size inches.
   show_origin_k:boolean=False;       // True = show timber twist from template datum.
 
-  procedure shove_buttons(able:boolean; omit_code,index:integer);    // enable/disable timber shove buttons.
+  procedure shove_buttons(able:boolean; index:integer);    // enable/disable timber shove buttons.
 
-  procedure copy_shove_list(delete_list:boolean; var from_list, to_list:TStringList);
-  procedure free_shove_list(var shovelist:TStringList);
+  procedure copy_shove_list(delete_list:boolean; var from_list, to_list:Tshoved_timber_list);
 
   procedure shove_xtb_panel_click;
   procedure shove_throw_panel_click;
@@ -382,65 +382,61 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure shove_buttons(able:boolean; omit_code,index:integer);    // enable/disable timber shove buttons.
+procedure shove_buttons(able:boolean; index:integer);    // enable/disable timber shove buttons.
 
 var
+  omit:boolean;
   enable_restore:boolean;
 
 begin
+  if (index>-1) and (index<current_shove_list.Count) then
+    begin
+    omit := (current_shove_list[index].sv_code = svcOmit);
+    enable_restore := current_shove_list[index].can_restore;
+    end
+  else
+    begin
+    omit := false;
+    enable_restore := False;
+    end;
 
-  with shove_timber_form do begin
+  with shove_timber_form do
+    begin
 
     retain_shoves_on_mint_checkbox.Checked:=retain_shoves_on_mint;
     retain_shoves_on_make_checkbox.Checked:=retain_shoves_on_make;
 
-    if able=True
-       then begin
-              Caption:='      shove   timber / sleeper  '+current_shove_str;
-              if omit_code=-1 then Caption:=Caption+'  ( omitted )';
-              number_panel.Caption:=current_shove_str;
-            end
-       else begin
-              xtb_panel.Caption:='';
-              length_panel.Caption:='';
-              width_panel.Caption:='';
-              throw_panel.Caption:='';
-              twist_panel.Caption:='';
-              crab_panel.Caption:='';
-              Caption:='      shove   timber / sleeper';
-              number_panel.Caption:='';
-            end;
+    if able=True then
+      begin
+      Caption:='      shove   timber / sleeper  '+current_shove_str;
+      if omit then
+        begin
+        Caption := Caption+'  ( omitted )';
+        end;
+      number_panel.Caption:=current_shove_str;
+      end
+    else
+      begin
+      xtb_panel.Caption:='';
+      length_panel.Caption:='';
+      width_panel.Caption:='';
+      throw_panel.Caption:='';
+      twist_panel.Caption:='';
+      crab_panel.Caption:='';
+      Caption:='      shove   timber / sleeper';
+      number_panel.Caption:='';
+      end;
 
-    if (index>-1) and (index<current_shove_list.Count)
-       then begin
-              with Tshoved_timber(current_shove_list.Objects[index]).shove_data do begin
+    restore_button.Enabled := enable_restore;                    // selected timber has been shoved.
 
-                       // this timber either omitted or both selected AND has been shoved?
+    restore_all_button.Enabled := (current_shove_list.Count>0);  // 0.95.a was >1     // there are others in list.
 
-                enable_restore:=(omit_code=-1)
-                             OR ( (
-                                        (sv_x<>0)       // xtb modifier.
-                                     OR (sv_k<>0)       // angle modifier.
-                                     OR (sv_o<>0)       // offset modifier (near end).
-                                     OR (sv_l<>0)       // length modifier (far end).
-                                     OR (sv_w<>0)       // width modifier (per side).
-                                     OR (sv_c<>0)       // crab modifier.  0.78.c  01-02-03.
-                                     OR (sv_t<>0)       // spare (thickness 3-D modifier - nyi).
-                                     OR (sv_sp_int<>0)  // spare integer.
+    zero_button.Enabled := able;
 
-                                   ) AND (sv_code>0)    // 0=empty slot, -1=omit this timber,  1=shove this timber.
-                                );
-              end;//with
-            end
-       else enable_restore:=False;
-
-    restore_button.Enabled:=enable_restore;                    // selected timber has been shoved.
-
-    restore_all_button.Enabled:=(current_shove_list.Count>0);  // 0.95.a was >1     // there are others in list.
-
-    zero_button.Enabled:=able;
-
-    if omit_code=-1 then able:=False;    // don't enable these if it's omitted.
+    if (omit) then
+      begin
+      able:=False;    // don't enable these if it's omitted.
+      end;
     omit_button.Enabled:=able;
     widen_button.Enabled:=able;
     narrow_button.Enabled:=able;
@@ -471,7 +467,7 @@ begin
 
     data_button.Enabled:=able;
 
-  end;//with
+    end;//with
 end;
 //__________________________________________________________________________________________
 
@@ -503,7 +499,7 @@ begin
   current_shove_str:='';
   shovetimbx:=0;
   shovetimbx_zero:=0;
-  shove_buttons(False,0,-1);
+  shove_buttons(False, -1);
 
   show_and_redraw(True,False);   // in case hidden (when idle, no rollback).
 end;
@@ -518,23 +514,8 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                               // valid slot.
      then begin
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-
-              sv_code:=-1;    // 0=empty slot, -1=omit this timber,  1=shove this timber.
-              sv_x:=0;        // xtb modifier.
-              sv_k:=0;        // angle modifier.
-              sv_o:=0;        // offset modifier (near end).
-              sv_l:=0;        // length modifier (far end).
-              sv_w:=0;        // width modifier (per side).
-              sv_c:=0;        // crab modifier.
-              sv_t:=0;        // spare (thickness 3-D modifier - nyi)
-              sv_sp_int:=0;   // spare integer.
-
-            end;//with
-
-            current_shove_list.Strings[n]:=current_shove_str;
-
-            shove_buttons(True,-1,n);
+            current_shove_list[n].make_omit;
+            shove_buttons(True, n);
             cancel_adjusts(False);        // can't continue to adjust it.
             show_and_redraw(True,True);
           end;
@@ -550,15 +531,8 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                               // valid slot.
      then begin
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-
-              sv_code:=1;           // 0=empty slot, -1=omit this timber,  1=shove this timber.
-              sv_w:=sv_w+inscale;   // widen each side of timber by 1 inch (timber now 2 inches wider).
-
-            end;//with
-
-            current_shove_list.Strings[n]:=current_shove_str;
-            shove_buttons(True,0,n);
+            current_shove_list[n].adjust_width(inscale);
+            shove_buttons(True, n);
             show_and_redraw(True,True);
           end;
 end;
@@ -573,15 +547,8 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                           // valid slot.
      then begin
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-
-              sv_code:=1;           // 0=empty slot, -1=omit this timber,  1=shove this timber.
-              sv_w:=sv_w-inscale;   // narrow each side of timber by 1 inch (timber now 2 inches narrower).
-
-            end;//with
-
-            current_shove_list.Strings[n]:=current_shove_str;
-            shove_buttons(True,0,n);
+            current_shove_list[n].adjust_width(-inscale);
+            shove_buttons(True, n);
             show_and_redraw(True,True);
           end;
 end;
@@ -596,20 +563,12 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                           // valid slot.
      then begin
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-
-              sv_code:=1;                         // 0=empty slot, -1=omit this timber,  1=shove this timber.
-              sv_l:=sv_l+scale/2;                 // lengthen timber by 6 inches.
-
-              if GetKeyState(VK_SHIFT)<0          // shift key down = msb set...
-                 then begin
-                        sv_o:=sv_o-scale/2        // shove back by same amount to lengthen main side.
-                      end;
-
-            end;//with
-
-            current_shove_list.Strings[n]:=current_shove_str;
-            shove_buttons(True,0,n);
+            current_shove_list[n].adjust_length(scale/2); // 6 inches
+            if GetKeyState(VK_SHIFT) < 0 then         // shift key down = msb set...
+              begin
+              current_shove_list[n].adjust_offset(-scale/2);        // shove back by same amount to lengthen main side.
+              end;
+            shove_buttons(True, n);
             show_and_redraw(True,True);
           end;
 end;
@@ -624,20 +583,12 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                           // valid slot.
      then begin
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-
-              sv_code:=1;                         // 0=empty slot, -1=omit this timber,  1=shove this timber.
-              sv_l:=sv_l-scale/2;                 // shorten timber by 6 inches.
-
-              if GetKeyState(VK_SHIFT)<0          // shift key down = msb set...
-                 then begin
-                        sv_o:=sv_o+scale/2        // shove over by same amount to shorten main side.
-                      end;
-
-            end;//with
-
-            current_shove_list.Strings[n]:=current_shove_str;
-            shove_buttons(True,0,n);
+            current_shove_list[n].adjust_length(-scale/2);
+            if GetKeyState(VK_SHIFT) < 0 then         // shift key down = msb set...
+              begin
+              current_shove_list[n].adjust_offset(scale/2);        // shove over by same amount to shorten main side.
+              end;
+            shove_buttons(True, n);
             show_and_redraw(True,True);
           end;
 end;
@@ -652,15 +603,8 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                           // valid slot.
      then begin
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-
-              sv_code:=1;                 // 0=empty slot, -1=omit this timber,  1=shove this timber.
-              sv_k:=sv_k-Pi/180*hand_i;   // clockwise 1 degree.
-
-            end;//with
-
-            current_shove_list.Strings[n]:=current_shove_str;
-            shove_buttons(True,0,n);
+            current_shove_list[n].adjust_twist_degrees(-hand_i); // clockwise 1 degree.
+            shove_buttons(True, n);
             show_and_redraw(True,True);
           end;
 end;
@@ -675,15 +619,8 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                           // valid slot.
      then begin
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-
-              sv_code:=1;                 // 0=empty slot, -1=omit this timber,  1=shove this timber.
-              sv_k:=sv_k+Pi/180*hand_i;   // anti-clockwise 1 degree.
-
-            end;//with
-
-            current_shove_list.Strings[n]:=current_shove_str;
-            shove_buttons(True,0,n);
+            current_shove_list[n].adjust_twist_degrees(hand_i); // anti-clockwise 1 degree.
+            shove_buttons(True, n);
             show_and_redraw(True,True);
           end;
 end;
@@ -698,15 +635,8 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                           // valid slot.
      then begin
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-
-              sv_code:=1;                 // 0=empty slot, -1=omit this timber,  1=shove this timber.
-              sv_x:=sv_x-inscale;         // back 1" scale.
-
-            end;//with
-
-            current_shove_list.Strings[n]:=current_shove_str;
-            shove_buttons(True,0,n);
+            current_shove_list[n].adjust_shovex(-inscale);
+            shove_buttons(True, n);
             show_and_redraw(True,True);
           end;
 end;
@@ -721,15 +651,8 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                           // valid slot.
      then begin
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-
-              sv_code:=1;                 // 0=empty slot, -1=omit this timber,  1=shove this timber.
-              sv_x:=sv_x+inscale;         // forward 1" scale.
-
-            end;//with
-
-            current_shove_list.Strings[n]:=current_shove_str;
-            shove_buttons(True,0,n);
+            current_shove_list[n].adjust_shovex(inscale);
+            shove_buttons(True, n);
             show_and_redraw(True,True);
           end;
 end;
@@ -744,15 +667,8 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                                  // valid slot.
      then begin
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-
-              sv_code:=1;                 // 0=empty slot, -1=omit this timber,  1=shove this timber.
-              sv_c:=sv_c-inscale;         // crab back 1" scale.
-
-            end;//with
-
-            current_shove_list.Strings[n]:=current_shove_str;
-            shove_buttons(True,0,n);
+            current_shove_list[n].adjust_crab(-inscale);
+            shove_buttons(True, n);
             show_and_redraw(True,True);
           end;
 end;
@@ -767,15 +683,8 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                                  // valid slot.
      then begin
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-
-              sv_code:=1;                 // 0=empty slot, -1=omit this timber,  1=shove this timber.
-              sv_c:=sv_c+inscale;         // crab forward 1" scale.
-
-            end;//with
-
-            current_shove_list.Strings[n]:=current_shove_str;
-            shove_buttons(True,0,n);
+            current_shove_list[n].adjust_crab(inscale);
+            shove_buttons(True, n);
             show_and_redraw(True,True);
           end;
 end;
@@ -793,28 +702,11 @@ begin
     n:=find_shove(current_shove_str,False);   // don't create it if not present.
     if n>=0                                   // valid slot.
        then begin
-              with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-
-                        // !!! no need to do this if we are about to free it, but just for elegance...
-
-                sv_code:=0;     // 0=empty slot, -1=omit this timber,  1=shove this timber.
-                sv_x:=0;        // xtb modifier.
-                sv_k:=0;        // angle modifier.
-                sv_o:=0;        // offset modifier (near end).
-                sv_l:=0;        // length modifier (far end).
-                sv_w:=0;        // width modifier (per side).
-                sv_c:=0;        // crab modifier.
-                sv_t:=0;        // spare (thickness 3-D modifier - nyi).
-                sv_sp_int:=0;   // spare.
-
-              end;//with
-
-              Tshoved_timber(current_shove_list.Objects[n]).Free;
               current_shove_list.Delete(n);
             end;
   until n<0;        // might be in more than one slot, so don't BREAK.
 
-  shove_buttons(True,1,-1);
+  shove_buttons(True, -1);
   show_and_redraw(True,True);
 end;
 //__________________________________________________________________________________________
@@ -832,7 +724,7 @@ begin
   BringToFront;
   cancel_adjusts(False);
   clear_shovedata;
-  shove_buttons(True,0,-1);
+  shove_buttons(True, -1);
   show_and_redraw(True,True);
 end;
 //_____________________________________________________________________________________
@@ -868,7 +760,7 @@ end;
 procedure Tshove_timber_form.mouse_width_buttonClick(Sender: TObject);
 
 begin
-  shove_width_mouse_action; 
+  shove_width_mouse_action;
 end;
 //______________________________________________________________________________________
 
@@ -943,42 +835,42 @@ var
   n,i:integer;
   od:Toutdim;
   help_str:string;
+  shove: Tshoved_timber;
 
 begin
   n:=find_shove(current_shove_str,True);
-  if n>=0                               // valid slot.
-     then begin
-            help_str:='    Data for Shoving Timber '+current_shove_str+mod_str;
+  if n>=0 then                              // valid slot.
+    begin
+    help_str:='    Data for Shoving Timber '+current_shove_str+mod_str;
 
-            current_shove_list.Strings[n]:=current_shove_str;
+    shove := current_shove_list[n];
 
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
+    putdim(help_str,1,                     'shove  timber  along  by',shove.sv_x,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
+    putdim(help_str,3,                            'twist  timber  by',shove.sv_k*180/Pi*hand_i,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
+    putdim(help_str,1,                   'crab  timber  sideways  by',shove.sv_c,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
+    putdim(help_str,1,                   'throw  timber  endways  by',shove.sv_o,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
+    putdim(help_str,1,      'lengthen / shorten  timber  by  ( +/- )',shove.sv_l,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
+    i:=putdim(help_str,1,'widen / narrow  timber  by  ( +/- per  side )',shove.sv_w,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
 
-              putdim(help_str,1,                     'shove  timber  along  by',sv_x,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
-              putdim(help_str,3,                            'twist  timber  by',sv_k*180/Pi*hand_i,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
-              putdim(help_str,1,                   'crab  timber  sideways  by',sv_c,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
-              putdim(help_str,1,                   'throw  timber  endways  by',sv_o,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
-              putdim(help_str,1,      'lengthen / shorten  timber  by  ( +/- )',sv_l,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
-           i:=putdim(help_str,1,'widen / narrow  timber  by  ( +/- per  side )',sv_w,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
+    if i<>5 then
+      EXIT;
 
-              if i<>5 then EXIT;
-              if getdims('shoving  timber  '+current_shove_str,'',pad_form,i,od)=True
-                 then begin
-                        sv_x:=od[0];
-                        sv_k:=od[1]*Pi/180*hand_i;
-                        sv_c:=od[2];
-                        sv_o:=od[3];
-                        sv_l:=od[4];
-                        sv_w:=od[5];
-                        sv_t:=0;        // spare (thickness 3-D modifier - nyi).
-                        sv_sp_int:=0;   // spare.
+    if getdims('shoving  timber  '+current_shove_str,'',pad_form,i,od) then
+      begin
+      shove.sv_x:=od[0];
+      shove.sv_k:=od[1]*Pi/180*hand_i;
+      shove.sv_c:=od[2];
+      shove.sv_o:=od[3];
+      shove.sv_l:=od[4];
+      shove.sv_w:=od[5];
+      shove.sv_t:=0;        // spare (thickness 3-D modifier - nyi).
+      shove.sv_sp_int:=0;   // spare.
 
-                        sv_code:=1;                 // might previously have been be omitted.
-                        shove_buttons(True,1,n);
-                        show_and_redraw(True,True);
-                      end;
-            end;//with
-          end;
+      shove.sv_code := svcShove;                 // might previously have been be omitted.
+      shove_buttons(True, n);
+      show_and_redraw(True,True);
+      end;
+    end;
 end;
 //__________________________________________________________________________________________
 
@@ -1090,6 +982,7 @@ var
   fs_convert:extended;
   fs_str:string;
   fs_code:integer;
+  shove: Tshoved_timber;
 
 begin
   if show_shove_fs=True
@@ -1107,21 +1000,17 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                               // valid slot.
      then begin
-            current_shove_list.Strings[n]:=current_shove_str;
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
+            shove := current_shove_list[n];
 
-              i:=putdim('    Set Centre of Timber '+current_shove_str+mod_str,fs_code,'timber  '+current_shove_str+'  centre'+fs_str,(shovetimbx-shovetimbx_zero)/fs_convert,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
-              if i<>0 then EXIT;
+            i:=putdim('    Set Centre of Timber '+current_shove_str+mod_str,fs_code,'timber  '+current_shove_str+'  centre'+fs_str,(shovetimbx-shovetimbx_zero)/fs_convert,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
+            if i<>0 then EXIT;
 
-              if getdims('timber  '+current_shove_str+'  centre  dimension','',pad_form,i,od)=True
-                 then begin
-                        sv_x:=sv_x+(od[0]*fs_convert-shovetimbx+shovetimbx_zero);    // modify shove data.
-
-                        sv_code:=1;                 // might previously have been be omitted.
-                        shove_buttons(True,1,n);
-                        show_and_redraw(True,True);
-                      end;
-            end;//with
+            if getdims('timber  '+current_shove_str+'  centre  dimension','',pad_form,i,od)=True
+               then begin
+                      shove.adjust_shovex(od[0]*fs_convert-shovetimbx+shovetimbx_zero);    // modify shove data.
+                      shove_buttons(True, n);
+                      show_and_redraw(True,True);
+                    end;
           end;
 end;
 //__________________________________________________________________________________________
@@ -1148,7 +1037,7 @@ var
   fs_convert:extended;
   fs_str:string;
   fs_code:integer;
-
+  shove: Tshoved_timber;
 begin
   if show_shove_fs=True
      then begin
@@ -1165,21 +1054,17 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                               // valid slot.
      then begin
-            current_shove_list.Strings[n]:=current_shove_str;
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
+            shove := current_shove_list[n];
 
               i:=putdim('    Set Length of Timber '+current_shove_str+mod_str,fs_code,'timber  '+current_shove_str+'  length'+fs_str,shovetimb_len/fs_convert,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
               if i<>0 then EXIT;
 
               if getdims('timber  '+current_shove_str+'  length','',pad_form,i,od)=True
                  then begin
-                        sv_l:=sv_l+(od[0]*fs_convert-shovetimb_len);    // modify shove data.
-
-                        sv_code:=1;                 // might previously have been be omitted.
-                        shove_buttons(True,1,n);
+                        shove.adjust_length(od[0]*fs_convert-shovetimb_len);    // modify shove data.
+                        shove_buttons(True, n);
                         show_and_redraw(True,True);
                       end;
-            end;//with
           end;
 end;
 //________________________________________________________________________________________
@@ -1209,6 +1094,7 @@ var
   fs_convert:extended;
   fs_str:string;
   fs_code:integer;
+  shove: Tshoved_timber;
 
 begin
   if show_shove_fs=True
@@ -1226,21 +1112,17 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                               // valid slot.
      then begin
-            current_shove_list.Strings[n]:=current_shove_str;
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
+            shove := current_shove_list[n];
 
               i:=putdim('    Set Crab Sideways Shove for Timber '+current_shove_str+mod_str,fs_code,'timber '+current_shove_str+' crab sideways shove'+fs_str,shovetimb_crab/fs_convert,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
               if i<>0 then EXIT;
 
               if getdims('timber  '+current_shove_str+'  crab  sideways  shove','',pad_form,i,od)=True
                  then begin
-                        sv_c:=sv_c+(od[0]*fs_convert-shovetimb_crab);    // modify shove data.
-
-                        sv_code:=1;                 // might previously have been be omitted.
-                        shove_buttons(True,1,n);
+                        shove.adjust_crab(od[0]*fs_convert-shovetimb_crab);    // modify shove data.
+                        shove_buttons(True, n);
                         show_and_redraw(True,True);
                       end;
-            end;//with
           end;
 end;
 //_________________________________________________________________________________________
@@ -1267,6 +1149,7 @@ var
   fs_convert:extended;
   fs_str:string;
   fs_code:integer;
+  shove: Tshoved_timber;
 
 begin
   if show_shove_fs=True
@@ -1284,21 +1167,17 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                               // valid slot.
      then begin
-            current_shove_list.Strings[n]:=current_shove_str;
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
+            shove := current_shove_list[n];
 
               i:=putdim('    Set Width of Timber '+current_shove_str+mod_str,fs_code,'timber  '+current_shove_str+'  width'+fs_str,shovetimb_wide/fs_convert,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
               if i<>0 then EXIT;
 
               if getdims('timber  '+current_shove_str+'  width','',pad_form,i,od)=True
                  then begin
-                        sv_w:=sv_w+(od[0]*fs_convert-shovetimb_wide)/2;    // modify shove data (/2 because sv_w is per side).
-
-                        sv_code:=1;                 // might previously have been be omitted.
-                        shove_buttons(True,1,n);
+                        shove.adjust_width(od[0]*fs_convert-shovetimb_wide/2);    // modify shove data (/2 because sv_w is per side).
+                        shove_buttons(True, n);
                         show_and_redraw(True,True);
                       end;
-            end;//with
           end;
 end;
 //_________________________________________________________________________________________
@@ -1339,7 +1218,7 @@ var
   od:Toutdim;
   opt_str:string;
   code_str:string;
-
+  shove: Tshoved_timber;
 begin
   n:=find_shove(current_shove_str,True);
   if n>=0                               // valid slot.
@@ -1354,21 +1233,17 @@ begin
                       code_str:='( from  square  ¬ )';
                     end;
 
-            current_shove_list.Strings[n]:=current_shove_str;
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
+            shove := current_shove_list[n];
 
               i:=putdim('    Set Twist Angle for Timber '+current_shove_str+mod_str1+opt_str+mod_str2,3,'timber  '+current_shove_str+'  twist  angle  '+code_str,shovetimb_keq*180/Pi,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate.
               if i<>0 then EXIT;
 
               if getdims('timber  '+current_shove_str+'  twist  angle','',pad_form,i,od)=True
                  then begin
-                        sv_k:=sv_k+(od[0]*Pi/180-shovetimb_keq)*hand_i;    // modify shove data.
-
-                        sv_code:=1;                 // might previously have been be omitted.
-                        shove_buttons(True,1,n);
+                        shove.adjust_twist_degrees((od[0]-shovetimb_keq*180/Pi)*hand_i);    // modify shove data.
+                        shove_buttons(True, n);
                         show_and_redraw(True,True);
                       end;
-            end;//with
           end;
 end;
 //__________________________________________________________________________________________
@@ -1399,6 +1274,7 @@ var
   fs_convert:extended;
   fs_str:string;
   fs_code:integer;
+  shove: Tshoved_timber;
 
 begin
   if show_shove_fs=True
@@ -1416,73 +1292,53 @@ begin
   n:=find_shove(current_shove_str,True);
   if n>=0                               // valid slot.
      then begin
-            current_shove_list.Strings[n]:=current_shove_str;
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
+            shove := current_shove_list[n];
 
               i:=putdim('    Set Endways Throw for Timber '+current_shove_str+mod_str,fs_code,'timber '+current_shove_str+' endways  throw'+fs_str,shovetimb_throw/fs_convert,False,True,False,False); // neg ok, no preset, 0 ok, don't terminate on zero.
               if i<>0 then EXIT;
 
               if getdims('timber  '+current_shove_str+'  endways  throw','',pad_form,i,od)=True
                  then begin
-                        sv_o:=sv_o+(od[0]*fs_convert-shovetimb_throw);    // modify shove data.
-
-                        sv_code:=1;                 // might previously have been be omitted.
-                        shove_buttons(True,1,n);
+                        shove.adjust_offset(od[0]*fs_convert-shovetimb_throw);    // modify shove data.
+                        shove_buttons(True, n);
                         show_and_redraw(True,True);
                       end;
-            end;//with
           end;
 end;
 //____________________________________________________________________________________________
 
-procedure copy_shove_list(delete_list:boolean; var from_list, to_list:TStringList);
+procedure copy_shove_list(delete_list:boolean; var from_list, to_list:Tshoved_timber_list);
 
 var
-  f,t:integer;
+  f : integer;
+  t : Tshoved_timber;
 
 begin
-  if to_list=nil then to_list:=TStringList.Create;    // first create or clear the destination...
+  if to_list=nil then
+    to_list:=Tshoved_timber_list.Create;    // first create or clear the destination...
 
-  if to_list.Count>0 then for t:=0 to to_list.Count-1 do Tshoved_timber(to_list.Objects[t]).Free;
   to_list.Clear;
 
-  if from_list=nil then EXIT;  // return empty list.
+  if from_list=nil then
+    EXIT;  // return empty list.
 
-  if from_list.Count>0
-     then begin
+  for f:=0 to from_list.Count-1 do
+    begin
+    t := Tshoved_timber.CreateFrom(from_list[f]);
+    to_list.Add(t);
+    end;//next
 
-            for f:=0 to from_list.Count-1 do begin
-
-              t:=to_list.AddObject(from_list.Strings[f],Tshoved_timber.Create);
-              Tshoved_timber(to_list.Objects[t]).shove_data:=Tshoved_timber(from_list.Objects[f]).shove_data;
-
-              if delete_list=True then Tshoved_timber(from_list.Objects[f]).Free;
-
-            end;//next
-          end;
-
-  if delete_list=True then from_list.Free;
+  if delete_list then
+    from_list.Free;
 end;
 //_______________________________________________________________________________________
 
-procedure free_shove_list(var shovelist:TStringList);
-
-var
-  f:integer;
-
-begin
-  if shovelist=nil then EXIT;  // never created.
-
-  if shovelist.Count>0 then for f:=0 to shovelist.Count-1 do Tshoved_timber(shovelist.Objects[f]).Free;
-
-  shovelist.Free;
-end;
-//_______________________________________________________________________________________
 
 procedure Tshove_timber_form.add_bonus_buttonClick(Sender: TObject);
 
 var
   n:integer;
+  shove: Tshoved_timber;
 
 begin
   cancel_adjusts(False);
@@ -1496,14 +1352,12 @@ begin
   n:=find_shove(current_shove_str,True);     // find it or create an empty slot.
   if n>=0                                    // valid slot.
      then begin
-            with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-              if sv_code=0              // new slot.
+            shove := current_shove_list[n];
+            if shove.sv_code = svcEmpty              // new slot.
                  then begin
-                        sv_code:=1;                                        // flag to shove this timber.
-                        current_shove_list.Strings[n]:=current_shove_str;  // and add it to list.
+                        shove.sv_code := svcShove;                                        // flag to shove this timber.
                       end;
-              shove_buttons(True,sv_code,n);
-            end;//with
+              shove_buttons(True,n);
           end;
   show_and_redraw(True,False);
 end;
@@ -1553,7 +1407,7 @@ begin
             if i=5 then EXIT;
           end;
 
-  markmax:=intarray_max(marks_list_ptr);  // max index for the present list.
+  markmax:=High(marks_list_ptr);  // max index for the present list.
 
   if mark_index>markmax then mark_index:=markmax;  // ??? shouldn't be.
 
@@ -1564,7 +1418,7 @@ begin
 
   for i:=0 to (mark_index-1) do begin     // (mark_index is always the next free slot)
     try
-      ptr_1st:=Pointer(intarray_get(marks_list_ptr,i));  // pointer to the next Tmark record.
+      ptr_1st:=@marks_list_ptr[i];  // pointer to the next Tmark record.
       if ptr_1st=nil then EXIT;
 
       code:=ptr_1st^.code;
@@ -1578,20 +1432,7 @@ begin
       n:=find_shove(num_str,True);     // find it or create an empty slot.
       if n>=0                          // valid slot.
          then begin
-                with Tshoved_timber(current_shove_list.Objects[n]).shove_data do begin
-
-                  sv_code:=-1;    // 0=empty slot, -1=omit this timber,  1=shove this timber.
-                  sv_x:=0;        // xtb modifier.
-                  sv_k:=0;        // angle modifier.
-                  sv_o:=0;        // offset modifier (near end).
-                  sv_l:=0;        // length modifier (far end).
-                  sv_w:=0;        // width modifier (per side).
-                  sv_c:=0;        // crab modifier.
-                  sv_t:=0;        // spare (thickness 3-D modifier - nyi)
-                  sv_sp_int:=0;   // spare integer.
-                end;//with
-
-                current_shove_list.Strings[n]:=num_str;  // and add it to list.
+                current_shove_list[n].make_omit;
               end
          else CONTINUE;
     except
@@ -1600,7 +1441,7 @@ begin
   end;//next i
 
   current_shove_str:=num_str;   // last one omitted.
-  shove_buttons(True,-1,n);
+  shove_buttons(True, n);
   cancel_adjusts(False);        // can't continue to adjust it.
   show_and_redraw(True,True);
 end;

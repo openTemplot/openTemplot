@@ -399,7 +399,7 @@ begin
               banner_fill_checkbox.Enabled:=True;               // might have been disabled if this is a change.
               banner_pause_final_page_checkbox.enabled:=True;   // 0.93.a
             end;
-              
+
   end;//with
 end;
 //___________________________________________________________________________________
@@ -740,7 +740,7 @@ var
                 s:string;  // 208a
 
               begin
-                markmax:=intarray_max(marks_list_ptr);  // max index for the present list.
+                markmax:=High(marks_list_ptr);  // max index for the present list.
 
                 if mark_index>markmax then mark_index:=markmax;  // ??? shouldn't be.
 
@@ -750,7 +750,7 @@ var
 
                   for i:=0 to (mark_index-1) do begin   // (mark_index is always the next free slot)
 
-                    ptr_1st:=Pointer(intarray_get(marks_list_ptr,i));  // pointer to the next Tmark record.
+                    ptr_1st:=@marks_list_ptr[i];  // pointer to the next Tmark record.
                     if ptr_1st=nil then BREAK;
 
                     mark_code:=ptr_1st^.code;              // check this mark wanted.
@@ -789,7 +789,7 @@ var
 
                     if ((mark_code=203) or (mark_code=233) or (mark_code=293)) and (i<(mark_index-1))      // timber infill
                        then begin
-                              ptr_2nd:=Pointer(intarray_get(marks_list_ptr,i+1));        // pointer to the second infill Tmark record.
+                              ptr_2nd:=@marks_list_ptr[i+1];        // pointer to the second infill Tmark record.
                               if ptr_2nd=nil then BREAK;
 
                               p1:=ptr_1st^.p1;              // x1,y1 in  1/100ths mm
@@ -1818,7 +1818,7 @@ try
 
             bottom_str:=bottom_str+'    '+DateToStr(Date)+'  '+TimeToStr(Time);
 
-            top_str:=' Templot0  v:'+FormatFloat('0.00',program_version/100)+version_build+'  templot.com  This drawing contains design elements and data © 2018 Martin Wynne.';
+            top_str:=' Templot3  v:'+GetVersionString(voFull)+'  templot.com  This drawing contains design elements and data © 2018 Martin Wynne.';
             if box_project_title_str<>'' then top_str:=top_str+'   Project : '+box_project_title_str;
 
             temp_str:=Chr(sheet_across+97)+'/'+IntToStr(sheet_down+1);

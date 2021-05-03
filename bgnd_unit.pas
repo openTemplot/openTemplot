@@ -1336,7 +1336,7 @@ begin
 
                         auto_fit_picture_button.Enabled:=False;
                         copy_image_button.Enabled:=False;
-                        
+
                         crop_rectangle_button.Enabled:=True;  // 214a
 
                         paste_button.Enabled:=False;
@@ -1385,7 +1385,7 @@ begin
 
                         auto_fit_picture_button.Enabled:=False;
                         copy_image_button.Enabled:=False;
-                        
+
                         crop_rectangle_button.Enabled:=False;  // 214a
 
                         paste_button.Enabled:=False;
@@ -1407,7 +1407,7 @@ begin
 
                         break_rectangle_menu_entry.Enabled:=False;
                         combine_pictures_menu_entry.Enabled:=False;
-                        
+
                         pad_form.shift_corner2_menu_entry.Enabled:=True;
                       end;
 
@@ -1431,7 +1431,7 @@ begin
 
                         auto_fit_picture_button.Enabled:=False;
                         copy_image_button.Enabled:=False;
-                        
+
                         crop_rectangle_button.Enabled:=False;  // 214a
 
                         paste_button.Enabled:=False;
@@ -1449,7 +1449,7 @@ begin
 
                         break_rectangle_menu_entry.Enabled:=False;
                         combine_pictures_menu_entry.Enabled:=False;
-                        
+
                         pad_form.shift_corner2_menu_entry.Enabled:=False;
                       end;
 
@@ -1473,7 +1473,7 @@ begin
 
                         auto_fit_picture_button.Enabled:=False;
                         copy_image_button.Enabled:=False;
-                        
+
                         crop_rectangle_button.Enabled:=False;  // 214a
 
                         paste_button.Enabled:=False;
@@ -1491,7 +1491,7 @@ begin
 
                         break_rectangle_menu_entry.Enabled:=False;
                         combine_pictures_menu_entry.Enabled:=False;
-                        
+
                         pad_form.shift_corner2_menu_entry.Enabled:=False;
                       end;
 
@@ -3881,9 +3881,9 @@ begin
 
       with header_node do begin
 
-        WriteString('program_name','Templot3 background shapes, saved from version '+round_str(program_version/100,2)+version_build,'');
+        WriteString('program_name','Templot3 background shapes, saved from version '+GetVersionString(voFull));
 
-        WriteInteger('program_version',program_version,0);
+        WriteInteger('file_version',file_version,0);
 
         WriteString('file_date',DateTimeToStr(Now),'');
 
@@ -5269,7 +5269,7 @@ begin
           end
      else rotate_this_shape(j,rotshap_k);
 
-  shapes_saved:=False;      // need a resave.   
+  shapes_saved:=False;      // need a resave.
   shapes_current_state;
 
   do_rollback:=False;       // no need to put this change in rollback register on redraw.

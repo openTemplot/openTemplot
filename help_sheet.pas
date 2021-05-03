@@ -32,7 +32,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, Buttons, ComCtrls, Menus, Clipbrd, ShellAPI, // RVScroll, RichView, RVStyle, RVFuncs,
-  { OT-FIRST WPPDFPRP, WPPDFR1, WPPDFR2,} Htmlview, MetaFilePrinter, styleun, PrintersDlgs;
+  { OT-FIRST WPPDFPRP, WPPDFR1, WPPDFR2,} Htmlview, MetaFilePrinter, styleun, PrintersDlgs, HtmlGlobals;
 
 type
 
@@ -108,6 +108,8 @@ type
     procedure FormKeyDown(Sender:TObject; var Key:Word; Shift:TShiftState);
     procedure FormActivate(Sender: TObject);
     procedure help_popup_menuPopup(Sender: TObject);
+    procedure html_viewHotSpotClick(Sender: TObject; const SRC: ThtString;
+      var Handled: Boolean);
     procedure size_updownClick(Sender: TObject; Button: TUDBtnType);
     procedure FormShow(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -178,10 +180,8 @@ var
 
   procedure url_clicked(new_url:string; old_position,new_position:integer);  // 212a
 
-  procedure program_link_clicked(new_url:string); // 212a
-
-  procedure web_link_clicked(new_url:string); // 212a
-
+  procedure htmlviewer_hot_spot_clicked(Sender: TObject;
+    const SRC: ThtString; var Handled: Boolean);
 
   procedure view_htm(file_str:string);
 
@@ -470,7 +470,7 @@ begin
 
 
 
-  footer_str:='<HR NOSHADE><P CLASS="version">v: '+FormatFloat('0.00',program_version/100)+version_build+'&nbsp; &copy; &nbsp;</P></BODY></HTML>';
+  footer_str:='<HR NOSHADE><P CLASS="version">v: '+GetVersionString(voFull)+'&nbsp; &copy; &nbsp;</P></BODY></HTML>';
 
   with help_form do begin
 
@@ -490,7 +490,7 @@ begin
 
        -300: Caption:='    program  information';          // 0.93.a
 
-       -250: Caption:='    about  '+Application.Title+'  v: '+FormatFloat('0.00',program_version/100)+version_build;
+       -250: Caption:='    about  '+Application.Title+'  v: '+GetVersionString(voFull);
        -200: Caption:='    saved  program  preferences';
        -150: Caption:='    welcome  to  '+Application.Title;
 
@@ -656,7 +656,7 @@ begin
      then msg:=html_path_str+msg   // make full file path
 
      else begin
-            if cap_code>-100 then msg:=msg+'<SPAN STYLE="FONT-WEIGHT:NORMAL; FONT-SIZE:13px;">|____________| v: '+FormatFloat('0.00',program_version/100)+version_build+' &nbsp; ©</SPAN>';  // add footer
+            if cap_code>-100 then msg:=msg+'<SPAN STYLE="FONT-WEIGHT:NORMAL; FONT-SIZE:13px;">|____________| v: '+GetVersionString(voFull)+' &nbsp; ©</SPAN>';  // add footer
           end;
 
   show_help_form;    // now show it.
@@ -745,6 +745,13 @@ begin
 
   end;//case
 end;
+
+procedure Thelp_form.html_viewHotSpotClick(Sender: TObject;
+  const SRC: ThtString; var Handled: Boolean);
+begin
+  htmlviewer_hot_spot_clicked(Sender, SRC, Handled);
+end;
+
 //______________________________________________________________________________________
 
 procedure Thelp_form.size_updownClick(Sender: TObject; Button: TUDBtnType);
@@ -1203,70 +1210,6 @@ begin
 
   if Copy(new_url,1,10)='online_ref'     then begin online_help_click(Copy(new_url,11,3));  EXIT; end;  // 0.93.a
 
-  { OT-FIRST
-           // then the file viewer  208d ...
-
-  if Copy(new_url,1,9)='fv_reload'
-     then begin
-            n:=StrToInt(StringReplace(Copy(new_url,10,255),'.85a','',[rfReplaceAll, rfIgnoreCase]));  // 255 = to end of string
-            fv_reload_file(n);
-            EXIT;
-          end;
-
-  if Copy(new_url,1,6)='fv_add'
-     then begin
-            n:=StrToInt(StringReplace(Copy(new_url,7,255),'.85a','',[rfReplaceAll, rfIgnoreCase]));  // 255 = to end of string
-            fv_add_file(n);
-            EXIT;
-          end;
-
-  if Copy(new_url,1,7)='fv_tags'
-     then begin
-            n:=StrToInt(StringReplace(Copy(new_url,8,255),'.85a','',[rfReplaceAll, rfIgnoreCase]));  // 255 = to end of string
-            fv_tags(n);
-            EXIT;
-          end;
-
-  if Copy(new_url,1,9)='fv_readme'
-     then begin
-            n:=StrToInt(StringReplace(Copy(new_url,10,255),'.85a','',[rfReplaceAll, rfIgnoreCase]));  // 255 = to end of string
-            fv_read_me(n);
-            EXIT;
-          end;
-
-  if Copy(new_url,1,9)='fv_rename'
-     then begin
-            n:=StrToInt(StringReplace(Copy(new_url,10,255),'.85a','',[rfReplaceAll, rfIgnoreCase]));  // 255 = to end of string
-            fv_rename_file(n);
-            EXIT;
-          end;
-
-  if Copy(new_url,1,7)='fv_find'
-     then begin
-            n:=StrToInt(StringReplace(Copy(new_url,8,255),'.85a','',[rfReplaceAll, rfIgnoreCase]));  // 255 = to end of string
-            fv_find_file(n);
-            EXIT;
-          end;
-
-  if Copy(new_url,1,9)='fv_delete'
-     then begin
-            n:=StrToInt(StringReplace(Copy(new_url,10,255),'.85a','',[rfReplaceAll, rfIgnoreCase]));  // 255 = to end of string
-            fv_delete_file(n);
-            EXIT;
-          end;
-
-
-  if new_url='fv_no_readme.85a'          then begin no_readme_help(True);                   EXIT; end;   // 208d
-
-  if new_url='fv_refresh.85a'            then begin file_viewer_form.refresh_button.Click;  EXIT; end;   // 208d
-
-  if new_url='fv_help.85a'               then begin file_viewer_form.help_button.Click;     EXIT; end;   // 209a
-
-  if new_url='fv_instant.85a'            then begin file_viewer_form.instant_show_checkbox.Checked:=True;  EXIT; end;   // 209a
-
-  }
-
-
   if new_url='go_to_templot_explained.85a'    then begin go_to_templot_companion_page('templot_explained.php'); EXIT; end;   // 215a
 
   if new_url='go_to_video_list.85a'           then begin go_to_video_list;                  EXIT; end;   // 211b
@@ -1310,6 +1253,39 @@ begin
   if new_url='smallest_group_rad.85a'         then begin box_goto_smallest_group_rad;       EXIT; end;    // 208a
 
 end;
+
+procedure htmlviewer_hot_spot_clicked(Sender: TObject;
+  const SRC: ThtString; var Handled: Boolean);
+var
+  S, Dest: ThtString;
+  OldPos: Integer;
+  ft: THtmlFileType;
+
+  url_str:string;     // 85A
+  url_ext:string;     // 85A
+
+begin
+
+  url_str:=SRC;
+  Handled := False;
+
+  if (Pos('http://',url_str)=1) or (Pos('https://',url_str)=1)    //  https 212b
+     then begin
+            web_link_clicked(url_str); // 212a  // 85A in help_sheet unit
+            Handled := True;
+            EXIT;
+          end;
+
+  url_ext:=Uppercase(ExtractFileExt(url_str));
+
+  if url_ext='.85A'
+     then begin
+            program_link_clicked(url_str); // 212a  // 85A in help_sheet unit
+            Handled := True;
+            EXIT;
+          end;
+end;
+
 //______________________________________________________________________________
 
 procedure url_clicked(new_url:string; old_position,new_position:integer);
@@ -1452,7 +1428,7 @@ begin
               EXIT;
             end;
 
-    showing_dialog:=False;   // 212a Wine bug        
+    showing_dialog:=False;   // 212a Wine bug
 
           // invalid entered chars removed by dialog
 

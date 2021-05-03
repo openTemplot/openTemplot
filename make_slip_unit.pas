@@ -54,7 +54,7 @@ type
   end;
 
 var
-  make_slip_form: Tmake_slip_form; 
+  make_slip_form: Tmake_slip_form;
 
   slip_switch_6:integer=0;      // global index into switch list.  set in switch_selelect unit
   slip_switch_7:integer=0;
@@ -73,7 +73,8 @@ implementation
 
 uses
   pad_unit,math_unit,keep_select,alert_unit, info_unit, control_room, shove_timber,
-  switch_select { OT-FIRST , web_browser_unit};
+  switch_select,
+  shoved_timber { OT-FIRST , web_browser_unit};
 
 //______________________________________________________________________________
 
@@ -279,8 +280,8 @@ begin
 
   id_str:='[slip '+FormatDateTime('hhmmss',Time)+']';
 
-  saved_current.keep_shove_list:=TStringList.Create;
-  ti.keep_shove_list:=TStringList.Create;
+  saved_current.keep_shove_list := Tshoved_timber_list.Create;
+  ti.keep_shove_list := Tshoved_timber_list.Create;
 
   try
     fill_kd(saved_current);                              // save control template
@@ -980,8 +981,8 @@ begin
     redraw(False);
 
   finally
-    free_shove_list(ti.keep_shove_list);              // free the local stringlist.
-    free_shove_list(saved_current.keep_shove_list);   // free the local stringlist.
+    ti.keep_shove_list.Free;
+    saved_current.keep_shove_list.Free;
 
     pad_form.reset_notch_menu_entry.Enabled:=True;
     pad_form.reset_notch_menu_entry.Click;

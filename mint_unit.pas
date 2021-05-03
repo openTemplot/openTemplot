@@ -31,9 +31,12 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, Htmlview, Grids, Outline{, DirOutln};
+  StdCtrls, ExtCtrls, ComCtrls, Htmlview, Grids, Outline{, DirOutln}, HtmlGlobals;
 
 type
+
+  { Tmint_form }
+
   Tmint_form = class(TForm)
     size_groupbox: TGroupBox;
     curving_groupbox: TGroupBox;
@@ -64,6 +67,8 @@ type
     zoom_fit_button: TButton;
     red_label: TLabel;
     reset_button: TButton;
+    procedure mint_html_viewHotSpotClick(Sender: TObject; const SRC: ThtString;
+      var Handled: Boolean);
     procedure size_updownClick(Sender: TObject; Button: TUDBtnType);
     procedure colour_panelClick(Sender: TObject);
     procedure cancel_panelClick(Sender: TObject);
@@ -130,6 +135,13 @@ begin
 
   size_updown.Tag:=size_updown.Position;       // and save for the next click.
 end;
+
+procedure Tmint_form.mint_html_viewHotSpotClick(Sender: TObject;
+  const SRC: ThtString; var Handled: Boolean);
+begin
+  htmlviewer_hot_spot_clicked(Sender, SRC, Handled);
+end;
+
 //___________________________________________________________________________________________
 
 procedure Tmint_form.help_buttonClick(Sender: TObject);

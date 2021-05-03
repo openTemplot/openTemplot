@@ -54,7 +54,7 @@ uses
 
 
 //______________________________________________________________________________
- 
+
 function calc_intensity(colour:integer):integer;
 
 var
@@ -363,7 +363,7 @@ var
                 i:integer;
 
               begin
-                markmax:=intarray_max(marks_list_ptr);  // max index for the present list.
+                markmax:=High(marks_list_ptr);  // max index for the present list.
 
                 if mark_index>markmax then mark_index:=markmax;  // ??? shouldn't be.
 
@@ -373,7 +373,7 @@ var
 
                   for i:=0 to (mark_index-1) do begin   // (mark_index is always the next free slot)
 
-                    ptr_1st:=Pointer(intarray_get(marks_list_ptr,i));  // pointer to the next Tmark record.
+                    ptr_1st:=@marks_list_ptr[i];  // pointer to the next Tmark record.
                     if ptr_1st=nil then BREAK;
 
                     mark_code:=ptr_1st^.code;              // check this mark wanted.
@@ -435,7 +435,7 @@ var
 
                     if ((mark_code=203) or (mark_code=233) or (mark_code=293)) and (i<(mark_index-1))      // timber infill
                        then begin
-                              ptr_2nd:=Pointer(intarray_get(marks_list_ptr,i+1));        // pointer to the second infill Tmark record.
+                              ptr_2nd:=@marks_list_ptr[i+1];        // pointer to the second infill Tmark record.
                               if ptr_2nd=nil then BREAK;
 
                               p1:=ptr_1st^.p1;              // x1,y1 in  1/100ths mm

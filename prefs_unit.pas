@@ -318,7 +318,7 @@ begin
 
     Clear;  // init
 
-    Values['templot_user_preferences']:=str_prefix+'from '+Application.Title+' version '+FormatFloat('0.00',program_version/100)+version_build;
+    Values['templot_user_preferences']:=str_prefix+'from '+Application.Title+' version '+GetVersionString(voFull);
     Values['saved_at']:=str_prefix+FormatDateTime('hh:nn:ss "on" dd/mm/yyyy',Date+Time);
     Add('');
 
@@ -1331,7 +1331,7 @@ begin
     if help_form.Showing=True
        then do_help(-200,prepare_prefs_html_str,False)
        else help(-200,prepare_prefs_html_str,'');
-    
+
   end;//try
 end;
 //______________________________________________________________________________

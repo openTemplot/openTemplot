@@ -10,10 +10,9 @@ object control_room_form: Tcontrol_room_form
   AutoScroll = True
   BorderIcons = [biSystemMenu]
   Caption = '. . .  welcome'
-  ClientHeight = 303
+  ClientHeight = 308
   ClientWidth = 750
   Color = 11075576
-  DesignTimePPI = 120
   Enabled = False
   Font.Color = clBlack
   Font.Height = -13
@@ -28,7 +27,7 @@ object control_room_form: Tcontrol_room_form
   OnResize = FormResize
   Position = poScreenCenter
   ShowHint = True
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.10.0'
   Scaled = False
   object reminder_label: TLabel
     Left = 84
@@ -10956,10 +10955,14 @@ object control_room_form: Tcontrol_room_form
     WordWrap = True
   end
   object version_label: TLabel
-    Left = 694
+    AnchorSideRight.Control = t3_logo_panel
+    AnchorSideRight.Side = asrBottom
+    Left = 656
     Height = 18
     Top = 98
-    Width = 50
+    Width = 82
+    Alignment = taRightJustify
+    Anchors = [akTop, akLeft, akRight]
     AutoSize = False
     Caption = '2.21.a'
     Font.Color = clBlue
@@ -16843,8 +16846,8 @@ object control_room_form: Tcontrol_room_form
     end
   end
   object control_room_menu_bar: TMainMenu
-    left = 336
-    top = 80
+    Left = 336
+    Top = 80
     object session_menu: TMenuItem
       Caption = '&session'
       object project_title_menu_entry: TMenuItem
@@ -17558,8 +17561,8 @@ object control_room_form: Tcontrol_room_form
     end
   end
   object null_menu_bar: TMainMenu
-    left = 196
-    top = 12
+    Left = 196
+    Top = 12
     object MenuItem1: TMenuItem
       Caption = ' '
       Enabled = False
