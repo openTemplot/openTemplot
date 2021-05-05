@@ -38,7 +38,7 @@ type
     colour_label: TLabel;
     font_dialog: TFontDialog;
     colour_dialog: TColorDialog;
-    procedure FormCreate(Sender:TObject);
+    procedure FormCreate(Sender: TObject);
     procedure colour_dialogShow(Sender: TObject);
     procedure font_dialogShow(Sender: TObject);
   private
@@ -54,11 +54,11 @@ var
 
   //no_extra_colours:boolean=False;  //%%%%
 
-  colour_dialog_caption_str:string='';
-  font_dialog_caption_str:string='';
+  colour_dialog_caption_str: string = '';
+  font_dialog_caption_str: string = '';
 
-  function get_colour(str:string; colour:TColor):TColor;                  //  get a new colour.
-  function get_font(str:string; fon:TFont; more_colours:boolean):TFont;   //  get a new font.
+function get_colour(str: string; colour: TColor): TColor;                  //  get a new colour.
+function get_font(str: string; fon: TFont; more_colours: boolean): TFont;   //  get a new font.
 
 //__________________________________________________________________________________________
 
@@ -74,79 +74,82 @@ uses
 
 //________________________________________________________________________________________
 
-function get_colour(str:string; colour:TColor):TColor;     //  get a new colour.
+function get_colour(str: string; colour: TColor): TColor;     //  get a new colour.
 
 begin
   with colour_form do begin
-    Caption:='    '+Application.Title+'  colours ...';
-    colour_label.Caption:='  '+str+' ...';
-    colour_form.colour_dialog.Color:=colour;
+    Caption := '    ' + Application.Title + '  colours ...';
+    colour_label.Caption := '  ' + str + ' ...';
+    colour_form.colour_dialog.Color := colour;
     Show;
     BringToFront;
 
-    colour_dialog_caption_str:=str;
+    colour_dialog_caption_str := str;
 
-    showing_dialog:=True;        // 212a Wine bug
+    showing_dialog := True;        // 212a Wine bug
 
-    if colour_form.colour_dialog.Execute=True then RESULT:=colour_form.colour_dialog.Color
-                                              else RESULT:=colour;
+    if colour_form.colour_dialog.Execute = True then
+      Result := colour_form.colour_dialog.Color
+    else
+      Result := colour;
 
-    showing_dialog:=False;
+    showing_dialog := False;
 
     Hide;
   end;//with
-  show_and_redraw(True,False);    // no rollback.
+  show_and_redraw(True, False);    // no rollback.
 
 end;
 //_________________________________________________________________________________________
 
-function get_font(str:string; fon:TFont; more_colours:boolean):TFont;    //  get a new font.
+function get_font(str: string; fon: TFont; more_colours: boolean): TFont;    //  get a new font.
 
 begin
-    with colour_form do begin
-      Caption:='    '+Application.Title+'  fonts  and  text  colours ...';
-      colour_label.Caption:='  '+str+' ...';
-      font_dialog.Font.Assign(fon);
-      Show;
-      BringToFront;
+  with colour_form do begin
+    Caption := '    ' + Application.Title + '  fonts  and  text  colours ...';
+    colour_label.Caption := '  ' + str + ' ...';
+    font_dialog.Font.Assign(fon);
+    Show;
+    BringToFront;
 
-      font_dialog_caption_str:=str;
+    font_dialog_caption_str := str;
 
-      showing_dialog:=True;   // 212a Wine bug
+    showing_dialog := True;   // 212a Wine bug
 
-      if font_dialog.Execute=True then RESULT:=font_dialog.Font
-                                  else begin
-                                         showing_dialog:=False;
+    if font_dialog.Execute = True then
+      Result := font_dialog.Font
+    else begin
+      showing_dialog := False;
 
-                                         RESULT:=fon;
-                                         Hide;
-                                         EXIT;
-                                       end;
-
-      showing_dialog:=False;
-
+      Result := fon;
       Hide;
-    end;//with
+      EXIT;
+    end;
 
-    if (no_extra_colours_msg_pref=False) and (more_colours=True) and (hi_color=True)
-       then begin
-              // alert_box.font_button.Visible:=False;         // don't confuse him.
+    showing_dialog := False;
 
-              alert_box.preferences_checkbox.Checked:=False;       //%%%%
-              alert_box.preferences_checkbox.Show;
+    Hide;
+  end;//with
 
-              if alert(4,'    more  font  colours ...',
-                           '||||Would you prefer a wider choice of colours for this font?',
-                           '','','','','no  thanks','yes  please',0)=6
-                  then RESULT.Color:=get_colour(str,RESULT.Color);
+  if (no_extra_colours_msg_pref = False) and (more_colours = True) and (hi_color = True) then
+  begin
+    // alert_box.font_button.Visible:=False;         // don't confuse him.
 
-                              //%%%%  was"today"
+    alert_box.preferences_checkbox.Checked := False;       //%%%%
+    alert_box.preferences_checkbox.Show;
 
-              no_extra_colours_msg_pref:=alert_box.preferences_checkbox.Checked;    //%%%%
-              alert_box.preferences_checkbox.Hide;
+    if alert(4, '    more  font  colours ...',
+      '||||Would you prefer a wider choice of colours for this font?',
+      '', '', '', '', 'no  thanks', 'yes  please', 0) = 6 then
+      Result.Color := get_colour(str, Result.Color);
 
-              // alert_box.font_button.Visible:=True;
-            end;
+    //%%%%  was"today"
+
+    no_extra_colours_msg_pref := alert_box.preferences_checkbox.Checked;    //%%%%
+    alert_box.preferences_checkbox.Hide;
+
+    // alert_box.font_button.Visible:=True;
+  end;
 end;
 //______________________________________________________________________________
 
@@ -158,9 +161,9 @@ procedure Tcolour_form.FormCreate(Sender: TObject);
 begin
   // OT-FIRST ClientWidth:=900;
   // OT-FIRST ClientHeight:=36;
-  AutoScroll:=False;
+  AutoScroll := False;
 
-{ now done in Object Inspector
+  { now done in Object Inspector
 
     // must init the custom colours list in the dialog
     // in case it is accessed (e.g. from mouse colours) before the first time execute.
@@ -198,28 +201,27 @@ end;
 procedure Tcolour_form.colour_dialogShow(Sender: TObject);
 
 var
-  new_name_str:string;   // must be locals
+  new_name_str: string;   // must be locals
 
 begin
-  new_name_str:='    '+colour_dialog_caption_str;
+  new_name_str := '    ' + colour_dialog_caption_str;
 
-  if colour_dialog.Handle<>0
-     then SetWindowText(colour_dialog.Handle,PChar(new_name_str));
+  if colour_dialog.Handle <> 0 then
+    SetWindowText(colour_dialog.Handle, PChar(new_name_str));
 end;
 //______________________________________________________________________________
 
 procedure Tcolour_form.font_dialogShow(Sender: TObject);
 
 var
-  new_name_str:string;   // must be locals
+  new_name_str: string;   // must be locals
 
 begin
-  new_name_str:='    '+font_dialog_caption_str;
+  new_name_str := '    ' + font_dialog_caption_str;
 
-  if font_dialog.Handle<>0
-     then SetWindowText(font_dialog.Handle,PChar(new_name_str));
+  if font_dialog.Handle <> 0 then
+    SetWindowText(font_dialog.Handle, PChar(new_name_str));
 end;
 //______________________________________________________________________________
 
 end.
-

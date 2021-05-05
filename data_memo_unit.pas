@@ -46,8 +46,8 @@ type
     procedure FormResize(Sender: TObject);
     procedure copy_all_buttonClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure show_template_info(list_position:Integer);
-    procedure set_content(list_position:Integer);
+    procedure show_template_info(list_position: Integer);
+    procedure set_content(list_position: Integer);
     procedure reset_position();
   private
     { Private declarations }
@@ -63,17 +63,17 @@ implementation
 {$R *.lfm}
 
 uses
-  pad_unit,switch_select;
+  pad_unit, switch_select;
 
 var
-  template_showing:boolean=False;
+  template_showing: boolean = False;
 
 //______________________________________________________________________________
 
 procedure Tdata_child_form.FormCreate(Sender: TObject);
 
 begin
-  AutoScroll:=False;
+  AutoScroll := False;
 
   reset_position();   // child on pad
 end;
@@ -82,13 +82,13 @@ end;
 procedure Tdata_child_form.FormResize(Sender: TObject);
 
 begin
-  copy_all_button.Left:=ClientWidth-copy_all_button.Width-40;
+  copy_all_button.Left := ClientWidth - copy_all_button.Width - 40;
 
-  datestamp_label.Top:=ClientHeight-datestamp_label.Height;
-  datestamp_label.Width:=ClientWidth;
+  datestamp_label.Top := ClientHeight - datestamp_label.Height;
+  datestamp_label.Width := ClientWidth;
 
-  data_memo.Width:=ClientWidth-data_memo.Left;
-  data_memo.Height:=ClientHeight-data_memo.Top-datestamp_label.Height;
+  data_memo.Width := ClientWidth - data_memo.Left;
+  data_memo.Height := ClientHeight - data_memo.Top - datestamp_label.Height;
 
 end;
 //______________________________________________________________________________
@@ -96,23 +96,25 @@ end;
 procedure Tdata_child_form.copy_all_buttonClick(Sender: TObject);
 
 begin
-  Clipboard.AsText:=data_memo.Text;
+  Clipboard.AsText := data_memo.Text;
 end;
 //______________________________________________________________________________
 
 procedure Tdata_child_form.FormClose(Sender: TObject; var Action: TCloseAction);
 
 begin
-  switch_info_showing:=False;             // added 208a
+  switch_info_showing := False;             // added 208a
 
-  switch_select_form.show_info_button.Caption:='show  switch  info';
-  switch_select_form.ClientWidth:=switch_select_form.datestamp_label.Width;
-  switch_select_form.ClientHeight:=switch_select_form.datestamp_label.Top+switch_select_form.datestamp_label.Height; // 211b  // added 208a
-  switch_select_form.AutoScroll:=False;
+  switch_select_form.show_info_button.Caption := 'show  switch  info';
+  switch_select_form.ClientWidth := switch_select_form.datestamp_label.Width;
+  switch_select_form.ClientHeight :=
+    switch_select_form.datestamp_label.Top + switch_select_form.datestamp_label.Height;
+  // 211b  // added 208a
+  switch_select_form.AutoScroll := False;
 end;
 //______________________________________________________________________________
 
-procedure Tdata_child_form.show_template_info(list_position:Integer);
+procedure Tdata_child_form.show_template_info(list_position: Integer);
 
 begin
   set_content(list_position);
@@ -121,64 +123,67 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure Tdata_child_form.set_content(list_position:Integer);
+procedure Tdata_child_form.set_content(list_position: Integer);
 
 var
-  info_str,memo_text_str:string;
+  info_str, memo_text_str: string;
 
 begin
-  if (keeps_list.Count<1) or (memo_list.Count<1) or (list_position<0) or (list_position>(keeps_list.Count-1)) then EXIT;
+  if (keeps_list.Count < 1) or (memo_list.Count < 1) or (list_position < 0) or
+    (list_position > (keeps_list.Count - 1)) then
+    EXIT;
 
   if not template_showing then
-     reset_position();
+    reset_position();
 
   if list_position = -1 then // Box is empty
-     begin
-       if (template_showing=True) and (Visible=True)
-       then data_memo.Text:=insert_crlf_str(' ||      box  empty');  //  replace embedded | chars with a CR.
-     end
+  begin
+    if (template_showing = True) and (Visible = True) then
+      data_memo.Text := insert_crlf_str(' ||      box  empty');  //  replace embedded | chars with a CR.
+  end
 
   else                       // Box has keeps
-     begin
-      memo_text_str:=memo_list.Strings[list_position];
+  begin
+    memo_text_str := memo_list.Strings[list_position];
 
-      with Ttemplate(keeps_list.Objects[list_position]).template_info.keep_dims.box_dims1 do begin
-        info_str:='    '+IntToStr(list_position+1)+'  '+reference_string+'   '+id_number_str
-                 +'||  '+top_label
-                 +'||--------------------------------------------------------------'
-                 +'||      Information  about  this  template :'
-                 +'||( all dimensions in millimetres )'
-                 +'||'+keeps_list.Strings[list_position]
-                 +'||--------------------------------------------------------------'
-                 +'||      Your  memo  notes  for  this  template :'
-                 +'||'+memo_text_str;
-      end;//with
+    with Ttemplate(keeps_list.Objects[list_position]).template_info.keep_dims.box_dims1 do begin
+      info_str := '    ' + IntToStr(list_position + 1) + '  ' + reference_string + '   ' +
+        id_number_str + '||  ' + top_label +
+        '||--------------------------------------------------------------' +
+        '||      Information  about  this  template :' + '||( all dimensions in millimetres )'
+        + '||' + keeps_list.Strings[list_position] +
+        '||--------------------------------------------------------------' +
+        '||      Your  memo  notes  for  this  template :' + '||' + memo_text_str;
+    end;//with
 
-      data_memo.Text:=insert_crlf_str(info_str);  //  replace embedded | chars with a CR
+    data_memo.Text := insert_crlf_str(info_str);  //  replace embedded | chars with a CR
 
-     end;
+  end;
 end;
 //______________________________________________________________________________
 
 procedure Tdata_child_form.reset_position();   // on pad
 
 var
-  margin_size:integer;
+  margin_size: integer;
 
 begin
-  if Parent<>nil then Parent.RemoveControl(data_child_form);
+  if Parent <> nil then
+    Parent.RemoveControl(data_child_form);
 
   pad_form.InsertControl(data_child_form);
 
-    // child forms have wide borders ...
+  // child forms have wide borders ...
 
-  margin_size:=datestamp_label.Height;   // for program sizing
+  margin_size := datestamp_label.Height;   // for program sizing
 
-  Left:=pad_form.ClientWidth-Width-margin_size*6;    // 6 arbitrary for child borders
-  if Left<10 then Left:=10;
+  Left := pad_form.ClientWidth - Width - margin_size * 6;    // 6 arbitrary for child borders
+  if Left < 10 then
+    Left := 10;
 
-  Top:=pad_form.ClientHeight-Height-margin_size*14;  // 14 arbitrary for child caption bar
-  if Top<10 then Top:=10;
+  Top := pad_form.ClientHeight - Height - margin_size * 14;  // 14 arbitrary for child caption bar
+  if Top < 10 then
+    Top := 10;
 
 end;
 //______________________________________________________________________________

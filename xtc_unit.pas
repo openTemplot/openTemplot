@@ -27,7 +27,7 @@ unit xtc_unit;
 
 {$MODE Delphi}
 
-      // 218e
+// 218e
 
 interface
 
@@ -60,7 +60,7 @@ implementation
 procedure Txtc_form.FormCreate(Sender: TObject);
 
 begin
-  AutoScroll:=False;
+  AutoScroll := False;
 
   // OT-FIRST ClientWidth:=370;
   // OT-FIRST ClientHeight:=150;

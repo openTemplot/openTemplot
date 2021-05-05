@@ -74,8 +74,7 @@ type
     close_button: TButton;
     close_label: TLabel;
     Label9: TLabel;
-    procedure FormKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure calculate_buttonClick(Sender: TObject);
     procedure mm_box_editExit(Sender: TObject);
     procedure inch_box_editExit(Sender: TObject);
@@ -108,10 +107,10 @@ type
 var
   metric_form: Tmetric_form;
 
-  metric_form_mm_now:extended=0;
+  metric_form_mm_now: extended = 0;
 
-  procedure metric_form_do_update;
-  procedure restore_metric_formsize_as_previous(previous_position:integer);
+procedure metric_form_do_update;
+procedure restore_metric_formsize_as_previous(previous_position: integer);
 
 implementation
 
@@ -125,99 +124,105 @@ uses
 
 var
 
-  current_box:TEdit;
+  current_box: TEdit;
 
 
-  procedure font_all(font_colour:integer);forward;
-  procedure blank_top2;forward;
+procedure font_all(font_colour: integer); forward;
+procedure blank_top2; forward;
 
 //___________________________________________________________________________________
 
 procedure metric_form_do_update;
 
 var
-  feet_now, whole_inch_now, sixt_now:integer;
-  thou_now, thou_inches_now, sixteenths_now:integer;
-  dec_inches_now:extended;
-  mm_format_str, inch_format_str:string;
+  feet_now, whole_inch_now, sixt_now: integer;
+  thou_now, thou_inches_now, sixteenths_now: integer;
+  dec_inches_now: extended;
+  mm_format_str, inch_format_str: string;
 
 begin
-  if ABS(metric_form_mm_now)<minfp then metric_form_mm_now:=0;
-  if ABS(metric_form_mm_now)>50.0E6 then metric_form_mm_now:=50.0E6*SGZ(metric_form_mm_now); // otherwise integer overflow during calcs.
+  if ABS(metric_form_mm_now) < minfp then
+    metric_form_mm_now := 0;
+  if ABS(metric_form_mm_now) > 50.0E6 then
+    metric_form_mm_now := 50.0E6 * SGZ(metric_form_mm_now); // otherwise integer overflow during calcs.
   try
     with metric_form do begin
 
-                 // first fill top 2 boxes...
+      // first fill top 2 boxes...
 
-      case decimal_updown.Position of                    // number of decimal places precision to display.
-                                 0: begin
-                                        mm_format_str:='0';
-                                      inch_format_str:='0.0';      // one extra for inches.
-                                    end;
+      case decimal_updown.Position of
+        // number of decimal places precision to display.
+        0: begin
+          mm_format_str := '0';
+          inch_format_str := '0.0';      // one extra for inches.
+        end;
 
-                                 1: begin
-                                        mm_format_str:='0.0';
-                                      inch_format_str:='0.00';
-                                    end;
+        1: begin
+          mm_format_str := '0.0';
+          inch_format_str := '0.00';
+        end;
 
-                                 2: begin                          // default
-                                        mm_format_str:='0.00';
-                                      inch_format_str:='0.000';
-                                    end;
+        2: begin                          // default
+          mm_format_str := '0.00';
+          inch_format_str := '0.000';
+        end;
 
-                                 3: begin
-                                        mm_format_str:='0.000';
-                                      inch_format_str:='0.0000';
-                                    end;
+        3: begin
+          mm_format_str := '0.000';
+          inch_format_str := '0.0000';
+        end;
 
-                                 4: begin
-                                        mm_format_str:='0.0000';
-                                      inch_format_str:='0.00000';
-                                    end;
+        4: begin
+          mm_format_str := '0.0000';
+          inch_format_str := '0.00000';
+        end;
 
-                                 5: begin
-                                        mm_format_str:='0.00000';
-                                      inch_format_str:='0.000000';
-                                    end;
+        5: begin
+          mm_format_str := '0.00000';
+          inch_format_str := '0.000000';
+        end;
 
-                                 6: begin
-                                        mm_format_str:='0.000000';
-                                      inch_format_str:='0.0000000';
-                                    end;
+        6: begin
+          mm_format_str := '0.000000';
+          inch_format_str := '0.0000000';
+        end;
 
       end;//case
 
-      mm_box_edit.Text:='  '+FormatFloat(mm_format_str,metric_form_mm_now);
-      inch_box_edit.Text:='  '+FormatFloat(inch_format_str,metric_form_mm_now/25.4);
+      mm_box_edit.Text := '  ' + FormatFloat(mm_format_str, metric_form_mm_now);
+      inch_box_edit.Text := '  ' + FormatFloat(inch_format_str, metric_form_mm_now / 25.4);
 
-                 // convert to thou ...
+      // convert to thou ...
 
-      thou_now:=Round(metric_form_mm_now/25.4*1000);     //  round to nearest thou for starters.
+      thou_now := Round(metric_form_mm_now / 25.4 * 1000);     //  round to nearest thou for starters.
 
-      feet_now:=thou_now div 12000;          //  number of whole feet in this.
-      thou_inches_now:=thou_now mod 12000;   //  and number of thou over.
+      feet_now := thou_now div 12000;          //  number of whole feet in this.
+      thou_inches_now := thou_now mod 12000;   //  and number of thou over.
 
-      dec_inches_now:=thou_inches_now/1000;  //  to decimal inches (extended).
+      dec_inches_now := thou_inches_now / 1000;  //  to decimal inches (extended).
 
-                 // convert to sixteenths...
+      // convert to sixteenths...
 
 
-      sixteenths_now:=Round(metric_form_mm_now/25.4*16)-(feet_now*12*16);   //  round to nearest sixteenth over.
+      sixteenths_now := Round(metric_form_mm_now / 25.4 * 16) - (feet_now * 12 * 16);
+      //  round to nearest sixteenth over.
 
-      whole_inch_now:=sixteenths_now div 16;     // number of whole inches.
-      sixt_now:=sixteenths_now mod 16;           // number of sixteenths over.
+      whole_inch_now := sixteenths_now div 16;     // number of whole inches.
+      sixt_now := sixteenths_now mod 16;           // number of sixteenths over.
 
-                 // fill the remaining boxes...
+      // fill the remaining boxes...
 
-      feet_box_edit.Text:='  '+IntToStr(feet_now);
-      whole_inch_panel.Caption:='  '+IntToStr(whole_inch_now);
-      sixteenths_box_edit.Text:='  '+IntToStr(sixt_now);
+      feet_box_edit.Text := '  ' + IntToStr(feet_now);
+      whole_inch_panel.Caption := '  ' + IntToStr(whole_inch_now);
+      sixteenths_box_edit.Text := '  ' + IntToStr(sixt_now);
 
-      dec_inches_box_edit.Text:='  '+FormatFloat(inch_format_str,dec_inches_now);
+      dec_inches_box_edit.Text := '  ' + FormatFloat(inch_format_str, dec_inches_now);
 
-      if ABS(round_float(metric_form_mm_now/25.4*16,6)-round_float(metric_form_mm_now/25.4*16,0))<minfp
-         then approx_label.Hide      // rounding error on the sixteenths lees than 1 millionth of a sixteenth.
-         else approx_label.Show;
+      if ABS(round_float(metric_form_mm_now / 25.4 * 16, 6) - round_float(metric_form_mm_now / 25.4 * 16, 0)) <
+        minfp then
+        approx_label.Hide      // rounding error on the sixteenths lees than 1 millionth of a sixteenth.
+      else
+        approx_label.Show;
 
       font_all(clRed);
       metric_form.scale_panel.Show;
@@ -226,21 +231,22 @@ begin
 
     end;//with
   except
-    metric_form_mm_now:=0;       // conversion errors
+    metric_form_mm_now := 0;       // conversion errors
   end;//try
 end;
 //_____________________________________________________________________________________
 
-function docalc(nowtext:string):extended;
+function docalc(nowtext: string): extended;
 
 begin
-  nowtext:=remove_space_str(nowtext);  // strip all spaces.
-  if nowtext='' then nowtext:='0';     //  and then allow null as zero.
+  nowtext := remove_space_str(nowtext);  // strip all spaces.
+  if nowtext = '' then
+    nowtext := '0';     //  and then allow null as zero.
 
   try
-    RESULT:=ABS(StrToFloat(nowtext));  //  convert input text to float (no negs).
+    Result := ABS(StrToFloat(nowtext));  //  convert input text to float (no negs).
   except
-    RESULT:=0;
+    Result := 0;
   end;//try
 end;
 //_________________________________________________________________________________________
@@ -248,12 +254,12 @@ end;
 procedure Tmetric_form.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 
 begin
-  if Key=VK_F10
-     then begin
-            Key:=0;      //  otherwise selects the menus.
-          end;
+  if Key = VK_F10 then begin
+    Key := 0;      //  otherwise selects the menus.
+  end;
 
-  if Key=VK_PAUSE then Application.Minimize;         //  hide TEMPLOT on PAUSE key.
+  if Key = VK_PAUSE then
+    Application.Minimize;         //  hide TEMPLOT on PAUSE key.
 end;
 //_____________________________________________________________________________________
 
@@ -267,7 +273,7 @@ end;
 procedure Tmetric_form.mm_box_editExit(Sender: TObject);
 
 begin
-  metric_form_mm_now:=docalc(mm_box_edit.Text);
+  metric_form_mm_now := docalc(mm_box_edit.Text);
   metric_form_do_update;                             // go update all boxes
 end;
 //________________________________________________________________
@@ -275,7 +281,7 @@ end;
 procedure Tmetric_form.inch_box_editExit(Sender: TObject);
 
 begin
-  metric_form_mm_now:=docalc(inch_box_edit.Text)*25.4;
+  metric_form_mm_now := docalc(inch_box_edit.Text) * 25.4;
   metric_form_do_update;
 end;
 //_______________________________________________________________
@@ -283,7 +289,7 @@ end;
 procedure Tmetric_form.feet_box_editExit(Sender: TObject);
 
 begin
-  metric_form_mm_now:=(docalc(feet_box_edit.Text)*12+docalc(dec_inches_box_edit.Text))*25.4;
+  metric_form_mm_now := (docalc(feet_box_edit.Text) * 12 + docalc(dec_inches_box_edit.Text)) * 25.4;
   metric_form_do_update;
 end;
 //_______________________________________________________________
@@ -291,7 +297,7 @@ end;
 procedure Tmetric_form.dec_inches_box_editExit(Sender: TObject);
 
 begin
-  metric_form_mm_now:=(docalc(feet_box_edit.Text)*12+docalc(dec_inches_box_edit.Text))*25.4;
+  metric_form_mm_now := (docalc(feet_box_edit.Text) * 12 + docalc(dec_inches_box_edit.Text)) * 25.4;
   metric_form_do_update;
 end;
 //_______________________________________________________________
@@ -299,7 +305,8 @@ end;
 procedure Tmetric_form.sixteenths_box_editExit(Sender: TObject);
 
 begin
-  metric_form_mm_now:=(docalc(feet_box_edit.Text)*12+docalc(whole_inch_panel.Caption)+docalc(sixteenths_box_edit.Text)/16)*25.4;
+  metric_form_mm_now := (docalc(feet_box_edit.Text) * 12 + docalc(whole_inch_panel.Caption) +
+    docalc(sixteenths_box_edit.Text) / 16) * 25.4;
   metric_form_do_update;
 end;
 //______________________________________________________________
@@ -307,8 +314,10 @@ end;
 procedure box_entered;
 
 begin
-  if metric_form.ActiveControl is TEdit then current_box:=TEdit(metric_form.ActiveControl)     // for copy and paste.
-                                        else run_error(231);
+  if metric_form.ActiveControl is TEdit then
+    current_box := TEdit(metric_form.ActiveControl)     // for copy and paste.
+  else
+    run_error(231);
   metric_form.scale_panel.Hide;
   metric_form.size_panel.Hide;
 end;
@@ -319,7 +328,7 @@ procedure Tmetric_form.mm_box_editEnter(Sender: TObject);
 begin
   box_entered;
   font_all(clBlack);
-  mm_box_edit.Font.Color:=clRed;
+  mm_box_edit.Font.Color := clRed;
 end;
 //____________________________________________________________________________________
 
@@ -328,7 +337,7 @@ procedure Tmetric_form.inch_box_editEnter(Sender: TObject);
 begin
   box_entered;
   font_all(clBlack);
-  inch_box_edit.Font.Color:=clRed;
+  inch_box_edit.Font.Color := clRed;
 end;
 //______________________________________________________________________________________
 
@@ -337,7 +346,7 @@ procedure Tmetric_form.feet_box_editEnter(Sender: TObject);
 begin
   box_entered;
   blank_top2;
-  feet_box_edit.Font.Color:=clRed;
+  feet_box_edit.Font.Color := clRed;
 end;
 //______________________________________________________________________________________
 
@@ -346,9 +355,9 @@ procedure Tmetric_form.dec_inches_box_editEnter(Sender: TObject);
 begin
   box_entered;
   blank_top2;
-  whole_inch_panel.Font.Color:=Color;
-  sixteenths_box_edit.Font.Color:=clBlack;
-  dec_inches_box_edit.Font.Color:=clRed;
+  whole_inch_panel.Font.Color := Color;
+  sixteenths_box_edit.Font.Color := clBlack;
+  dec_inches_box_edit.Font.Color := clRed;
 end;
 //________________________________________________________________________________________
 
@@ -357,23 +366,25 @@ procedure Tmetric_form.sixteenths_box_editEnter(Sender: TObject);
 begin
   box_entered;
   blank_top2;
-  dec_inches_box_edit.Font.Color:=clBlack;
-  sixteenths_box_edit.Font.Color:=clRed;
+  dec_inches_box_edit.Font.Color := clBlack;
+  sixteenths_box_edit.Font.Color := clRed;
 end;
 //_________________________________________________________________________________________
 
-procedure font_all(font_colour:integer);     // change text colour in all boxes.
+procedure font_all(font_colour: integer);     // change text colour in all boxes.
 
 begin
   with metric_form do begin
-    mm_box_edit.Font.Color:=font_colour;
-    inch_box_edit.Font.Color:=font_colour;
-    feet_box_edit.Font.Color:=font_colour;
-    sixteenths_box_edit.Font.Color:=font_colour;
-    dec_inches_box_edit.Font.Color:=font_colour;
+    mm_box_edit.Font.Color := font_colour;
+    inch_box_edit.Font.Color := font_colour;
+    feet_box_edit.Font.Color := font_colour;
+    sixteenths_box_edit.Font.Color := font_colour;
+    dec_inches_box_edit.Font.Color := font_colour;
 
-    if font_colour=clBlack then whole_inch_panel.Font.Color:=metric_form.Color
-                           else whole_inch_panel.Font.Color:=clBlue;
+    if font_colour = clBlack then
+      whole_inch_panel.Font.Color := metric_form.Color
+    else
+      whole_inch_panel.Font.Color := clBlue;
   end;//with
 end;
 //_________________________________________________________________________________________
@@ -381,13 +392,13 @@ end;
 procedure blank_top2;                        // blank text in top 2 boxes.
 
 var
-  font_colour:integer;
+  font_colour: integer;
 
 begin
-  font_colour:=clBlack;
+  font_colour := clBlack;
   with metric_form do begin
-    mm_box_edit.Font.Color:=font_colour;
-    inch_box_edit.Font.Color:=font_colour;
+    mm_box_edit.Font.Color := font_colour;
+    inch_box_edit.Font.Color := font_colour;
   end;//with
 end;
 //______________________________________________________________________________________
@@ -402,11 +413,11 @@ end;
 procedure Tmetric_form.scale_buttonClick(Sender: TObject);
 
 var
-  ratio:extended;
+  ratio: extended;
 
 begin
-  ratio:=304.8/scale;
-  metric_form_mm_now:=metric_form_mm_now/ratio;
+  ratio := 304.8 / scale;
+  metric_form_mm_now := metric_form_mm_now / ratio;
   metric_form_do_update;
   font_all(clFuchsia);
 end;
@@ -415,11 +426,11 @@ end;
 procedure Tmetric_form.size_buttonClick(Sender: TObject);
 
 var
-  ratio:extended;
+  ratio: extended;
 
 begin
-  ratio:=304.8/scale;
-  metric_form_mm_now:=metric_form_mm_now*ratio;
+  ratio := 304.8 / scale;
+  metric_form_mm_now := metric_form_mm_now * ratio;
   metric_form_do_update;
   font_all(clAqua);
 end;
@@ -435,7 +446,7 @@ end;
 procedure Tmetric_form.decimal_updownClick(Sender: TObject; Button: TUDBtnType);
 
 begin
-  places_label.Caption:=IntToStr(decimal_updown.Position);
+  places_label.Caption := IntToStr(decimal_updown.Position);
   metric_form_do_update;
 end;
 //_______________________________________________________________________________________
@@ -443,26 +454,25 @@ end;
 procedure Tmetric_form.FormActivate(Sender: TObject);
 
 begin
-  scale_label.Caption:=round_str(scale,2);      // current scale.
-  current_box:=mm_box_edit;                     // for copy and paste.
+  scale_label.Caption := round_str(scale, 2);      // current scale.
+  current_box := mm_box_edit;                     // for copy and paste.
 end;
 //___________________________________________________________________________________
 
 procedure Tmetric_form.colour_patchClick(Sender: TObject);
 
 begin
-  Color:=get_colour('choose  a  new  colour  for  the  metric  calculator',Color);
+  Color := get_colour('choose  a  new  colour  for  the  metric  calculator', Color);
 end;
 //_______________________________________________________________________________________
 
 procedure Tmetric_form.FormKeyPress(Sender: TObject; var Key: Char);
 
 begin
-  if Key=Char(13)
-     then begin
-            Key:=Char(0);                // otherwise we get a beep.
-            calculate_button.SetFocus;   // generate onExit event for the current control.
-          end;
+  if Key = Char(13) then begin
+    Key := Char(0);                // otherwise we get a beep.
+    calculate_button.SetFocus;   // generate onExit event for the current control.
+  end;
 end;
 //___________________________________________________________________________________________
 
@@ -471,8 +481,8 @@ procedure Tmetric_form.copy_buttonClick(Sender: TObject);
 begin
   current_box.SelectAll;
   current_box.CopyToClipboard;
-  current_box.SelLength:=0;             // undo selection.
-  current_box.SelStart:=2;              // move cursor past first 2 blank spaces.
+  current_box.SelLength := 0;             // undo selection.
+  current_box.SelStart := 2;              // move cursor past first 2 blank spaces.
   current_box.SetFocus;                 // don't want focus on the copy button.
 end;
 //_______________________________________________________________________________________
@@ -490,7 +500,7 @@ procedure Tmetric_form.FormCreate(Sender: TObject);
 begin
   // OT-FIRST ClientWidth:=600;
   // OT-FIRST ClientHeight:=336;
-  AutoScroll:=True;
+  AutoScroll := True;
 end;
 //______________________________________________________________________________
 
@@ -499,17 +509,20 @@ procedure metric_form_size_updown_click;
 begin
   with metric_form do begin
 
-    if size_updown.Position>size_updown.Tag  // ! position goes up, size goes down.
-       then ScaleBy(9,10);                   // scale the form contents down.
+    if size_updown.Position > size_updown.Tag  // ! position goes up, size goes down.
+    then
+      ScaleBy(9, 10);                   // scale the form contents down.
 
-    if size_updown.Position<size_updown.Tag
-       then ScaleBy(10,9);                   // scale the form contents up.
+    if size_updown.Position < size_updown.Tag then
+      ScaleBy(10, 9);                   // scale the form contents up.
 
-    ClientHeight:=VertScrollBar.Range;       // don't need bottom margin - datestamp label provides this (aligned alBottom).
-    ClientWidth:=HorzScrollBar.Range+4;      // allow 4 pixel right margin.
-    ClientHeight:=VertScrollBar.Range;       // do this twice, as each affects the other (autoscroll).
+    ClientHeight := VertScrollBar.Range;
+    // don't need bottom margin - datestamp label provides this (aligned alBottom).
+    ClientWidth := HorzScrollBar.Range + 4;      // allow 4 pixel right margin.
+    ClientHeight := VertScrollBar.Range;
+    // do this twice, as each affects the other (autoscroll).
 
-    size_updown.Tag:=size_updown.Position;   // and save for the next click.
+    size_updown.Tag := size_updown.Position;   // and save for the next click.
   end;//with
 end;//proc
 //______________________________________________________________________________
@@ -521,20 +534,21 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure restore_metric_formsize_as_previous(previous_position:integer);
+procedure restore_metric_formsize_as_previous(previous_position: integer);
 
 begin
   with metric_form.size_updown do begin
 
-    if (previous_position>Max) or (previous_position<Min) then EXIT;
+    if (previous_position > Max) or (previous_position < Min) then
+      EXIT;
 
-    while Position<previous_position do begin
-      Position:=Position+1;
+    while Position < previous_position do begin
+      Position := Position + 1;
       metric_form_size_updown_click;
     end;//while
 
-    while Position>previous_position do begin
-      Position:=Position-1;
+    while Position > previous_position do begin
+      Position := Position - 1;
       metric_form_size_updown_click;
     end;//while
 
@@ -544,4 +558,3 @@ end;//proc
 
 
 end.
-

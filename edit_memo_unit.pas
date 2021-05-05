@@ -74,34 +74,36 @@ uses
 
 var
 
-  form_overwrite_mode:boolean=False;  // 214a
+  form_overwrite_mode: boolean = False;  // 214a
 
 procedure Tedit_memo_form.font_buttonClick(Sender: TObject);
 
 begin
-  vis_edit_memo.Font.Assign(get_font('choose  a  new  text  font  for  this  panel',vis_edit_memo.Font,True));
-  if vis_edit_memo.Showing=True then vis_edit_memo.SetFocus;
+  vis_edit_memo.Font.Assign(get_font('choose  a  new  text  font  for  this  panel',
+    vis_edit_memo.Font, True));
+  if vis_edit_memo.Showing = True then
+    vis_edit_memo.SetFocus;
 end;
 //_________________________________________________________________________________________
 
-procedure Tedit_memo_form.vis_edit_memoKeyPress(Sender:TObject; var Key:Char);
+procedure Tedit_memo_form.vis_edit_memoKeyPress(Sender: TObject; var Key: Char);
 
 begin
-  if (Key=Chr(27)) and (Tag=0) then Close;
+  if (Key = Chr(27)) and (Tag = 0) then
+    Close;
 
-   // 214a  overwrite mode ...
+  // 214a  overwrite mode ...
 
-  if (Sender is TCustomEdit) and (form_overwrite_mode=True)
-     then begin
-            with TCustomEdit(Sender) do begin
-              if (SelLength=0) and (SelStart<Length(Text))
-                 then begin
-                        case Key of
-                          ' '..#126, #128..#255: SelLength:=1;    // select next character
-                        end;//case
-                      end;
-            end;//with
-          end;
+  if (Sender is TCustomEdit) and (form_overwrite_mode = True) then begin
+    with TCustomEdit(Sender) do begin
+      if (SelLength = 0) and (SelStart < Length(Text)) then begin
+        case Key of
+          ' '..#126, #128..#255:
+            SelLength := 1;    // select next character
+        end;//case
+      end;
+    end;//with
+  end;
 
 end;
 //_____________________________________________________________________________________
@@ -111,47 +113,49 @@ procedure Tedit_memo_form.FormCreate(Sender: TObject);
 begin
   // OT-FIRST ClientWidth:=740;
   // OT-FIRST ClientHeight:=380;
-  AutoScroll:=False;
+  AutoScroll := False;
 end;
 //____________________________________________________________________________________
 
 procedure Tedit_memo_form.FormShow(Sender: TObject);
 
 begin
-  if vis_edit_memo.Visible=True then vis_edit_memo.SetFocus;
+  if vis_edit_memo.Visible = True then
+    vis_edit_memo.SetFocus;
 end;
 //______________________________________________________________________________________
 
 procedure Tedit_memo_form.FormResize(Sender: TObject);
 
 begin
-  ok_panel.Left:=ClientWidth-ok_panel.Width-8;
-  cancel_button.Left:=ok_panel.Left-cancel_button.Width-10;
+  ok_panel.Left := ClientWidth - ok_panel.Width - 8;
+  cancel_button.Left := ok_panel.Left - cancel_button.Width - 10;
 
-  vis_edit_memo.Height:=ClientHeight-vis_edit_memo.Top-datestamp_label.Height;
-  vis_edit_memo.Width:=ClientWidth-vis_edit_memo.Left*2;
+  vis_edit_memo.Height := ClientHeight - vis_edit_memo.Top - datestamp_label.Height;
+  vis_edit_memo.Width := ClientWidth - vis_edit_memo.Left * 2;
 end;
 //_________________________________________________________________________
 
 procedure Tedit_memo_form.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 
 begin
-  if Key=VK_F10
-     then begin
-            Key:=0;      //  otherwise selects the menus.
-          end;
+  if Key = VK_F10 then begin
+    Key := 0;      //  otherwise selects the menus.
+  end;
 
-  if Key=VK_PAUSE then Application.Minimize;         //  hide TEMPLOT on PAUSE key.
+  if Key = VK_PAUSE then
+    Application.Minimize;         //  hide TEMPLOT on PAUSE key.
 
-  if Key=VK_INSERT      // 214a
-     then begin
-            form_overwrite_mode:= NOT form_overwrite_mode;
-            if form_overwrite_mode=True
-               then overwrite_label.Caption:='OVR'
-               else overwrite_label.Caption:='INS';
+  if Key = VK_INSERT      // 214a
+  then begin
+    form_overwrite_mode := not form_overwrite_mode;
+    if form_overwrite_mode = True then
+      overwrite_label.Caption := 'OVR'
+    else
+      overwrite_label.Caption := 'INS';
 
-            Key:=0;
-          end;
+    Key := 0;
+  end;
 
 end;
 //__________________________________________________________________________________________
@@ -159,19 +163,19 @@ end;
 procedure Tedit_memo_form.ok_panelClick(Sender: TObject);
 
 begin
-  edit_memo_form.ModalResult:=mrOk;
+  edit_memo_form.ModalResult := mrOk;
 end;
 //______________________________________________________________________________
 
-procedure Tedit_memo_form.overwrite_labelClick(Sender:TObject);  // 214a
+procedure Tedit_memo_form.overwrite_labelClick(Sender: TObject);  // 214a
 
 begin
-  form_overwrite_mode:= NOT form_overwrite_mode;
-  if form_overwrite_mode=True
-     then overwrite_label.Caption:='OVR'
-     else overwrite_label.Caption:='INS';
+  form_overwrite_mode := not form_overwrite_mode;
+  if form_overwrite_mode = True then
+    overwrite_label.Caption := 'OVR'
+  else
+    overwrite_label.Caption := 'INS';
 end;
 //______________________________________________________________________________
 
 end.
-

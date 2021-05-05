@@ -112,7 +112,7 @@ type
 var
   image_viewer_form: Timage_viewer_form;
 
-  procedure show_an_image_file(file_str:string; emf_width,emf_height:integer; show_form:boolean);
+procedure show_an_image_file(file_str: string; emf_width, emf_height: integer; show_form: boolean);
 
 //______________________________________________________________________________
 
@@ -124,126 +124,133 @@ uses
   control_room, alert_unit, math_unit;
 
 var
-  image_file_str:string='';
+  image_file_str: string = '';
 
-  emf_showing:boolean=False;
-  emf_width_showing:integer=800;     // init
-  emf_height_showing:integer=600;
+  emf_showing: boolean = False;
+  emf_width_showing: integer = 800;     // init
+  emf_height_showing: integer = 600;
 
 //______________________________________________________________________________
 
-procedure show_an_image_file(file_str:string; emf_width,emf_height:integer; show_form:boolean);
+procedure show_an_image_file(file_str: string; emf_width, emf_height: integer; show_form: boolean);
 
- // emf_width, emf_height ignored for bitmaps       291a
+// emf_width, emf_height ignored for bitmaps       291a
 
 var
-  output_rect:Trect;
-  load_DC:HDC;
+  output_rect: Trect;
+  load_DC: HDC;
 
 begin
-  if FileExists(file_str)=False         // 291a
-     then begin
-            show_modal_message('error: unable to find image file');
-            EXIT;
-          end;
+  if FileExists(file_str) = False         // 291a
+  then begin
+    show_modal_message('error: unable to find image file');
+    EXIT;
+  end;
 
-  emf_showing:=False;
+  emf_showing := False;
 
-  image_viewer_form.top_label.Caption:='';
+  image_viewer_form.top_label.Caption := '';
 
-  if (LowerCase(ExtractFileExt(file_str))='.emf')       // 291a    show metafile
-     then begin
+  if (LowerCase(ExtractFileExt(file_str)) = '.emf')       // 291a    show metafile
+  then begin
 
-            with image_viewer_form do begin
+    with image_viewer_form do begin
 
-              copy_image_menu_entry.Caption:='copy  EMF  metafile  as  bitmap  image';
+      copy_image_menu_entry.Caption := 'copy  EMF  metafile  as  bitmap  image';
 
-              viewer_image.AutoSize:=False;
+      viewer_image.AutoSize := False;
 
-              viewer_image.Width:=ClientWidth;
-              viewer_image.Height:=Round(ClientWidth*emf_height/emf_width);
+      viewer_image.Width := ClientWidth;
+      viewer_image.Height := Round(ClientWidth * emf_height / emf_width);
 
-              viewer_image.Picture.Bitmap.Width:=viewer_image.Width;
-              viewer_image.Picture.Bitmap.Height:=viewer_image.Height;
+      viewer_image.Picture.Bitmap.Width := viewer_image.Width;
+      viewer_image.Picture.Bitmap.Height := viewer_image.Height;
 
-              output_rect:=Rect(0,0,viewer_image.Picture.Bitmap.Width,viewer_image.Picture.Bitmap.Height);
+      output_rect := Rect(0, 0, viewer_image.Picture.Bitmap.Width,
+        viewer_image.Picture.Bitmap.Height);
 
-              with viewer_image.Picture.Bitmap.Canvas do begin
+      with viewer_image.Picture.Bitmap.Canvas do begin
 
-                Brush.Color:=clWhite;     // blank it first
-                Brush.Style:=bsSolid;
+        Brush.Color := clWhite;     // blank it first
+        Brush.Style := bsSolid;
 
-                FillRect(output_rect);
+        FillRect(output_rect);
 
-              end;//with
+      end;//with
 
-              try
-                load_DC:=GetEnhMetaFile(PChar(file_str));  // get metafile handle
+      try
+        load_DC := GetEnhMetaFile(PChar(file_str));  // get metafile handle
 
-                if PlayEnhMetaFile(viewer_image.Picture.Bitmap.Canvas.Handle,load_DC,output_rect)=False    // draw metafile on canvas
-                   then show_modal_message('error: Sorry, unable to show the EMF metafile image.');
+        if PlayEnhMetaFile(viewer_image.Picture.Bitmap.Canvas.Handle, load_DC, output_rect) =
+          False    // draw metafile on canvas
+        then
+          show_modal_message('error: Sorry, unable to show the EMF metafile image.');
 
-                DeleteEnhMetaFile(load_DC);   // release metafile handle
-              except
-                show_modal_message('error: Sorry, unable to show EMF image');
-              end;
+        DeleteEnhMetaFile(load_DC);   // release metafile handle
+      except
+        show_modal_message('error: Sorry, unable to show EMF image');
+      end;
 
-              top_label.Caption:='The EMF metafile is being displayed to fit. To zoom in and examine detail, view the file on the sketchboard.';
+      top_label.Caption :=
+        'The EMF metafile is being displayed to fit. To zoom in and examine detail, view the file on the sketchboard.';
 
-            end;//with form
+    end;//with form
 
-              // retain globals ...
+    // retain globals ...
 
-            emf_showing:=True;
-            emf_width_showing:=emf_width;
-            emf_height_showing:=emf_height;
+    emf_showing := True;
+    emf_width_showing := emf_width;
+    emf_height_showing := emf_height;
 
-          end
-     else begin
+  end
+  else begin
 
-            with image_viewer_form do begin
+    with image_viewer_form do begin
 
-              copy_image_menu_entry.Caption:='copy  image';
+      copy_image_menu_entry.Caption := 'copy  image';
 
-              viewer_image.AutoSize:=True;    // 291a
+      viewer_image.AutoSize := True;    // 291a
 
-              try
-                viewer_image.Picture.LoadFromFile(file_str);
-              except
-               show_modal_message('Sorry, unable to display the image.');
-              end;//try
+      try
+        viewer_image.Picture.LoadFromFile(file_str);
+      except
+        show_modal_message('Sorry, unable to display the image.');
+      end;//try
 
-              top_label.Caption:='The image is being displayed full size. You may need to scroll to see it.';
+      top_label.Caption :=
+        'The image is being displayed full size. You may need to scroll to see it.';
 
-            end;//with
+    end;//with
 
-          end;
+  end;
 
-  image_file_str:=file_str;
+  image_file_str := file_str;
 
-  image_viewer_form.Caption:='    image:  '+file_str;
+  image_viewer_form.Caption := '    image:  ' + file_str;
 
   with image_viewer_form do begin
 
-    cancel_menu.Visible:=False;  // used for scanned picture shapes
-    options_menu.Visible:=True;  // hidden for scanned picture shapes
+    cancel_menu.Visible := False;  // used for scanned picture shapes
+    options_menu.Visible := True;  // hidden for scanned picture shapes
   end;//with
 
-  if show_form=True then do_show_modal(image_viewer_form);   // 212a ShowModal
+  if show_form = True then
+    do_show_modal(image_viewer_form);   // 212a ShowModal
 end;
 //______________________________________________________________________________
 
 procedure Timage_viewer_form.open_containing_folder_menu_entryClick(Sender: TObject);
 
 var
-  folder_str:string;
+  folder_str: string;
 
 begin
-  folder_str:=ExtractFilePath(image_file_str);
+  folder_str := ExtractFilePath(image_file_str);
 
-  if ShellExecute(0,'explore',PChar(folder_str),nil,nil,SW_SHOWNORMAL)<=32
-     then show_modal_message('Sorry, unable to open the folder.')
-     else external_window_showing:=True;
+  if ShellExecute(0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <= 32 then
+    show_modal_message('Sorry, unable to open the folder.')
+  else
+    external_window_showing := True;
 
 end;
 //______________________________________________________________________________
@@ -275,170 +282,202 @@ begin
   end;
 
   show_modal_message('The image has been copied to the Windows clipboard.'
-              +#13+#13+'It can now be pasted into any graphics program.');
+    + #13 + #13 + 'It can now be pasted into any graphics program.');
 end;
 //______________________________________________________________________________
 
-procedure Timage_viewer_form.copy_file_location_menu_entryClick(Sender:TObject);
+procedure Timage_viewer_form.copy_file_location_menu_entryClick(Sender: TObject);
 
 begin
-  Clipboard.AsText:=image_file_str;
+  Clipboard.AsText := image_file_str;
 end;
 //______________________________________________________________________________
 
 procedure Timage_viewer_form.close_menu_entryClick(Sender: TObject);
 
 begin
-  ModalResult:=mrCancel;
+  ModalResult := mrCancel;
 end;
 //______________________________________________________________________________
 
-procedure Timage_viewer_form.copy_file_name_menu_entryClick(Sender:TObject);
+procedure Timage_viewer_form.copy_file_name_menu_entryClick(Sender: TObject);
 
 begin
-  Clipboard.AsText:=ExtractFileName(image_file_str);
+  Clipboard.AsText := ExtractFileName(image_file_str);
 end;
 //______________________________________________________________________________
 
-procedure Timage_viewer_form.FormKeyPress(Sender:TObject; var Key:Char);
+procedure Timage_viewer_form.FormKeyPress(Sender: TObject; var Key: Char);
 
 begin
-  if Key=Chr(27)
-     then begin
-            Key:=Chr(0);
-            ModalResult:=mrCancel;
-          end;
+  if Key = Chr(27) then begin
+    Key := Chr(0);
+    ModalResult := mrCancel;
+  end;
 
 end;
 //______________________________________________________________________________
 
-procedure Timage_viewer_form.use_your_viewer_menu_entryClick(Sender:TObject);
+procedure Timage_viewer_form.use_your_viewer_menu_entryClick(Sender: TObject);
 
 begin
-  if ShellExecute(0,'open',PChar(image_file_str),nil,nil,SW_SHOWNORMAL)<=32
-     then show_modal_message('Sorry, unable to display the image in your viewer.')
-     else begin
-            external_window_showing:=True;
-            ModalResult:=mrCancel;
-          end;
+  if ShellExecute(0, 'open', PChar(image_file_str), nil, nil, SW_SHOWNORMAL) <= 32 then
+    show_modal_message('Sorry, unable to display the image in your viewer.')
+  else begin
+    external_window_showing := True;
+    ModalResult := mrCancel;
+  end;
 end;
 //______________________________________________________________________________
 
-procedure Timage_viewer_form.delete_image_menu_entryClick(Sender:TObject);
+procedure Timage_viewer_form.delete_image_menu_entryClick(Sender: TObject);
 
 begin
-  if alert(7,'      delete  image ?',
-            'You are about to delete this image file.'
-           +'||This can not be undone.',
-             '','','','','cancel','delete  image',0)=5
-     then EXIT;
+  if alert(7, '      delete  image ?', 'You are about to delete this image file.'
+    + '||This can not be undone.', '', '', '', '', 'cancel',
+    'delete  image', 0) = 5 then
+    EXIT;
 
-  if DeleteFile(image_file_str)=False
-     then show_modal_message('Sorry, unable to delete '+image_file_str)
-     else ModalResult:=mrCancel;
+  if DeleteFile(image_file_str) = False then
+    show_modal_message('Sorry, unable to delete ' + image_file_str)
+  else
+    ModalResult := mrCancel;
 end;
 //______________________________________________________________________________
 
-procedure Timage_viewer_form.options_menuClick(Sender:TObject);
+procedure Timage_viewer_form.options_menuClick(Sender: TObject);
 
 begin
-  image_size_menu_entry.Caption:='image  size :  '+IntToStr(viewer_image.Width)+' x '+IntToStr(viewer_image.Height);
+  image_size_menu_entry.Caption := 'image  size :  ' + IntToStr(viewer_image.Width) +
+    ' x ' + IntToStr(viewer_image.Height);
 end;
 //______________________________________________________________________________
 
 procedure Timage_viewer_form.image_size_menu_entryClick(Sender: TObject);
 
 begin
-  show_modal_message('This image is '+IntToStr(viewer_image.Width)+' x '+IntToStr(viewer_image.Height)+' pixels.');
+  show_modal_message('This image is ' + IntToStr(viewer_image.Width) + ' x ' +
+    IntToStr(viewer_image.Height) + ' pixels.');
 end;
 //______________________________________________________________________________
 
 procedure Timage_viewer_form.FormCreate(Sender: TObject);
 
 var
-  img_path_str:string;
+  img_path_str: string;
 
 begin
-  ClientWidth:=1000;
-  ClientHeight:=650;
+  ClientWidth := 1000;
+  ClientHeight := 650;
 
-  AutoScroll:=True;
+  AutoScroll := True;
 
-    // these Timage components are not visible on the form. used on first run to create the image files for HtmlViewer and maps    OT-FIRST  ...
+  // these Timage components are not visible on the form. used on first run to create the image files for HtmlViewer and maps    OT-FIRST  ...
 
-  ForceDirectories(ExtractFilePath(Application.ExeName)+'internal\hlp');
-  ForceDirectories(ExtractFilePath(Application.ExeName)+'internal\tile');
+  ForceDirectories(ExtractFilePath(Application.ExeName) + 'internal\hlp');
+  ForceDirectories(ExtractFilePath(Application.ExeName) + 'internal\tile');
 
-  img_path_str:=ExtractFilePath(Application.ExeName)+'internal\hlp\';
+  img_path_str := ExtractFilePath(Application.ExeName) + 'internal\hlp\';
 
-  if FileExists(img_path_str+'ot_logo.bmp')=False then ot_logo_bmp_image.Picture.SaveToFile(img_path_str+'ot_logo.bmp');
+  if FileExists(img_path_str + 'ot_logo.bmp') = False then
+    ot_logo_bmp_image.Picture.SaveToFile(img_path_str + 'ot_logo.bmp');
 
-  if FileExists(img_path_str+'tm_logo.bmp')=False then tm_logo_bmp_image.Picture.SaveToFile(img_path_str+'tm_logo.bmp');
+  if FileExists(img_path_str + 'tm_logo.bmp') = False then
+    tm_logo_bmp_image.Picture.SaveToFile(img_path_str + 'tm_logo.bmp');
 
-  if FileExists(img_path_str+'t3_logo.bmp')=False then t3_logo_bmp_image.Picture.SaveToFile(img_path_str+'t3_logo.bmp');   // 291a
+  if FileExists(img_path_str + 't3_logo.bmp') = False then
+    t3_logo_bmp_image.Picture.SaveToFile(img_path_str + 't3_logo.bmp');   // 291a
 
-  if FileExists(img_path_str+'adobe_print_dialog.png')=False then adobe_print_dialog_png_image.Picture.SaveToFile(img_path_str+'adobe_print_dialog.png');
+  if FileExists(img_path_str + 'adobe_print_dialog.png') = False then
+    adobe_print_dialog_png_image.Picture.SaveToFile(img_path_str + 'adobe_print_dialog.png');
 
-  if FileExists(img_path_str+'b6_startup.gif')=False then b6_startup_gif_image.Picture.SaveToFile(img_path_str+'b6_startup.gif');
+  if FileExists(img_path_str + 'b6_startup.gif') = False then
+    b6_startup_gif_image.Picture.SaveToFile(img_path_str + 'b6_startup.gif');
 
-  if FileExists(img_path_str+'companion_taskbar.png')=False then companion_taskbar_png_image.Picture.SaveToFile(img_path_str+'companion_taskbar.png');
+  if FileExists(img_path_str + 'companion_taskbar.png') = False then
+    companion_taskbar_png_image.Picture.SaveToFile(img_path_str + 'companion_taskbar.png');
 
-  if FileExists(img_path_str+'full_screen.png')=False then full_screen_png_image.Picture.SaveToFile(img_path_str+'full_screen.png');
+  if FileExists(img_path_str + 'full_screen.png') = False then
+    full_screen_png_image.Picture.SaveToFile(img_path_str + 'full_screen.png');
 
-  if FileExists(img_path_str+'green_helmet.gif')=False then green_helmet_gif_image.Picture.SaveToFile(img_path_str+'green_helmet.gif');
+  if FileExists(img_path_str + 'green_helmet.gif') = False then
+    green_helmet_gif_image.Picture.SaveToFile(img_path_str + 'green_helmet.gif');
 
-  if FileExists(img_path_str+'link_view.png')=False then link_view_png_image.Picture.SaveToFile(img_path_str+'link_view.png');
+  if FileExists(img_path_str + 'link_view.png') = False then
+    link_view_png_image.Picture.SaveToFile(img_path_str + 'link_view.png');
 
-  if FileExists(img_path_str+'output_menu.png')=False then output_menu_png_image.Picture.SaveToFile(img_path_str+'output_menu.png');
+  if FileExists(img_path_str + 'output_menu.png') = False then
+    output_menu_png_image.Picture.SaveToFile(img_path_str + 'output_menu.png');
 
-  if FileExists(img_path_str+'pad_colours.gif')=False then pad_colours_gif_image.Picture.SaveToFile(img_path_str+'pad_colours.gif');
+  if FileExists(img_path_str + 'pad_colours.gif') = False then
+    pad_colours_gif_image.Picture.SaveToFile(img_path_str + 'pad_colours.gif');
 
-  if FileExists(img_path_str+'red_pointer.gif')=False then red_pointer_gif_image.Picture.SaveToFile(img_path_str+'red_pointer.gif');
+  if FileExists(img_path_str + 'red_pointer.gif') = False then
+    red_pointer_gif_image.Picture.SaveToFile(img_path_str + 'red_pointer.gif');
 
-  if FileExists(img_path_str+'redo_changes.png')=False then redo_changes_png_image.Picture.SaveToFile(img_path_str+'redo_changes.png');
+  if FileExists(img_path_str + 'redo_changes.png') = False then
+    redo_changes_png_image.Picture.SaveToFile(img_path_str + 'redo_changes.png');
 
-  if FileExists(img_path_str+'saved_prefs.gif')=False then saved_prefs_gif_image.Picture.SaveToFile(img_path_str+'saved_prefs.gif');
+  if FileExists(img_path_str + 'saved_prefs.gif') = False then
+    saved_prefs_gif_image.Picture.SaveToFile(img_path_str + 'saved_prefs.gif');
 
-  if FileExists(img_path_str+'saved_prefs.png')=False then saved_prefs_png_image.Picture.SaveToFile(img_path_str+'saved_prefs.png');
+  if FileExists(img_path_str + 'saved_prefs.png') = False then
+    saved_prefs_png_image.Picture.SaveToFile(img_path_str + 'saved_prefs.png');
 
-  if FileExists(img_path_str+'sb_show_items.png')=False then sb_show_items_png_image.Picture.SaveToFile(img_path_str+'sb_show_items.png');
+  if FileExists(img_path_str + 'sb_show_items.png') = False then
+    sb_show_items_png_image.Picture.SaveToFile(img_path_str + 'sb_show_items.png');
 
-  if FileExists(img_path_str+'scangear_dpi.png')=False then scangear_dpi_png_image.Picture.SaveToFile(img_path_str+'scangear_dpi.png');
+  if FileExists(img_path_str + 'scangear_dpi.png') = False then
+    scangear_dpi_png_image.Picture.SaveToFile(img_path_str + 'scangear_dpi.png');
 
-  if FileExists(img_path_str+'script_error.png')=False then script_error_png_image.Picture.SaveToFile(img_path_str+'script_error.png');
+  if FileExists(img_path_str + 'script_error.png') = False then
+    script_error_png_image.Picture.SaveToFile(img_path_str + 'script_error.png');
 
-  if FileExists(img_path_str+'sketchboard_sample.gif')=False then sketchboard_sample_gif_image.Picture.SaveToFile(img_path_str+'sketchboard_sample.gif');
+  if FileExists(img_path_str + 'sketchboard_sample.gif') = False then
+    sketchboard_sample_gif_image.Picture.SaveToFile(img_path_str + 'sketchboard_sample.gif');
 
-  if FileExists(img_path_str+'smile.gif')=False then smile_gif_image.Picture.SaveToFile(img_path_str+'smile.gif');
+  if FileExists(img_path_str + 'smile.gif') = False then
+    smile_gif_image.Picture.SaveToFile(img_path_str + 'smile.gif');
 
-  if FileExists(img_path_str+'store_bgnd_options.png')=False then store_bgnd_options_png_image.Picture.SaveToFile(img_path_str+'store_bgnd_options.png');
+  if FileExists(img_path_str + 'store_bgnd_options.png') = False then
+    store_bgnd_options_png_image.Picture.SaveToFile(img_path_str + 'store_bgnd_options.png');
 
-  if FileExists(img_path_str+'tree_symbol.gif')=False then tree_symbol_gif_image.Picture.SaveToFile(img_path_str+'tree_symbol.gif');
+  if FileExists(img_path_str + 'tree_symbol.gif') = False then
+    tree_symbol_gif_image.Picture.SaveToFile(img_path_str + 'tree_symbol.gif');
 
-  if FileExists(img_path_str+'undo_changes.png')=False then undo_changes_png_image.Picture.SaveToFile(img_path_str+'undo_changes.png');
+  if FileExists(img_path_str + 'undo_changes.png') = False then
+    undo_changes_png_image.Picture.SaveToFile(img_path_str + 'undo_changes.png');
 
-  if FileExists(img_path_str+'viewer_loading.png')=False then viewer_loading_png_image.Picture.SaveToFile(img_path_str+'viewer_loading.png');
+  if FileExists(img_path_str + 'viewer_loading.png') = False then
+    viewer_loading_png_image.Picture.SaveToFile(img_path_str + 'viewer_loading.png');
 
-  if FileExists(img_path_str+'wait_signal.png')=False then wait_signal_png_image.Picture.SaveToFile(img_path_str+'wait_signal.png');
+  if FileExists(img_path_str + 'wait_signal.png') = False then
+    wait_signal_png_image.Picture.SaveToFile(img_path_str + 'wait_signal.png');
 
-  if FileExists(img_path_str+'wait_signal_trans.gif')=False then wait_signal_trans_gif_image.Picture.SaveToFile(img_path_str+'wait_signal_trans.gif');
+  if FileExists(img_path_str + 'wait_signal_trans.gif') = False then
+    wait_signal_trans_gif_image.Picture.SaveToFile(img_path_str + 'wait_signal_trans.gif');
 
-  if FileExists(img_path_str+'tickbox_unticked.png')=False then tickbox_unticked_png_image.Picture.SaveToFile(img_path_str+'tickbox_unticked.png');   // 291a
+  if FileExists(img_path_str + 'tickbox_unticked.png') = False then
+    tickbox_unticked_png_image.Picture.SaveToFile(img_path_str + 'tickbox_unticked.png');   // 291a
 
-  if FileExists(img_path_str+'tickbox_ticked.png')=False then tickbox_ticked_png_image.Picture.SaveToFile(img_path_str+'tickbox_ticked.png');   // 291a
+  if FileExists(img_path_str + 'tickbox_ticked.png') = False then
+    tickbox_ticked_png_image.Picture.SaveToFile(img_path_str + 'tickbox_ticked.png');   // 291a
 
-     // for map_loader ...
+  // for map_loader ...
 
-  img_path_str:=ExtractFilePath(Application.ExeName)+'internal\tile\';
+  img_path_str := ExtractFilePath(Application.ExeName) + 'internal\tile\';
 
-  if FileExists(img_path_str+'osm_copyright.png')=False then osm_copyright_png_image.Picture.SaveToFile(img_path_str+'osm_copyright.png');
-  if FileExists(img_path_str+'nls_copyright.png')=False then nls_copyright_png_image.Picture.SaveToFile(img_path_str+'nls_copyright.png');
+  if FileExists(img_path_str + 'osm_copyright.png') = False then
+    osm_copyright_png_image.Picture.SaveToFile(img_path_str + 'osm_copyright.png');
+  if FileExists(img_path_str + 'nls_copyright.png') = False then
+    nls_copyright_png_image.Picture.SaveToFile(img_path_str + 'nls_copyright.png');
 
-     // for picture shapes ...
+  // for picture shapes ...
 
-  img_path_str:=ExtractFilePath(Application.ExeName)+'internal\';
+  img_path_str := ExtractFilePath(Application.ExeName) + 'internal\';
 
-  if FileExists(img_path_str+'empty_picture.bmp')=False then empty_picture_bmp_image.Picture.SaveToFile(img_path_str+'empty_picture.bmp');
+  if FileExists(img_path_str + 'empty_picture.bmp') = False then
+    empty_picture_bmp_image.Picture.SaveToFile(img_path_str + 'empty_picture.bmp');
 
 end;
 //______________________________________________________________________________
@@ -446,16 +485,15 @@ end;
 procedure Timage_viewer_form.ok_menuClick(Sender: TObject);
 
 begin
-  ModalResult:=mrOk;
+  ModalResult := mrOk;
 end;
 //______________________________________________________________________________
 
 procedure Timage_viewer_form.cancel_menuClick(Sender: TObject);
 
 begin
-  ModalResult:=mrCancel;
+  ModalResult := mrCancel;
 end;
 //______________________________________________________________________________
 
 end.
-

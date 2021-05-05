@@ -32,7 +32,6 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls, Buttons, ShellAPI, Math,
-
   Menus, // 0.95.a
 
   TypInfo,  // 214c   for GetObjectProp
@@ -56,11 +55,11 @@ type
 var
   old_startup_form: Told_startup_form;
 
-  global_factor:extended=1.0;
+  global_factor: extended = 1.0;
 
-  //--------------------------
+//--------------------------
 
-  { OT-FIRST
+{ OT-FIRST
 
   procedure abandon_if_existing_instance;
 
@@ -70,18 +69,21 @@ var
   }
 
 
-  procedure minimize_consolehost_window;      // 291a
+procedure minimize_consolehost_window;      // 291a
 
-  procedure do_dpi_aware_scaling(scaling_size:integer);   // 211b
+procedure do_dpi_aware_scaling(scaling_size: integer);   // 211b
 
-  procedure detect_wine; // 205a
+procedure detect_wine; // 205a
 
 
 implementation
 
 uses
-  Registry, styleun, control_room, pad_unit, alert_unit, help_sheet, panning_unit, mint_unit, info_unit, { OT-FIRST dtp_unit,} entry_sheet,
-  { OT-FIRST file_viewer,} gauge_unit, bgnd_unit, { OT-FIRST sb_rvf_unit, sb_rvf_outer_unit, edit_outline_unit, dtp_settings_unit,} keep_select, { OT-FIRST web_browser_unit,}
+  Registry, styleun, control_room, pad_unit, alert_unit, help_sheet, panning_unit,
+  mint_unit, info_unit, { OT-FIRST dtp_unit,} entry_sheet,
+  { OT-FIRST file_viewer,} gauge_unit, bgnd_unit,
+  { OT-FIRST sb_rvf_unit, sb_rvf_outer_unit, edit_outline_unit, dtp_settings_unit,} keep_select,
+  { OT-FIRST web_browser_unit,}
   make_slip_unit;
 
 
@@ -246,68 +248,69 @@ end;
 }
 //______________________________________________________________________________
 
-procedure do_dpi_aware_scaling(scaling_size:integer);   // 211b
+procedure do_dpi_aware_scaling(scaling_size: integer);   // 211b
 
-  // if scaling_size 0, get it from file
+// if scaling_size 0, get it from file
 
 var
-  n,dpi_setting:integer;
-  i,j,right_edge,right_max,bottom_edge,bottom_max:integer;
-  temp_comp,child_comp:TComponent;
-  temp_control:TControl;
+  n, dpi_setting: integer;
+  i, j, right_edge, right_max, bottom_edge, bottom_max: integer;
+  temp_comp, child_comp: TComponent;
+  temp_control: TControl;
 
-  sz_str:string;
-  sz_list:TStringList;
+  sz_str: string;
+  sz_list: TStringList;
 
-  fracmul,fracdiv:integer;
-  factor:extended;
+  fracmul, fracdiv: integer;
+  factor: extended;
 
-  rem_width:integer;
+  rem_width: integer;
 
-  control_font:TFont;
+  control_font: TFont;
 
 begin
 
-  dpi_setting:=Screen.PixelsPerInch;   // Windows scaling begins at 144dpi, no effect at 143dpi (Windows 7)
-                                       // Windows scaling begins at 120dpi, no effect at 119dpi (Windows 8)
+  dpi_setting := Screen.PixelsPerInch;
+  // Windows scaling begins at 144dpi, no effect at 143dpi (Windows 7)
+  // Windows scaling begins at 120dpi, no effect at 119dpi (Windows 8)
 
 
-  companion_viewer_str:=ExtractFilePath(Application.ExeName)+'companion_viewer.exe';     // 215a
+  companion_viewer_str := ExtractFilePath(Application.ExeName) + 'companion_viewer.exe';     // 215a
 
-  if Application.ComponentCount<1 then EXIT;  // ???
+  if Application.ComponentCount < 1 then
+    EXIT;  // ???
 
-     // mods 214c ...
+  // mods 214c ...
 
-  if scaling_size=0
-     then begin       // get from file
+  if scaling_size = 0 then begin       // get from file
 
-            scaling_size:=4;  // init normal medium program size
+    scaling_size := 4;  // init normal medium program size
 
-            sz_str:=ExtractFilePath(Application.ExeName)+'internal\dpi\sz.szx';
+    sz_str := ExtractFilePath(Application.ExeName) + 'internal\dpi\sz.szx';
 
-            if FileExists(sz_str)
-               then begin
-                      sz_list:=TStringList.Create;
-                      sz_list.LoadFromFile(sz_str);
+    if FileExists(sz_str) then begin
+      sz_list := TStringList.Create;
+      sz_list.LoadFromFile(sz_str);
 
-                      try
-                        scaling_size:=StrToInt(sz_list.Strings[0]);
-                      except
-                        scaling_size:=4;  // normal medium program size
-                      end;//try
+      try
+        scaling_size := StrToInt(sz_list.Strings[0]);
+      except
+        scaling_size := 4;  // normal medium program size
+      end;//try
 
-                      sz_list.Free;
-                    end;
+      sz_list.Free;
+    end;
 
-            if (scaling_size<1) or (scaling_size>7) then scaling_size:=4;   // corrupted file?
+    if (scaling_size < 1) or (scaling_size > 7) then
+      scaling_size := 4;   // corrupted file?
 
-          end;
+  end;
 
-  current_scaling_position:=scaling_size;      // globals for pad slider
-  old_scaling_position:=scaling_size;
-  pad_form.scaling_trackbar.Position:=scaling_size;
+  current_scaling_position := scaling_size;      // globals for pad slider
+  old_scaling_position := scaling_size;
+  pad_form.scaling_trackbar.Position := scaling_size;
 
-{
+  {
          1: str:='largest';    // top to bottom of trackbar
          2: str:='larger';
          3: str:='large';
@@ -319,42 +322,82 @@ begin
 
   case scaling_size of       // arbitrary fractions ...
 
-         1: begin fracmul:=17; fracdiv:=10; factor:=1.7; end; // largest
-         2: begin fracmul:=14; fracdiv:=10; factor:=1.4; end; // larger
-         3: begin fracmul:=7; fracdiv:=6; factor:=7/6;   end; // large     1.167
+    1: begin
+      fracmul := 17;
+      fracdiv := 10;
+      factor := 1.7;
+    end; // largest
+    2: begin
+      fracmul := 14;
+      fracdiv := 10;
+      factor := 1.4;
+    end; // larger
+    3: begin
+      fracmul := 7;
+      fracdiv := 6;
+      factor := 7 / 6;
+    end; // large     1.167
 
-         4: begin fracmul:=1; fracdiv:=1; factor:=1.0;   end; // medium  do nothing
+    4: begin
+      fracmul := 1;
+      fracdiv := 1;
+      factor := 1.0;
+    end; // medium  do nothing
 
-         5: begin fracmul:=39; fracdiv:=40; factor:=39/40; end; // small      0.975
-         6: begin fracmul:=20; fracdiv:=23; factor:=20/23; end; // smaller    0.869
-         7: begin fracmul:=10; fracdiv:=13; factor:=10/13; end; // smallest   0.769
+    5: begin
+      fracmul := 39;
+      fracdiv := 40;
+      factor := 39 / 40;
+    end; // small      0.975
+    6: begin
+      fracmul := 20;
+      fracdiv := 23;
+      factor := 20 / 23;
+    end; // smaller    0.869
+    7: begin
+      fracmul := 10;
+      fracdiv := 13;
+      factor := 10 / 13;
+    end; // smallest   0.769
 
-       else begin fracmul:=1; fracdiv:=1; factor:=1; end; // keep compiler happy
+    else begin
+      fracmul := 1;
+      fracdiv := 1;
+      factor := 1;
+    end; // keep compiler happy
 
   end;//case
 
-  global_factor:=factor;
+  global_factor := factor;
 
-  if scaling_size=4 then EXIT;  // nothing to do
+  if scaling_size = 4 then
+    EXIT;  // nothing to do
 
-  scaling_done_at_least_once:=True;  // global for slider
+  scaling_done_at_least_once := True;  // global for slider
 
-     // HTML scaling ...
+  // HTML scaling ...
 
-  help_client_width_as_user:=Round(530*factor);  // defaults unless resized by user.
-  help_client_height_as_user:=Round(680*factor);
+  help_client_width_as_user := Round(530 * factor);  // defaults unless resized by user.
+  help_client_height_as_user := Round(680 * factor);
 
   case scaling_size of       // after trial and error ...
 
-         1: html_pixels_per_inch:=144; // largest
-         2: html_pixels_per_inch:=131; // larger
-         3: html_pixels_per_inch:=118; // large
+    1:
+      html_pixels_per_inch := 144; // largest
+    2:
+      html_pixels_per_inch := 131; // larger
+    3:
+      html_pixels_per_inch := 118; // large
 
-         4: html_pixels_per_inch:=108;  // shouldn't get here, 108 set in help_sheet
+    4:
+      html_pixels_per_inch := 108;  // shouldn't get here, 108 set in help_sheet
 
-         5: html_pixels_per_inch:=105; // small
-         6: html_pixels_per_inch:=97;  // smaller
-         7: html_pixels_per_inch:=90;  // smallest
+    5:
+      html_pixels_per_inch := 105; // small
+    6:
+      html_pixels_per_inch := 97;  // smaller
+    7:
+      html_pixels_per_inch := 90;  // smallest
 
   end;//case
 
@@ -362,41 +405,94 @@ begin
 
   with pad_form do begin
 
-    top_toolbar_panel.ScaleBy(fracmul,fracdiv);
+    top_toolbar_panel.ScaleBy(fracmul, fracdiv);
 
-    second_toolbar_panel.ScaleBy(fracmul,fracdiv);      // 217a
+    second_toolbar_panel.ScaleBy(fracmul, fracdiv);      // 217a
 
-    with output_mode_panel          do begin ScaleBy(fracmul,fracdiv); Left:=Round(Left*factor); Top:=Round(Top*factor); end;//with
-    with group_linked_warning_panel do begin ScaleBy(fracmul,fracdiv); Left:=Round(Left*factor); Top:=Round(Top*factor); end;//with
-    with program_warning_panel      do begin ScaleBy(fracmul,fracdiv); Left:=Round(Left*factor); Top:=Round(Top*factor); end;//with
-    with slewing_panel              do begin ScaleBy(fracmul,fracdiv); Left:=Round(Left*factor); Top:=Round(Top*factor); end;//with
-    with distortion_warning_panel   do begin ScaleBy(fracmul,fracdiv); Left:=Round(Left*factor); Top:=Round(Top*factor); end;//with
-    with reorg_warning_panel        do begin ScaleBy(fracmul,fracdiv); Left:=Round(Left*factor); Top:=Round(Top*factor); end;//with
-    with dummy_label_panel          do begin ScaleBy(fracmul,fracdiv); Left:=Round(Left*factor); Top:=Round(Top*factor); end;//with
+    with output_mode_panel do begin
+      ScaleBy(fracmul, fracdiv);
+      Left := Round(Left * factor);
+      Top := Round(Top * factor);
+    end;//with
+    with group_linked_warning_panel do begin
+      ScaleBy(fracmul, fracdiv);
+      Left := Round(Left * factor);
+      Top := Round(Top * factor);
+    end;//with
+    with program_warning_panel do begin
+      ScaleBy(fracmul, fracdiv);
+      Left := Round(Left * factor);
+      Top := Round(Top * factor);
+    end;//with
+    with slewing_panel do begin
+      ScaleBy(fracmul, fracdiv);
+      Left := Round(Left * factor);
+      Top := Round(Top * factor);
+    end;//with
+    with distortion_warning_panel do begin
+      ScaleBy(fracmul, fracdiv);
+      Left := Round(Left * factor);
+      Top := Round(Top * factor);
+    end;//with
+    with reorg_warning_panel do begin
+      ScaleBy(fracmul, fracdiv);
+      Left := Round(Left * factor);
+      Top := Round(Top * factor);
+    end;//with
+    with dummy_label_panel do begin
+      ScaleBy(fracmul, fracdiv);
+      Left := Round(Left * factor);
+      Top := Round(Top * factor);
+    end;//with
 
-    with reminder_memo1             do begin rem_width:=Width; ScaleBy(fracmul,fracdiv); Left:=Left-Width+rem_width; Top:=Round(Top*factor); end;//with
-    with reminder_memo2             do begin rem_width:=Width; ScaleBy(fracmul,fracdiv); Left:=Left-Width+rem_width; Top:=Round(Top*factor); end;//with
-    with reminder_memo3             do begin rem_width:=Width; ScaleBy(fracmul,fracdiv); Left:=Left-Width+rem_width; Top:=Round(Top*factor); end;//with
-    with reminder_memo4             do begin rem_width:=Width; ScaleBy(fracmul,fracdiv); Left:=Left-Width+rem_width; Top:=Round(Top*factor); end;//with
-    with reminder_memo5             do begin rem_width:=Width; ScaleBy(fracmul,fracdiv); Left:=Left-Width+rem_width; Top:=Round(Top*factor); end;//with
+    with reminder_memo1 do begin
+      rem_width := Width;
+      ScaleBy(fracmul, fracdiv);
+      Left := Left - Width + rem_width;
+      Top := Round(Top * factor);
+    end;//with
+    with reminder_memo2 do begin
+      rem_width := Width;
+      ScaleBy(fracmul, fracdiv);
+      Left := Left - Width + rem_width;
+      Top := Round(Top * factor);
+    end;//with
+    with reminder_memo3 do begin
+      rem_width := Width;
+      ScaleBy(fracmul, fracdiv);
+      Left := Left - Width + rem_width;
+      Top := Round(Top * factor);
+    end;//with
+    with reminder_memo4 do begin
+      rem_width := Width;
+      ScaleBy(fracmul, fracdiv);
+      Left := Left - Width + rem_width;
+      Top := Round(Top * factor);
+    end;//with
+    with reminder_memo5 do begin
+      rem_width := Width;
+      ScaleBy(fracmul, fracdiv);
+      Left := Left - Width + rem_width;
+      Top := Round(Top * factor);
+    end;//with
 
 
-    scaling_trackbar.ScaleBy(fracmul,fracdiv);
-    scaling_labels_panel.ScaleBy(fracmul,fracdiv);
-    scaling_help_static.ScaleBy(fracmul,fracdiv);
+    scaling_trackbar.ScaleBy(fracmul, fracdiv);
+    scaling_labels_panel.ScaleBy(fracmul, fracdiv);
+    scaling_help_static.ScaleBy(fracmul, fracdiv);
 
-    scaling_trackbar.Left:=ClientWidth-scaling_trackbar.Width;
-    scaling_trackbar.Top:=ClientHeight-scaling_trackbar.Height;
+    scaling_trackbar.Left := ClientWidth - scaling_trackbar.Width;
+    scaling_trackbar.Top := ClientHeight - scaling_trackbar.Height;
 
-    scaling_labels_panel.Left:=scaling_trackbar.Left-scaling_labels_panel.Width;
-    scaling_labels_panel.Top:=ClientHeight-scaling_labels_panel.Height;
+    scaling_labels_panel.Left := scaling_trackbar.Left - scaling_labels_panel.Width;
+    scaling_labels_panel.Top := ClientHeight - scaling_labels_panel.Height;
 
-    scaling_help_static.Left:=ClientWidth-scaling_help_static.Width;
-    scaling_help_static.Top:=scaling_trackbar.Top-scaling_help_static.Height;
+    scaling_help_static.Left := ClientWidth - scaling_help_static.Width;
+    scaling_help_static.Top := scaling_trackbar.Top - scaling_help_static.Height;
 
   end;//with
 
-{ OT-FIRST
+  { OT-FIRST
 
   dtp_form.top_panel.ScaleBy(fracmul-1,fracdiv);   // -1 a bit smaller   was (4,3); // default is 930 * 27 -- now 1240 * 36
 
@@ -408,14 +504,14 @@ begin
   update_model_rulers;
 }
 
-    // and the rest of them ...
+  // and the rest of them ...
 
-  for n:=Application.ComponentCount-1 downto 0 do begin
+  for n := Application.ComponentCount - 1 downto 0 do begin
 
-    temp_comp:=Application.Components[n];
+    temp_comp := Application.Components[n];
 
-    if  ((temp_comp is TForm)=True)
-    and ((temp_comp is Tpad_form)=False)  // not the pad otherwise child windows get scaled twice. Panels already done above.
+    if ((temp_comp is TForm) = True) and ((temp_comp is Tpad_form) = False)
+    // not the pad otherwise child windows get scaled twice. Panels already done above.
 
     // OT-FIRST    and ((temp_comp is Tdtp_form)=False)  // not the sketchboard already done. otherwise rulers are wrecked
 
@@ -425,99 +521,102 @@ begin
 
     // OT-FIRST    and ((temp_comp is Tedit_outline_form)=False)  // 212a  child of dtp_settings form.
 
-      then begin
+    then begin
 
-             with TForm(Application.Components[n]) do begin
+      with TForm(Application.Components[n]) do begin
 
-               ScaleBy(fracmul,fracdiv);   // scale the form
+        ScaleBy(fracmul, fracdiv);   // scale the form
 
-                  // revise the client size ...
+        // revise the client size ...
 
-               right_max:=0;   // init
-               bottom_max:=0;
+        right_max := 0;   // init
+        bottom_max := 0;
 
-               if ControlCount>0
-                  then begin
+        if ControlCount > 0 then begin
 
-                         for i:=0 to ControlCount-1 do begin
+          for i := 0 to ControlCount - 1 do begin
 
-                           if TControl(Controls[i]).Align<>alNone
-                              then CONTINUE;
+            if TControl(Controls[i]).Align <> alNone then
+              CONTINUE;
 
-                           right_edge:=TControl(Controls[i]).Left+TControl(Controls[i]).Width;
-                           bottom_edge:=TControl(Controls[i]).Top+TControl(Controls[i]).Height;
+            right_edge := TControl(Controls[i]).Left + TControl(Controls[i]).Width;
+            bottom_edge := TControl(Controls[i]).Top + TControl(Controls[i]).Height;
 
-                           if right_max<right_edge then right_max:=right_edge;
-                           if bottom_max<bottom_edge then bottom_max:=bottom_edge;
+            if right_max < right_edge then
+              right_max := right_edge;
+            if bottom_max < bottom_edge then
+              bottom_max := bottom_edge;
 
-                         end;//next control
+          end;//next control
 
-                         TForm(Application.Components[n]).ClientHeight:=bottom_max;
-                         TForm(Application.Components[n]).ClientWidth:=right_max;
-                         TForm(Application.Components[n]).ClientHeight:=bottom_max;
-                         TForm(Application.Components[n]).ClientWidth:=right_max;
-                       end;
+          TForm(Application.Components[n]).ClientHeight := bottom_max;
+          TForm(Application.Components[n]).ClientWidth := right_max;
+          TForm(Application.Components[n]).ClientHeight := bottom_max;
+          TForm(Application.Components[n]).ClientWidth := right_max;
+        end;
 
-             end;//with
-           end;
+      end;//with
+    end;
   end;//next
 
-    // final tweaks ...
+  // final tweaks ...
 
-  for n:=Application.ComponentCount-1 downto 0 do begin    // find all the forms
+  for n := Application.ComponentCount - 1 downto 0 do begin    // find all the forms
 
-    temp_comp:=Application.Components[n];
-    if (temp_comp is TForm)=False then CONTINUE;
+    temp_comp := Application.Components[n];
+    if (temp_comp is TForm) = False then
+      CONTINUE;
 
     with TForm(temp_comp) do begin
 
-      for i:=ComponentCount-1 downto 0 do begin    // check tickboxes not too small to display properly by Windows
+      for i := ComponentCount - 1 downto 0 do begin
+        // check tickboxes not too small to display properly by Windows
 
-        child_comp:=Components[i];
+        child_comp := Components[i];
 
-        if (child_comp is TCheckBox)
-           then begin
-                  if TCheckBox(child_comp).Height<19 then TCheckBox(child_comp).Height:=19;
-                end;
+        if (child_comp is TCheckBox) then begin
+          if TCheckBox(child_comp).Height < 19 then
+            TCheckBox(child_comp).Height := 19;
+        end;
 
-        if (child_comp is TRadioButton)
-           then begin
-                  if TRadioButton(child_comp).Height<19 then TRadioButton(child_comp).Height:=19;
-                end;
+        if (child_comp is TRadioButton) then begin
+          if TRadioButton(child_comp).Height < 19 then
+            TRadioButton(child_comp).Height := 19;
+        end;
 
       end;//next
     end;//with
   end;//next
 
-     // 214c reduce all font sizes after ScaleBy (which rounds up)...
+  // 214c reduce all font sizes after ScaleBy (which rounds up)...
 
-  for n:=Application.ComponentCount-1 downto 0 do begin    // find all the forms
+  for n := Application.ComponentCount - 1 downto 0 do begin    // find all the forms
 
-    temp_comp:=Application.Components[n];
-    if (temp_comp is TForm)=False then CONTINUE;
+    temp_comp := Application.Components[n];
+    if (temp_comp is TForm) = False then
+      CONTINUE;
 
     with TForm(temp_comp) do begin
 
-      for i:=ComponentCount-1 downto 0 do begin
+      for i := ComponentCount - 1 downto 0 do begin
 
-        child_comp:=Components[i];
+        child_comp := Components[i];
 
-        if (child_comp is TControl)
-           then begin
-                  if IsPublishedProp(child_comp,'Font')
-                     then begin
-                            control_font:=TFont(GetObjectProp(child_comp,'Font',TFont));
-                            control_font.Height:=control_font.Height+1;                  // go down in size (Height is negative).   using Height because Size is determined by DPI on compiling system
-                          end;
-                end;
+        if (child_comp is TControl) then begin
+          if IsPublishedProp(child_comp, 'Font') then begin
+            control_font := TFont(GetObjectProp(child_comp, 'Font', TFont));
+            control_font.Height := control_font.Height + 1;
+            // go down in size (Height is negative).   using Height because Size is determined by DPI on compiling system
+          end;
+        end;
       end;//next
     end;//with
   end;//next
 
   with make_slip_form do begin  //217a
 
-    ClientWidth:=Button2.Left+Button2.Width;
-    ClientHeight:=Button2.Top+Button2.Height;
+    ClientWidth := Button2.Left + Button2.Width;
+    ClientHeight := Button2.Top + Button2.Height;
 
   end;//with
 
@@ -530,24 +629,24 @@ procedure minimize_consolehost_window;      // 291a
 
 var
   //window_handle:HWND;
-  title1_str,title2_str:string;      // Pchar needs a unique local string
+  title1_str, title2_str: string;      // Pchar needs a unique local string
 
-  titlet3_str:string;
-  titlemec_str:string;
+  titlet3_str: string;
+  titlemec_str: string;
 
 begin
 
   Application.ProcessMessages;
 
-  titlet3_str:='Templot3';
-  titlemec_str:='TemplotMEC';
-  title1_str:=Application.Title;
-  title2_str:=Application.ExeName;
+  titlet3_str := 'Templot3';
+  titlemec_str := 'TemplotMEC';
+  title1_str := Application.Title;
+  title2_str := Application.ExeName;
 
-  ShowWindow(FindWindow(nil,PChar(titlet3_str)),SW_MINIMIZE);
-  ShowWindow(FindWindow(nil,PChar(titlemec_str)),SW_MINIMIZE);
-  ShowWindow(FindWindow(nil,PChar(title1_str)),SW_MINIMIZE);
-  ShowWindow(FindWindow(nil,PChar(title2_str)),SW_MINIMIZE);
+  ShowWindow(FindWindow(nil, PChar(titlet3_str)), SW_MINIMIZE);
+  ShowWindow(FindWindow(nil, PChar(titlemec_str)), SW_MINIMIZE);
+  ShowWindow(FindWindow(nil, PChar(title1_str)), SW_MINIMIZE);
+  ShowWindow(FindWindow(nil, PChar(title2_str)), SW_MINIMIZE);
 
 end;
 //______________________________________________________________________________
@@ -555,20 +654,20 @@ end;
 procedure detect_wine;    // 205a
 
 var
-  reg:TRegistry;
+  reg: TRegistry;
 
 begin
 
   Application.ProcessMessages;
 
-  control_room_form.WindowState:=wsNormal;
+  control_room_form.WindowState := wsNormal;
 
-  running_under_wine:=False;   // init
+  running_under_wine := False;   // init
 
-  reg:=TRegistry.Create;
+  reg := TRegistry.Create;
   try
-    reg.RootKey:=HKEY_CURRENT_USER;
-    running_under_wine:=reg.KeyExists('\Software\Wine');
+    reg.RootKey := HKEY_CURRENT_USER;
+    running_under_wine := reg.KeyExists('\Software\Wine');
   finally
     reg.Free;
   end;
@@ -577,4 +676,3 @@ end;
 //______________________________________________________________________________
 
 end.
-

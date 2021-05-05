@@ -45,7 +45,7 @@ type
     action_2_image: TImage;
     action_panel_timer: TTimer;
     finish_button: TButton;
-    
+
     procedure FormCreate(Sender: TObject);
     procedure action_1_imageClick(Sender: TObject);
     procedure FormClick(Sender: TObject);
@@ -64,9 +64,9 @@ type
 var
   action_form: Taction_form;
 
-  //-----------------
+//-----------------
 
-  procedure action_panel_resize;
+procedure action_panel_resize;
 
 //_______________________________________________________________________________________
 implementation
@@ -79,7 +79,7 @@ uses pad_unit, math_unit, wait_message;
 {$R *.lfm}
 
 var
-  action_resizing:boolean=True;        // True in case we get a resize call on create or show.
+  action_resizing: boolean = True;        // True in case we get a resize call on create or show.
 
 //_______________________________________________________________________________________
 
@@ -88,41 +88,44 @@ procedure Taction_form.FormCreate(Sender: TObject);
 begin
   pad_form.InsertControl(action_form);
 
-  AutoScroll:=False;
+  AutoScroll := False;
 
-  ClientWidth:=170;
-  ClientHeight:=80;
+  ClientWidth := 170;
+  ClientHeight := 80;
 end;
 //________________________________________________________________________________________
 
-procedure action_panel_resize;       // !!! must do width first for some reason (to do with autosizing labels?)
+procedure action_panel_resize;
+// !!! must do width first for some reason (to do with autosizing labels?)
 
 var
-  new_width,new_height:integer;
+  new_width, new_height: integer;
   //screen_dpi:integer;              // 211b
 
 begin
   //screen_dpi:=Screen.PixelsPerInch;    // 211b for dpi-aware
   with action_form do begin
-    if Tag=0
-       then begin
-              action_resizing:=True;          // flag OnResize that we are changing the size, not him.
+    if Tag = 0 then begin
+      action_resizing := True;
+      // flag OnResize that we are changing the size, not him.
 
-              trail_dim_label.Top:=action_label.Top+Canvas.TextHeight(' ')+2;
-              new_width:=image_panel.Width+max_i(Canvas.TextWidth('  •  '+action_label.Caption),Canvas.TextWidth('  '+trail_dim_label.Caption));
-              new_height:=trail_dim_label.Top+Canvas.TextHeight(' ')+2;
+      trail_dim_label.Top := action_label.Top + Canvas.TextHeight(' ') + 2;
+      new_width := image_panel.Width + max_i(
+        Canvas.TextWidth('  •  ' + action_label.Caption), Canvas.TextWidth('  ' + trail_dim_label.Caption));
+      new_height := trail_dim_label.Top + Canvas.TextHeight(' ') + 2;
 
-              image_panel.Height:=new_height;     // 215a mods...
+      image_panel.Height := new_height;     // 215a mods...
 
-              finish_button.Top:=new_height+4;
-              finish_button.Width:=new_width;
+      finish_button.Top := new_height + 4;
+      finish_button.Width := new_width;
 
-              ClientWidth:=new_width;
-              ClientHeight:=finish_button.Top+finish_button.Height;
+      ClientWidth := new_width;
+      ClientHeight := finish_button.Top + finish_button.Height;
 
-              if Application.Terminated=False then Application.ProcessMessages;  // to make sure it updates immediately.
-              action_resizing:=False;
-            end;
+      if Application.Terminated = False then
+        Application.ProcessMessages;  // to make sure it updates immediately.
+      action_resizing := False;
+    end;
   end;//with
 end;
 //___________________________________________________________________________________________
@@ -143,7 +146,7 @@ end;
 
 procedure Taction_form.trail_dim_labelClick(Sender: TObject);
 
-       // cancel adjusts and go adjust dimension by direct entry...
+// cancel adjusts and go adjust dimension by direct entry...
 begin
   action_label_click;     // (pad_unit).
 end;
@@ -152,37 +155,38 @@ end;
 procedure Taction_form.FormResize(Sender: TObject);
 
 begin
-  if (action_resizing=False) and (action_form.Showing=True)
-     then action_form.Tag:=1; // flag he resized it, so don't change it again.
+  if (action_resizing = False) and (action_form.Showing = True) then
+    action_form.Tag := 1; // flag he resized it, so don't change it again.
 
-  finish_button.Width:=ClientWidth;
-  finish_button.Height:=ClientHeight-finish_button.Top;
+  finish_button.Width := ClientWidth;
+  finish_button.Height := ClientHeight - finish_button.Top;
 end;
 //______________________________________________________________________________
 
 procedure Taction_form.FormActivate(Sender: TObject);
 
 begin
-  action_resizing:=False;     // so he can resize it now.
+  action_resizing := False;     // so he can resize it now.
 end;
 //______________________________________________________________________________
 
 procedure Taction_form.action_panel_timerTimer(Sender: TObject);
 
 begin
-  action_panel_timer.Enabled:=False;  //  one-shot.
-  if mouse_modify=-1 then Close;
+  action_panel_timer.Enabled := False;  //  one-shot.
+  if mouse_modify = -1 then
+    Close;
 end;
 //______________________________________________________________________________
 
 procedure Taction_form.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 
 begin
-  if mouse_modify<>-1
-     then begin                       // mouse action in force, so close via a timer delay..
-            cancel_adjusts(False);    // enables the close timer.
-            CanClose:=False;          // wait for it.
-          end;
+  if mouse_modify <> -1 then begin
+    // mouse action in force, so close via a timer delay..
+    cancel_adjusts(False);    // enables the close timer.
+    CanClose := False;          // wait for it.
+  end;
 end;
 //______________________________________________________________________________
 
@@ -190,9 +194,9 @@ procedure Taction_form.finish_buttonClick(Sender: TObject);   // 215a
 
 begin
   cancel_adjusts(False);
-  if pad_form.arrow_button_dummy_trackbar.Showing=True then pad_form.arrow_button_dummy_trackbar.SetFocus;
+  if pad_form.arrow_button_dummy_trackbar.Showing = True then
+    pad_form.arrow_button_dummy_trackbar.SetFocus;
 end;
 //______________________________________________________________________________
 
 end.
-

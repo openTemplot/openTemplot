@@ -29,7 +29,7 @@ unit make_slip_unit;
 
 interface
 
-   // form is used for the toolbars dragging
+// form is used for the toolbars dragging
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, Math,
@@ -46,7 +46,7 @@ type
     procedure Button2Click(Sender: TObject);
   private
 
-    procedure move_message(var Msg:TWMMove); message WM_MOVE;
+    procedure move_message(var Msg: TWMMove); message WM_MOVE;
 
     { Private declarations }
   public
@@ -56,14 +56,14 @@ type
 var
   make_slip_form: Tmake_slip_form;
 
-  slip_switch_6:integer=0;      // global index into switch list.  set in switch_selelect unit
-  slip_switch_7:integer=0;
-  slip_switch_8:integer=0;
-  slip_switch_10:integer=0;
+  slip_switch_6: integer = 0;      // global index into switch list.  set in switch_selelect unit
+  slip_switch_7: integer = 0;
+  slip_switch_8: integer = 0;
+  slip_switch_10: integer = 0;
 
-  mod_double_slip:integer=1;       // 0=normal,  1=reduced gauges only   2=all gauges
+  mod_double_slip: integer = 1;       // 0=normal,  1=reduced gauges only   2=all gauges
 
-  function make_slip(sides:integer; making_crossover:boolean):boolean;  // 215a
+function make_slip(sides: integer; making_crossover: boolean): boolean;  // 215a
 
 implementation
 
@@ -72,911 +72,961 @@ implementation
 {$R *.lfm}
 
 uses
-  pad_unit,math_unit,keep_select,alert_unit, info_unit, control_room, shove_timber,
+  pad_unit, math_unit, keep_select, alert_unit, info_unit, control_room, shove_timber,
   switch_select,
   shoved_timber { OT-FIRST , web_browser_unit};
 
 //______________________________________________________________________________
 
-function make_slip(sides:integer; making_crossover:boolean):boolean;        // 215a
+function make_slip(sides: integer; making_crossover: boolean): boolean;        // 215a
 
-   // sides   double-slip = 0,    single-slip same side = 1,    single-slip opposite side = -1.
+  // sides   double-slip = 0,    single-slip same side = 1,    single-slip opposite side = -1.
 
 var
-  dummy1,dummy2:extended;
-  i,n:integer;
-  saved_current:Ttemplate_info;
+  dummy1, dummy2: extended;
+  i, n: integer;
+  saved_current: Ttemplate_info;
 
-  ti:Ttemplate_info;
+  ti: Ttemplate_info;
 
-  saved_notch:Tnotch;
-  saved_name_str:string;
-  saved_memo_str:string;
+  saved_notch: Tnotch;
+  saved_name_str: string;
+  saved_memo_str: string;
 
-  sw_info:Tswitch_info;
+  sw_info: Tswitch_info;
 
-  sw_index:integer;
+  sw_index: integer;
 
-  switch_length:extended;
+  switch_length: extended;
 
-  nom_sw_len:extended;
+  nom_sw_len: extended;
 
-  nom_heel_pegx_on_pad,nom_heel_pegy_on_pad:extended;
+  nom_heel_pegx_on_pad, nom_heel_pegy_on_pad: extended;
 
-  sw_heel_pegx_on_pad,sw_heel_pegy_on_pad:extended;
+  sw_heel_pegx_on_pad, sw_heel_pegy_on_pad: extended;
 
-  fp_pegx_on_pad,fp_pegy_on_pad:extended;
+  fp_pegx_on_pad, fp_pegy_on_pad: extended;
 
-  first_hd_index,second_hd_index:integer;
-  first_sw_index,second_sw_index:integer;
+  first_hd_index, second_hd_index: integer;
+  first_sw_index, second_sw_index: integer;
 
-  first_bgnd_template:integer;
+  first_bgnd_template: integer;
 
-  rot_move,rot_k:extended;
+  rot_move, rot_k: extended;
 
-  x1,y1,x2,y2,x3,y3:extended;
+  x1, y1, x2, y2, x3, y3: extended;
 
-  id_str:string;
+  id_str: string;
 
-  slip_road_pos1:Tnotch;
-  slip_road_pos2:Tnotch;
-  slip_road_pos3:Tnotch;
-  slip_road_pos4:Tnotch;
+  slip_road_pos1: Tnotch;
+  slip_road_pos2: Tnotch;
+  slip_road_pos3: Tnotch;
+  slip_road_pos4: Tnotch;
 
-  slip_chord,slip_angle,slip_rad:extended;
+  slip_chord, slip_angle, slip_rad: extended;
 
-  slip_arc_len:extended;
+  slip_arc_len: extended;
 
-  slip_offset,slip_turn:extended;
+  slip_offset, slip_turn: extended;
 
-  offset_pos_sq,offset_neg_sq:extended;
+  offset_pos_sq, offset_neg_sq: extended;
 
-  doing_2nd_side:boolean;
+  doing_2nd_side: boolean;
 
-  max_index:integer;
+  max_index: integer;
 
-  switch_mid_inches,switch_mid_mm:extended;
+  switch_mid_inches, switch_mid_mm: extended;
 
-  switch_mid_rad1,switch_mid_rad2:extended;
+  switch_mid_rad1, switch_mid_rad2: extended;
 
-  org_was_spiral:boolean;
-  spiral_safe:boolean;
-  spiral_ok:boolean;
+  org_was_spiral: boolean;
+  spiral_safe: boolean;
+  spiral_ok: boolean;
 
-  temp,temp1,temp2:extended;
+  temp, temp1, temp2: extended;
 
-  slip_rad1_str,slip_rad2_str:string;
+  slip_rad1_str, slip_rad2_str: string;
 
-  xover_str:string;
-
-
-
-                ////////////////////////////////////////////////////////////////
-
-                procedure restore_current;
-
-                begin
-                  copy_keep(saved_current);                    // retrieve saved original control template.
-                  current_name_str:=saved_name_str;
-                  current_memo_str:=saved_memo_str;
-
-                  info_form.ref_name_label.Caption:=current_name_str;
-                end;
-                ////////////////////////////////////////////////////////////////
-
-                procedure do_template_names;
-
-                var
-                  z:integer;
-                  str:string;
-
-                begin
-                  if keeps_list.Count>first_bgnd_template
-                     then begin
-                            for z:=first_bgnd_template to keeps_list.Count-1 do begin
-
-                              if Ttemplate(keeps_list.Objects[z]).bgnd_half_diamond=True
-                                 then str:=' slip half-diamond'
-                                 else if Ttemplate(keeps_list.Objects[z]).bgnd_plain_track=True
-                                         then str:=' slip road'
-                                         else str:=' slip switch';
-
-                              Ttemplate(keeps_list.Objects[z]).template_info.keep_dims.box_dims1.reference_string:=id_str+' '+str;
-                            end;//next
-                          end;
-                end;
-                ////////////////////////////////////////////////////////////////
-
-                procedure delete_slip;
-
-                begin
-                  if keeps_list.Count>first_bgnd_template
-                     then repeat
-                            list_position:=keeps_list.Count-1;
-                            delete_keep(False,False);
-                          until keeps_list.Count=first_bgnd_template;
-                end;
-                ////////////////////////////////////////////////////////////////
+  xover_str: string;
 
 
+  ////////////////////////////////////////////////////////////////
+
+  procedure restore_current;
+
+  begin
+    copy_keep(saved_current);
+    // retrieve saved original control template.
+    current_name_str := saved_name_str;
+    current_memo_str := saved_memo_str;
+
+    info_form.ref_name_label.Caption := current_name_str;
+  end;
+  ////////////////////////////////////////////////////////////////
+
+  procedure do_template_names;
+
+  var
+    z: integer;
+    str: string;
+
+  begin
+    if keeps_list.Count > first_bgnd_template then begin
+      for z := first_bgnd_template to keeps_list.Count - 1 do begin
+
+        if Ttemplate(keeps_list.Objects[z]).bgnd_half_diamond =
+          True then
+          str := ' slip half-diamond'
+        else
+        if Ttemplate(keeps_list.Objects[z]).bgnd_plain_track = True
+        then
+          str := ' slip road'
+        else
+          str := ' slip switch';
+
+        Ttemplate(
+          keeps_list.Objects[z]).template_info.keep_dims.box_dims1.reference_string := id_str + ' ' + str;
+      end;//next
+    end;
+  end;
+  ////////////////////////////////////////////////////////////////
+
+  procedure delete_slip;
+
+  begin
+    if keeps_list.Count > first_bgnd_template then
+      repeat
+        list_position := keeps_list.Count - 1;
+        delete_keep(False, False);
+      until keeps_list.Count = first_bgnd_template;
+  end;
+  ////////////////////////////////////////////////////////////////
 
 label
   111;
 
 begin
-  RESULT:=False;  // init
+  Result := False;  // init
 
-  if plain_track=True
-     then begin
-            alert(6,'    make  slip  -  plain  track',
-                    'Sorry, this function is not available because the control template is plain track.'
-                   +'||This function requires a turnout or half-diamond template as its starting point.'
-                   +'||You must first change to a turnout or half-diamond template, by clicking the `0TEMPLATE > INSERT TURNOUT IN PLAIN TRACK`1 menu item, or the `0TEMPLATE > INSERT HALF-DIAMOND IN PLAIN TRACK`1 menu item.'
-                   +'||And then setting the hand and facing/trailing direction as required.',
-                    '','','','','cancel','',0);
-            EXIT;
-          end;
+  if plain_track = True then begin
+    alert(6, '    make  slip  -  plain  track',
+      'Sorry, this function is not available because the control template is plain track.'
+      + '||This function requires a turnout or half-diamond template as its starting point.'
+      + '||You must first change to a turnout or half-diamond template, by clicking the `0TEMPLATE > INSERT TURNOUT IN PLAIN TRACK`1 menu item, or the `0TEMPLATE > INSERT HALF-DIAMOND IN PLAIN TRACK`1 menu item.' + '||And then setting the hand and facing/trailing direction as required.',
+      '', '', '', '', 'cancel', '', 0);
+    EXIT;
+  end;
 
-  if slewing=True
-     then begin
-            alert(6,'    make  slip  -  slewed  track',
-                    'Sorry, this function is not available because the control template contains a slew.'
-                   +'||A slip could be created manually, but it is generally unwise to create a slip if any part of it will be within a slewing zone.'
-                   +'||The slewing function is intended primarily for plain track.',
-                    '','','','','cancel','',0);
-             EXIT;
-          end;
+  if slewing = True then begin
+    alert(6, '    make  slip  -  slewed  track',
+      'Sorry, this function is not available because the control template contains a slew.'
+      + '||A slip could be created manually, but it is generally unwise to create a slip if any part of it will be within a slewing zone.' + '||The slewing function is intended primarily for plain track.',
+      '', '', '', '', 'cancel', '', 0);
+    EXIT;
+  end;
 
-  if (half_diamond=False) and (xing_calc_i=1)    // curviform
-     then begin
-            if alert(2,'    make  regular  slip',
-                      '||Your control template contains a curviform V-crossing.'
-                     +'||This tools function can make a regular slip only.||An irregular slip with curviform V-crossings could be created manually.'
-                     +'||If you click `0continue`1 below, the V-crossings will be changed to regular pattern.'
-                     +'||This means that the alignment of the turnout-road exit will be modified.',
-                      '','','','','cancel','continue  -  make  regular  slip',0)=5 then EXIT;
-          end;
+  if (half_diamond = False) and (xing_calc_i = 1)    // curviform
+  then begin
+    if alert(2, '    make  regular  slip',
+      '||Your control template contains a curviform V-crossing.'
+      +
+      '||This tools function can make a regular slip only.||An irregular slip with curviform V-crossings could be created manually.'
+      + '||If you click `0continue`1 below, the V-crossings will be changed to regular pattern.'
+      + '||This means that the alignment of the turnout-road exit will be modified.',
+      '', '', '', '', 'cancel', 'continue  -  make  regular  slip', 0) = 5 then
+      EXIT;
+  end;
 
-    if (half_diamond=True) and (hdkn<>k3n)
-     then begin
-            if alert(2,'    make  regular  slip',
-                      '||The control template is an irregular half-diamond|(V-crossing and K-crossing angles differ).'
-                     +'||This tools function can make a regular slip only.||An irregular slip could be created manually.'
-                     +'||If you continue the K-crossing angle will be modified to match the V-crossing angle, to create a regular slip.',
-                      '','','','','cancel','convert  to  regular  and  continue',0)=5 then EXIT;
-          end;
+  if (half_diamond = True) and (hdkn <> k3n) then begin
+    if alert(2, '    make  regular  slip',
+      '||The control template is an irregular half-diamond|(V-crossing and K-crossing angles differ).'
+      + '||This tools function can make a regular slip only.||An irregular slip could be created manually.'
+      + '||If you continue the K-crossing angle will be modified to match the V-crossing angle, to create a regular slip.', '', '', '', '', 'cancel', 'convert  to  regular  and  continue', 0) = 5 then
+      EXIT;
+  end;
 
-  if k3n<5
-     then begin
-            if alert(1,'    make  regular  inside  slip',
-                      '||The V-crossing angle in the control template is shorter than 1:5 (it is 1:'+FormatFloat('0.##',k3n)+').'
-                     +'||It is very unlikely that a satisfactory inside slip can be created at such a short angle. The radius of the slip road will be far too small.'
-                     +'||If you continue you may encounter unexpected results.'
-                     +'||Generally at such short angles an outside slip or half-scissors would be used instead.',
-                      '','','','','cancel','continue  anyway',0)=5 then EXIT;
-          end
-     else if k3n<6
-             then begin
-                    if alert(2,'    make  regular  inside  slip',
-                              '||The V-crossing angle in the control template is shorter than 1:6 (it is 1:'+FormatFloat('0.##',k3n)+').'
-                             +'||Inside slips shorter than 1:6 are unusual on the prototype. Generally at such short angles an outside slip or half-scissors would be used instead.'
-                             +'||If you continue you may find that the radius in the slip road is smaller than you wanted.',
-                              '','','','','cancel','continue  anyway',0)=5 then EXIT;
-                  end;
+  if k3n < 5 then begin
+    if alert(1, '    make  regular  inside  slip',
+      '||The V-crossing angle in the control template is shorter than 1:5 (it is 1:'
+      +
+      FormatFloat('0.##', k3n) + ').' +
+      '||It is very unlikely that a satisfactory inside slip can be created at such a short angle. The radius of the slip road will be far too small.' + '||If you continue you may encounter unexpected results.' + '||Generally at such short angles an outside slip or half-scissors would be used instead.', '', '', '', '', 'cancel', 'continue  anyway', 0) = 5 then
+      EXIT;
+  end
+  else
+  if k3n < 6 then begin
+    if alert(2, '    make  regular  inside  slip',
+      '||The V-crossing angle in the control template is shorter than 1:6 (it is 1:'
+      +
+      FormatFloat('0.##', k3n) + ').' +
+      '||Inside slips shorter than 1:6 are unusual on the prototype. Generally at such short angles an outside slip or half-scissors would be used instead.' + '||If you continue you may find that the radius in the slip road is smaller than you wanted.', '', '', '', '', 'cancel', 'continue  anyway', 0) = 5 then
+      EXIT;
+  end;
 
 
-          // ready to go ...
+  // ready to go ...
 
-  slip_rad1_str:='';   // init...
-  slip_rad2_str:='';
+  slip_rad1_str := '';   // init...
+  slip_rad2_str := '';
 
-  if making_crossover=True
-       then xover_str:='crossover '
-       else xover_str:='';
+  if making_crossover = True then
+    xover_str := 'crossover '
+  else
+    xover_str := '';
 
-  org_was_spiral:=spiral;
+  org_was_spiral := spiral;
 
-  doing_2nd_side:=False;
+  doing_2nd_side := False;
 
-  id_str:='[slip '+FormatDateTime('hhmmss',Time)+']';
+  id_str := '[slip ' + FormatDateTime('hhmmss', Time) + ']';
 
   saved_current.keep_shove_list := Tshoved_timber_list.Create;
   ti.keep_shove_list := Tshoved_timber_list.Create;
 
   try
     fill_kd(saved_current);                              // save control template
-    saved_name_str:=current_name_str;
-    saved_memo_str:=current_memo_str;
+    saved_name_str := current_name_str;
+    saved_memo_str := current_memo_str;
 
-    pad_form.reset_peg_menu_entry.Enabled:=True;
+    pad_form.reset_peg_menu_entry.Enabled := True;
     pad_form.reset_peg_menu_entry.Click;           //peg on CTRL-0
-    gocalc(0,0);
+    gocalc(0, 0);
 
-    if turnoutx=0 then extend_template_from_zero;
+    if turnoutx = 0 then
+      extend_template_from_zero;
 
-    if making_crossover=True       // make it first ...
-       then begin
-              if make_crossover(True,False,True)=False
-                 then begin
-                        restore_current;
-                        EXIT;
-                      end;
-            end;
+    if making_crossover = True       // make it first ...
+    then begin
+      if make_crossover(True, False, True) = False then begin
+        restore_current;
+        EXIT;
+      end;
+    end;
 
     retain_on_make;    // do blanking, shoves, diffs, crossing entry straight, cancel platforms  213a
 
     convert_to_regular_half_diamond;
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-    if spiral=True
-       then begin
-              if (os>fpx) or ( (os+tst)<(toex-(fpx-toex)) )    // allow for other half_diamond to be created
-                 then begin
-                        spiral_safe:=True;              // slip section not in transition zone
-                        spiral_ok:=True;
-                      end
-                 else begin
-                        spiral_safe:=False;                              // slip in transition zone
-                        spiral_ok:=(trans_k/SQR(scale))>24000;           // transition constant gentle enough (24000 arbitrary)
-                      end;
-            end
-       else begin
-              spiral_safe:=True;      // keep compiler happy
-              spiral_ok:=True;
-            end;
+    if spiral = True then begin
+      if (os > fpx) or ((os + tst) < (toex - (fpx - toex)))
+      // allow for other half_diamond to be created
+      then begin
+        spiral_safe := True;              // slip section not in transition zone
+        spiral_ok := True;
+      end
+      else begin
+        spiral_safe := False;                              // slip in transition zone
+        spiral_ok := (trans_k / SQR(scale)) > 24000;
+        // transition constant gentle enough (24000 arbitrary)
+      end;
+    end
+    else begin
+      spiral_safe := True;      // keep compiler happy
+      spiral_ok := True;
+    end;
 
-    if (spiral=True) and (spiral_safe=False) and (spiral_ok=False)
-       then begin
-              if alert(2,'    make  slip  -  sharp  transition  curve',
-                        '||This slip will contain a sharp transition zone.'
-                       +'||The slip road(s) created by this function may not align perfectly with the slip switches. You can correct this if necessary by creating the slip road(s) manually using the `0make transition`3 functions.'
-                       +'||You could avoid this difficulty by making the transition zone more gentle, or by moving the slip away from it.'
-                       +'||For more information please ask on the <A HREF="go_to_templot_club.85a"><U>Templot&nbsp;Club</U></A> user forum.',
-                        '','','','','cancel','continue  -  make  slip',0)=5
-                 then begin
-                        restore_current;
-                        EXIT;
-                      end;
+    if (spiral = True) and (spiral_safe = False) and (spiral_ok = False) then begin
+      if alert(2, '    make  slip  -  sharp  transition  curve',
+        '||This slip will contain a sharp transition zone.'
+        + '||The slip road(s) created by this function may not align perfectly with the slip switches. You can correct this if necessary by creating the slip road(s) manually using the `0make transition`3 functions.' + '||You could avoid this difficulty by making the transition zone more gentle, or by moving the slip away from it.' + '||For more information please ask on the <A HREF="go_to_templot_club.85a"><U>Templot&nbsp;Club</U></A> user forum.', '', '', '', '', 'cancel', 'continue  -  make  slip', 0) = 5 then begin
+        restore_current;
+        EXIT;
+      end;
 
-            end;
+    end;
 
-       // shorten check rails if below 1:8 ...
+    // shorten check rails if below 1:8 ...
 
-    if k3n<8.0
-       then begin
+    if k3n < 8.0 then begin
 
-              case sides of
-                 -1: hd_vcheck_rails:=2;       // opposite hand, main side.
-                  0: hd_vcheck_rails:=3;       // double slip
-                  1: hd_vcheck_rails:=1;       // same hand, diagonal side.
-                else hd_vcheck_rails:=0;       // ?? normal
-              end;//case
-            end
-       else hd_vcheck_rails:=0;  // normal length
+      case sides of
+        -1:
+          hd_vcheck_rails := 2;       // opposite hand, main side.
+        0:
+          hd_vcheck_rails := 3;       // double slip
+        1:
+          hd_vcheck_rails := 1;       // same hand, diagonal side.
+        else
+          hd_vcheck_rails := 0;       // ?? normal
+      end;//case
+    end
+    else
+      hd_vcheck_rails := 0;  // normal length
 
-    if (sides=0) and (k3n>6.51)      // double-slip  overrides ...
-       then begin
-              case mod_double_slip of
-                1: if g<(56*inscale) then hd_vcheck_rails:=0;   // not P4 etc.     switch moved so shortened check rails not needed
-                2: hd_vcheck_rails:=0;                          // for all gauges
-              end;//case
-            end;
+    if (sides = 0) and (k3n > 6.51)      // double-slip  overrides ...
+    then begin
+      case mod_double_slip of
+        1:
+          if g < (56 * inscale) then
+            hd_vcheck_rails := 0;   // not P4 etc.     switch moved so shortened check rails not needed
+        2:
+          hd_vcheck_rails := 0;                          // for all gauges
+      end;//case
+    end;
 
-        // extend timbering ( for all crossing angles) ...
+    // extend timbering ( for all crossing angles) ...
 
     case sides of
-       -1: hd_timbers:=2;       // opposite hand, main side.
-        0: hd_timbers:=3;       // double slip
-        1: hd_timbers:=1;       // same hand, diagonal side.
-      else hd_timbers:=0;       // ?? normal
+      -1:
+        hd_timbers := 2;       // opposite hand, main side.
+      0:
+        hd_timbers := 3;       // double slip
+      1:
+        hd_timbers := 1;       // same hand, diagonal side.
+      else
+        hd_timbers := 0;       // ?? normal
     end;//case
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-    first_bgnd_template:=keeps_list.Count;  // will be added next
+    first_bgnd_template := keeps_list.Count;  // will be added next
 
-             // select which slip switch will be used, and get approx distance to middle of planing (for spiral radius) ...
+    // select which slip switch will be used, and get approx distance to middle of planing (for spiral radius) ...
 
-    if k3n<7
-       then begin
-              sw_index:=slip_switch_6;
-              with Tswitch(switch_select_form.switch_selector_listbox.Items.Objects[sw_index]).list_switch_info do switch_mid_inches:=switch_front_inches+heel_lead_inches/2;
-            end
-       else if k3n<8
-               then begin
-                      sw_index:=slip_switch_7;
-                      with Tswitch(switch_select_form.switch_selector_listbox.Items.Objects[sw_index]).list_switch_info do switch_mid_inches:=switch_front_inches+heel_lead_inches/2;
-                    end
-               else if k3n<10
-                       then begin
-                              sw_index:=slip_switch_8;
-                              with Tswitch(switch_select_form.switch_selector_listbox.Items.Objects[sw_index]).list_switch_info do switch_mid_inches:=switch_front_inches+heel_lead_inches/2;
-                            end
-                       else begin
-                              sw_index:=slip_switch_10;
-                              with Tswitch(switch_select_form.switch_selector_listbox.Items.Objects[sw_index]).list_switch_info do switch_mid_inches:=switch_front_inches+heel_lead_inches/2;
-                            end;
+    if k3n < 7 then begin
+      sw_index := slip_switch_6;
+      with Tswitch(switch_select_form.switch_selector_listbox.Items.Objects[sw_index]).list_switch_info do
+        switch_mid_inches := switch_front_inches + heel_lead_inches / 2;
+    end
+    else
+    if k3n < 8 then begin
+      sw_index := slip_switch_7;
+      with Tswitch(
+          switch_select_form.switch_selector_listbox.Items.Objects[sw_index]).list_switch_info do
+        switch_mid_inches := switch_front_inches + heel_lead_inches / 2;
+    end
+    else
+    if k3n < 10 then begin
+      sw_index := slip_switch_8;
+      with Tswitch(
+          switch_select_form.switch_selector_listbox.Items.Objects[sw_index]).list_switch_info do
+        switch_mid_inches := switch_front_inches + heel_lead_inches / 2;
+    end
+    else begin
+      sw_index := slip_switch_10;
+      with Tswitch(
+          switch_select_form.switch_selector_listbox.Items.Objects[sw_index]).list_switch_info do
+        switch_mid_inches := switch_front_inches + heel_lead_inches / 2;
+    end;
 
-    if k3n>10.125 then switch_mid_inches:=switch_mid_inches+28;     // adding some extra approach track   1 timber space
-    if k3n>15.125 then switch_mid_inches:=switch_mid_inches+28;     // adding more extra approach track   2 timber space
+    if k3n > 10.125 then
+      switch_mid_inches := switch_mid_inches + 28;     // adding some extra approach track   1 timber space
+    if k3n > 15.125 then
+      switch_mid_inches := switch_mid_inches + 28;     // adding more extra approach track   2 timber space
 
-    if (sides=0) and (k3n>6.51)                                     // double-slip - move switch forward
-       then begin
-              case mod_double_slip of
-                1: if g<(56*inscale) then switch_mid_inches:=switch_mid_inches+28;   // not P4 etc.    greater tip clearance.  28" typical fill spacing
-                2: switch_mid_inches:=switch_mid_inches+28;                          // for all gauges
-              end;//case
-            end;
+    if (sides = 0) and (k3n > 6.51)
+    // double-slip - move switch forward
+    then begin
+      case mod_double_slip of
+        1:
+          if g < (56 * inscale) then
+            switch_mid_inches := switch_mid_inches + 28;
+        // not P4 etc.    greater tip clearance.  28" typical fill spacing
+        2:
+          switch_mid_inches := switch_mid_inches + 28;                          // for all gauges
+      end;//case
+    end;
 
-    switch_mid_mm:=switch_mid_inches*inscale;
+    switch_mid_mm := switch_mid_inches * inscale;
 
-    sw_info:=Tswitch(switch_select_form.switch_selector_listbox.Items.Objects[sw_index]).list_switch_info;   // get the slip switch
+    sw_info := Tswitch(switch_select_form.switch_selector_listbox.Items.Objects[sw_index]).list_switch_info;   // get the slip switch
 
 
-      // come back here for double_slip (doing_2nd_side=True) ...
+    // come back here for double_slip (doing_2nd_side=True) ...
 
     111:
 
-    omit_wj_marks:=True;  // and omit the wing rail joint marks      // restored in retain_on_make
+      omit_wj_marks := True;  // and omit the wing rail joint marks      // restored in retain_on_make
 
-    if spiral=True
-       then switch_mid_rad1:=clrad_at_x(mcpx-switch_mid_mm)  // back from MCP-1 to middle of switch location
-       else switch_mid_rad1:=nomrad;
+    if spiral = True then
+      switch_mid_rad1 := clrad_at_x(mcpx - switch_mid_mm)  // back from MCP-1 to middle of switch location
+    else
+      switch_mid_rad1 := nomrad;
 
-    if make_diamond_crossing=False      // make the underlying diamond
-       then begin
-              ShowMessage('error - Unable to store background templates. Try closing '+Application.Title+' and restarting.');
-              restore_current;
-              EXIT;
-            end;
+    if make_diamond_crossing = False      // make the underlying diamond
+    then begin
+      ShowMessage('error - Unable to store background templates. Try closing ' +
+        Application.Title + ' and restarting.');
+      restore_current;
+      EXIT;
+    end;
 
-    omit_wj_marks:=True;  // and omit the wing rail joint marks      // restored in retain_on_make
+    omit_wj_marks := True;  // and omit the wing rail joint marks      // restored in retain_on_make
 
-    if spiral=True
-       then switch_mid_rad2:=clrad_at_x(mcpx-switch_mid_mm)  // back from MCP-2 to middle of switch location
-       else switch_mid_rad2:=nomrad;
+    if spiral = True then
+      switch_mid_rad2 := clrad_at_x(mcpx - switch_mid_mm)  // back from MCP-2 to middle of switch location
+    else
+      switch_mid_rad2 := nomrad;
 
-    first_hd_index:=keeps_list.Count-1;
+    first_hd_index := keeps_list.Count - 1;
 
-    if first_hd_index<0     // ????  failed store
-       then begin
-              ShowMessage('error - Unable to store background templates. Try closing '+Application.Title+' and restarting.');
-              restore_current;
-              EXIT;
-            end;
+    if first_hd_index < 0     // ????  failed store
+    then begin
+      ShowMessage('error - Unable to store background templates. Try closing ' +
+        Application.Title + ' and restarting.');
+      restore_current;
+      EXIT;
+    end;
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-    if sides<1      // opposite hand or double-slip wanted, so do opposite side first      //sides=-1
-       then begin
-              if making_crossover=True then turnout_road_i:=-1;  // for the crossover
+    if sides < 1      // opposite hand or double-slip wanted, so do opposite side first      //sides=-1
+    then begin
+      if making_crossover = True then
+        turnout_road_i := -1;  // for the crossover
 
-              omit_wj_marks:=True;  // and omit the wing rail joint marks      // restored in retain_on_make
-
-
-              clicked_keep_index:=first_hd_index;
-
-              pad_form.make_control_popup_entry.Enabled:=True;
-              pad_form.make_control_popup_entry.Click;         // opposite hand wanted -- so swap back to the first half-diamond
-
-              omit_wj_marks:=True;  // and omit the wing rail joint marks      // restored in retain_on_make
-
-              if making_crossover=True then turnout_road_i:=0;  // normal
+      omit_wj_marks := True;
+      // and omit the wing rail joint marks      // restored in retain_on_make
 
 
-              temp:=switch_mid_rad2;                // swap the switch radii
-              switch_mid_rad2:=switch_mid_rad1;
-              switch_mid_rad1:=temp;
-            end;
+      clicked_keep_index := first_hd_index;
 
-    gocalc(0,0);
+      pad_form.make_control_popup_entry.Enabled := True;
+      pad_form.make_control_popup_entry.Click;
+      // opposite hand wanted -- so swap back to the first half-diamond
 
-    store_and_background(False,False);    // now both half_diamonds stored
+      omit_wj_marks := True;
+      // and omit the wing rail joint marks      // restored in retain_on_make
 
-    if keep_added=False                   // failed store
-       then begin
-              restore_current;
-              EXIT;
-            end;
+      if making_crossover = True then
+        turnout_road_i := 0;  // normal
 
-    second_hd_index:=keeps_list.Count-1;
 
-    pad_form.no_track_centre_lines_menu_radio.Enabled:=True;
-    pad_form.no_track_centre_lines_menu_radio.Click;              // remove centre lines from now on for neater result
+      temp := switch_mid_rad2;                // swap the switch radii
+      switch_mid_rad2 := switch_mid_rad1;
+      switch_mid_rad1 := temp;
+    end;
+
+    gocalc(0, 0);
+
+    store_and_background(False, False);    // now both half_diamonds stored
+
+    if keep_added = False                   // failed store
+    then begin
+      restore_current;
+      EXIT;
+    end;
+
+    second_hd_index := keeps_list.Count - 1;
+
+    pad_form.no_track_centre_lines_menu_radio.Enabled := True;
+    pad_form.no_track_centre_lines_menu_radio.Click;
+    // remove centre lines from now on for neater result
 
     convert_to_turnout;
 
-    pad_form.reset_peg_menu_entry.Enabled:=True;
+    pad_form.reset_peg_menu_entry.Enabled := True;
     pad_form.reset_peg_menu_entry.Click;             //ensure peg on CTRL-0
-    gocalc(0,0);
+    gocalc(0, 0);
 
-       // no transitions from now on ...
+    // no transitions from now on ...
 
-    spiral:=False;
-    nomrad:=switch_mid_rad2;
+    spiral := False;
+    nomrad := switch_mid_rad2;
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-    if k3n>10.125 then xorg:=xorg+28*inscale;     // add some extra approach track   1 timber space
-    if k3n>15.125 then xorg:=xorg+28*inscale;     // add more extra approach track   2 timber space
+    if k3n > 10.125 then
+      xorg := xorg + 28 * inscale;     // add some extra approach track   1 timber space
+    if k3n > 15.125 then
+      xorg := xorg + 28 * inscale;     // add more extra approach track   2 timber space
 
-    if (sides=0) and (k3n>6.51)        // double-slip - move switch forward
-       then begin
-              case mod_double_slip of
-                1: if g<(56*inscale) then xorg:=xorg+28*inscale;   // not P4 etc.    greater tip clearance.  28" typical fill spacing
-                2: xorg:=xorg+28*inscale;                          // for all gauges
-              end;//case
-            end;
+    if (sides = 0) and (k3n > 6.51)        // double-slip - move switch forward
+    then begin
+      case mod_double_slip of
+        1:
+          if g < (56 * inscale) then
+            xorg := xorg + 28 * inscale;   // not P4 etc.    greater tip clearance.  28" typical fill spacing
+        2:
+          xorg := xorg + 28 * inscale;                          // for all gauges
+      end;//case
+    end;
 
     normalize_transforms;
-    kform_now:=kform;
-    docurving(True,True,pegx,pegy,now_peg_x,now_peg_y,now_peg_k,dummy2);    // save current peg data for peg_curve calcs.
+    kform_now := kform;
+    docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy2);
+    // save current peg data for peg_curve calcs.
 
-    if set_csi_from_switch_info(sw_info)=False   // slip switch into the control template
-       then begin
-              restore_current;        //  switch data invalid ????
-              EXIT;
-            end;
+    if set_csi_from_switch_info(sw_info) = False   // slip switch into the control template
+    then begin
+      restore_current;        //  switch data invalid ????
+      EXIT;
+    end;
 
-    csi.joggled_stock_rail:=False;    //  slip switches are REA-based
+    csi.joggled_stock_rail := False;    //  slip switches are REA-based
 
-    gocalc(0,0);          // calc new pegx.
+    gocalc(0, 0);          // calc new pegx.
     peg_curve;            // adjust shifts and rotates for current peg position.
 
     invert_curving;
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-    clicked_keep_index:=second_hd_index;       // onto the last-stored half_diamond at MCP
+    clicked_keep_index := second_hd_index;       // onto the last-stored half_diamond at MCP
 
-    pad_form.snap_to_mcp_popup_entry.Enabled:=True;
+    pad_form.snap_to_mcp_popup_entry.Enabled := True;
     pad_form.snap_to_mcp_popup_entry.Click;
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-    pad_form.blank_to_toe_menu_entry.Enabled:=True;
+    pad_form.blank_to_toe_menu_entry.Enabled := True;
     pad_form.blank_to_toe_menu_entry.Click;
 
-    main_road_stock_rail_flag:=False;            // don't need these
-    main_road_crossing_rail_flag:=False;
+    main_road_stock_rail_flag := False;            // don't need these
+    main_road_crossing_rail_flag := False;
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-    if org_was_spiral=True
-       then begin
+    if org_was_spiral = True then begin
 
-                   // adjust by rotation for any spiral discrepancy ...
+      // adjust by rotation for any spiral discrepancy ...
 
-              switch_length:=heelx;     // main stock rail gauge-face
+      switch_length := heelx;     // main stock rail gauge-face
 
-                  // swap to the half_diamond..
+      // swap to the half_diamond..
 
-              clicked_keep_index:=second_hd_index;
+      clicked_keep_index := second_hd_index;
 
-              pad_form.make_control_popup_entry.Enabled:=True;
-              pad_form.make_control_popup_entry.Click;
+      pad_form.make_control_popup_entry.Enabled := True;
+      pad_form.make_control_popup_entry.Click;
 
-              omit_wj_marks:=True;  // and omit the wing rail joint marks      // restored in retain_on_make
+      omit_wj_marks := True;
+      // and omit the wing rail joint marks      // restored in retain_on_make
 
-              gocalc(0,0);
+      gocalc(0, 0);
 
-              first_sw_index:=keeps_list.Count-1;
+      first_sw_index := keeps_list.Count - 1;
 
-                   // get 2 points on main crossing rail ..
+      // get 2 points on main crossing rail ..
 
-              normalize_transforms;
-              docurving(True,True,fpx,g,fp_pegx_on_pad,fp_pegy_on_pad,dummy1,dummy2);       // at FP
+      normalize_transforms;
+      docurving(True, True, fpx, g, fp_pegx_on_pad, fp_pegy_on_pad, dummy1, dummy2);
+      // at FP
 
-              x1:=fp_pegx_on_pad;
-              y1:=fp_pegy_on_pad*hand_i+y_datum;
+      x1 := fp_pegx_on_pad;
+      y1 := fp_pegy_on_pad * hand_i + y_datum;
 
-              normalize_transforms;
-              docurving(True,True,fpx-switch_length,g,nom_heel_pegx_on_pad,nom_heel_pegy_on_pad,dummy1,dummy2);   // at approx switch heel
+      normalize_transforms;
+      docurving(True, True, fpx - switch_length, g, nom_heel_pegx_on_pad,
+        nom_heel_pegy_on_pad, dummy1, dummy2);   // at approx switch heel
 
-              x2:=nom_heel_pegx_on_pad;
-              y2:=nom_heel_pegy_on_pad*hand_i+y_datum;
+      x2 := nom_heel_pegx_on_pad;
+      y2 := nom_heel_pegy_on_pad * hand_i + y_datum;
 
-              temp:=SQR(x2-x1)+SQR(y2-y1);
+      temp := SQR(x2 - x1) + SQR(y2 - y1);
 
-              if temp>minfp
-                 then nom_sw_len:=ABS(SQRT(temp))       // actual distance between them
-                 else begin
-                        restore_current;        //  ????
-                        EXIT;
-                      end;
+      if temp > minfp then
+        nom_sw_len := ABS(SQRT(temp))       // actual distance between them
+      else begin
+        restore_current;        //  ????
+        EXIT;
+      end;
 
-                      // swap back to the switch  (y_datum changes) ...
+      // swap back to the switch  (y_datum changes) ...
 
-              clicked_keep_index:=first_sw_index;
+      clicked_keep_index := first_sw_index;
 
-              pad_form.make_control_popup_entry.Enabled:=True;
-              pad_form.make_control_popup_entry.Click;
+      pad_form.make_control_popup_entry.Enabled := True;
+      pad_form.make_control_popup_entry.Click;
 
-              omit_wj_marks:=True;  // and omit the wing rail joint marks      // restored in retain_on_make
+      omit_wj_marks := True;
+      // and omit the wing rail joint marks      // restored in retain_on_make
 
-              gocalc(0,0);
+      gocalc(0, 0);
 
-              second_hd_index:=keeps_list.Count-1;   // stored again, update index
+      second_hd_index := keeps_list.Count - 1;   // stored again, update index
 
-              normalize_transforms;
-              docurving(True,True,nom_sw_len*(nomrad-g/2)/nomrad,0,sw_heel_pegx_on_pad,sw_heel_pegy_on_pad,dummy1,dummy2);
+      normalize_transforms;
+      docurving(True, True, nom_sw_len * (nomrad - g / 2) / nomrad, 0,
+        sw_heel_pegx_on_pad, sw_heel_pegy_on_pad, dummy1, dummy2);
 
-              x3:=sw_heel_pegx_on_pad;
-              y3:=sw_heel_pegy_on_pad*hand_i+y_datum;
+      x3 := sw_heel_pegx_on_pad;
+      y3 := sw_heel_pegy_on_pad * hand_i + y_datum;
 
-              temp1:=SQR(x3-x2)+SQR(y3-y2);
+      temp1 := SQR(x3 - x2) + SQR(y3 - y2);
 
-              if temp1>minfp
-                 then begin
-                        rot_move:=ABS(SQRT(temp1));  // distance to move by rotation
+      if temp1 > minfp then begin
+        rot_move := ABS(SQRT(temp1));  // distance to move by rotation
 
-                        rot_k:=0-rot_move*hand_i/(nom_sw_len*nomrad/(nomrad-g/2));
+        rot_k := 0 - rot_move * hand_i / (nom_sw_len * nomrad / (nomrad - g / 2));
 
-                        rotate_turnout(rot_k,False);
+        rotate_turnout(rot_k, False);
 
-                        gocalc(0,0);
+        gocalc(0, 0);
 
-                             // check rotated in correct direction ...
+        // check rotated in correct direction ...
 
-                        normalize_transforms;
-                        docurving(True,True,nom_sw_len*(nomrad-g/2)/nomrad,0,sw_heel_pegx_on_pad,sw_heel_pegy_on_pad,dummy1,dummy2);
+        normalize_transforms;
+        docurving(True, True, nom_sw_len * (nomrad - g / 2) / nomrad,
+          0, sw_heel_pegx_on_pad, sw_heel_pegy_on_pad, dummy1, dummy2);
 
-                        x3:=sw_heel_pegx_on_pad;
-                        y3:=sw_heel_pegy_on_pad*hand_i+y_datum;
+        x3 := sw_heel_pegx_on_pad;
+        y3 := sw_heel_pegy_on_pad * hand_i + y_datum;
 
-                        temp2:=SQR(x3-x2)+SQR(y3-y2);
+        temp2 := SQR(x3 - x2) + SQR(y3 - y2);
 
-                        if temp2>minfp
-                           then begin
-                                  if ABS(SQRT(temp2))>rot_move    // went wrong way!
-                                     then begin
-                                            rotate_turnout(0-2*rot_k,False);   // reverse out
-                                            gocalc(0,0);
-                                          end;
-                                end
-                      end;
+        if temp2 > minfp then begin
+          if ABS(SQRT(temp2)) > rot_move    // went wrong way!
+          then begin
+            rotate_turnout(0 - 2 * rot_k, False);   // reverse out
+            gocalc(0, 0);
+          end;
+        end;
+      end;
 
-              gocalc(0,0);
+      gocalc(0, 0);
 
-            end;// was spiral
+    end;// was spiral
 
-    pad_form.make_slip_road_menu_item.Enabled:=True;
+    pad_form.make_slip_road_menu_item.Enabled := True;
     pad_form.make_slip_road_menu_item.Click;
 
-    omit_wj_marks:=True;  // and omit the wing rail joint marks      // restored in retain_on_make
+    omit_wj_marks := True;  // and omit the wing rail joint marks      // restored in retain_on_make
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-    first_sw_index:=keeps_list.Count-1;
+    first_sw_index := keeps_list.Count - 1;
 
-    slip_road_pos1:=Ttemplate(keeps_list.Objects[first_sw_index]).snap_peg_positions.ctrl_planing_pos;    // location of end of planing on pad
+    slip_road_pos1 := Ttemplate(keeps_list.Objects[first_sw_index]).snap_peg_positions.ctrl_planing_pos;
+    // location of end of planing on pad
 
-    copy_template_info_from_to(False,Ttemplate(keeps_list.Objects[first_sw_index]).template_info,ti);      // get the switch back
-    copy_keep(ti);                                                                                         // and make it the control (discard the slip road)
+    copy_template_info_from_to(False, Ttemplate(keeps_list.Objects[first_sw_index]).template_info, ti);
+    // get the switch back
+    copy_keep(ti);
+    // and make it the control (discard the slip road)
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-    pad_form.reset_peg_menu_entry.Enabled:=True;
+    pad_form.reset_peg_menu_entry.Enabled := True;
     pad_form.reset_peg_menu_entry.Click;           //peg on CTRL-0
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
     swap_end_for_end;     // swap facing-trailing
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-    nomrad:=switch_mid_rad1;
+    nomrad := switch_mid_rad1;
 
-    clicked_keep_index:=first_hd_index;       // onto the first-stored half_diamond at TCP
+    clicked_keep_index := first_hd_index;       // onto the first-stored half_diamond at TCP
 
-    pad_form.snap_to_tcp_popup_entry.Enabled:=True;
+    pad_form.snap_to_tcp_popup_entry.Enabled := True;
     pad_form.snap_to_tcp_popup_entry.Click;
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-         // adjust by rotation for any curve-wrapping or spiral discrepancy ...
+    // adjust by rotation for any curve-wrapping or spiral discrepancy ...
 
-    switch_length:=heelx;     // main stock rail gauge-face
+    switch_length := heelx;     // main stock rail gauge-face
 
-        // swap to the half_diamond..
+    // swap to the half_diamond..
 
-    clicked_keep_index:=first_hd_index;
+    clicked_keep_index := first_hd_index;
 
-    pad_form.make_control_popup_entry.Enabled:=True;
+    pad_form.make_control_popup_entry.Enabled := True;
     pad_form.make_control_popup_entry.Click;
 
-    omit_wj_marks:=True;  // and omit the wing rail joint marks      // restored in retain_on_make
+    omit_wj_marks := True;  // and omit the wing rail joint marks      // restored in retain_on_make
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-    second_sw_index:=keeps_list.Count-1;
+    second_sw_index := keeps_list.Count - 1;
 
-         // get 2 points on diagonal crossing rail ..
-
-    normalize_transforms;
-    docurving(True,True,fpx,g,fp_pegx_on_pad,fp_pegy_on_pad,dummy1,dummy2);       // at FP
-
-    x1:=fp_pegx_on_pad;
-    y1:=fp_pegy_on_pad*hand_i+y_datum;
+    // get 2 points on diagonal crossing rail ..
 
     normalize_transforms;
-    docurving(True,True,fpx-switch_length*COS(k3),g-switch_length*SIN(k3),nom_heel_pegx_on_pad,nom_heel_pegy_on_pad,dummy1,dummy2);   // at approx switch heel
+    docurving(True, True, fpx, g, fp_pegx_on_pad, fp_pegy_on_pad, dummy1, dummy2);       // at FP
 
-    x2:=nom_heel_pegx_on_pad;
-    y2:=nom_heel_pegy_on_pad*hand_i+y_datum;
+    x1 := fp_pegx_on_pad;
+    y1 := fp_pegy_on_pad * hand_i + y_datum;
 
-    temp:=SQR(x2-x1)+SQR(y2-y1);
+    normalize_transforms;
+    docurving(True, True, fpx - switch_length * COS(k3), g - switch_length * SIN(k3),
+      nom_heel_pegx_on_pad, nom_heel_pegy_on_pad, dummy1, dummy2);   // at approx switch heel
 
-    if temp>minfp
-       then nom_sw_len:=ABS(SQRT(temp))       // actual distance between them
-       else begin
-              restore_current;        //  ????
-              EXIT;
-            end;
+    x2 := nom_heel_pegx_on_pad;
+    y2 := nom_heel_pegy_on_pad * hand_i + y_datum;
 
-            // swap back to the switch  (y_datum changes) ...
+    temp := SQR(x2 - x1) + SQR(y2 - y1);
 
-    clicked_keep_index:=second_sw_index;
+    if temp > minfp then
+      nom_sw_len := ABS(SQRT(temp))       // actual distance between them
+    else begin
+      restore_current;        //  ????
+      EXIT;
+    end;
 
-    pad_form.make_control_popup_entry.Enabled:=True;
+    // swap back to the switch  (y_datum changes) ...
+
+    clicked_keep_index := second_sw_index;
+
+    pad_form.make_control_popup_entry.Enabled := True;
     pad_form.make_control_popup_entry.Click;
 
-    omit_wj_marks:=True;  // and omit the wing rail joint marks      // restored in retain_on_make
+    omit_wj_marks := True;  // and omit the wing rail joint marks      // restored in retain_on_make
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-    first_hd_index:=keeps_list.Count-1;   // stored again, update index
+    first_hd_index := keeps_list.Count - 1;   // stored again, update index
 
     normalize_transforms;
-    docurving(True,True,nom_sw_len*(nomrad-g/2)/nomrad,0,sw_heel_pegx_on_pad,sw_heel_pegy_on_pad,dummy1,dummy2);
+    docurving(True, True, nom_sw_len * (nomrad - g / 2) / nomrad, 0, sw_heel_pegx_on_pad,
+      sw_heel_pegy_on_pad, dummy1, dummy2);
 
-    x3:=sw_heel_pegx_on_pad;
-    y3:=sw_heel_pegy_on_pad*hand_i+y_datum;
+    x3 := sw_heel_pegx_on_pad;
+    y3 := sw_heel_pegy_on_pad * hand_i + y_datum;
 
-    temp1:=SQR(x3-x2)+SQR(y3-y2);
+    temp1 := SQR(x3 - x2) + SQR(y3 - y2);
 
-    if temp1>minfp
-       then begin
-              rot_move:=ABS(SQRT(temp1));  // distance to move by rotation
+    if temp1 > minfp then begin
+      rot_move := ABS(SQRT(temp1));  // distance to move by rotation
 
-              rot_k:=0-rot_move*hand_i/(nom_sw_len*nomrad/(nomrad-g/2));
+      rot_k := 0 - rot_move * hand_i / (nom_sw_len * nomrad / (nomrad - g / 2));
 
-              rotate_turnout(rot_k,False);
+      rotate_turnout(rot_k, False);
 
-              gocalc(0,0);
+      gocalc(0, 0);
 
-                   // check rotated in correct direction ...
+      // check rotated in correct direction ...
 
-              normalize_transforms;
-              docurving(True,True,nom_sw_len*(nomrad-g/2)/nomrad,0,sw_heel_pegx_on_pad,sw_heel_pegy_on_pad,dummy1,dummy2);
+      normalize_transforms;
+      docurving(True, True, nom_sw_len * (nomrad - g / 2) / nomrad, 0,
+        sw_heel_pegx_on_pad, sw_heel_pegy_on_pad, dummy1, dummy2);
 
-              x3:=sw_heel_pegx_on_pad;
-              y3:=sw_heel_pegy_on_pad*hand_i+y_datum;
+      x3 := sw_heel_pegx_on_pad;
+      y3 := sw_heel_pegy_on_pad * hand_i + y_datum;
 
-              temp2:=SQR(x3-x2)+SQR(y3-y2);
+      temp2 := SQR(x3 - x2) + SQR(y3 - y2);
 
-              if temp2>minfp
-                 then begin
-                        if ABS(SQRT(temp2))>rot_move    // went wrong way!
-                           then begin
-                                  rotate_turnout(0-2*rot_k,False);   // reverse out
-                                  gocalc(0,0);
-                                end;
-                      end
+      if temp2 > minfp then begin
+        if ABS(SQRT(temp2)) > rot_move    // went wrong way!
+        then begin
+          rotate_turnout(0 - 2 * rot_k, False);   // reverse out
+          gocalc(0, 0);
+        end;
+      end;
 
-            end;
+    end;
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-         // now make slip road, initially straight ...
+    // now make slip road, initially straight ...
 
-    pad_form.make_slip_road_menu_item.Enabled:=True;
+    pad_form.make_slip_road_menu_item.Enabled := True;
     pad_form.make_slip_road_menu_item.Click;
 
-    omit_wj_marks:=True;  // and omit the wing rail joint marks      // restored in retain_on_make
+    omit_wj_marks := True;  // and omit the wing rail joint marks      // restored in retain_on_make
 
-    second_sw_index:=keeps_list.Count-1;
+    second_sw_index := keeps_list.Count - 1;
 
-    slip_road_pos2:=Ttemplate(keeps_list.Objects[second_sw_index]).snap_peg_positions.ctrl_planing_pos;    // location of end of planing on pad
+    slip_road_pos2 := Ttemplate(keeps_list.Objects[second_sw_index]).snap_peg_positions.ctrl_planing_pos;    // location of end of planing on pad
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-       // calculate slip road to fit ...
+    // calculate slip road to fit ...
 
-    x1:=slip_road_pos1.notch_x;
-    y1:=slip_road_pos1.notch_y;
+    x1 := slip_road_pos1.notch_x;
+    y1 := slip_road_pos1.notch_y;
 
-    x2:=slip_road_pos2.notch_x;
-    y2:=slip_road_pos2.notch_y;
+    x2 := slip_road_pos2.notch_x;
+    y2 := slip_road_pos2.notch_y;
 
-    temp:=SQR(x2-x1)+SQR(y2-y1);
+    temp := SQR(x2 - x1) + SQR(y2 - y1);
 
-    if ABS(temp)>minfp
-       then slip_chord:=SQRT(temp)
-       else EXIT;                      // ????
+    if ABS(temp) > minfp then
+      slip_chord := SQRT(temp)
+    else
+      EXIT;                      // ????
 
-    pad_form.reset_peg_menu_entry.Enabled:=True;
+    pad_form.reset_peg_menu_entry.Enabled := True;
     pad_form.reset_peg_menu_entry.Click;           //peg now on CTRL-0
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
     swap_end_for_end;     // peg back on switch, now CTRL-0
 
-    xorg:=slip_chord;     // length = chord-length
-    turnoutx:=xorg;
+    xorg := slip_chord;     // length = chord-length
+    turnoutx := xorg;
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-               // get location of opposite end  x3,y3
+    // get location of opposite end  x3,y3
 
     normalize_transforms;
-    docurving(True,True,turnoutx,g/2,x3,temp,dummy1,dummy2);   // get pad location data for end.
-    y3:=temp*hand_i+y_datum;
+    docurving(True, True, turnoutx, g / 2, x3, temp, dummy1, dummy2);   // get pad location data for end.
+    y3 := temp * hand_i + y_datum;
 
-    temp:=SQR(x3-x1)+SQR(y3-y1);
+    temp := SQR(x3 - x1) + SQR(y3 - y1);
 
-    if temp>minfp
-       then slip_offset:=ABS(SQRT(temp))       // curving correction need
-       else slip_offset:=0;                     // ???
+    if temp > minfp then
+      slip_offset := ABS(SQRT(temp))       // curving correction need
+    else
+      slip_offset := 0;                     // ???
 
-    slip_angle:=2*ARCSIN(slip_offset/2/turnoutx);   // between now and chord
+    slip_angle := 2 * ARCSIN(slip_offset / 2 / turnoutx);   // between now and chord
 
-    slip_turn:=ABS(2*slip_angle);   // angle turned along slip road
+    slip_turn := ABS(2 * slip_angle);   // angle turned along slip road
 
     normalize_angle(slip_turn);
 
     try
-      slip_rad:=ABS(turnoutx/2/SIN(slip_angle));
+      slip_rad := ABS(turnoutx / 2 / SIN(slip_angle));
     except
-      slip_rad:=max_rad;   // straight
+      slip_rad := max_rad;   // straight
     end;//try
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-    slip_arc_len:=ABS(slip_rad*slip_turn);
+    slip_arc_len := ABS(slip_rad * slip_turn);
 
-    xorg:=slip_arc_len;
-    turnoutx:=xorg;
+    xorg := slip_arc_len;
+    turnoutx := xorg;
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-            // try both +ve and -ve rads to see which fits ...
+    // try both +ve and -ve rads to see which fits ...
 
-    nomrad:=slip_rad;      // first +ve
+    nomrad := slip_rad;      // first +ve
 
-    gocalc(0,0);
+    gocalc(0, 0);
 
-            // get location of end  x3,y3
-
-    normalize_transforms;
-    docurving(True,True,turnoutx,g/2,x3,temp,dummy1,dummy2);   // get pad location data for end.
-    y3:=temp*hand_i+y_datum;
-
-    offset_pos_sq:=SQR(x3-x1)+SQR(y3-y1);
-
-
-    nomrad:=0-slip_rad;      // -ve
-
-    gocalc(0,0);
-
-            // get location of end  x3,y3
+    // get location of end  x3,y3
 
     normalize_transforms;
-    docurving(True,True,turnoutx,g/2,x3,temp,dummy1,dummy2);   // get pad location data for end.
-    y3:=temp*hand_i+y_datum;
+    docurving(True, True, turnoutx, g / 2, x3, temp, dummy1, dummy2);   // get pad location data for end.
+    y3 := temp * hand_i + y_datum;
 
-    offset_neg_sq:=SQR(x3-x1)+SQR(y3-y1);
+    offset_pos_sq := SQR(x3 - x1) + SQR(y3 - y1);
 
-    if offset_pos_sq<offset_neg_sq       // use smallest
-       then nomrad:=slip_rad;
 
-    gocalc(0,0);
+    nomrad := 0 - slip_rad;      // -ve
 
-    if doing_2nd_side=True                                                                                        // get rads for end report
-       then slip_rad2_str:='||        '+round_str(ABS(nomrad),0)+' mm   ( '+round_str(ABS(nomrad)/25.4,1)+'" )'
-       else slip_rad1_str:='||        '+round_str(ABS(nomrad),0)+' mm   ( '+round_str(ABS(nomrad)/25.4,1)+'" )';
+    gocalc(0, 0);
 
-    store_and_background(False,False);    // slip road stored
+    // get location of end  x3,y3
 
-    if (sides=0) and (doing_2nd_side=False)   // double-slip, now for the opposite side if not already done...
+    normalize_transforms;
+    docurving(True, True, turnoutx, g / 2, x3, temp, dummy1, dummy2);   // get pad location data for end.
+    y3 := temp * hand_i + y_datum;
 
-      // delete the half-diamonds and start again with the opposite one in the control template
+    offset_neg_sq := SQR(x3 - x1) + SQR(y3 - y1);
 
-       then begin
+    if offset_pos_sq < offset_neg_sq       // use smallest
+    then
+      nomrad := slip_rad;
 
-              list_position:=first_bgnd_template;
-              delete_keep(False,False);
+    gocalc(0, 0);
 
-              clicked_keep_index:=first_bgnd_template+1;
-              delete_to_current_popup_entry_click(True);
+    if doing_2nd_side = True
+    // get rads for end report
+    then
+      slip_rad2_str := '||        ' + round_str(ABS(nomrad), 0) + ' mm   ( ' + round_str(ABS(nomrad) / 25.4, 1) + '" )'
+    else
+      slip_rad1_str := '||        ' + round_str(ABS(nomrad), 0) + ' mm   ( ' + round_str(
+        ABS(nomrad) / 25.4, 1) + '" )';
 
-              doing_2nd_side:=True;
+    store_and_background(False, False);    // slip road stored
 
-              GoTo 111;
-            end;
+    if (sides = 0) and (doing_2nd_side = False)
+    // double-slip, now for the opposite side if not already done...
 
-           // now ensure both half-diamonds are above slip switches ...
+    // delete the half-diamonds and start again with the opposite one in the control template
 
-    max_index:=keeps_list.count-1;
+    then begin
 
-    if (first_bgnd_template<max_index) and (max_index>1)   // if not, why not ???
-       then begin
+      list_position := first_bgnd_template;
+      delete_keep(False, False);
 
-              if Ttemplate(keeps_list.Objects[max_index-2]).bgnd_half_diamond=True   // if not, why not ???
-                 then begin
-                        keeps_list.Exchange(first_bgnd_template+1,max_index-2);
-                        memo_list.Exchange(first_bgnd_template+1,max_index-2);
-                      end;
-            end;
+      clicked_keep_index := first_bgnd_template + 1;
+      delete_to_current_popup_entry_click(True);
 
-      // ok for single slip, now again for double ...
+      doing_2nd_side := True;
 
-    if ((max_index-first_bgnd_template)>4) and (max_index>3)   // must be double slip
-       then begin
-              if Ttemplate(keeps_list.Objects[max_index-4]).bgnd_half_diamond=True   // if not, why not ???
-                 then begin
-                        keeps_list.Exchange(first_bgnd_template,max_index-4);
-                        memo_list.Exchange(first_bgnd_template,max_index-4);
-                      end;
-            end;
+      goto 111;
+    end;
+
+    // now ensure both half-diamonds are above slip switches ...
+
+    max_index := keeps_list.Count - 1;
+
+    if (first_bgnd_template < max_index) and (max_index > 1)   // if not, why not ???
+    then begin
+
+      if Ttemplate(keeps_list.Objects[max_index - 2]).bgnd_half_diamond =
+        True   // if not, why not ???
+      then begin
+        keeps_list.Exchange(first_bgnd_template + 1, max_index - 2);
+        memo_list.Exchange(first_bgnd_template + 1, max_index - 2);
+      end;
+    end;
+
+    // ok for single slip, now again for double ...
+
+    if ((max_index - first_bgnd_template) > 4) and (max_index > 3)   // must be double slip
+    then begin
+      if Ttemplate(keeps_list.Objects[max_index - 4]).bgnd_half_diamond =
+        True   // if not, why not ???
+      then begin
+        keeps_list.Exchange(first_bgnd_template, max_index - 4);
+        memo_list.Exchange(first_bgnd_template, max_index - 4);
+      end;
+    end;
 
     do_template_names;
 
-    pad_form.reset_notch_menu_entry.Enabled:=True;     // tidy up the notch
+    pad_form.reset_notch_menu_entry.Enabled := True;     // tidy up the notch
     pad_form.reset_notch_menu_entry.Click;
 
     redraw(False);
 
-    if sides=0
-       then begin
-              if alert(7,'    make  double-slip  '+xover_str,
-                    '||Is this the required double-slip '+xover_str+'?'
-                   +'||The crossing angle is:  1:'+FormatFloat('#.##',k3n)
-                   +'||The slip road radii are:'+slip_rad1_str+slip_rad2_str
-                   +'|||green_panel_begintree.gif  If you answer yes, the original control template will be moved to a new position. This is for your convenience should you need to refer to it again.'
-                   +'||If you answer no, the original control template will be restored.green_panel_end',
-                    '','','','','no  -  cancel  double-slip','yes  -  continue',0)=5
-                 then begin
-                        delete_slip;
-                        restore_current;
-                        redraw(False);
+    if sides = 0 then begin
+      if alert(7, '    make  double-slip  ' + xover_str,
+        '||Is this the required double-slip ' + xover_str + '?'
+        + '||The crossing angle is:  1:' + FormatFloat(
+        '#.##', k3n) + '||The slip road radii are:' + slip_rad1_str +
+        slip_rad2_str +
+        '|||green_panel_begintree.gif  If you answer yes, the original control template will be moved to a new position. This is for your convenience should you need to refer to it again.' + '||If you answer no, the original control template will be restored.green_panel_end', '', '', '', '', 'no  -  cancel  double-slip', 'yes  -  continue', 0) = 5 then begin
+        delete_slip;
+        restore_current;
+        redraw(False);
 
-                        if (making_crossover=True) and (keeps_list.Count>0)    // delete the first crossover turnout too..
-                           then begin
-                                  list_position:=keeps_list.Count-1;
-                                  delete_keep(False,False);
-                                end;
-                        EXIT;
-                      end;
-            end
-       else begin
-              if alert(7,'    make  single-slip  '+xover_str,
-                    '||Is this the required single-slip '+xover_str+'?'
-                   +'||The crossing angle is:  1:'+FormatFloat('#.##',k3n)
-                   +'||The slip road radius is:'+slip_rad1_str+slip_rad2_str
-                   +'|||green_panel_begintree.gif  If you answer yes, the original control template will be moved to a new position. This is for your convenience should you need to refer to it again.'
-                   +'||If you answer no, the original control template will be restored.green_panel_end',
-                    '','','','','no  -  cancel  single-slip','yes  -  continue',0)=5
-                 then begin
-                        delete_slip;
-                        restore_current;
-                        redraw(False);
+        if (making_crossover = True) and (keeps_list.Count > 0)
+        // delete the first crossover turnout too..
+        then begin
+          list_position := keeps_list.Count - 1;
+          delete_keep(False, False);
+        end;
+        EXIT;
+      end;
+    end
+    else begin
+      if alert(7, '    make  single-slip  ' + xover_str,
+        '||Is this the required single-slip ' + xover_str + '?'
+        + '||The crossing angle is:  1:' + FormatFloat(
+        '#.##', k3n) + '||The slip road radius is:' + slip_rad1_str +
+        slip_rad2_str +
+        '|||green_panel_begintree.gif  If you answer yes, the original control template will be moved to a new position. This is for your convenience should you need to refer to it again.' + '||If you answer no, the original control template will be restored.green_panel_end', '', '', '', '', 'no  -  cancel  single-slip', 'yes  -  continue', 0) = 5 then begin
+        delete_slip;
+        restore_current;
+        redraw(False);
 
-                        if (making_crossover=True) and (keeps_list.Count>0)    // delete the first crossover turnout too..
-                           then begin
-                                  list_position:=keeps_list.Count-1;
-                                  delete_keep(False,False);
-                                end;
-                        EXIT;
-                      end;
-            end;
+        if (making_crossover = True) and (keeps_list.Count > 0)
+        // delete the first crossover turnout too..
+        then begin
+          list_position := keeps_list.Count - 1;
+          delete_keep(False, False);
+        end;
+        EXIT;
+      end;
+    end;
 
     restore_current;
-    gocalc(0,0);
+    gocalc(0, 0);
 
-    xshift:=xshift-7*g;
-    yshift:=yshift-7*g*hand_i;      // move it down the pad and left. 7*g arbitrary
+    xshift := xshift - 7 * g;
+    yshift := yshift - 7 * g * hand_i;      // move it down the pad and left. 7*g arbitrary
 
     redraw(False);
 
@@ -984,16 +1034,16 @@ begin
     ti.keep_shove_list.Free;
     saved_current.keep_shove_list.Free;
 
-    pad_form.reset_notch_menu_entry.Enabled:=True;
+    pad_form.reset_notch_menu_entry.Enabled := True;
     pad_form.reset_notch_menu_entry.Click;
 
     redraw(True);
   end;//try
 
-  save_done:=False;
-  backup_wanted:=True;
+  save_done := False;
+  backup_wanted := True;
 
-  RESULT:=True;
+  Result := True;
 end;
 //______________________________________________________________________________
 
@@ -1002,14 +1052,14 @@ procedure Tmake_slip_form.FormCreate(Sender: TObject);
 begin
   pad_form.InsertControl(make_slip_form);
 
-  AutoScroll:=False;
+  AutoScroll := False;
 end;
 //______________________________________________________________________________
 
 procedure Tmake_slip_form.Button1Click(Sender: TObject);
 
 begin
-  toolbars_2rows:=False;
+  toolbars_2rows := False;
   do_toolbars;
 end;
 //______________________________________________________________________________
@@ -1017,20 +1067,18 @@ end;
 procedure Tmake_slip_form.Button2Click(Sender: TObject);
 
 begin
-  toolbars_2rows:=True;
+  toolbars_2rows := True;
   do_toolbars;
 end;
 //______________________________________________________________________________
 
-procedure Tmake_slip_form.move_message(var Msg:TWMMove);
+procedure Tmake_slip_form.move_message(var Msg: TWMMove);
 
 begin
-  if Msg.Result=0
-     then begin
-            do_toolbars;
-          end;
+  if Msg.Result = 0 then begin
+    do_toolbars;
+  end;
 end;
 //______________________________________________________________________________
 
 end.
-

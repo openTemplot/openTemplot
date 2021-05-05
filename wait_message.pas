@@ -51,7 +51,7 @@ type
 var
   wait_form: Twait_form;
 
-  procedure wait_form_onshow;
+procedure wait_form_onshow;
 
 implementation
 
@@ -68,22 +68,21 @@ uses
 procedure Twait_form.FormCreate(Sender: TObject);
 
 begin
-  if Screen.DesktopWidth<1000
-     then begin
-            Top:=160;
-            Left:=240;
-          end;
+  if Screen.DesktopWidth < 1000 then begin
+    Top := 160;
+    Left := 240;
+  end;
 
   // OT-FIRST ClientWidth:=234;
   // OT-FIRST ClientHeight:=64;
-  AutoScroll:=False;
+  AutoScroll := False;
 end;
 //______________________________________________________________________________
 
 procedure Twait_form.cancel_buttonClick(Sender: TObject);
 
 begin
-  wait_cancel_clicked:=True;
+  wait_cancel_clicked := True;
   Close;
 end;
 //______________________________________________________________________________
@@ -91,26 +90,28 @@ end;
 procedure wait_form_onshow;
 
 var
-  new_width,min_width:integer;
+  new_width, min_width: integer;
 
-           // 0.95.a      // 205b  label_width bug fix in Wine
+  // 0.95.a      // 205b  label_width bug fix in Wine
 begin
   with wait_form do begin
-    waiting_label.Width:=Canvas.TextWidth(waiting_label.Caption)+10;
+    waiting_label.Width := Canvas.TextWidth(waiting_label.Caption) + 10;
 
-    new_width:=waiting_label.Left+waiting_label.Width+2;  // make sure it is all visible
+    new_width := waiting_label.Left + waiting_label.Width + 2;  // make sure it is all visible
 
-    min_width:=cancel_button.Left+cancel_button.Width+12;
+    min_width := cancel_button.Left + cancel_button.Width + 12;
 
-    if cancel_button.Visible=True        // bug-fix 208d
-       then begin
-              if new_width<min_width then new_width:=min_width;  // ensure cancel button is visible.
-            end
-       else begin
-              if new_width<cancel_button.Left then new_width:=cancel_button.Left;  // minimum width.
-            end;
+    if cancel_button.Visible = True        // bug-fix 208d
+    then begin
+      if new_width < min_width then
+        new_width := min_width;  // ensure cancel button is visible.
+    end
+    else begin
+      if new_width < cancel_button.Left then
+        new_width := cancel_button.Left;  // minimum width.
+    end;
 
-    ClientWidth:=new_width;
+    ClientWidth := new_width;
   end;//with
 end;
 //______________________________________________________________________________

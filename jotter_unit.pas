@@ -109,12 +109,12 @@ type
 var
   jotter_form: Tjotter_form;
 
-//____________________________
+  //____________________________
 
-  jotter_dx_org:extended=0;        // for relative x,y mouse read-out on jotter.
-  jotter_dy_org:extended=0;
+  jotter_dx_org: extended = 0;        // for relative x,y mouse read-out on jotter.
+  jotter_dy_org: extended = 0;
 
-  jot_readout_units:integer=0;
+  jot_readout_units: integer = 0;
 
 implementation
 
@@ -124,7 +124,8 @@ implementation
 {$R *.lfm}
 
 uses
-  colour_unit, info_unit, pad_unit, control_room, alert_unit, preview_unit, print_unit, calibration_unit, Printers,
+  colour_unit, info_unit, pad_unit, control_room, alert_unit, preview_unit,
+  print_unit, calibration_unit, Printers,
   help_sheet, math_unit, entry_sheet, print_settings_unit;
 
 //_____________________________________________________________________________________
@@ -132,40 +133,39 @@ uses
 procedure Tjotter_form.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 
 begin
-  if Key=VK_F10
-     then begin
-            Key:=0;      //  otherwise selects the menus.
-          end;
+  if Key = VK_F10 then begin
+    Key := 0;      //  otherwise selects the menus.
+  end;
 
-  if Key=VK_PAUSE then Application.Minimize;         //  hide TEMPLOT on PAUSE key.
+  if Key = VK_PAUSE then
+    Application.Minimize;         //  hide TEMPLOT on PAUSE key.
 
-  if Key=VK_ESCAPE
-     then begin
-            Key:=0;
-            pad_form.Show;
-            pad_form.BringToFront;
-          end;
+  if Key = VK_ESCAPE then begin
+    Key := 0;
+    pad_form.Show;
+    pad_form.BringToFront;
+  end;
 
-  if Key=VK_F2
-     then begin
-            Key:=0;
-            pad_form.Show;
-            pad_form.BringToFront;
-            if info_show_i=1 then pad_form.hide_info_menu_entry.Click     // radio items.
-                             else pad_form.show_info_menu_entry.Click;
-          end;
+  if Key = VK_F2 then begin
+    Key := 0;
+    pad_form.Show;
+    pad_form.BringToFront;
+    if info_show_i = 1 then
+      pad_form.hide_info_menu_entry.Click     // radio items.
+    else
+      pad_form.show_info_menu_entry.Click;
+  end;
 
-  if Key=VK_F1
-     then begin
-            Key:=0;
-            jotter_help_popup_entry.Click;
-          end;
+  if Key = VK_F1 then begin
+    Key := 0;
+    jotter_help_popup_entry.Click;
+  end;
 
-  if ( (Key=Word(VkKeyScan('J'))) or (Key=Word(VkKeyScan('j'))) ) and (Shift=[ssCtrl])   // CTRL-J.
-     then begin
-            Key:=0;
-            Close;
-          end;
+  if ((Key = Word(VkKeyScan('J'))) or (Key = Word(VkKeyScan('j')))) and (Shift = [ssCtrl])   // CTRL-J.
+  then begin
+    Key := 0;
+    Close;
+  end;
 
 end;
 //_________________________________________________________________________________________
@@ -173,7 +173,7 @@ end;
 procedure Tjotter_form.FormCreate(Sender: TObject);
 
 begin
-  AutoScroll:=False;
+  AutoScroll := False;
   // OT-FIRST ClientWidth:=400;
   // OT-FIRST ClientHeight:=250;
 end;
@@ -182,41 +182,50 @@ end;
 procedure Tjotter_form.jotter_fonts_popup_entryClick(Sender: TObject);
 
 begin
-  jotter_memo.Font.Assign(get_font('choose  a  new  font  for  the  jotter  text',jotter_memo.Font,True));
-  jotter_abs_xy_readout_panel.Font.Assign(get_font('choose  a  new  font  for  the  X-Y  grid  read-out',jotter_abs_xy_readout_panel.Font,True));
-  jotter_abs_xy_readout_panel.Height:=ABS(jotter_abs_xy_readout_panel.Font.Height)+6;
+  jotter_memo.Font.Assign(get_font('choose  a  new  font  for  the  jotter  text',
+    jotter_memo.Font, True));
+  jotter_abs_xy_readout_panel.Font.Assign(
+    get_font('choose  a  new  font  for  the  X-Y  grid  read-out',
+    jotter_abs_xy_readout_panel.Font, True));
+  jotter_abs_xy_readout_panel.Height := ABS(jotter_abs_xy_readout_panel.Font.Height) + 6;
 
-           // rel read-out uses the form font (so we can use the form canvas to calc the width...
+  // rel read-out uses the form font (so we can use the form canvas to calc the width...
 
-  Font.Assign(get_font('choose  a  new  font  for  the  X-Y-D  moved-by  read-out',Font,True));
-  jotter_rel_xy_readout_panel.Height:=ABS(Font.Height)+6;
+  Font.Assign(get_font('choose  a  new  font  for  the  X-Y-D  moved-by  read-out', Font, True));
+  jotter_rel_xy_readout_panel.Height := ABS(Font.Height) + 6;
 
-  if jotter_memo.Showing=True then jotter_memo.SetFocus;
+  if jotter_memo.Showing = True then
+    jotter_memo.SetFocus;
 end;
 //______________________________________________________________________________
 
 procedure Tjotter_form.jotter_colours_popup_entryClick(Sender: TObject);
 
 begin
-  jotter_memo.Color:=get_colour('choose  a  new  colour  for  the  jotter',jotter_memo.Color);
-  jotter_abs_xy_readout_panel.Color:=get_colour('choose  a  new  colour  for  the  X-Y  grid  read-out',jotter_abs_xy_readout_panel.Color);
-  jotter_rel_xy_readout_panel.Color:=get_colour('choose  a  new  colour  for  the  X-Y-D  moved-by  read-out',jotter_rel_xy_readout_panel.Color);
-  if jotter_memo.Showing=True then jotter_memo.SetFocus;
+  jotter_memo.Color := get_colour('choose  a  new  colour  for  the  jotter', jotter_memo.Color);
+  jotter_abs_xy_readout_panel.Color :=
+    get_colour('choose  a  new  colour  for  the  X-Y  grid  read-out',
+    jotter_abs_xy_readout_panel.Color);
+  jotter_rel_xy_readout_panel.Color :=
+    get_colour('choose  a  new  colour  for  the  X-Y-D  moved-by  read-out',
+    jotter_rel_xy_readout_panel.Color);
+  if jotter_memo.Showing = True then
+    jotter_memo.SetFocus;
 end;
 //______________________________________________________________________________
 
 procedure Tjotter_form.jotter_wrap_lines_popup_entryClick(Sender: TObject);
 
 begin
-  jotter_wrap_lines_popup_entry.Checked:= NOT jotter_wrap_lines_popup_entry.Checked;
-  jotter_memo.WordWrap:=jotter_wrap_lines_popup_entry.Checked;
+  jotter_wrap_lines_popup_entry.Checked := not jotter_wrap_lines_popup_entry.Checked;
+  jotter_memo.WordWrap := jotter_wrap_lines_popup_entry.Checked;
 end;
 //__________________________________________________________________________________________
 
 procedure Tjotter_form.jotter_memoDblClick(Sender: TObject);
 
 begin
-  jotter_popup_menu.Popup(jotter_form.Left+20, jotter_form.Top+50);
+  jotter_popup_menu.Popup(jotter_form.Left + 20, jotter_form.Top + 50);
 end;
 //________________________________________________________________________________________
 
@@ -231,8 +240,8 @@ procedure Tjotter_form.jotter_add_current_info_popup_entryClick(Sender: TObject)
 
 begin
   jotter_memo.Lines.Add('__');
-  jotter_memo.Lines.Add(''); 
-  jotter_memo.Text:=jotter_memo.Text+info_form.info_memo.Text;
+  jotter_memo.Lines.Add('');
+  jotter_memo.Text := jotter_memo.Text + info_form.info_memo.Text;
 end;
 //_________________________________________________________________________________________
 
@@ -256,8 +265,8 @@ begin
   with jotter_memo do begin
     SelectAll;
     CopyToClipboard;
-    SelStart:=SelLength;      // de-select..
-    SelLength:=0;
+    SelStart := SelLength;      // de-select..
+    SelLength := 0;
   end;//with
 end;
 //__________________________________________________________________________________________
@@ -279,20 +288,22 @@ end;
 procedure Tjotter_form.jotter_readouts_only_popup_entryClick(Sender: TObject);
 
 var
-  readout_width:integer;
+  readout_width: integer;
 
 begin
-  ClientHeight:=jotter_abs_xy_readout_panel.Height+jotter_rel_xy_readout_panel.Height;
+  ClientHeight := jotter_abs_xy_readout_panel.Height + jotter_rel_xy_readout_panel.Height;
 
-       // narrow the form if he's got it unnecessarily wide...
+  // narrow the form if he's got it unnecessarily wide...
 
-  readout_width:=Canvas.TextWidth(' dX = '+captext(0-100)+'   dY = '+captext(0-100)+'   Diag = '+captext(100)+' ')+4;
-  if ClientWidth>readout_width then ClientWidth:=readout_width;
+  readout_width := Canvas.TextWidth(' dX = ' + captext(0 - 100) + '   dY = ' + captext(
+    0 - 100) + '   Diag = ' + captext(100) + ' ') + 4;
+  if ClientWidth > readout_width then
+    ClientWidth := readout_width;
 
-       // put it in top-right corner..
+  // put it in top-right corner..
 
-  Top:=0;
-  Left:=Screen.DesktopLeft+Screen.DesktopWidth-Width;
+  Top := 0;
+  Left := Screen.DesktopLeft + Screen.DesktopWidth - Width;
 
   ShowMessage('The jotter read-outs are now in the top-right corner of the screen.');
 end;
@@ -301,77 +312,77 @@ end;
 procedure Tjotter_form.expand_jotter_popup_entryClick(Sender: TObject);
 
 begin
-  Height:=Screen.DesktopHeight div 2;
-  Width:=Screen.DesktopWidth div 2;
-  Left:=(Screen.DesktopLeft+Screen.DesktopWidth-Width) div 2;
-  Top:=Screen.DesktopHeight div 4;
+  Height := Screen.DesktopHeight div 2;
+  Width := Screen.DesktopWidth div 2;
+  Left := (Screen.DesktopLeft + Screen.DesktopWidth - Width) div 2;
+  Top := Screen.DesktopHeight div 4;
 end;
 //________________________________________________________________________________________
 
 procedure Tjotter_form.jotter_restore_previous_popup_entryClick(Sender: TObject);
 
 begin
-  if FileExists(exe_str+'jotbak.txt') then jotter_memo.Lines.LoadFromFile(exe_str+'jotbak.txt')  // bug fix 0.82.a  22-08-06
-                                      else jotter_memo.Lines.Add('!!! No previous text available');
+  if FileExists(exe_str + 'jotbak.txt') then
+    jotter_memo.Lines.LoadFromFile(exe_str + 'jotbak.txt')  // bug fix 0.82.a  22-08-06
+  else
+    jotter_memo.Lines.Add('!!! No previous text available');
 end;
 //_____________________________________________________________________________________________
 
 procedure Tjotter_form.jotter_obtain_popup_entryClick(Sender: TObject);
 
 begin
-  if jotter_memo.Lines.Count>0
-     then begin
-            if alert(3,'    obtain  jotter  text  from  file ...',
-                       '|||Obtaining the contents of your jotter from a file will overwrite (delete) all of the existing contents.'
-                      +'||To preserve the existing contents, cut or copy them to the Windows clipboard first.'
-                      +'||Paste them back into the jotter after obtaining the file.',
-                       '','','','','cancel  obtain','obtain  jotter  text  from  file',0)=5
-               then EXIT;
-          end;
+  if jotter_memo.Lines.Count > 0 then begin
+    if alert(3, '    obtain  jotter  text  from  file ...',
+      '|||Obtaining the contents of your jotter from a file will overwrite (delete) all of the existing contents.' + '||To preserve the existing contents, cut or copy them to the Windows clipboard first.' + '||Paste them back into the jotter after obtaining the file.', '', '', '', '', 'cancel  obtain', 'obtain  jotter  text  from  file', 0) = 5 then
+      EXIT;
+  end;
 
-  jotter_open_dialog.Filename:=exe_str+'jotter.txt';
-  jotter_open_dialog.Filter:='text files (*.txt)|*.txt';
-  if jotter_open_dialog.Execute=True
-     then begin
-            jotter_memo.Lines.LoadFromFile(jotter_open_dialog.Filename);
-            if jotter_memo.Showing=True then jotter_memo.SetFocus;
-          end;
+  jotter_open_dialog.Filename := exe_str + 'jotter.txt';
+  jotter_open_dialog.Filter := 'text files (*.txt)|*.txt';
+  if jotter_open_dialog.Execute = True then begin
+    jotter_memo.Lines.LoadFromFile(jotter_open_dialog.Filename);
+    if jotter_memo.Showing = True then
+      jotter_memo.SetFocus;
+  end;
 end;
 //____________________________________________________________________________________________
 
 procedure Tjotter_form.jotter_save_popup_entryClick(Sender: TObject);
 
 begin
-  if jotter_memo.Lines.Count<1 then EXIT;
+  if jotter_memo.Lines.Count < 1 then
+    EXIT;
 
-  jotter_save_dialog.Filename:=exe_str+'jotter.txt';
-  jotter_save_dialog.Filter:='text files (*.txt)|*.txt';
-  if jotter_save_dialog.Execute=True
-     then begin
-            jotter_save_dialog.FileName:=ChangeFileExt(jotter_save_dialog.FileName,'.txt');   // force extension
+  jotter_save_dialog.Filename := exe_str + 'jotter.txt';
+  jotter_save_dialog.Filter := 'text files (*.txt)|*.txt';
+  if jotter_save_dialog.Execute = True then begin
+    jotter_save_dialog.FileName := ChangeFileExt(jotter_save_dialog.FileName, '.txt');
+    // force extension
 
-            jotter_memo.Lines.SaveToFile(jotter_save_dialog.Filename);
-            if jotter_memo.Showing=True then jotter_memo.SetFocus;
-          end;
+    jotter_memo.Lines.SaveToFile(jotter_save_dialog.Filename);
+    if jotter_memo.Showing = True then
+      jotter_memo.SetFocus;
+  end;
 end;
 //______________________________________________________________________________________________
 
 procedure Tjotter_form.jotter_print_popup_entryClick(Sender: TObject);
 
 var
-  prindex:integer;
-  pf:TextFile;                // text file to be redirected to printer.
-  line_now:integer;
-  prinor:TPrinterOrientation;
-  text_width_dots:extended;
-  left_margin_str:string;
+  prindex: integer;
+  pf: TextFile;                // text file to be redirected to printer.
+  line_now: integer;
+  prinor: TPrinterOrientation;
+  text_width_dots: extended;
+  left_margin_str: string;
 
 begin
-  if no_printer_available=True     // 0.93.a
-     then begin
-            ShowMessage('No printer available.');
-            EXIT;
-          end;
+  if no_printer_available = True     // 0.93.a
+  then begin
+    ShowMessage('No printer available.');
+    EXIT;
+  end;
 
   (* OT-FIRST
 
@@ -438,107 +449,77 @@ end;
 procedure Tjotter_form.jotter_set_readout_origin_popup_entryClick(Sender: TObject);
 
 const
-  help_rox_str:string='     Set  Read-Out  X  Origin'
-                  +'||Enter a new X-dimension in millimetres for the position on the grid of the datum point from which the MOVED-BY: dX read-out is calculated.';
+  help_rox_str: string = '     Set  Read-Out  X  Origin' +
+    '||Enter a new X-dimension in millimetres for the position on the grid of the datum point from which the MOVED-BY: dX read-out is calculated.';
 
-  help_roy_str:string='     Set  Read-Out  Y  Origin'
-                  +'||Enter a new Y-dimension in millimetres for the position on the grid of the datum point from which the MOVED-BY: dY read-out is calculated.';
+  help_roy_str: string = '     Set  Read-Out  Y  Origin' +
+    '||Enter a new Y-dimension in millimetres for the position on the grid of the datum point from which the MOVED-BY: dY read-out is calculated.';
 
 var
-  n:integer;
-  od:Toutdim;
+  n: integer;
+  od: Toutdim;
 
 begin
-     putdim(help_rox_str,1,'read-out  origin  X - dimension',jotter_dx_org,False,True,False,False);   // negative ok, no preset, zero ok, don't terminate on zero.
-  n:=putdim(help_roy_str,1,'read-out  origin  Y - dimension',jotter_dy_org,False,True,False,False);   // negative ok, no preset, zero ok, don't terminate on zero.
-  if n<>1 then EXIT;
-  if getdims('set  X-Y-D  read-out  origin','',jotter_form,n,od)=True
-     then begin
-            jotter_dx_org:=od[0];
-            jotter_dy_org:=od[1];
-          end;
+  putdim(help_rox_str, 1, 'read-out  origin  X - dimension', jotter_dx_org, False, True, False, False);
+  // negative ok, no preset, zero ok, don't terminate on zero.
+  n := putdim(help_roy_str, 1, 'read-out  origin  Y - dimension', jotter_dy_org, False, True, False, False);
+  // negative ok, no preset, zero ok, don't terminate on zero.
+  if n <> 1 then
+    EXIT;
+  if getdims('set  X-Y-D  read-out  origin', '', jotter_form, n, od) = True then begin
+    jotter_dx_org := od[0];
+    jotter_dy_org := od[1];
+  end;
 end;
 //________________________________________________________________________________________
 
 procedure Tjotter_form.jotter_help_popup_entryClick(Sender: TObject);
 
 const
-  jot_help_str:string='Jotter  +  X-Y  Read-outs'
-  +'||Use this jotter as a handy place to jot down and copy/paste notes, dimensions and reminders. The jotter window can be dragged anywhere on the screen and toggled on and off by pressing CTRL-J. It will always remain visible in front of the pad.'
-  +'||To begin typing on the jotter, LEFT-click on it.|To access a menu of options, RIGHT-click on it.'
-  +'|To return to the trackpad, press the ESC key or the F2 key.|To hide the jotter press CTRL-J.'
-
-  +'||There are several ways in which notes can be added automatically to the jotter while you work:'
-  +'||Holding down the ALT key and clicking the middle button (or holding down both ALT and CTRL and left-clicking) copies the current dimensions showing in the X-Y read-outs onto the jotter.'
-  +'||If a mouse action is in force, holding down both ALT and CTRL keys and right-clicking copies the data currently showing in the mouse action panel onto the jotter.'
-
-  +'||Clicking the JOT VISIBLE button on the INFORMATION panel adds a copy of the currently visible info lines onto the jotter.'
-
-  +'||While using the Templot0 data-entry form, clicking the JOT LINE / JOT ALL button adds a copy of the current input line or all the input lines onto the jotter.'
-
-  +'||The Templot0 HELP texts can be added to the jotter by right-button clicking on them and them clicking the JOT ALL menu item. They include long text lines, so you will probably want to have the WRAP LINES option selected for the jotter.'
-
-  +'||These functions work regardless of whether the jotter window is currently visible.'
-
-  +'||Clicking RESTORE PREVIOUS TEXT on the jotter right-click menu restores the jotter text from your previous Templot0 working session. In this way a complete journal of your design work can be maintained if you wish.'
-  +'||The text currently on the jotter can be added to the memo notes for an individual stored template by clicking ADD JOTTER TO MEMO on the template''s pop-up menu or the EDIT > ADD JOTTER TEXT TO MEMO item on the STORAGE BOX menus.'
-  +' This is quicker than copying and pasting, and is a convenient way to include your jotter notes in a template data file for future reference.'
-  +'|------------------------'
-  +'|This jotter window also includes two X-Y read-outs of the current mouse position. These can be useful when using the DRAW WITH MOUSE function and also when making template adjustments by mouse action.'
-  +' The mouse pointer can be changed to cross-hairs for accurate positioning and measurement by clicking the TRACKPAD > MOUSE OPTIONS > CROSS-HAIRS POINTER menu item.'
-  +'||The upper GRID read-out shows the current mouse position on the grid in absolute X,Y co-ordinate dimensions.'
-  +'||The lower MOVED BY read-out shows the current mouse position in relative dX,dY dimensions from a set reference point, and also the diagonal dimension from that point.'
-  +' The reference point can be set by holding down the ALT key and LEFT-clicking on the trackpad, or by clicking the SET READ-OUT ORIGIN... item on the jotter right-click menu.'
-  +' Note that if the ruler tool is showing, ALT-LEFT click also positions its 1st end (and ALT-RIGHT click positions its 2nd end) at the mouse pointer. If you do not want this to happen,'
-  +' temporarily hide the ruler (UTILS > RULER > HIDE RULER menu item).'
-
-  +'||The read-outs can display the dimensions in MM, INCHES or in the same units as are curently being used for the grid (AS GRID). Click READ-OUT UNITS > on the jotter right-click menu to select these options.'
-
-  +'||You can choose to have either or both of the read-outs visible by selecting the options on the jotter right-click menu.'
-  +' If you select the READ-OUT(S) ONLY option, the window moves to the top right-hand corner of the screen, but can be subsequently moved elsewhere.';
+  jot_help_str: string = 'Jotter  +  X-Y  Read-outs' +
+    '||Use this jotter as a handy place to jot down and copy/paste notes, dimensions and reminders. The jotter window can be dragged anywhere on the screen and toggled on and off by pressing CTRL-J. It will always remain visible in front of the pad.' + '||To begin typing on the jotter, LEFT-click on it.|To access a menu of options, RIGHT-click on it.' + '|To return to the trackpad, press the ESC key or the F2 key.|To hide the jotter press CTRL-J.' + '||There are several ways in which notes can be added automatically to the jotter while you work:' + '||Holding down the ALT key and clicking the middle button (or holding down both ALT and CTRL and left-clicking) copies the current dimensions showing in the X-Y read-outs onto the jotter.' + '||If a mouse action is in force, holding down both ALT and CTRL keys and right-clicking copies the data currently showing in the mouse action panel onto the jotter.' + '||Clicking the JOT VISIBLE button on the INFORMATION panel adds a copy of the currently visible info lines onto the jotter.' + '||While using the Templot0 data-entry form, clicking the JOT LINE / JOT ALL button adds a copy of the current input line or all the input lines onto the jotter.' + '||The Templot0 HELP texts can be added to the jotter by right-button clicking on them and them clicking the JOT ALL menu item. They include long text lines, so you will probably want to have the WRAP LINES option selected for the jotter.' + '||These functions work regardless of whether the jotter window is currently visible.' + '||Clicking RESTORE PREVIOUS TEXT on the jotter right-click menu restores the jotter text from your previous Templot0 working session. In this way a complete journal of your design work can be maintained if you wish.' + '||The text currently on the jotter can be added to the memo notes for an individual stored template by clicking ADD JOTTER TO MEMO on the template''s pop-up menu or the EDIT > ADD JOTTER TEXT TO MEMO item on the STORAGE BOX menus.' + ' This is quicker than copying and pasting, and is a convenient way to include your jotter notes in a template data file for future reference.' + '|------------------------' + '|This jotter window also includes two X-Y read-outs of the current mouse position. These can be useful when using the DRAW WITH MOUSE function and also when making template adjustments by mouse action.' + ' The mouse pointer can be changed to cross-hairs for accurate positioning and measurement by clicking the TRACKPAD > MOUSE OPTIONS > CROSS-HAIRS POINTER menu item.' + '||The upper GRID read-out shows the current mouse position on the grid in absolute X,Y co-ordinate dimensions.' + '||The lower MOVED BY read-out shows the current mouse position in relative dX,dY dimensions from a set reference point, and also the diagonal dimension from that point.' + ' The reference point can be set by holding down the ALT key and LEFT-clicking on the trackpad, or by clicking the SET READ-OUT ORIGIN... item on the jotter right-click menu.' + ' Note that if the ruler tool is showing, ALT-LEFT click also positions its 1st end (and ALT-RIGHT click positions its 2nd end) at the mouse pointer. If you do not want this to happen,' + ' temporarily hide the ruler (UTILS > RULER > HIDE RULER menu item).' + '||The read-outs can display the dimensions in MM, INCHES or in the same units as are curently being used for the grid (AS GRID). Click READ-OUT UNITS > on the jotter right-click menu to select these options.' + '||You can choose to have either or both of the read-outs visible by selecting the options on the jotter right-click menu.' + ' If you select the READ-OUT(S) ONLY option, the window moves to the top right-hand corner of the screen, but can be subsequently moved elsewhere.';
 
 begin
-  help(0,jot_help_str,'');
+  help(0, jot_help_str, '');
 end;
 //____________________________________________________________________________________
 
 procedure Tjotter_form.as_grid_units_popup_entryClick(Sender: TObject);
 
 begin
-  jot_readout_units:=0;
-  as_grid_units_popup_entry.Checked:=True;     // radio item.
-  show_and_redraw(True,False);
+  jot_readout_units := 0;
+  as_grid_units_popup_entry.Checked := True;     // radio item.
+  show_and_redraw(True, False);
 end;
 //__________________________
 
 procedure Tjotter_form.mm_units_popup_entryClick(Sender: TObject);
 
 begin
-  jot_readout_units:=1;
-  mm_units_popup_entry.Checked:=True;     // radio item.
-  show_and_redraw(True,False);
+  jot_readout_units := 1;
+  mm_units_popup_entry.Checked := True;     // radio item.
+  show_and_redraw(True, False);
 end;
 //___________________________
 
 procedure Tjotter_form.inches_units_popup_entryClick(Sender: TObject);
 
 begin
-  jot_readout_units:=2;
-  inches_units_popup_entry.Checked:=True;     // radio item.
-  show_and_redraw(True,False);
+  jot_readout_units := 2;
+  inches_units_popup_entry.Checked := True;     // radio item.
+  show_and_redraw(True, False);
 end;
 //______________________________________________________________________________________
 
 procedure Tjotter_form.FormResize(Sender: TObject);
 
 begin
-  jotter_memo.width:=ClientWidth;
-  jotter_memo.Height:=ClientHeight-jotter_memo.Top;
+  jotter_memo.Width := ClientWidth;
+  jotter_memo.Height := ClientHeight - jotter_memo.Top;
 
-  jotter_abs_xy_readout_panel.Width:=ClientWidth;
-  jotter_rel_xy_readout_panel.Width:=ClientWidth;
+  jotter_abs_xy_readout_panel.Width := ClientWidth;
+  jotter_rel_xy_readout_panel.Width := ClientWidth;
 end;
 //______________________________________________________________________________
 
 end.
-
