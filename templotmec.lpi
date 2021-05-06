@@ -378,7 +378,8 @@
       <Unit53>
         <Filename Value="model\shoved_timber.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit54>
+      </Unit53>
+      <Unit54>
         <Filename Value="pdf_unit.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="pdf_form"/>
@@ -391,7 +392,7 @@
       </Unit55>
       <Unit56>
         <Filename Value="utils.pas"/>
-	<IsPartofProject Value="True">
+	<IsPartofProject Value="True"/>
       </Unit56>
       <Unit57>
         <Filename Value="fontmetrics_stdpdf.inc"/>
