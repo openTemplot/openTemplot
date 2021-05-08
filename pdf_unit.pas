@@ -1063,7 +1063,7 @@ var
     linestyle: Tpdf_LineStyle;
 
   begin
-    markmax := intarray_max(marks_list_ptr);  // max index for the present list.
+    markmax := High(marks_list_ptr);  // max index for the present list.
 
     if mark_index > markmax then
       mark_index := markmax;  // ??? shouldn't be.
@@ -1076,7 +1076,7 @@ var
       for i := 0 to (mark_index - 1) do begin
         // (mark_index is always the next free slot)
 
-        ptr_1st := Pointer(intarray_get(marks_list_ptr, i));
+        ptr_1st := @marks_list_ptr[i];
         // pointer to the next Tmark record.
         if ptr_1st = nil then
           BREAK;
@@ -1183,7 +1183,7 @@ var
         203, 233, 293: begin                 // timber infill
             if i >= (mark_index - 1) then
               BREAK; // Is this really needed???
-            ptr_2nd := Pointer(intarray_get(marks_list_ptr, i + 1));
+            ptr_2nd := @marks_list_ptr[i+1];
             // pointer to the second infill Tmark record.
             if ptr_2nd = nil then
               BREAK;
