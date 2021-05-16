@@ -3660,11 +3660,11 @@ begin
 
         // first draw bgnd marks and timbers ...
 
-        array_max := intarray_max(list_bgnd_marks[0]);
+        array_max := High(list_bgnd_marks);
 
         for i := 0 to array_max do begin
 
-          code := intarray_get(list_bgnd_marks[4], i);
+          code := list_bgnd_marks[i].code;
 
           if not wanted_mark(code) then
             CONTINUE;     // skip this mark.
@@ -3682,11 +3682,8 @@ begin
           case code  of
           1..98, 100.. 199, 600, 700: begin
           write_comment('Mark ' + inttostr(code) + ' using ' + line_style.str());
-            p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
-            p1.Y := intarray_get(list_bgnd_marks[1], i);
-
-            p2.X := intarray_get(list_bgnd_marks[2], i);    // x2,y2 in  1/100ths mm
-            p2.Y := intarray_get(list_bgnd_marks[3], i);
+            p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
+            p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
 
             if pdf_black_white then
               set_pen_colour(clBlack)
@@ -3730,8 +3727,7 @@ begin
                 if mapping_colours_print = -1 then
                   set_pen_colour(printbg_single_colour);
 
-              p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
-              p1.Y := intarray_get(list_bgnd_marks[1], i);
+              p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
 
               radcen_arm := 400 * scale;
               // 4ft scale arbitrary (scale is for control template).
@@ -3756,17 +3752,11 @@ begin
 
               if i < array_max
               then begin
-                p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
-                p1.Y := intarray_get(list_bgnd_marks[1], i);
+                p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
+                p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
 
-                p2.X := intarray_get(list_bgnd_marks[2], i);    // x2,y2 in  1/100ths mm
-                p2.Y := intarray_get(list_bgnd_marks[3], i);
-
-                p3.X := intarray_get(list_bgnd_marks[0], i + 1);    // x3,y3 in  1/100ths mm
-                p3.Y := intarray_get(list_bgnd_marks[1], i + 1);
-
-                p4.X := intarray_get(list_bgnd_marks[2], i + 1);    // x4,y4 in  1/100ths mm
-                p4.Y := intarray_get(list_bgnd_marks[3], i + 1);
+                p3 := list_bgnd_marks[i + 1].p1;    // x3,y3 in  1/100ths mm
+                p4 := list_bgnd_marks[i + 1].p2;    // x4,y4 in  1/100ths mm
               end
               else begin         // keep compiler happy...
                 p1.X := 0;
@@ -3842,11 +3832,8 @@ begin
               and print_settings_form.output_timber_numbers_checkbox.Checked
 
             then begin
-              p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
-              p1.Y := intarray_get(list_bgnd_marks[1], i);
-
-              p2.X := intarray_get(list_bgnd_marks[2], i);
-              p2.Y := intarray_get(list_bgnd_marks[3], i);
+              p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
+              p2 := list_bgnd_marks[i].p2;
 
               if print_settings_form.output_timb_id_prefix_checkbox.Checked
               then
@@ -3920,9 +3907,7 @@ begin
                 if out_factor <> 1.0 then
                   CONTINUE;     // on full size prints only
 
-                p1.X := intarray_get(list_bgnd_marks[0], i);
-                // x1,y1 in  1/100ths mm
-                p1.Y := intarray_get(list_bgnd_marks[1], i);
+                p1 := list_bgnd_marks[i].p1;              // x1,y1 in  1/100ths mm
 
                 move_to := page_locate(p1, grid_left, grid_top);
 

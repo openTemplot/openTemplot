@@ -4031,11 +4031,11 @@ begin
 
         // first draw bgnd marks and timbers ...
 
-        array_max := intarray_max(list_bgnd_marks[0]);
+        array_max := High(list_bgnd_marks);
 
         for i := 0 to array_max do begin
 
-          code := intarray_get(list_bgnd_marks[4], i);
+          code := list_bgnd_marks[i].code;
 
           case code of
             -5, -4, -1, 0, 8, 9, 10, 501..508:
@@ -4079,17 +4079,11 @@ begin
 
           if ((code = 203) or (code = 233) or (code = 293)) and (i < array_max)         // timber infill
           then begin
-            p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
-            p1.Y := intarray_get(list_bgnd_marks[1], i);
+            p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
+            p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
 
-            p2.X := intarray_get(list_bgnd_marks[2], i);    // x2,y2 in  1/100ths mm
-            p2.Y := intarray_get(list_bgnd_marks[3], i);
-
-            p3.X := intarray_get(list_bgnd_marks[0], i + 1);    // x3,y3 in  1/100ths mm
-            p3.Y := intarray_get(list_bgnd_marks[1], i + 1);
-
-            p4.X := intarray_get(list_bgnd_marks[2], i + 1);    // x4,y4 in  1/100ths mm
-            p4.Y := intarray_get(list_bgnd_marks[3], i + 1);
+            p3 := list_bgnd_marks[i + 1].p1;    // x3,y3 in  1/100ths mm
+            p4 := list_bgnd_marks[i + 1].p2;    // x4,y4 in  1/100ths mm
           end
           else begin         // keep compiler happy...
             p1.X := 0;
@@ -4113,11 +4107,8 @@ begin
             Brush.Style := bsClear;
             TextOut(0, 0, '');
 
-            p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
-            p1.Y := intarray_get(list_bgnd_marks[1], i);
-
-            p2.X := intarray_get(list_bgnd_marks[2], i);    // x2,y2 in  1/100ths mm
-            p2.Y := intarray_get(list_bgnd_marks[3], i);
+            p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
+            p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
 
             if impact > 0 then
               Pen.Width := 1        // impact printer or plotter.
@@ -4234,8 +4225,7 @@ begin
                   Pen.Color := printbg_single_colour;
               end;
 
-              p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
-              p1.Y := intarray_get(list_bgnd_marks[1], i);
+              p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
 
               radcen_arm := 400 * scale;
               // 4ft scale arbitrary (scale is for control template).
@@ -4337,15 +4327,8 @@ begin
               ((pad_form.print_timber_numbering_menu_entry.Checked = True) or
               ((out_factor > 0.99) and (pad_form.numbering_fullsize_only_menu_entry.Checked = True)))
             then begin
-              p1.X := intarray_get(list_bgnd_marks[0], i);
-              // x1,y1 in  1/100ths mm  numbers on screen
-              p1.Y := intarray_get(list_bgnd_marks[1], i);
-
-              // 208a mods...
-
-              p2.X := intarray_get(list_bgnd_marks[2], i);
-              // x2,y2 in  1/100ths mm  numbers on output
-              p2.Y := intarray_get(list_bgnd_marks[3], i);
+              p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
+              p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
 
               move_to.X := Round((p2.Y - grid_left) * scaw_out) + page_left_dots;
               move_to.Y := Round((p2.X - grid_top) * scal_out) + page_top_dots;
@@ -4418,9 +4401,7 @@ begin
                 if out_factor <> 1.0 then
                   CONTINUE;     // on full size prints only
 
-                p1.X := intarray_get(list_bgnd_marks[0], i);
-                // x1,y1 in  1/100ths mm
-                p1.Y := intarray_get(list_bgnd_marks[1], i);
+                p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
 
                 move_to.X := Round((p1.Y - grid_left) * scaw_out) + page_left_dots;
                 move_to.Y := Round((p1.X - grid_top) * scal_out) + page_top_dots;

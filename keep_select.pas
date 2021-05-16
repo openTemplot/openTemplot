@@ -897,8 +897,7 @@ begin
 }
 
     with bgnd_keep do begin
-      for i := 0 to 4 do
-        list_bgnd_marks[i] := nil;     // init all background data array pointers to nil.
+      SetLength(list_bgnd_marks, 0);
       for aq := 0 to aq_max_c do begin
         list_bgnd_rails[aq, 0] := nil;
         list_bgnd_rails[aq, 1] := nil;
@@ -937,11 +936,7 @@ begin
     bg_copied := False;      // will no longer be on background.
 
     with bgnd_keep do begin
-
-      for index := 0 to 4 do begin
-        if list_bgnd_marks[index] <> nil then
-          intarray_free(list_bgnd_marks[index]);    // free our integer array memory...
-      end;//for
+      SetLength(list_bgnd_marks, 0);
 
       for aq := 0 to aq_max_c do begin
         if list_bgnd_rails[aq, 0] <> nil then
@@ -6283,9 +6278,7 @@ var
 
   begin
     with new_bgk do begin
-      for n := 0 to 4 do
-        if list_bgnd_marks[n] <> nil then
-          intarray_free(list_bgnd_marks[n]);
+      SetLength(list_bgnd_marks, 0);
       for n := 0 to aq_max_c do begin
         if list_bgnd_rails[n, 0] <> nil then
           intarray_free(list_bgnd_rails[n, 0]);
@@ -6299,8 +6292,7 @@ var
 begin
 
   with new_bgk do begin
-    for i := 0 to 4 do
-      list_bgnd_marks[i] := nil;          // init all array pointers to nil in case of error exit check.
+    SetLength(list_bgnd_marks, 0);
     for aq := 0 to aq_max_c do begin
       list_bgnd_rails[aq, 0] := nil;
       list_bgnd_rails[aq, 1] := nil;
@@ -6381,15 +6373,7 @@ begin
           if mark_index > markmax then
             mark_index := markmax;  // ??? shouldn't be.
 
-          for i := 0 to 4 do begin
-            p := intarray_create(mark_index, True);
-            if p = nil then begin
-              abort_new_bgk;
-              EXIT;
-            end;   // array_create does the error message.
-
-            list_bgnd_marks[i] := p;
-          end;//for
+          SetLength(list_bgnd_marks, mark_index);
 
           for i := 0 to (mark_index - 1) do begin
             // (mark_index is always the next free slot)
@@ -6397,11 +6381,11 @@ begin
             if ptr = nil then
               EXIT;
 
-            intarray_set(list_bgnd_marks[0], i, ptr^.p1.X);
-            intarray_set(list_bgnd_marks[1], i, ptr^.p1.Y + Round(y_datum * 100));
-            intarray_set(list_bgnd_marks[2], i, ptr^.p2.X);
-            intarray_set(list_bgnd_marks[3], i, ptr^.p2.Y + Round(y_datum * 100));
-            intarray_set(list_bgnd_marks[4], i, ptr^.code);
+            list_bgnd_marks[i].p1.X := ptr^.p1.X;
+            list_bgnd_marks[i].p1.Y := ptr^.p1.Y + Round(y_datum * 100);
+            list_bgnd_marks[i].p2.X := ptr^.p2.X;
+            list_bgnd_marks[i].p2.Y := ptr^.p2.Y + Round(y_datum * 100);
+            list_bgnd_marks[i].code := ptr^.code;
 
             if ptr^.code = 99
             //then timber_numbers_string:=timber_numbers_string+ptr^.str+Chr($1B);  // add on the next timber numbering string, + separator.
@@ -7267,15 +7251,14 @@ begin
     Brush.Color := clRed;
 
     with now_keep do begin
-      array_max := intarray_max(list_bgnd_marks[0]);
+      array_max := High(list_bgnd_marks);
 
       for i := 0 to array_max do begin
-        code := intarray_get(list_bgnd_marks[4], i);
+        code := list_bgnd_marks[i].code;
 
         if code = -1              // code -1, draw highlight on bgnd fixing peg...
         then begin
-          p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
-          p1.Y := intarray_get(list_bgnd_marks[1], i);
+          p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
 
           peg_dim := 10; // 0.91.b was pad_form.ClientWidth div 100;     // 100 arbitrary.
 
@@ -7886,12 +7869,7 @@ begin
         if bg_copied = True     // first scrub existing data...
         then begin
           with bgnd_keep do begin
-
-            for i := 0 to 4 do begin
-              if list_bgnd_marks[i] <> nil then
-                intarray_free(list_bgnd_marks[i]);    // free our integer array memory...
-            end;//for
-
+            SetLength(list_bgnd_marks, 0);
             for aq := 0 to aq_max_c do begin
               if list_bgnd_rails[aq, 0] <> nil then
                 intarray_free(list_bgnd_rails[aq, 0]);

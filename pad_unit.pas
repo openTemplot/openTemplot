@@ -3583,7 +3583,7 @@ type
     timber_numbers_string: string;
     // the complete numbers sequence, separated by ESC ($1B) characters.
 
-    list_bgnd_marks: array[0..4] of Pointer;
+    list_bgnd_marks: Tmark_array;
     // pointers only, so can't save this data in a file (of Tbgnd_keep).
     list_bgnd_rails: array[0..aq_max_c, 0..1] of Pointer;
 
