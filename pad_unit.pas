@@ -3333,6 +3333,8 @@ type
   end;
   Tmark_array = array of Tmark;
 
+  TPoint_array = array of TPoint;    // array of Windows TPoints (integers)
+
   Tpex = record                      // x,y point floats (TPoint is integer).
     x: extended;
     y: extended;
@@ -4740,8 +4742,7 @@ var
 
   // mods 13-6-99. Use home-made dynamic integer arrays.
 
-  xy_p: array[0..aq_max_c, 0..1] of Pointer;
-  // pointers to integer arrays containing rail data in 1/100 of a mm.
+  xy_p: array[0..aq_max_c] of TPoint_array; // arrays containing rail data in 1/100 of a mm.
 
   nlnow_array: array[0..aq_max_c] of integer;
   //  ( aq_i )    current index into each aq array.

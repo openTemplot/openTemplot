@@ -4813,6 +4813,7 @@ var
 
   var
     now: integer;
+    pt: TPoint;
 
   begin
     if aqyn[aq] = False then
@@ -4829,13 +4830,15 @@ var
         (draw_ms_platform_rear_edge = False) then
         Pen.Style := psDot;
 
-      move_to.X := Round((outoflist(aq, 0, 0) - xy_min[0]) * sx + x_offset);
-      move_to.Y := Round((outoflist(aq, 0, 1) - xy_min[1]) * sy + y_offset);
+      pt := outoflist(aq,0);
+      move_to.X := Round((pt.X - xy_min[0]) * sx + x_offset);
+      move_to.Y := Round((pt.Y - xy_min[1]) * sy + y_offset);
 
       for now := 1 to nlmax_array[aq] do begin
 
-        line_to.X := Round((outoflist(aq, now, 0) - xy_min[0]) * sx + x_offset);
-        line_to.Y := Round((outoflist(aq, now, 1) - xy_min[1]) * sy + y_offset);
+        pt := outoflist(aq, now);
+        line_to.X := Round((pt.X - xy_min[0]) * sx + x_offset);
+        line_to.Y := Round((pt.Y - xy_min[1]) * sy + y_offset);
 
         if check_limits(move_to, line_to) = True then begin
           MoveTo(move_to.X, move_to.Y);
@@ -6261,6 +6264,7 @@ var
   new_bgk: Tbgnd_keep;
   ti: Ttemplate_info;
   si, name_str: string;
+  pt: TPoint;
 
   ptr: ^Tmark;          // pointer to a Tmark record.   ###
   markmax: integer;
@@ -6428,10 +6432,9 @@ begin
             // stock rails, adjacent rails, centre-lines only if plain track, and data available ?
             then begin
               for now := 0 to nlmax_array[aq] do begin
-
-                intarray_set(list_bgnd_rails[aq, 0], now, outoflist(aq, now, 0));
-                intarray_set(list_bgnd_rails[aq, 1], now, outoflist(
-                  aq, now, 1) + Round(y_datum * 100));
+                pt := outoflist(aq, now);
+                intarray_set(list_bgnd_rails[aq, 0], now, pt.X);
+                intarray_set(list_bgnd_rails[aq, 1], now, pt.Y + Round(y_datum * 100));
 
               end;//for next now
             end;

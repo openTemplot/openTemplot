@@ -1132,7 +1132,7 @@ procedure gocalc(calcs_code, mode: integer);    //  a new turnout wanted - let's
 //091c procedure shift_onto_notch(click:boolean);  // click=True if he clicked the menu.
 procedure shift_onto_notch(click, min_rot: boolean); // 0.93.a ex 081
 
-function outoflist(aq, nl, xy: integer): integer;
+function outoflist(aq, nl: integer): TPoint;
 
 function calc_snap_peg_data(code: integer): Tnotch;      // 0.79.a  27-05-06
 
@@ -1576,7 +1576,7 @@ function f28000(aq: integer; xs, ys: extended): integer; forward;
 function f29000(aq: integer; pc: Tpex): integer; forward;
 //  Put xc,yc (in pc) in rail-data array.
 
-function intolist(aq, nl, xy, d: integer): integer; forward;
+function intolist(aq, nl: integer; pt: TPoint): integer; forward;
 
 function new_calc_draw(on_canvas: TCanvas; calcs_code, mode: integer): boolean;
   forward;   // calc and draw all rail lines and marks.
@@ -2174,8 +2174,7 @@ begin
 
   for n := 0 to aq_max_c do begin
 
-    xy_p[n, 0] := nil;     // (x) pointer to integer arrays containing x rail data in 1/100 of a mm.
-    xy_p[n, 1] := nil;     // (y) ditto.
+    SetLength(xy_p[n], 0);   // (arrays containing x rail data in 1/100 of a mm.
 
     nlnow_array[n] := 0;     //  current index into each aq array.
     nlmax_array[n] := 0;     //  max nlnow so far used for each aq.
@@ -6593,12 +6592,7 @@ begin
   Result := False;             // init default return.
 
   // first clear the old...
-  for n := 0 to 1 do begin
-    p := xy_p[aq, n];                     // 0=x, 1=y
-    if p <> nil then
-      intarray_free(p);
-    xy_p[aq, n] := nil;                   // in case not wanted, or error.
-  end;//for
+  SetLength(xy_p[aq], 0);
 
   nldim_array[aq] := 0;                  //  clear max array index.
 
@@ -6735,18 +6729,7 @@ begin
 
   max_list := Round(ABS(list_size + 24));   // add an extra 24 slots to allow for terminal points, etc.
 
-  p := intarray_create(max_list, True);
-  if p = nil then
-    EXIT                    // create failed.
-  else
-    xy_p[aq, 0] := p;          // pointer to x-values array.
-
-  p := intarray_create(max_list, True);
-  if p = nil then
-    EXIT                    // create failed.
-  else
-    xy_p[aq, 1] := p;          // pointer to y_values array.
-
+  SetLength(xy_p[aq], max_list+1);          // pointer to x-values array.
   nldim_array[aq] := max_list;            //  set nldim with max index.
   Result := True;                         // ok, got new lists.
 end;
@@ -10229,7 +10212,7 @@ end;
 function f29000(aq: integer; pc: Tpex): integer;       //  Put xc,yc (in pc) in rail-data array.
   //  Change hand if required.
 var
-  plist: TPoint;
+  pt: TPoint;
   n, xlist, ylist, nl: integer;
 
   //////////////////////////////////////////////////////
@@ -10332,18 +10315,16 @@ begin
 
   //  if list already full, new data overwrites final entry.
 
-  plist := xy_to_list(pc);
+  pt := xy_to_list(pc);
 
-  xlist := plist.X;
-  ylist := plist.Y;
+  xlist := pt.X;
+  ylist := pt.Y;
 
   nl := nlnow_array[aq];         // pick up next free index for this aq.
   nlmax_array[aq] := nl;         // and return it as current max.
 
-  if intolist(aq, nl, 0, xlist) <> 0 then
-    run_error(47);      // fill the x data.
-  if intolist(aq, nl, 1, ylist) <> 0 then
-    run_error(48);      // fill the y data.
+  if intolist(aq, nl, pt) <> 0 then
+    run_error(47);      // fill the point data.
 
   if nl >= (nldim_array[aq] - 1)         // max index.
   then
@@ -10376,74 +10357,53 @@ begin
 end;
 //___________________________________________________________________________________________
 
-function intolist(aq, nl, xy, d: integer): integer;
+function intolist(aq, nl: integer; pt: TPoint): integer;
 
-  // insert data d for x or y (xy=0/1) in rail list,
+  // insert data pt into rail list,
   // and return 0 if o.k. ...
-var
-  p: Pointer;
-
 begin
   Result := 1;       // init default return
 
-  //n:=aqxy_i[aq]+nl;                   //  index for list
-  //if ( (n>xymax_c) or (n<0) or (xy<0) or (xy>1) )
-
-  if (nl < 0) or (xy < 0) or (xy > 1) or (aq < 0) or (aq > aq_max_c) then begin
+  if (nl < 0) or (aq < 0) or (aq > aq_max_c) then begin
     run_error(51);
     EXIT;
   end;
 
-  p := xy_p[aq, xy];              // pointer to list.
-
-  if p = nil then begin
-    run_error(52);
-    EXIT;
-  end;
-
-  if nl > intarray_max(p) then begin
+  if nl > High(xy_p[aq]) then begin
     run_error(53);     //  abandon ship if index outside limits.
     EXIT;
   end;
 
-  intarray_set(p, nl, d);
+  xy_p[aq][nl] := pt;
   Result := 0;                  //  put data in list and flag o.k.
 
-  if d > xy_max[xy] then
-    xy_max[xy] := d;     // update max/min values for scaling calcs.
-  if d < xy_min[xy] then
-    xy_min[xy] := d;
+  if pt.X > xy_max[0] then
+    xy_max[0] := pt.X;     // update max/min values for scaling calcs.
+  if pt.X < xy_min[0] then
+    xy_min[0] := pt.X;
+
+  if pt.Y > xy_max[1] then
+    xy_max[1] := pt.Y;     // update max/min values for scaling calcs.
+  if pt.Y < xy_min[1] then
+    xy_min[1] := pt.Y;
 end;
 //_____________________________________________________________________________________
 
-function outoflist(aq, nl, xy: integer): integer;
+function outoflist(aq, nl: integer): TPoint;
 
-  // return a value from rail list for x or y  (xy=0/1)...
-var
-  p: Pointer;
-
+  // return a value from rail list for x or y
 begin
-  Result := 0;     // keep compiler happy.
-
-  if (nl < 0) or (xy < 0) or (xy > 1) or (aq < 0) or (aq > aq_max_c) then begin
+  if (nl < 0) or (aq < 0) or (aq > aq_max_c) then begin
     run_error(61);
     EXIT;
   end;
 
-  p := xy_p[aq, xy];              // pointer to list.
-
-  if p = nil then begin
-    //run_error(62);
-    EXIT;
-    // return zero if there is no list for this aq. ?? how did you get here??
-  end;                 // erasing lines that were never drawn?
-
-  if nl > intarray_max(p) then begin
+  if nl > High(xy_p[aq]) then begin
     run_error(63);     //  abandon ship if index outside limits.
     EXIT;
   end;
 
-  Result := intarray_get(p, nl);    // get the data.
+  Result := xy_p[aq][nl];    // get the data.
 end;
 //_____________________________________________________________________________________
 
@@ -17831,6 +17791,7 @@ function show_a_line(on_canvas: TCanvas; aq, pen_width: integer; erasing: boolea
 var
   now, now_max: integer;
   move_to, line_to, save_line_to: TPoint;
+  pt: TPoint;
 
 begin
   Result := False;    // default init.
@@ -17863,11 +17824,13 @@ begin
 
       now_max := nlmax_array[aq];
 
-      move_to.X := Round(outoflist(aq, 0, 0) * sx + ex - gx);
-      move_to.Y := Round((outoflist(aq, 0, 1) + yd) * sy + by - gy);
+      pt := outoflist(aq,0);
+      move_to.X := Round(pt.X * sx + ex - gx);
+      move_to.Y := Round((pt.Y + yd) * sy + by - gy);
       for now := 1 to now_max do begin
-        line_to.X := Round(outoflist(aq, now, 0) * sx + ex - gx);
-        line_to.Y := Round((outoflist(aq, now, 1) + yd) * sy + by - gy);
+        pt := outoflist(aq, now);
+        line_to.X := Round(pt.X * sx + ex - gx);
+        line_to.Y := Round((pt.Y + yd) * sy + by - gy);
 
         save_line_to := line_to;  // in case check_limits modifies it (e.g paper bunching)
 

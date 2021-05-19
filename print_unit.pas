@@ -1053,7 +1053,7 @@ var
 
   begin
     with sheet[sheet_down, sheet_across] do begin // (grid_left)
-      Result := Round((outoflist(q, n, 1) + ypd - grid_left) * scaw_out) + page_left_dots;
+      Result := Round((outoflist(q, n).Y + ypd - grid_left) * scaw_out) + page_left_dots;
     end;//with
     w_dims_valid := check_draw_dim_w(Result);
   end;
@@ -1063,7 +1063,7 @@ var
 
   begin
     with sheet[sheet_down, sheet_across] do begin // (grid_top)
-      Result := Round((outoflist(q, n, 0) - grid_top) * scal_out) + page_top_dots;
+      Result := Round((outoflist(q, n).X - grid_top) * scal_out) + page_top_dots;
     end;//with
     l_dims_valid := check_draw_dim_l(Result);
   end;
