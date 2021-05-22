@@ -23303,7 +23303,7 @@ begin
 
   if marks_list_ptr = nil then
     EXIT;        // pointer to marks list not valid.
-  markmax := intarray_max(marks_list_ptr);  // max index for the present list.
+  markmax := High(marks_list_ptr);  // max index for the present list.
 
   if mark_index > markmax{_c} then
     mark_index := markmax{_c};  // ??? shouldn't be.
