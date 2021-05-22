@@ -30695,14 +30695,14 @@ begin
                 for aq := 29 downto 0 do begin
                   // 205e was 25    ignore FB foot lines.
 
-                  array_max := intarray_max(list_bgnd_rails[aq, 0]);
-                  if array_max = 0 then
+                  if Length(list_bgnd_rails[aq]) = 0 then
                     CONTINUE;                       // empty rail, next aq.
 
+                  array_max := High(list_bgnd_rails[aq]);
                   for nk := 0 to array_max do begin
 
-                    xint := intarray_get(list_bgnd_rails[aq, 0], nk);
-                    yint := intarray_get(list_bgnd_rails[aq, 1], nk);
+                    xint := list_bgnd_rails[aq][nk].X;
+                    yint := list_bgnd_rails[aq][nk].Y;
 
                     if (xint > X_left) and (xint < X_right) and
                       (yint > Y_bottom) and (yint < Y_top) then begin

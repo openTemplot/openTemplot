@@ -3587,7 +3587,7 @@ type
 
     list_bgnd_marks: Tmark_array;
     // pointers only, so can't save this data in a file (of Tbgnd_keep).
-    list_bgnd_rails: array[0..aq_max_c, 0..1] of Pointer;
+    list_bgnd_rails: array[0..aq_max_c] of TPoint_array;
 
     bgnd_endmarks: array[0..aq_max_c, 0..1] of TPoint;
     // rail end mark points. 1/100th mm , curved ready for drawing.

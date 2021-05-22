@@ -902,14 +902,14 @@ begin
             with bgndk do begin
               for aq := 0 to aq_max_c do begin
 
-                array_max := intarray_max(list_bgnd_rails[aq, 0]);
-                if array_max = 0 then
+                if Length(list_bgnd_rails[aq]) = 0 then
                   CONTINUE;                      // empty rail.
 
+                array_max := High(list_bgnd_rails[aq]);
                 for now := 0 to array_max do begin
-                  across := intarray_get(list_bgnd_rails[aq, 1], now);
+                  across := list_bgnd_rails[aq][now].Y;
                   // y datum already included in data.
-                  down := intarray_get(list_bgnd_rails[aq, 0], now);
+                  down := list_bgnd_rails[aq][now].X;
 
                   if (across > grid_left) and (across < grid_right) and
                     (down > grid_top) and (down < grid_bottom) then begin
@@ -1624,12 +1624,12 @@ begin
 
                   // (platform ends not shown on print preview)
 
-                  array_max := intarray_max(list_bgnd_rails[aq, 0]);
-                  if array_max = 0 then
+                  if Length(list_bgnd_rails[aq]) = 0 then
                     CONTINUE;                        // empty rail.
 
-                  xint := intarray_get(list_bgnd_rails[aq, 0], 0);
-                  yint := intarray_get(list_bgnd_rails[aq, 1], 0);
+                  array_max := High(list_bgnd_rails[aq]);
+                  xint := list_bgnd_rails[aq][0].X;
+                  yint := list_bgnd_rails[aq][0].Y;
 
                   w_dots1 := Round(yint * pvsy);
                   l_dots1 := Round(xint * pvsx);
@@ -1637,8 +1637,8 @@ begin
                   move_to.Y := bottom_dots - w_dots1;
 
                   for now := 1 to array_max do begin
-                    xint := intarray_get(list_bgnd_rails[aq, 0], now);
-                    yint := intarray_get(list_bgnd_rails[aq, 1], now);
+                    xint := list_bgnd_rails[aq][now].X;
+                    yint := list_bgnd_rails[aq][now].Y;
 
                     w_dots2 := Round(yint * pvsy);
                     l_dots2 := Round(xint * pvsx);
@@ -2284,12 +2284,12 @@ begin
               if (something_drawn = True) and ((aq = 24) or (aq = 25)) then
                 CONTINUE;  // don't draw centre-lines unless there is nothing else. (cl-only templates).
 
-              array_max := intarray_max(list_bgnd_rails[aq, 0]);
-              if array_max = 0 then
+              if Length(list_bgnd_rails[aq]) = 0 then
                 CONTINUE;                        // empty rail.
 
-              xint := intarray_get(list_bgnd_rails[aq, 0], 0);
-              yint := intarray_get(list_bgnd_rails[aq, 1], 0);
+              array_max := High(list_bgnd_rails[aq]);
+              xint := list_bgnd_rails[aq][0].X;
+              yint := list_bgnd_rails[aq][0].Y;
 
               w_dots1 := Round(yint * pvsy);
               l_dots1 := Round(xint * pvsx);
@@ -2297,8 +2297,8 @@ begin
               move_to.Y := bottom_dots - w_dots1;
 
               for now := 1 to array_max do begin
-                xint := intarray_get(list_bgnd_rails[aq, 0], now);
-                yint := intarray_get(list_bgnd_rails[aq, 1], now);
+                xint := list_bgnd_rails[aq][now].X;
+                yint := list_bgnd_rails[aq][now].Y;
 
                 w_dots2 := Round(yint * pvsy);
                 l_dots2 := Round(xint * pvsx);

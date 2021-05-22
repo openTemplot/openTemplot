@@ -790,28 +790,28 @@ var
   begin
     with now_keep do begin
 
-      array_max := intarray_max(list_bgnd_rails[aq, 0]);
-      if array_max = 0 then
+      if Length(list_bgnd_rails[aq]) = 0 then
         EXIT;                       // empty rail.
 
+      array_max := High(list_bgnd_rails[aq]);
       if (do_3d = True) and (aq < 9) then
-        array_max_outer := intarray_max(list_bgnd_rails[aq + 8, 0])
+        array_max_outer := High(list_bgnd_rails[aq + 8])
       else
         array_max_outer := 0;
 
       // run along rail head...
 
-      move_to.x := intarray_get(list_bgnd_rails[aq, 0], 0);
-      move_to.y := intarray_get(list_bgnd_rails[aq, 1], 0);
+      move_to.x := list_bgnd_rails[aq][0].X;
+      move_to.y := list_bgnd_rails[aq][0].Y;
 
       nk_3d_start := 0;     // keep compiler happy.
 
       if array_max_outer > 0     // for 3-D.
       then begin
         move_to_outer.x :=
-          intarray_get(list_bgnd_rails[aq + 8, 0], 0);
+          list_bgnd_rails[aq + 8][0].X;
         move_to_outer.y :=
-          intarray_get(list_bgnd_rails[aq + 8, 1], 0);
+          list_bgnd_rails[aq + 8][0].Y;
 
         case aq of
           1:
@@ -825,8 +825,8 @@ var
 
       for nk := 1 to array_max do begin
 
-        line_to.x := intarray_get(list_bgnd_rails[aq, 0], nk);
-        line_to.y := intarray_get(list_bgnd_rails[aq, 1], nk);
+        line_to.x := list_bgnd_rails[aq][nk].X;
+        line_to.y := list_bgnd_rails[aq][nk].Y;
 
         x1 := move_to.x / 100;
         y1 := move_to.y / 100;
@@ -871,9 +871,9 @@ var
               nko := 0;
 
             line_to_outer.x :=
-              intarray_get(list_bgnd_rails[aq + 8, 0], nko);
+              list_bgnd_rails[aq + 8][nko].X;
             line_to_outer.y :=
-              intarray_get(list_bgnd_rails[aq + 8, 1], nko);
+              list_bgnd_rails[aq + 8][nko].Y;
 
             x_outer1 := move_to_outer.x / 100;
             y_outer1 := move_to_outer.y / 100;

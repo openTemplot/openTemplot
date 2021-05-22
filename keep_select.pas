@@ -899,8 +899,7 @@ begin
     with bgnd_keep do begin
       SetLength(list_bgnd_marks, 0);
       for aq := 0 to aq_max_c do begin
-        list_bgnd_rails[aq, 0] := nil;
-        list_bgnd_rails[aq, 1] := nil;
+        SetLength(list_bgnd_rails[aq], 0);
       end;//for
     end;//with
 
@@ -939,10 +938,7 @@ begin
       SetLength(list_bgnd_marks, 0);
 
       for aq := 0 to aq_max_c do begin
-        if list_bgnd_rails[aq, 0] <> nil then
-          intarray_free(list_bgnd_rails[aq, 0]);
-        if list_bgnd_rails[aq, 1] <> nil then
-          intarray_free(list_bgnd_rails[aq, 1]);
+        SetLength(list_bgnd_rails[aq], 0);
       end;//for next aq
 
     end;//with bgnd_keep data
@@ -6284,10 +6280,7 @@ var
     with new_bgk do begin
       SetLength(list_bgnd_marks, 0);
       for n := 0 to aq_max_c do begin
-        if list_bgnd_rails[n, 0] <> nil then
-          intarray_free(list_bgnd_rails[n, 0]);
-        if list_bgnd_rails[n, 1] <> nil then
-          intarray_free(list_bgnd_rails[n, 1]);
+        SetLength(list_bgnd_rails[n], 0);
       end;//for
     end;//with
   end;
@@ -6298,8 +6291,7 @@ begin
   with new_bgk do begin
     SetLength(list_bgnd_marks, 0);
     for aq := 0 to aq_max_c do begin
-      list_bgnd_rails[aq, 0] := nil;
-      list_bgnd_rails[aq, 1] := nil;
+      SetLength(list_bgnd_rails[aq], 0);
     end;//for
   end;//with
 
@@ -6410,21 +6402,7 @@ begin
           // copy rail data from list...
           for aq := 0 to aq_max_c do begin
 
-            p := intarray_create(nlmax_array[aq], True);
-            if p = nil then begin
-              abort_new_bgk;
-              EXIT;
-            end;   // array_create does the error message.
-
-            list_bgnd_rails[aq, 0] := p;       // array for X data.
-
-            p := intarray_create(nlmax_array[aq], True);
-            if p = nil then begin
-              abort_new_bgk;
-              EXIT;
-            end;   // array_create does the error message.
-
-            list_bgnd_rails[aq, 1] := p;       // array for Y data.
+            SetLength(list_bgnd_rails[aq], nlmax_array[aq]+1);
 
             if ((plain_track = False) or (aq = 0) or (aq = 8) or (aq = 3) or
               (aq = 11) or ((aq > 15) and (aq < 25))) and (aqyn[aq] = True)
@@ -6433,9 +6411,9 @@ begin
             then begin
               for now := 0 to nlmax_array[aq] do begin
                 pt := outoflist(aq, now);
-                intarray_set(list_bgnd_rails[aq, 0], now, pt.X);
-                intarray_set(list_bgnd_rails[aq, 1], now, pt.Y + Round(y_datum * 100));
+                pt.Y := pt.Y + Round(y_datum * 100);
 
+                list_bgnd_rails[aq][now] := pt;
               end;//for next now
             end;
 
@@ -7874,10 +7852,7 @@ begin
           with bgnd_keep do begin
             SetLength(list_bgnd_marks, 0);
             for aq := 0 to aq_max_c do begin
-              if list_bgnd_rails[aq, 0] <> nil then
-                intarray_free(list_bgnd_rails[aq, 0]);
-              if list_bgnd_rails[aq, 1] <> nil then
-                intarray_free(list_bgnd_rails[aq, 1]);
+              SetLength(list_bgnd_rails[aq], 0);
             end;//for next aq
 
           end;//with bgnd_keep

@@ -1698,14 +1698,14 @@ begin
         for aq := 25 downto 0 do begin
           // save time by searching centre-lines first, ignore FB foot lines.
 
-          array_max := intarray_max(list_bgnd_rails[aq, 0]);
-          if array_max = 0 then
+          if Length(list_bgnd_rails[aq]) = 0 then
             CONTINUE;                       // empty rail.
 
+          array_max := High(list_bgnd_rails[aq]);
           for nk := 0 to array_max do begin
 
-            xint := intarray_get(list_bgnd_rails[aq, 0], nk);
-            yint := intarray_get(list_bgnd_rails[aq, 1], nk);
+            xint := list_bgnd_rails[aq][nk].X;
+            yint := list_bgnd_rails[aq][nk].Y;
 
             if (xint > X_left) and (xint < X_right) and (yint > Y_bottom) and
               (yint < Y_top) then begin
@@ -1793,12 +1793,12 @@ var
   begin
     with now_keep do begin
 
-      array_max := intarray_max(list_bgnd_rails[aq, 0]);
-      if array_max = 0 then
+      if Length(list_bgnd_rails[aq]) = 0 then
         EXIT;                       // empty rail.
 
-      xint := intarray_get(list_bgnd_rails[aq, 0], 0);
-      yint := intarray_get(list_bgnd_rails[aq, 1], 0);
+      array_max := High(list_bgnd_rails[aq]);
+      xint := list_bgnd_rails[aq][0].X;
+      yint := list_bgnd_rails[aq][0].Y;
 
       move_to.X := Round(ex - gx + xint * sx);
       move_to.Y := Round(by - gy + yint * sy);
@@ -1818,8 +1818,8 @@ var
 
         for nk := 1 to array_max do begin
 
-          xint := intarray_get(list_bgnd_rails[aq, 0], nk);
-          yint := intarray_get(list_bgnd_rails[aq, 1], nk);
+          xint := list_bgnd_rails[aq][nk].X;
+          yint := list_bgnd_rails[aq][nk].Y;
 
           line_to.X := Round(ex - gx + xint * sx);
           line_to.Y := Round(by - gy + yint * sy);
@@ -3982,14 +3982,14 @@ begin
           for aq := 25 downto 0 do begin
             // save time by searching centre-lines first, ignore FB foot lines.
 
-            array_max := intarray_max(list_bgnd_rails[aq, 0]);
-            if array_max = 0 then
+            if Length(list_bgnd_rails[aq]) = 0 then
               CONTINUE;                       // empty rail.
 
+            array_max := High(list_bgnd_rails[aq]);
             for nk := 0 to array_max do begin
 
-              xint := intarray_get(list_bgnd_rails[aq, 0], nk);
-              yint := intarray_get(list_bgnd_rails[aq, 1], nk);
+              xint := list_bgnd_rails[aq][nk].X;
+              yint := list_bgnd_rails[aq][nk].Y;
 
               if (xint > X_left) and (xint < X_right) and (yint > Y_bottom) and
                 (yint < Y_top) then begin

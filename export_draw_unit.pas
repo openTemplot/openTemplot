@@ -2772,7 +2772,7 @@ var
     yint: integer;
 
   begin
-    yint := intarray_get(now_keep.list_bgnd_rails[q, 1], n);
+    yint := now_keep.list_bgnd_rails[q][n].Y;
 
     Result := Round((yint - grid_left) * scaw_out) + page_left_dots;
 
@@ -2786,7 +2786,7 @@ var
     xint: integer;
 
   begin
-    xint := intarray_get(now_keep.list_bgnd_rails[q, 0], n);
+    xint := now_keep.list_bgnd_rails[q][n].X;
 
     Result := Round((xint - grid_top) * scal_out) + page_top_dots;
 
@@ -2801,12 +2801,12 @@ var
 
   begin
     with now_keep do begin
-      array_max := intarray_max(list_bgnd_rails[aq, 0]);
-      if array_max = 0 then
+      if Length(list_bgnd_rails[aq]) = 0 then
         EXIT;                         // empty rail.
 
-      xint := intarray_get(list_bgnd_rails[aq, 0], 0);
-      yint := intarray_get(list_bgnd_rails[aq, 1], 0);
+      array_max := High(list_bgnd_rails[aq]);
+      xint := list_bgnd_rails[aq][0].X;
+      yint := list_bgnd_rails[aq][0].Y;
 
       move_to.X := Round((yint - grid_left) * scaw_out) + page_left_dots;
       move_to.Y := Round((xint - grid_top) * scal_out) + page_top_dots;
@@ -2820,8 +2820,8 @@ var
 
         for nk := 1 to array_max do begin
 
-          xint := intarray_get(list_bgnd_rails[aq, 0], nk);
-          yint := intarray_get(list_bgnd_rails[aq, 1], nk);
+          xint := list_bgnd_rails[aq][nk].X;
+          yint := list_bgnd_rails[aq][nk].Y;
 
           line_to.X := Round((yint - grid_left) * scaw_out) + page_left_dots;
           line_to.Y := Round((xint - grid_top) * scal_out) + page_top_dots;
@@ -2911,17 +2911,17 @@ var
 
     with now_keep do begin
 
-      if (intarray_max(list_bgnd_rails[aq, 0]) = 0) or
-        (intarray_max(list_bgnd_rails[aq + outer_add, 0]) = 0)  // data not for both edges?
+      if (Length(list_bgnd_rails[aq]) = 0) or
+        (Length(list_bgnd_rails[aq + outer_add]) = 0)  // data not for both edges?
       then begin
-        if intarray_max(list_bgnd_rails[aq, 0]) <> 0 then
+        if Length(list_bgnd_rails[aq]) <> 0 then
           pbg_outline_railedge(aq, 0, False);
-        if intarray_max(list_bgnd_rails[aq + outer_add, 0]) <> 0 then
+        if Length(list_bgnd_rails[aq + outer_add]) <> 0 then
           pbg_outline_railedge(aq + outer_add, 0, False);
         EXIT;
       end;
 
-      now_max := intarray_max(list_bgnd_rails[aq, 0]);
+      now_max := High(list_bgnd_rails[aq]);
 
       if gaunt_template = False then begin
 
@@ -2977,7 +2977,7 @@ var
 
       aq := rail + outer_add;             // outer-edges.
 
-      now_max := intarray_max(list_bgnd_rails[aq, 0]);
+      now_max := High(list_bgnd_rails[aq]);
 
       edge_started := False;
 
@@ -3261,18 +3261,18 @@ var
   begin
     with now_keep do begin
 
-      if (intarray_max(list_bgnd_rails[4, 0]) = 0) or
-        (intarray_max(list_bgnd_rails[5, 0]) = 0) or
-        (intarray_max(list_bgnd_rails[12, 0]) = 0) or
-        (intarray_max(list_bgnd_rails[13, 0]) = 0)  // not enough data for filled vee.
+      if (Length(list_bgnd_rails[4]) = 0) or
+        (Length(list_bgnd_rails[5]) = 0) or
+        (Length(list_bgnd_rails[12]) = 0) or
+        (Length(list_bgnd_rails[13]) = 0)  // not enough data for filled vee.
       then begin
-        if intarray_max(list_bgnd_rails[4, 0]) <> 0 then
+        if Length(list_bgnd_rails[4]) <> 0 then
           pbg_outline_railedge(4, 0, False);       // draw outline vee...
-        if intarray_max(list_bgnd_rails[5, 0]) <> 0 then
+        if Length(list_bgnd_rails[5]) <> 0 then
           pbg_outline_railedge(5, 0, False);
-        if intarray_max(list_bgnd_rails[12, 0]) <> 0 then
+        if Length(list_bgnd_rails[12]) <> 0 then
           pbg_outline_railedge(12, 0, False);
-        if intarray_max(list_bgnd_rails[13, 0]) <> 0 then
+        if Length(list_bgnd_rails[13]) <> 0 then
           pbg_outline_railedge(13, 0, False);
       end
       else begin                // polygon mode...
@@ -3281,7 +3281,7 @@ var
 
         aq := 4;
         edge_started := False;
-        for now := 0 to intarray_max(list_bgnd_rails[aq, 0]) do
+        for now := 0 to High(list_bgnd_rails[aq]) do
         begin    // vee main-side, gauge_face, start from the tip.
           x_dots := pbg_get_w_dots(aq, now);
           y_dots := pbg_get_l_dots(aq, now);
@@ -3305,7 +3305,7 @@ var
 
         aq := 12;
         edge_started := False;
-        for now := intarray_max(list_bgnd_rails[aq, 0]) downto 0 do
+        for now := High(list_bgnd_rails[aq]) downto 0 do
         begin // back along outer-edge.
           x_dots := pbg_get_w_dots(aq, now);
           y_dots := pbg_get_l_dots(aq, now);
@@ -3327,7 +3327,7 @@ var
 
         aq := 13;
         edge_started := False;
-        for now := 0 to intarray_max(list_bgnd_rails[aq, 0]) do
+        for now := 0 to High(list_bgnd_rails[aq]) do
         begin    // and then turnout side outer edge.
           x_dots := pbg_get_w_dots(aq, now);
           y_dots := pbg_get_l_dots(aq, now);
@@ -3351,7 +3351,7 @@ var
 
         aq := 5;
         edge_started := False;
-        for now := intarray_max(list_bgnd_rails[aq, 0]) downto 0 do
+        for now := High(list_bgnd_rails[aq]) downto 0 do
         begin // and back along the gauge face to the tip.
           x_dots := pbg_get_w_dots(aq, now);
           y_dots := pbg_get_l_dots(aq, now);
@@ -3580,13 +3580,13 @@ var
   begin
     with now_keep do begin
 
-      if intarray_max(list_bgnd_rails[0, 0]) = 0 then
+      if Length(list_bgnd_rails[0]) = 0 then
         EXIT;    // no data for straight stock rail
-      if intarray_max(list_bgnd_rails[3, 0]) = 0 then
+      if Length(list_bgnd_rails[3]) = 0 then
         EXIT;    // no data for curved stock rail
 
-      if (intarray_max(list_bgnd_rails[4, 0]) = 0) or
-        (intarray_max(list_bgnd_rails[5, 0]) = 0)   // no data for vee rails
+      if (Length(list_bgnd_rails[4]) = 0) or
+        (Length(list_bgnd_rails[5]) = 0)   // no data for vee rails
       then
         no_vee := True
       else
@@ -3595,7 +3595,7 @@ var
       dots_index := 0 - 1;                    // first increment is to zero.
 
 
-      now_max := intarray_max(list_bgnd_rails[0, 0]);    // straight stock rail
+      now_max := High(list_bgnd_rails[0]);    // straight stock rail
       edge_started := False;
 
       for now := 0 to now_max do begin
@@ -3620,7 +3620,7 @@ var
       ms_mid_dots_index := dots_index;
 
       if no_vee = False then begin
-        now_max := intarray_max(list_bgnd_rails[4, 0]);    // point rail
+        now_max := High(list_bgnd_rails[4]);    // point rail
         edge_started := False;
 
         for now := now_max downto 0 do begin
@@ -3643,7 +3643,7 @@ var
         end;//next now
 
 
-        now_max := intarray_max(list_bgnd_rails[5, 0]);    // splice rail
+        now_max := High(list_bgnd_rails[5]);    // splice rail
         edge_started := False;
 
         for now := 0 to now_max do begin
@@ -3668,7 +3668,7 @@ var
 
       ts_mid_dots_index := dots_index;
 
-      now_max := intarray_max(list_bgnd_rails[3, 0]);    // curved stock rail
+      now_max := High(list_bgnd_rails[3]);    // curved stock rail
       edge_started := False;
 
       for now := now_max downto 0 do begin
@@ -3770,10 +3770,8 @@ var
             (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.turnout_info2.gaunt_flag =
             False)                   // not for gaunt turnout
 
-            and (intarray_max(list_bgnd_rails[1, 0]) <>
-            0)    // data for straight switch rail
-            and (intarray_max(list_bgnd_rails[2, 0]) <> 0)
-          // data for curved stock rail
+            and (Length(list_bgnd_rails[1]) <> 0)    // data for straight switch rail
+            and (Length(list_bgnd_rails[2]) <> 0)    // data for curved stock rail
           then begin
             if Brush.Color = clWhite
             then
@@ -3883,8 +3881,7 @@ begin          // export background templates...
             for aq := 24 to 25 do begin
               // use wide track centre-lines as track background
 
-              array_max := intarray_max(list_bgnd_rails[aq, 0]);
-              if array_max = 0 then begin
+              if Length(list_bgnd_rails[aq]) = 0 then begin
                 if (aq = 24) and (cl_warning_shown = False)
                 // only checks main road in case plain track
                 then begin
@@ -3897,16 +3894,17 @@ begin          // export background templates...
                 CONTINUE;                      // empty rail.
               end;
 
-              xint := intarray_get(list_bgnd_rails[aq, 0], 0);
-              yint := intarray_get(list_bgnd_rails[aq, 1], 0);
+              array_max := High(list_bgnd_rails[aq]);
+              xint := list_bgnd_rails[aq][0].X;
+              yint := list_bgnd_rails[aq][0].Y;
 
               move_to.X := Round((yint - grid_left) * scaw_out) + page_left_dots;
               move_to.Y := Round((xint - grid_top) * scal_out) + page_top_dots;
 
               for nk := 1 to array_max do begin
 
-                xint := intarray_get(list_bgnd_rails[aq, 0], nk);
-                yint := intarray_get(list_bgnd_rails[aq, 1], nk);
+                xint := list_bgnd_rails[aq][nk].X;
+                yint := list_bgnd_rails[aq][nk].Y;
 
                 line_to.X := Round((yint - grid_left) * scaw_out) + page_left_dots;
                 line_to.Y := Round((xint - grid_top) * scal_out) + page_top_dots;
@@ -4033,20 +4031,20 @@ begin          // export background templates...
 
               for aq := 24 to 25 do begin         // track centre-lines.
 
-                array_max := intarray_max(list_bgnd_rails[aq, 0]);
-                if array_max = 0 then
+                if Length(list_bgnd_rails[aq]) = 0 then
                   CONTINUE;                      // empty rail.
 
-                xint := intarray_get(list_bgnd_rails[aq, 0], 0);
-                yint := intarray_get(list_bgnd_rails[aq, 1], 0);
+                array_max := High(list_bgnd_rails[aq]);
+                xint := list_bgnd_rails[aq][0].X;
+                yint := list_bgnd_rails[aq][0].Y;
 
                 move_to.X := Round((yint - grid_left) * scaw_out) + page_left_dots;
                 move_to.Y := Round((xint - grid_top) * scal_out) + page_top_dots;
 
                 for nk := 1 to array_max do begin
 
-                  xint := intarray_get(list_bgnd_rails[aq, 0], nk);
-                  yint := intarray_get(list_bgnd_rails[aq, 1], nk);
+                  xint := list_bgnd_rails[aq][nk].X;
+                  yint := list_bgnd_rails[aq][nk].Y;
 
                   line_to.X := Round((yint - grid_left) * scaw_out) + page_left_dots;
                   line_to.Y := Round((xint - grid_top) * scal_out) + page_top_dots;
@@ -4161,7 +4159,7 @@ begin          // export background templates...
 
               aq := 1;
 
-              if (intarray_max(list_bgnd_rails[aq, 0]) <> 0) and
+              if (Length(list_bgnd_rails[aq]) <> 0) and
                 (planing_end_aq1 > 0) { and (drawn_full_aq1=False)} then
               begin
                 move_to.X := pbg_get_w_dots(aq, 0);
@@ -4178,7 +4176,7 @@ begin          // export background templates...
               end;
 
               aq := 2;
-              if (intarray_max(list_bgnd_rails[aq, 0]) <> 0) and
+              if (Length(list_bgnd_rails[aq]) <> 0) and
                 (planing_end_aq2 > 0) { and (drawn_full_aq2=False)} then
               begin
                 move_to.X := pbg_get_w_dots(aq, 0);
