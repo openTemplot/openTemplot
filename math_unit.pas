@@ -848,16 +848,6 @@ procedure dotransform(krot, xrot, yrot: extended; pin: Tpex; var pout: Tpex);
 
 function rad_tanp1_p2(p1, p2: Tpex; tn: extended; var rad, swing: extended): boolean;    // 15-9-99.
 
-function intarray_create(max_index: integer; zero: boolean): Pointer;
-// max_index is integers, not bytes.
-function intarray_get(p: Pointer; index: integer): integer;           // return value at this index.
-function intarray_max(p: Pointer): integer;
-// return max index for this array.
-
-procedure intarray_set(p: Pointer; index: integer; d: integer);
-// enter new value d at this index.
-procedure intarray_free(p: Pointer);
-
 procedure memory_alert;             // do memory fail message.
 
 function calc_geo_radius(rout, xp, yp, kp: extended; var rin, kin, krin, gpx: extended): boolean;
@@ -35515,107 +35505,6 @@ begin
 
   last_code_generated := code;
   // save this calc for check next time. !!! mod version 0.22 18-10-99 was :=RESULT; (so third quick call generates first code again).
-end;
-//_________________________________________________________________________________________
-
-// routines to handle home-made integer arrays...     25-5-99
-
-function intarray_create(max_index: integer; zero: boolean): Pointer;
-
-  // max_index is integers, not bytes.
-  // if zero=True, clear the array on creation.
-  // if max_index=0, creates one valid data slot.
-
-var
-  p: Pointer;
-  index: integer;
-  pint: ^integer;     // pointer to integer.
-
-begin
-  if max_index < 0 then
-    run_error(196);
-
-  try
-    GetMem(p, (max_index + 3) * int_size);
-    // would be +1 for data only.  +3 means extra 8 bytes (if 4-byte integers).
-    // first 4 bytes in array used to contain the max_index,
-    // then the data, then 4 spare safety bytes at the end.
-    pint := p;
-    pint^ := max_index;      // save the max index value in the first slot.
-
-    if zero = True then
-      for index := 0 to max_index do
-        intarray_set(p, index, 0);    // clear the data area.
-
-    Result := p;             // and return the pointer.
-  except
-    memory_alert;          // tell him what's happened.
-    Result := nil;
-  end;//try
-end;
-//_________________________________________________________________________________________
-
-procedure intarray_free(p: Pointer);
-
-begin
-  if p = nil then
-    run_error(199);
-  try
-    FreeMem(p);
-  except
-    run_error(195);
-  end;//try
-end;
-//_______________________________________________________________________________________
-
-function intarray_max(p: Pointer): integer;
-
-var
-  pint: ^integer;     // pointer to integer.
-
-begin
-  if p = nil then
-    run_error(190);
-  pint := p;
-  Result := pint^;     // return the max index for this array (in first slot).
-end;
-//________________________________________________________________________________________
-
-function intarray_get(p: Pointer; index: integer): integer;   // return value at this index.
-
-var
-  address: PtrInt;
-  pint: ^integer;     // pointer to integer.
-
-begin
-  if p = nil then
-    run_error(191);
-  pint := p;
-  if (index < 0) or (index > pint^) then
-    run_error(192);     // max index is at first slot.
-
-  address := PtrInt(p) + (index + 1) * int_size;  // +1 because data starts at the second slot.
-  pint := Pointer(address);
-  Result := pint^;                   // return integer data from this address.
-end;
-//________________________________________________________________________________________
-
-procedure intarray_set(p: Pointer; index: integer; d: integer);   // enter new value d at this index.
-
-var
-  address: PtrInt;
-  pint: ^integer;     // pointer to integer.
-
-begin
-  if p = nil then
-    run_error(193);
-  pint := p;
-  if (index < 0) or (index > pint^) then
-    run_error(194);     // max index is at first slot.
-
-  address := PtrInt(p) + (index + 1) * int_size;  // +1 because data starts at the second slot.
-  pint := Pointer(address);
-  pint^ := d;                                // write integer at this address.
 end;
 //________________________________________________________________________________________
 
