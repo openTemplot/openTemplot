@@ -2166,9 +2166,9 @@ begin
 
     SetLength(xy_p[n], 0);   // (arrays containing x rail data in 1/100 of a mm.
 
-    nlnow_array[n] := 0;     //  current index into each aq array.
-    nlmax_array[n] := 0;     //  max nlnow so far used for each aq.
-    nldim_array[n] := 0;     //  array length (max index) for each aq.
+    nlnow_array[n] := 0;     //  next available index into each aq array.
+    nlmax_array[n] := -1;    //  max nlnow so far used for each aq.
+    nldim_array[n] := -1;    //  array length (max index) for each aq.
 
   end;//for
 
@@ -6584,9 +6584,9 @@ begin
   // first clear the old...
   SetLength(xy_p[aq], 0);
 
-  nldim_array[aq] := 0;                  //  clear max array index.
+  nldim_array[aq] := -1;                  //  clear max array index.
 
-  nlmax_array[aq] := 0;             //  clear nlmax maximum index used.
+  nlmax_array[aq] := -1;             //  clear nlmax maximum index used.
   nlnow_array[aq] := 0;             //  clear nlnow current data array index.
 
   // and then get a new list, if needed...
