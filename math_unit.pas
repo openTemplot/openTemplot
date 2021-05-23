@@ -848,16 +848,6 @@ procedure dotransform(krot, xrot, yrot: extended; pin: Tpex; var pout: Tpex);
 
 function rad_tanp1_p2(p1, p2: Tpex; tn: extended; var rad, swing: extended): boolean;    // 15-9-99.
 
-function intarray_create(max_index: integer; zero: boolean): Pointer;
-// max_index is integers, not bytes.
-function intarray_get(p: Pointer; index: integer): integer;           // return value at this index.
-function intarray_max(p: Pointer): integer;
-// return max index for this array.
-
-procedure intarray_set(p: Pointer; index: integer; d: integer);
-// enter new value d at this index.
-procedure intarray_free(p: Pointer);
-
 procedure memory_alert;             // do memory fail message.
 
 function calc_geo_radius(rout, xp, yp, kp: extended; var rin, kin, krin, gpx: extended): boolean;
@@ -1132,7 +1122,7 @@ procedure gocalc(calcs_code, mode: integer);    //  a new turnout wanted - let's
 //091c procedure shift_onto_notch(click:boolean);  // click=True if he clicked the menu.
 procedure shift_onto_notch(click, min_rot: boolean); // 0.93.a ex 081
 
-function outoflist(aq, nl, xy: integer): integer;
+function outoflist(aq, nl: integer): TPoint;
 
 function calc_snap_peg_data(code: integer): Tnotch;      // 0.79.a  27-05-06
 
@@ -1576,7 +1566,7 @@ function f28000(aq: integer; xs, ys: extended): integer; forward;
 function f29000(aq: integer; pc: Tpex): integer; forward;
 //  Put xc,yc (in pc) in rail-data array.
 
-function intolist(aq, nl, xy, d: integer): integer; forward;
+function intolist(aq, nl: integer; pt: TPoint): integer; forward;
 
 function new_calc_draw(on_canvas: TCanvas; calcs_code, mode: integer): boolean;
   forward;   // calc and draw all rail lines and marks.
@@ -2174,12 +2164,11 @@ begin
 
   for n := 0 to aq_max_c do begin
 
-    xy_p[n, 0] := nil;     // (x) pointer to integer arrays containing x rail data in 1/100 of a mm.
-    xy_p[n, 1] := nil;     // (y) ditto.
+    SetLength(xy_p[n], 0);   // (arrays containing x rail data in 1/100 of a mm.
 
-    nlnow_array[n] := 0;     //  current index into each aq array.
-    nlmax_array[n] := 0;     //  max nlnow so far used for each aq.
-    nldim_array[n] := 0;     //  array length (max index) for each aq.
+    nlnow_array[n] := 0;     //  next available index into each aq array.
+    nlmax_array[n] := -1;    //  max nlnow so far used for each aq.
+    nldim_array[n] := -1;    //  array length (max index) for each aq.
 
   end;//for
 
@@ -6593,16 +6582,11 @@ begin
   Result := False;             // init default return.
 
   // first clear the old...
-  for n := 0 to 1 do begin
-    p := xy_p[aq, n];                     // 0=x, 1=y
-    if p <> nil then
-      intarray_free(p);
-    xy_p[aq, n] := nil;                   // in case not wanted, or error.
-  end;//for
+  SetLength(xy_p[aq], 0);
 
-  nldim_array[aq] := 0;                  //  clear max array index.
+  nldim_array[aq] := -1;                  //  clear max array index.
 
-  nlmax_array[aq] := 0;             //  clear nlmax maximum index used.
+  nlmax_array[aq] := -1;             //  clear nlmax maximum index used.
   nlnow_array[aq] := 0;             //  clear nlnow current data array index.
 
   // and then get a new list, if needed...
@@ -6735,18 +6719,7 @@ begin
 
   max_list := Round(ABS(list_size + 24));   // add an extra 24 slots to allow for terminal points, etc.
 
-  p := intarray_create(max_list, True);
-  if p = nil then
-    EXIT                    // create failed.
-  else
-    xy_p[aq, 0] := p;          // pointer to x-values array.
-
-  p := intarray_create(max_list, True);
-  if p = nil then
-    EXIT                    // create failed.
-  else
-    xy_p[aq, 1] := p;          // pointer to y_values array.
-
+  SetLength(xy_p[aq], max_list+1);          // pointer to x-values array.
   nldim_array[aq] := max_list;            //  set nldim with max index.
   Result := True;                         // ok, got new lists.
 end;
@@ -10229,7 +10202,7 @@ end;
 function f29000(aq: integer; pc: Tpex): integer;       //  Put xc,yc (in pc) in rail-data array.
   //  Change hand if required.
 var
-  plist: TPoint;
+  pt: TPoint;
   n, xlist, ylist, nl: integer;
 
   //////////////////////////////////////////////////////
@@ -10332,18 +10305,16 @@ begin
 
   //  if list already full, new data overwrites final entry.
 
-  plist := xy_to_list(pc);
+  pt := xy_to_list(pc);
 
-  xlist := plist.X;
-  ylist := plist.Y;
+  xlist := pt.X;
+  ylist := pt.Y;
 
   nl := nlnow_array[aq];         // pick up next free index for this aq.
   nlmax_array[aq] := nl;         // and return it as current max.
 
-  if intolist(aq, nl, 0, xlist) <> 0 then
-    run_error(47);      // fill the x data.
-  if intolist(aq, nl, 1, ylist) <> 0 then
-    run_error(48);      // fill the y data.
+  if intolist(aq, nl, pt) <> 0 then
+    run_error(47);      // fill the point data.
 
   if nl >= (nldim_array[aq] - 1)         // max index.
   then
@@ -10376,74 +10347,53 @@ begin
 end;
 //___________________________________________________________________________________________
 
-function intolist(aq, nl, xy, d: integer): integer;
+function intolist(aq, nl: integer; pt: TPoint): integer;
 
-  // insert data d for x or y (xy=0/1) in rail list,
+  // insert data pt into rail list,
   // and return 0 if o.k. ...
-var
-  p: Pointer;
-
 begin
   Result := 1;       // init default return
 
-  //n:=aqxy_i[aq]+nl;                   //  index for list
-  //if ( (n>xymax_c) or (n<0) or (xy<0) or (xy>1) )
-
-  if (nl < 0) or (xy < 0) or (xy > 1) or (aq < 0) or (aq > aq_max_c) then begin
+  if (nl < 0) or (aq < 0) or (aq > aq_max_c) then begin
     run_error(51);
     EXIT;
   end;
 
-  p := xy_p[aq, xy];              // pointer to list.
-
-  if p = nil then begin
-    run_error(52);
-    EXIT;
-  end;
-
-  if nl > intarray_max(p) then begin
+  if nl > High(xy_p[aq]) then begin
     run_error(53);     //  abandon ship if index outside limits.
     EXIT;
   end;
 
-  intarray_set(p, nl, d);
+  xy_p[aq][nl] := pt;
   Result := 0;                  //  put data in list and flag o.k.
 
-  if d > xy_max[xy] then
-    xy_max[xy] := d;     // update max/min values for scaling calcs.
-  if d < xy_min[xy] then
-    xy_min[xy] := d;
+  if pt.X > xy_max[0] then
+    xy_max[0] := pt.X;     // update max/min values for scaling calcs.
+  if pt.X < xy_min[0] then
+    xy_min[0] := pt.X;
+
+  if pt.Y > xy_max[1] then
+    xy_max[1] := pt.Y;     // update max/min values for scaling calcs.
+  if pt.Y < xy_min[1] then
+    xy_min[1] := pt.Y;
 end;
 //_____________________________________________________________________________________
 
-function outoflist(aq, nl, xy: integer): integer;
+function outoflist(aq, nl: integer): TPoint;
 
-  // return a value from rail list for x or y  (xy=0/1)...
-var
-  p: Pointer;
-
+  // return a value from rail list for x or y
 begin
-  Result := 0;     // keep compiler happy.
-
-  if (nl < 0) or (xy < 0) or (xy > 1) or (aq < 0) or (aq > aq_max_c) then begin
+  if (nl < 0) or (aq < 0) or (aq > aq_max_c) then begin
     run_error(61);
     EXIT;
   end;
 
-  p := xy_p[aq, xy];              // pointer to list.
-
-  if p = nil then begin
-    //run_error(62);
-    EXIT;
-    // return zero if there is no list for this aq. ?? how did you get here??
-  end;                 // erasing lines that were never drawn?
-
-  if nl > intarray_max(p) then begin
+  if nl > High(xy_p[aq]) then begin
     run_error(63);     //  abandon ship if index outside limits.
     EXIT;
   end;
 
-  Result := intarray_get(p, nl);    // get the data.
+  Result := xy_p[aq][nl];    // get the data.
 end;
 //_____________________________________________________________________________________
 
@@ -17831,6 +17781,7 @@ function show_a_line(on_canvas: TCanvas; aq, pen_width: integer; erasing: boolea
 var
   now, now_max: integer;
   move_to, line_to, save_line_to: TPoint;
+  pt: TPoint;
 
 begin
   Result := False;    // default init.
@@ -17863,11 +17814,13 @@ begin
 
       now_max := nlmax_array[aq];
 
-      move_to.X := Round(outoflist(aq, 0, 0) * sx + ex - gx);
-      move_to.Y := Round((outoflist(aq, 0, 1) + yd) * sy + by - gy);
+      pt := outoflist(aq,0);
+      move_to.X := Round(pt.X * sx + ex - gx);
+      move_to.Y := Round((pt.Y + yd) * sy + by - gy);
       for now := 1 to now_max do begin
-        line_to.X := Round(outoflist(aq, now, 0) * sx + ex - gx);
-        line_to.Y := Round((outoflist(aq, now, 1) + yd) * sy + by - gy);
+        pt := outoflist(aq, now);
+        line_to.X := Round(pt.X * sx + ex - gx);
+        line_to.Y := Round((pt.Y + yd) * sy + by - gy);
 
         save_line_to := line_to;  // in case check_limits modifies it (e.g paper bunching)
 
@@ -23350,7 +23303,7 @@ begin
 
   if marks_list_ptr = nil then
     EXIT;        // pointer to marks list not valid.
-  markmax := intarray_max(marks_list_ptr);  // max index for the present list.
+  markmax := High(marks_list_ptr);  // max index for the present list.
 
   if mark_index > markmax{_c} then
     mark_index := markmax{_c};  // ??? shouldn't be.
@@ -30732,14 +30685,14 @@ begin
                 for aq := 29 downto 0 do begin
                   // 205e was 25    ignore FB foot lines.
 
-                  array_max := intarray_max(list_bgnd_rails[aq, 0]);
-                  if array_max = 0 then
+                  if Length(list_bgnd_rails[aq]) = 0 then
                     CONTINUE;                       // empty rail, next aq.
 
+                  array_max := High(list_bgnd_rails[aq]);
                   for nk := 0 to array_max do begin
 
-                    xint := intarray_get(list_bgnd_rails[aq, 0], nk);
-                    yint := intarray_get(list_bgnd_rails[aq, 1], nk);
+                    xint := list_bgnd_rails[aq][nk].X;
+                    yint := list_bgnd_rails[aq][nk].Y;
 
                     if (xint > X_left) and (xint < X_right) and
                       (yint > Y_bottom) and (yint < Y_top) then begin
@@ -35552,107 +35505,6 @@ begin
 
   last_code_generated := code;
   // save this calc for check next time. !!! mod version 0.22 18-10-99 was :=RESULT; (so third quick call generates first code again).
-end;
-//_________________________________________________________________________________________
-
-// routines to handle home-made integer arrays...     25-5-99
-
-function intarray_create(max_index: integer; zero: boolean): Pointer;
-
-  // max_index is integers, not bytes.
-  // if zero=True, clear the array on creation.
-  // if max_index=0, creates one valid data slot.
-
-var
-  p: Pointer;
-  index: integer;
-  pint: ^integer;     // pointer to integer.
-
-begin
-  if max_index < 0 then
-    run_error(196);
-
-  try
-    GetMem(p, (max_index + 3) * int_size);
-    // would be +1 for data only.  +3 means extra 8 bytes (if 4-byte integers).
-    // first 4 bytes in array used to contain the max_index,
-    // then the data, then 4 spare safety bytes at the end.
-    pint := p;
-    pint^ := max_index;      // save the max index value in the first slot.
-
-    if zero = True then
-      for index := 0 to max_index do
-        intarray_set(p, index, 0);    // clear the data area.
-
-    Result := p;             // and return the pointer.
-  except
-    memory_alert;          // tell him what's happened.
-    Result := nil;
-  end;//try
-end;
-//_________________________________________________________________________________________
-
-procedure intarray_free(p: Pointer);
-
-begin
-  if p = nil then
-    run_error(199);
-  try
-    FreeMem(p);
-  except
-    run_error(195);
-  end;//try
-end;
-//_______________________________________________________________________________________
-
-function intarray_max(p: Pointer): integer;
-
-var
-  pint: ^integer;     // pointer to integer.
-
-begin
-  if p = nil then
-    run_error(190);
-  pint := p;
-  Result := pint^;     // return the max index for this array (in first slot).
-end;
-//________________________________________________________________________________________
-
-function intarray_get(p: Pointer; index: integer): integer;   // return value at this index.
-
-var
-  address: PtrInt;
-  pint: ^integer;     // pointer to integer.
-
-begin
-  if p = nil then
-    run_error(191);
-  pint := p;
-  if (index < 0) or (index > pint^) then
-    run_error(192);     // max index is at first slot.
-
-  address := PtrInt(p) + (index + 1) * int_size;  // +1 because data starts at the second slot.
-  pint := Pointer(address);
-  Result := pint^;                   // return integer data from this address.
-end;
-//________________________________________________________________________________________
-
-procedure intarray_set(p: Pointer; index: integer; d: integer);   // enter new value d at this index.
-
-var
-  address: PtrInt;
-  pint: ^integer;     // pointer to integer.
-
-begin
-  if p = nil then
-    run_error(193);
-  pint := p;
-  if (index < 0) or (index > pint^) then
-    run_error(194);     // max index is at first slot.
-
-  address := PtrInt(p) + (index + 1) * int_size;  // +1 because data starts at the second slot.
-  pint := Pointer(address);
-  pint^ := d;                                // write integer at this address.
 end;
 //________________________________________________________________________________________
 

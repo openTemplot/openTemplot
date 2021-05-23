@@ -405,6 +405,8 @@ var
   colour_depth_bits: integer;
   valid_printer_data: boolean;
 
+  pt: TPoint;
+
 begin
   Result := False;                             // init error return.
 
@@ -865,8 +867,9 @@ begin
             // stock rails and adjacent track only if plain track, and data available ?
             then begin
               for now := 0 to nlmax_array[aq] do begin
-                across := (outoflist(aq, now, 1) + ypd);
-                down := outoflist(aq, now, 0);
+                pt := outoflist(aq, now);
+                across := pt.Y + ypd;
+                down := pt.X;
 
                 if (across > grid_left) and (across < grid_right) and
                   (down > grid_top) and (down < grid_bottom) then begin
@@ -899,14 +902,14 @@ begin
             with bgndk do begin
               for aq := 0 to aq_max_c do begin
 
-                array_max := intarray_max(list_bgnd_rails[aq, 0]);
-                if array_max = 0 then
+                if Length(list_bgnd_rails[aq]) = 0 then
                   CONTINUE;                      // empty rail.
 
+                array_max := High(list_bgnd_rails[aq]);
                 for now := 0 to array_max do begin
-                  across := intarray_get(list_bgnd_rails[aq, 1], now);
+                  across := list_bgnd_rails[aq][now].Y;
                   // y datum already included in data.
-                  down := intarray_get(list_bgnd_rails[aq, 0], now);
+                  down := list_bgnd_rails[aq][now].X;
 
                   if (across > grid_left) and (across < grid_right) and
                     (down > grid_top) and (down < grid_bottom) then begin
@@ -1161,6 +1164,8 @@ var
   raster_rect: TRect;
 
   dummy_i: integer;
+
+  pt: TPoint;
 
   ////////////////////////////////////////////////////////////////////////
 
@@ -1619,12 +1624,12 @@ begin
 
                   // (platform ends not shown on print preview)
 
-                  array_max := intarray_max(list_bgnd_rails[aq, 0]);
-                  if array_max = 0 then
+                  if Length(list_bgnd_rails[aq]) = 0 then
                     CONTINUE;                        // empty rail.
 
-                  xint := intarray_get(list_bgnd_rails[aq, 0], 0);
-                  yint := intarray_get(list_bgnd_rails[aq, 1], 0);
+                  array_max := High(list_bgnd_rails[aq]);
+                  xint := list_bgnd_rails[aq][0].X;
+                  yint := list_bgnd_rails[aq][0].Y;
 
                   w_dots1 := Round(yint * pvsy);
                   l_dots1 := Round(xint * pvsx);
@@ -1632,8 +1637,8 @@ begin
                   move_to.Y := bottom_dots - w_dots1;
 
                   for now := 1 to array_max do begin
-                    xint := intarray_get(list_bgnd_rails[aq, 0], now);
-                    yint := intarray_get(list_bgnd_rails[aq, 1], now);
+                    xint := list_bgnd_rails[aq][now].X;
+                    yint := list_bgnd_rails[aq][now].Y;
 
                     w_dots2 := Round(yint * pvsy);
                     l_dots2 := Round(xint * pvsx);
@@ -1708,14 +1713,16 @@ begin
           // stock rails and adjacent track only, if plain track, and data available ?
 
           then begin
-            w_dots1 := Round((outoflist(aq, 0, 1) + ypd) * pvsy);
-            l_dots1 := Round(outoflist(aq, 0, 0) * pvsx);
+            pt := outoflist(aq,0);
+            w_dots1 := Round((pt.Y + ypd) * pvsy);
+            l_dots1 := Round(pt.X * pvsx);
             move_to.X := l_dots1 + left_dots;
             move_to.Y := bottom_dots - w_dots1;
 
             for now := 1 to nlmax_array[aq] do begin
-              w_dots2 := Round((outoflist(aq, now, 1) + ypd) * pvsy);
-              l_dots2 := Round(outoflist(aq, now, 0) * pvsx);
+              pt := outoflist(aq, now);
+              w_dots2 := Round((pt.Y + ypd) * pvsy);
+              l_dots2 := Round(pt.X * pvsx);
               line_to.X := l_dots2 + left_dots;
               line_to.Y := bottom_dots - w_dots2;
               if check_limits(move_to, line_to) = True
@@ -2016,6 +2023,8 @@ var
 
   dummy_i: integer;
 
+  pt: TPoint;
+
   ////////////////////////////////////////////////////////////////////////
 
   procedure mark_end(aq1, aq1end, aq2, aq2end: integer; pen_solid: boolean);
@@ -2275,12 +2284,12 @@ begin
               if (something_drawn = True) and ((aq = 24) or (aq = 25)) then
                 CONTINUE;  // don't draw centre-lines unless there is nothing else. (cl-only templates).
 
-              array_max := intarray_max(list_bgnd_rails[aq, 0]);
-              if array_max = 0 then
+              if Length(list_bgnd_rails[aq]) = 0 then
                 CONTINUE;                        // empty rail.
 
-              xint := intarray_get(list_bgnd_rails[aq, 0], 0);
-              yint := intarray_get(list_bgnd_rails[aq, 1], 0);
+              array_max := High(list_bgnd_rails[aq]);
+              xint := list_bgnd_rails[aq][0].X;
+              yint := list_bgnd_rails[aq][0].Y;
 
               w_dots1 := Round(yint * pvsy);
               l_dots1 := Round(xint * pvsx);
@@ -2288,8 +2297,8 @@ begin
               move_to.Y := bottom_dots - w_dots1;
 
               for now := 1 to array_max do begin
-                xint := intarray_get(list_bgnd_rails[aq, 0], now);
-                yint := intarray_get(list_bgnd_rails[aq, 1], now);
+                xint := list_bgnd_rails[aq][now].X;
+                yint := list_bgnd_rails[aq][now].Y;
 
                 w_dots2 := Round(yint * pvsy);
                 l_dots2 := Round(xint * pvsx);
@@ -2348,14 +2357,16 @@ begin
           // stock rails and adjacent track only, if plain track, and data available ?
 
           then begin
-            w_dots1 := Round((outoflist(aq, 0, 1) + ypd) * pvsy);
-            l_dots1 := Round(outoflist(aq, 0, 0) * pvsx);
+            pt := outoflist(aq, 0);
+            w_dots1 := Round((pt.Y + ypd) * pvsy);
+            l_dots1 := Round(pt.X * pvsx);
             move_to.X := l_dots1 + left_dots;
             move_to.Y := bottom_dots - w_dots1;
 
             for now := 1 to nlmax_array[aq] do begin
-              w_dots2 := Round((outoflist(aq, now, 1) + ypd) * pvsy);
-              l_dots2 := Round(outoflist(aq, now, 0) * pvsx);
+              pt := outoflist(aq, now);
+              w_dots2 := Round((pt.Y + ypd) * pvsy);
+              l_dots2 := Round(pt.X * pvsx);
               line_to.X := l_dots2 + left_dots;
               line_to.Y := bottom_dots - w_dots2;
               if check_limits(move_to, line_to) = True then begin

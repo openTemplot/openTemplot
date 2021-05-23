@@ -1053,7 +1053,7 @@ var
 
   begin
     with sheet[sheet_down, sheet_across] do begin // (grid_left)
-      Result := Round((outoflist(q, n, 1) + ypd - grid_left) * scaw_out) + page_left_dots;
+      Result := Round((outoflist(q, n).Y + ypd - grid_left) * scaw_out) + page_left_dots;
     end;//with
     w_dims_valid := check_draw_dim_w(Result);
   end;
@@ -1063,7 +1063,7 @@ var
 
   begin
     with sheet[sheet_down, sheet_across] do begin // (grid_top)
-      Result := Round((outoflist(q, n, 0) - grid_top) * scal_out) + page_top_dots;
+      Result := Round((outoflist(q, n).X - grid_top) * scal_out) + page_top_dots;
     end;//with
     l_dims_valid := check_draw_dim_l(Result);
   end;
@@ -4031,11 +4031,11 @@ begin
 
         // first draw bgnd marks and timbers ...
 
-        array_max := intarray_max(list_bgnd_marks[0]);
+        array_max := High(list_bgnd_marks);
 
         for i := 0 to array_max do begin
 
-          code := intarray_get(list_bgnd_marks[4], i);
+          code := list_bgnd_marks[i].code;
 
           case code of
             -5, -4, -1, 0, 8, 9, 10, 501..508:
@@ -4079,17 +4079,11 @@ begin
 
           if ((code = 203) or (code = 233) or (code = 293)) and (i < array_max)         // timber infill
           then begin
-            p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
-            p1.Y := intarray_get(list_bgnd_marks[1], i);
+            p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
+            p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
 
-            p2.X := intarray_get(list_bgnd_marks[2], i);    // x2,y2 in  1/100ths mm
-            p2.Y := intarray_get(list_bgnd_marks[3], i);
-
-            p3.X := intarray_get(list_bgnd_marks[0], i + 1);    // x3,y3 in  1/100ths mm
-            p3.Y := intarray_get(list_bgnd_marks[1], i + 1);
-
-            p4.X := intarray_get(list_bgnd_marks[2], i + 1);    // x4,y4 in  1/100ths mm
-            p4.Y := intarray_get(list_bgnd_marks[3], i + 1);
+            p3 := list_bgnd_marks[i + 1].p1;    // x3,y3 in  1/100ths mm
+            p4 := list_bgnd_marks[i + 1].p2;    // x4,y4 in  1/100ths mm
           end
           else begin         // keep compiler happy...
             p1.X := 0;
@@ -4113,11 +4107,8 @@ begin
             Brush.Style := bsClear;
             TextOut(0, 0, '');
 
-            p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
-            p1.Y := intarray_get(list_bgnd_marks[1], i);
-
-            p2.X := intarray_get(list_bgnd_marks[2], i);    // x2,y2 in  1/100ths mm
-            p2.Y := intarray_get(list_bgnd_marks[3], i);
+            p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
+            p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
 
             if impact > 0 then
               Pen.Width := 1        // impact printer or plotter.
@@ -4234,8 +4225,7 @@ begin
                   Pen.Color := printbg_single_colour;
               end;
 
-              p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
-              p1.Y := intarray_get(list_bgnd_marks[1], i);
+              p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
 
               radcen_arm := 400 * scale;
               // 4ft scale arbitrary (scale is for control template).
@@ -4337,15 +4327,8 @@ begin
               ((pad_form.print_timber_numbering_menu_entry.Checked = True) or
               ((out_factor > 0.99) and (pad_form.numbering_fullsize_only_menu_entry.Checked = True)))
             then begin
-              p1.X := intarray_get(list_bgnd_marks[0], i);
-              // x1,y1 in  1/100ths mm  numbers on screen
-              p1.Y := intarray_get(list_bgnd_marks[1], i);
-
-              // 208a mods...
-
-              p2.X := intarray_get(list_bgnd_marks[2], i);
-              // x2,y2 in  1/100ths mm  numbers on output
-              p2.Y := intarray_get(list_bgnd_marks[3], i);
+              p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
+              p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
 
               move_to.X := Round((p2.Y - grid_left) * scaw_out) + page_left_dots;
               move_to.Y := Round((p2.X - grid_top) * scal_out) + page_top_dots;
@@ -4418,9 +4401,7 @@ begin
                 if out_factor <> 1.0 then
                   CONTINUE;     // on full size prints only
 
-                p1.X := intarray_get(list_bgnd_marks[0], i);
-                // x1,y1 in  1/100ths mm
-                p1.Y := intarray_get(list_bgnd_marks[1], i);
+                p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
 
                 move_to.X := Round((p1.Y - grid_left) * scaw_out) + page_left_dots;
                 move_to.Y := Round((p1.X - grid_top) * scal_out) + page_top_dots;
@@ -4572,7 +4553,7 @@ var
     yint: integer;
 
   begin
-    yint := intarray_get(now_keep.list_bgnd_rails[q, 1], n);
+    yint := now_keep.list_bgnd_rails[q][n].Y;
 
     Result := Round((yint - grid_left) * scaw_out) + page_left_dots;
 
@@ -4586,7 +4567,7 @@ var
     xint: integer;
 
   begin
-    xint := intarray_get(now_keep.list_bgnd_rails[q, 0], n);
+    xint := now_keep.list_bgnd_rails[q][n].X;
 
     Result := Round((xint - grid_top) * scal_out) + page_top_dots;
 
@@ -4601,12 +4582,12 @@ var
 
   begin
     with now_keep do begin
-      array_max := intarray_max(list_bgnd_rails[aq, 0]);
-      if array_max = 0 then
+      if Length(list_bgnd_rails[aq]) = 0 then
         EXIT;                         // empty rail.
 
-      xint := intarray_get(list_bgnd_rails[aq, 0], 0);
-      yint := intarray_get(list_bgnd_rails[aq, 1], 0);
+      array_max := High(list_bgnd_rails[aq]);
+      xint := list_bgnd_rails[aq][0].X;
+      yint := list_bgnd_rails[aq][0].Y;
 
       move_to.X := Round((yint - grid_left) * scaw_out) + page_left_dots;
       move_to.Y := Round((xint - grid_top) * scal_out) + page_top_dots;
@@ -4620,8 +4601,8 @@ var
 
         for nk := 1 to array_max do begin
 
-          xint := intarray_get(list_bgnd_rails[aq, 0], nk);
-          yint := intarray_get(list_bgnd_rails[aq, 1], nk);
+          xint := list_bgnd_rails[aq][nk].X;
+          yint := list_bgnd_rails[aq][nk].Y;
 
           line_to.X := Round((yint - grid_left) * scaw_out) + page_left_dots;
           line_to.Y := Round((xint - grid_top) * scal_out) + page_top_dots;
@@ -4706,17 +4687,17 @@ var
 
     with now_keep do begin
 
-      if (intarray_max(list_bgnd_rails[aq, 0]) = 0) or
-        (intarray_max(list_bgnd_rails[aq + outer_add, 0]) = 0)  // data not for both edges?
+      if (Length(list_bgnd_rails[aq]) = 0) or
+        (Length(list_bgnd_rails[aq + outer_add]) = 0)  // data not for both edges?
       then begin
-        if intarray_max(list_bgnd_rails[aq, 0]) <> 0 then
+        if Length(list_bgnd_rails[aq]) <> 0 then
           pbg_outline_railedge(aq, 0, False);
-        if intarray_max(list_bgnd_rails[aq + outer_add, 0]) <> 0 then
+        if Length(list_bgnd_rails[aq + outer_add]) <> 0 then
           pbg_outline_railedge(aq + outer_add, 0, False);
         EXIT;
       end;
 
-      now_max := intarray_max(list_bgnd_rails[aq, 0]);
+      now_max := High(list_bgnd_rails[aq]);
 
       if gaunt_template = False then begin
         case aq of
@@ -4770,7 +4751,7 @@ var
 
       aq := rail + outer_add;             // outer-edges.
 
-      now_max := intarray_max(list_bgnd_rails[aq, 0]);
+      now_max := High(list_bgnd_rails[aq]);
 
       edge_started := False;
 
@@ -5040,18 +5021,18 @@ var
   begin
     with now_keep do begin
 
-      if (intarray_max(list_bgnd_rails[4, 0]) = 0) or
-        (intarray_max(list_bgnd_rails[5, 0]) = 0) or
-        (intarray_max(list_bgnd_rails[12, 0]) = 0) or
-        (intarray_max(list_bgnd_rails[13, 0]) = 0)  // not enough data for filled vee.
+      if (Length(list_bgnd_rails[4]) = 0) or
+        (Length(list_bgnd_rails[5]) = 0) or
+        (Length(list_bgnd_rails[12]) = 0) or
+        (Length(list_bgnd_rails[13]) = 0)  // not enough data for filled vee.
       then begin
-        if intarray_max(list_bgnd_rails[4, 0]) <> 0 then
+        if Length(list_bgnd_rails[4]) <> 0 then
           pbg_outline_railedge(4, 0, False);       // draw outline vee...
-        if intarray_max(list_bgnd_rails[5, 0]) <> 0 then
+        if Length(list_bgnd_rails[5]) <> 0 then
           pbg_outline_railedge(5, 0, False);
-        if intarray_max(list_bgnd_rails[12, 0]) <> 0 then
+        if Length(list_bgnd_rails[12]) <> 0 then
           pbg_outline_railedge(12, 0, False);
-        if intarray_max(list_bgnd_rails[13, 0]) <> 0 then
+        if Length(list_bgnd_rails[13]) <> 0 then
           pbg_outline_railedge(13, 0, False);
       end
       else begin                // polygon mode...
@@ -5060,7 +5041,7 @@ var
 
         aq := 4;
         edge_started := False;
-        for now := 0 to intarray_max(list_bgnd_rails[aq, 0]) do
+        for now := 0 to High(list_bgnd_rails[aq]) do
         begin    // vee main-side, gauge_face, start from the tip.
           x_dots := pbg_get_w_dots(aq, now);
           y_dots := pbg_get_l_dots(aq, now);
@@ -5084,7 +5065,7 @@ var
 
         aq := 12;
         edge_started := False;
-        for now := intarray_max(list_bgnd_rails[aq, 0]) downto 0 do
+        for now := High(list_bgnd_rails[aq]) downto 0 do
         begin // back along outer-edge.
           x_dots := pbg_get_w_dots(aq, now);
           y_dots := pbg_get_l_dots(aq, now);
@@ -5106,7 +5087,7 @@ var
 
         aq := 13;
         edge_started := False;
-        for now := 0 to intarray_max(list_bgnd_rails[aq, 0]) do
+        for now := 0 to High(list_bgnd_rails[aq]) do
         begin    // and then turnout side outer edge.
           x_dots := pbg_get_w_dots(aq, now);
           y_dots := pbg_get_l_dots(aq, now);
@@ -5130,7 +5111,7 @@ var
 
         aq := 5;
         edge_started := False;
-        for now := intarray_max(list_bgnd_rails[aq, 0]) downto 0 do
+        for now := High(list_bgnd_rails[aq]) downto 0 do
         begin // and back along the gauge face to the tip.
           x_dots := pbg_get_w_dots(aq, now);
           y_dots := pbg_get_l_dots(aq, now);
@@ -5340,13 +5321,13 @@ var
   begin
     with now_keep do begin
 
-      if intarray_max(list_bgnd_rails[0, 0]) = 0 then
+      if Length(list_bgnd_rails[0]) = 0 then
         EXIT;    // no data for straight stock rail
-      if intarray_max(list_bgnd_rails[3, 0]) = 0 then
+      if Length(list_bgnd_rails[3]) = 0 then
         EXIT;    // no data for curved stock rail
 
-      if (intarray_max(list_bgnd_rails[4, 0]) = 0) or
-        (intarray_max(list_bgnd_rails[5, 0]) = 0)   // no data for vee rails
+      if (Length(list_bgnd_rails[4]) = 0) or
+        (Length(list_bgnd_rails[5]) = 0)   // no data for vee rails
       then
         no_vee := True
       else
@@ -5355,7 +5336,7 @@ var
       dots_index := 0 - 1;                    // first increment is to zero.
 
 
-      now_max := intarray_max(list_bgnd_rails[0, 0]);    // straight stock rail
+      now_max := High(list_bgnd_rails[0]);    // straight stock rail
       edge_started := False;
 
       for now := 0 to now_max do begin
@@ -5380,7 +5361,7 @@ var
       ms_mid_dots_index := dots_index;
 
       if no_vee = False then begin
-        now_max := intarray_max(list_bgnd_rails[4, 0]);    // point rail
+        now_max := High(list_bgnd_rails[4]);    // point rail
         edge_started := False;
 
         for now := now_max downto 0 do begin
@@ -5403,7 +5384,7 @@ var
         end;//next now
 
 
-        now_max := intarray_max(list_bgnd_rails[5, 0]);    // splice rail
+        now_max := High(list_bgnd_rails[5]);    // splice rail
         edge_started := False;
 
         for now := 0 to now_max do begin
@@ -5428,7 +5409,7 @@ var
 
       ts_mid_dots_index := dots_index;
 
-      now_max := intarray_max(list_bgnd_rails[3, 0]);    // curved stock rail
+      now_max := High(list_bgnd_rails[3]);    // curved stock rail
       edge_started := False;
 
       for now := now_max downto 0 do begin
@@ -5526,10 +5507,8 @@ var
             (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.turnout_info2.gaunt_flag =
             False)                   // not for gaunt turnout
 
-            and (intarray_max(list_bgnd_rails[1, 0]) <>
-            0)    // data for straight switch rail
-            and (intarray_max(list_bgnd_rails[2, 0]) <> 0)
-          // data for curved stock rail
+            and (Length(list_bgnd_rails[1]) <> 0)    // data for straight switch rail
+            and (Length(list_bgnd_rails[2]) <> 0)   // data for curved stock rail
           then begin
             if Brush.Color = clWhite
             then
@@ -5689,20 +5668,20 @@ begin          // print background templates...
 
               for aq := 24 to 25 do begin         // track centre-lines.
 
-                array_max := intarray_max(list_bgnd_rails[aq, 0]);
-                if array_max = 0 then
+                if Length(list_bgnd_rails[aq]) = 0 then
                   CONTINUE;                      // empty rail.
 
-                xint := intarray_get(list_bgnd_rails[aq, 0], 0);
-                yint := intarray_get(list_bgnd_rails[aq, 1], 0);
+                array_max := High(list_bgnd_rails[aq]);
+                xint := list_bgnd_rails[aq][0].X;
+                yint := list_bgnd_rails[aq][0].Y;
 
                 move_to.X := Round((yint - grid_left) * scaw_out) + page_left_dots;
                 move_to.Y := Round((xint - grid_top) * scal_out) + page_top_dots;
 
                 for nk := 1 to array_max do begin
 
-                  xint := intarray_get(list_bgnd_rails[aq, 0], nk);
-                  yint := intarray_get(list_bgnd_rails[aq, 1], nk);
+                  xint := list_bgnd_rails[aq][nk].X;
+                  yint := list_bgnd_rails[aq][nk].Y;
 
                   line_to.X := Round((yint - grid_left) * scaw_out) + page_left_dots;
                   line_to.Y := Round((xint - grid_top) * scal_out) + page_top_dots;
@@ -5807,7 +5786,7 @@ begin          // print background templates...
 
               aq := 1;
 
-              if (intarray_max(list_bgnd_rails[aq, 0]) <> 0) and
+              if (Length(list_bgnd_rails[aq]) <> 0) and
                 (gaunt_template = False) and (planing_end_aq1 > 0) { and (drawn_full_aq1=False)}    // 0.93.a ex 081
               then begin
                 move_to.X := pbg_get_w_dots(aq, 0);
@@ -5825,7 +5804,7 @@ begin          // print background templates...
 
               aq := 2;
 
-              if (intarray_max(list_bgnd_rails[aq, 0]) <> 0) and
+              if (Length(list_bgnd_rails[aq]) <> 0) and
                 (gaunt_template = False) and (planing_end_aq2 > 0) { and (drawn_full_aq2=False)}
               then begin
                 move_to.X := pbg_get_w_dots(aq, 0);

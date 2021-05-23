@@ -2923,17 +2923,9 @@ begin
 
         if bg_copied = True then begin
           with bgnd_keep do begin
-
-            for index := 0 to 4 do begin
-              if list_bgnd_marks[index] <> nil then
-                intarray_free(list_bgnd_marks[index]);    // free our integer array memory...
-            end;//for
-
+            SetLength(list_bgnd_marks, 0);
             for aq := 0 to aq_max_c do begin
-              if list_bgnd_rails[aq, 0] <> nil then
-                intarray_free(list_bgnd_rails[aq, 0]);
-              if list_bgnd_rails[aq, 1] <> nil then
-                intarray_free(list_bgnd_rails[aq, 1]);
+              SetLength(list_bgnd_rails[aq], 0);
             end;//for next aq
 
           end;//with bgnd_keep

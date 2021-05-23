@@ -3333,6 +3333,8 @@ type
   end;
   Tmark_array = array of Tmark;
 
+  TPoint_array = array of TPoint;    // array of Windows TPoints (integers)
+
   Tpex = record                      // x,y point floats (TPoint is integer).
     x: extended;
     y: extended;
@@ -3583,9 +3585,9 @@ type
     timber_numbers_string: string;
     // the complete numbers sequence, separated by ESC ($1B) characters.
 
-    list_bgnd_marks: array[0..4] of Pointer;
+    list_bgnd_marks: Tmark_array;
     // pointers only, so can't save this data in a file (of Tbgnd_keep).
-    list_bgnd_rails: array[0..aq_max_c, 0..1] of Pointer;
+    list_bgnd_rails: array[0..aq_max_c] of TPoint_array;
 
     bgnd_endmarks: array[0..aq_max_c, 0..1] of TPoint;
     // rail end mark points. 1/100th mm , curved ready for drawing.
@@ -4740,8 +4742,7 @@ var
 
   // mods 13-6-99. Use home-made dynamic integer arrays.
 
-  xy_p: array[0..aq_max_c, 0..1] of Pointer;
-  // pointers to integer arrays containing rail data in 1/100 of a mm.
+  xy_p: array[0..aq_max_c] of TPoint_array; // arrays containing rail data in 1/100 of a mm.
 
   nlnow_array: array[0..aq_max_c] of integer;
   //  ( aq_i )    current index into each aq array.

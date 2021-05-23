@@ -790,28 +790,28 @@ var
   begin
     with now_keep do begin
 
-      array_max := intarray_max(list_bgnd_rails[aq, 0]);
-      if array_max = 0 then
+      if Length(list_bgnd_rails[aq]) = 0 then
         EXIT;                       // empty rail.
 
+      array_max := High(list_bgnd_rails[aq]);
       if (do_3d = True) and (aq < 9) then
-        array_max_outer := intarray_max(list_bgnd_rails[aq + 8, 0])
+        array_max_outer := High(list_bgnd_rails[aq + 8])
       else
         array_max_outer := 0;
 
       // run along rail head...
 
-      move_to.x := intarray_get(list_bgnd_rails[aq, 0], 0);
-      move_to.y := intarray_get(list_bgnd_rails[aq, 1], 0);
+      move_to.x := list_bgnd_rails[aq][0].X;
+      move_to.y := list_bgnd_rails[aq][0].Y;
 
       nk_3d_start := 0;     // keep compiler happy.
 
       if array_max_outer > 0     // for 3-D.
       then begin
         move_to_outer.x :=
-          intarray_get(list_bgnd_rails[aq + 8, 0], 0);
+          list_bgnd_rails[aq + 8][0].X;
         move_to_outer.y :=
-          intarray_get(list_bgnd_rails[aq + 8, 1], 0);
+          list_bgnd_rails[aq + 8][0].Y;
 
         case aq of
           1:
@@ -825,8 +825,8 @@ var
 
       for nk := 1 to array_max do begin
 
-        line_to.x := intarray_get(list_bgnd_rails[aq, 0], nk);
-        line_to.y := intarray_get(list_bgnd_rails[aq, 1], nk);
+        line_to.x := list_bgnd_rails[aq][nk].X;
+        line_to.y := list_bgnd_rails[aq][nk].Y;
 
         x1 := move_to.x / 100;
         y1 := move_to.y / 100;
@@ -871,9 +871,9 @@ var
               nko := 0;
 
             line_to_outer.x :=
-              intarray_get(list_bgnd_rails[aq + 8, 0], nko);
+              list_bgnd_rails[aq + 8][nko].X;
             line_to_outer.y :=
-              intarray_get(list_bgnd_rails[aq + 8, 1], nko);
+              list_bgnd_rails[aq + 8][nko].Y;
 
             x_outer1 := move_to_outer.x / 100;
             y_outer1 := move_to_outer.y / 100;
@@ -940,11 +940,11 @@ begin
 
       // first do the bgnd marks and timbers ...
 
-      array_max := intarray_max(list_bgnd_marks[0]);
+      array_max := High(list_bgnd_marks);
 
       for i := 0 to array_max do begin
 
-        code := intarray_get(list_bgnd_marks[4], i);   // check this mark wanted.
+        code := list_bgnd_marks[i].code;   // check this mark wanted.
 
         case code of
           -5:
@@ -1000,8 +1000,8 @@ begin
             CONTINUE;
         end;//case
 
-        move_to.x := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
-        move_to.y := intarray_get(list_bgnd_marks[1], i);
+        move_to.x := list_bgnd_marks[i].p1.X;    // x1,y1 in  1/100ths mm
+        move_to.y := list_bgnd_marks[i].p1.Y;
 
         if (code = 99) or (code = -5)  // text
         then begin
@@ -1009,8 +1009,8 @@ begin
           line_to.y := 0;
         end
         else begin
-          line_to.x := intarray_get(list_bgnd_marks[2], i);    // x2,y2 in  1/100ths mm
-          line_to.y := intarray_get(list_bgnd_marks[3], i);
+          line_to.x := list_bgnd_marks[i].p2.X;    // x2,y2 in  1/100ths mm
+          line_to.y := list_bgnd_marks[i].p2.Y;
         end;
 
 
@@ -1022,11 +1022,11 @@ begin
           y2 := line_to.y / 100;
 
 
-          x3 := (intarray_get(list_bgnd_marks[0], i + 1)) / 100;
-          y3 := (intarray_get(list_bgnd_marks[1], i + 1)) / 100;
+          x3 := (list_bgnd_marks[i + 1].p1.X) / 100;
+          y3 := (list_bgnd_marks[i + 1].p1.Y) / 100;
 
-          x4 := (intarray_get(list_bgnd_marks[2], i + 1)) / 100;
-          y4 := (intarray_get(list_bgnd_marks[3], i + 1)) / 100;
+          x4 := (list_bgnd_marks[i + 1].p2.X) / 100;
+          y4 := (list_bgnd_marks[i + 1].p2.Y) / 100;
 
           Write(dxf_file, dxf_3dface(x1, y1, timb_top_z, x2, y2, timb_top_z,
             x3, y3, timb_top_z, x4, y4, timb_top_z, 17));

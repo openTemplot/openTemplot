@@ -897,11 +897,9 @@ begin
 }
 
     with bgnd_keep do begin
-      for i := 0 to 4 do
-        list_bgnd_marks[i] := nil;     // init all background data array pointers to nil.
+      SetLength(list_bgnd_marks, 0);
       for aq := 0 to aq_max_c do begin
-        list_bgnd_rails[aq, 0] := nil;
-        list_bgnd_rails[aq, 1] := nil;
+        SetLength(list_bgnd_rails[aq], 0);
       end;//for
     end;//with
 
@@ -937,17 +935,10 @@ begin
     bg_copied := False;      // will no longer be on background.
 
     with bgnd_keep do begin
-
-      for index := 0 to 4 do begin
-        if list_bgnd_marks[index] <> nil then
-          intarray_free(list_bgnd_marks[index]);    // free our integer array memory...
-      end;//for
+      SetLength(list_bgnd_marks, 0);
 
       for aq := 0 to aq_max_c do begin
-        if list_bgnd_rails[aq, 0] <> nil then
-          intarray_free(list_bgnd_rails[aq, 0]);
-        if list_bgnd_rails[aq, 1] <> nil then
-          intarray_free(list_bgnd_rails[aq, 1]);
+        SetLength(list_bgnd_rails[aq], 0);
       end;//for next aq
 
     end;//with bgnd_keep data
@@ -4818,6 +4809,7 @@ var
 
   var
     now: integer;
+    pt: TPoint;
 
   begin
     if aqyn[aq] = False then
@@ -4834,13 +4826,15 @@ var
         (draw_ms_platform_rear_edge = False) then
         Pen.Style := psDot;
 
-      move_to.X := Round((outoflist(aq, 0, 0) - xy_min[0]) * sx + x_offset);
-      move_to.Y := Round((outoflist(aq, 0, 1) - xy_min[1]) * sy + y_offset);
+      pt := outoflist(aq,0);
+      move_to.X := Round((pt.X - xy_min[0]) * sx + x_offset);
+      move_to.Y := Round((pt.Y - xy_min[1]) * sy + y_offset);
 
       for now := 1 to nlmax_array[aq] do begin
 
-        line_to.X := Round((outoflist(aq, now, 0) - xy_min[0]) * sx + x_offset);
-        line_to.Y := Round((outoflist(aq, now, 1) - xy_min[1]) * sy + y_offset);
+        pt := outoflist(aq, now);
+        line_to.X := Round((pt.X - xy_min[0]) * sx + x_offset);
+        line_to.Y := Round((pt.Y - xy_min[1]) * sy + y_offset);
 
         if check_limits(move_to, line_to) = True then begin
           MoveTo(move_to.X, move_to.Y);
@@ -6266,6 +6260,7 @@ var
   new_bgk: Tbgnd_keep;
   ti: Ttemplate_info;
   si, name_str: string;
+  pt: TPoint;
 
   ptr: ^Tmark;          // pointer to a Tmark record.   ###
   markmax: integer;
@@ -6283,14 +6278,9 @@ var
 
   begin
     with new_bgk do begin
-      for n := 0 to 4 do
-        if list_bgnd_marks[n] <> nil then
-          intarray_free(list_bgnd_marks[n]);
+      SetLength(list_bgnd_marks, 0);
       for n := 0 to aq_max_c do begin
-        if list_bgnd_rails[n, 0] <> nil then
-          intarray_free(list_bgnd_rails[n, 0]);
-        if list_bgnd_rails[n, 1] <> nil then
-          intarray_free(list_bgnd_rails[n, 1]);
+        SetLength(list_bgnd_rails[n], 0);
       end;//for
     end;//with
   end;
@@ -6299,11 +6289,9 @@ var
 begin
 
   with new_bgk do begin
-    for i := 0 to 4 do
-      list_bgnd_marks[i] := nil;          // init all array pointers to nil in case of error exit check.
+    SetLength(list_bgnd_marks, 0);
     for aq := 0 to aq_max_c do begin
-      list_bgnd_rails[aq, 0] := nil;
-      list_bgnd_rails[aq, 1] := nil;
+      SetLength(list_bgnd_rails[aq], 0);
     end;//for
   end;//with
 
@@ -6381,15 +6369,7 @@ begin
           if mark_index > markmax then
             mark_index := markmax;  // ??? shouldn't be.
 
-          for i := 0 to 4 do begin
-            p := intarray_create(mark_index, True);
-            if p = nil then begin
-              abort_new_bgk;
-              EXIT;
-            end;   // array_create does the error message.
-
-            list_bgnd_marks[i] := p;
-          end;//for
+          SetLength(list_bgnd_marks, mark_index);
 
           for i := 0 to (mark_index - 1) do begin
             // (mark_index is always the next free slot)
@@ -6397,11 +6377,11 @@ begin
             if ptr = nil then
               EXIT;
 
-            intarray_set(list_bgnd_marks[0], i, ptr^.p1.X);
-            intarray_set(list_bgnd_marks[1], i, ptr^.p1.Y + Round(y_datum * 100));
-            intarray_set(list_bgnd_marks[2], i, ptr^.p2.X);
-            intarray_set(list_bgnd_marks[3], i, ptr^.p2.Y + Round(y_datum * 100));
-            intarray_set(list_bgnd_marks[4], i, ptr^.code);
+            list_bgnd_marks[i].p1.X := ptr^.p1.X;
+            list_bgnd_marks[i].p1.Y := ptr^.p1.Y + Round(y_datum * 100);
+            list_bgnd_marks[i].p2.X := ptr^.p2.X;
+            list_bgnd_marks[i].p2.Y := ptr^.p2.Y + Round(y_datum * 100);
+            list_bgnd_marks[i].code := ptr^.code;
 
             if ptr^.code = 99
             //then timber_numbers_string:=timber_numbers_string+ptr^.str+Chr($1B);  // add on the next timber numbering string, + separator.
@@ -6422,21 +6402,7 @@ begin
           // copy rail data from list...
           for aq := 0 to aq_max_c do begin
 
-            p := intarray_create(nlmax_array[aq], True);
-            if p = nil then begin
-              abort_new_bgk;
-              EXIT;
-            end;   // array_create does the error message.
-
-            list_bgnd_rails[aq, 0] := p;       // array for X data.
-
-            p := intarray_create(nlmax_array[aq], True);
-            if p = nil then begin
-              abort_new_bgk;
-              EXIT;
-            end;   // array_create does the error message.
-
-            list_bgnd_rails[aq, 1] := p;       // array for Y data.
+            SetLength(list_bgnd_rails[aq], nlmax_array[aq]+1);
 
             if ((plain_track = False) or (aq = 0) or (aq = 8) or (aq = 3) or
               (aq = 11) or ((aq > 15) and (aq < 25))) and (aqyn[aq] = True)
@@ -6444,11 +6410,10 @@ begin
             // stock rails, adjacent rails, centre-lines only if plain track, and data available ?
             then begin
               for now := 0 to nlmax_array[aq] do begin
+                pt := outoflist(aq, now);
+                pt.Y := pt.Y + Round(y_datum * 100);
 
-                intarray_set(list_bgnd_rails[aq, 0], now, outoflist(aq, now, 0));
-                intarray_set(list_bgnd_rails[aq, 1], now, outoflist(
-                  aq, now, 1) + Round(y_datum * 100));
-
+                list_bgnd_rails[aq][now] := pt;
               end;//for next now
             end;
 
@@ -7267,15 +7232,14 @@ begin
     Brush.Color := clRed;
 
     with now_keep do begin
-      array_max := intarray_max(list_bgnd_marks[0]);
+      array_max := High(list_bgnd_marks);
 
       for i := 0 to array_max do begin
-        code := intarray_get(list_bgnd_marks[4], i);
+        code := list_bgnd_marks[i].code;
 
         if code = -1              // code -1, draw highlight on bgnd fixing peg...
         then begin
-          p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
-          p1.Y := intarray_get(list_bgnd_marks[1], i);
+          p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
 
           peg_dim := 10; // 0.91.b was pad_form.ClientWidth div 100;     // 100 arbitrary.
 
@@ -7886,17 +7850,9 @@ begin
         if bg_copied = True     // first scrub existing data...
         then begin
           with bgnd_keep do begin
-
-            for i := 0 to 4 do begin
-              if list_bgnd_marks[i] <> nil then
-                intarray_free(list_bgnd_marks[i]);    // free our integer array memory...
-            end;//for
-
+            SetLength(list_bgnd_marks, 0);
             for aq := 0 to aq_max_c do begin
-              if list_bgnd_rails[aq, 0] <> nil then
-                intarray_free(list_bgnd_rails[aq, 0]);
-              if list_bgnd_rails[aq, 1] <> nil then
-                intarray_free(list_bgnd_rails[aq, 1]);
+              SetLength(list_bgnd_rails[aq], 0);
             end;//for next aq
 
           end;//with bgnd_keep

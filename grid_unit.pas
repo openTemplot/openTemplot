@@ -1698,14 +1698,14 @@ begin
         for aq := 25 downto 0 do begin
           // save time by searching centre-lines first, ignore FB foot lines.
 
-          array_max := intarray_max(list_bgnd_rails[aq, 0]);
-          if array_max = 0 then
+          if Length(list_bgnd_rails[aq]) = 0 then
             CONTINUE;                       // empty rail.
 
+          array_max := High(list_bgnd_rails[aq]);
           for nk := 0 to array_max do begin
 
-            xint := intarray_get(list_bgnd_rails[aq, 0], nk);
-            yint := intarray_get(list_bgnd_rails[aq, 1], nk);
+            xint := list_bgnd_rails[aq][nk].X;
+            yint := list_bgnd_rails[aq][nk].Y;
 
             if (xint > X_left) and (xint < X_right) and (yint > Y_bottom) and
               (yint < Y_top) then begin
@@ -1793,12 +1793,12 @@ var
   begin
     with now_keep do begin
 
-      array_max := intarray_max(list_bgnd_rails[aq, 0]);
-      if array_max = 0 then
+      if Length(list_bgnd_rails[aq]) = 0 then
         EXIT;                       // empty rail.
 
-      xint := intarray_get(list_bgnd_rails[aq, 0], 0);
-      yint := intarray_get(list_bgnd_rails[aq, 1], 0);
+      array_max := High(list_bgnd_rails[aq]);
+      xint := list_bgnd_rails[aq][0].X;
+      yint := list_bgnd_rails[aq][0].Y;
 
       move_to.X := Round(ex - gx + xint * sx);
       move_to.Y := Round(by - gy + yint * sy);
@@ -1818,8 +1818,8 @@ var
 
         for nk := 1 to array_max do begin
 
-          xint := intarray_get(list_bgnd_rails[aq, 0], nk);
-          yint := intarray_get(list_bgnd_rails[aq, 1], nk);
+          xint := list_bgnd_rails[aq][nk].X;
+          yint := list_bgnd_rails[aq][nk].Y;
 
           line_to.X := Round(ex - gx + xint * sx);
           line_to.Y := Round(by - gy + yint * sy);
@@ -1950,13 +1950,13 @@ begin
 
             // first draw bgnd marks and timbers ...
 
-            array_max := intarray_max(list_bgnd_marks[0]);
+            array_max := High(list_bgnd_marks);
 
             for i := 0 to array_max do begin
 
               try
 
-                code := intarray_get(list_bgnd_marks[4], i);   // check this mark wanted.
+                code := list_bgnd_marks[i].code;   // check this mark wanted.
 
                 with bgkeeps_form do begin
 
@@ -2052,8 +2052,7 @@ begin
                   end;//case
                 end;//with
 
-                p1.X := intarray_get(list_bgnd_marks[0], i);    // x1,y1 in  1/100ths mm
-                p1.Y := intarray_get(list_bgnd_marks[1], i);
+                p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
 
                 check_int1x := limits(h_minint, h_maxint, p1.X * sx + ex - gx, dummy_i);
                 // h_min, h_max 31 bit to give room for some arithmetic on the data (shift keeps, etc.)
@@ -2081,19 +2080,15 @@ begin
                   CONTINUE;
                 end;
 
-                p2.X := intarray_get(list_bgnd_marks[2], i);    // x2,y2 in  1/100ths mm
-                p2.Y := intarray_get(list_bgnd_marks[3], i);
+                p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
 
                 check_int2x := limits(h_minint, h_maxint, p2.X * sx + ex - gx, dummy_i);
                 check_int2y := limits(h_minint, h_maxint, p2.Y * sy + by - gy, dummy_i);
 
                 if ((code = 203) or (code = 233) or (code = 293)) and (i < array_max)    // timber infill
                 then begin
-                  p3.X := intarray_get(list_bgnd_marks[0], i + 1);  // x3,y3 in  1/100ths mm
-                  p3.Y := intarray_get(list_bgnd_marks[1], i + 1);
-
-                  p4.X := intarray_get(list_bgnd_marks[2], i + 1);  // x4,y4 in  1/100ths mm
-                  p4.Y := intarray_get(list_bgnd_marks[3], i + 1);
+                  p3 := list_bgnd_marks[i + 1].p1;  // x3,y3 in  1/100ths mm
+                  p4 := list_bgnd_marks[i + 1].p2;  // x4,y4 in  1/100ths mm
 
                   check_int3x := limits(h_minint, h_maxint, p3.X * sx + ex - gx, dummy_i);
                   check_int3y := limits(h_minint, h_maxint, p3.Y * sy + by - gy, dummy_i);
@@ -3987,14 +3982,14 @@ begin
           for aq := 25 downto 0 do begin
             // save time by searching centre-lines first, ignore FB foot lines.
 
-            array_max := intarray_max(list_bgnd_rails[aq, 0]);
-            if array_max = 0 then
+            if Length(list_bgnd_rails[aq]) = 0 then
               CONTINUE;                       // empty rail.
 
+            array_max := High(list_bgnd_rails[aq]);
             for nk := 0 to array_max do begin
 
-              xint := intarray_get(list_bgnd_rails[aq, 0], nk);
-              yint := intarray_get(list_bgnd_rails[aq, 1], nk);
+              xint := list_bgnd_rails[aq][nk].X;
+              yint := list_bgnd_rails[aq][nk].Y;
 
               if (xint > X_left) and (xint < X_right) and (yint > Y_bottom) and
                 (yint < Y_top) then begin
