@@ -80,7 +80,7 @@ implementation
 {$R *.lfm}
 
 uses
-  pad_unit, math_unit, math2_unit, keep_select, alert_unit, info_unit, control_room, shove_timber,
+  point_ex, pad_unit, math_unit, math2_unit, keep_select, alert_unit, info_unit, control_room, shove_timber,
   switch_select, { OT-FIRST web_browser_unit,} wait_message, help_sheet,
   shoved_timber;
 

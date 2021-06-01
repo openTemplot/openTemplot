@@ -35,6 +35,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Menus, StdCtrls, ExtCtrls, ComCtrls, Buttons,
   ExtDlgs, ImgList, PrintersDlgs,
+  point_ex,
   shoved_timber
   { OT-FIRST ,}{ OT-FIRST ReadHTML,}{ OT-FIRST framview}{,
   OleCtnrs, OleCtrls, SHDocVw};
@@ -3335,16 +3336,6 @@ type
 
   TPoint_array = array of TPoint;    // array of Windows TPoints (integers)
 
-  Tpex = record                      // x,y point floats (TPoint is integer).
-    x: extended;
-    y: extended;
-  end;
-
-  Textents = record           // 0.93.a
-    min: Tpex;
-    max: Tpex;
-  end;
-
 
   Tnotch = record      //  a notch position.
     notch_x: extended;
@@ -3439,78 +3430,6 @@ type
 
 
   end;
-
-  //----------------------------
-
-  // bgnd shapes ...
-
-  Temf = record
-    emf_HDC: HDC;
-    emf_width_mm: double;    // frame size in mm
-    emf_height_mm: double;
-  end;
-
-  Timage_shape = record
-    image_bitmap: TBitmap;           // image bitmap.
-    rotated_bitmap: TBitmap;
-    // rotated bitmap for printing. // 0.93.a also used for curving bitmap
-
-    rotated_picture: TPicture;       // picture object to contain rotated bitmap.
-
-    image_width: integer;
-    image_height: integer;
-
-    image_metafile: Temf;       // T3-FIRST  219a
-  end;
-
-  Tbgimage = class(TPersistent)             // 3-2-01
-
-  public                         // 0.85.a
-
-    image_shape: Timage_shape;
-
-  end;//class
-
-
-  Tbgnd_shape = record
-
-    // as in BGS file...
-
-    shape_name: string[46];    // name or text string.  205e
-
-    wrap_offset: integer;      // 1/100th mm for picture shape wrapping  205e
-
-    show_transparent: boolean;
-    // 0.93.a  for bitmap image    //alignment_byte_1:byte;   // D5 0.81 12-06-05
-
-    shape_code: integer;
-    // 0=line, 1=rectangle, 2=circle, 3=text, 4=target mark, -1=picture (bitmap image or metafile)
-
-    shape_style: byte;
-    // 0=transparent, 1=blank/solid, 2=cross-hatched;  // 213b was integer (stored MSB (byte) first)
-
-    picture_is_metafile: boolean;      // 213b     // spare1:boolean;
-
-    hide_bits: byte;
-    // 214a  0=normal,  1=hide on trackpad,  2=hide on output,  3=hide both // spare2:byte;
-
-    option_bits: byte;         // 219b.1 spare3:byte;
-
-    p1: Tpex;
-    p2: Tpex;
-  end;
-
-
-  Tbgshape = class(TPersistent)
-
-  public                         // 0.85.a
-
-    bgimage: Tbgimage;           // pointer to image object. 3-2-01.
-    bgnd_shape: Tbgnd_shape;     // data for a background shape.
-
-  end;//class
-
-  Tshapefile = file of Tbgnd_shape;       // the shapes data file   .bgs3
 
   //----------------------------
 
@@ -5277,6 +5196,7 @@ uses
   xing_select, entry_sheet, info_unit, print_unit, gauge_unit, keep_select,
   metric_unit, preview_unit, colour_unit, calibration_unit,
   chat_unit, plain_track_unit, dxf_unit,
+  background_shapes,
   bgnd_unit, bgkeeps_unit, panning_unit, shove_timber, action_unit,
   mint_unit, enter_timber, wait_message, edit_memo_unit, jotter_unit,
   rail_options_unit, print_settings_unit,

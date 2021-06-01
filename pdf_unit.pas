@@ -149,7 +149,7 @@ uses
   export_unit,
 
   // T3-OUT dtp_settings_unit, dtp_unit,
-
+  background_shapes,
   rail_options_unit, platform_unit, check_diffs_unit, data_memo_unit,
   trackbed_unit, make_slip_unit;  // 214b
 

@@ -34,7 +34,8 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls, MaskEdit, FileCtrl, Clipbrd,
-  pad_unit;      //  need Tpex declaration in this part for parameters to routines.
+  point_ex,    //  need Tpex declaration in this part for parameters to routines.
+  pad_unit;    //  need Tcheck_end_diff declaration
 
 type
   Tmath_form = class(TForm)
@@ -1275,6 +1276,7 @@ uses
   switch_select, wait_message, print_unit, enter_timber,
   calibration_unit, pdf_unit, export_unit, platform_unit, data_memo_unit,
 
+  background_shapes,
   math2_unit, check_diffs_unit, rail_options_unit, { OT-FIRST file_viewer, chairs_unit,}
   trackbed_unit, create_tandem, xtc_unit,
   shoved_timber;

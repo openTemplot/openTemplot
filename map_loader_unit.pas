@@ -209,7 +209,9 @@ implementation
 {$R *.lfm}
 
 uses
-  Math, control_room, bgnd_unit, pad_unit, grid_unit, math_unit, entry_sheet,
+  Math, point_ex, control_room,
+  background_shapes,
+  bgnd_unit, pad_unit, grid_unit, math_unit, entry_sheet,
   alert_unit, help_sheet, gauge_unit,
   web_map_help_unit;
 
