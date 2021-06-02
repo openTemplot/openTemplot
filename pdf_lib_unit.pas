@@ -402,7 +402,7 @@ begin
   setlength(points, length(dots));
   for i := 0 to length(dots) - 1 do begin
     points[i].X := dots_to_mm(dots[i].x);
-    points[i].Y := Height - dots_to_mm(dots[i].y);
+    points[i].Y := dots_to_mm(dots[i].y);
   end;
   write_comment('Drawing polygon with linewidth = ' + floattostr(curr_pen_width));
   inherited DrawPolygon(points, curr_pen_width);
