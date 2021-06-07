@@ -154,6 +154,7 @@ constructor Tpdf_document.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   StartDocument;
+  options := [poPageOriginAtTop];
   pdf_section := Sections.AddSection;    // Our documents have only one section
 end;
 
@@ -261,9 +262,9 @@ var
 
 begin
   x1 := dots_to_mm(dots_x1);
-  y1 := Height - dots_to_mm(dots_y1);
+  y1 := dots_to_mm(dots_y1);
   x2 := dots_to_mm(dots_x2);
-  y2 := Height - dots_to_mm(dots_y2);
+  y2 := dots_to_mm(dots_y2);
   DrawLine(x1, y1, x2, y2, mm_to_px(curr_pen_width), True);
 end;
 
@@ -283,9 +284,9 @@ var
 
 begin
   x1 := dots_to_mm(dots_x1);
-  y1 := Height - dots_to_mm(dots_y1);
+  y1 := dots_to_mm(dots_y1);
   x2 := dots_to_mm(dots_x2);
-  y2 := Height - dots_to_mm(dots_y2);
+  y2 := dots_to_mm(dots_y2);
   set_linestyle(style);
   DrawLine(x1, y1, x2, y2, mm_to_px(style.width));
 end;
@@ -368,7 +369,7 @@ var
 begin
   // convert the dot co-ordinates to mm ...
   x := dots_to_mm(dots_x);
-  y := Height - dots_to_mm(dots_y);
+  y := dots_to_mm(dots_y);
 
   // Get width & height in mm
   w := GetTextWidth(Text) / 3.7; // 3.7724;

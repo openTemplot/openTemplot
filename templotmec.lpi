@@ -54,7 +54,7 @@
         <PackageName Value="LCL"/>
       </Item4>
     </RequiredPackages>
-    <Units Count="58">
+    <Units Count="57">
       <Unit0>
         <Filename Value="templotmec.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -391,13 +391,9 @@
         <IsPartOfProject Value="True"/>
       </Unit55>
       <Unit56>
-        <Filename Value="utils.pas"/>
-	<IsPartofProject Value="True"/>
-      </Unit56>
-      <Unit57>
         <Filename Value="fontmetrics_stdpdf.inc"/>
         <IsPartOfProject Value="True"/>
-      </Unit57>
+      </Unit56>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
