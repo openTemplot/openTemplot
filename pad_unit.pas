@@ -36,7 +36,8 @@ uses
   Menus, StdCtrls, ExtCtrls, ComCtrls, Buttons,
   ExtDlgs, ImgList, PrintersDlgs,
   point_ex,
-  shoved_timber
+  shoved_timber,
+  dummy_vehicle
   { OT-FIRST ,}{ OT-FIRST ReadHTML,}{ OT-FIRST framview}{,
   OleCtnrs, OleCtrls, SHDocVw};
 
@@ -3304,12 +3305,6 @@ const
 
   ring_count_c = 32;                 //  max 32 ring copies (1-32, 0 is moving ring).
 
-  dv_copies_c = 31;                  //  max 32 bgnd dummy vehicles 0-31 0.98.a
-
-  dv_outlines_c = 4999;              //  max 5000 dummy vehicles to draw outline envelope
-
-  dv_envelopes_c = 7;                //  max 8 envelopes
-
 
   // this string used for dropped files, and on bgnd shapes dialog...     214a
 
@@ -3430,53 +3425,6 @@ type
 
 
   end;
-
-  //----------------------------
-
-  Tdummy_vehicle_corners = record         // 0.98.a    mm on grid.
-    pt1: Tpex;
-    pt2: Tpex;
-    pb1: Tpex;
-    pc1: Tpex;
-    pb2: Tpex;
-    pc2: Tpex;
-    b1: Tpex;
-    b2: Tpex;
-    b3: Tpex;
-    b4: Tpex;
-    c1: Tpex;
-    c2: Tpex;
-    c3: Tpex;
-    c4: Tpex;
-    m1: Tpex;
-    m2: Tpex;
-    o1: Tpex;
-    o2: Tpex;
-    o3: Tpex;
-    o4: Tpex;
-  end;
-
-  Tdummy_vehicle_envelope = record         // 215c    mm on grid.
-    b1: Tpex;
-    b2: Tpex;
-    b3: Tpex;
-    b4: Tpex;
-    c1: Tpex;
-    c2: Tpex;
-    c3: Tpex;
-    c4: Tpex;
-    o1: Tpex;
-    o2: Tpex;
-    o3: Tpex;
-    o4: Tpex;
-  end;
-
-  Tdv_envelopes = record         // 215c
-    dv_outlines: array[0..dv_outlines_c] of Tdummy_vehicle_envelope;
-    // string of 5000 dummy vehicle copies to create outline envelope 215c.
-    dv_outlines_limit: integer;
-  end;
-
 
   Tbgnd_keep = record
 

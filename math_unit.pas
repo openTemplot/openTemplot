@@ -32,10 +32,24 @@ unit math_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, MaskEdit, FileCtrl, Clipbrd,
+  Windows,
+  Messages,
+  SysUtils,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  ExtCtrls,
+  ComCtrls,
+  MaskEdit,
+  FileCtrl,
+  Clipbrd,
   point_ex,    //  need Tpex declaration in this part for parameters to routines.
-  pad_unit;    //  need Tcheck_end_diff declaration
+  pad_unit,    //  need Tcheck_end_diff declaration
+  dummy_vehicle,
+  path_interface;
 
 type
   Tmath_form = class(TForm)
@@ -95,36 +109,59 @@ type
   end;//record
 
 
-  Tdummy_vehicle_info = record          // 0.98.a  dummy vehicle for clearance checks
-
-    // all in prototype inches...
-
-    dv_start: extended;   // to first axle/bogie-pin from CTRL-0
-    dv_length: extended;   // body length
-    dv_width: extended;
-    dv_clearance: extended;
-    dv_wheelbase: extended;
-  end;
-
   Tpeg_indicator_string = string
 
     [2];  // 208b
 
+
+  Tcentre_line_path = class(IPath)
+    function get_curve_length: double;
+    function get_minimum_radius: double;
+    function get_xy(dist: double): Tpex;
+  end;
+
+
 const
 
   pt_templates_help_str: string = '    `0Plain  Track  Templates`9' +
-    '||Plain track templates are implemented within Templot0 as the approach track to an invisible dummy turnout.'
-    + '||This has several important consequences which are not immediately obvious :'
-    + '||1. The various settings for turnouts will continue to be accepted, but will be ignored unless and until you select the `0TEMPLATE > INSERT TURNOUT IN PLAIN TRACK`1 menu item.' + '||2. Plain track is handed LEFT and RIGHT just as for a turnout. This is important when entering the curving radius positive or negative,' + ' and when using the `0TOOLS > MAKE DOUBLE TRACK`1 functions. The current hand is always shown in the information panel, and can be swapped over without disturbing the alignment' + ' by selecting the `0TEMPLATE > INVERT HANDING`1 menu item.' + '||3. For mouse action adjustments to the overall length of a plain track template, either the `0F3`2 or the `0F4`2 mouse action can be used.' + '||4. The ends of a length of plain track are at the fixing peg positions `0PEG ON DATUM`1 (`0CTRL-0`2, zero) at the left-hand datum end on startup; and `0PEG ON JOINT`1 (`0CTRL-1`2) at the right-hand end on startup.' + '||5. The sleeper spacing and numbering, and the rail length joints, commence from the right-hand (`0CTRL-1`2) end on startup. For easier recognition this end is marked across on the screen (but not on the printed templates).' + '||To swap the plain track length end-for-end on the existing alignment, so that the numbering and joints commence from the opposite end, click the `0TEMPLATE > SWAP END-FOR-END`1 menu item (`0CTRL-N`2).' + '||To change the plain track rail lengths and sleeper spacings select the `0REAL > PLAIN TRACK OPTIONS > RAIL LENGTHS AND SLEEPER SPACINGS...`1 menu item.' + '||To change the sleeper sizes and randomizing settings select the `0REAL > TIMBERING >`1 menu items.' + '||When you change to plain track using the `0TEMPLATE > CONVERT TO PLAIN TRACK`1 menu item, your current turnout or half-diamond is replaced with a length of plain track on the same alignment.' + ' You can restore a turnout with the same settings by selecting the `0TEMPLATE > INSERT TURNOUT IN PLAIN TRACK`1 menu item.' + ' The current peg position is used to locate the switch front rail joint (`0CTRL-1`2) position of the inserted turnout.' + ' If the peg is not in a sensible position for this, the peg is reset to the datum (`0CTRL-0`2).' + '||( Note that if the turnout included any blanking, this will be cancelled and the full length of the turnout template will be converted to plain track.' + ' Blanking is not available for plain track, as the same effect is more easily obtained by simply changing the overall length.)' + '||You may need to click the `0TEMPLATE > SWAP FACING-TRAILING`1 menu item (`0CTRL-N`2) to get the inserted turnout correctly aligned and facing in the required direction.' + '||You can remove the inserted turnout by clicking the `0TEMPLATE > CONVERT TO PLAIN TRACK`1 menu item.';
+    '||Plain track templates are implemented within Templot0 as the approach track to an invisible dummy turnout.' +
+    '||This has several important consequences which are not immediately obvious :' +
+    '||1. The various settings for turnouts will continue to be accepted, but will be ignored unless and until you select the `0TEMPLATE > INSERT TURNOUT IN PLAIN TRACK`1 menu item.' + '||2. Plain track is handed LEFT and RIGHT just as for a turnout. This is important when entering the curving radius positive or negative,' + ' and when using the `0TOOLS > MAKE DOUBLE TRACK`1 functions. The current hand is always shown in the information panel, and can be swapped over without disturbing the alignment' + ' by selecting the `0TEMPLATE > INVERT HANDING`1 menu item.' + '||3. For mouse action adjustments to the overall length of a plain track template, either the `0F3`2 or the `0F4`2 mouse action can be used.' + '||4. The ends of a length of plain track are at the fixing peg positions `0PEG ON DATUM`1 (`0CTRL-0`2, zero) at the left-hand datum end on startup; and `0PEG ON JOINT`1 (`0CTRL-1`2) at the right-hand end on startup.' + '||5. The sleeper spacing and numbering, and the rail length joints, commence from the right-hand (`0CTRL-1`2) end on startup. For easier recognition this end is marked across on the screen (but not on the printed templates).' + '||To swap the plain track length end-for-end on the existing alignment, so that the numbering and joints commence from the opposite end, click the `0TEMPLATE > SWAP END-FOR-END`1 menu item (`0CTRL-N`2).' + '||To change the plain track rail lengths and sleeper spacings select the `0REAL > PLAIN TRACK OPTIONS > RAIL LENGTHS AND SLEEPER SPACINGS...`1 menu item.' + '||To change the sleeper sizes and randomizing settings select the `0REAL > TIMBERING >`1 menu items.' + '||When you change to plain track using the `0TEMPLATE > CONVERT TO PLAIN TRACK`1 menu item, your current turnout or half-diamond is replaced with a length of plain track on the same alignment.' + ' You can restore a turnout with the same settings by selecting the `0TEMPLATE > INSERT TURNOUT IN PLAIN TRACK`1 menu item.' + ' The current peg position is used to locate the switch front rail joint (`0CTRL-1`2) position of the inserted turnout.' + ' If the peg is not in a sensible position for this, the peg is reset to the datum (`0CTRL-0`2).' + '||( Note that if the turnout included any blanking, this will be cancelled and the full length of the turnout template will be converted to plain track.' + ' Blanking is not available for plain track, as the same effect is more easily obtained by simply changing the overall length.)' + '||You may need to click the `0TEMPLATE > SWAP FACING-TRAILING`1 menu item (`0CTRL-N`2) to get the inserted turnout correctly aligned and facing in the required direction.' + '||You can remove the inserted turnout by clicking the `0TEMPLATE > CONVERT TO PLAIN TRACK`1 menu item.';
 
   make_trans_help_str: string =
-    '    `0Make  Transition  Curve  from`9|    `0Control Template to Background Template`9'
-    + '||For diagrams and a tutorial sequence showing the use of this function, please refer to the Templot0 Companion pages on the Templot web site at  templot.com .' + '||This function creates a new control template on a transition curve alignment, which can be used to link two existing templates.' + '||The 1st radius and radial centres are taken from the existing control template. The 2nd radius and radial centres are taken from the selected background template.' + '||The existing control template is automatically stored on the background.' + '||N.B. In order to produce a usable result in all circumstances, this function uses a lower level of calculation precision than other Templot0 functions.' + ' Occasionally you may notice small discrepancies in the rail alignments when viewed zoomed-in to high magnification on the screen. This will be of no consequence in practical track planning.' + '||There are two possible transition curves in any given case, one of each hand. In many cases it is not obvious which hand is required.' + ' If the first one tried is not correct, the dialog which appears allows a template of the opposite hand to be easily created instead.' + '||For this function to work the following conditions must be fulfilled:' + '||1. One of the original templates can be straight, but not both.' + '||2. The track centre-lines must not intersect (cross), even if extended.' + '||(This means that no part of the imaginary full circle or straight line which would be created by extending the track centre-line of one original template may intersect (cross)' + ' any part of the imaginary full circle or straight line which would be created by extending the track centre-line of the other original template.)' + '||3. If the two imaginary circles are completely separate, the result will be an S-curve transition.' + '||4. If the smaller imaginary circle is completely contained within the larger imaginary circle, the result will be a C-curve transition.' + '||5. If the two circles are just touching (for example if the two templates have been aligned at a common boundary using the peg and notch functions), the result will be a zero-length transition at the boundary.' + '||6. The resulting transition must not be more gentle than the current `0MAX SPIRAL`1 setting permits. For a C-curve transition, this means that there must be a sufficient difference between the two radii.' + ' For more information click the `0PROGRAM > EXPERT > TRANSITION MATHS > MAX SPIRAL...`1 item on the `0PROGRAM PANEL`1 menus.' + '||The new control template will have a temporary 1 chain (66ft) (scale) length of 1st radius before the transition start position, and a similar length of 2nd radius beyond the transition end position.' + '||The final task is then to extend or shorten the new template at each end, and/or do likewise with the original templates, in order to position the template boundaries and create a full linking template between them.' + '||You can do this using the `0peg/align tools > extend/shorten the control template >`1 functions. (Or you can adjust the lengths of the templates manually using the `0F4`2 overall length mouse action.)' + '||Often when using this function the original templates are dummy templates created solely for the purpose. These are then deleted and the new transition template is extended at each end to replace them.' + ' If the `0delete the original templates`1 box is ticked, the templates will be deleted automatically when you click the `0yes - continue`1 green bar to accept the new transition curve template.' + '||If one of the original templates is itself containing a transition curve a dialog will appear asking how you want to proceed. The new transition curve can be matched to 1st or 2nd radius on the original template,' + ' or matched to the radius at the current position of its fixing peg. If this is within the transition zone, you will need to shorten the' + ' original template to this position in order to make a correct boundary with the new control template. Use the `0DO > SNAP TO PEG`1 menu item, possibly preceded by `0TEMPLATE > SWAP END-FOR-END`1.' + ' Repeat `0TEMPLATE > SWAP END-FOR-END`1 on the original template if necessary after creating the new transition (for example if the original template is a turnout).' + '||This function is not available if one of the original templates contains a slew. If a slew is needed it can be applied after creating the transition curve.' + '||For more information about using transition curves, click the button below.';
+    '    `0Make  Transition  Curve  from`9|    `0Control Template to Background Template`9' +
+    '||For diagrams and a tutorial sequence showing the use of this function, please refer to the Templot0 Companion pages on the Templot web site at  templot.com .'
+    +
+    '||This function creates a new control template on a transition curve alignment, which can be used to link two existing templates.'
+    +
+    '||The 1st radius and radial centres are taken from the existing control template. The 2nd radius and radial centres are taken from the selected background template.'
+    +
+    '||The existing control template is automatically stored on the background.' +
+    '||N.B. In order to produce a usable result in all circumstances, this function uses a lower level of calculation precision than other Templot0 functions.'
+    +
+    ' Occasionally you may notice small discrepancies in the rail alignments when viewed zoomed-in to high magnification on the screen. This will be of no consequence in practical track planning.' + '||There are two possible transition curves in any given case, one of each hand. In many cases it is not obvious which hand is required.' + ' If the first one tried is not correct, the dialog which appears allows a template of the opposite hand to be easily created instead.' + '||For this function to work the following conditions must be fulfilled:' + '||1. One of the original templates can be straight, but not both.' + '||2. The track centre-lines must not intersect (cross), even if extended.' + '||(This means that no part of the imaginary full circle or straight line which would be created by extending the track centre-line of one original template may intersect (cross)' + ' any part of the imaginary full circle or straight line which would be created by extending the track centre-line of the other original template.)' + '||3. If the two imaginary circles are completely separate, the result will be an S-curve transition.' + '||4. If the smaller imaginary circle is completely contained within the larger imaginary circle, the result will be a C-curve transition.' + '||5. If the two circles are just touching (for example if the two templates have been aligned at a common boundary using the peg and notch functions), the result will be a zero-length transition at the boundary.' + '||6. The resulting transition must not be more gentle than the current `0MAX SPIRAL`1 setting permits. For a C-curve transition, this means that there must be a sufficient difference between the two radii.' + ' For more information click the `0PROGRAM > EXPERT > TRANSITION MATHS > MAX SPIRAL...`1 item on the `0PROGRAM PANEL`1 menus.' + '||The new control template will have a temporary 1 chain (66ft) (scale) length of 1st radius before the transition start position, and a similar length of 2nd radius beyond the transition end position.' + '||The final task is then to extend or shorten the new template at each end, and/or do likewise with the original templates, in order to position the template boundaries and create a full linking template between them.' + '||You can do this using the `0peg/align tools > extend/shorten the control template >`1 functions. (Or you can adjust the lengths of the templates manually using the `0F4`2 overall length mouse action.)' + '||Often when using this function the original templates are dummy templates created solely for the purpose. These are then deleted and the new transition template is extended at each end to replace them.' + ' If the `0delete the original templates`1 box is ticked, the templates will be deleted automatically when you click the `0yes - continue`1 green bar to accept the new transition curve template.' + '||If one of the original templates is itself containing a transition curve a dialog will appear asking how you want to proceed. The new transition curve can be matched to 1st or 2nd radius on the original template,' + ' or matched to the radius at the current position of its fixing peg. If this is within the transition zone, you will need to shorten the' + ' original template to this position in order to make a correct boundary with the new control template. Use the `0DO > SNAP TO PEG`1 menu item, possibly preceded by `0TEMPLATE > SWAP END-FOR-END`1.' + ' Repeat `0TEMPLATE > SWAP END-FOR-END`1 on the original template if necessary after creating the new transition (for example if the original template is a turnout).' + '||This function is not available if one of the original templates contains a slew. If a slew is needed it can be applied after creating the transition curve.' + '||For more information about using transition curves, click the button below.';
 
   output_mode_help_str: string = 'Output Mode<br><br>Sorry notes not yet available.';
 
   ladder_help_str: string = '    `0Make  Ladder  Crossover`9' +
-    '||A `0ladder`3 track is one which crosses multiple running lines diagonally, comprised of a string of diamond-crossings and/or slips.' + '||In Templot0 a ladder is created by clicking the `0TOOLS > MAKE LADDER CROSSOVER >`1 menu items repeatedly, once for each diamond-crossing.' + ' This makes it possible to change the adjacent track spacing for each diamond-crossing as necessary -- click the `0GEOMETRY > ADJACENT TRACK CENTRES...`1 menu item.' + '||If slip roads are needed, they are added to the diamond-crossings afterwards.' + '||There are two types of ladder track: ' + '||1. In a `0regular`3 ladder, the diagonal-road has the same radius as the main-road (or both are straight), and all crossing angles are therefore equal.' + ' Regular ladder tracks are comprised of `0regular`3 diamond-crossings, and are commonly seen in station throats, often as single or double slips.' + '||2. In a `0curviform`3 ladder, the diagonal-road radius and main-road radius differ, and all the crossing angles therefore differ also.' + ' Most commonly the diagonal-road is more sharply curved than the main roads, creating short diamond-crossings.' + ' The diagonal road follows the initial curve of the turnout road from the running line (or can in some cases be straight across curved main roads).' + ' Curviform ladders are comprised of `0irregular`3 diamond-crossings, and are often used to form double-junctions, and to gain access to goods yards, engine sheds and industrial sidings.' + ' Slips are less common in curviform ladders because of the usually shorter crossing angles.' + '||The type of ladder is determined by the type of V-crossing which is set for the control template.' + ' To change it click the `0REAL > V-CROSSING Options >`1 menu options. Change the V-crossing type as required before making the ladder crossover.' + '||For a `0regular`3 ladder set a `0regular`3 or `0generic`3 type of V-crossing.' + '|For a `0curviform`3 ladder set a `0curviform`3 type of V-crossing.' + '||<I>Experienced users:</I> It is possible to create a curviform ladder from an initial template having a regular or generic type of V-crossing. This makes it possible to adjust the radius of the ladder track independently of the turnout.' + ' To do this use the `0tools > make double-track TS`z and `0tools > make branch track`1 functions. Adjust the branch track to the desired radius,' + 'and then use the `0peg/align tools > make diamond-crossing at intersection`1 function.';
+    '||A `0ladder`3 track is one which crosses multiple running lines diagonally, comprised of a string of diamond-crossings and/or slips.'
+    +
+    '||In Templot0 a ladder is created by clicking the `0TOOLS > MAKE LADDER CROSSOVER >`1 menu items repeatedly, once for each diamond-crossing.'
+    +
+    ' This makes it possible to change the adjacent track spacing for each diamond-crossing as necessary -- click the `0GEOMETRY > ADJACENT TRACK CENTRES...`1 menu item.'
+    +
+    '||If slip roads are needed, they are added to the diamond-crossings afterwards.' +
+    '||There are two types of ladder track: ' +
+    '||1. In a `0regular`3 ladder, the diagonal-road has the same radius as the main-road (or both are straight), and all crossing angles are therefore equal.'
+    +
+    ' Regular ladder tracks are comprised of `0regular`3 diamond-crossings, and are commonly seen in station throats, often as single or double slips.'
+    +
+    '||2. In a `0curviform`3 ladder, the diagonal-road radius and main-road radius differ, and all the crossing angles therefore differ also.'
+    +
+    ' Most commonly the diagonal-road is more sharply curved than the main roads, creating short diamond-crossings.' +
+    ' The diagonal road follows the initial curve of the turnout road from the running line (or can in some cases be straight across curved main roads).'
+    +
+    ' Curviform ladders are comprised of `0irregular`3 diamond-crossings, and are often used to form double-junctions, and to gain access to goods yards, engine sheds and industrial sidings.' + ' Slips are less common in curviform ladders because of the usually shorter crossing angles.' + '||The type of ladder is determined by the type of V-crossing which is set for the control template.' + ' To change it click the `0REAL > V-CROSSING Options >`1 menu options. Change the V-crossing type as required before making the ladder crossover.' + '||For a `0regular`3 ladder set a `0regular`3 or `0generic`3 type of V-crossing.' + '|For a `0curviform`3 ladder set a `0curviform`3 type of V-crossing.' + '||<I>Experienced users:</I> It is possible to create a curviform ladder from an initial template having a regular or generic type of V-crossing. This makes it possible to adjust the radius of the ladder track independently of the turnout.' + ' To do this use the `0tools > make double-track TS`z and `0tools > make branch track`1 functions. Adjust the branch track to the desired radius,' + 'and then use the `0peg/align tools > make diamond-crossing at intersection`1 function.';
 
 var
   math_form: Tmath_form;
@@ -426,17 +463,16 @@ var
   k5_mw,          // 0.94.a  was k5, ...
   k5_me, k5_mr, k5_tw, k5_te, k5_tr, k5_mk, k5_dk, jbend_mw,
   // 0.94.a  was jbend, ...
-  jbend_me, jbend_mr, jbend_tw, jbend_te, jbend_tr, jbend_mk,
-  jbend_dk, flen_mw,       // 0.94.a ...
-  flen_me, flen_mr, flen_tw, flen_te, flen_tr, flen_mk,
-  flen_dk, flen_mk_oe, flen_dk_oe, ftimbspmax, j, k1, kpl, k2, k3, swrad, equiv_rad, th,
+  jbend_me, jbend_mr, jbend_tw, jbend_te, jbend_tr, jbend_mk, jbend_dk, flen_mw,       // 0.94.a ...
+  flen_me, flen_mr, flen_tw, flen_te, flen_tr, flen_mk, flen_dk, flen_mk_oe, flen_dk_oe,
+  ftimbspmax, j, k1, kpl, k2, k3, swrad, equiv_rad, th,
 
   //trad,csrad,
 
   tradius, csradius,   // 0.93.a renamed
 
-  k2sint, k3sint, k1sinsw, k2sinsw, k2cost, k3cost, k1cossw, ofb, ifb,
-  joggle_deep, joggle_long, k2cossw, tl, scl, pl, lh, lh_inches, ipx,  // 208a
+  k2sint, k3sint, k1sinsw, k2sinsw, k2cost, k3cost, k1cossw, ofb, ifb, joggle_deep, joggle_long,
+  k2cossw, tl, scl, pl, lh, lh_inches, ipx,  // 208a
 
   fpx, dpx, tcpx, tcpy, txpx, txpy, txpk, trpx, trpy, mcpx, mxpx, mrpx, tvjpx, tvjpk,
   pegx_on_pad, pegy_on_pad: extended;
@@ -450,28 +486,26 @@ var
   udpegy: extended = 0;
   udpegangle: extended = 0;
 
-  toex, toeoxhd, toemidx, setx, setox, plx, plox, plx3, plox11, stox, heelx, heelox,
-  tx, bnx, bnxx, atx, wingendx_ms, csrfpx, csrfpox, torgx, sworgx, bnox, vendx, vendox,
-  csrendx, csrendox, k4, ckendx, ckflarex, ckx_ms, ckfwx, ckflarox, ckendox, ckox,
-  ckfwox, wingx, wingox, wingcx, wingcox, wflarex, wflarox, wingendox,
-  wingcfpx, wingcfpox, wl, wfp, k6, k7, flarecx, flarecox, flcendx,
-  flcendox, cuckrad, cuckflrad_tw, cuckflrad_te, cuckfpx, cuckfpox, cucklb, k10, cuckla,
-  wingx_plus, wingx_minus, wingox_plus, wingox_minus,      // 214a for knuckle radius
+  toex, toeoxhd, toemidx, setx, setox, plx, plox, plx3, plox11, stox, heelx, heelox, tx,
+  bnx, bnxx, atx, wingendx_ms, csrfpx, csrfpox, torgx, sworgx, bnox, vendx, vendox, csrendx,
+  csrendox, k4, ckendx, ckflarex, ckx_ms, ckfwx, ckflarox, ckendox, ckox, ckfwox, wingx, wingox,
+  wingcx, wingcox, wflarex, wflarox, wingendox, wingcfpx, wingcfpox, wl, wfp, k6, k7, flarecx,
+  flarecox, flcendx, flcendox, cuckrad, cuckflrad_tw, cuckflrad_te, cuckfpx, cuckfpox, cucklb,
+  k10, cuckla, wingx_plus, wingx_minus, wingox_plus, wingox_minus,      // 214a for knuckle radius
   wingcx_plus, wingcx_minus, wingcox_plus, wingcox_minus, k11,  // 0.96.a
 
-  k8, k9, cuckfwx, cuckfwox, cuckx, cuckox, cuckflx, cuckflox, cuckendx,
-  cuckendox,{stxmax,}ys, xb, xe, xs, ks, rsw, gmi, gmo, tbl, tbq, tbred, yns, ynsred,
+  k8, k9, cuckfwx, cuckfwox, cuckx, cuckox, cuckflx, cuckflox, cuckendx, cuckendox,{stxmax,}ys,
+  xb, xe, xs, ks, rsw, gmi, gmo, tbl, tbq, tbred, yns, ynsred,
 
   // 208a tbnumy,
 
   tbnumy_screen, tbnumy_output,    // 208a
 
-  xtba,{xingtb,}xtbz, frackeq, xtb, xtbzz, xclose, xtbswend, tbints, tb_xing_end,
-  xclosespace, maintimb, xns, xfs, yfs, yfsred, keq,{xeq,}yeq,
-  randend, randmod, ynsnorm, yfsnorm, eqendmod, randangle, randk, rety, retr, retx, retrorgx, retrorgy,
-  retrmod, retcent,//fleg,
-  torgy, sworgy, min_radius, fbtip, fbsetx, fbsetox, fbtoex, fbplx, fbplox,
-  fbplx3, fbplox11, fbstox, fbheelx, fbheelox: extended;
+  xtba,{xingtb,}xtbz, frackeq, xtb, xtbzz, xclose, xtbswend, tbints, tb_xing_end, xclosespace,
+  maintimb, xns, xfs, yfs, yfsred, keq,{xeq,}yeq, randend, randmod, ynsnorm, yfsnorm, eqendmod,
+  randangle, randk, rety, retr, retx, retrorgx, retrorgy, retrmod, retcent,//fleg,
+  torgy, sworgy, min_radius, fbtip, fbsetx, fbsetox, fbtoex, fbplx, fbplox, fbplx3, fbplox11,
+  fbstox, fbheelx, fbheelox: extended;
   // all above f.p. values 10-bytes for calcs.
 
 
@@ -742,21 +776,14 @@ var
 
   // init current dummy vehicle dims, prototype inches  0.98.a ...
 
-  cdvi: Tdummy_vehicle_info = (dv_start: 111;
-  // to first axle/bogie-pin from CTRL-0  111" = 9ft-3in
-  dv_length: 780;     // body length 780" = 65ft
-  dv_width: 111;      // body width 111" = 9ft-3in
-  dv_clearance: 6;    // clearance on width 6" per vehicle per side
-  dv_wheelbase: 558); // wheelbase / bogie centres 558" = 46ft-6in
+  cdvi: Tdummy_vehicle_info;
+  centre_line_path: Tcentre_line_path;
+
 
   // position of dummy vehicle corners (control template) ...
 
   dv_corners_calc: Tdummy_vehicle_corners = (pt1: (x: 0; y: 0);
   pt2: (x: 0; y: 0);
-  pb1: (x: 0; y: 0);
-  pc1: (x: 0; y: 0);
-  pb2: (x: 0; y: 0);
-  pc2: (x: 0; y: 0);
   b1: (x: 0; y: 0);
   b2: (x: 0; y: 0);
   b3: (x: 0; y: 0);
@@ -772,8 +799,7 @@ var
   o3: (x: 0; y: 0);
   o4: (x: 0; y: 0));        // 0.98.a
 
-  dv_envelopes: array[0..dv_envelopes_c] of Tdv_envelopes; // up to 8 envelopes     215c
-  dv_envelopes_index: integer = -1;                          // init none yet 215c
+  dv_envelopes: Tdv_envelope_list;
 
   radius_for_obtain: extended = 1000;  // 205e  for obtain to the control   1000mm arbitrary init
 
@@ -822,8 +848,8 @@ function captext(d: extended): string;
 
 function fact(a: integer): extended;        // return (a! = a factorial)
 
-function transcalcs(draw_in_progress, auto_terms: boolean; k, tsn: extended;
-  var xn, yn, tn, rn: extended): boolean; //  Transition equations.
+function transcalcs(draw_in_progress, auto_terms: boolean; k, tsn: extended; var xn, yn, tn, rn: extended): boolean;
+//  Transition equations.
 function calc_transition(rad1, rad2, zonel: extended;
   var cen1x, cen1y, cen2x, cen2y, apartl, kval: extended): boolean;
 
@@ -1106,8 +1132,7 @@ procedure update_radius_warning(var box_kd: Tkeep_dims);
 // update stored radius warning limit to match the control template.
 
 
-procedure copy_template_info_from_to(delete_shoves: boolean;
-  var from_info, to_info: Ttemplate_info);
+procedure copy_template_info_from_to(delete_shoves: boolean; var from_info, to_info: Ttemplate_info);
 
 procedure alert_no_bgnd;
 procedure alert_no_unused;
@@ -1212,7 +1237,7 @@ function get_checkrail_diff(code: integer): Tcheck_end_diff;    // 0.94.a
 
 procedure set_checkrail_diff(code: integer; this_diff: Tcheck_end_diff); // 0.94.a
 
-procedure draw_dummy_vehicle_on_control_template(for_env: boolean; on_canvas: TCanvas);   // 0.98.a
+procedure draw_dummy_vehicle_on_control_template(on_canvas: TCanvas);   // 0.98.a
 
 function get_current_diffed_dims: string;
 
@@ -1238,8 +1263,8 @@ procedure companion_help(topic_url_str: string);     // 214a
 
 function count_substrings(sub_str, text_str: string): integer;      // 215a
 
-function calculate_turnout_radius(curving_rad: extended;
-  var heel_notch, mid_notch, xing_notch: Tnotch): extended;        // 218a
+function calculate_turnout_radius(curving_rad: extended; var heel_notch, mid_notch, xing_notch: Tnotch): extended;
+// 218a
 function calculate_turnout_radius_beyond(curving_rad: extended;
   var xing_notch, mid_notch, end_notch: Tnotch): extended;  // 218b
 function calculate_return_curve_radius(var exit_notch, mid_notch, trp_notch: Tnotch): extended;
@@ -1268,28 +1293,57 @@ implementation
 {$R *.lfm}
 
 uses
-  ShellAPI, Math, Printers,
-  alert_unit, control_room, help_sheet, colour_unit, dxf_unit,
-  mint_unit, info_unit, plain_track_unit, edit_memo_unit, keep_select,
-  print_settings_unit, panning_unit, action_unit, preview_unit, gauge_unit,
-  grid_unit, xing_select, jotter_unit, shove_timber, entry_sheet, bgnd_unit,
-  switch_select, wait_message, print_unit, enter_timber,
-  calibration_unit, pdf_unit, export_unit, platform_unit, data_memo_unit,
-
+  ShellAPI,
+  Math,
+  Printers,
+  alert_unit,
+  control_room,
+  help_sheet,
+  colour_unit,
+  dxf_unit,
+  mint_unit,
+  info_unit,
+  plain_track_unit,
+  edit_memo_unit,
+  keep_select,
+  print_settings_unit,
+  panning_unit,
+  action_unit,
+  preview_unit,
+  gauge_unit,
+  grid_unit,
+  xing_select,
+  jotter_unit,
+  shove_timber,
+  entry_sheet,
+  bgnd_unit,
+  switch_select,
+  wait_message,
+  print_unit,
+  enter_timber,
+  calibration_unit,
+  pdf_unit,
+  export_unit,
+  platform_unit,
+  data_memo_unit,
   background_shapes,
-  math2_unit, check_diffs_unit, rail_options_unit, { OT-FIRST file_viewer, chairs_unit,}
-  trackbed_unit, create_tandem, xtc_unit,
+  math2_unit,
+  check_diffs_unit,
+  rail_options_unit, { OT-FIRST file_viewer, chairs_unit,}
+  trackbed_unit,
+  create_tandem,
+  xtc_unit,
   shoved_timber;
 
 const
 
   grid_help_all_str: string = '        Grid  Spacings' +
-    '||The grid line spacings entered here will apply to both the screen trackpad and the printed templates.'
-    + '||The grid lines are intended only to provide a "graph-paper" background to aid planning and alignment;'
-    + ' changing these spacings has no effect on the design of the templates or their position on the drawing.'
-    + '||It is possible to use different spacings for the horizontal and vertical grid lines'
-    + ' ( so that the grid boxes are no longer squares ), but the units for both must be the same (i.e. you'
-    + ' can''t for example have mm dimensions for one direction and inches for the other).' +
+    '||The grid line spacings entered here will apply to both the screen trackpad and the printed templates.' +
+    '||The grid lines are intended only to provide a "graph-paper" background to aid planning and alignment;' +
+    ' changing these spacings has no effect on the design of the templates or their position on the drawing.' +
+    '||It is possible to use different spacings for the horizontal and vertical grid lines' +
+    ' ( so that the grid boxes are no longer squares ), but the units for both must be the same (i.e. you' +
+    ' can''t for example have mm dimensions for one direction and inches for the other).' +
     '||If the current trackpad zoom setting causes the grid lines to be too closely spaced, Templot0 will omit some of them'
     + ' from the screen.' +
     '||If the current print size setting causes the grid lines to be too closely spaced, Templot0 will omit some of them'
@@ -1297,7 +1351,6 @@ const
     '||The minimum grid spacing is 0.1 mm (or 0.004") which is useful when zooming in to examine fine detail.';
 
 var
-
   last_code_generated: integer = 0;
   int_size: integer;                 // size in bytes of integers (4 at present);
   temp_font: TFont;
@@ -1355,8 +1408,8 @@ var
   shovetimb_now: integer;
   shove_now_x, shove_now_y: integer;
 
-  approach_now, blanking_now, roll_now, roam_now, zoom_now, spot_now, datum_now,
-  trans_length_now, trans_start_now, slew_start_now, slew_length_now, slew_amount_now: integer;
+  approach_now, blanking_now, roll_now, roam_now, zoom_now, spot_now, datum_now, trans_length_now,
+  trans_start_now, slew_start_now, slew_length_now, slew_amount_now: integer;
   slew_factor_now: integer;
   porg_now_x, porg_now_y: integer;
 
@@ -1592,8 +1645,8 @@ function calc_curving: boolean; forward;
 function convert_point(p: Tpex): Tpoint; forward;
 // input in mm f.p. , convert to 1/100ths mm. integer.
 
-function do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy,
-  old_rad2_orgx, old_rad2_orgy: extended): integer; forward;
+function do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy, old_rad2_orgx, old_rad2_orgy: extended): integer;
+  forward;
 function do_auto_trans_length_adjust(apart_len_wanted: extended): integer; forward;
 
 function pad_marks_current(on_canvas: TCanvas; ink: boolean): boolean; forward;
@@ -1611,8 +1664,8 @@ procedure turnroad_cl; forward;                           // turnout road track 
 
 procedure k_checkrail_ds(aq: integer); forward;    // K-crossing check rail, DS.
 
-procedure stflare(aq: integer; fl, flk, xb, xe, yfl: extended; fldir: integer;
-  flsgn: extended; machined_end: boolean); forward;
+procedure stflare(aq: integer; fl, flk, xb, xe, yfl: extended; fldir: integer; flsgn: extended;
+  machined_end: boolean); forward;
 procedure stckrail(aq: integer{; fl:extended}); forward;
 procedure cuckrail(aq: integer{; fl:extended}); forward;
 
@@ -1710,7 +1763,8 @@ begin
     Application.Minimize;    //  hide TEMPLOT on PAUSE key.
 
   if Key = VK_INSERT      // 214a
-  then begin
+  then
+  begin
     form_overwrite_mode := not form_overwrite_mode;
     if form_overwrite_mode = True then
       overwrite_label.Caption := 'OVR'
@@ -1743,11 +1797,13 @@ end;
 procedure redraw(on_idle: boolean);           // do a screen redraw.
 
 begin
-  if on_idle = True then begin
+  if on_idle = True then
+  begin
     calcs_done_and_valid := False;      // calcs have not been done.
     data_changed := True;               // for on_idle re-draw.
   end
-  else begin
+  else
+  begin
     gocalc(2, 0);
 
     if (do_rollback = True) and (pad_form.Active = True) then
@@ -1765,7 +1821,8 @@ begin
   hide_current_flag := False;
   save_hide := False;
 
-  with pad_form do begin
+  with pad_form do
+  begin
     // 209c hide_current_menu_entry.Checked:=False;
     //hide_current_popup_entry.Checked:=False;
 
@@ -1820,7 +1877,8 @@ begin
 
   // set up all the proto-info gauge defaults...
 
-  with cpi do begin
+  with cpi do
+  begin
 
     if gauge_pi = def_req then
       gauge_pi := 56.5 * inscale;     // default 4' 8.5" gauge.
@@ -1880,13 +1938,15 @@ begin
     // default flatbottom base, scale 5.5" (FB-109, BS-110A, BS-113A). 11-5-01.
 
     if rail_section = 2    // head and foot - assume flatbottom rail..
-    then begin
+    then
+    begin
       if rail_height_pi = def_req then
         rail_height_pi := 6.25; // default rail height, scale 6.25" (flatbottom). 16-5-01.
       if seat_thick_pi = def_req then
         seat_thick_pi := 1.250;  // default FB baseplate seating thickness 1.250" (for 3D in DXF).
     end
-    else begin        // assume bullhead..
+    else
+    begin        // assume bullhead..
       if rail_height_pi = def_req then
         rail_height_pi := 5.71875; // default rail height, scale 5.23/32" (BS-95R bullhead). 16-5-01.
       if seat_thick_pi = def_req then
@@ -1937,7 +1997,8 @@ begin
     if ftimbspmax_pi = def_req then
       ftimbspmax_pi := 30;     // 30" ditto for closure space.
 
-    if tb_pi = def_req then begin
+    if tb_pi = def_req then
+    begin
       // TT or 00 short sleepers...
       if gauge_i = t_TT3_i then
         tb_pi := 24;   // in mm.
@@ -1965,12 +2026,14 @@ begin
         tb_pi := 32;
 
       if tb_pi <> def_req   // TT or 00..
-      then begin
+      then
+      begin
         eight_foot_six := False;
         nine_foot := False;
         pad_form.sleepers_otherlength_menu_entry.Checked := True;   // radio item.
       end
-      else begin
+      else
+      begin
         if eight_foot_six = True then
           tb_pi := 102 * inscale;  // 8'6" timbers.
         if nine_foot = True then
@@ -2041,7 +2104,8 @@ procedure clear_check_diffs;  // 0.94.a  clear any current check rail diffs
 
 begin
 
-  with ccd do begin         // check-rail diffs (mouse modifiers)
+  with ccd do
+  begin         // check-rail diffs (mouse modifiers)
 
     end_diff_mw.len_diff := 0;
     end_diff_mw.flr_diff := 0;
@@ -2090,7 +2154,8 @@ end;
 function get_checkrail_diff(code: integer): Tcheck_end_diff;    // 0.94.a
 
 begin
-  with null_diff do begin   // return for invalid code
+  with null_diff do
+  begin   // return for invalid code
 
     len_diff := 0;   // length differ  inches f-s
     flr_diff := 0;   // flare length   inches f-s
@@ -2164,7 +2229,8 @@ begin
   if initdone_flag = True then
     EXIT;
 
-  for n := 0 to aq_max_c do begin
+  for n := 0 to aq_max_c do
+  begin
 
     SetLength(xy_p[n], 0);   // (arrays containing x rail data in 1/100 of a mm.
 
@@ -2182,26 +2248,33 @@ begin
     // first read of Printers creates the string list.
 
     if printers_count < 1                            // do we have any printers ?
-    then begin
+    then
+    begin
       no_printer_available := True;
       show_margins := 0;
       pad_form.page_outlines_printer_menu_entry.Enabled := False;
       pad_form.page_outlines_off_menu_entry.Checked := True;
 
       alert(2, '    no  printer',
-        'Templot is unable to locate a printer driver on this system. On some systems this may prevent Templot0 starting.' + '||It is not necessary for a printer to be physically present, all that is needed is a printer driver program from the Windows CD-ROM.' + '||To install a printer driver, from the Windows taskbar click START > SETTINGS > PRINTERS > ADD PRINTER.',
+        'Templot is unable to locate a printer driver on this system. On some systems this may prevent Templot0 starting.'
+        + '||It is not necessary for a printer to be physically present, all that is needed is a printer driver program from the Windows CD-ROM.'
+        + '||To install a printer driver, from the Windows taskbar click START > SETTINGS > PRINTERS > ADD PRINTER.',
         '', '', '', '', '', 'O K', 0);
     end
 
-    else begin
+    else
+    begin
       no_printer_available := False;
 
-      with Printer do begin                   // create and init info for each printer...
-        for n := 0 to printers_count - 1 do begin
+      with Printer do
+      begin                   // create and init info for each printer...
+        for n := 0 to printers_count - 1 do
+        begin
           if printer_list.AddObject(Printers.Strings[n], Tprint_cal.Create) <> n then
             run_error(181);  // we come here only once.
 
-          with Tprint_cal(printer_list.Objects[n]).cal_data do begin
+          with Tprint_cal(printer_list.Objects[n]).cal_data do
+          begin
             printer_impact := -1;
             // type not yet known.
             printer_calibrated := False;
@@ -2213,11 +2286,13 @@ begin
       end;//with
 
       if page_info(True, True, False, 0) = True    //  read the printer details from API.
-      then begin
+      then
+      begin
         //show_margins:=True;               out 0.93.a
         Printer.Orientation := poPortrait;
       end
-      else begin                         // no printer or no driver.
+      else
+      begin                         // no printer or no driver.
         no_printer_available := True;
         show_margins := 0;
         pad_form.page_outlines_printer_menu_entry.Enabled := False;
@@ -2246,7 +2321,8 @@ begin
   trans_terms := 8;                       // default 8 terms in transition expansion.
   trans_auto := True;                     // but use the auto terms option instead.
 
-  with dxf_form do begin                         // init colours and styles in the combo boxes.
+  with dxf_form do
+  begin                         // init colours and styles in the combo boxes.
     rails_combo.ItemIndex := 7;        // black
     adjrails_combo.ItemIndex := 8;     // grey
     tkclines_combo.ItemIndex := 6;     // magenta
@@ -2276,7 +2352,8 @@ begin
     dot_bgnd_style_combo.ItemIndex := 2;    // short dashed style.
   end;//with
 
-  with mint_form do begin
+  with mint_form do
+  begin
     turnout_combo.ItemIndex := 6;     // B-6 default.
     radius_combo.ItemIndex := 12;     // 10 chains radius.
   end;//with
@@ -2388,7 +2465,8 @@ begin
   // set printer fonts - here because needs scale...
 
   if running_under_wine = False      // 205a
-  then begin
+  then
+  begin
     print_labels_font.Assign(set_font('Times New Roman', 8, [fsBold], clLime));
     printer_text_font.Assign(set_font('Arial', 11, [], clBlack));
     // 205a was Comic sans
@@ -2397,7 +2475,8 @@ begin
     // 0.93.a was Comic Sans 12   // (gets changed to shapes colour default later.)
     print_corner_page_numbers_font.Assign(set_font('Arial', 6, [], clBlack));          // 0.93.a
   end
-  else begin
+  else
+  begin
     print_labels_font.Assign(set_font('Liberation Serif', 8, [fsBold], clLime));
     printer_text_font.Assign(set_font('Liberation Sans', 11, [], clBlack));
     print_timber_numbers_font.Assign(set_font('Liberation Sans', Round(scale + 3), [], clBlack));
@@ -2493,7 +2572,8 @@ begin
 
   clear_check_diffs;    // 0.94.a init check rail diffs
 
-  with timbcentre_wait do begin
+  with timbcentre_wait do
+  begin
     pex1.x := 0;
     pex1.y := 0;
     pex2.x := 0;
@@ -2705,7 +2785,8 @@ function inc_switch: boolean;   // increase the switch size (within available ra
 begin
   Result := False;
 
-  if csi.size_code < csi.group_count then begin
+  if csi.size_code < csi.group_count then
+  begin
     if set_csi_data(csi.group_code, csi.size_code + 1) = False
     // get new switch data from listbox entries.
     then
@@ -2732,7 +2813,8 @@ begin      // calculate the switch data.
   if h_diamond = True        // override - ignore sw_info and calc this switch as a half-diamond.
   // switch not used - diagonal rails are all on turnout radius.
 
-  then begin
+  then
+  begin
     joggled := False;
     joggle_long := 0;
     joggle_deep := 0;
@@ -2765,10 +2847,12 @@ begin      // calculate the switch data.
     end;//case
 
   end
-  else begin               // turnout...
+  else
+  begin               // turnout...
 
     if gaunt = True     // 0.81
-    then begin
+    then
+    begin
       joggled := False;
       joggle_long := 0;
       joggle_deep := 0;
@@ -2782,7 +2866,8 @@ begin      // calculate the switch data.
       sw_front_inches := 0;
       current_switch_name := 'gaunt';
     end
-    else begin     // normal turnout...
+    else
+    begin     // normal turnout...
 
       joggled := sw_info.joggled_stock_rail;
       joggle_long := sw_info.joggle_length * inscale;
@@ -2807,7 +2892,8 @@ begin      // calculate the switch data.
   end;
 
   if current_calc = True   // may need to update rail edges...
-  then begin
+  then
+  begin
     // defaults for turnout...
 
     aqyn[26] := False;    // h-d MS check rail. (MS check is in diagonal road.)
@@ -2816,12 +2902,14 @@ begin      // calculate the switch data.
     aqyn[28] := False;    // h-d DS check rail. (DS check is in main road.)
     aqyn[29] := False;
 
-    if (h_diamond = True) and (fixed_diamond = True) and
-      pad_form.check_rails_menu_entry.Checked = True   // generator switch.
-    then begin
+    if (h_diamond = True) and (fixed_diamond = True) and pad_form.check_rails_menu_entry.Checked =
+      True   // generator switch.
+    then
+    begin
       if k_main_side_check_rail_flag = True
       // 0.93.a      was turnout_road_check_rail_flag=True
-      then begin
+      then
+      begin
         aqyn[26] := gauge_faces;
         // h-d MS check rail. (MS check is in diagonal road.)
         aqyn[27] := (full_draw or (mouse_modify <= 0)) and outer_edges;
@@ -2829,7 +2917,8 @@ begin      // calculate the switch data.
 
       if k_diagonal_side_check_rail_flag = True
       // 0.93.a      was main_road_check_rail_flag=True
-      then begin
+      then
+      begin
         aqyn[28] := gauge_faces;
         // h-d DS check rail. (DS check is in main road.)
         aqyn[29] := (full_draw or (mouse_modify <= 0)) and outer_edges;
@@ -2840,7 +2929,8 @@ begin      // calculate the switch data.
   lh := lh_inches * inscale;      // lead, toe to heel (incl. planing).
 
   if gaunt = True      // gaunt template 0.81.a
-  then begin
+  then
+  begin
     p := 0;
     pl := 0;          // no planing.
     h := h_inches * inscale;  // gaunt offset.
@@ -2859,20 +2949,25 @@ begin      // calculate the switch data.
     k2cossw := maxfp;
     scl := 0;             // switch curve length.
   end
-  else begin
+  else
+  begin
 
-    if ((lh < minfp) and (h_diamond = False)) or (swrad < minfp) then begin
+    if ((lh < minfp) and (h_diamond = False)) or (swrad < minfp) then
+    begin
       Result := 95;
       EXIT;
     end; // can't use zero or negative values.
 
     if switch_type = 0         // curved planing or straight switch...
-    then begin
+    then
+    begin
       p := 0;
-      pl := 0;          // the switch curve starts at the toe - a straight switch is treated as a curved switch of infinite radius.
+      pl := 0;
+      // the switch curve starts at the toe - a straight switch is treated as a curved switch of infinite radius.
       h := h_inches * inscale;  // heel offset.
 
-      if (h < minfp) and (h_diamond = False) then begin
+      if (h < minfp) and (h_diamond = False) then
+      begin
         Result := 96;
         EXIT;
       end;  // can't use zero or negative values.
@@ -2883,15 +2978,18 @@ begin      // calculate the switch data.
         beta := hdk;
 
       if swrad >= max_rad_test       // straight switch...
-      then begin
+      then
+      begin
 
         alpha := 0;     // no swing on the switch curve.
         k1 := beta;     // planing angle.
         k2 := beta;     // heel angle.
       end
-      else begin                                 // curved planing...
+      else
+      begin                                 // curved planing...
         temp := SQRT(SQR(lh) + SQR(h)) / 2 / swrad;
-        if ABS(temp) > 1 then begin
+        if ABS(temp) > 1 then
+        begin
           Result := 97;
           EXIT;
         end;  // radius too small to fit - will give ARCSIN error.
@@ -2902,7 +3000,8 @@ begin      // calculate the switch data.
         k2 := beta + alpha;                    // heel angle.
       end;
 
-      if (k1 < minfp) or (k2 < minfp) then begin
+      if (k1 < minfp) or (k2 < minfp) then
+      begin
         Result := 98;
         EXIT;
       end;  // most likely k1 is negative - radius too small or lead too long.
@@ -2917,17 +3016,20 @@ begin      // calculate the switch data.
       k2cossw := swrad * COS(k2);
       scl := k2sinsw - k1sinsw;                 // switch curve length.
     end
-    else begin                   // semi-curved switch...
+    else
+    begin                   // semi-curved switch...
 
       k1n := sw_info.planing_angle;                       // RAM unit planing angle.
-      if k1n < minfp then begin
+      if k1n < minfp then
+      begin
         Result := 99;
         EXIT;
       end;    // can't have zero or negative angle.
 
       k1 := ARCTAN(1 / k1n);                    // radians.
 
-      if k1 < minfp then begin
+      if k1 < minfp then
+      begin
         Result := 100;
         EXIT;
       end;       // can't have zero or negative angle.
@@ -2936,18 +3038,21 @@ begin      // calculate the switch data.
       // length of planing (along gauge-face of switch rail).
       pl := p * cos(k1);               // ditto length along stock rail to k1 point.
 
-      if (p < 0) or (pl < 0) then begin
+      if (p < 0) or (pl < 0) then
+      begin
         Result := 101;
         EXIT;
       end;  // can't have negative planing length.
 
       temp := (lh - pl) / swrad + SIN(k1);
-      if ABS(temp) > 1 then begin
+      if ABS(temp) > 1 then
+      begin
         Result := 102;
         EXIT;
       end;  // radius too small to fit - will give ARCSIN error.
       k2 := ARCSIN(temp);
-      if k2 < minfp then begin
+      if k2 < minfp then
+      begin
         Result := 103;
         EXIT;
       end;     // can't have zero or negative heel angle.
@@ -2978,9 +3083,11 @@ begin      // calculate the switch data.
 
   // now can calculate some x dims...
 
-  if switch_type = 0 then begin         // straight switch or curved planing...
+  if switch_type = 0 then
+  begin         // straight switch or curved planing...
 
-    if gaunt = True then begin
+    if gaunt = True then
+    begin
       setx := toex;
       setox := toex;
       plx3 := toex;
@@ -2988,9 +3095,11 @@ begin      // calculate the switch data.
       fbsetx := toex;
       fbsetox := toex;
     end
-    else begin
+    else
+    begin
       temp := SQR(swrad - g) - SQR(sworgy - g);
-      if temp < 0 then begin
+      if temp < 0 then
+      begin
         Result := 104;
         EXIT;
       end;  // switch rad doesn't cut the straight (gauge-face of curved stock rail).
@@ -2999,7 +3108,8 @@ begin      // calculate the switch data.
       // x to "set" in curved stock rail (gauge-face - intercept with switch curve).
 
       temp := SQR(swrad - g - j) - SQR(sworgy - g - j);
-      if temp < 0 then begin
+      if temp < 0 then
+      begin
         Result := 105;
         EXIT;
       end;  // switch rad doesn't cut the straight (outer-edge of curved stock rail).
@@ -3011,9 +3121,11 @@ begin      // calculate the switch data.
       plox11 := setox;     // ditto, outer-edge, aq=11.
 
       if rail_section = 2       // head+foot (FB section) ... 0.76.a 2-01-02
-      then begin
+      then
+      begin
         temp := SQR(swrad - g + ifb) - SQR(sworgy - g + ifb);
-        if temp < 0 then begin
+        if temp < 0 then
+        begin
           Result := 134;
           EXIT;
         end;  // switch rad doesn't cut the straight (FB foot of curved stock rail).
@@ -3021,21 +3133,24 @@ begin      // calculate the switch data.
         // x to "set" in curved stock rail (FB foot inner - intercept with switch curve).
 
         temp := SQR(swrad - g - ofb) - SQR(sworgy - g - ofb);
-        if temp < 0 then begin
+        if temp < 0 then
+        begin
           Result := 135;
           EXIT;
         end;  // switch rad doesn't cut the straight (FB foot of curved stock rail).
         fbsetox := sworgx + SQRT(temp);
         // x to "set", FB foot outer.
       end
-      else begin             // head only (BH or no rails) - not used...
+      else
+      begin             // head only (BH or no rails) - not used...
         fbsetx := setx;
         fbsetox := setox;
       end;
     end;
   end
 
-  else begin         // REA semi-curved flexible switch, straight planing...
+  else
+  begin         // REA semi-curved flexible switch, straight planing...
 
     setx := toex - g * TAN(k1 / 2);             // x to "set" in curved stock rail.
     setox := setx - j * TAN(k1 / 2);            // x to ditto, outer-edge.
@@ -3045,19 +3160,22 @@ begin      // calculate the switch data.
     plox11 := plx3 - j * SIN(k1);             // x to ditto, outer-edge.
 
     if rail_section = 2    // head+foot (FB section)... 0.76.a 2-01-02  (unfinished)
-    then begin
+    then
+    begin
       fbsetx := setx + ifb * SIN(k1 / 2);
       // x to "set" in curved stock rail (FB foot inner).
       fbsetox := setx - ofb * SIN(k1 / 2);  // x to "set" FB foot outer.
     end
-    else begin             // head only (BH or no rails) - or gaunt...
+    else
+    begin             // head only (BH or no rails) - or gaunt...
       fbsetx := setx;
       fbsetox := setox;
     end;
   end;
 
 
-  if gaunt = True then begin
+  if gaunt = True then
+  begin
     toemidx := toex;     // toe mark on track centre-line.
     plox := toex;
     kpl := 0;
@@ -3072,18 +3190,22 @@ begin      // calculate the switch data.
     fbheelox := toex;
     fbheelx := toex;
   end
-  else begin
+  else
+  begin
     toemidx := (toex + setx) / 2;     // toe mark on track centre-line.
 
     if (rail_section = 2) and (fb_kludge = 1)
     // 0.94.a kludging inner FB foot as negative outer
-    then begin
+    then
+    begin
       // kludge approximations...
 
       if switch_type = 0    // straight or curved no plx available
-      then begin
+      then
+      begin
         temp := SQR(swrad + railtop) - SQR(sworgy);
-        if temp < 0 then begin
+        if temp < 0 then
+        begin
           Result := 106;
           EXIT;
         end;   // switch rad doesn't cut the straight (gauge-face of straight stock rail).
@@ -3095,17 +3217,20 @@ begin      // calculate the switch data.
         else
           kpl := k1;                           // ??
       end
-      else begin
+      else
+      begin
         plox := plx;    // semi-curved
         kpl := k1;
       end;
 
       stox := plox - g * SIN(kpl);
     end
-    else begin     // 0.94.a
+    else
+    begin     // 0.94.a
 
       temp := SQR(swrad + j) - SQR(sworgy);
-      if temp < 0 then begin
+      if temp < 0 then
+      begin
         Result := 106;
         EXIT;
       end;   // switch rad doesn't cut the straight (gauge-face of straight stock rail).
@@ -3118,7 +3243,8 @@ begin      // calculate the switch data.
         kpl := k1;                     // ??
 
       temp := SQR(swrad - g) - SQR(sworgy - g - j);
-      if temp < 0 then begin
+      if temp < 0 then
+      begin
         Result := 107;
         EXIT;
       end;   // switch rad doesn't cut the straight (outer edge of straight turnout rail).
@@ -3131,20 +3257,23 @@ begin      // calculate the switch data.
 
 
     if rail_section = 2       // head+foot (FB section)... 0.76.a 2-01-02   (unfinished)
-    then begin
+    then
+    begin
       fbtoex := toex - fbtip * SIN(k1);
 
       fbplx := plox - (j + ifb) * SIN(kpl);
 
       temp := SQR(swrad + ofb) - SQR(sworgy - ifb);
-      if temp < 0 then begin
+      if temp < 0 then
+      begin
         Result := 136;
         EXIT;
       end;   // FB inner foot of straight stock rail.
       fbplox := sworgx + SQRT(temp);
 
       temp := SQR(swrad - g + ifb) - SQR(sworgy - g - ofb);
-      if temp < 0 then begin
+      if temp < 0 then
+      begin
         Result := 137;
         EXIT;
       end;   // FB inner foot of curved stock rail.
@@ -3156,7 +3285,8 @@ begin      // calculate the switch data.
       fbheelox := heelx + ofb * SIN(k2);
       fbheelx := heelx - ifb * SIN(k2);
     end
-    else begin            // head only (BH or no rails)...  (unfinished)
+    else
+    begin            // head only (BH or no rails)...  (unfinished)
       fbtoex := toex;
       fbplx := plx;
       fbplox := plox;
@@ -3172,8 +3302,7 @@ begin      // calculate the switch data.
 end;
 //______________________________________________________________________________
 
-function rails_sleepers(len: extended; var num_rails, num_sl_over: integer;
-  var percent_over: extended): boolean;
+function rails_sleepers(len: extended; var num_rails, num_sl_over: integer; var percent_over: extended): boolean;
 
   // return number of full current rail lengths and extra sleepers over in length len.
   // assumes starting from a rail joint.
@@ -3210,8 +3339,10 @@ end;
 function calcturnout: boolean;     // calc all the turnout dimensions.
 
 const
-  help_str = 'The "turnout radius" refers to the section between the end of the switch and the crossing.'
-    + ' Normally, turnouts have a switch radius greater than or equal to the turnout radius to ease the running into the turnout.' + '||It is better to use a longer switch to achieve this, if possible.' + '||You may have to click USE LONGER SWITCH more than once to find a switch which fits.';
+  help_str = 'The "turnout radius" refers to the section between the end of the switch and the crossing.' +
+    ' Normally, turnouts have a switch radius greater than or equal to the turnout radius to ease the running into the turnout.'
+    + '||It is better to use a longer switch to achieve this, if possible.' +
+    '||You may have to click USE LONGER SWITCH more than once to find a switch which fits.';
 var
   i: integer;
   heel_to_xing: extended;  // 0.93.a
@@ -3224,7 +3355,8 @@ begin
   try
     // mod 0.76.a 1-1-02 ...
 
-    if vertical_rails = True then begin
+    if vertical_rails = True then
+    begin
       if midline = True then
         j := railtop / 2   // for rail centre-lines wanted.
       else
@@ -3234,15 +3366,15 @@ begin
       // offset from gauge line to outer FB foot (at base of section).
       ifb := railbottom - ofb;           // ditto to inner FB foot (at base of section).
     end
-    else begin        // inclined rails...
+    else
+    begin        // inclined rails...
 
       if midline = True then
         j := railtop * COS(rail_inclination) / 2   // for rail centre-lines wanted.
       else
         j := railtop * COS(rail_inclination);    // or use rail-width for outer edges.
 
-      ofb := (railtop + railbottom) * COS(rail_inclination) / 2 +
-        rail_height * inscale * SIN(rail_inclination);
+      ofb := (railtop + railbottom) * COS(rail_inclination) / 2 + rail_height * inscale * SIN(rail_inclination);
       // offset from gauge line to outer FB foot (at base of section).
       ifb := railbottom * COS(rail_inclination) - ofb;
       // ditto to inner FB foot (at base of section).
@@ -3262,13 +3394,15 @@ begin
 
     if k3n < minfp then
       i := 103                 // can't use zero or negative crossing angle.
-    else begin
+    else
+    begin
       k3 := ARCTAN(1 / k3n);                     // crossing angle in radians.
       i := calc_switch(csi, half_diamond, True);
       // calculate all switch data (might be a custom switch, or half-diamond).
     end;
 
-    if (i <> 0) or (swrad < 0) then begin
+    if (i <> 0) or (swrad < 0) then
+    begin
       abandon_calcs := True;
       //draw_mode:=2;             // prevent messages recurring.
       Result := False;
@@ -3277,7 +3411,8 @@ begin
 
     if gaunt = True then
       equiv_rad := max_rad       // no switch deflection
-    else begin
+    else
+    begin
       if swrad >= max_rad_test then
         equiv_rad := SQR(k1n) * 0.6 * scale  // r = planing angle^2 * constant - empirical value.
       else
@@ -3296,7 +3431,8 @@ begin
     if xing_calc_i <> 0                      // ^^^ curved or generic crossing.
     then
       sl := 0                          // no entry sl.
-    else begin                          // regular crossing or ^^^ straight turnout radius.
+    else
+    begin                          // regular crossing or ^^^ straight turnout radius.
       case entry_straight_code of
         -1, 0:
           sl := fw * 2 * k3n; // short or init auto-fit, minimum sl to ensure knuckle is on the straight.
@@ -3311,18 +3447,21 @@ begin
     // switch and crossing angles equal, turnout radius is straight.
     if (ABS(temp) < minfp) or (tradius_is_straight = True) then
       tradius := max_rad + g / 2                          // this value not actually used.
-    else begin
+    else
+    begin
       // mods 0.93.a ...
 
       if xing_calc_i = 0  // regular
-      then begin
+      then
+      begin
 
         heel_to_xing := (th - h) * (SIN(k3) - SIN(k2)) / temp;
         // inter-lead length, heel to curve end (curve end at angle=k3).
 
         if (gaunt = True) and (heel_to_xing < (6 * scale))
         // 217b 6ft minimum length gaunt curve         was 10ft
-        then begin
+        then
+        begin
           h := th - (6 * scale) * temp / (SIN(k3) - SIN(k2));
           // modify offset according
           gaunt_offset_in := h / inscale;
@@ -3330,7 +3469,8 @@ begin
 
       end
       else
-      if (gaunt = True) and (gaunt_offset_in > ((g - fw - minfp) / inscale)) then begin
+      if (gaunt = True) and (gaunt_offset_in > ((g - fw - minfp) / inscale)) then
+      begin
         gaunt_offset_in := (g - fw - minfp) / inscale;
         // curviform and generic          offset cannot exceed gauge-flangeway   217a
         h := g - fw - minfp;
@@ -3350,11 +3490,13 @@ begin
 
     // so reduce turnout rad and auto-fit a longer straight (sl).
 
-    then begin
+    then
+    begin
       tradius := equiv_rad;               // reduce turnout radius to limit,
       th := h + tradius * (COS(k2) - COS(k3));  // and recalc th and sl.
       sl := (g - th) * k3n;
-      if sl < (fw * 2 * k3n) then begin
+      if sl < (fw * 2 * k3n) then
+      begin
         abandon_calcs := True;
         //draw_mode:=2;        // prevent messages recurring.
         Result := False;
@@ -3363,7 +3505,8 @@ begin
     end;
 
 
-    if tradius_is_straight = False then begin
+    if tradius_is_straight = False then
+    begin
       //k2sint:=tradius*SIN(k2);       //^^^ turnout curve centres :
       //k3sint:=tradius*SIN(k3);
 
@@ -3378,7 +3521,8 @@ begin
       torgx := heelx - tradius * SIN(k2);      // x to turnout curve centre.
       torgy := h + tradius * COS(k2);          // y to ditto.
     end
-    else begin
+    else
+    begin
       csradius := 0;     // ^^^ invalid rad.
       tl := (th - h) * k3n;
       //^^^ inter-lead length, heel to curve end (curve end at angle=k3).
@@ -3394,7 +3538,8 @@ begin
       flend_out := 0;                 // end gap can't be less than fw
 
     if (flen_mw < minfp) or (flen_mw < flend_out)         // no negs or division by zero
-    then begin
+    then
+    begin
       flen_mw := 0;
       k5_mw := 0;
     end
@@ -3408,7 +3553,8 @@ begin
     if flend_out < 0 then
       flend_out := 0;
 
-    if (flen_me < minfp) or (flen_me < flend_out) then begin
+    if (flen_me < minfp) or (flen_me < flend_out) then
+    begin
       flen_me := 0;
       k5_me := 0;
     end
@@ -3422,7 +3568,8 @@ begin
     if flend_out < 0 then
       flend_out := 0;
 
-    if (flen_mr < minfp) or (flen_mr < flend_out) then begin
+    if (flen_mr < minfp) or (flen_mr < flend_out) then
+    begin
       flen_mr := 0;
       k5_mr := 0;
     end
@@ -3436,7 +3583,8 @@ begin
     if flend_out < 0 then
       flend_out := 0;
 
-    if (flen_tw < minfp) or (flen_tw < flend_out) then begin
+    if (flen_tw < minfp) or (flen_tw < flend_out) then
+    begin
       flen_tw := 0;
       k5_tw := 0;
     end
@@ -3450,7 +3598,8 @@ begin
     if flend_out < 0 then
       flend_out := 0;
 
-    if (flen_te < minfp) or (flen_te < flend_out) then begin
+    if (flen_te < minfp) or (flen_te < flend_out) then
+    begin
       flen_te := 0;
       k5_te := 0;
     end
@@ -3464,7 +3613,8 @@ begin
     if flend_out < 0 then
       flend_out := 0;
 
-    if (flen_tr < minfp) or (flen_tr < flend_out) then begin
+    if (flen_tr < minfp) or (flen_tr < flend_out) then
+    begin
       flen_tr := 0;
       k5_tr := 0;
     end
@@ -3473,13 +3623,15 @@ begin
     jbend_tr := j / COS(k5_tr / 2);                   // j width across flare bends.
 
 
-    if (half_diamond = True) and (fixed_diamond = True) then begin
+    if (half_diamond = True) and (fixed_diamond = True) then
+    begin
       flen_mk := (k_flare_len + ccd.end_diff_mk.flr_diff) * inscale;    // MS k check rail end
       flend_out := fw_end - fw + ccd.end_diff_mk.gap_diff;
       if flend_out < 0 then
         flend_out := 0;
 
-      if (flen_mk < minfp) or (flen_mk < flend_out) then begin
+      if (flen_mk < minfp) or (flen_mk < flend_out) then
+      begin
         flen_mk := 0;
         k5_mk := 0;
       end
@@ -3495,7 +3647,8 @@ begin
       if flend_out < 0 then
         flend_out := 0;
 
-      if (flen_dk < minfp) or (flen_dk < flend_out) then begin
+      if (flen_dk < minfp) or (flen_dk < flend_out) then
+      begin
         flen_dk := 0;
         k5_dk := 0;
       end
@@ -3548,7 +3701,8 @@ begin
     check_ts_extlen := ck_ext2;          // and size 2 TS check extension.
 
     if k3n < 10.01           // size 1 up to 1:10 inclusive.
-    then begin
+    then
+    begin
       wgl_ms_len := wing_reach1;        // no, size 1 MS wing rail wanted.
       check_ms_extlen := ck_ext1;       // and size 1 MS check extension.
 
@@ -3600,27 +3754,32 @@ begin
       // and hence also to the CTRL-9 end position.
       // mod done to comply better with prototype info, FB in particular.
 
-      if k3n < 3.875 then begin
+      if k3n < 3.875 then
+      begin
         veelong := veelong + (vee_spco1 - 1) * veetimb_sp * inscale;
         wing_tbcount := wing_spco1;
         BREAK;
       end;   // funnies. (mod 0.75.a  11-10-01)
-      if k3n < 6.875 then begin
+      if k3n < 6.875 then
+      begin
         veelong := veelong + (vee_spco2 - 1) * veetimb_sp * inscale;
         wing_tbcount := wing_spco2;
         BREAK;
       end;
-      if k3n < 10.125 then begin
+      if k3n < 10.125 then
+      begin
         veelong := veelong + (vee_spco3 - 1) * veetimb_sp * inscale;
         wing_tbcount := wing_spco3;
         BREAK;
       end;
-      if k3n < 15.125 then begin
+      if k3n < 15.125 then
+      begin
         veelong := veelong + (vee_spco4 - 1) * veetimb_sp * inscale;
         wing_tbcount := wing_spco4;
         BREAK;
       end;
-      if k3n < 20.125 then begin
+      if k3n < 20.125 then
+      begin
         veelong := veelong + (vee_spco5 - 1) * veetimb_sp * inscale;
         wing_tbcount := wing_spco5;
         BREAK;
@@ -3657,14 +3816,16 @@ begin
 
   case current_diff_code of
 
-    501: begin                     //MS1 MS working len
+    501:
+    begin                     //MS1 MS working len
       current_diffed_len := check_ms_wklen * inscale;
       current_diffed_fl_len := flen_mw;
       current_diffed_end_gap := fw_end + ccd.end_diff_mw.gap_diff;
       num_str := 'MS1';
     end;
 
-    502: begin                     //MS2 MS ext len
+    502:
+    begin                     //MS2 MS ext len
       current_diffed_len := check_ms_extlen * inscale;
       ;
       current_diffed_fl_len := flen_me;
@@ -3672,7 +3833,8 @@ begin
       num_str := 'MS2';
     end;
 
-    503: begin                     //MS3 MS wing reach
+    503:
+    begin                     //MS3 MS wing reach
       current_diffed_len := wgl_ms_len * inscale;
       ;
       current_diffed_fl_len := flen_mr;
@@ -3680,7 +3842,8 @@ begin
       num_str := 'MS3';
     end;
 
-    504: begin                     //TS1 TS working len
+    504:
+    begin                     //TS1 TS working len
       current_diffed_len := check_ts_wklen * inscale;
       ;
       current_diffed_fl_len := flen_tw;
@@ -3691,7 +3854,8 @@ begin
         num_str := 'TS1';
     end;
 
-    505: begin                     //TS2 TS ext len
+    505:
+    begin                     //TS2 TS ext len
       current_diffed_len := check_ts_extlen * inscale;
       ;
       current_diffed_fl_len := flen_te;
@@ -3702,7 +3866,8 @@ begin
         num_str := 'TS2';
     end;
 
-    506: begin                     //TS3 TS wing reach
+    506:
+    begin                     //TS3 TS wing reach
       current_diffed_len := wgl_ts_len * inscale;
       ;
       current_diffed_fl_len := flen_tr;
@@ -3713,7 +3878,8 @@ begin
         num_str := 'TS3';
     end;
 
-    507: begin                     //MS4 MS K check len
+    507:
+    begin                     //MS4 MS K check len
       current_diffed_len := kckl_mk;
       current_diffed_fl_len := flen_mk;
       current_diffed_end_gap := fw_end + ccd.end_diff_mk.gap_diff;
@@ -3721,7 +3887,8 @@ begin
         num_str := 'MS4';
     end;
 
-    508: begin                     //DS4 DS K check len
+    508:
+    begin                     //DS4 DS K check len
       current_diffed_len := kckl_dk;
       current_diffed_fl_len := flen_dk;
       current_diffed_end_gap := fw_end + ccd.end_diff_dk.gap_diff;
@@ -3746,15 +3913,18 @@ var
   code, code_max: integer;
 
 begin
-  if check_diffs_form.Showing = True then begin
+  if check_diffs_form.Showing = True then
+  begin
 
     num_str := get_current_diffed_dims;
 
-    with check_diffs_form do begin
+    with check_diffs_form do
+    begin
 
       if num_str = ''
       // none selected, or K-checks remain selected and not now a half-diamond
-      then begin
+      then
+      begin
         able := False;
         readout_label.Visible := False;
         length_panel.Font.Color := clGray;
@@ -3764,13 +3934,15 @@ begin
         flare_panel.Caption := '';
         gap_panel.Caption := '';
       end
-      else begin                                 // update for selected
+      else
+      begin                                 // update for selected
         able := True;
         readout_label.Visible := True;
         length_panel.Font.Color := clBlue;
         number_panel.Caption := num_str;
 
-        if show_diffs_fs = True then begin
+        if show_diffs_fs = True then
+        begin
           length_panel.Caption :=
             ' length :  ' + round_str(current_diffed_len / inscale, 2) + ' ins';
           flare_panel.Caption :=
@@ -3778,7 +3950,8 @@ begin
           gap_panel.Caption :=
             ' end gap :  ' + round_str(current_diffed_end_gap / inscale, 2) + ' ins';
         end
-        else begin
+        else
+        begin
           length_panel.Caption :=
             ' length :  ' + round_str(current_diffed_len, 2) + ' mm';
           flare_panel.Caption :=
@@ -3806,8 +3979,8 @@ begin
 
       this_diff := get_checkrail_diff(current_diff_code);
 
-      if (this_diff.len_diff = 0) and (this_diff.flr_diff = 0) and
-        (this_diff.gap_diff = 0) and (this_diff.type_diff = 0) then
+      if (this_diff.len_diff = 0) and (this_diff.flr_diff = 0) and (this_diff.gap_diff = 0) and
+        (this_diff.type_diff = 0) then
         reset_button.Enabled := False
       else
         reset_button.Enabled := able;
@@ -3818,15 +3991,16 @@ begin
       else
         code_max := 506;
 
-      for code := 501 to code_max do begin
+      for code := 501 to code_max do
+      begin
 
         this_diff := get_checkrail_diff(code);
 
-        if (this_diff.len_diff = 0) and
-          (this_diff.flr_diff = 0) and (this_diff.gap_diff = 0) and
+        if (this_diff.len_diff = 0) and (this_diff.flr_diff = 0) and (this_diff.gap_diff = 0) and
           (this_diff.type_diff = 0) then
           CONTINUE
-        else begin
+        else
+        begin
           reset_all_button.Enabled := able;
           EXIT;
         end;
@@ -3909,7 +4083,8 @@ begin
     tcpy := g / 2 + (fpx - dpx) * SIN(k3); // y ditto.
 
     if xing_calc_i < 1             // straight crossing, regular (0) or generic (-1)...
-    then begin
+    then
+    begin
       txpy := (trtscent + g) / 2;         // y to TXP, turnout-side crossover mid-point.
       txpx := dpx + k3n * trtscent / 2;     // x ditto.
       txpk := k3;                     // angle at TXP.   0.78.e  23-02-03
@@ -3929,11 +4104,13 @@ begin
       rety := g / 2 + (tvjpx - dpx) / k3n;
 
     end
-    else begin                      // curviform crossing (1)
+    else
+    begin                      // curviform crossing (1)
       txpy := (trtscent + g) / 2;    // y to turnout-side crossover mid-point.
 
       temp := SQR(tradius - g / 2) - SQR(torgy - txpy);  //^^^
-      if temp < minfp then begin                 // something wrong.
+      if temp < minfp then
+      begin                 // something wrong.
         txpx := tcpx;         // set to crossing-point instead.
         txpy := tcpy;
       end
@@ -3976,8 +4153,10 @@ begin
       retr := (trtscent + g / 2 - rety) / temp;  // return curve centre-line radius.
 
     if retr < minfp                  // can't use return radius zero or negative.
-    then begin
-      if retpar_i = 1 then begin
+    then
+    begin
+      if retpar_i = 1 then
+      begin
         alert(0, '   calculation  failure',
           'Sorry, a return curve to parallel track will not fit.' +
           '||Increase the track centre-to-centre spacing or use a flatter V-crossing angle.)',
@@ -4002,7 +4181,8 @@ begin
     then
       mxpx := dpx + trtscent / 2 / SIN(k3)
     // x to main-side crossover mid-point. Mod 0.78.e WAS trmscent MS spacing. 22-02-03.
-    else begin
+    else
+    begin
       // curved crossing...  Mod BUG FIX 0.78.e WAS as for straight crossing. 22-02-03.
       try
         mxpx := txpx - (trtscent / 2) / TAN(txpk) + (trtscent / 2) / SIN(txpk);  // 0.78.e  23-02-03
@@ -4019,7 +4199,8 @@ begin
     // default free length to 2nd sleeper centre beyond point rail joint.
 
     if turnout_i = 0         //  new turnout - reset nominal length - length free.
-    then begin
+    then
+    begin
       if (xing_calc_i <> 1) and (retpar_i = 1)       // set up defaults for screenx.
       then
         turnoutx := retrorgx                 // x to end of return curve,
@@ -4089,34 +4270,41 @@ begin
     // 217a mods end.
 
     if xing_calc_i <> 1  // straight crossing, regular or generic:
-    then begin
+    then
+    begin
       if retpar_i = 1                         // return curve ?
-      then begin
+      then
+      begin
         vendx := retx + g / 2 * SIN(k3);
         // yes, x to end of straight portion of vee splice rail,
         csrendx := retx - g / 2 * SIN(k3);  // and stock rail opposite.
       end
-      else begin
+      else
+      begin
         case turnout_road_i of
-          -1: begin
+          -1:
+          begin
             vendx := txpx + (g / 2) * SIN(k3);
             // short - for crossover.
             csrendx := vendx - g * SIN(k3);
             // x to curved stock rail end (slight error for curved crossing).
           end;
-          0: begin
+          0:
+          begin
             vendx := bnx + veelong * COS(k3) + scale / 2;
             // normal - length of splice rail only  (add 6" for luck - looks better).
             csrendx := vendx - g * SIN(k3);
             // x to curved stock rail end (slight error for curved crossing).
           end;
-          1: begin
+          1:
+          begin
             vendx := turnoutx;
             // long - x to rail end - full length of turnout. (could be shorter than normal, e.g. catch points).
             csrendx := vendx - g * SIN(k3);
             // 209a  was vendx;  ditto x to curved stock rail end.
           end;
-          2, 3: begin
+          2, 3:
+          begin
             // 209a              3 added 217a
             vendx := xorg + turnout_road_endx + g * SIN(k3) / 2;
             // adjustable
@@ -4133,7 +4321,8 @@ begin
       vendox := vendx + j * SIN(k3);        // x to ditto outer edge.
       csrendox := csrendx - j * SIN(k3);    // x to ditto outer edge.
     end
-    else begin           // ditto for curviform crossing...
+    else
+    begin           // ditto for curviform crossing...
 
       //temp:=SQR(tradius+j)-SQR(k3cost-j);      //^^^
 
@@ -4152,7 +4341,8 @@ begin
           if ABS(tradius_cl) < minfp      // crossover  //^^^
           then
             k4 := k4_limit
-          else begin
+          else
+          begin
             if ABS((txpx - torgx) / tradius_cl) > (1.0 - minfp)    //^^^
             then
               k4 := k4_limit
@@ -4160,7 +4350,8 @@ begin
               k4 := ARCSIN((txpx - torgx) / tradius_cl);   //^^^ // crossover - angle to end of turnout road.
           end;
 
-        0: begin                         // normal
+        0:
+        begin                         // normal
           k4 := tvjpk;
           // normal length, stop at vee splice rail joint.
           if ABS(tradius_cl) > minfp then
@@ -4171,9 +4362,9 @@ begin
           if ABS(tradius_cl) < minfp      // long
           then
             k4 := k4_limit                                         //^^^
-          else begin
-            if ABS((turnoutx - torgx) / tradius_cl) >
-              (1.0 - minfp)    //^^^
+          else
+          begin
+            if ABS((turnoutx - torgx) / tradius_cl) > (1.0 - minfp)    //^^^
             then
               k4 := k4_limit
             else
@@ -4184,9 +4375,9 @@ begin
           if ABS(tradius_cl) < minfp      // 209a adjustable          //  3 added 216c
           then
             k4 := k4_limit
-          else begin
-            if ABS((xorg + turnout_road_endx - torgx) / tradius_cl) >
-              (1.0 - minfp) then
+          else
+          begin
+            if ABS((xorg + turnout_road_endx - torgx) / tradius_cl) > (1.0 - minfp) then
               k4 := k4_limit
             else
               k4 := ARCSIN((xorg + turnout_road_endx - torgx) / tradius_cl);
@@ -4210,7 +4401,8 @@ begin
     //  main-side check rail dims:  mod: 0.71.a  17-05-01...
     //                        mod again: 0.79.a  29-05-03...
 
-    if (timbers_equalized = False) and (half_diamond = False) then begin
+    if (timbers_equalized = False) and (half_diamond = False) then
+    begin
       if square_on_angled = False then
         ckmidx_ms := atx                                     // square-on timbering.
       else
@@ -4245,7 +4437,8 @@ begin
     // calc the virtual knuckle points :
 
     if xing_calc_i <> 0  //  for original or curviform crossing, knuckle on turnout radius :
-    then begin
+    then
+    begin
       try
         tcosk3 := tradius * COS(k3);                                            //^^^
         wingx := torgx + SQRT(SQR(tradius) - SQR(tcosk3 + fw)) * SGZ(tradius);
@@ -4267,7 +4460,8 @@ begin
         wingcox := wingcx - j * TAN(k3 / 2);
       end;//try
     end
-    else begin                                // for regular crossing :
+    else
+    begin                                // for regular crossing :
       wingx := fpx - fw * k3n;                 // x dittos for above, on the straight.
       wingox := wingx + j * TAN(k3 / 2);
 
@@ -4277,7 +4471,8 @@ begin
     // -------------------------------------------------------
 
     if xing_calc_i <> 0  //  for original or curviform crossing, knuckle on turnout radius :
-    then begin
+    then
+    begin
       try
         ka := ARCSIN((wingx - torgx) / tradius);   // knuckle angle in rail
       except
@@ -4306,7 +4501,8 @@ begin
     wingcox_minus := wingcox;
 
     if knuckle_code <> -1      // not sharp
-    then begin
+    then
+    begin
       case knuckle_code of        // 0=normal, -1=sharp, 1=use knuckle_radius
 
         0:
@@ -4322,7 +4518,8 @@ begin
 
       tempx := ABS(knuck_rad * TAN(ka / 2));    // from knuckle to knuckle rad centre
 
-      if tempx > knuck_max then begin
+      if tempx > knuck_max then
+      begin
         tempx := knuck_max;
         try
           knuck_rad := tempx / TAN(ka / 2);
@@ -4375,7 +4572,8 @@ begin
 
     case xing_calc_i of
 
-      1: begin                         // for curviform V-crossing :
+      1:
+      begin                         // for curviform V-crossing :
         k6 := wfp / (tradius - fw);                              // angle turned along wfp.
         k7 := flen_tr / (tradius - fw);                          // ditto along flare.
         flarecx := torgx + (tradius - fw) * SIN(k3 + k6);            // x to flare-out, gauge-face.
@@ -4388,11 +4586,13 @@ begin
             flcendox := flcendx - j * SIN(k3 + k6 + k7 + k5_tr);
             // x to ditto, outer edge, bent flares.
           else
-            flcendox := flcendx - (j + fw - (fw_end + ccd.end_diff_tr.gap_diff)) * SIN(k3 + k6 + k7); // machined flares.
+            flcendox := flcendx - (j + fw - (fw_end + ccd.end_diff_tr.gap_diff)) * SIN(k3 + k6 + k7);
+            // machined flares.
         end;//case
       end;
 
-      0: begin                         // ditto for regular crossing :
+      0:
+      begin                         // ditto for regular crossing :
 
         // !!! these are not correct for a return curve (parallel crossing) - not yet done 29-5-01
 
@@ -4410,7 +4610,8 @@ begin
         end;//case
 
       end;
-      -1: begin                              // ditto for generic crossing :
+      -1:
+      begin                              // ditto for generic crossing :
         flarecx := wingcfpx + wfp * COS(k3);
         flarecox := flarecx - jbend_tr * SIN(k3 + k5_tr / 2);
         flcendx := flarecx + flen_tr * COS(k3 + k5_tr);
@@ -4449,7 +4650,8 @@ begin
     if (timbers_equalized = True) or (half_diamond = True) then
       cktsmid_offset := cktsmid_offset - ((atx - fpx) * TAN(k3 / 2) + g - fw) * (TAN(k3) - TAN(k3 / 2))
     // pull check rail back if equalized timbering.
-    else begin
+    else
+    begin
       if square_on_angled = True then
         cktsmid_offset := cktsmid_offset - ((atx - fpx) * TAN(k3 / 2) + g - fw) * TAN(k3); // or angled-on.
     end;
@@ -4458,12 +4660,15 @@ begin
     // length along check, f.p. to flare-out, straight crossing.
 
     if xing_calc_i = 1         // curviform V-crossing, calc swing on cucklb.        and flen_te 0.96.a
-    then begin
-      if ABS(cuckrad) < minfp then begin
+    then
+    begin
+      if ABS(cuckrad) < minfp then
+      begin
         k10 := Pi / 2;               // !!!
         k11 := pi / 2;               // 0.96.a
       end
-      else begin
+      else
+      begin
         k10 := cucklb / cuckrad;
         k11 := flen_te / cuckrad;  // 0.96.a
       end;
@@ -4476,18 +4681,21 @@ begin
 
 
     if xing_calc_i <> 0            // for curviform or generic straight crossing:
-    then begin
+    then
+    begin
       k8 := cuckla / cuckrad;           // angle turned through cuckla.
       k9 := flen_tw / cuckrad;          // angle turned through check rail flare-in.
 
       if k8 < k3            // check-rail flared-in length starts on the turnout curve...
-      then begin
+      then
+      begin
         cuckfwx := torgx + cuckrad * SIN(k3 - k8);
         // x to check rail at flare-in.
         cuckfwox := cuckfwx + jbend_tw * SIN(k3 - k8 + k5_tw / 2);
         // x to ditto, outer-edge.
       end
-      else begin
+      else
+      begin
         // 0.71.a long check working length - ignore switch rad and planing (approximation)..
 
         cuckfwx := torgx - (cuckla - cuckrad * k3);           // x to check rail at flare-in.
@@ -4496,7 +4704,8 @@ begin
       end;
 
       if (k8 + k9) < k3     // check rail starts on turnout curve...
-      then begin
+      then
+      begin
         cuckx := torgx + cuckflrad_tw * SIN(k3 - k8 - k9);         // x to check rail start.
         {
                       case flared_ends of
@@ -4514,7 +4723,8 @@ begin
         end;//case
 
       end
-      else begin
+      else
+      begin
         // 0.71.a long check working length - ignore switch rad and planing (approximation)..
 
         cuckx := cuckfwx - flen_tw;         // x to check rail start.
@@ -4524,11 +4734,11 @@ begin
                                   else cuckox:=cuckx;                         // machined flares.
                       end;//case
 }
-        cuckox := cuckx + jbend_tw * SIN(k5_tw / 2) * get_flare_type(
-          ccd.end_diff_tw.type_diff);
+        cuckox := cuckx + jbend_tw * SIN(k5_tw / 2) * get_flare_type(ccd.end_diff_tw.type_diff);
       end;
     end
-    else begin          // for regular crossing (also parallel crossing):
+    else
+    begin          // for regular crossing (also parallel crossing):
 
 
       if ABS(COS(k3)) < minfp then
@@ -4538,7 +4748,8 @@ begin
 
       if (cuckla < angled_sl) or (tradius_is_straight = True)
       //~~~ 0.79.a all on straight crossing part...
-      then begin
+      then
+      begin
         cuckfwx := cuckfpx - cuckla * COS(k3);
         cuckfwox := cuckfwx + jbend_tw * SIN(k3 + k5_tw / 2);
         cuckx := cuckfwx - (flen_tw / COS(k5_tw)) * COS(k3 + k5_tw);
@@ -4551,20 +4762,23 @@ begin
             cuckox := cuckx + (j + fw - (fw_end + ccd.end_diff_tw.gap_diff)) * SIN(k3);
         end;//case
       end
-      else begin
+      else
+      begin
 
         k88 := (cuckla - angled_sl) / cuckrad;  // angle turned through flared-in length.
         k9 := flen_tw / cuckrad;
         // angle turned through check rail flare-in.
 
         if k88 < k3       // check-rail flared-in length starts on the turnout curve...
-        then begin
+        then
+        begin
           cuckfwx := torgx + cuckrad * SIN(k3 - k88);
           // x to check rail at flare-in.
           cuckfwox := cuckfwx + jbend_tw * SIN(k3 - k88 + k5_tw / 2);
           // x to ditto, outer-edge.
         end
-        else begin
+        else
+        begin
           // 0.71.a long check working length - ignore switch rad and planing (approximation)..
 
           cuckfwx := torgx - (cuckla - angled_sl - cuckrad * k3);
@@ -4574,7 +4788,8 @@ begin
         end;
 
         if (k88 + k9) < k3     // check rail starts on turnout curve...
-        then begin
+        then
+        begin
           cuckx := torgx + cuckflrad_tw * SIN(k3 - k88 - k9);
           // x to check rail start.
 
@@ -4583,11 +4798,13 @@ begin
               cuckox := cuckx + j * SIN(k3 - k88 - k9 + k5_tw);
               // x to ditto, outer-edge. bent flares.
             else
-              cuckox := cuckx + (j + fw - (fw_end + ccd.end_diff_tw.gap_diff)) * SIN(k3 - k88 - k9); // machined flares.
+              cuckox := cuckx + (j + fw - (fw_end + ccd.end_diff_tw.gap_diff)) * SIN(k3 - k88 - k9);
+              // machined flares.
           end;//case
 
         end
-        else begin
+        else
+        begin
           // 0.71.a long check working length - ignore switch rad and planing (approximation)..
 
           cuckx := cuckfwx - flen_tw;         // x to check rail start.
@@ -4600,7 +4817,8 @@ begin
     // TS check rail extension end
 
     if xing_calc_i = 1                                     // for curviform V-crossing only :
-    then begin
+    then
+    begin
       cuckflx := torgx + cuckrad * SIN(k3 + k10);                  // x to check rail flare-out.
       cuckflox := cuckflx + jbend_te * SIN(k3 + k10 - k5_te / 2);
       // x to ditto, outer-edge (assumes bent flares).
@@ -4622,7 +4840,8 @@ begin
       end;//case
 
     end
-    else begin                      // straight crossing, normal or original :
+    else
+    begin                      // straight crossing, normal or original :
 
       // !!!! these are not correct for a return curve (parallel crossing) - not yet done 29-5-01
 
@@ -4646,12 +4865,14 @@ begin
 
     // K-crossing check rails...
 
-    if (half_diamond = True) and (fixed_diamond = True) then begin
+    if (half_diamond = True) and (fixed_diamond = True) then
+    begin
 
       // diagonal-side check rail (straight)...
 
       if (hd_timbers = 2) or (hd_timbers = 3)       // timbers on main or both sides for slip ...
-      then begin
+      then
+      begin
         if g < (56 * inscale)                                           // not P4 etc.
         then
           kckl_dk := (62 + ccd.end_diff_dk.len_diff) * inscale
@@ -4680,7 +4901,8 @@ begin
 
       if (hd_timbers = 1) or (hd_timbers = 3)
       // timbers on diagonal or both sides for slip ...
-      then begin
+      then
+      begin
         if g < (56 * inscale)                                           // not P4 etc.
         then
           kckl_mk := (62 + ccd.end_diff_mk.len_diff) * inscale
@@ -4726,23 +4948,27 @@ begin
 
     // seg_termx[0,  = switch front...
 
-    if (gaunt = True) and (half_diamond = False) then begin
+    if (gaunt = True) and (half_diamond = False) then
+    begin
       seg_termx[0, 2] := 0;
       //  aq=2 turnout rail, gauge face, switch front, gauntletted approach track
       seg_termx[0, 10] := 0;     //  aq=10 ditto outer.
     end
-    else begin
+    else
+    begin
       seg_termx[0, 2] := nodraw;
       //  aq=2 turnout rail, gauge face, switch front, do not draw.
       seg_termx[0, 10] := nodraw;              //  aq=10 ditto outer, do not draw.
     end;
 
-    if half_diamond = True then begin
+    if half_diamond = True then
+    begin
       seg_termx[0, 3] := nodraw;
       //  aq=3 diagonal stock rail, gauge face, do not draw for h-d.
       seg_termx[0, 11] := nodraw;    //  aq=11 ditto outer edge, do not draw.
     end
-    else begin
+    else
+    begin
       seg_termx[0, 3] := 0;
       //  turnout curved stock rail, gauge face, switch front start.
       seg_termx[0, 11] := 0;         //  ditto outer edge.
@@ -4750,7 +4976,8 @@ begin
 
     // seg_termx[1,  = planing, and set straight section...
 
-    if half_diamond = True then begin
+    if half_diamond = True then
+    begin
       seg_termx[1, 2] := nodraw;     // aq=2 trg   no planing section for h-d.
       seg_termx[1, 10] := nodraw;    // aq=10 tro  do not draw.
 
@@ -4758,15 +4985,18 @@ begin
       seg_termx[1, 11] := nodraw;    // aq=11 sro
 
     end
-    else begin
-      if gaunt = True then begin
+    else
+    begin
+      if gaunt = True then
+      begin
         seg_termx[1, 2] := toex;     // aq=2 trg
         seg_termx[1, 10] := toex;    // aq=10 tro
 
         seg_termx[1, 3] := toex;     // aq=3 srg
         seg_termx[1, 11] := toex;    // aq=11 sro
       end
-      else begin
+      else
+      begin
         seg_termx[1, 2] := toex;                          // aq=2 trg  planing start
         seg_termx[1, 10] := nodraw;    // aq=10 tro  do not draw.
 
@@ -4777,22 +5007,26 @@ begin
 
     // seg_termx[2,  = switch radius ...
 
-    if half_diamond = True then begin
+    if half_diamond = True then
+    begin
       seg_termx[2, 2] := nodraw;     // aq=2 trg   no switch radius section for h-d.
       seg_termx[2, 10] := nodraw;    // aq=10 tro  do not draw.
 
       seg_termx[2, 3] := nodraw;     // aq=3 srg  ditto for diagonal stock rail.
       seg_termx[2, 11] := nodraw;    // aq=11 sro
     end
-    else begin
-      if gaunt = True then begin
+    else
+    begin
+      if gaunt = True then
+      begin
         seg_termx[2, 2] := toex;     // aq=2 trg
         seg_termx[2, 10] := toex;    // aq=10 tro
 
         seg_termx[2, 3] := toex;     // aq=3 srg
         seg_termx[2, 11] := toex;    // aq=11 sro
       end
-      else begin
+      else
+      begin
         seg_termx[2, 2] := plx;
         // aq=2 trg  switch curve start.
         if plox < heelox then
@@ -4808,8 +5042,10 @@ begin
 
     // seg_termx[3,  = turnout radius ...
 
-    if half_diamond = True then begin
-      if fixed_diamond = True then begin
+    if half_diamond = True then
+    begin
+      if fixed_diamond = True then
+      begin
 
         // blunt nose of diamond point rails is typically 1/8" less than V-nose (=1/2" for FB, =5/8" for BH).
         // first do blunt nose..
@@ -4822,18 +5058,21 @@ begin
 
         tempy := fw + bnw * COS(hdk / 2);  // offset to tip.
 
-        if tradius_is_straight = True then begin
+        if tradius_is_straight = True then
+        begin
           seg_termx[3, 2] := toex + tempy * hdkn;   // 20-09-04 gauge-face.
           seg_termx[3, 10] := plox + fw * hdkn;     // outer-edge.
         end
-        else begin
+        else
+        begin
           seg_termx[3, 2] :=
             torgx + SGZ(tradius) * SQRT(SQR(tradius) - SQR(torgy - tempy));  // gauge-face.
           seg_termx[3, 10] :=
             torgx + SGZ(tradius) * SQRT(SQR(tradius + j) - SQR(torgy - fw));  // outer-edge.
         end;
       end
-      else begin   // switch diamond..
+      else
+      begin   // switch diamond..
 
         seg_termx[3, 2] := toex;    // gauge-face.
 
@@ -4848,16 +5087,19 @@ begin
       seg_termx[3, 11] := toex - (g + j) * TAN(hdk / 2); //seg_termx[3,3]-j*TAN(hdk/2); // aq=11 sro
 
     end
-    else begin     // turnout...
+    else
+    begin     // turnout...
 
-      if gaunt = True then begin
+      if gaunt = True then
+      begin
         seg_termx[3, 2] := toex;     // aq=2 trg
         seg_termx[3, 10] := toex;    // aq=10 tro
 
         seg_termx[3, 3] := toex;     // aq=3 srg
         seg_termx[3, 11] := toex;    // aq=11 sro
       end
-      else begin
+      else
+      begin
         seg_termx[3, 2] := heelx;
         // aq=2 trg  turnout curve start.
         if plox > heelox then
@@ -4873,7 +5115,8 @@ begin
     // seg_termx[4,  = V-crossing...
 
     case xing_calc_i of
-      0: begin                                // for regular crossing:
+      0:
+      begin                                // for regular crossing:
         seg_termx[4, 2] := tx;
         // aq=2 trg  curve ends at entry straight.
         seg_termx[4, 10] := tx + j * SIN(k3);          // aq=10 tro ditto.
@@ -4882,7 +5125,8 @@ begin
         seg_termx[4, 11] := tx - (g + j) * SIN(k3);      // aq=11 sro ditto.
       end;
 
-      1: begin                                // for curviform crossing:
+      1:
+      begin                                // for curviform crossing:
         //seg_termx[4,2]:=wingx;                  // trg  end of turnout curve.
         //seg_termx[4,10]:=wingox;                // tro  ditto.
 
@@ -4893,7 +5137,8 @@ begin
         seg_termx[4, 3] := csrendx;                // srg  end of turnout curve.
         seg_termx[4, 11] := csrendox;              // sro  ditto.
       end;
-      -1: begin                                // for generic crossing:
+      -1:
+      begin                                // for generic crossing:
         //seg_termx[4,2]:=wingx;                  // trg  end of turnout curve.
         //seg_termx[4,10]:=wingox;                // tro  ditto.
 
@@ -4907,10 +5152,12 @@ begin
     end;//case
 
     if plain_track = True            //  stop the curved stock rail at the rail-joint
-    then begin                  //  if plain track (approach track) only wanted.
+    then
+    begin                  //  if plain track (approach track) only wanted.
       seg_termx[1, 3] := xorg;
       seg_termx[1, 11] := xorg;
-      for i := 2 to 4 do begin
+      for i := 2 to 4 do
+      begin
         seg_termx[i, 3] := nodraw;      // aq=3   gauge-face.
         seg_termx[i, 11] := nodraw;     // aq=11  outer-edge.
       end;
@@ -4952,8 +5199,8 @@ end;
 procedure compile_template_data;   // compile results of calcs.
 
 var
-  trans_0rad, trans_orgrad, trans_toerad, trans_heelrad, trans_dprad, trans_txrad,
-  trans_fprad, trans_vjrad, trans_9rad: extended;
+  trans_0rad, trans_orgrad, trans_toerad, trans_heelrad, trans_dprad, trans_txrad, trans_fprad,
+  trans_vjrad, trans_9rad: extended;
   rcurv_0, rcurv_toe, rcurv_heel, rcurv_dp, rcurv_tx, rcurv_fp, rcurv_vj: extended;
   rmin_inch: extended;
 
@@ -4986,22 +5233,15 @@ var
 
 begin
   //081  with cpi do begin
-  no_info_update_needed := spot_mod + zoom_mod
-    + zoffset_mod + bunch_mod
+  no_info_update_needed := spot_mod + zoom_mod + zoffset_mod + bunch_mod
     //+notch_mod  out 23-04-05 (needed for peg position from notch)
-    + ring_mod + ringdia_mod
-    + ruler1_mod + ruler2_mod
-    + porg_mod + out_factor_mod
-    + shift_keeps_mod +
-    twist_keeps_mod + oneshape_shift_mod +
-    corner1_mod + corner2_mod +
-    oneshape_scale_mod + allshapes_shift_mod +
-    allshapes_scale_mod + allshapes_rotate_mod
-    + move_labels_mod        // 0.82.d
+    + ring_mod + ringdia_mod + ruler1_mod + ruler2_mod + porg_mod + out_factor_mod +
+    shift_keeps_mod + twist_keeps_mod + oneshape_shift_mod + corner1_mod + corner2_mod +
+    oneshape_scale_mod + allshapes_shift_mod + allshapes_scale_mod + allshapes_rotate_mod +
+    move_labels_mod        // 0.82.d
 
     + rect_left_mod          // 0.93.a ...
-    + rect_right_mod + rect_top_mod
-    + rect_bottom_mod + rect_move_mod;
+    + rect_right_mod + rect_top_mod + rect_bottom_mod + rect_move_mod;
 
   if no_info_update_needed <> 0 then
     EXIT;     // mouse action in progress is not for control template.
@@ -5019,10 +5259,16 @@ begin
 
   if (k3n < (4 - minfp)) and (half_diamond = False) and (plain_track = False) and (g > (4 * scale))
   // 0.93.a not for n.g. 4ft and below
-  then begin
-    program_help_str := 'The current V-crossing angle is 1 : ' + FormatFloat(
-      '#.##', k3n) +
-      '||Turnouts shorter than 1 : 4 crossing angle are unusual in standard gauge track, unless there is significant negative curving (Y-turnout).' + ' The radius is likely to be too sharp for normal rolling-stock.' + '||Templot0 allows turnouts with crossing angles down to 1 : 1.5 for narrow-gauge, contractor''s lines, etc.' + ' You will probably need a custom switch for these, and adjustments to the timbering - select the' + ' `0REAL > TIMBERING > TIMBERING DATA...`1 and `0REAL > SHOVE TIMBERS`1 menu items.' + '||If you are seeing this message while using partial templates to create tandem turnouts, slips, etc., you can probably ignore it.';
+  then
+  begin
+    program_help_str := 'The current V-crossing angle is 1 : ' + FormatFloat('#.##', k3n) +
+      '||Turnouts shorter than 1 : 4 crossing angle are unusual in standard gauge track, unless there is significant negative curving (Y-turnout).'
+      +
+      ' The radius is likely to be too sharp for normal rolling-stock.' +
+      '||Templot0 allows turnouts with crossing angles down to 1 : 1.5 for narrow-gauge, contractor''s lines, etc.' +
+      ' You will probably need a custom switch for these, and adjustments to the timbering - select the' +
+      ' `0REAL > TIMBERING > TIMBERING DATA...`1 and `0REAL > SHOVE TIMBERS`1 menu items.' +
+      '||If you are seeing this message while using partial templates to create tandem turnouts, slips, etc., you can probably ignore it.';
 
     pad_form.program_warning_panel.Caption :=
       '1 : ' + FormatFloat('#.##', k3n) + '  V-crossing angle is shorter than 1 : 4';
@@ -5030,27 +5276,26 @@ begin
   end;
 
   if (k3n > k2n) and (half_diamond = False) and (plain_track = False)  // 0.93.a  irregular warning
-  then begin
-    program_help_str := 'The current V-crossing angle is 1 : ' + FormatFloat(
-      '#.##', k3n) +
-      '||This is flatter than the heel angle of the currently selected switch size.'
-      +
+  then
+  begin
+    program_help_str := 'The current V-crossing angle is 1 : ' + FormatFloat('#.##', k3n) +
+      '||This is flatter than the heel angle of the currently selected switch size.' +
       '||The equivalent turnout-road radius is therefore negative and this very long turnout is unlikely to be of any practical use.'
-      +
-      '||You should probably use a longer switch size, or shorten the V-crossing angle to match the current switch size.'
-      +
-      '||Click the `0TEMPLATE > SWITCH SETTINGS...`1 menu item, or the `0template > V-crossing settings...`z menu item.';
+      + '||You should probably use a longer switch size, or shorten the V-crossing angle to match the current switch size.'
+      + '||Click the `0TEMPLATE > SWITCH SETTINGS...`1 menu item, or the `0template > V-crossing settings...`z menu item.';
     pad_form.program_warning_panel.Caption :=
       '1 : ' + FormatFloat('#.##', k3n) + '  V-crossing angle is flatter than the switch heel.';
     temp_flag := True;
   end;
 
   if (temp_flag = True) and (creating_tandem = False) and (gaunt = False)  // 218a
-  then begin
+  then
+  begin
     pad_form.program_button.Show;
     pad_form.program_warning_panel.Show;
   end
-  else begin
+  else
+  begin
     pad_form.program_warning_panel.Hide;
     pad_form.program_button.Hide;
   end;
@@ -5060,7 +5305,8 @@ begin
   info_form.gauge_bang_label.Caption := ' ' + Trim(gauge_str) + ' ';        // 216a
 
   try
-    with info_form do begin
+    with info_form do
+    begin
 
       if rail_section = 2        // 0.95.a
       then
@@ -5077,15 +5323,18 @@ begin
       if gauge_i = gauge_form.gauge_listbox.Items.Count - 1 then
         temp_str := temp_str + round_str(scale, 2) + ' mm / ft    ';     // exact scale.
 
-      if plain_track = False then begin
-        if half_diamond = True then begin
+      if plain_track = False then
+      begin
+        if half_diamond = True then
+        begin
           temp_str := temp_str + current_switch_name;
           if tradius_is_straight = True then
             reg_hd_str := ' (regular half-diamond)'
           else
             reg_hd_str := ' (irregular half-diamond)';
         end
-        else begin
+        else
+        begin
           case csi.group_code of
             1:
               temp_str := temp_str + Copy(current_switch_name, 0, 7);  // straight switches.
@@ -5135,14 +5384,14 @@ begin
         run_error(82);
     end;//case
 
-    with info_text_list do begin
+    with info_text_list do
+    begin
 
       // show the main details:
 
       Add('template generated at ' + TimeToStr(Time) + ' on ' + DateToStr(Date) +
         ' using Templot0 v:' + GetVersionString(voFull));
-      Add('scale = ' + round_str(scale, 2) + ' mm/ft     scale ratio = 1:' +
-        round_str(304.8 / scale, 2));
+      Add('scale = ' + round_str(scale, 2) + ' mm/ft     scale ratio = 1:' + round_str(304.8 / scale, 2));
       Add('track gauge = ' + round_str(g, 2) + '    flangeway gap = ' + round_str(fw, 2));
 
       if (ABS(nomrad) > max_rad_test) and (spiral = False) then
@@ -5187,14 +5436,16 @@ begin
           run_error(36);
       end;//case
 
-      if (plain_track = False) and (half_diamond = False) then begin
+      if (plain_track = False) and (half_diamond = False) then
+      begin
         if gaunt = True then
           Add(temp_str + 'gaunt turnout:')
         else
           Add(temp_str + 'turnout:');
       end
       else
-      if half_diamond = True then begin
+      if half_diamond = True then
+      begin
         if tradius_is_straight = True then
           hd_str := 'regular'
         else
@@ -5209,8 +5460,10 @@ begin
         Add(temp_str + 'plain track in' + plain_track_form.plain_track_spacings_listbox.Items.Strings[pt_i] +
           ' ( rail length = ' + round_str(railen[pt_i] * inscale, 2) + ' ):');
 
-      if plain_track = False then begin
-        if half_diamond = False then begin
+      if plain_track = False then
+      begin
+        if half_diamond = False then
+        begin
           if joggled = True then
             temp_str := '(joggled)'
           else
@@ -5234,12 +5487,14 @@ begin
         temp_str := ram_clm_str(k3n);
 
         case xing_type_i of
-          0: begin
+          0:
+          begin
             temp_str := temp_str + ' regular V-crossing';
             if retpar_i = 1 then
               temp_str := temp_str + ' (returning parallel)';
           end;
-          -1: begin
+          -1:
+          begin
             temp_str := temp_str + ' generic V-crossing';
             if retpar_i = 1 then
               temp_str := temp_str + ' (returning parallel)';
@@ -5271,18 +5526,21 @@ begin
 
         if no_timbering = True then
           tbstyle_str := 'no'
-        else begin
+        else
+        begin
           if half_diamond = True then
             tbstyle_str := 'equalized-constant'
-          else begin
-            if timbers_equalized = False
-            then begin
+          else
+          begin
+            if timbers_equalized = False then
+            begin
               if square_on_angled = True then
                 tbstyle_str := 'angled-on'
               else
                 tbstyle_str := 'square-on';
             end
-            else begin
+            else
+            begin
               if equalizing_fixed = True then
                 tbstyle_str := 'equalized-constant'
               else
@@ -5293,7 +5551,8 @@ begin
         Add(tbstyle_str + ' timbering');
       end;
 
-      if slewing = True then begin
+      if slewing = True then
+      begin
         Add('------------');
         Add('N.B. this template includes SLEWING for all or part of its length');
         Add('the radius figures quoted below do not apply');
@@ -5307,7 +5566,8 @@ begin
           Add('if any part of the turnout lead overlaps the slewing zone');
         end;
 
-        if (plain_track = False) and (half_diamond = True) then begin
+        if (plain_track = False) and (half_diamond = True) then
+        begin
           Add('');
           Add('the figures quoted below for the diagonal-road radius,');
           Add('and for the smallest radius on this template, do not apply');
@@ -5318,26 +5578,27 @@ begin
 
       if ((ABS(nomrad) < max_rad_test) or (spiral = True)) and (plain_track = False)
       // do calcs for approx radius in turnout road and limit checks...
-      then begin
+      then
+      begin
         // curved template
         Add('------------');
         if spiral = False    // fixed curve.
-        then begin
+        then
+        begin
           //Add('base line radius = '+rad_str(nomrad,2));
           //Add('offset from the base line to the track centre-line = '+round_str(ycurv,2));
           //Add('');
-          Add('main-road centre-line radius = ' + rad_str(
-            clrad1, 2) + ' (constant radius)');
+          Add('main-road centre-line radius = ' + rad_str(clrad1, 2) + ' (constant radius)');
 
-          if half_diamond = False then begin
+          if half_diamond = False then
+          begin
             rcurv_toe := curved_onto_calc(equiv_rad - g / 2, clrad1);
 
             rcurv_heel :=
               calculate_turnout_radius(clrad1, dummy_notch1, dummy_notch2, dummy_notch3);
             // 218a    rcurv_heel:=curved_onto_calc(tradius-g/2,clrad1);    //^^^
 
-            Add('resultant switch radius (centre-line) = ' +
-              rad_str(rcurv_toe, 0) + ' approx.');
+            Add('resultant switch radius (centre-line) = ' + rad_str(rcurv_toe, 0) + ' approx.');
 
             if gaunt = True then
               Add('resultant gaunt turnout radius (centre-line) = ' + rad_str(
@@ -5353,20 +5614,22 @@ begin
             radius_for_obtain := rcurv_heel;  // 205e
 
           end
-          else begin
-            if tradius_is_straight = True
-            then begin
+          else
+          begin
+            if tradius_is_straight = True then
+            begin
               Add(
                 'diagonal-road centre-line radius = ' + rad_str(clrad1, 2) + reg_hd_str);
 
               radius_for_obtain := clrad1;  // 205e
             end
-            else begin
+            else
+            begin
               rcurv_heel :=
                 calculate_turnout_radius(clrad1, dummy_notch1, dummy_notch2, dummy_notch3);
               // 218a    rcurv_heel:=curved_onto_calc(tradius-g/2,clrad1);
-              Add('resultant diagonal-road centre-line radius = '
-                + rad_str(rcurv_heel, 2) + reg_hd_str);
+              Add('resultant diagonal-road centre-line radius = ' +
+                rad_str(rcurv_heel, 2) + reg_hd_str);
               if rmin_mm > ABS(rcurv_heel) then
                 rmin_mm := ABS(rcurv_heel);
 
@@ -5375,16 +5638,15 @@ begin
           end;
 
           if retpar_i = 1      // parallel V-crossing  0.79.a
-          then begin
+          then
+          begin
             rcurv_return := curved_onto_calc(retr, 0 - clrad1);
             //  (opposite sense, so 0-)
             if rmin_mm > ABS(rcurv_return) then
               rmin_mm := ABS(rcurv_return);
-            Add('resultant return curve radius (centre-line) = ' +
-              rad_str(rcurv_return, 0) + ' approx.');
+            Add('resultant return curve radius (centre-line) = ' + rad_str(rcurv_return, 0) + ' approx.');
             Add('');
-            Add('loop radius beyond return curve (centre-line) = ' +
-              rad_str((clrad1 - trtscent), 2));
+            Add('loop radius beyond return curve (centre-line) = ' + rad_str((clrad1 - trtscent), 2));
             if rmin_mm > ABS(clrad1 - trtscent) then
               rmin_mm := ABS(clrad1 - trtscent);      // 0.79.a
           end;
@@ -5393,8 +5655,10 @@ begin
             rmin_mm := ABS(clrad1);
 
         end
-        else begin      // transition curve.
-          if half_diamond = False then begin
+        else
+        begin      // transition curve.
+          if half_diamond = False then
+          begin
             docurving(False, True, 0, g / 2, temp1, temp2, temp3, trans_0rad);
             // get curving radius at Ctrl-0 datum.
             docurving(False, True, xorg, g / 2, temp1,
@@ -5428,7 +5692,8 @@ begin
 
             if xing_calc_i <> 0
             // turnout - curved or generic crossing..
-            then begin
+            then
+            begin
               trans_txrad := nomrad1;    // keep compiler happy.
               rcurv_tx := nomrad1;       // keep compiler happy.
 
@@ -5437,9 +5702,11 @@ begin
               rcurv_vj :=
                 curved_onto_calc(tradius - g / 2, trans_vjrad);   //^^^
             end
-            else begin     // regular crossing...
+            else
+            begin     // regular crossing...
               docurving(
-                False, True, tx, g / 2, temp1, temp2, temp3, trans_txrad);      // get curving radius at curve end point.
+                False, True, tx, g / 2, temp1, temp2, temp3, trans_txrad);
+              // get curving radius at curve end point.
               rcurv_tx :=
                 curved_onto_calc(tradius - g / 2, trans_txrad);   //^^^
               rcurv_fp := trans_fprad;
@@ -5447,20 +5714,14 @@ begin
             end;
 
             Add(hand_str + ' transition curve :');
-            Add('main-road centre-line radius at datum (CTRL-0) = ' +
-              rad_str(trans_0rad, 2));
-            Add('main-road centre-line radius at switch front (CTRL-1) = '
-              + rad_str(trans_orgrad, 2));
+            Add('main-road centre-line radius at datum (CTRL-0) = ' + rad_str(trans_0rad, 2));
+            Add('main-road centre-line radius at switch front (CTRL-1) = ' + rad_str(trans_orgrad, 2));
             Add('');
-            Add('main-road centre-line radius at toe (CTRL-2) = ' +
-              rad_str(trans_toerad, 2));
-            Add('resultant turnout-road radius at toe (CTRL-2) = ' +
-              rad_str(rcurv_toe, 0) + ' approx.');
+            Add('main-road centre-line radius at toe (CTRL-2) = ' + rad_str(trans_toerad, 2));
+            Add('resultant turnout-road radius at toe (CTRL-2) = ' + rad_str(rcurv_toe, 0) + ' approx.');
             Add('');
-            Add('main-road centre-line radius at switch heel = ' +
-              rad_str(trans_heelrad, 2));
-            Add('resultant turnout-road radius at switch heel = ' +
-              rad_str(rcurv_heel, 0) + ' approx.');
+            Add('main-road centre-line radius at switch heel = ' + rad_str(trans_heelrad, 2));
+            Add('resultant turnout-road radius at switch heel = ' + rad_str(rcurv_heel, 0) + ' approx.');
             Add('');
             Add(
               'main-road centre-line radius at deflection point (CTRL-3) = ' + rad_str(trans_dprad, 2));
@@ -5469,7 +5730,8 @@ begin
             Add('');
 
             if xing_calc_i = 0  // regular crossing..
-            then begin
+            then
+            begin
               Add(
                 'main-road centre-line radius at end of turnout curve (CESP) = ' + rad_str(trans_txrad, 2));
               Add(
@@ -5477,39 +5739,37 @@ begin
               Add('');
             end;
 
-            Add('main-road centre-line radius at fine point (CTRL-4) = '
-              + rad_str(trans_fprad, 2));
-            Add('resultant turnout-road radius at fine point (CTRL-4) = '
-              + rad_str(rcurv_fp, 0) + ' approx.');
+            Add('main-road centre-line radius at fine point (CTRL-4) = ' + rad_str(trans_fprad, 2));
+            Add('resultant turnout-road radius at fine point (CTRL-4) = ' +
+              rad_str(rcurv_fp, 0) + ' approx.');
             Add('');
             Add(
               'main-road centre-line radius at vee joint (CTRL-8) = ' + rad_str(trans_vjrad, 2));
-            Add('resultant turnout-road radius at vee joint (CTRL-6) = '
-              + rad_str(rcurv_vj, 0) + ' approx.');
+            Add('resultant turnout-road radius at vee joint (CTRL-6) = ' +
+              rad_str(rcurv_vj, 0) + ' approx.');
             Add('');
-            Add('main-road centre-line radius at full length (CTRL-9) = '
-              + rad_str(trans_9rad, 2));
+            Add('main-road centre-line radius at full length (CTRL-9) = ' + rad_str(trans_9rad, 2));
 
             if spiral = False
             // bug fix mods 214a ...  // don't include radius at TOE or HEEL if a short transition is near (confusing result, radius shown may apply to only a few mm)
-            then begin
+            then
+            begin
               if rmin_mm > ABS(rcurv_toe) then
                 rmin_mm := ABS(rcurv_toe);
               if rmin_mm > ABS(rcurv_heel) then
                 rmin_mm := ABS(rcurv_heel);
             end
-            else begin
-              if (os < (toex - scale * 3)) or
-                (os > (toex + scale * 3))                // 3ft arbitrary closeness of a zone end
-                or ((os + tst) < (toex - scale * 3)) or
-                ((os + tst) > (toex + scale * 3)) then
+            else
+            begin
+              if (os < (toex - scale * 3)) or (os > (toex + scale *
+                3))                // 3ft arbitrary closeness of a zone end
+                or ((os + tst) < (toex - scale * 3)) or ((os + tst) > (toex + scale * 3)) then
                 if rmin_mm > ABS(rcurv_toe) then
                   rmin_mm := ABS(rcurv_toe);
 
-              if (os < (heelx - scale * 3)) or
-                (os > (heelx + scale * 3))              // 3ft arbitrary closeness of a zone end
-                or ((os + tst) < (heelx - scale * 3)) or
-                ((os + tst) > (heelx + scale * 3)) then
+              if (os < (heelx - scale * 3)) or (os > (heelx + scale *
+                3))              // 3ft arbitrary closeness of a zone end
+                or ((os + tst) < (heelx - scale * 3)) or ((os + tst) > (heelx + scale * 3)) then
                 if rmin_mm > ABS(rcurv_heel) then
                   rmin_mm := ABS(rcurv_heel);
             end;
@@ -5519,20 +5779,20 @@ begin
 
             if (spiral = False) or (xing_calc_i = 1)
             // bug fix mods 214a ...  // don't include radius at CESP or FP if not curviform and a short transition is near (confusing result, radius shown may apply to only a few mm)
-            then begin
-              if (xing_calc_i = 0) and
-                (rmin_mm > ABS(rcurv_tx)) then
+            then
+            begin
+              if (xing_calc_i = 0) and (rmin_mm > ABS(rcurv_tx)) then
                 rmin_mm := ABS(rcurv_tx);   // CESP regular crossing
               if rmin_mm > ABS(rcurv_fp) then
                 rmin_mm := ABS(rcurv_fp);
             end
-            else begin
-              if (os < (tx - scale * 3)) or
-                (os > (fpx + scale * 3))              // 3ft arbitrary closeness of a zone end
-                or ((os + tst) < (tx - scale * 3)) or
-                ((os + tst) > (fpx + scale * 3)) then begin
-                if (xing_calc_i = 0) and
-                  (rmin_mm > ABS(rcurv_tx)) then
+            else
+            begin
+              if (os < (tx - scale * 3)) or (os >
+                (fpx + scale * 3))              // 3ft arbitrary closeness of a zone end
+                or ((os + tst) < (tx - scale * 3)) or ((os + tst) > (fpx + scale * 3)) then
+              begin
+                if (xing_calc_i = 0) and (rmin_mm > ABS(rcurv_tx)) then
                   rmin_mm := ABS(rcurv_tx);   // CESP regular crossing
                 if rmin_mm > ABS(rcurv_fp) then
                   rmin_mm := ABS(rcurv_fp);
@@ -5562,7 +5822,8 @@ begin
               rmin_mm := ABS(trans_9rad);
 
           end
-          else begin  // half-diamond...
+          else
+          begin  // half-diamond...
             docurving(False, True, 0, g / 2, temp1, temp2, temp3, trans_0rad);
             // get curving radius at datum.
             docurving(False, True, fpx, g / 2, temp1,
@@ -5578,7 +5839,8 @@ begin
 
             if xing_calc_i <> 0
             // half-diamond - curved or generic crossing (irregular)...
-            then begin
+            then
+            begin
               trans_txrad := nomrad1;    // keep compiler happy.
               rcurv_tx := nomrad1;       // keep compiler happy.
 
@@ -5587,9 +5849,11 @@ begin
               rcurv_vj :=
                 curved_onto_calc(tradius - g / 2, trans_vjrad);   //^^^
             end
-            else begin     // regular crossing    (irregular hd) ...
+            else
+            begin     // regular crossing    (irregular hd) ...
               docurving(
-                False, True, tx, g / 2, temp1, temp2, temp3, trans_txrad);      // get curving radius at curve end point.
+                False, True, tx, g / 2, temp1, temp2, temp3, trans_txrad);
+              // get curving radius at curve end point.
               rcurv_tx :=
                 curved_onto_calc(tradius - g / 2, trans_txrad);   //^^^
               rcurv_fp := trans_fprad;
@@ -5597,53 +5861,52 @@ begin
             end;
 
             Add(hand_str + ' transition curve' + reg_hd_str + ' :');
-            Add('main-road centre-line radius at K-crossing (CTRL-0) = '
-              + rad_str(trans_0rad, 2));
-            Add('resultant diagonal-road radius at K-crossing (CTRL-0) = '
-              + rad_str(rcurv_0, 0) + ' approx.');
+            Add('main-road centre-line radius at K-crossing (CTRL-0) = ' + rad_str(trans_0rad, 2));
+            Add('resultant diagonal-road radius at K-crossing (CTRL-0) = ' +
+              rad_str(rcurv_0, 0) + ' approx.');
             Add('');
 
             if xing_calc_i = 0  // regular crossing..
-            then begin
+            then
+            begin
               Add(
                 'main-road centre-line radius at end of diamond curve (CESP) = ' + rad_str(trans_txrad, 2));
               Add(
-                'resultant diagonal-road radius at end of diamond curve (CESP) = ' + rad_str(rcurv_tx, 0) + ' approx.');
+                'resultant diagonal-road radius at end of diamond curve (CESP) = ' +
+                rad_str(rcurv_tx, 0) + ' approx.');
               Add('');
             end;
 
-            Add('main-road centre-line radius at fine point (CTRL-4) = '
-              + rad_str(trans_fprad, 2));
-            Add('resultant diagonal-road radius at fine point (CTRL-4) = '
-              + rad_str(rcurv_fp, 0) + ' approx.');
+            Add('main-road centre-line radius at fine point (CTRL-4) = ' + rad_str(trans_fprad, 2));
+            Add('resultant diagonal-road radius at fine point (CTRL-4) = ' +
+              rad_str(rcurv_fp, 0) + ' approx.');
             Add('');
             Add(
               'main-road centre-line radius at vee joint (CTRL-8) = ' + rad_str(trans_vjrad, 2));
-            Add('resultant diagonal-road radius at vee joint (CTRL-6) = '
-              + rad_str(rcurv_vj, 0) + ' approx.');
+            Add('resultant diagonal-road radius at vee joint (CTRL-6) = ' +
+              rad_str(rcurv_vj, 0) + ' approx.');
             Add('');
-            Add('main-road centre-line radius at full length (CTRL-9) = '
-              + rad_str(trans_9rad, 2));
+            Add('main-road centre-line radius at full length (CTRL-9) = ' + rad_str(trans_9rad, 2));
 
             if rmin_mm > ABS(rcurv_0) then
               rmin_mm := ABS(rcurv_0);
 
             if (spiral = False) or (xing_calc_i = 1)
             // bug fix mods 214a ...  // don't include radius at CESP or FP if not curviform and a short transition is near (confusing result, radius shown may apply to only a few mm)
-            then begin
-              if (xing_calc_i = 0) and
-                (rmin_mm > ABS(rcurv_tx)) then
+            then
+            begin
+              if (xing_calc_i = 0) and (rmin_mm > ABS(rcurv_tx)) then
                 rmin_mm := ABS(rcurv_tx);   // CESP regular crossing
               if rmin_mm > ABS(rcurv_fp) then
                 rmin_mm := ABS(rcurv_fp);
             end
-            else begin
-              if (os < (tx - scale * 3)) or
-                (os > (fpx + scale * 3))                // 3ft arbitrary closeness of a zone end
-                or ((os + tst) < (tx - scale * 3)) or
-                ((os + tst) > (fpx + scale * 3)) then begin
-                if (xing_calc_i = 0) and
-                  (rmin_mm > ABS(rcurv_tx)) then
+            else
+            begin
+              if (os < (tx - scale * 3)) or (os >
+                (fpx + scale * 3))                // 3ft arbitrary closeness of a zone end
+                or ((os + tst) < (tx - scale * 3)) or ((os + tst) > (fpx + scale * 3)) then
+              begin
+                if (xing_calc_i = 0) and (rmin_mm > ABS(rcurv_tx)) then
                   rmin_mm := ABS(rcurv_tx);   // CESP regular crossing
                 if rmin_mm > ABS(rcurv_fp) then
                   rmin_mm := ABS(rcurv_fp);
@@ -5666,7 +5929,8 @@ begin
 
 
           if retpar_i = 1   // parallel crossing. 0.79.a  ...
-          then begin
+          then
+          begin
             Add('');
 
             docurving(False, True, retx, g / 2, temp1,
@@ -5680,18 +5944,16 @@ begin
 
             Add(
               'main-road track centre-line radius at start of return curve = ' + rad_str(trans_retstartrad, 2));
-            Add('resultant return curve radius at start of return curve = '
-              + rad_str(rcurv_retstart, 0) + ' approx.');
+            Add('resultant return curve radius at start of return curve = ' +
+              rad_str(rcurv_retstart, 0) + ' approx.');
             Add('');
 
             Add(
               'main-road track centre-line radius at end of return curve = ' + rad_str(trans_retendrad, 2));
-            Add('resultant return curve radius at end of return curve = '
-              + rad_str(rcurv_retend, 0) + ' approx.');
-            Add('loop radius at end of return curve = ' +
-              rad_str(trans_retendrad - trtscent, 2));
-            Add('loop radius at full length = ' +
-              rad_str(trans_9rad - trtscent, 2));
+            Add('resultant return curve radius at end of return curve = ' +
+              rad_str(rcurv_retend, 0) + ' approx.');
+            Add('loop radius at end of return curve = ' + rad_str(trans_retendrad - trtscent, 2));
+            Add('loop radius at full length = ' + rad_str(trans_9rad - trtscent, 2));
             Add('');
 
             if rmin_mm > ABS(rcurv_retstart) then
@@ -5713,8 +5975,10 @@ begin
 
         end;
       end
-      else begin                       // not a curved template...
-        if plain_track = False then begin
+      else
+      begin                       // not a curved template...
+        if plain_track = False then
+        begin
           // straight turnout..
           if (half_diamond = False) and (rmin_mm > ABS(equiv_rad - g / 2)) then
             rmin_mm := ABS(equiv_rad - g / 2);
@@ -5726,49 +5990,49 @@ begin
           radius_for_obtain := tradius - g / 2;  // 205e
 
         end
-        else begin                 // plain track...
+        else
+        begin                 // plain track...
           //Add('------------');
 
           Add('overall length = ' + round_str(turnoutx, 2));
 
           //Add('in'+plain_track_form.plain_track_spacings_listbox.Items.Strings[pt_i]);
 
-          if tb_roll_percent > minfp then begin
+          if tb_roll_percent > minfp then
+          begin
             tb_roll_mm := tb_roll_percent * railen[pt_i] * inscale / 100;
             // timber rolling.
             tb_rolling := True;
             tb_roll_str := 'rolled-out length from rail joint';
           end
-          else begin
+          else
+          begin
             tb_roll_mm := 0;
             tb_rolling := False;
             tb_roll_str := 'overall length';
           end;
 
-          if (rails_sleepers(railen[pt_i] * inscale - 0.01,
-            dummy_i, num_sl_full, dummy1) = True)  // get full length sleeper count (0.01mm arbitrary).
-            and (rails_sleepers(turnoutx - tb_roll_mm, num_rails,
-            num_sl_over, percent_over) = True) then begin
-            Add(tb_roll_str + ' = ' + IntToStr(
-              num_rails) + ' full rail lengths + ' + IntToStr(num_sl_over) + ' sleepers in ' +
-              round_str(percent_over, 2) + ' % of a rail length');
-            if percent_over > minfp
-            then
+          if (rails_sleepers(railen[pt_i] * inscale - 0.01, dummy_i, num_sl_full, dummy1) =
+            True)  // get full length sleeper count (0.01mm arbitrary).
+            and (rails_sleepers(turnoutx - tb_roll_mm, num_rails, num_sl_over, percent_over) = True) then
+          begin
+            Add(tb_roll_str + ' = ' + IntToStr(num_rails) + ' full rail lengths + ' +
+              IntToStr(num_sl_over) + ' sleepers in ' + round_str(percent_over, 2) + ' % of a rail length');
+            if percent_over > minfp then
               Add('(to the next rail joint from CTRL-0 requires ' + IntToStr(num_sl_full - num_sl_over) +
                 ' sleepers in ' + round_str(100 - percent_over, 2) + ' % of a rail length)');
 
-            if tb_rolling = True
-            then begin
-              if rails_sleepers(
-                tb_roll_mm - 0.0001, dummy_i, num_sl_over, percent_over) = True
+            if tb_rolling = True then
+            begin
+              if rails_sleepers(tb_roll_mm - 0.0001, dummy_i, num_sl_over, percent_over) = True
               //-0.0001 mm arbitrary to ensure shows 100% of a rail.
-              then begin
+              then
+              begin
                 Add('');
                 Add(
-                  'rolled-in length to rail joint' + ' = ' + IntToStr(num_sl_over) + ' sleepers in ' +
-                  round_str(percent_over, 2) + ' % of a rail length');
-                if percent_over >
-                  minfp then
+                  'rolled-in length to rail joint' + ' = ' + IntToStr(num_sl_over) +
+                  ' sleepers in ' + round_str(percent_over, 2) + ' % of a rail length');
+                if percent_over > minfp then
                   Add('(to the next rail joint from CTRL-1 requires ' + IntToStr(num_sl_full - num_sl_over) +
                     ' sleepers in ' + round_str(100 - percent_over, 2) + ' % of a rail length)');
               end;
@@ -5777,40 +6041,42 @@ begin
           end;
           Add('');
 
-          if (ABS(nomrad) < max_rad_test) or (spiral = True)
-          then begin
+          if (ABS(nomrad) < max_rad_test) or (spiral = True) then
+          begin
             if spiral = True              // transition plain track.
-            then begin
+            then
+            begin
               docurving(
                 False, True, 0, g / 2, temp1, temp2, temp3, trans_0rad);        // get curving radius at datum end.
               docurving(
                 False, True, xorg, g / 2, temp1, temp2, temp3, trans_orgrad);   // get curving radius at joint end.
               Add(hand_str + ' transition curve :');
-              Add('track centre-line radius at datum end (CTRL-0) = '
-                + rad_str(trans_0rad, 2));
-              Add('track centre-line radius at joint end (CTRL-1) = '
-                + rad_str(trans_orgrad, 2));
+              Add('track centre-line radius at datum end (CTRL-0) = ' + rad_str(trans_0rad, 2));
+              Add('track centre-line radius at joint end (CTRL-1) = ' + rad_str(trans_orgrad, 2));
 
               if rmin_mm > ABS(trans_0rad) then
                 rmin_mm := ABS(trans_0rad);
               if rmin_mm > ABS(trans_orgrad) then
                 rmin_mm := ABS(trans_orgrad);
             end
-            else begin
+            else
+            begin
               Add(
                 hand_str + ' constant curve : track centre-line radius = ' + rad_str(clrad1, 2));
               rmin_mm := ABS(clrad1);
               // fixed radius plain track.
             end;
           end
-          else begin
+          else
+          begin
             Add('straight plain track');
             rmin_mm := max_rad;            // straight plain track.
           end;
         end;//plain track
       end;//not a curved template
 
-      if slewing = True then begin
+      if slewing = True then
+      begin
 
         Add('------------');
         Add('slewing data ( slew mode ' + IntToStr(slew_mode) + ' ) :');
@@ -5820,24 +6086,25 @@ begin
         Add('amount of slew = ' + round_str(slew, 2));
         Add('');
 
-        if slew_mode = 1 then begin
+        if slew_mode = 1 then
+        begin
           if ABS(slew) > minfp then
             slew_rad := 2 * SQR(slew_l) / slew / SQR(Pi)
           // (sign of rad is for start end of slew, slew amount is +ve towards the hand).
           else
             slew_rad := max_rad;                     // shouldn't get here !!!
 
-          Add('nominal slewing radius (on straight track) = ' +
-            rad_str(ABS(slew_rad), 2));
+          Add('nominal slewing radius (on straight track) = ' + rad_str(ABS(slew_rad), 2));
 
-          if (ABS(nomrad) < max_rad_test) or (spiral = True)
-          then begin
+          if (ABS(nomrad) < max_rad_test) or (spiral = True) then
+          begin
             if spiral = False     // fixed radius...
-            then begin
+            then
+            begin
               slew_minrad := curved_onto_calc(slew_rad, clrad1);
               Add(
-                'resultant slewing radius after curving (at start of slewing zone) = ' + rad_str(
-                slew_minrad, 2) + ' approx.');
+                'resultant slewing radius after curving (at start of slewing zone) = ' +
+                rad_str(slew_minrad, 2) + ' approx.');
               if rmin_mm > ABS(slew_minrad) then
                 rmin_mm := ABS(slew_minrad);
 
@@ -5850,7 +6117,8 @@ begin
                 rmin_mm := ABS(slew_minrad);
 
             end
-            else begin       // transition...
+            else
+            begin       // transition...
 
               docurving(
                 False, True, slew_s, g / 2, temp1, temp2, temp3, trans_slewrad);
@@ -5858,8 +6126,8 @@ begin
               slew_minrad :=
                 curved_onto_calc(slew_rad, trans_slewrad);
               Add(
-                'resultant slewing radius after curving (at start of slewing zone) = ' + rad_str(
-                slew_minrad, 2) + ' approx.');
+                'resultant slewing radius after curving (at start of slewing zone) = ' +
+                rad_str(slew_minrad, 2) + ' approx.');
               if rmin_mm > ABS(slew_minrad) then
                 rmin_mm := ABS(slew_minrad);
 
@@ -5875,23 +6143,26 @@ begin
             end;
           end;
         end
-        else begin
+        else
+        begin
           Add('slewing radii not available ( slew mode 2 )');
           Add('mode 2 slewing factor = ' + round_str(slew2_kmax * 50, 2));
         end;
       end;
 
-      if (trtscent <> 0) or (trmscent <> 0) then begin
+      if (trtscent <> 0) or (trmscent <> 0) then
+      begin
         Add('------------');
         Add('adjacent track centres main side = ' + round_str(trmscent, 2));
         Add('adjacent track centres turnout side = ' + round_str(trtscent, 2));
         if {(xing_type=1) and (straight_tradius=False) and}
-        plain_track = False then begin
+        plain_track = False then
+        begin
           //Add('curviform crossing:');
-          Add('angle at TXP crossover mid-point (CTRL-5) = ' +
-            round_str(txpk * 180 / Pi, 2) + ' degrees' + k_ram_str(txpk));
-          Add('angle at TVJP turnout road vee joint (CTRL-6) = ' +
-            round_str(tvjpk * 180 / Pi, 2) + ' degrees' + k_ram_str(tvjpk));
+          Add('angle at TXP crossover mid-point (CTRL-5) = ' + round_str(txpk * 180 / Pi, 2) +
+            ' degrees' + k_ram_str(txpk));
+          Add('angle at TVJP turnout road vee joint (CTRL-6) = ' + round_str(tvjpk * 180 / Pi, 2) +
+            ' degrees' + k_ram_str(tvjpk));
         end;
       end;
 
@@ -5901,8 +6172,8 @@ begin
       if plain_track = False then
         Add('------------');
 
-      if ((ABS(nomrad) < max_rad_test) or (spiral = True)) and (plain_track = False)
-      then begin
+      if ((ABS(nomrad) < max_rad_test) or (spiral = True)) and (plain_track = False) then
+      begin
         Add('equivalent straight template dimensions BEFORE curving :');
         Add('');
         indent_str := '        ';
@@ -5910,19 +6181,21 @@ begin
       else
         indent_str := '';
 
-      if plain_track = False then begin
+      if plain_track = False then
+      begin
         Add(indent_str + 'overall length = ' + round_str(turnoutx, 2));
 
-        if half_diamond = False then begin
+        if half_diamond = False then
+        begin
           Add(indent_str + 'approach/exit track in' +
             plain_track_form.plain_track_spacings_listbox.Items.Strings[pt_i] + ' ( rail length = ' +
             round_str(railen[pt_i] * inscale, 2) + ' ):');
-          if xorg > 0 then begin
-            if rails_sleepers(xorg, num_rails, num_sl_over, percent_over) =
-              True then
-              Add(indent_str + 'approach track length = ' + round_str(xorg, 2) + '  ( ' + IntToStr(
-                num_rails) + ' full rail lengths + ' + IntToStr(num_sl_over) + ' sleepers in ' +
-                round_str(percent_over, 2) + ' % of a rail length )');
+          if xorg > 0 then
+          begin
+            if rails_sleepers(xorg, num_rails, num_sl_over, percent_over) = True then
+              Add(indent_str + 'approach track length = ' + round_str(xorg, 2) + '  ( ' +
+                IntToStr(num_rails) + ' full rail lengths + ' + IntToStr(num_sl_over) +
+                ' sleepers in ' + round_str(percent_over, 2) + ' % of a rail length )');
           end
           else
             Add(indent_str + 'approach track length = 0');
@@ -5932,20 +6205,21 @@ begin
             ' ( rail length = ' + round_str(railen[pt_i] * inscale, 2) + ' ):');
 
         if turnoutx > (mvjpx + minfp)   // exit length
-        then begin
-          if rails_sleepers(turnoutx - mvjpx, num_rails, num_sl_over, percent_over) =
-            True then
+        then
+        begin
+          if rails_sleepers(turnoutx - mvjpx, num_rails, num_sl_over, percent_over) = True then
             Add(indent_str + 'exit track length = ' + round_str(turnoutx - mvjpx, 2) + '  ( ' +
-              IntToStr(num_rails) + ' full rail lengths + ' + IntToStr(num_sl_over) + ' sleepers in ' +
-              round_str(percent_over, 2) + ' % of a rail length )');
+              IntToStr(num_rails) + ' full rail lengths + ' + IntToStr(num_sl_over) +
+              ' sleepers in ' + round_str(percent_over, 2) + ' % of a rail length )');
         end
         else
           Add(indent_str + 'exit track length = 0');
 
-        if half_diamond = False then begin
+        if half_diamond = False then
+        begin
           Add('');
-          Add(indent_str +
-            'turnout-road centre-line radius (at turnout-curve) = ' + rad_str(tradius - g / 2, 2));
+          Add(indent_str + 'turnout-road centre-line radius (at turnout-curve) = ' +
+            rad_str(tradius - g / 2, 2));
 
           Add('');
           if swrad >= max_rad_test then
@@ -5953,53 +6227,52 @@ begin
               equiv_rad, 2) + '  (straight switch)')
           else
             Add(indent_str + 'switch-curve radius (rail gauge-face) = ' + rad_str(swrad, 2));
-          Add(indent_str + 'turnout-curve radius (rail gauge-face) = ' +
-            rad_str(tradius, 2));
+          Add(indent_str + 'turnout-curve radius (rail gauge-face) = ' + rad_str(tradius, 2));
 
-          Add(indent_str + 'switch-curve radial centre: X = ' +
-            round_str(sworgx, 2) + '  Y = ' + round_str(sworgy - g / 2, 2) + '  (from CTRL-0)');
-          Add(indent_str + 'turnout-curve radial centre: X = ' +
-            round_str(torgx, 2) + '  Y = ' + round_str(torgy - g / 2, 2) + '  (from CTRL-0)');
+          Add(indent_str + 'switch-curve radial centre: X = ' + round_str(sworgx, 2) +
+            '  Y = ' + round_str(sworgy - g / 2, 2) + '  (from CTRL-0)');
+          Add(indent_str + 'turnout-curve radial centre: X = ' + round_str(torgx, 2) +
+            '  Y = ' + round_str(torgy - g / 2, 2) + '  (from CTRL-0)');
         end
-        else begin
+        else
+        begin
           Add('');
           if tradius_is_straight = True then
             Add(indent_str + 'diagonal-road centre-line radius = straight' + reg_hd_str)
-          else begin
-            Add(indent_str + 'diagonal-road centre-line radius = ' +
-              rad_str(tradius - g / 2, 2) + reg_hd_str);
+          else
+          begin
+            Add(indent_str + 'diagonal-road centre-line radius = ' + rad_str(tradius - g / 2, 2) +
+              reg_hd_str);
 
             Add('');
             Add(
               indent_str + 'diagonal-curve radius (rail gauge-face) = ' + rad_str(tradius, 2));
-            Add(indent_str + 'diagonal-curve radial centre: X = ' +
-              round_str(torgx, 2) + '  Y = ' + round_str(torgy - g / 2, 2) + '  (from CTRL-0)');
+            Add(indent_str + 'diagonal-curve radial centre: X = ' + round_str(torgx, 2) +
+              '  Y = ' + round_str(torgy - g / 2, 2) + '  (from CTRL-0)');
           end;
         end;
 
         if xing_calc_i <> 1   // straight or generic crossing..
-        then begin
-          Add(indent_str +
-            'V-crossing entry-straight (curve-end to fine-point) = ' + round_str(sl, 2));
+        then
+        begin
+          Add(indent_str + 'V-crossing entry-straight (curve-end to fine-point) = ' + round_str(sl, 2));
           if retpar_i = 1 then
             Add(indent_str + 'return-curve radius (track centre) = ' + rad_str(retr, 2));
         end;
         Add('');
-        if half_diamond = False then begin
-          Add(indent_str + 'switch front (rail-joint to switch-toe) = ' +
-            round_str(toex - xorg, 2));
-          Add(indent_str + 'virtual lead (switch-toe to fine-point) = ' +
-            round_str(fpx - toex, 2));
-          Add(indent_str + 'actual lead (switch-toe to blunt nose) = ' +
-            round_str(bnx - toex, 2));
+        if half_diamond = False then
+        begin
+          Add(indent_str + 'switch front (rail-joint to switch-toe) = ' + round_str(toex - xorg, 2));
+          Add(indent_str + 'virtual lead (switch-toe to fine-point) = ' + round_str(fpx - toex, 2));
+          Add(indent_str + 'actual lead (switch-toe to blunt nose) = ' + round_str(bnx - toex, 2));
         end
-        else begin
-          Add(indent_str +
-            'half-diamond main-road inter-length (CTRL-0 to MCP) = ' + round_str(fpx, 2));
-          Add(indent_str +
-            'half-diamond virtual lead (K-crossing to fine-point) = ' + round_str(fpx - setx, 2));
-          Add(indent_str +
-            'half-diamond actual lead (K-crossing to blunt nose) = ' + round_str(bnx - setx, 2));
+        else
+        begin
+          Add(indent_str + 'half-diamond main-road inter-length (CTRL-0 to MCP) = ' + round_str(fpx, 2));
+          Add(indent_str + 'half-diamond virtual lead (K-crossing to fine-point) = ' +
+            round_str(fpx - setx, 2));
+          Add(indent_str + 'half-diamond actual lead (K-crossing to blunt nose) = ' +
+            round_str(bnx - setx, 2));
         end;
 
         Add('');
@@ -6018,28 +6291,26 @@ begin
         Add(indent_str + 'wing rail reach length (main-side) = ' + round_str(wgl_ms, 2));
         Add(indent_str + 'wing rail reach length (turnout-side) = ' + round_str(wgl_ts, 2));
         Add(indent_str + 'check rail overall length (main-side) = ' + round_str(ckl_ms, 2));
-        Add(indent_str + 'check rail overall length (turnout-side) = ' +
-          round_str(ckl_ts, 2));
+        Add(indent_str + 'check rail overall length (turnout-side) = ' + round_str(ckl_ts, 2));
       end;
 
-      if spiral = True then begin
+      if spiral = True then
+      begin
         Add('------------');
         Add('transition curve data :');
         Add('');
         Add('initial radius at the track centre-line = ' + rad_str(clrad1, 2));
         Add('final radius at the track centre-line = ' + rad_str(clrad2, 2));
-        Add('length along the initial radius = ' + round_str(os, 2) +
-          ' (at the track centre-line)');
-        Add('length along transition section = ' + round_str(tst, 2) +
-          ' (at the track centre-line)');
-        Add('spiral constant = ' + round_str(trans_k / 1.0E6, 4) +
-          ' (at the track centre-line)');
+        Add('length along the initial radius = ' + round_str(os, 2) + ' (at the track centre-line)');
+        Add('length along transition section = ' + round_str(tst, 2) + ' (at the track centre-line)');
+        Add('spiral constant = ' + round_str(trans_k / 1.0E6, 4) + ' (at the track centre-line)');
       end;
     end;//with info_text_list
 
     smallest_radius := ABS(rmin_mm); // 208a  goes into file for displaying box data
 
-    with info_form do begin
+    with info_form do
+    begin
       limit_rad_label.Caption := round_str(min_radius, 0) + ' mm';  // in case it is default.
       num_dec := 1;
       rmin_inch := ABS(rmin_mm / 25.4);
@@ -6052,19 +6323,22 @@ begin
 
       if ABS(rmin_mm) < (ABS(min_radius) - 0.5)
       //  set the minimum radius warning lamp.  // 0.98.b  -0.5 to prevent display anomolies
-      then begin
+      then
+      begin
         min_rad_warn := 1;
         min_rad_now_label.Font.Color := clRed;
         min_rad_lamp_panel.Color := clRed;
       end
-      else begin
+      else
+      begin
         min_rad_warn := 0;
         min_rad_now_label.Font.Color := clBlue;
         min_rad_lamp_panel.Color := clLime;
       end;
     end;//with info_form
 
-    with info_text_list do begin
+    with info_text_list do
+    begin
       Add('------------');
 
       if (slewing = True) and (plain_track = False) then
@@ -6072,8 +6346,7 @@ begin
       else
         no_zone_str := '';
 
-      Add('smallest radius on this template' + no_zone_str + ' = ' +
-        info_form.min_rad_now_label.Caption);
+      Add('smallest radius on this template' + no_zone_str + ' = ' + info_form.min_rad_now_label.Caption);
 
       docurving(True, True, 0, g / 2, temp1, temp2, swing_0, temp3);
       // calc the total swing...
@@ -6094,19 +6367,20 @@ begin
       Add('template location on trackpad :');
       Add('');
       Add('rotation :  X = ' + round_str(xform, 2) + '   Y = ' + round_str(
-        yform * hand_i + y_datum, 2) + '   K = ' + round_str(kform * hand_i * 180 / Pi, 2) + ' degrees' +
-        k_ram_str(kform * hand_i));
+        yform * hand_i + y_datum, 2) + '   K = ' + round_str(kform * hand_i * 180 / Pi, 2) +
+        ' degrees' + k_ram_str(kform * hand_i));
       Add('   shift :  X = ' + round_str(xshift, 2) + '   Y = ' + round_str(yshift * hand_i, 2));
       Add('rail-end :  X = ' + round_str(datumx_on_pad, 2) + '   Y = ' + round_str(
         datumy_on_pad * hand_i + y_datum, 2));
 
       Add('');
-      Add('peg from origin :  X = ' + round_str(pegx_on_pad, 2) +
-        '   Y = ' + round_str(pegy_on_pad * hand_i + y_datum, 2) +
-        '   K = ' + round_str(arm_angle * hand_i * 180 / Pi, 2) + ' degrees' + k_ram_str(arm_angle * hand_i));
+      Add('peg from origin :  X = ' + round_str(pegx_on_pad, 2) + '   Y = ' +
+        round_str(pegy_on_pad * hand_i + y_datum, 2) + '   K = ' + round_str(arm_angle * hand_i * 180 / Pi, 2) +
+        ' degrees' + k_ram_str(arm_angle * hand_i));
       Add('peg from notch :  X = ' + round_str(pegx_on_pad - notchx, 2) + '   Y = ' + round_str(
         (pegy_on_pad * hand_i + y_datum) - notchy, 2) + '   K = ' + round_str(
-        ((arm_angle * hand_i) - notch_angle) * 180 / Pi, 2) + ' degrees' + k_ram_str((arm_angle * hand_i) - notch_angle));
+        ((arm_angle * hand_i) - notch_angle) * 180 / Pi, 2) + ' degrees' + k_ram_str(
+        (arm_angle * hand_i) - notch_angle));
 
       Add('');
 
@@ -6117,7 +6391,8 @@ begin
       rad1_orgx := pout.x + xshift;
       rad1_orgy := (pout.y + yshift) * hand_i + y_datum;
 
-      if spiral = True then begin
+      if spiral = True then
+      begin
         pin.x := xt2;
         pin.y := yt2;
         dotransform(kform, xform, yform, pin, pout);
@@ -6129,11 +6404,13 @@ begin
       // add radial centres to info...
 
       if spiral = False   // fixed rad.
-      then begin
+      then
+      begin
         if ABS(nomrad) < max_rad_test then
           Add('radial centre :  X = ' + round_str(rad1_orgx, 2) + '   Y = ' + round_str(rad1_orgy, 2));
       end
-      else begin
+      else
+      begin
 
         if ABS(nomrad1) < max_rad_test  // transition.
         then
@@ -6149,7 +6426,8 @@ begin
 
       Add('');
       if ABS(pegy - g / 2) < minfp  // (pegy==g/2) peg on main road?
-      then begin
+      then
+      begin
         temp1 := clrad_at_x(pegx);
         if ABS(temp1) > max_rad_test then
           Add('track centre-line radius at peg = straight')          // added 212a
@@ -6159,13 +6437,14 @@ begin
       else
         Add('track centre-line radius at peg = n/a (peg off MS centre-line)');
 
-      if (half_diamond = False) and (spiral = False) and (slewing = False) and
-        (plain_track = False)  // add geometrical radius info.
-      then begin
-        Add('internal geometrical radius = ' + rad_str(igeo_rad, 2) +
-          '  ( ' + rad_str(igeo_rad / 25.4, 2) + ' " )');
-        Add('external geometrical radius (substitution radius) = ' +
-          rad_str(egeo_rad, 2) + '  ( ' + rad_str(egeo_rad / 25.4, 2) + ' " )');
+      if (half_diamond = False) and (spiral = False) and (slewing = False) and (plain_track = False)
+      // add geometrical radius info.
+      then
+      begin
+        Add('internal geometrical radius = ' + rad_str(igeo_rad, 2) + '  ( ' +
+          rad_str(igeo_rad / 25.4, 2) + ' " )');
+        Add('external geometrical radius (substitution radius) = ' + rad_str(egeo_rad, 2) +
+          '  ( ' + rad_str(egeo_rad / 25.4, 2) + ' " )');
       end;
 
 
@@ -6178,8 +6457,10 @@ begin
   finally
     // show the text..
 
-    if pad_form.Active = True then begin
-      with info_form do begin
+    if pad_form.Active = True then
+    begin
+      with info_form do
+      begin
         info_memo.Text := info_text_list.Text;  // update visible control template data.
         ref_name_label.Visible := True;
         rename_button.Visible := True;
@@ -6190,9 +6471,12 @@ begin
         update_rail_settings;  // 206b
 
     end
-    else begin
-      if keep_form.Active = True then begin
-        with info_form do begin
+    else
+    begin
+      if keep_form.Active = True then
+      begin
+        with info_form do
+        begin
           info_memo.Clear; // data may not match captions and labels.
           ref_name_label.Visible := False;
           rename_button.Visible := False;
@@ -6249,15 +6533,16 @@ begin
   // or switch adjusts are not in force,
   // or the switch is being set by the mouse moves directly,
 
-  if (((mouse_modify = 1) or (mouse_modify = 2)) and (switch_free = True)) or
-    (generate_nearest = True) then begin
+  if (((mouse_modify = 1) or (mouse_modify = 2)) and (switch_free = True)) or (generate_nearest = True) then
+  begin
     if (xing_free = True) or (generate_nearest = True) then
     begin     // adjust turnout in force - and can change both switch and crossing angle as required.
       // So set a starting switch for the calcs. Mouse moves will change the crossing angle,
       // and a matching switch can then be set.
 
       if csi.group_code = 1  // 6 sizes, straight switch...
-      then begin
+      then
+      begin
         sz := 1;
         // start with 9ft (shortest) straight switch.
         if k3n > 5.875 then
@@ -6281,7 +6566,8 @@ begin
       end;
 
       if csi.group_code = 7   // 3 sizes, model switch...
-      then begin
+      then
+      begin
         sz := 1;
         // start with 1:24 (shortest) straight switch.
         if k3n > 5.875 then
@@ -6298,9 +6584,10 @@ begin
         // and flag that it can be changed if nec to suit crossing.
       end;
 
-      if (csi.group_code = 2) or (csi.group_code = 5) or
-        (csi.group_code = 6)    // 6 sizes, REA semi-curved switch or FB switch...
-      then begin
+      if (csi.group_code = 2) or (csi.group_code = 5) or (csi.group_code = 6)
+      // 6 sizes, REA semi-curved switch or FB switch...
+      then
+      begin
         sz := 1;
         // start with A semi-curved switch if 1:5.75 or less. (A-7 is natural)
         if k3n > 5.875 then
@@ -6324,7 +6611,8 @@ begin
       end;
 
       if csi.group_code = 3    // 4 sizes, GWR curved switch + 30ft straight...
-      then begin
+      then
+      begin
         sz := 1;                     // start with B curved switch up to 1:8
         if k3n > 8.125 then
           sz := 2;   // or start with C switch for 1:8.25 to 1:10
@@ -6343,7 +6631,8 @@ begin
       end;
 
       if csi.group_code = 4    // 8 sizes, GWR old-type heel switch...
-      then begin
+      then
+      begin
         sz := 1;                      // start with 9ft if less than 1:5.
         if k3n > 4.875 then
           sz := 2;    // or start with 10ft switch for 1:5 or more.
@@ -6370,14 +6659,15 @@ begin
       end;
 
     end
-    else begin     // adjust turnout in force - but the crossing is locked.
+    else
+    begin     // adjust turnout in force - but the crossing is locked.
       // So mouse moves change the switch directly...
       // (switch_only set by mouse move in range 9-21).
 
-      if (csi.group_code = 1) or (csi.group_code = 2) or
-        (csi.group_code = 5) or (csi.group_code = 6)
+      if (csi.group_code = 1) or (csi.group_code = 2) or (csi.group_code = 5) or (csi.group_code = 6)
       // 6 sizes, straight switch or REA semi-curved or FB switch.
-      then begin
+      then
+      begin
         sz := 1;                 // keep compiler happy.
         case switch_only of
           0..10:
@@ -6401,7 +6691,8 @@ begin
       end;
 
       if csi.group_code = 7  // 3 sizes, model switch...
-      then begin
+      then
+      begin
         sz := 1;                 // keep compiler happy.
         case switch_only of
           0..10:
@@ -6419,7 +6710,8 @@ begin
       end;
 
       if csi.group_code = 3    // 4 sizes, GWR curved switch + 30ft straight...
-      then begin
+      then
+      begin
         sz := 1;                 // keep compiler happy.
         case switch_only of
           0..10:
@@ -6439,7 +6731,8 @@ begin
       end;
 
       if csi.group_code = 4       // 8 sizes, GWR heel switch...
-      then begin
+      then
+      begin
         sz := 1;                 // keep compiler happy.
         case switch_only of
           0..11:
@@ -6485,7 +6778,8 @@ var
 begin
   Result := True;                                 // assume good result.
 
-  if marks <> nil then begin                                 // first free any previous memory.
+  if marks <> nil then
+  begin                                 // first free any previous memory.
     SetLength(marks, 0);
   end;
 
@@ -6494,13 +6788,15 @@ begin
   mark_count := 0;
 
   if (cl_only = True) or (no_timbering = True)          // no timbering.
-  then begin
+  then
+  begin
     if cl_only = True then
       mark_count := 50     // so only 50 slots (for platforms, was 40), for label, peg, rad centres, end marks, etc
     else
       mark_count := 100;   // rails but no timbering, also need the joints and guidemarks (100=arbitrary.)
   end
-  else begin
+  else
+  begin
     // first assume its all plain track...
 
     num_rail_lengths := turnoutx / (railen[pt_i] * inscale);
@@ -6519,7 +6815,8 @@ begin
     mark_count := Round(num_rail_lengths * 2 + 60);
     // 2 joints per rail-length + 60 (arbitrary) for start joints, peg, centres, transition marks, etc.
 
-    if pad_form.timber_outlines_menu_entry.Checked = True then begin
+    if pad_form.timber_outlines_menu_entry.Checked = True then
+    begin
       if timbering_infill = False then
         mark_count := mark_count + num_sleepers * 6    // 6 marks = 4 sides + 2 reduced ends.
       else
@@ -6538,7 +6835,8 @@ begin
       mark_count := mark_count + num_sleepers;      // 1 mark for timber number.
 
     if plain_track = False    // then for turnouts...
-    then begin
+    then
+    begin
       min_count := Round((mxpx - xorg) / scale * 8);
       // (8 arbitrary) minimum for turnout, 8 marks per ft.
       if mark_count < min_count then
@@ -6553,7 +6851,8 @@ begin
       // 211b long switch marks and switch and xing labels.
 
       if pad_form.timber_chairs_menu_entry.Checked = True      // 213b
-      then begin
+      then
+      begin
         num_timbers := Round((mvjpx - toex) / (scale * 2));  // assume 2ft spacing
         mark_count := mark_count + num_timbers * 6;
         // 2 additional chairs per timber for turnout
@@ -6594,18 +6893,20 @@ begin
   // and then get a new list, if needed...
 
   if aqyn[aq] = False              // not wanted.
-  then begin
+  then
+  begin
     Result := True;        // ok result.
     EXIT;
   end;
 
   list_size := 0;     // keep compiler happy.
 
-  if (plain_track = True) or (cl_only = True) or (rail_section = 0) then begin
+  if (plain_track = True) or (cl_only = True) or (rail_section = 0) then
+  begin
     case aq of
-      0, 3, 8, 11,{16..23,}30, 33, 38, 41: begin
-        if (cl_only = False) and (rail_section <> 0)
-        then
+      0, 3, 8, 11,{16..23,}30, 33, 38, 41:
+      begin
+        if (cl_only = False) and (rail_section <> 0) then
           list_size := turnoutx / incx     // plain track main rails.
         else
           list_size := 0;                // no rails, centre-lines only
@@ -6624,7 +6925,8 @@ begin
         list_size := 0;                     // no turnout rails.
     end;//case
   end
-  else begin             // normal turnout or half-diamond or gaunt...
+  else
+  begin             // normal turnout or half-diamond or gaunt...
     case aq of
       0, 8, 30, 38:
         if main_road_i <> 0 then
@@ -6644,7 +6946,8 @@ begin
 
       // 093a ex 081 ...
 
-      1, 9, 31, 39: begin
+      1, 9, 31, 39:
+      begin
         if gaunt = True                            // 0.93.a
         then
           list_size := flcendx / incx          // includes approach track gauntletted rail.
@@ -6655,7 +6958,8 @@ begin
         // 214a   1" steps along knuckle radius. At normal setting that means 12 steps.
       end;
 
-      2, 10, 32, 40: begin
+      2, 10, 32, 40:
+      begin
         if gaunt = True                               // 0.93.a
         then
           list_size := wingendx_ms / incx         // includes approach track gauntletted rail.
@@ -6721,7 +7025,7 @@ begin
 
   max_list := Round(ABS(list_size + 24));   // add an extra 24 slots to allow for terminal points, etc.
 
-  SetLength(xy_p[aq], max_list+1);          // pointer to x-values array.
+  SetLength(xy_p[aq], max_list + 1);          // pointer to x-values array.
   nldim_array[aq] := max_list;            //  set nldim with max index.
   Result := True;                         // ok, got new lists.
 end;
@@ -6751,7 +7055,8 @@ begin
   timb_numbers_str := '';        //  and accumulator string for the timber numbers.
 
   if new_marks_list(marks_list_ptr) = False    // ### clear the old marks list and create a new one.
-  then begin
+  then
+  begin
     memory_alert;     //  warn him.
     EXIT;
   end;
@@ -6771,7 +7076,8 @@ begin
   if plain_track = False then
     add_check_labels;    // 0.94.a
 
-  if (hide_current_flag = False) and (calcs_code = 2) and (keep_form.Active = False) then begin
+  if (hide_current_flag = False) and (calcs_code = 2) and (keep_form.Active = False) then
+  begin
     current_is_showing := current_is_showing or pad_marks_current(on_canvas, True);
     // then draw them in.
   end;
@@ -6789,7 +7095,8 @@ begin
   ring_copies_infringed := False;
   incx125 := incx * 125;
 
-  for n := 0 to ring_count_c do begin
+  for n := 0 to ring_count_c do
+  begin
     rings_checkpoints[n, 2] := -1;        // no aq yet being checked.
     rings_checkpoints[n, 3] := 0;         // not closer than incx to ring.
   end;//for
@@ -6797,14 +7104,16 @@ begin
   pen_width := 1;  // init
 
   if dummy_template = True      // 212a
-  then begin
+  then
+  begin
     if bgnd_form.pad_shapes_linewidth_2_radiobutton.Checked = True then
       pen_width := 2;
     if bgnd_form.pad_shapes_linewidth_3_radiobutton.Checked = True then
       pen_width := 3;
   end;
 
-  for aq := aq_max_c downto 0 do begin      // Main loop for rails :
+  for aq := aq_max_c downto 0 do
+  begin      // Main loop for rails :
     // (in reverse order so that FB foot, adjacent rails and centre-lines are overdrawn.)
 
 
@@ -6825,16 +7134,19 @@ begin
 
     if (cl_only = True) or (rail_section = 0)
     // no rails wanted, but don't ignore platforms and trackbed edges
-    then begin
+    then
+    begin
       if aq < 16 then
         CONTINUE;  // no template rails
 
       if adjacent_edges = False   // adjacent rails
-      then begin
+      then
+      begin
         if (aq <> 24) and (aq <> 25) then
           CONTINUE;   // only centre lines, ignore adjacent rails
       end
-      else begin                        // platforms and trackbed edges
+      else
+      begin                        // platforms and trackbed edges
         if aq > 25 then
           CONTINUE;    // ignore only half-diamond rails
       end;
@@ -6842,10 +7154,13 @@ begin
 
     if (plain_track = False) or (aq = 0) or (aq = 8) or (aq = 3) or (aq = 11) or ((aq > 15) and (aq < 25))
     // stock rails and adjacent tracks only if plain track.
-    then begin
-      if aqyn[aq] = True then begin
+    then
+    begin
+      if aqyn[aq] = True then
+      begin
         if oneline(aq) = False    //  Calc all x,y for rail-edges and put in lists.
-        then begin
+        then
+        begin
           abandon_calcs := True;
           //^^^  0.93.a ex 081 for irregular diamond calcs.
           EXIT;
@@ -6858,35 +7173,35 @@ begin
             i :=
               alert(1, '   calculation  diagnostics ...', aq_str[aq] +
               '||rail-data overflow !||Increase the step size or reduce the overall length.',
-              '', '', '? help', '',
-              'abandon this', 'continue  with  truncated  data', 3);
+              '', '', '? help', '', 'abandon this', 'continue  with  truncated  data', 3);
             if i = 3 then
-              alert_help(0, '||Sorry, detailed overflow help is not yet written.'
-                +
+              alert_help(0, '||Sorry, detailed overflow help is not yet written.' +
                 '||(Your template is too long for the memory allocated to contain it.)', '');
-            if i = 5 then begin
+            if i = 5 then
+            begin
               abandon_calcs := True;
               //091c draw_mode:=2;        // prevent message recurring.
               EXIT;
             end;
           until i <> 3
 
-        else begin
-          if (hide_current_flag = False) and (calcs_code = 2) and
-            (keep_form.Active = False) then begin
+        else
+        begin
+          if (hide_current_flag = False) and (calcs_code = 2) and (keep_form.Active = False) then
+          begin
             ink_colour := rail_colour;  // init
 
             if (aq = 24) or (aq = 25) // track centre-lines
-            then begin
-              if dummy_template = True
-              then
+            then
+            begin
+              if dummy_template = True then
                 ink_colour := shapes_colour
               else
                 ink_colour := guide_colour;
             end;
 
-            if ((aq = 16) or (aq = 17) or (aq = 20) or (aq = 21)) and
-              (adjacent_edges = True)  // 0.93.a platforms
+            if ((aq = 16) or (aq = 17) or (aq = 20) or (aq = 21)) and (adjacent_edges = True)
+            // 0.93.a platforms
             then
               ink_colour := guide_colour;
 
@@ -6900,7 +7215,8 @@ begin
   end;//NEXT aq
 
   if xy_max[0] = Integer($80000000)       // nothing put in the lists (all rails turned off ?)
-  then begin
+  then
+  begin
     xy_max[0] := Round(turnoutx * 100);       // approx 1/100th mm
     xy_min[0] := 0;
     xy_max[1] := Round(turnoutx * 50);        // arbitrary half of x.
@@ -6908,26 +7224,28 @@ begin
   end;
 
   //if (cl_only=False) and (rail_section<>0) then do_railends;      //  calc rail end marks
-  if ((cl_only = False) and (rail_section <> 0)) or
-    (((draw_ts_platform = True) or (draw_ms_platform = True)) and (adjacent_edges = True)) then
+  if ((cl_only = False) and (rail_section <> 0)) or (((draw_ts_platform = True) or (draw_ms_platform = True)) and
+    (adjacent_edges = True)) then
     do_railends;  //  calc rail end marks and platform ends
 
   if (hide_current_flag = True) or (calcs_code <> 2) or (keep_form.Active = True)   //  no more drawing.
-  then begin
+  then
+  begin
     Result := True;     //  flag rails calculated ok.
     EXIT;
   end;
 
   //if (cl_only=False) and (rail_section<>0) then draw_rail_endmarks(on_canvas,True);   //  and draw them in.
-  if ((cl_only = False) and (rail_section <> 0)) or
-    (((draw_ts_platform = True) or (draw_ms_platform = True)) and (adjacent_edges = True)) then
+  if ((cl_only = False) and (rail_section <> 0)) or (((draw_ts_platform = True) or (draw_ms_platform = True)) and
+    (adjacent_edges = True)) then
     draw_rail_endmarks(on_canvas, True);   // and draw rail end marks and platform ends.
 
   // the final job is to draw the arms on the peg.
   // done last so overwrites rails, etc.
   // these marks have been kindly saved for us by pad_marks_current.
 
-  with on_canvas do begin
+  with on_canvas do
+  begin
 
     Pen.Style := psSolid;
     Pen.Width := 1;
@@ -6940,7 +7258,8 @@ begin
     move_to.Y := Round((p1.Y + yd) * sy + by - gy);
     line_to.X := Round(p2.X * sx + ex - gx);
     line_to.Y := Round((p2.Y + yd) * sy + by - gy);
-    if check_limits(move_to, line_to) = True then begin
+    if check_limits(move_to, line_to) = True then
+    begin
       MoveTo(move_to.X, move_to.Y);
       LineTo(line_to.X, line_to.Y);
     end;
@@ -6952,7 +7271,8 @@ begin
     move_to.Y := Round((p1.Y + yd) * sy + by - gy);
     line_to.X := Round(p2.X * sx + ex - gx);
     line_to.Y := Round((p2.Y + yd) * sy + by - gy);
-    if check_limits(move_to, line_to) = True then begin
+    if check_limits(move_to, line_to) = True then
+    begin
       MoveTo(move_to.X, move_to.Y);
       LineTo(line_to.X, line_to.Y);
     end;
@@ -6963,9 +7283,10 @@ begin
 
   // infringement results... v:0.76.a 1-5-02
 
-  with info_form do begin
-    if ((ring_warn = True) and (ring_infringed = True)) or
-      ((ring_copies_warn = True) and (ring_copies_infringed = True)) then
+  with info_form do
+  begin
+    if ((ring_warn = True) and (ring_infringed = True)) or ((ring_copies_warn = True) and
+      (ring_copies_infringed = True)) then
       ring_lamp_panel.Tag := 1             // flashing.
     else
     if (ring_warn = True) or (ring_copies_warn = True) then
@@ -6974,13 +7295,15 @@ begin
       ring_lamp_panel.Tag := 2;    // lamp off.
 
     if ring_warn = True   // labels are showing...
-    then begin
+    then
+    begin
       if (cl_only = True) or (warn_centrelines = True) then
         ring_rad := rings[0, 2] / 2  // centre-lines infringe inner diameter.
       else
         ring_rad := rings[0, 3] / 2; // rails (gauge-faces) infringe outer diameter.
 
-      if ring_infringed = False then begin
+      if ring_infringed = False then
+      begin
         ring_infringed_warning_label.Font.Color := clBlue;
         ring_infringed_warning_label.Caption := ' clear  by';
         ring_infringed_by_label.Font.Color := clBlue;
@@ -6990,7 +7313,8 @@ begin
         else
           ring_infringed_by_label.Caption := '  a  mile';   // no rails?
       end
-      else begin
+      else
+      begin
         ring_infringed_warning_label.Font.Color := clRed;
         ring_infringed_warning_label.Caption := 'infringed by';
         ring_infringed_by_label.Font.Color := clRed;
@@ -7004,7 +7328,7 @@ begin
   end;//with
 
   if grid_form.show_dummy_vehicles_radio_button.Checked = True then
-    draw_dummy_vehicle_on_control_template(False, on_canvas);
+    draw_dummy_vehicle_on_control_template(on_canvas);
   //  0.98.a  draw dummy vehicle over template
 
 end;
@@ -7040,26 +7364,75 @@ end;
 //______________________________________________________________________________
 
 
-procedure draw_dummy_vehicle_on_control_template(for_env: boolean; on_canvas: TCanvas);    // 0.98.a
+function Tcentre_line_path.get_curve_length: double;
+begin
+  Result := turnoutx;
+end;
+
+function Tcentre_line_path.get_minimum_radius: double;
+begin
+  if grid_form.turnout_road_dummy_vehicle_radio_button.Checked = True then   // turnout road ...
+  begin
+    Result := ABS(rmin_mm);
+  end
+  else
+  begin
+    if spiral = False then
+    begin
+      Result := nomrad;
+    end
+    else
+    begin
+      Result := min(ABS(nomrad1), ABS(nomrad2));
+    end;
+  end;
+end;
+
+function Tcentre_line_path.get_xy(dist: double): Tpex;
+var
+   tr_y : extended;
+   tr_k : extended;
+   xtr : extended;
+   ytr : extended;
+   dvx1 : extended;
+   dvy1 : extended;
+   dummy1 : extended;
+   dummy2 : extended;
+   cl_offset : extended;
+begin
+  if grid_form.turnout_road_dummy_vehicle_radio_button.Checked = True then   // turnout road ...
+  begin
+    tr_y := aq3offset(dist, tr_k);  // get start position on stock rail
+
+    xtr := dist + g / 2 * SIN(tr_k);     // start position on centre line
+    ytr := tr_y - g / 2 * COS(tr_k);
+
+    docurving(True, True, xtr, ytr, dvx1, dvy1, dummy1, dummy2);   // 1st bogie-pin on pad
+  end
+  else
+  begin
+    if ABS(cl_options_code) = 2          // 213a   adjacent centre-lines
+    then
+      cl_offset := get_cl_offset
+    else
+      cl_offset := g / 2;
+
+    docurving(True, True, dist, cl_offset, dvx1, dvy1, dummy1, dummy2);
+  end;
+
+  Result.set_xy(dvx1, dvy1 * hand_i + y_datum);
+end;
+
+procedure draw_dummy_vehicle_on_control_template(on_canvas: TCanvas);    // 0.98.a
 
 // 215c  for_env = for outlines envelope, come here to generate next step, not for drawing vehicle
 
 var
-  dvx1, dvy1, dvx2, dvy2, dummy1, dummy2, dvs_mm, dvwb_mm, dv, dvwb_calc: extended;
 
   pin_dim: integer;
 
   move_to, line_to, pin1, pin2: TPoint;
 
-  dv_len, dv_hbw, dv_hcw, dv_el, dv_theta: extended;
-
-  tr_y, tr_k: extended;  // on turnout road rail
-
-  xtr, ytr: extended;    // on turnout road centre-line
-
-  calc_dir: integer;
-
-  cl_offset: extended;  // 213a
 
   /////////////////////////////////////////////////////////
 
@@ -7067,7 +7440,7 @@ var
 
   begin
     Result.X := Round(p.x * fx + ex - gx);
-    Result.Y := Round((p.y * hand_i + y_datum) * fy + by - gy);
+    Result.Y := Round(p.y * fy + by - gy);
   end;
   /////////////////////////////////////////////////////////
 
@@ -7090,322 +7463,108 @@ var
 
 begin
 
-  with cdvi do begin     // vehicle dimensions
+  cdvi.calculate_dummy_vehicle_corners(cdvi.dv_start, inscale, centre_line_path, dv_corners_calc);
 
-    if dv_start < (0 - dv_length) then
-      dv_start := 0 - dv_length;  // 205a limits
+  with dv_corners_calc do
+  begin
+    with on_canvas do
+    begin     // so draw dummy vehicle
 
-    if dv_start > (turnoutx / inscale + dv_length - dv_wheelbase) then
-      dv_start := turnoutx / inscale + dv_length - dv_wheelbase;  // 205a limits
-
-    dvwb_mm := dv_wheelbase * inscale;  // diagonal, init target wheelbase chord
-
-    dv := dvwb_mm;                    // along curve, init
-    dvs_mm := dv_start * inscale;       //init
+      Pen.Style := psSolid;
+      Pen.Width := 1;
+      Pen.Color := pad_form.Font.Color;  //clRed;
 
 
-    // limit to 1.75 x radius for wheelbase chord ...
+      Brush.Color := timber_colour;
+      Brush.Style := bsDiagCross;
 
-    if grid_form.turnout_road_dummy_vehicle_radio_button.Checked = True    // turnout road ...
-    then begin
-      if dvwb_mm > ABS(rmin_mm * 1.75) then
-        EXIT;  // nonsense dimension, won't calculate
+      // (check_limits omitted ...)
 
-      tr_y := aq3offset(dvs_mm, tr_k);  // get start position on stock rail
+      Polygon([mm_to_pixels(b1), mm_to_pixels(b2), mm_to_pixels(b3), mm_to_pixels(b4)]);
 
-      xtr := dvs_mm + g / 2 * SIN(tr_k);     // start position on centre line
-      ytr := tr_y - g / 2 * COS(tr_k);
 
-      docurving(True, True, xtr, ytr, dvx1, dvy1, dummy1, dummy2);   // 1st bogie-pin on pad
+      Brush.Color := paper_colour;  // restore Brush for gaps in dotted lines.
+      Brush.Style := bsSolid;
+    end;//with canvas
+  end;//with dv_corners_calc
 
-      calc_dir := 0; //init
 
-      repeat
+  with on_canvas do
+  begin     // draw dummy vehicle
+    with dv_corners_calc do
+    begin
+      Pen.Style := psDash;        // clearance sides ...
 
-        // re-calc position of 2nd bogie pin until chord matches required wheelbase ...
+      draw_dv_line(c2, c3);
+      draw_dv_line(c4, c1);
 
-        tr_y := aq3offset(dvs_mm + dv, tr_k);
-        // get approx 2nd bogie pin position on stock rail
+      Pen.Style := psSolid;       // clearance corners ...
 
-        xtr := dvs_mm + dv + g / 2 * SIN(tr_k);     // approx start position on centre line
-        ytr := tr_y - g / 2 * COS(tr_k);
+      draw_dv_line(b2, c2);
+      draw_dv_line(c3, b3);
+      draw_dv_line(b4, c4);
+      draw_dv_line(c1, b1);
 
-        docurving(True, True, xtr, ytr, dvx2, dvy2, dummy1, dummy2);
-        // 2nd bogie-pin on pad, dv is along curve.
+      draw_dv_line(m1, m2);      // mid-line
 
-        dvwb_calc := SQRT(SQR(dvx2 - dvx1) + SQR(dvy2 - dvy1));
 
-        if ABS(dvwb_calc - dvwb_mm) < 0.005 then
-          BREAK;  //  near enough
+      // draw line between bogie pins ...
 
-        if (dvwb_calc < dvwb_mm) or (calc_dir = 1)    // calculated wheelbase too short
-        then begin
+      Pen.Style := psSolid;
 
-          if calc_dir = -1 then
-            BREAK;      // was too long, now shortened enough
+      draw_dv_line(pt1, pt2);
 
-          if calc_dir = 0 then
-            calc_dir := 1;    // set for lengthen re-calcs only
+      // draw bogie pins ...
 
-          if dvwb_calc >= dvwb_mm then
-            BREAK
-          else begin
-            dv := dv + 0.01;  // lengthen and try again
-            CONTINUE;
-          end;
-        end;
+      pin1 := mm_to_pixels(pt1);
+      pin2 := mm_to_pixels(pt2);
 
-        if (dvwb_calc > dvwb_mm) or (calc_dir = -1)
-        // calculated wheelbase too long (turnout road)
-        then begin
-
-          if calc_dir = 1 then
-            BREAK;        // was too short, now lengthened enough
-
-          if calc_dir = 0 then
-            calc_dir := -1;    // set for shorten re-calcs only
-
-          if dvwb_calc <= dvwb_mm then
-            BREAK
-          else begin
-            dv := dv - 0.01;  // shorten and try again
-            CONTINUE;
-          end;
-        end;
-
-      until 0 <> 0;
-
-    end
-    else begin                     // main road or plain track...
-      if spiral = False then begin
-        if dvwb_mm > ABS(nomrad * 1.75) then
-          EXIT;  // nonsense dimension, won't calculate
-      end
-      else begin
-        if (dvwb_mm > ABS(nomrad1 * 1.75)) or (dvwb_mm > ABS(nomrad2 * 1.75)) then
-          EXIT;  // nonsense dimensions, won't calculate
-      end;
-
-      if ABS(cl_options_code) = 2          // 213a   adjacent centre-lines
+      if grid_form.attach_ring_checkbox.Checked = True  // 206b
       then
-        cl_offset := get_cl_offset
-      else
-        cl_offset := g / 2;
-
-      docurving(True, True, dvs_mm, cl_offset, dvx1, dvy1, dummy1, dummy2);
-      // 1st bogie-pin on pad
-
-      repeat
-
-        // re-calc position of 2nd bogie pin until chord matches required wheelbase ...
-
-        docurving(True, True, dvs_mm + dv, cl_offset, dvx2, dvy2, dummy1, dummy2);
-        // 2nd bogie-pin on pad, dv is along curve.
-
-        dvwb_calc := SQRT(SQR(dvx2 - dvx1) + SQR(dvy2 - dvy1));
-
-        if ABS(dvwb_calc - dvwb_mm) < 0.005 then
-          BREAK;  //  near enough
-
-        if dvwb_calc >= dvwb_mm then
-          BREAK
-        else
-          dv := dv + 0.01;  // lengthen and try again
-
-      until 0 <> 0;
-    end;
-
-    // outline calcs ...
-
-    try
-      dv_theta := ARCSIN((dvy2 - dvy1) / dvwb_calc);  // angle on pad between pins
-      if dvx2 < dvx1 then
-        dv_theta := Pi - dv_theta;
-    except
-      dv_theta := Pi / 2 * SGN(dvy2 - dvy1);            // +/- 90 degrees
-    end;//try
-
-    dv_hcw := (dv_width / 2 + dv_clearance) * inscale;   // half the full clearance width
-
-    dv_hbw := dv_width / 2 * inscale;                  // half body width
-
-    dv_el := (dv_length - dv_wheelbase) / 2 * inscale;   // end length from pins
-
-    dv_len := dv_length * inscale;                   // body length
-
-
-    with dv_corners_calc do begin
-      // calcs for control template     global results for making copies
-
-      // calc body outline b1 - b2 - b3 - b4  clockwise corners from bottom left ...
-
-      pb1.x := dvx1 + dv_hbw * SIN(dv_theta);     // body opposite pins...
-      pb1.y := dvy1 - dv_hbw * COS(dv_theta);
-
-      pb2.x := dvx1 - dv_hbw * SIN(dv_theta);
-      pb2.y := dvy1 + dv_hbw * COS(dv_theta);
-
-      b1.x := pb1.x - dv_el * COS(dv_theta);      // near body corners...
-      b1.y := pb1.y - dv_el * SIN(dv_theta);
-
-      b2.x := pb2.x - dv_el * COS(dv_theta);
-      b2.y := pb2.y - dv_el * SIN(dv_theta);
-
-      b3.x := b2.x + dv_len * COS(dv_theta);      // far body corners...
-      b3.y := b2.y + dv_len * SIN(dv_theta);
-
-      b4.x := b1.x + dv_len * COS(dv_theta);
-      b4.y := b1.y + dv_len * SIN(dv_theta);
-
-      o1.x := b1.x + 33 * SIN(dv_theta);
-      // overdraw blanking corners  33" arbitrary (used only for envelope)...
-      o1.y := b1.y - 33 * COS(dv_theta);
-
-      o2.x := b2.x - 33 * SIN(dv_theta);
-      o2.y := b2.y + 33 * COS(dv_theta);
-
-      o3.x := b3.x - 33 * SIN(dv_theta);
-      o3.y := b3.y + 33 * COS(dv_theta);
-
-      o4.x := b4.x + 33 * SIN(dv_theta);
-      o4.y := b4.y - 33 * COS(dv_theta);
-
-      if for_env = False    // not for outlines envelope  215c
-      then begin
-        with on_canvas do begin     // so draw dummy vehicle
-
-          Pen.Style := psSolid;
-          Pen.Width := 1;
-          Pen.Color := pad_form.Font.Color;  //clRed;
-
-
-          Brush.Color := timber_colour;
-          Brush.Style := bsDiagCross;
-
-          // (check_limits omitted ...)
-
-          Polygon([mm_to_pixels(b1), mm_to_pixels(b2), mm_to_pixels(b3), mm_to_pixels(b4)]);
-
-
-          Brush.Color := paper_colour;  // restore Brush for gaps in dotted lines.
-          Brush.Style := bsSolid;
-        end;//with canvas
+      begin
+        rings[0, 0] := pt1.x;
+        rings[0, 1] := pt1.y;
       end;
-
-      // calc clearance extensions c1 - c2 - c3 - c4  clockwise corners from bottom left ...
-
-      pc1.x := dvx1 + dv_hcw * SIN(dv_theta);     // clearance opposite pins...
-      pc1.y := dvy1 - dv_hcw * COS(dv_theta);
-
-      pc2.x := dvx1 - dv_hcw * SIN(dv_theta);
-      pc2.y := dvy1 + dv_hcw * COS(dv_theta);
-
-      c1.x := pc1.x - dv_el * COS(dv_theta);      // near corners...
-      c1.y := pc1.y - dv_el * SIN(dv_theta);
-
-      c2.x := pc2.x - dv_el * COS(dv_theta);
-      c2.y := pc2.y - dv_el * SIN(dv_theta);
-
-      c3.x := c2.x + dv_len * COS(dv_theta);      // far corners...
-      c3.y := c2.y + dv_len * SIN(dv_theta);
-
-      c4.x := c1.x + dv_len * COS(dv_theta);
-      c4.y := c1.y + dv_len * SIN(dv_theta);
-
-      m1.x := c1.x + dv_len * COS(dv_theta) / 2;    // mid-points clearance...
-      m1.y := c1.y + dv_len * SIN(dv_theta) / 2;
-
-      m2.x := c2.x + dv_len * COS(dv_theta) / 2;
-      m2.y := c2.y + dv_len * SIN(dv_theta) / 2;
 
     end;//with dv_corners_calc
 
-    if for_env = True   // for outlines envelope  215c
-    then
-      EXIT      // go use dv_corners_calc to generate envelope
-    else begin
-      with on_canvas do begin     // draw dummy vehicle
-        with dv_corners_calc do begin
-          Pen.Style := psDash;        // clearance sides ...
+    pin_dim := 7;
+    // pin blob radius arbitrary.
+    if pin_dim > Round(scale * fx / 2) then
+      pin_dim := Round(scale * fx / 2); // but not more than 6" scale radius.
+    if pin_dim < 1 then
+      pin_dim := 1;                                 // and not less than this.
 
-          draw_dv_line(c2, c3);
-          draw_dv_line(c4, c1);
+    // 1st pin ...
 
-          Pen.Style := psSolid;       // clearance corners ...
+    Brush.Color := Pen.Color; // clRed;
+    Brush.Style := bsSolid;   // for pins
 
-          draw_dv_line(b2, c2);
-          draw_dv_line(c3, b3);
-          draw_dv_line(b4, c4);
-          draw_dv_line(c1, b1);
+    move_to.X := pin1.X - pin_dim;
+    move_to.Y := pin1.Y - pin_dim;
+    line_to.X := pin1.X + pin_dim;
+    line_to.Y := pin1.Y + pin_dim;
 
-          draw_dv_line(m1, m2);      // mid-line
+    if check_limits(move_to, line_to) = True then
+      Ellipse(move_to.X, move_to.Y, line_to.X, line_to.Y);
 
+    // 2nd pin ...
 
-          // draw line between bogie pins ...
+    move_to.X := pin2.X - pin_dim;
+    move_to.Y := pin2.Y - pin_dim;
+    line_to.X := pin2.X + pin_dim;
+    line_to.Y := pin2.Y + pin_dim;
 
-          pt1.x := dvx1;
-          pt1.y := dvy1;
+    if check_limits(move_to, line_to) = True then
+      Ellipse(move_to.X, move_to.Y, line_to.X, line_to.Y);
 
-          pt2.x := dvx2;
-          pt2.y := dvy2;
+    Brush.Color := paper_colour;  // restore Brush for gaps in dotted lines.
 
-          Pen.Style := psSolid;
+    draw_rings(on_canvas, False, True);
+    //  re-draw attached spacing-ring  (not copies).
 
-          draw_dv_line(pt1, pt2);
+  end;//with canvas
 
-          // draw bogie pins ...
-
-          pin1 := mm_to_pixels(pt1);
-          pin2 := mm_to_pixels(pt2);
-
-          if grid_form.attach_ring_checkbox.Checked = True  // 206b
-          then begin
-            rings[0, 0] := dvx1;
-            rings[0, 1] := dvy1 * hand_i + y_datum;
-          end;
-
-        end;//with dv_corners_calc
-
-        pin_dim := 7;
-        // pin blob radius arbitrary.
-        if pin_dim > Round(scale * fx / 2) then
-          pin_dim := Round(scale * fx / 2); // but not more than 6" scale radius.
-        if pin_dim < 1 then
-          pin_dim := 1;                                 // and not less than this.
-
-        // 1st pin ...
-
-        Brush.Color := Pen.Color; // clRed;
-        Brush.Style := bsSolid;   // for pins
-
-        move_to.X := pin1.X - pin_dim;
-        move_to.Y := pin1.Y - pin_dim;
-        line_to.X := pin1.X + pin_dim;
-        line_to.Y := pin1.Y + pin_dim;
-
-        if check_limits(move_to, line_to) = True then
-          Ellipse(move_to.X, move_to.Y, line_to.X, line_to.Y);
-
-        // 2nd pin ...
-
-        move_to.X := pin2.X - pin_dim;
-        move_to.Y := pin2.Y - pin_dim;
-        line_to.X := pin2.X + pin_dim;
-        line_to.Y := pin2.Y + pin_dim;
-
-        if check_limits(move_to, line_to) = True then
-          Ellipse(move_to.X, move_to.Y, line_to.X, line_to.Y);
-
-        Brush.Color := paper_colour;  // restore Brush for gaps in dotted lines.
-
-        draw_rings(on_canvas, False, True);
-        //  re-draw attached spacing-ring  (not copies).
-
-      end;//with canvas
-
-    end;
-
-  end;//with cdvi
 end;
 //______________________________________________________________________________
 
@@ -7421,14 +7580,16 @@ begin
       Result := strails(aq);
     // straight stock rail, adjacent tracks/trackbed/platforms, main-road track centre-line.
 
-    1, 9: begin
+    1, 9:
+    begin
       Result := strails(aq);                   // straight turnout rail to knuckle.
       if knuckle_code <> -1 then
         knuckle(aq);  // knuckle radius  214a   -1=sharp knuckle
       cuwing(aq{,flen_tr});                  // then turnout-side wing rail.
     end;
 
-    2, 10: begin
+    2, 10:
+    begin
       curails(aq{,flen_mr});
       // curved turnout rail to end of curve.
       if xing_calc_i = 0 then
@@ -7438,9 +7599,11 @@ begin
       stwing(aq{,flen_mr});                         // then main-side wing rail.
     end;
 
-    3, 11: begin
+    3, 11:
+    begin
       curails(aq{,flen_tw});      // curved stock rail to end of turnout curve.
-      if xing_calc_i <> 1 then begin
+      if xing_calc_i <> 1 then
+      begin
         stcurail(aq{,flen_tw});
         // then add straight section if straight crossing, normal or original.
         if retpar_i = 1 then
@@ -7451,7 +7614,8 @@ begin
     4, 12:
       stvee(aq);                  // straight vee rail.
 
-    5, 13: begin
+    5, 13:
+    begin
       cuvee(aq{,flen_tr});                                       // curved vee rail,
       if (xing_calc_i <> 1) and (retpar_i = 1) then
         retrails(aq);  // then if straight crossing,
@@ -7489,7 +7653,8 @@ procedure toe(aq: integer);      // do toe length.  ys constant.
 
 begin
   if (gaunt = True) and (plain_track = False)     // plain track bug fix 211c
-  then begin
+  then
+  begin
     case aq of                     // which rail ?
       2:
         ys := h;               // trg, // not actually used, xb = nodraw.
@@ -7503,7 +7668,8 @@ begin
         run_error(64);
     end;//case
   end
-  else begin
+  else
+  begin
     case aq of                     // which rail ?
       2:
         ys := 0;               // trg, // not actually used, xb = nodraw.
@@ -7535,7 +7701,8 @@ begin
 
   xpl := xs - setx;     // current length along planing.
 
-  if (do_joggle = True) and ((aq = 3) or (aq = 11)) and (len > minfp) then begin
+  if (do_joggle = True) and ((aq = 3) or (aq = 11)) and (len > minfp) then
+  begin
     if xpl >= len then
       jog := 0                           // beyond end of planing.
     else
@@ -7570,7 +7737,8 @@ var
   xjog, len, jog: extended;
 
 begin
-  if gaunt = True then begin
+  if gaunt = True then
+  begin
     ks := 0;
     case aq of
       2:
@@ -7592,7 +7760,8 @@ begin
 
   len := stox - setx;   // length of planing for joggle.
 
-  if (do_joggle = True) and ((aq = 3) or (aq = 11)) and (len > minfp) then begin
+  if (do_joggle = True) and ((aq = 3) or (aq = 11)) and (len > minfp) then
+  begin
     xjog := xs - setx;              // length along planing.
     if xjog >= len then
       jog := 0                            // beyond end of planing.
@@ -7620,7 +7789,8 @@ begin
   temp := SQR(rsw) - SQR(x);
 
   if temp < minfp                      // prevent sqrt of negative or zero.
-  then begin
+  then
+  begin
     abandon_calcs := True;      // we have a fly in the ointment.
     EXIT;
   end
@@ -7628,7 +7798,8 @@ begin
     ys := jog + sworgy - SQRT(temp);  // calc switch curve.
 
   if (ABS(rsw) < minfp) or (Abs(x) > (Abs(rsw) - minfp))    // prevent division by zero or ARCSIN error.
-  then begin
+  then
+  begin
     abandon_calcs := True;      // we have a different fly in the ointment.
     EXIT;
   end
@@ -7655,7 +7826,8 @@ begin
   //  with cpi do begin
   try
 
-    if plain_track = False then begin
+    if plain_track = False then
+    begin
       if main_road_i <> 0 then
         stxmax := xorg + main_road_endx      // stop at end of main-road exit  217a
       else
@@ -7666,12 +7838,14 @@ begin
 
     case aq of                       // which side of which rail ?
 
-      0, 8: begin                 // stock rail.
+      0, 8:
+      begin                 // stock rail.
 
         //if (joggled=True) and (turnout_road_crossing_rail_flag=True)
         if (plain_track = False) and (half_diamond = False) and (joggled = True) and
           ({cri.}turnout_road_crossing_rail_flag = True)   // mod 0.76.a 27-4-02.
-        then begin
+        then
+        begin
           if aq = 0 then
             ys := 0      // gauge-face aq=0.
           else
@@ -7689,14 +7863,16 @@ begin
           xb := plox;               // end of joggle.
           xe := stxmax;             // continue to end of turnout.
         end
-        else begin      //   no joggle, ys constant for this rail.
+        else
+        begin      //   no joggle, ys constant for this rail.
 
           if aq = 0 then
             ys := 0      // gauge-face aq=0.
           else
             ys := 0 - j;   // outer edge aq=8.
 
-          if half_diamond = True then begin
+          if half_diamond = True then
+          begin
             if aq = 0 then
               xb := toex      // half diamond switch starts at toe.
             else
@@ -7708,19 +7884,23 @@ begin
         end;
       end;
 
-      1: begin   //  main road crossing rail.
+      1:
+      begin   //  main road crossing rail.
 
         ys := g;              //  gauge face. ys constant.
 
         if isolated_crossing = True   // 217a
-        then begin
+        then
+        begin
           xb := wingcx_minus - scale / 6;     // 2" arbitrary
           xe := wingcx_minus;             // end at start of knuckle_rad.
         end
-        else begin
+        else
+        begin
 
           if (half_diamond = True) and (fixed_diamond = True)   //  fixed-diamond
-          then begin
+          then
+          begin
 
             // blunt nose of diamond point rails is typically 1/8" less than V-nose (=1/2" for FB, =5/8" for BH).
 
@@ -7741,8 +7921,8 @@ begin
             else
               xbn := torgx + SQRT(SQR(tradius - g + fw) - SQR(torgy - g - bnw)) * SGZ(tradius); // x to blunt nose.
 
-            if (xbn > startx) and (xbn < turnoutx)
-            then begin
+            if (xbn > startx) and (xbn < turnoutx) then
+            begin
               // 211b if f28000(aq,(xbn-bnw*SIN(hdk/2)),(g+bnw*COS(hdk/2)))=1 then EXIT;  // first put actual blunt nose mark at start of aq=1 list.
               if f28000(aq, xbn, g + bnw) = 1 then
                 EXIT;  // first put actual blunt nose mark at start of aq=1 list.
@@ -7752,7 +7932,8 @@ begin
             //xe:=wingcx;
             xe := wingcx_minus;   // 214a end at start of knuckle_rad.
           end
-          else begin                 //  normal switch or switch-diamond.
+          else
+          begin                 //  normal switch or switch-diamond.
 
             if gaunt = True then
               xb := 0       //  gaunt starts at rail joint.
@@ -7772,25 +7953,29 @@ begin
         end;
       end;
 
-      9: begin                  //  main-road crossing rail
+      9:
+      begin                  //  main-road crossing rail
         ys := g + j;             //  outer edge.  ys constant.
 
         if isolated_crossing = True   // 217a
-        then begin
+        then
+        begin
           xb := wingcox_minus - scale / 6;     // 2" arbitrary
           xe := wingcox_minus;             // end at start of knuckle_rad.
         end
-        else begin
+        else
+        begin
           if (half_diamond = True) and (fixed_diamond = True)
           //  fixed-diamond
-          then begin
-            if tradius_is_straight = True
-            then
+          then
+          begin
+            if tradius_is_straight = True then
               xb := stox + fw / SIN(hdk)  //  leave K-crossing flangeway.
             else
               xb := torgx + SQRT(SQR(tradius - g + fw) - SQR(torgy - g - j)) * SGZ(tradius);   //^^^
           end
-          else begin
+          else
+          begin
             if gaunt = True then
               xb := 0       //  gaunt starts at rail joint.
             else
@@ -7803,24 +7988,26 @@ begin
       end;
 
 
-      16..23: begin   // 0.93.a mods ...
+      16..23:
+      begin   // 0.93.a mods ...
 
         xb := 0;         //  start at datum. init, changed later for platforms, trackbed
         xe := stxmax;    //  end of turnout. init, changed later for platforms, trackbed
 
         if adjacent_edges = True    // platforms and trackbed edges ...
 
-        then begin
+        then
+        begin
           case aq of
 
-            16: begin  // TS platform rear edge
+            16:
+            begin  // TS platform rear edge
 
               xb := platform_ts_start_mm;
               if xb = def_req then
                 xb := 0;
 
-              if platform_ts_length_mm = def_req
-              then
+              if platform_ts_length_mm = def_req then
                 xe := stxmax
               else
                 xe := xb + platform_ts_length_mm;
@@ -7835,14 +8022,14 @@ begin
               ys := 0; // calculated in dostr
             end;
 
-            17: begin  // TS platform near edge.
+            17:
+            begin  // TS platform near edge.
 
               xb := platform_ts_start_mm;
               if xb = def_req then
                 xb := 0;
 
-              if platform_ts_length_mm = def_req
-              then
+              if platform_ts_length_mm = def_req then
                 xe := stxmax
               else
                 xe := xb + platform_ts_length_mm;
@@ -7850,13 +8037,13 @@ begin
               ys := g / 2 + platform_ts_front_edge_ins * inscale;
             end;
 
-            18: begin                                         // TS trackbed
+            18:
+            begin                                         // TS trackbed
               xb := trackbed_ts_start_mm;        // 215a ...
               if xb = def_req then
                 xb := 0;
 
-              if trackbed_ts_length_mm = def_req
-              then
+              if trackbed_ts_length_mm = def_req then
                 xe := stxmax
               else
                 xe := xb + trackbed_ts_length_mm;
@@ -7865,33 +8052,32 @@ begin
               // TS trackbed width      215a
             end;
 
-            19: begin
+            19:
+            begin
               xb := trackbed_ts_start_mm;        // 215a ...
               if xb = def_req then
                 xb := 0;
 
-              if trackbed_ts_length_mm = def_req
-              then
+              if trackbed_ts_length_mm = def_req then
                 xe := stxmax
               else
                 xe := xb + trackbed_ts_length_mm;
 
-              if draw_ts_trackbed_cess_edge = True
-              then
+              if draw_ts_trackbed_cess_edge = True then
                 ys := g / 2 + (trackbed_ts_width_ins + cess_ts_width_ins) * inscale    // show TS cess width  215a
               else
                 ys := g / 2 + trackbed_ts_width_ins * inscale + j / 2;
               // cutting edge mark is half rail-width wide
             end;
 
-            20: begin  // MS platform rear edge
+            20:
+            begin  // MS platform rear edge
 
               xb := platform_ms_start_mm;
               if xb = def_req then
                 xb := 0;
 
-              if platform_ms_length_mm = def_req
-              then
+              if platform_ms_length_mm = def_req then
                 xe := stxmax
               else
                 xe := xb + platform_ms_length_mm;
@@ -7906,14 +8092,14 @@ begin
               ys := 0; // calculated in dostr
             end;
 
-            21: begin  // MS platform near edge.
+            21:
+            begin  // MS platform near edge.
 
               xb := platform_ms_start_mm;
               if xb = def_req then
                 xb := 0;
 
-              if platform_ms_length_mm = def_req
-              then
+              if platform_ms_length_mm = def_req then
                 xe := stxmax
               else
                 xe := xb + platform_ms_length_mm;
@@ -7922,13 +8108,13 @@ begin
             end;
 
 
-            22: begin                                         // MS trackbed
+            22:
+            begin                                         // MS trackbed
               xb := trackbed_ms_start_mm;       // 215a ...
               if xb = def_req then
                 xb := 0;
 
-              if trackbed_ms_length_mm = def_req
-              then
+              if trackbed_ms_length_mm = def_req then
                 xe := stxmax
               else
                 xe := xb + trackbed_ms_length_mm;
@@ -7937,19 +8123,18 @@ begin
               // MS trackbed width      215a
             end;
 
-            23: begin
+            23:
+            begin
               xb := trackbed_ms_start_mm;       // 215a ...
               if xb = def_req then
                 xb := 0;
 
-              if trackbed_ms_length_mm = def_req
-              then
+              if trackbed_ms_length_mm = def_req then
                 xe := stxmax
               else
                 xe := xb + trackbed_ms_length_mm;
 
-              if draw_ms_trackbed_cess_edge = True
-              then
+              if draw_ms_trackbed_cess_edge = True then
                 ys := g / 2 - (trackbed_ms_width_ins + cess_ms_width_ins) * inscale    // show MS cess width     215a
               else
                 ys := g / 2 - trackbed_ms_width_ins * inscale - j / 2;
@@ -7958,7 +8143,8 @@ begin
 
           end;//case
         end
-        else begin             // adjacent tracks ...
+        else
+        begin             // adjacent tracks ...
           case aq of
 
             16:
@@ -7986,7 +8172,8 @@ begin
 
       end;//16..23
 
-      24: begin     // track centre-line...
+      24:
+      begin     // track centre-line...
 
         ys := get_cl_offset;   // added 206a
 
@@ -8030,14 +8217,16 @@ var
   procedure do_parallel_xing;
 
   begin
-    if xs < retx then begin
+    if xs < retx then
+    begin
       Result := g / 2 + (xs - dpx) / k3n;
       // straight section beyond crossing point.
       k := k3;
       EXIT;
     end;
 
-    if xs > retrorgx then begin
+    if xs > retrorgx then
+    begin
       Result := trtscent + g / 2;
       // parallel section beyond return curve.
       k := 0;
@@ -8062,7 +8251,8 @@ var
     rto := tradius - g / 2;
 
     if ABS(rto) < minfp      // abandon ship ???
-    then begin
+    then
+    begin
       abandon_calcs := True;
       Result := 0;
       k := 0;
@@ -8073,12 +8263,14 @@ var
     // 0.98*radius, arbitrary x limits to turnout curve.  0.79.a
 
     repeat
-      if xs > (torgx + xlim) then begin
+      if xs > (torgx + xlim) then
+      begin
         x := xlim;   // forward limit x from rad centre.
         BREAK;
       end;
 
-      if xs < (torgx - xlim) then begin
+      if xs < (torgx - xlim) then
+      begin
         x := 0 - xlim; // backward limit x from rad centre.
         BREAK;
       end;
@@ -8106,7 +8298,8 @@ var
   begin
 
     if xs < tcpx        // in front of crossing, for regular, parallel
-    then begin
+    then
+    begin
       Result := g / 2 + (xs - dpx) / k3n;
       // straight centre-line from CESP to crossing.
       k := k3;
@@ -8114,7 +8307,8 @@ var
     end;
 
     if (xing_calc_i = 0) and (retpar_i = 1)       // parallel crossing...
-    then begin
+    then
+    begin
       do_parallel_xing;
       EXIT;
     end;
@@ -8130,26 +8324,30 @@ begin
   Result := g / 2;    // init defaults
   k := 0;
 
-  if (gaunt = True) and (xs < torgx) then begin
+  if (gaunt = True) and (xs < torgx) then
+  begin
     do_gaunt;
     EXIT;
   end;
 
   if xing_calc_i = 1     // curviform crossing, all templates.
-  then begin
+  then
+  begin
     do_turnout_curve;  // turnout curve runs through
     EXIT;
   end;
 
   if tradius_is_straight = True // regular diamonds, straight line from DP to TCP ...
-  then begin
+  then
+  begin
     do_regular_beyond_curve_end;
     EXIT;
   end;
 
   curve_endx := torgx + (tradius - g / 2) * SIN(k3);  // turnout curve end. CESP or TCP.
 
-  if xs < curve_endx then begin
+  if xs < curve_endx then
+  begin
     do_turnout_curve;
     EXIT;
   end;
@@ -8172,7 +8370,8 @@ begin
   if (half_diamond = True) or (gaunt = True)            // mods 213a
   then
     xs := blank_start(0)                        // start at origin
-  else begin
+  else
+  begin
     curve_startx := torgx + (tradius - g / 2) * SIN(k2);  // switch curve end / turnout curve start
     xs := blank_start(curve_startx);              // turnout start
   end;
@@ -8182,8 +8381,10 @@ begin
     -1:
       xe := txpx;     // stop at crossover mid-point.
 
-    0, 1: begin
-      if retpar_i = 1 then begin                                     // parallel crossing...
+    0, 1:
+    begin
+      if retpar_i = 1 then
+      begin                                     // parallel crossing...
         if turnout_road_i = 1 then
           xe := turnoutx   // long turnout road - stop at end of turnout.
         else
@@ -8258,13 +8459,15 @@ var
 
       case aq of
 
-        1, 31, 9, 39: begin                        // main road
+        1, 31, 9, 39:
+        begin                        // main road
           temp := SQR(kr) - SQR(xs - xb);  // SQRT protection
           if temp < minfp then
             EXIT;
         end;
 
-        2, 32, 10, 40: begin                        // turnout road
+        2, 32, 10, 40:
+        begin                        // turnout road
           temp := SQR(kr) - SQR(xe - xs);  // SQRT protection
           if temp < minfp then
             EXIT;
@@ -8319,7 +8522,8 @@ begin
   // 0.93.a  // mods 0.79.b 23-09-04...
 
   if aq = 26       // K-crossing MS check rail gauge-face...
-  then begin
+  then
+  begin
     xb := kckmsx;       // start at centre knuckle.
     xe := kckmsflx;     // do up to flare start.
     //docrossing(aq,kckms_flg_mm,kckms_fl_k5,xb,xe,1);
@@ -8334,7 +8538,8 @@ begin
   end;
 
   if aq = 27       // K-crossing MS check rail outer-edge...
-  then begin
+  then
+  begin
     xb := kckmsox;       // start at centre knuckle.
     xe := kckmsflox;     // do up to flare start.
     //docrossing(aq,kckms_flo_mm,kckms_fl_k5,xb,xe,1);
@@ -8351,10 +8556,12 @@ begin
   // mods end
 
   if xing_calc_i = -1        // generic crossing.
-  then begin            // first do short curve to f.p. :
+  then
+  begin            // first do short curve to f.p. :
     case aq of     // which rail-line ?
 
-      1: begin                   // straight turnout rail, gauge-face.
+      1:
+      begin                   // straight turnout rail, gauge-face.
         //xb:=wingcx;           // start at knuckle.
         xb := wingcx_plus;      // 214a start at end of knuckle_rad.
 
@@ -8371,7 +8578,8 @@ begin
 
       end;
 
-      9: begin                         // ditto, outer-edges.
+      9:
+      begin                         // ditto, outer-edges.
         //xb:=wingcox;
         xb := wingcox_plus;      // 214a start at end of knuckle_rad.
 
@@ -8393,10 +8601,12 @@ begin
     end;//case
   end//then
 
-  else begin                            // normal straight or curviform V-crossing :
+  else
+  begin                            // normal straight or curviform V-crossing :
     case aq of                     // which rail-line ?
 
-      1: begin                  // straight turnout rail, gauge-face.
+      1:
+      begin                  // straight turnout rail, gauge-face.
         //xb:=wingcx;                 // start at knuckle.
         xb := wingcx_plus;      // 214a start at end of knuckle_rad.
 
@@ -8408,7 +8618,8 @@ begin
         docrossing(aq,{fl,}xb, xe, 1);
       end;
 
-      9: begin                        // ditto, outer-edges.
+      9:
+      begin                        // ditto, outer-edges.
         //xb:=wingcox;
         xb := wingcox_plus;      // 214a start at end of knuckle_rad.
 
@@ -8445,22 +8656,26 @@ begin
 
   case aq of               // which rail ?
 
-    5: begin            // vee rail:
+    5:
+    begin            // vee rail:
       xb := vendx;
       retrmod := 0 - g / 2;       // gf
     end;
 
-    13: begin
+    13:
+    begin
       xb := vendox;
       retrmod := 0 - g / 2 - j;     // oe
     end;
 
-    3: begin            // curved stock rail:
+    3:
+    begin            // curved stock rail:
       xb := csrendx;
       retrmod := g / 2;       // gf
     end;
 
-    11: begin
+    11:
+    begin
       xb := csrendox;
       retrmod := g / 2 + j;     // oe
     end;
@@ -8487,7 +8702,8 @@ var
 
 begin
   //081 with cpi do begin
-  for segment_index := 0 to 3 do begin      // !!! not to 4, uses index+1...
+  for segment_index := 0 to 3 do
+  begin      // !!! not to 4, uses index+1...
 
     xb := seg_termx[segment_index, aq];      // start x.
     xe := seg_termx[segment_index + 1, aq];    // end x.
@@ -8511,7 +8727,8 @@ begin
 
     if (plain_track = False) and (joggled = True) and ({cri.} main_road_crossing_rail_flag = True) and
       ((aq = 3) or (aq = 11))   // joggled turnout-side stock rail  v:0.71.a . mod v:0.76.a 27-4-02.
-    then begin
+    then
+    begin
       do_joggle := True;
       if segment_index = 0 then
         xe := xe - joggle_long;  // v:0.71.a  13-4-01. stop stock front at joggle.
@@ -8533,7 +8750,8 @@ begin
         bnw := 0;
       xbn := xb + bnw * SIN(hdk / 2);
 
-      if (xbn > startx) and (xbn < turnoutx) then begin
+      if (xbn > startx) and (xbn < turnoutx) then
+      begin
         if f28000(aq, xbn, fw) = 1 then
           EXIT;  // first put blunt nose at start of aq=2 list.
       end;
@@ -8541,7 +8759,8 @@ begin
     end;
 
     if isolated_crossing = True    // 217a
-    then begin
+    then
+    begin
       if aq = 2 then
         xs := blank_start(wingx_minus - scale / 6)                  // 2" arbitrary
       else
@@ -8563,20 +8782,22 @@ begin
 
     if (joggled = True) and (aq = 2) and (xs = toex)
     // start aq=2 curved switch blade with the blade tip mark if joggled.
-    then begin
+    then
+    begin
       if f28000(aq, xs, 0 - joggle_deep) = 1 then
         EXIT;  // do curving on xs,ys and put in array.
     end;
 
     // 209a mods..   if xe>turnoutx then xe:=turnoutx; // !!! mod 26-3-99. smooth F4 length adjust.
 
-    if xe > turnoutx then begin
+    if xe > turnoutx then
+    begin
       if (turnout_road_i > 1) and (xing_calc_i = 1)
       // 209a mods   curviform crossing           was turnout_road_i=2 217a
-      then begin
+      then
+      begin
         // adjustable..
-        if ((aq <> 3) and (aq <> 11)) or (turnoutx < (xorg + min_turnout_road_endx))
-        then
+        if ((aq <> 3) and (aq <> 11)) or (turnoutx < (xorg + min_turnout_road_endx)) then
           xe := turnoutx;                                      // all other rails stop at end of template
       end
       else
@@ -8589,7 +8810,8 @@ begin
       if (aq = 2) and (segment_index = 2) and (switch_type = 0) and (xb < plox) and
         (xs > plox) and (plox_done = False)
       // planing and switch curve all in one for straight and curved switches...
-      then begin
+      then
+      begin
         xs := blank_start(plox);
         plox_done := True;
       end;
@@ -8657,14 +8879,16 @@ begin
 
   case aq of
 
-    2: begin                       // turnout rail, gauge-face:
+    2:
+    begin                       // turnout rail, gauge-face:
       xb := seg_termx[4, aq];      // start at end of curved part.
 
       //xe:=wingx;             // end at knuckle.
       xe := wingx_minus;         // 214a end at start of knuckle bend
     end;
 
-    10: begin                       // ditto, outer-edge:
+    10:
+    begin                       // ditto, outer-edge:
       xb := seg_termx[4, aq];
 
       //xe:=wingox;
@@ -8686,7 +8910,8 @@ procedure stwing(aq: integer{; fl:extended});   // do main-side wing rail.
 begin
   case aq of                     // which edge ?
 
-    2: begin
+    2:
+    begin
       ys := g - fw;       // wing rail gauge face.
 
       //xb:=wingx;           // start at knuckle.
@@ -8701,7 +8926,8 @@ begin
       // fill list for flare-out.
     end;
 
-    10: begin
+    10:
+    begin
       ys := g - fw - j;     // ditto, outer edge.
 
       //xb:=wingox;
@@ -8759,7 +8985,8 @@ begin
   //if xb>xe then EXIT;     // 20-6-99.
 
   if isolated_crossing = True    // 217a
-  then begin
+  then
+  begin
     if aq = 2 then
       xs := blank_start(wingx_minus - scale / 6)                  // 2" arbitrary
     else
@@ -8775,12 +9002,14 @@ begin
 
   // 209a mods...  if xe>turnoutx then xe:=turnoutx;     // stop at end of turnout. v:0.76.a  28-4-02
 
-  if xe > turnoutx then begin
+  if xe > turnoutx then
+  begin
     if turnout_road_i < 2
     // 209a mods  not adjustable            was turnout_road_i<>2 216c
     then
       xe := turnoutx      // stop at end of template
-    else begin                       // adjustable..
+    else
+    begin                       // adjustable..
       if (aq <> 5) and (aq <> 13) and (aq <> 3) and (aq <> 11)
       // 209a not turnout exit rails
       then
@@ -8804,7 +9033,8 @@ begin
       7, 15:
         ys := turnoutst_check(aq,{fl,}xb, xend, xs);  // go calc TS check rail (mod 27-5-01 0.71.a).
 
-      else begin
+      else
+      begin
 
         if xing_calc_i <> 1 then
           ys := turnoutst_main(aq, xb, xend, xs)      // go calc straight crossing.
@@ -8855,7 +9085,8 @@ begin
 
   if (plain_track = False) and (joggled = True) and (aq = 1) and (xs = setx)
   // start the aq=1 straight switch blade with the blade tip mark if joggled.
-  then begin
+  then
+  begin
     if f28000(aq, xs, yys + joggle_deep) = 1 then
       EXIT;
   end;
@@ -8864,7 +9095,8 @@ begin
 
   if ((aq = 16) or (aq = 17)) and (plain_track = False) and (adjacent_edges = True)
   // TS platform rear/front
-  then begin
+  then
+  begin
     if (xe > tvjpx) and (xe <= (mvjpx + scale * 3)) then
       xe := tvjpx;   // end at TVJP if not enough exit track (3ft arbitrary).
   end;
@@ -8881,10 +9113,12 @@ begin
       yys := ys + (xs - xb) / hdkn;   // K-crossing check rails (working part).
 
     if adjacent_edges = True      // mod straight edges
-    then begin
+    then
+    begin
 
       if aq = 16           // rear edge of TS platform
-      then begin
+      then
+      begin
 
         w1 := platform_ts_start_width_ins * inscale;
         w2 := platform_ts_end_width_ins * inscale;
@@ -8901,7 +9135,8 @@ begin
       end;
 
       if aq = 20          // rear edge of MS platform
-      then begin
+      then
+      begin
         w1 := platform_ms_start_width_ins * inscale;
         w2 := platform_ms_end_width_ins * inscale;
         sp := platform_ms_front_edge_ins * inscale - g / 2;        // 215a  sp from rail
@@ -8919,16 +9154,17 @@ begin
 
       if (aq = 17) and (plain_track = False)
       // 207b TS platform front edge, modify ys to follow turnout curve...
-      then begin
+      then
+      begin
 
         aq3_endx := mvjpx;
 
-        if (xs >= (aq3_endx - incx / 2)) and (xs <= (aq3_endx + incx / 2))
-        then
+        if (xs >= (aq3_endx - incx / 2)) and (xs <= (aq3_endx + incx / 2)) then
           xs := aq3_endx;        // lock list step
 
         if xs <= aq3_endx    // platform edge on turnout curve
-        then begin
+        then
+        begin
           y_at_aq3 := aq3offset(xs, k_at_aq3);
 
           yys :=
@@ -8950,18 +9186,20 @@ begin
 
       if (aq = 18) and (aq3_done = False) and (plain_track = False)
       // 215a TS trackbed edge inner, modify ys to follow turnout curve...
-      then begin
+      then
+      begin
 
         aq3_endx := mvjpx + scale * 6;  // 215a to arbitrary 6ft beyond rail joints.
 
-        if (xs >= (aq3_endx - incx / 2)) and (xs <= (aq3_endx + incx / 2))
-        then begin
+        if (xs >= (aq3_endx - incx / 2)) and (xs <= (aq3_endx + incx / 2)) then
+        begin
           xs := aq3_endx;
           aq3_done := True;
         end;
 
         if (xs > toex) and (xs <= aq3_endx)    // trackbed edge on turnout curve
-        then begin
+        then
+        begin
           y_at_aq3 := aq3offset(xs, k_at_aq3);
 
           yys := y_at_aq3 + (trackbed_ts_width_ins * inscale - g / 2) * COS(k_at_aq3);
@@ -8970,7 +9208,8 @@ begin
           if (f28000(aq, xxs, yys) = 1) or (xxs >= xe) then
             BREAK;  // do curving on xxs,yys and put in array.
 
-          if aq3_done = True then begin
+          if aq3_done = True then
+          begin
             xs := xxs;
             yys := ys;   // reset yys on exit track
           end
@@ -8984,29 +9223,32 @@ begin
       if (aq = 19) and (aq3_done = False) and (plain_track = False)
       // 215a TS trackbed edge outer, modify ys to follow turnout curve...
       // go further along curve to ensure an overlap with inner at short angles
-      then begin
+      then
+      begin
         if draw_ts_trackbed_cess_edge = True then
           aq3_endx := mvjpx + scale * 6 + cess_ts_width_ins * inscale * 3 / 2  // cess arbitrary
         else
           aq3_endx := mvjpx + scale * 6 + j * 3 / 4;                         // cut line arbitrary
 
-        if (xs >= (aq3_endx - incx / 2)) and (xs <= (aq3_endx + incx / 2))
-        then begin
+        if (xs >= (aq3_endx - incx / 2)) and (xs <= (aq3_endx + incx / 2)) then
+        begin
           xs := aq3_endx;
           aq3_done := True;
         end;
 
-        if (xs > toex) and (xs <= aq3_endx) then begin
+        if (xs > toex) and (xs <= aq3_endx) then
+        begin
           y_at_aq3 := aq3offset(xs, k_at_aq3);
 
-          if draw_ts_trackbed_cess_edge = True
-          then begin
+          if draw_ts_trackbed_cess_edge = True then
+          begin
             yys :=
               y_at_aq3 + ((trackbed_ts_width_ins + cess_ts_width_ins) * inscale - g / 2) * COS(k_at_aq3);
             xxs :=
               xs - ((trackbed_ts_width_ins + cess_ts_width_ins) * inscale - g / 2) * SIN(k_at_aq3);
           end
-          else begin
+          else
+          begin
             yys :=
               y_at_aq3 + (trackbed_ts_width_ins * inscale + j / 2 - g / 2) * COS(k_at_aq3);
             xxs :=
@@ -9016,7 +9258,8 @@ begin
           if (f28000(aq, xxs, yys) = 1) or (xxs >= xe) then
             BREAK;  // do curving on xxs,yys and put in array.
 
-          if aq3_done = True then begin
+          if aq3_done = True then
+          begin
             xs := xxs;
             yys := ys;   // reset yys on exit track
           end
@@ -9074,7 +9317,8 @@ begin
 
     len := plox - toex;   // length of joggle.
 
-    if len > minfp then begin
+    if len > minfp then
+    begin
       x := xs - xb - inscale;
       // length along planing (xb is 1" arbitrary in front of toe).
       jog := (len - x) / len * joggle_deep;  // run out the joggle. 0.71.a 13-4-01.
@@ -9094,17 +9338,20 @@ procedure stcurail(aq: integer{; fl:extended});   // straight crossing part of c
 
 begin
   if plain_track = False                         // not needed if plain track only in force.
-  then begin
+  then
+  begin
     case aq of
 
-      3: begin                     // curved stock rail, gauge-face:
+      3:
+      begin                     // curved stock rail, gauge-face:
         xb := seg_termx[4, aq];    // start at end of curved part.
 
         // 209a mods... xe:=csrendx;            // end of turnout.
 
         if (turnout_road_i > 1)
         // adjustable turnout road         was turnout_road_i=2 217a
-        then begin
+        then
+        begin
           if turnoutx > (xorg + min_turnout_road_endx)
           // template long enough?
           then
@@ -9116,14 +9363,16 @@ begin
           xe := csrendx;
       end;
 
-      11: begin                     // ditto for outer-edge:
+      11:
+      begin                     // ditto for outer-edge:
         xb := seg_termx[4, aq];
 
         // 209a mods...   xe:=csrendox;
 
         if (turnout_road_i > 1)
         // adjustable turnout road       was turnout_road_i=2 217a
-        then begin
+        then
+        begin
           if turnoutx > (xorg + min_turnout_road_endx)
           // template long enough?
           then
@@ -9164,13 +9413,15 @@ begin
 
   case aq of
 
-    4: begin                        // gauge-face.
+    4:
+    begin                        // gauge-face.
       ys := g;
       xb := bnx;
       xe := endx;   //  217a  turnoutx;
     end;
 
-    12: begin                       // outer edge.
+    12:
+    begin                       // outer edge.
       ys := g + j;
       xb := bnox;
       xe := endx;   //  217a  turnoutx;
@@ -9199,15 +9450,18 @@ begin
 
   if (turnout_road_i > 1) and (turnoutx < (xorg + min_turnout_road_endx))
   // 209a ...      was turnout_road_i=2 217a
-  then begin
+  then
+  begin
     case aq of
 
-      5: begin                        // curved vee rail, gauge-face.
+      5:
+      begin                        // curved vee rail, gauge-face.
         xb := bnxx;
         xe := turnoutx;
       end;
 
-      13: begin                       // ditto, outer-edge.
+      13:
+      begin                       // ditto, outer-edge.
         xb := bnox;
         xe := turnoutx;
       end;
@@ -9216,15 +9470,18 @@ begin
         run_error(38);
     end;//case
   end
-  else begin
+  else
+  begin
     case aq of
 
-      5: begin                        // curved vee rail, gauge-face.
+      5:
+      begin                        // curved vee rail, gauge-face.
         xb := bnxx;
         xe := vendx;
       end;
 
-      13: begin                       // ditto, outer-edge.
+      13:
+      begin                       // ditto, outer-edge.
         xb := bnox;
         xe := vendox;
       end;
@@ -9247,7 +9504,8 @@ var
 
 begin
   if xs >= retrorgx                         // on parallel part.
-  then begin
+  then
+  begin
     ys := retrorgy + retr + radmod;     // continue parallel straight beyond return curve.
     ks := 0;
     Result := ys;
@@ -9257,14 +9515,16 @@ begin
   ysmod_sq := SQR(retr + radmod) - SQR(retrorgx - xs);
   if (ysmod_sq < minfp) or (xs <= (retrorgx - retr - radmod)) or (xs < fpx)
   // no curve fits or xs too short.
-  then begin
+  then
+  begin
     abandon_calcs := True;     // abandon ship.
     Result := 0;
     EXIT;
   end;
 
   ys := retrorgy + SQRT(ysmod_sq);    // on return curve.
-  if ABS(retr + radmod) > minfp then begin
+  if ABS(retr + radmod) > minfp then
+  begin
     kscos := (ys - retrorgy) / (retr + radmod);                     // mod 2-9-98
     if ABS(kscos) < (1.0 - minfp) then
       ks := ARCCOS(kscos)        // mod 10-5-99 angle for timbering.
@@ -9290,7 +9550,8 @@ begin
   //081  with cpi do begin
 
   if tradius_is_straight = True    //^^^ turnout radius is straight at k3 crossing angle.
-  then begin
+  then
+  begin
     costemp := 1 / COS(k3);
     ytemp := h + (xs - heelx) * TAN(k3);  // offset.
 
@@ -9313,7 +9574,8 @@ begin
 
     ks := k3;
   end
-  else begin
+  else
+  begin
     rto := tradius;    //^^^ // to keep the compiler happy.
 
     case aq of                     // which rail ?
@@ -9340,12 +9602,14 @@ begin
     repeat
       if xs > (torgx + ABS(rto) * 0.98)
       // 0.98*radius, arbitrary x limits to turnout curve.  0.79.a
-      then begin
+      then
+      begin
         x := ABS(rto) * 0.98;        // limit x from rad centre.
         BREAK;
       end;
 
-      if xs < (torgx - ABS(rto) * 0.98) then begin
+      if xs < (torgx - ABS(rto) * 0.98) then
+      begin
         x := 0 - ABS(rto) * 0.98;      // limit x from rad centre.
         BREAK;
       end;
@@ -9383,7 +9647,8 @@ begin
 
   k3cos := COS(k3);
 
-  if ABS(k3cos) < minfp then begin
+  if ABS(k3cos) < minfp then
+  begin
     ys := g;         // div zero abort.
     ks := 0;
     Result := ys;
@@ -9397,32 +9662,38 @@ begin
 
     // first calc offset at xb or xe point of each rail.
 
-    2: begin
+    2:
+    begin
       yst := th;                               // curved turnout rail, gauge-face.
       x := xs - xb;
     end;
 
-    10: begin
+    10:
+    begin
       yst := th - j * COS(k3);                     // ditto, outer-edge.
       x := xs - xb;
     end;
 
-    3: begin
+    3:
+    begin
       yst := th + g * COS(k3);                     // curved stock rail, gauge-face.
       x := xs - xb;
     end;
 
-    11: begin
+    11:
+    begin
       yst := th + (g + j) * COS(k3);                 // ditto, outer edge.
       x := xs - xb;
     end;
 
-    5: begin
+    5:
+    begin
       yst := g + (bnx - fpx) / k3n;                 // curved vee rail, gauge face.
       x := xs - xb;
     end;
 
-    13: begin
+    13:
+    begin
       yst := g + j;                              // ditto, outer edge.
       x := xs - xb;
     end;
@@ -9457,7 +9728,8 @@ begin
   case aq of
     // TS wing rail: 0.71.a 27-5-01 now using aq2offset for the TS wing rail (for long wing rail, return curve, etc.)
 
-    1: begin
+    1:
+    begin
       if ccd.end_diff_tr.type_diff = 3      // no flare
       then
         fl_offset := 0
@@ -9473,7 +9745,8 @@ begin
         ys := fw + fl_offset;  //!!!
     end;
 
-    9: begin
+    9:
+    begin
 
       case get_flare_type(ccd.end_diff_tr.type_diff) of
         1:
@@ -9493,7 +9766,8 @@ begin
 
     // MS K-crossing check rail...
 
-    26: begin
+    26:
+    begin
       fl_offset := cuflare(flen_mk, k5_mk, kckmsflx, kckmsflendx, xs, 1); // flare-out offset.
 
       y_temp := aq2offset(xs, k_temp);   // get y_temp to running rail and angle.
@@ -9504,7 +9778,8 @@ begin
         ys := fw + fl_offset;  //!!!
     end;
 
-    27: begin
+    27:
+    begin
       case get_flare_type(ccd.end_diff_mk.type_diff) of
         1:
           fl_offset := cuflare(flen_mk, k5_mk, kckmsflox, kckmsflendox, xs, 1); // bent flares.
@@ -9542,7 +9817,8 @@ begin
   case aq of
     // TS check rail: 0.71.a 27-5-01 now using aq3offset for the TS check rail (for long check rails, return curve, etc.)
 
-    7: begin
+    7:
+    begin
       if xb < cuckfpx then
         fl_offset := cuflare(flen_tw, k5_tw, cuckx, cuckfwx, xs, -1)    // flare-in offset.
       else
@@ -9556,9 +9832,11 @@ begin
         ys := g - fw - fl_offset;  //!!!
     end;
 
-    15: begin                      // TS check rail outer-edge...
+    15:
+    begin                      // TS check rail outer-edge...
 
-      if xb < cuckfpox then begin
+      if xb < cuckfpox then
+      begin
         case get_flare_type(ccd.end_diff_tw.type_diff) of
           1:
             fl_offset := cuflare(flen_tw, k5_tw, cuckox, cuckfwox, xs, -1)
@@ -9566,7 +9844,8 @@ begin
             fl_offset := 0;    // machined flares, plain outer-edge.
         end;//case
       end
-      else begin
+      else
+      begin
         case get_flare_type(ccd.end_diff_te.type_diff) of
           1:
             fl_offset := cuflare(flen_te, k5_te, cuckflox, cuckendox, xs, 1)
@@ -9601,11 +9880,13 @@ var
 begin
   case aq of
 
-    7: begin                // gauge-face...
+    7:
+    begin                // gauge-face...
 
       if (cuckx >= 0) and (cuckfwx > 0) and (cuckox >= 0) and (cuckfwox > 0)
       // tidy start - do flare only if it's all in the template. 0.71.a  29-5-01.
-      then begin
+      then
+      begin
         xb := cuckx;                   // check rail start.
         xe := cuckfwx;                 // stop at end of flare-in
         docrossing(aq,{fl,}xb, xe, -1);  // fill list along flare-in
@@ -9627,11 +9908,13 @@ begin
 
     end;
 
-    15: begin                    // ditto, inner-edge...
+    15:
+    begin                    // ditto, inner-edge...
 
       if (cuckx >= 0) and (cuckfwx > 0) and (cuckox >= 0) and (cuckfwox > 0)
       // tidy start - do flare only if it's all in the template. 0.71.a  29-5-01.
-      then begin
+      then
+      begin
         xb := cuckox;                // check rail start.
         xe := cuckfwox;              // stop at end of flare-in
         docrossing(aq,{fl,}xb, xe, -1);   // fill list along flare-in
@@ -9666,10 +9949,12 @@ var
 
 begin
   case aq of
-    6: begin                     // gauge-face
+    6:
+    begin                     // gauge-face
       if (ckx_ms >= 0) and (ckfwx > 0) and (ckox >= 0) and (ckfwox > 0)
       // tidy start - do flare only if it's all in the template. 0.71.a  29-5-01.
-      then begin
+      then
+      begin
         xb := ckx_ms;
         xe := ckfwx;
         stflare(aq, flen_mw, k5_mw, xb, xe, fw, -1, 1,
@@ -9689,10 +9974,12 @@ begin
       // flare-out.
     end;
 
-    14: begin                    // outer-edge.
+    14:
+    begin                    // outer-edge.
       if (ckx_ms >= 0) and (ckfwx > 0) and (ckox >= 0) and (ckfwox > 0)
       // tidy start - do flare only if it's all in the template. 0.71.a  29-5-01.
-      then begin
+      then
+      begin
         xb := ckox;
         xe := ckfwox;
         stflare(aq, flen_mw, k5_mw, xb, xe, fw + j, -1, 1,
@@ -9718,8 +10005,8 @@ begin
 end;
 //_______________________________________________________________________________________________________________________________
 
-procedure stflare(aq: integer; fl, flk, xb, xe, yfl: extended; fldir: integer;
-  flsgn: extended; machined_end: boolean);      // fill list for straight flare.
+procedure stflare(aq: integer; fl, flk, xb, xe, yfl: extended; fldir: integer; flsgn: extended;
+  machined_end: boolean);      // fill list for straight flare.
 
 //  flsgn  flag used in calcs, so it's a float.
 var
@@ -9763,7 +10050,8 @@ var
 
 begin
   case aq of
-    28: begin                     // gauge-face
+    28:
+    begin                     // gauge-face
       xb := kckdsx;
       xe := kckdsflx;
       ys := g - fw;
@@ -9775,7 +10063,8 @@ begin
       // fill list for flare-out.
     end;
 
-    29: begin                    // outer-edge.
+    29:
+    begin                    // outer-edge.
       xb := kckdsox;
       xe := kckdsflox;
       ys := g - fw - j;
@@ -9806,7 +10095,8 @@ begin
     xe := turnoutx;     // !!! mod 26-3-99
 
   if isolated_crossing = True    // 217a
-  then begin
+  then
+  begin
     if aq = 2 then
       xs := blank_start(wingx_minus - scale / 6)                  // 2" arbitrary
     else
@@ -9858,13 +10148,15 @@ begin
 
   case fld of
 
-    1: begin                                       // +1 = flare-out.
+    1:
+    begin                                       // +1 = flare-out.
       if xs < flb then
         EXIT
       else
         gfl := (xs - flb) / (fle - flb) * fl;         // length along flare-out.
     end;
-    -1: begin                                       // -1 = flare-in
+    -1:
+    begin                                       // -1 = flare-in
       if xs > fle then
         EXIT
       else
@@ -9905,7 +10197,8 @@ begin
       else
         Result := csradius + fw + j + cuflare(flen_te, k5_te, cuckflox, cuckendox, xs, 1); // flare-out.
 
-    else begin
+    else
+    begin
       Result := 0;
       run_error(95);
     end;
@@ -9927,7 +10220,8 @@ var
 begin
   Result := False;
 
-  if ABS(slew_length) < minfp then begin
+  if ABS(slew_length) < minfp then
+  begin
     y := 0;
     EXIT;
   end;
@@ -9935,17 +10229,20 @@ begin
   try
     case slew_mode of
 
-      1: begin                         // COS curve method.
+      1:
+      begin                         // COS curve method.
         theta := x * Pi / slew_length;
         // theta is a dummy angle - runs from 0 to pi in the slewing zone.
         y := (1 - COS(theta)) * slew / 2;
         // track follows stretched cosine curve, COS(theta) runs from +1 to -1 in the slewing zone.
       end;
 
-      2: begin         // rotated TANH curve method.
+      2:
+      begin         // rotated TANH curve method.
 
         temp := slew2_ymax - slew2_ymin;
-        if ABS(temp) < minfp then begin
+        if ABS(temp) < minfp then
+        begin
           y := 0;
           EXIT;
         end;
@@ -10005,7 +10302,8 @@ var
 
   begin
     if (ABS(nomrad) > max_rad_test) and (spiral = False)  // straight template..
-    then begin
+    then
+    begin
       xc := xs;
       yc := ys;
       tn := 0;
@@ -10015,7 +10313,8 @@ var
 
     ymod := ssrad1 - ys - r1;    // signed offset from nominal curve line.
 
-    if spiral = False then begin
+    if spiral = False then
+    begin
       // no transition, plain curve.
       {if sliding_wrap=False      // mods 0.77.a  2-8-02.
                                then}
@@ -10030,8 +10329,10 @@ var
       do_r1;       // do plain curve along r1.
       rn := r1;
     end
-    else begin                       // do transition, r1-transition-r2.
-      if xs > os then begin
+    else
+    begin                       // do transition, r1-transition-r2.
+      if xs > os then
+      begin
         // zone is not r1
         tsn := xs - os + ts1;
         xonr2 := tsn - ts1 - tst;
@@ -10042,15 +10343,16 @@ var
           yc := yt2 - (r2 + ymod) * COS(tn);
           rn := r2;
         end
-        else begin         // we are in the transition zone.
+        else
+        begin         // we are in the transition zone.
 
-          if transcalcs(
-            False, False, trans_k, tsn, xn, yn, tn, rn) = True then
+          if transcalcs(False, False, trans_k, tsn, xn, yn, tn, rn) = True then
           begin
             xc := xt0 + xn + ymod * SIN(tn);
             yc := yn - ymod * COS(tn);
           end
-          else begin       // transition calcs failed
+          else
+          begin       // transition calcs failed
             xc := xs;
             yc := ys;
             tn := 0;
@@ -10058,7 +10360,8 @@ var
         end;
       end//then
 
-      else begin               // we are in r1 zone.
+      else
+      begin               // we are in r1 zone.
         tn := xs / r1 + t0;     // angle turned through.
         do_r1;
         rn := r1;
@@ -10073,10 +10376,12 @@ begin
 
   if (slew_flag = True) and (slewing = True) and (slew <> 0) and (xs > slew_s)
   // into the slewing zone or beyond...
-  then begin
+  then
+  begin
     try
       if (ABS(slew_l) < minfp) or (xs > (slew_s + slew_l))   // beyond slewing zone..
-      then begin
+      then
+      begin
         do_curve_calcs(xs, ys, xc, yc, tn, rn);  // do the normal curving calcs,
 
         xc := xc - slew * SIN(slew_t);
@@ -10084,7 +10389,8 @@ begin
         yc := yc + slew * COS(slew_t);
 
       end
-      else begin         // in slewing zone...
+      else
+      begin         // in slewing zone...
 
         delta_xs := 0.1;
         // get 3 slew_over values...
@@ -10137,7 +10443,8 @@ begin
   if (ABS(nomrad) < max_rad_test) or (spiral = True)  // curved template...
   then
     do_curve_calcs(xs, ys, xc, yc, tn, rn)       // do the normal curving calcs.
-  else begin
+  else
+  begin
     xc := xs;        // normal straight track.
     yc := ys;
     tn := 0;
@@ -10146,7 +10453,8 @@ begin
 
   // finally, perform any transformations...
 
-  if transform_flag = True then begin
+  if transform_flag = True then
+  begin
     pc.X := xc;
     pc.Y := yc;
     dotransform(kform, xform, yform, pc, pf);
@@ -10174,17 +10482,20 @@ begin
 
   if ((aq = 3) or (aq = 11) or (aq = 5) or (aq = 13) or (aq = 25))   // turnout road
     and (turnout_road_i > 1)                                  // was turnout_road_i=2 217a
-  then begin
+  then
+  begin
     if xs > (xorg + turnout_road_endx + incx * 2) then
       EXIT; // no data allowed beyond this. // 209a
   end
-  else begin
+  else
+  begin
     if xs > (turnoutx + incx * 2) then
       EXIT; // no data allowed beyond this.
   end;
 
   if nlnow_array[aq] = 0          // start point of rail edge.   14-4-99
-  then begin
+  then
+  begin
     xy_ends[aq, 0].x := xs;
     xy_ends[aq, 0].y := ys;
   end;
@@ -10244,8 +10555,7 @@ var
 
     diag_distance := check_ring_point(xlist, ylist);
 
-    if (cl_only = True) or (warn_centrelines = True)
-    then
+    if (cl_only = True) or (warn_centrelines = True) then
       ring_rad := rings[n, 2] * 50   // DIA!!! in 1/100ths mm (*100/2). centre-lines infringe inner diameter.
     else
       ring_rad := rings[n, 3] * 50;
@@ -10256,21 +10566,23 @@ var
 
     // and might be inside ring.
     // go back to previous point and micro-step forwards to ths one.
-    then begin
-      if (rings_checkpoints[n, 2] = aq) and
-        (rings_checkpoints[n, 3] = 1)   // same line and previous point was also.
-      then begin
+    then
+    begin
+      if (rings_checkpoints[n, 2] = aq) and (rings_checkpoints[n, 3] = 1)
+      // same line and previous point was also.
+      then
+      begin
         xlist_old := rings_checkpoints[n, 0];
         ylist_old := rings_checkpoints[n, 1];
 
         stepx := (xlist - xlist_old) / 40;    // 40 arbitrary.
         stepy := (ylist - ylist_old) / 40;
 
-        for i := 1 to 40 do begin
+        for i := 1 to 40 do
+        begin
 
-          if check_ring_point(
-            xlist_old + stepx * i, ylist_old + stepy * i) < ring_rad
-          then begin
+          if check_ring_point(xlist_old + stepx * i, ylist_old + stepy * i) < ring_rad then
+          begin
             Result := True;
             // this point infringed ring.
             if n <> 0 then
@@ -10278,7 +10590,8 @@ var
           end;
         end;//for
       end
-      else begin
+      else
+      begin
         // previous was more than 1.25*incx outside ring (or was a different aq).
         // so impossible to have crossed through ring,
         // and no need to go back and use smaller steps.
@@ -10321,25 +10634,31 @@ begin
   if nl >= (nldim_array[aq] - 1)         // max index.
   then
     Result := 1                  // flag array full. Do not bump index.
-  else begin
+  else
+  begin
     Inc(nlnow_array[aq]);    // bump index and save for next time.
     Result := 0;                // flag array not full.
   end;
 
-  if (ring_warn = True) or (ring_copies_warn = True) then begin
+  if (ring_warn = True) or (ring_copies_warn = True) then
+  begin
     if ((cl_only = False) and (warn_centrelines = False) and
       (aq < 8))               // gauge-faces for main rails only (check against OUTER ring).
       or (((cl_only = True) or (warn_centrelines = True)) and ((aq = 24) or (aq = 25)))
     // centre-lines
-    then begin
-      if ring_warn = True then begin
+    then
+    begin
+      if ring_warn = True then
+      begin
         if check_rings(0) = True then
           ring_infringed := True;
       end;
-      if (ring_copies_warn = True) and (ring_index > 0) and
-        (ring_copies_infringed = False) // no need to go on checking once we have an infringement,
-      then begin
-        for n := 1 to ring_index do begin
+      if (ring_copies_warn = True) and (ring_index > 0) and (ring_copies_infringed = False)
+      // no need to go on checking once we have an infringement,
+      then
+      begin
+        for n := 1 to ring_index do
+        begin
           if check_rings(n) = True then
             ring_copies_infringed := True;
         end;//for
@@ -10356,12 +10675,14 @@ function intolist(aq, nl: integer; pt: TPoint): integer;
 begin
   Result := 1;       // init default return
 
-  if (nl < 0) or (aq < 0) or (aq > aq_max_c) then begin
+  if (nl < 0) or (aq < 0) or (aq > aq_max_c) then
+  begin
     run_error(51);
     EXIT;
   end;
 
-  if nl > High(xy_p[aq]) then begin
+  if nl > High(xy_p[aq]) then
+  begin
     run_error(53);     //  abandon ship if index outside limits.
     EXIT;
   end;
@@ -10385,12 +10706,14 @@ function outoflist(aq, nl: integer): TPoint;
 
   // return a value from rail list for x or y
 begin
-  if (nl < 0) or (aq < 0) or (aq > aq_max_c) then begin
+  if (nl < 0) or (aq < 0) or (aq > aq_max_c) then
+  begin
     run_error(61);
     EXIT;
   end;
 
-  if nl > High(xy_p[aq]) then begin
+  if nl > High(xy_p[aq]) then
+  begin
     run_error(63);     //  abandon ship if index outside limits.
     EXIT;
   end;
@@ -10412,13 +10735,16 @@ begin
   Result := False;                        // in case of error.
 
   if slewing = True   //!!! 1-11-99
-  then begin
+  then
+  begin
     if (ABS(slew) > slew_l) or (ABS(slew) < minfp)   // safety checks for SQRT, div by zero.
-    then begin
+    then
+    begin
       slew_pull_back := 0;
       slew_angle := 0;
     end
-    else begin
+    else
+    begin
       try
         slew_pull_back := (slew_l - SQRT(SQR(slew_l) - SQR(slew))) * 2;
         //!!! 1-11-99  *2 is arbitrary approx for shortening effect of S-curve.
@@ -10430,7 +10756,8 @@ begin
     end;
     slew_t := slew_angle;       //  slewing angle is same for straight track.
 
-    if slew_mode = 2 then begin      // calc constants once only...
+    if slew_mode = 2 then
+    begin      // calc constants once only...
 
       if slew2_kmax < 0.02 then
         slew2_kmax := 0.02;         // safety.
@@ -10448,7 +10775,8 @@ begin
   end;
 
   if spiral = False                       // no transition
-  then begin
+  then
+  begin
     clrad1 := nomrad{+ycurv}; // track centre-line radius.
     ssrad1 := clrad1 + g / 2;
     // radius in main road stock rail : g/2 adjustment aways +ve, even for -ve rad.
@@ -10460,7 +10788,8 @@ begin
       slew_t := slew_angle + (slew_s + (slew_l / 2)) / r1;   // slewing angle at centre of slewing zone.
 
   end
-  else begin                   // transition wanted - calc constants.
+  else
+  begin                   // transition wanted - calc constants.
 
     //!!! these calcs are relative to the template datum.
     //!!! see also calc_transition (math_unit) for calcs based on the transition origin.
@@ -10513,7 +10842,8 @@ begin
     yt2 := ytrans2 + r2 * COS(t2);
 
     if slewing = True    //!!! 1-11-99
-    then begin
+    then
+    begin
       docurving(False, False, (slew_s + (slew_l / 2)), g / 2, xn, yn, slew_trans, rn);
       // get slew_trans angle at centre of slewing zone (with slew-flag off, xn,yn,rn ignored).
       slew_t := slew_angle + slew_trans;
@@ -10538,20 +10868,24 @@ var
 begin
   Result := False;       // default init.
 
-  if (no_printer_available = True) and (pdf = False) then begin
+  if (no_printer_available = True) and (pdf = False) then
+  begin
     alert(6, '   no  printer',
-      'Templot is unable to locate a printer on this system.'
-      + '||If you have recently installed a printer, please save your work and restart Templot0.',
+      'Templot is unable to locate a printer on this system.' +
+      '||If you have recently installed a printer, please save your work and restart Templot0.',
       '', '', '', '', '', 'O K', 0);
     EXIT;
   end;
 
-  if (random_flag = True) and (print_entire_pad_flag = False) then begin
+  if (random_flag = True) and (print_entire_pad_flag = False) then
+  begin
     repeat
       i := alert(3, '     timber  randomizing',
         '||You are about to print or create a PDF file of the control template with timber randomizing in force.'
-        + '||It will not be possible to repeat the same timbering arrangement again later.'
-        + '||To make multiple identical prints of a template containing randomized timbers, the template must be a background template.', '', '', '', 'more  information', 'cancel  output', 'O K  - continue', 4);
+        +
+        '||It will not be possible to repeat the same timbering arrangement again later.' +
+        '||To make multiple identical prints of a template containing randomized timbers, the template must be a background template.',
+        '', '', '', 'more  information', 'cancel  output', 'O K  - continue', 4);
       case i of
         4:
           alert_help(0, random_help_str, '');
@@ -10570,7 +10904,10 @@ function small_scale_hints: boolean;
 
 const
   small_help_str: string =
-    'When printing a complete track plan at a reduced size, you will not usually need the timber outline extension marks, which are intended as a full-size construction aid.' + '||Similarly the timber centre-line markings may not be needed, and the timber numbers may be printed illegibly small.' + '||For a neater printed result, all these features can be switched off.' + ' To do this, cancel printing then de-select the|`0GENERATOR > GENERATOR SETTINGS > OUTLINE EXTENSION MARKS`1 and/or|`0GENERATOR > GENERATOR SETTINGS > TIMBER CENTRE-LINES`1 menu items.' + '||Then if you are printing the entire trackpad click the|`0GENERATOR > REBUILD ALL BACKGROUND`1 menu item.' + '||When printing at a very small size, you may prefer to omit the timbering entirely. To do this, instead of the above you can simply select the ' + '`0OUTPUT > OUTPUT DRAWING OPTIONS > ELEMENT OPTIONS...`1 menu item and de-select the `0TIMBERING`1 option. In this case the timbering on the screen is unchanged.' + '||The timber numbering can be omitted from reduced size printing by selecting the ' + '`0OUTPUT > OUTPUT DRAWING OPTIONS > TIMBER NUMBERING > ON FULL-SIZE OUTPUT ONLY or OMIT ALL TIMBER NUMBERING`1 menu options.' + '||When printing the timber numbers, Templot0 normally scales the font size to match the output size, and omits the numbers if they would be too small to be of any use.' + '||Alternatively, if the `0OUTPUT > OUTPUT DRAWING OPTIONS > TIMBER NUMBERING > SCALE TIMBER NUMBERING`1 menu option is de-selected,' + ' the numbers will be printed at whatever font size you specify by selecting the `0OUTPUT > OUTPUT DRAWING OPTIONS > TIMBER NUMBERING > FONT FOR TIMBER NUMBERING`1 menu item.';
+    'When printing a complete track plan at a reduced size, you will not usually need the timber outline extension marks, which are intended as a full-size construction aid.' +
+    '||Similarly the timber centre-line markings may not be needed, and the timber numbers may be printed illegibly small.'
+    + '||For a neater printed result, all these features can be switched off.' +
+    ' To do this, cancel printing then de-select the|`0GENERATOR > GENERATOR SETTINGS > OUTLINE EXTENSION MARKS`1 and/or|`0GENERATOR > GENERATOR SETTINGS > TIMBER CENTRE-LINES`1 menu items.' + '||Then if you are printing the entire trackpad click the|`0GENERATOR > REBUILD ALL BACKGROUND`1 menu item.' + '||When printing at a very small size, you may prefer to omit the timbering entirely. To do this, instead of the above you can simply select the ' + '`0OUTPUT > OUTPUT DRAWING OPTIONS > ELEMENT OPTIONS...`1 menu item and de-select the `0TIMBERING`1 option. In this case the timbering on the screen is unchanged.' + '||The timber numbering can be omitted from reduced size printing by selecting the ' + '`0OUTPUT > OUTPUT DRAWING OPTIONS > TIMBER NUMBERING > ON FULL-SIZE OUTPUT ONLY or OMIT ALL TIMBER NUMBERING`1 menu options.' + '||When printing the timber numbers, Templot0 normally scales the font size to match the output size, and omits the numbers if they would be too small to be of any use.' + '||Alternatively, if the `0OUTPUT > OUTPUT DRAWING OPTIONS > TIMBER NUMBERING > SCALE TIMBER NUMBERING`1 menu option is de-selected,' + ' the numbers will be printed at whatever font size you specify by selecting the `0OUTPUT > OUTPUT DRAWING OPTIONS > TIMBER NUMBERING > FONT FOR TIMBER NUMBERING`1 menu item.';
 var
   i: integer;
   size_str: string;
@@ -10581,28 +10918,28 @@ begin
   if small_print_msg_pref = True then
     EXIT;
 
-  with pad_form do begin
+  with pad_form do
+  begin
     if ((out_factor < 0.7) or (fit_single_sheet = True)) and
       {(print_timbering_menu_entry.Checked=True)}// 0.82.b
-      (print_settings_form.output_timbering_checkbox.Checked = True) then begin
+      (print_settings_form.output_timbering_checkbox.Checked = True) then
+    begin
       if out_factor < 0.7 then
         size_str := round_str(out_factor * 100, 2) + '% of full-size'
       else
         size_str := 'a reduced size';
 
       if ((timber_outlines_menu_entry.Checked = True) and
-        ((outline_extensions_menu_entry.Checked = True) or (timber_centres_menu_entry.Checked = True)))
-        or ((print_timber_numbering_menu_entry.Checked = True) and
-        (timber_numbers_menu_entry.Checked = True)) then begin
+        ((outline_extensions_menu_entry.Checked = True) or (timber_centres_menu_entry.Checked = True))) or
+        ((print_timber_numbering_menu_entry.Checked = True) and (timber_numbers_menu_entry.Checked = True)) then
+      begin
 
         alert_box.preferences_checkbox.Checked := False;       //%%%%
         alert_box.preferences_checkbox.Show;
 
         repeat
-          i := alert(3, '    small  size  output',
-            '||You are about to print or create a PDF file at ' +
-            size_str + ' with timber outline extension marks or timber centre-lines switched on.'
-            +
+          i := alert(3, '    small  size  output', '||You are about to print or create a PDF file at ' +
+            size_str + ' with timber outline extension marks or timber centre-lines switched on.' +
             '||For a neater result when printing at a reduced size these features can be switched off.',
             '', '', '', 'more  information', 'cancel  output', 'O K', 4);
           if i = 4 then
@@ -10632,20 +10969,20 @@ var
 
 begin
   show_modal_message('print_control_template');
-  if pdf=True then export_form.Hide;
+  if pdf = True then
+    export_form.Hide;
 
-  print_form.diagram_mode_radiobutton.Enabled:=False;
-  pdf_form.diagram_mode_radiobutton.Enabled:=False;
+  print_form.diagram_mode_radiobutton.Enabled := False;
+  pdf_form.diagram_mode_radiobutton.Enabled := False;
 
   try
-    if output_diagram_mode = True then begin
+    if output_diagram_mode = True then
+    begin
       repeat
-        i := alert(2, '    diagram  mode',
-          '||The output is currently set for diagram mode.'
-          + '||The control template can not be printed or output in diagram mode.'
-          + '||Diagram mode is intended for background templates only, to display a track plan.| ',
-          '', '', '', '? output  mode  -  help', 'cancel',
-          'change  to  detail  mode  and  continue', 4);
+        i := alert(2, '    diagram  mode', '||The output is currently set for diagram mode.' +
+          '||The control template can not be printed or output in diagram mode.' +
+          '||Diagram mode is intended for background templates only, to display a track plan.| ',
+          '', '', '', '? output  mode  -  help', 'cancel', 'change  to  detail  mode  and  continue', 4);
 
         if i = 4 then
           alert_help(-300, output_mode_help_str, '');
@@ -10661,7 +10998,8 @@ begin
     print_entire_pad_flag := False;  // output the control template only
 
     if print_now_bang = False   // 0.93.a
-    then begin
+    then
+    begin
 
       if small_scale_hints = True then
         EXIT;         // he cancelled.
@@ -10679,16 +11017,19 @@ begin
 
     kludge_count := create_fb_kludge_templates;  // 0.94.a  if any
 
-  if pdf=True       // 0.91.d pdf
-     then begin
-            pad_caption('    create  PDF  file  from  the  control  template');
+    if pdf = True       // 0.91.d pdf
+    then
+    begin
+      pad_caption('    create  PDF  file  from  the  control  template');
 
-            if show_margins=1 then show_margins:=2;   // change page outlines on pad, if showing for printer
+      if show_margins = 1 then
+        show_margins := 2;   // change page outlines on pad, if showing for printer
 
-            pdf_draw;     // go create PDF.
+      pdf_draw;     // go create PDF.
 
     end
-    else begin        // normal print
+    else
+    begin        // normal print
 
       pad_caption('F11    print  the  control  template');
 
@@ -10706,7 +11047,8 @@ begin
     redraw_pad(False, False);                  //  force a redraw when finished.
 
   finally
-    if (pdf = True) and (external_window_showing = False) then begin
+    if (pdf = True) and (external_window_showing = False) then
+    begin
       export_form.Show;
       export_form.BringToFront;
     end;
@@ -10724,15 +11066,16 @@ begin
   if pdf = True then
     export_form.Hide;
 
-  print_form.diagram_mode_radiobutton.Enabled:=True;
-  pdf_form.diagram_mode_radiobutton.Enabled:=True;
+  print_form.diagram_mode_radiobutton.Enabled := True;
+  pdf_form.diagram_mode_radiobutton.Enabled := True;
 
   try
 
     print_entire_pad_flag := True;
 
     if print_now_bang = False   // 0.93.a
-    then begin
+    then
+    begin
 
       if small_scale_hints = True then
         EXIT;         // he cancelled.
@@ -10756,19 +11099,23 @@ begin
     else
       kludge_count := 0;
 
-  if pdf=True       // 0.91.d pdf
-     then begin
+    if pdf = True       // 0.91.d pdf
+    then
+    begin
 
-            if print_group_only_flag=True
-               then pad_caption('    create  PDF  file  from  group  only')
-               else pad_caption('    create  PDF  file  from  all  background  templates');
+      if print_group_only_flag = True then
+        pad_caption('    create  PDF  file  from  group  only')
+      else
+        pad_caption('    create  PDF  file  from  all  background  templates');
 
-            if show_margins=1 then show_margins:=2;   // change page outlines on pad, if showing for printer
+      if show_margins = 1 then
+        show_margins := 2;   // change page outlines on pad, if showing for printer
 
-            pdf_draw;
+      pdf_draw;
 
     end
-    else begin        // normal print
+    else
+    begin        // normal print
 
       if print_group_only_flag = True then
         pad_caption('    print  group  only')
@@ -10791,7 +11138,8 @@ begin
     redraw_pad(False, False);                  //  force a redraw when finished.
 
   finally
-    if (pdf = True) and (external_window_showing = False) then begin
+    if (pdf = True) and (external_window_showing = False) then
+    begin
       export_form.Show;
       export_form.BringToFront;
     end;
@@ -10805,7 +11153,8 @@ procedure action_panel_hint(hint_str: string);   // 205c  set hollow-triangle mo
 // if hint_str='' set to default (last mouse action).
 
 begin
-  with action_form do begin
+  with action_form do
+  begin
     if hint_str = '' then
       image_panel.Hint := ' repeat last mouse action '
     else
@@ -10825,7 +11174,8 @@ var
 
 begin
 
-  with pad_form do begin
+  with pad_form do
+  begin
 
     //mouse_draw_menu_entry.Checked:=False;  // no more mouse drawing.
 
@@ -10851,7 +11201,8 @@ begin
       repeat_last_index := 2;
     if peg_mod = 1 then
       repeat_last_index := 3;
-    if notch_mod = 1 then begin
+    if notch_mod = 1 then
+    begin
       repeat_last_index := 4;
       Inc(notch_index);                             // to next rollback slot.
       if notch_index > notch_c then
@@ -10959,8 +11310,10 @@ begin
       repeat_last_index := 47;   // 0.78.c
 
     if move_labels_mod = 1                                   // 0.82.d
-    then begin
-      if (xshift_labels <> 0) or (yshift_labels <> 0) then begin
+    then
+    begin
+      if (xshift_labels <> 0) or (yshift_labels <> 0) then
+      begin
         save_done := False;
         backup_wanted := True;      // save moved labels if any.
       end;
@@ -11053,21 +11406,27 @@ begin
     if gaunt_radius_mod = 1 then
       repeat_last_index := 83;       // 217b
 
-    if (adjacent_ts_mod = 1) and (grid_form.Showing = False) then begin
+    if (adjacent_ts_mod = 1) and (grid_form.Showing = False) then
+    begin
       if alert(3, '    adjust  adjacent  track  centres  TS',
-        '||Do you now want to return the centre-line to its normal position ?'
-        + '||This will not change the setting you have made for the TS adjacent track centres.'
-        + '||If you want to roll the dummy vehicle tool along the adjacent centre-line, leave it where it is for now.', '', '', '', 'leave  unchanged', '', 'return  centre - line  to  normal', 0) = 6 then begin
+        '||Do you now want to return the centre-line to its normal position ?' +
+        '||This will not change the setting you have made for the TS adjacent track centres.' +
+        '||If you want to roll the dummy vehicle tool along the adjacent centre-line, leave it where it is for now.',
+        '', '', '', 'leave  unchanged', '', 'return  centre - line  to  normal', 0) = 6 then
+      begin
         cl_options_code := 0;
         redraw(True);
       end;
     end;
 
-    if (adjacent_ms_mod = 1) and (grid_form.Showing = False) then begin
+    if (adjacent_ms_mod = 1) and (grid_form.Showing = False) then
+    begin
       if alert(3, '    adjust  adjacent  track  centres  MS',
-        '||Do you now want to return the centre-line to its normal position ?'
-        + '||This will not change the setting you have made for the MS adjacent track centres.'
-        + '||If you want to roll the dummy vehicle tool along the adjacent centre-line, leave it where it is for now.', '', '', '', 'leave  unchanged', '', 'return  centre - line  to  normal', 0) = 6 then begin
+        '||Do you now want to return the centre-line to its normal position ?' +
+        '||This will not change the setting you have made for the MS adjacent track centres.' +
+        '||If you want to roll the dummy vehicle tool along the adjacent centre-line, leave it where it is for now.',
+        '', '', '', 'leave  unchanged', '', 'return  centre - line  to  normal', 0) = 6 then
+      begin
         cl_options_code := 0;
         redraw(True);
       end;
@@ -11216,13 +11575,15 @@ begin
     unlock_both;
 
     if dummy_label_panel.Showing = True    // finished any label moving.
-    then begin
+    then
+    begin
       clicked_keep_index := -1;    // so can popup again.
       dummy_label_panel.Hide;    // finished moving.
     end;
 
     if (xshift_keeps <> 0) or (yshift_keeps <> 0)      // update after mouse shift all keeps.
-    then begin
+    then
+    begin
       Screen.Cursor := crHourglass;
       shift_all_group;
       if kform_keeps = 0 then
@@ -11230,7 +11591,8 @@ begin
     end;
 
     if kform_keeps <> 0      // update after mouse twist all keeps.
-    then begin
+    then
+    begin
       Screen.Cursor := crHourglass;
       twist_all_group;
       rebuild_group(False, False);
@@ -11241,7 +11603,8 @@ begin
     Screen.Cursor := crDefault;
     Cursor := crDefault;
 
-    if GetCursorPos(mps) = False then begin
+    if GetCursorPos(mps) = False then
+    begin
       mps.X := 0;
       mps.Y := 0;
     end;
@@ -11257,7 +11620,8 @@ begin
 
   {  !!! problems closing action panel if rapid mouse action swaps. panel closing now done via a timer...  15-4-00}
 
-  if new_action = False then begin
+  if new_action = False then
+  begin
     action_form.action_panel_timer.Enabled := True;
     allow_idle := not control_room_form.fast_100_menu_entry.Checked;
     // no mouse action - allow idle again (belt and braces - should have been done when the mouse action was released).
@@ -11283,11 +11647,13 @@ begin
   if turnoutx > turnoutx_max then
     turnoutx := turnoutx_max;
 
-  if plain_track = False then begin
+  if plain_track = False then
+  begin
     if turnoutx < xorg then
       turnoutx := xorg;        //  limit min to approach track for turnouts.
   end
-  else begin
+  else
+  begin
     if turnoutx < 0 then
       turnoutx := 0;              //  limit min to zero for plain track,
     xorg := turnoutx;                              //  and ensure xorg matches.
@@ -11296,7 +11662,8 @@ begin
   turnout_i := 1;      // length locked at new turnoutx.
 
   if (peg_code = 11) or (peg_code = 600)   // CTRL-9 or TOLP        // 0.79.a  29-05-06
-  then begin                                                        // peg is on length...
+  then
+  begin                                                        // peg is on length...
     pegx := turnoutx;
     if spiral = True then
       os := os_now - (pegx_now - pegx);            //  keep transition start constant.
@@ -11306,7 +11673,8 @@ begin
   end;
 
   if peg_code = 19   // peg on mid-length, extend both ways.  0.76.a  5-11-01.
-  then begin
+  then
+  begin
     pegx := turnoutx / 2;                                          // get new mid pegx.
     if spiral = True then
       os := os_now - (pegx_now - pegx);            //  keep transition start constant.
@@ -11336,7 +11704,8 @@ begin
   if xorg < 0 then
     xorg := 0;                           //  xorg mustn't go negative.
 
-  if plain_track = False then begin
+  if plain_track = False then
+  begin
     turnoutx := turnoutx_now - xorg_now + xorg;
     //  xorg changes reflected in turnoutx.
     if turnoutx > turnoutx_max then
@@ -11344,7 +11713,8 @@ begin
     if turnoutx < xorg then
       turnoutx := xorg;
   end
-  else begin
+  else
+  begin
     if xorg > turnoutx_max then
       xorg := turnoutx_max;     // keep turnoutx=xorg for plain track
     turnoutx := xorg;
@@ -11352,7 +11722,8 @@ begin
 
   turnout_i := 1;      // length locked at new turnoutx.
 
-  if (peg_code <> 0) and (peg_code <> 19) then begin
+  if (peg_code <> 0) and (peg_code <> 19) then
+  begin
     pegx := pegx_now - xorg_now + xorg;
     //  pegx changes with xorg unless peg is reset on rail-end, or at mid-point.
     if spiral = True then
@@ -11362,7 +11733,8 @@ begin
   end;
 
   if peg_code = 19   // peg on mid-length, extend both ways.  0.76.a  5-11-01.
-  then begin
+  then
+  begin
     pegx := turnoutx / 2;                                               // get new mid pegx.
     if spiral = True then
       os := os_now + (pegx_now - pegx) - xorg_now + xorg;
@@ -11438,7 +11810,8 @@ begin
     turnout_road_endx := min_turnout_road_endx;  // 213b
 
   if peg_code = 241   // TEXITP        // 213b
-  then begin
+  then
+  begin
     pegx := xorg + turnout_road_endx;
     peg_curve;        // keep peg constant.
   end;
@@ -11458,7 +11831,8 @@ begin
     main_road_endx := min_main_road_endx;  // 213b
 
   if peg_code = 261   // MEXITP        // 217a
-  then begin
+  then
+  begin
     pegx := xorg + main_road_endx;
     peg_curve;                    // keep peg constant.
   end;
@@ -11547,8 +11921,8 @@ procedure trail_platform_ts_start_width_ins(Y: integer);
 // TS platform starting width in full-size inches  0.93.a
 
 begin
-  platform_ts_start_width_ins := platform_ts_start_width_ins_now +
-    (Y - platform_ts_start_width_now_Y) * ffy * hand_i / inscale;  // ffy in mm per pixel at mouse-down.
+  platform_ts_start_width_ins := platform_ts_start_width_ins_now + (Y - platform_ts_start_width_now_Y) *
+    ffy * hand_i / inscale;  // ffy in mm per pixel at mouse-down.
 
   if platform_ts_start_width_ins < 0 then
     platform_ts_start_width_ins := 0;
@@ -11559,8 +11933,8 @@ procedure trail_platform_ts_end_width_ins(Y: integer);
 // TS platform ending width in full-size inches  0.93.a
 
 begin
-  platform_ts_end_width_ins := platform_ts_end_width_ins_now +
-    (Y - platform_ts_end_width_now_Y) * ffy * hand_i / inscale;  // ffy in mm per pixel at mouse-down.
+  platform_ts_end_width_ins := platform_ts_end_width_ins_now + (Y - platform_ts_end_width_now_Y) *
+    ffy * hand_i / inscale;  // ffy in mm per pixel at mouse-down.
 
   if platform_ts_end_width_ins < 0 then
     platform_ts_end_width_ins := 0;
@@ -11599,8 +11973,8 @@ procedure trail_platform_ms_start_width_ins(Y: integer);
 // MS platform starting width in full-size inches  0.93.a
 
 begin
-  platform_ms_start_width_ins := platform_ms_start_width_ins_now -
-    (Y - platform_ms_start_width_now_Y) * ffy * hand_i / inscale;  // ffy in mm per pixel at mouse-down.
+  platform_ms_start_width_ins := platform_ms_start_width_ins_now - (Y - platform_ms_start_width_now_Y) *
+    ffy * hand_i / inscale;  // ffy in mm per pixel at mouse-down.
 
   if platform_ms_start_width_ins < 0 then
     platform_ms_start_width_ins := 0;
@@ -11611,8 +11985,8 @@ procedure trail_platform_ms_end_width_ins(Y: integer);
 // MS platform ending width in full-size inches  0.93.a
 
 begin
-  platform_ms_end_width_ins := platform_ms_end_width_ins_now -
-    (Y - platform_ms_end_width_now_Y) * ffy * hand_i / inscale;  // ffy in mm per pixel at mouse-down.
+  platform_ms_end_width_ins := platform_ms_end_width_ins_now - (Y - platform_ms_end_width_now_Y) *
+    ffy * hand_i / inscale;  // ffy in mm per pixel at mouse-down.
 
   if platform_ms_end_width_ins < 0 then
     platform_ms_end_width_ins := 0;
@@ -11818,16 +12192,19 @@ begin
   xshift_labels := xlabels_now + (X - labels_now_x) * ffx;
   yshift_labels := ylabels_now + (Y - labels_now_y) * ffy;
 
-  for n := 0 to (keeps_list.Count - 1) do begin
+  for n := 0 to (keeps_list.Count - 1) do
+  begin
 
-    with Ttemplate(keeps_list.Objects[n]) do begin
+    with Ttemplate(keeps_list.Objects[n]) do
+    begin
 
       if group_selected = False then
         CONTINUE;     // not in group.
       if bg_copied = False then
         CONTINUE;          // not on background.
 
-      with template_info.keep_dims.box_dims1 do begin
+      with template_info.keep_dims.box_dims1 do
+      begin
 
         mod_text_x := mod_text_x - xshift_labels_old + xshift_labels;
         mod_text_y := mod_text_y - yshift_labels_old + yshift_labels;
@@ -11919,7 +12296,8 @@ begin
   modin.y := (Y - peg_now_y) * ffy * hand_i;
 
   if peg_rail = 0                           // free peg move...
-  then begin
+  then
+  begin
     dotransform(now_peg_k - kform, 0, 0, modin, modout);
     // transform move at current angle.
 
@@ -12056,8 +12434,7 @@ begin
     shapes_scalefactor := 0.01;   // 1/100th arbitrary limit in one go.
 
   if (shapes_scaled_already > minfp) and (shapes_scalefactor > minfp) then
-    scale_all_shapes(shapes_scalefactor / shapes_scaled_already, shapes_scalefactor /
-      shapes_scaled_already);
+    scale_all_shapes(shapes_scalefactor / shapes_scaled_already, shapes_scalefactor / shapes_scaled_already);
 
   shapes_scaled_already := shapes_scalefactor;
 end;
@@ -12093,8 +12470,7 @@ begin
     shapes_scalefactor := 0.01;   // 1/100th arbitrary limit in one go.
 
   if (shapes_scaled_already > minfp) and (shapes_scalefactor > minfp) then
-    scale_this_shape(shapes_scalefactor / shapes_scaled_already, shapes_scalefactor /
-      shapes_scaled_already);
+    scale_this_shape(shapes_scalefactor / shapes_scaled_already, shapes_scalefactor / shapes_scaled_already);
 
   shapes_scaled_already := shapes_scalefactor;
 end;
@@ -12174,7 +12550,8 @@ begin
   zoom_offsetx := zoom_offsetx_now + x_offset_mod;           // keep screen centre stable.
   zoom_offsety := zoom_offsety_now + x_offset_mod * temp;
 
-  if pad_form.spot_and_scale_menu_entry.Checked = True then begin
+  if pad_form.spot_and_scale_menu_entry.Checked = True then
+  begin
     screenx_zoom_now := screenx;     // scale zoom also on X move.
     trail_zoom(X);
   end;
@@ -12203,10 +12580,12 @@ begin
 
   if pad_form.zone_rollout_menu_entry.Checked = True
   //!!! don't use clrad_at_x function (won't work when zone increasing).
-  then begin
+  then
+  begin
     if transcalcs(False, False, trans_k, ts1 + os - old_os, dummy1, dummy2, dummy3, new_rad) =
       True   // get new 1st rad.
-    then begin
+    then
+    begin
 
       if new_rad < 0 then
         new_rad := limits(0 - max_rad, 0 - g * 2, new_rad, limit_code)   // ensure radius within limits.
@@ -12246,13 +12625,15 @@ begin
 
   if pad_form.zone_rollout_menu_entry.Checked = True
   //!!! don't use clrad_at_x function (won't work when zone increasing).
-  then begin
+  then
+  begin
     if tst < g then
       tst := g; // 0.93.a  prevent crash in roll-out mode on very short transition zone. g arbitrary.
 
     if transcalcs(False, False, trans_k, (ts1 + tst), dummy1, dummy2, dummy3, new_rad) =
       True   // get new 2nd rad.
-    then begin
+    then
+    begin
 
       if new_rad < 0 then
         new_rad := limits(0 - max_rad, 0 - g * 2, new_rad, limit_code)   // ensure radius within limits.
@@ -12442,7 +12823,8 @@ var
 
 begin
   if xing_free = True                 //  ignore if he's locked it.
-  then begin
+  then
+  begin
 
     k3n := k3n_now + (X - xing_now) * ffx * 1000 / (mouse_xing_factor * fine_adjust * screenx);
     // 1000 arbitrary.
@@ -12450,15 +12832,18 @@ begin
     if k3n < 1.5 then
       K3n := 1.5;   // 0.93.a bottom limit.
 
-    if half_diamond = False then begin
-      if f5_quarter_steps = True then begin
+    if half_diamond = False then
+    begin
+      if f5_quarter_steps = True then
+      begin
         k3n := INT(k3n * 4 + 0.5) / 4;
         //  round unusual crossing angles to nearest .25.
         //out 0.93. irregular now ok  while k3n>(k2n-0.1) do k3n:=k3n-0.25;  //  crossing can't be flatter than the switch.
       end;
       //out 0.93. irregular now ok   else while k3n>(k2n-0.1) do k3n:=k3n-0.1;     //  crossing can't be flatter than the switch.
     end
-    else begin
+    else
+    begin
       if f5_quarter_steps = True then
         k3n := INT(k3n * 4 + 0.5) / 4;  //  round unusual crossing angles to nearest .25.
       hdkn := k3n;
@@ -12469,7 +12854,8 @@ begin
 
   end
 
-  else begin
+  else
+  begin
     temp := X * 12 / (ABS(pad_form.ClientWidth) + 1);  // range 0-12   (+1 in case div 0).
 
     switch_only := Round(temp) + 9;
@@ -12516,17 +12902,16 @@ begin
     // 0.93.a ex 081 ...
 
     200, 220:
-      if (curving_mod = 1) or (swell_mod = 1) or
-        (sx_mod = 1) or (vee_mod = 1) or
-        (hdk_mod = 1) or (both_mod = 1) or
-        (gaunt_offset_mod = 1) or (gaunt_radius_mod = 1)   // 217b
+      if (curving_mod = 1) or (swell_mod = 1) or (sx_mod = 1) or (vee_mod = 1) or
+        (hdk_mod = 1) or (both_mod = 1) or (gaunt_offset_mod = 1) or (gaunt_radius_mod = 1)   // 217b
         or (entry_straight_mod = 1) or (turnout_road_mod = 1)   // 213b
       then
         gocalc(0, 0);      // to keep peg on geometrical tangent points.
 
     241:
       if turnout_road_mod = 1   // 241 = peg on TEXITP   213b
-      then begin
+      then
+      begin
         pegx := xorg + turnout_road_endx;
         pegy := aq25offset(pegx, peg_kkk);
         peg600 := now_peg600 - peg_kkk;
@@ -12542,7 +12927,8 @@ begin
 
     600:
       if length_mod = 1  // peg on TOLP    // 0.79.a
-      then begin
+      then
+      begin
         pegx := turnoutx;
         pegy := aq25offset(pegx, peg_kkk);
         // adjust peg angle for a curviform V-crossing.
@@ -12601,7 +12987,8 @@ begin
   new_dp := dpx - xorg;         // maintain overall length and V-crossing alignment
   xorg := xorg + old_dp - new_dp;
 
-  if xorg < 0 then begin
+  if xorg < 0 then
+  begin
     turnoutx := turnoutx - xorg;
     // increase overall length to keep V-crossing and exit track.
     if spiral = True then
@@ -12665,7 +13052,8 @@ begin
   new_dp := dpx - xorg;         // maintain overall length and V-crossing alignment
   xorg := xorg + old_dp - new_dp;
 
-  if xorg < 0 then begin
+  if xorg < 0 then
+  begin
     turnoutx := turnoutx - xorg;
     // increase overall length to keep V-crossing and exit track.
     if spiral = True then
@@ -12723,12 +13111,14 @@ begin
 
   if (gaunt = True) and (f9_gaunt_rad = True) and (xing_calc_i = 1) and (half_diamond = False) and
     (plain_track = False) and (spiral = False)     // curviform only    217a ...
-  then begin
+  then
+  begin
     try
       k3_angle := ARCTAN(1 / k3n);
       new_gaunt_offset := gaunt_rad * (COS(k3_angle) - 1) + g;
 
-      if new_gaunt_offset > (g - fw - minfp) then begin
+      if new_gaunt_offset > (g - fw - minfp) then
+      begin
         // don't let gaunt_offset_in go out of range.
         k3n := old_k3n;
         EXIT;
@@ -12741,7 +13131,8 @@ begin
       new_dp := dpx - xorg;         // maintain overall length and V-crossing alignment
       xorg := xorg + old_dp - new_dp;
 
-      if xorg < 0 then begin
+      if xorg < 0 then
+      begin
         turnoutx := turnoutx - xorg;
         // increase overall length to keep V-crossing and exit track.
         if spiral = True then
@@ -12760,9 +13151,10 @@ begin
     end;//try
   end;
 
-  if (half_diamond = True) and (f9_hd_rad = True) and (xing_calc_i = 1) and
-    (gaunt = False) and (plain_track = False) and (spiral = False)     // curviform only    218b ...
-  then begin
+  if (half_diamond = True) and (f9_hd_rad = True) and (xing_calc_i = 1) and (gaunt = False) and
+    (plain_track = False) and (spiral = False)     // curviform only    218b ...
+  then
+  begin
     try
       k3_angle := ARCTAN(1 / k3n);
       hdk := ARCCOS(COS(k3_angle) + g / tradius);
@@ -12828,10 +13220,11 @@ var
   dummy: integer;
 
 begin
-  new_curvature := curvature_now + (Y - curving_now) * ffy * hand_i /
-    (mouse_curv_factor * fine_adjust * scale * screenx);
+  new_curvature := curvature_now + (Y - curving_now) * ffy * hand_i / (mouse_curv_factor *
+    fine_adjust * scale * screenx);
 
-  if Abs(new_curvature) > minfp then begin
+  if Abs(new_curvature) > minfp then
+  begin
     nomrad := 1 / new_curvature;
 
     if nomrad < 0 then
@@ -12841,37 +13234,41 @@ begin
 
     new_curvature := 1 / nomrad;
   end
-  else begin
+  else
+  begin
     nomrad := max_rad;        // "straight"
     new_curvature := 0;
   end;
 
-  if spiral = True then begin
+  if spiral = True then
+  begin
     case adjust_trans_rad of
-      1: begin
+      1:
+      begin
         // check spiral constant will not exceeed the limit, leave nomrad1 unchanged if so.
 
         temp := nomrad - nomrad2;
         if ABS(temp) > minfp  // no change to nomrad1 if nomrad=nomrad2
-        then begin
+        then
+        begin
           // no change to nomrad1 if spiral too gentle.
 
-          if ABS(nomrad * nomrad2 * tst / temp) <
-            max_spiral_constant then
+          if ABS(nomrad * nomrad2 * tst / temp) < max_spiral_constant then
             nomrad1 := nomrad;
         end;
       end;
 
-      2: begin
+      2:
+      begin
         // check spiral constant will not exceeed the limit, leave nomrad2 unchanged if so.
 
         temp := nomrad1 - nomrad;
         if ABS(temp) > minfp  // no change to nomrad2 if nomrad=nomrad1
-        then begin
+        then
+        begin
           // no change to nomrad2 if spiral too gentle..
 
-          if ABS(nomrad1 * nomrad * tst / temp) <
-            max_spiral_constant then
+          if ABS(nomrad1 * nomrad * tst / temp) < max_spiral_constant then
             nomrad2 := nomrad;
         end;
       end;
@@ -12879,9 +13276,11 @@ begin
         run_error(197);
     end;//case
   end
-  else begin                                     // constant radius
+  else
+  begin                                     // constant radius
     if f6_swing_fixed = True      // 0.91.b   // maintain swing angle...
-    then begin
+    then
+    begin
       turnoutx := ABS(nomrad * f6_swing_angle);
       // nomrad may be negative.
       if turnoutx > turnoutx_max then
@@ -12907,15 +13306,16 @@ var
   swing_sin: extended;
 
 begin
-  new_curvature := curvature_now - (Y - curving_now) * ffy * hand_i /
-    (mouse_curv_factor * fine_adjust * scale * screenx);
+  new_curvature := curvature_now - (Y - curving_now) * ffy * hand_i / (mouse_curv_factor *
+    fine_adjust * scale * screenx);
 
   swing_sin := ends_apart_now * ABS(new_curvature) / 2;      // SIN of swing angle.
 
   if swing_sin > (1 - minfp) then
     EXIT;    // more than 180 degs swing, ignore until he reduces it.
 
-  if Abs(new_curvature) > minfp then begin
+  if Abs(new_curvature) > minfp then
+  begin
     nomrad := 1 / new_curvature;
 
     if nomrad < 0 then
@@ -12925,7 +13325,8 @@ begin
 
     new_curvature := 1 / nomrad;
   end
-  else begin
+  else
+  begin
     nomrad := max_rad;        // "straight"
     new_curvature := 0;
   end;
@@ -12948,7 +13349,8 @@ begin
 
   if plain_track = True then
     xorg := turnoutx
-  else begin
+  else
+  begin
     if xorg > turnoutx then
       xorg := turnoutx;
     if xorg < 0 then
@@ -12962,7 +13364,8 @@ end;
 procedure action_update(trail_str: string);
 
 begin
-  with action_form do begin
+  with action_form do
+  begin
     trail_dim_label.Caption := Trim(trail_str);
 
     trail_dim_label.Width := Canvas.TextWidth(trail_dim_label.Caption) + 2; // bug fix for Wine
@@ -12985,7 +13388,8 @@ begin
   // don't need to show the control automatically -- it will cancel the mouse action  205e
 
   if slide_on_store > 0  // 206a cancel sliding after store
-  then begin
+  then
+  begin
     slide_on_store := 0;
     xshift := stored_xshift;
     yshift := stored_yshift;
@@ -12998,10 +13402,12 @@ begin
 
   mouse_label_string := mouse_str;
 
-  with action_form do begin
+  with action_form do
+  begin
 
     if mouse_click_action = 0     // use drag mode only...
-    then begin
+    then
+    begin
       mouse_action_button_down := True;                    // so start with button down.
       action_label.Caption := ' •  ' + mouse_label_string;   // add bullet marker.
     end
@@ -13012,7 +13418,8 @@ begin
 
     action_update(trail_str);
 
-    if mouse_labels = True then begin
+    if mouse_labels = True then
+    begin
       action_form.Tag := 0;        // allow it to resize for the new action.
       action_panel_resize;
       Show;
@@ -13024,7 +13431,8 @@ begin
 
   mouse_modify := 0;                         // 0=selected, but not in progress yet.
 
-  if GetCursorPos(mps) = False then begin
+  if GetCursorPos(mps) = False then
+  begin
     mps.X := 0;
     mps.Y := 0;
   end;
@@ -13064,12 +13472,14 @@ var
 
   begin
     if opposite_way = True                         // turnout facing opposite way ?
-    then begin
+    then
+    begin
       oppx := pad_form.ClientWidth - X;
       // so reverse sense of mouse movements.
       oppy := pad_form.ClientHeight - Y;
     end
-    else begin
+    else
+    begin
       oppx := X;
       oppy := Y;
     end;
@@ -13089,8 +13499,10 @@ var
   begin
     Result := True;    // default = done some panning.
 
-    with pad_form do begin
-      if X > (ClientWidth - 4) then begin
+    with pad_form do
+    begin
+      if X > (ClientWidth - 4) then
+      begin
         lock_scaling_menu_entry.Click;
 
         zoom_offsetx_now := zoom_offsetx;
@@ -13100,20 +13512,22 @@ var
           pan_button_click(1.0, 2, (ssCtrl in shift_state));
           if Application.Terminated = False then
             Application.ProcessMessages;
-          if GetCursorPos(mps) = False then begin
+          if GetCursorPos(mps) = False then
+          begin
             mps.X := 0;
             mps.Y := 0;
           end;
           mpp := pad_form.ScreenToClient(mps);
-        until (mpp.X < (ClientWidth - 4)) or
-          (edge_panning_on_menu_entry.Checked = False) or ((GetKeyState(VK_SCROLL) and 1) <> 0);
+        until (mpp.X < (ClientWidth - 4)) or (edge_panning_on_menu_entry.Checked = False) or
+          ((GetKeyState(VK_SCROLL) and 1) <> 0);
         // scroll locked.
         EXIT;
       end;
 
       if (X < 3) and (Y > (ClientHeight div 3))
       // to avoid conflicts when accessing the control menu.
-      then begin
+      then
+      begin
         lock_scaling_menu_entry.Click;
 
         zoom_offsetx_now := zoom_offsetx;
@@ -13123,7 +13537,8 @@ var
           pan_button_click(1.0, 1, (ssCtrl in shift_state));
           if Application.Terminated = False then
             Application.ProcessMessages;
-          if GetCursorPos(mps) = False then begin
+          if GetCursorPos(mps) = False then
+          begin
             mps.X := 0;
             mps.Y := 0;
           end;
@@ -13133,7 +13548,8 @@ var
         EXIT;
       end;
 
-      if Y > (ClientHeight - 15) then begin
+      if Y > (ClientHeight - 15) then
+      begin
         lock_scaling_menu_entry.Click;
 
         zoom_offsetx_now := zoom_offsetx;
@@ -13143,20 +13559,22 @@ var
           pan_button_click(1.0, 4, (ssCtrl in shift_state));
           if Application.Terminated = False then
             Application.ProcessMessages;
-          if GetCursorPos(mps) = False then begin
+          if GetCursorPos(mps) = False then
+          begin
             mps.X := 0;
             mps.Y := 0;
           end;
           mpp := pad_form.ScreenToClient(mps);
-        until (mpp.Y < (ClientHeight - 15)) or
-          (edge_panning_on_menu_entry.Checked = False) or ((GetKeyState(VK_SCROLL) and 1) <> 0);
+        until (mpp.Y < (ClientHeight - 15)) or (edge_panning_on_menu_entry.Checked = False) or
+          ((GetKeyState(VK_SCROLL) and 1) <> 0);
         // scroll locked.
         EXIT;
       end;
 
       if (Y < 16) and (X > (ClientWidth - (ClientWidth div 5)))
       // to avoid conflicts with the menu bar.
-      then begin
+      then
+      begin
         lock_scaling_menu_entry.Click;
 
         zoom_offsetx_now := zoom_offsetx;
@@ -13166,7 +13584,8 @@ var
           pan_button_click(1.0, 3, (ssCtrl in shift_state));
           if Application.Terminated = False then
             Application.ProcessMessages;
-          if GetCursorPos(mps) = False then begin
+          if GetCursorPos(mps) = False then
+          begin
             mps.X := 0;
             mps.Y := 0;
           end;
@@ -13200,7 +13619,8 @@ begin
 
   if (shift_state = [ssMiddle]) or (allow_left_button_pan = True)
   // 0.91.c    move pad on middle button down (or left).
-  then begin
+  then
+  begin
     zoom_offsetx := zoom_offsetx_now - (X - zoff_now_x) * ffx;
     zoom_offsety := zoom_offsety_now - (Y - zoff_now_y) * ffy;
 
@@ -13212,11 +13632,12 @@ begin
 
   if (mouse_modify > 0) and (mouse_action_button_down = False) and (mouse_click_action < 1)
   // only need to do it once once (and if allowed).
-  then begin
+  then
+  begin
     if ((ABS(X - pad_click_X) > 10) or (ABS(Y - pad_click_Y) > 10)) and
-      ((ssLeft in shift_state = True) or (ssMiddle in shift_state = True) or
-      (ssRight in shift_state = True))
-    then begin
+      ((ssLeft in shift_state = True) or (ssMiddle in shift_state = True) or (ssRight in shift_state = True))
+    then
+    begin
       mouse_action_button_down := True;
       // moved with button down.
       action_form.action_label.Caption := ' •  ' + mouse_label_string;
@@ -13233,7 +13654,8 @@ begin
   mouse_rely := mouse_now_y - jotter_dy_org;
 
   case jot_readout_units of
-    0: begin      // as grid
+    0:
+    begin      // as grid
       case grid_labels_code_i of
         1:
           grid_str := 'feet';     //  labels in feet.
@@ -13258,7 +13680,8 @@ begin
   end;//case
 
   case jot_readout_units of
-    0: begin      // as grid
+    0:
+    begin      // as grid
       case grid_labels_code_i of
         1:
           grid_factor := 1 / 304.8; //  labels in feet.
@@ -13290,13 +13713,15 @@ begin
     '  ' + grid_str + ' (moved)';
   // rel dimensions for the jotter read-out.
 
-  if Screen.Cursor <> crNone then begin
+  if Screen.Cursor <> crNone then
+  begin
     info_form.mouse_now_panel.Caption := info_caption_str;
     // show current mouse position in the info.
     jotter_form.jotter_abs_xy_readout_panel.Caption := jotter_abs_xy_str;    // 0.71.b 2-6-01
     jotter_form.jotter_rel_xy_readout_panel.Caption := jotter_rel_xy_str;    // 0.71.c 4-6-01
   end
-  else begin
+  else
+  begin
     info_form.mouse_now_panel.Caption := ' ( mouse action )';
     jotter_form.jotter_abs_xy_readout_panel.Caption := ' ( mouse action )';
     jotter_form.jotter_rel_xy_readout_panel.Caption := ' ( mouse action )';
@@ -13306,23 +13731,26 @@ begin
 
   if (pad_form.edge_panning_on_menu_entry.Checked = True) and ((GetKeyState(VK_SCROLL) and 1) = 0) and
     (mouse_modify < 1)   // edge panning on and not locked off.
-  then begin
+  then
+  begin
     if do_edge_panning = True          // go do any edge-panning.
     then
       EXIT;
   end;
 
-  if mouse_draw_lines = True then begin
+  if mouse_draw_lines = True then
+  begin
     caption_add(info_caption_str);     // show cross-hair position.
     if mouse_drawing_in_progress = True  // do a temporary drawn line...
-    then begin
+    then
+    begin
 
-      with pad_form.Canvas do begin
+      with pad_form.Canvas do
+      begin
         Pen.Width := 1;
         Pen.Mode := pmXor;              // so can erase
 
-        if bgnd_form.dotted_radio_button.Checked = True
-        then
+        if bgnd_form.dotted_radio_button.Checked = True then
         begin
           Brush.Color := paper_colour;    // gaps in dotted lines
           Brush.Style := bsClear;
@@ -13357,14 +13785,17 @@ begin
     EXIT;
   end;
 
-  if (zoom_rectangle = True) or (group_fence_rectangle = True) or
-    (output_boundary_rectangle = True)  // 0.93.a    // this is not a mouse action.
-    or (drawn_shape_rectangle = True) then begin
+  if (zoom_rectangle = True) or (group_fence_rectangle = True) or (output_boundary_rectangle =
+    True)  // 0.93.a    // this is not a mouse action.
+    or (drawn_shape_rectangle = True) then
+  begin
     caption_add(info_caption_str);   // show cross-hair position.
     if (rectangle_in_progress = True)  // do a temporary rectangle...
-    then begin
+    then
+    begin
 
-      with pad_form.Canvas do begin
+      with pad_form.Canvas do
+      begin
 
         Pen.Width := 1;
         // draw two rectangles (not for shapes) for bolder line, each with pen width 1,
@@ -13379,7 +13810,8 @@ begin
 
         // first erase last rectangles...
 
-        if rectangle_exists = True then begin
+        if rectangle_exists = True then
+        begin
           MoveTo(draw_mouse_down_X, draw_mouse_down_Y);
           // saved inner rectangle top left.
           LineTo(temp_mouse_X, draw_mouse_down_Y);        // saved top edge.
@@ -13390,8 +13822,8 @@ begin
           LineTo(draw_mouse_down_X, draw_mouse_down_Y);
           // saved left edge.
 
-          if drawn_shape_rectangle = False
-          then begin
+          if drawn_shape_rectangle = False then
+          begin
             MoveTo(draw_mouse_down_X - 1, draw_mouse_down_Y - 1);
             // saved outer rectangle top left.
             LineTo(temp_mouse_X + 1, draw_mouse_down_Y - 1);
@@ -13413,7 +13845,8 @@ begin
         LineTo(draw_mouse_down_X, Y);                   // new bottom edge.
         LineTo(draw_mouse_down_X, draw_mouse_down_Y);   // new left edge.
 
-        if drawn_shape_rectangle = False then begin
+        if drawn_shape_rectangle = False then
+        begin
           MoveTo(draw_mouse_down_X - 1, draw_mouse_down_Y - 1);
           LineTo(X + 1, draw_mouse_down_Y - 1);
           // new top edge.
@@ -13436,14 +13869,16 @@ begin
 
   if (grid_form.Visible = True) and ((ring_mod = 0) or (mouse_modify < 1))
   // no ring moving - measure to actual mouse position
-  then begin
+  then
+  begin
     measured_x := mouse_now_x - measure_org_x;
     // if ring moving must wait until after trail_ring to get its position.
     measured_y := mouse_now_y - measure_org_y;
 
     measured_diag := SQRT(SQR(measured_x) + SQR(measured_y));
 
-    with grid_form do begin
+    with grid_form do
+    begin
       measuring_panel.Color := clwhite;
       x_label.Caption := 'X :   ' + captext(measured_x) + '  mm';
       y_label.Caption := 'Y :   ' + captext(measured_y) + '  mm';
@@ -13452,20 +13887,22 @@ begin
   end;
 
   if select_centre = True       // this is not a mouse action - just show cross-hair position.
-  then begin
+  then
+  begin
     caption_add(info_caption_str);
     EXIT;
   end;
 
   if mouse_modify < 0 {adjust_in_progress=False}      // no mouse action, check for selection...
-  then begin
+  then
+  begin
     if ((GetKeyState(VK_CAPITAL) and 1) <> 0)     // caps lock on?
       //or (click_current=True)
-      or (click_bgnd_select = True) or (shift_click = True) or
-      (shift_state = [ssShift])
+      or (click_bgnd_select = True) or (shift_click = True) or (shift_state = [ssShift])
 
     // go find/highlight any background keep at this location.
-    then begin
+    then
+    begin
       mouse_on_bgkeep(X, Y, False);      // (in keep_select)
       EXIT;
     end;
@@ -13512,7 +13949,8 @@ begin
 
   case mouse_modify of
 
-    1: begin
+    1:
+    begin
       opp_convert;
 
       trail_curving(oppy);      // first change the curving.
@@ -13534,7 +13972,8 @@ begin
         trail_str := captext(nomrad) + ' mm';
     end;
 
-    2: begin
+    2:
+    begin
       opp_convert;
       trail_xing(oppx);      // F5  size
 
@@ -13549,7 +13988,8 @@ begin
       trail_str := '1 : ' + captext(k3n);
     end;
 
-    3: begin                            // F6  curving...
+    3:
+    begin                            // F6  curving...
       opp_convert;
       trail_curving(oppy);
 
@@ -13562,7 +14002,8 @@ begin
         trail_str := captext(nomrad) + ' mm';
     end;
 
-    4: begin
+    4:
+    begin
       opp_convert;
       trail_length(oppx);    // F4  overall length
 
@@ -13573,7 +14014,8 @@ begin
       trail_str := captext(turnoutx) + ' mm';
     end;
 
-    5: begin
+    5:
+    begin
       if f7_beginner = True then
         f7_snap_allow := not (ssShift in shift_state)   // F7 snapping 0.82.a
       else
@@ -13586,7 +14028,8 @@ begin
       trail_str := 'X : ' + captext(xshift) + ' mm      Y : ' + captext(yshift) + ' mm';
     end;
 
-    6: begin
+    6:
+    begin
       trail_twist(Y);        // F8  rotate
 
       if trace_mouse = True then
@@ -13595,7 +14038,8 @@ begin
         ' degrees.   peg  at : ' + captext(arm_angle * hand_i * 180 / Pi) + ' degrees' + k_ram_str(arm_angle * hand_i);
     end;
 
-    7: begin
+    7:
+    begin
       trail_zoom(X);         // scale zoom
 
       if trace_mouse = True then
@@ -13603,7 +14047,8 @@ begin
       trail_str := 'pad  width : ' + captext(screenx) + ' mm';
     end;
 
-    8: begin
+    8:
+    begin
       opp_convert;
       trail_approach(oppx);  // F3  approach length (F3 / F4  plain-track length)
 
@@ -13615,7 +14060,8 @@ begin
       trail_str := captext(xorg) + ' mm';
     end;
 
-    9: begin
+    9:
+    begin
       trail_datum(Y);        // datum
 
       mode := zoom_mode;       // free-scaling - change mode.
@@ -13625,7 +14071,8 @@ begin
       trail_str := captext(y_datum) + ' mm';
     end;
 
-    10: begin
+    10:
+    begin
       opp_convert;
       trail_trans_length(oppx);   // SHIFT+CTRL-F4  transition length
 
@@ -13634,16 +14081,17 @@ begin
       trail_str := captext(tst) + ' mm';
     end;
 
-    11: begin
+    11:
+    begin
       trail_zoffset(X, Y);    // move pad origin
 
       if trace_mouse = True then
         gocalc(2, zoom_mode{+first_click});
-      trail_str := ' X : ' + captext(zoom_offsetx) + ' mm   Y : ' + captext(
-        zoom_offsety) + ' mm';
+      trail_str := ' X : ' + captext(zoom_offsetx) + ' mm   Y : ' + captext(zoom_offsety) + ' mm';
     end;
 
-    12: begin
+    12:
+    begin
       trail_spot(X, pad_form.ClientHeight - Y);    // neg, so up screen zooms in.
       // CTRL-F1  spot zoom
 
@@ -13652,34 +14100,38 @@ begin
       trail_str := 'pad  width : ' + captext(screenx) + ' mm';
     end;
 
-    13: begin
+    13:
+    begin
       if peg_rail <> 0            // peg moves along a rail.
-      then begin
+      then
+      begin
         opp_convert;
         trail_peg(oppx, oppy);  // CTRL-F8  move peg along.
       end
       else
         trail_peg(X, Y);          // CTRL-F8  peg moves free.
 
-      if trace_mouse = True then begin
+      if trace_mouse = True then
+      begin
         gocalc(2, mode{+first_click});
         //if notch_linked_to_peg=True then new_notch(get_peg_for_notch,True);
       end;
 
-      trail_str := 'X : ' + captext(pad_peg_point.x) + ' mm   Y : ' +
-        captext(pad_peg_point.y) + ' mm';
+      trail_str := 'X : ' + captext(pad_peg_point.x) + ' mm   Y : ' + captext(pad_peg_point.y) + ' mm';
     end;
 
-    14: begin
+    14:
+    begin
       trail_orbit(X);        // CTRL-F5  orbit
 
       if trace_mouse = True then
         gocalc(2, mode{+first_click});
-      trail_str := 'peg  at : ' + captext(arm_angle * hand_i * 180 / Pi) +
-        ' degrees' + k_ram_str(arm_angle * hand_i);
+      trail_str := 'peg  at : ' + captext(arm_angle * hand_i * 180 / Pi) + ' degrees' +
+        k_ram_str(arm_angle * hand_i);
     end;
 
-    15: begin
+    15:
+    begin
       trail_notch(X, Y);      // move notch
 
       if mode = 1 then
@@ -13691,7 +14143,8 @@ begin
       trail_str := 'X : ' + captext(notchx) + ' mm   Y : ' + captext(notchy) + ' mm';
     end;
 
-    16: begin
+    16:
+    begin
       opp_convert;
       trail_trans_start(oppx);  // SHFT+CTRL-F3  transition start
 
@@ -13700,29 +14153,31 @@ begin
       trail_str := captext(os) + ' mm';
     end;
 
-    17: begin
+    17:
+    begin
       trail_shift_keeps(X, Y);   // SHFT+CTRL-F7  shift group
 
       if mode = 1 then
         mode := 3;                                // otherwise doesn't erase on pad.
       if trace_mouse = True then
         gocalc(2, mode{+first_click});
-      trail_str := 'X  by : ' + captext(xshift_keeps) + ' mm   Y  by : ' +
-        captext(yshift_keeps) + ' mm';
+      trail_str := 'X  by : ' + captext(xshift_keeps) + ' mm   Y  by : ' + captext(yshift_keeps) + ' mm';
     end;
 
-    18: begin
+    18:
+    begin
       trail_twist_keeps(Y);     // SHIFT+CTRL-F8  rotate group
 
       if mode = 1 then
         mode := 3;                                // otherwise doesn't erase on pad.
       if trace_mouse = True then
         gocalc(2, mode{+first_click});
-      trail_str := 'by : ' + captext(0 - kform_keeps * 180 / Pi) + ' degrees' +
-        k_ram_str(0 - kform_keeps);  // change of sign needed because of ??
+      trail_str := 'by : ' + captext(0 - kform_keeps * 180 / Pi) + ' degrees' + k_ram_str(0 - kform_keeps);
+      // change of sign needed because of ??
     end;
 
-    19: begin
+    19:
+    begin
       trail_ring(X, Y);       // move ring
 
       if mode = 1 then
@@ -13734,14 +14189,16 @@ begin
 
       if grid_form.Visible = True
       // ring moving - can measure to ring now its been moved.
-      then begin
+      then
+      begin
         measured_x := rings[0, 0] - measure_org_x;
         // ring moving - measure to ring.
         measured_y := rings[0, 1] - measure_org_y;
 
         measured_diag := SQRT(SQR(measured_x) + SQR(measured_y));
 
-        with grid_form do begin
+        with grid_form do
+        begin
           measuring_panel.Color := clYellow;
           x_label.Caption := 'X :   ' + captext(measured_x) + '  mm';
           y_label.Caption := 'Y :   ' + captext(measured_y) + '  mm';
@@ -13750,7 +14207,8 @@ begin
       end;
     end;
 
-    20: begin
+    20:
+    begin
       opp_convert;
       trail_slide(oppx);     // F9  slide
 
@@ -13759,7 +14217,8 @@ begin
       trail_str := 'X : ' + captext(0 - pegx) + ' mm';
     end;
 
-    21: begin
+    21:
+    begin
       opp_convert;
       trail_slew_start(oppx);    // SHIFT+CTRL-F5  slew start
 
@@ -13768,7 +14227,8 @@ begin
       trail_str := captext(slew_s) + ' mm';
     end;
 
-    22: begin
+    22:
+    begin
       opp_convert;
       trail_slew_length(oppx);   // SHIFT+CTRL-F6  slew length';
 
@@ -13777,7 +14237,8 @@ begin
       trail_str := captext(slew_l) + ' mm';
     end;
 
-    23: begin
+    23:
+    begin
       opp_convert;
       trail_slew_amount(oppy);   // CTRL-F7  slew amount
 
@@ -13786,7 +14247,8 @@ begin
       trail_str := captext(slew) + ' mm';
     end;
 
-    24: begin
+    24:
+    begin
       trail_printsize(X);     // adjust print size.
 
       if trace_mouse = True then
@@ -13794,7 +14256,8 @@ begin
       trail_str := captext(out_factor * 100) + ' %';
     end;
 
-    25: begin
+    25:
+    begin
       trail_shove_along(X);          // shove along
 
       if trace_mouse = True then
@@ -13802,7 +14265,8 @@ begin
       trail_str := current_shove_str + '  along  by : ' + captext(shovex) + ' mm';
     end;
 
-    26: begin
+    26:
+    begin
       trail_shove_throw(Y);         // shove throw
 
       if trace_mouse = True then
@@ -13810,7 +14274,8 @@ begin
       trail_str := current_shove_str + '  throw  by : ' + captext(shoveo) + ' mm';
     end;
 
-    27: begin
+    27:
+    begin
       opp_convert;
       trail_roam(oppx);      // CTRL-F9  roam along length
 
@@ -13822,7 +14287,8 @@ begin
       trail_str := 'approach  length : ' + captext(xorg) + ' mm';
     end;
 
-    28: begin
+    28:
+    begin
       opp_convert;
       trail_slew2_factor(oppx);  // mode 2 slew factor
 
@@ -13831,16 +14297,18 @@ begin
       trail_str := captext(slew2_kmax * 50);
     end;
 
-    29: begin
+    29:
+    begin
       trail_bunch(X, Y);   // pad bunching
 
       if trace_mouse = True then
         gocalc(2, zoom_mode{+first_click});
-      trail_str := 'bunched  by  (X) : ' + captext(bunching_jump) +
-        ' mm    sheared  by  (Y) : ' + captext(bunching_shear) + ' mm';
+      trail_str := 'bunched  by  (X) : ' + captext(bunching_jump) + ' mm    sheared  by  (Y) : ' +
+        captext(bunching_shear) + ' mm';
     end;
 
-    30: begin
+    30:
+    begin
       trail_porg(X, Y);    // SHIFT+CTRL-F10  page origin
 
       if trace_mouse = True then
@@ -13849,43 +14317,44 @@ begin
         captext(print_pages_left_origin) + ' mm';
     end;
 
-    31: begin
+    31:
+    begin
       trail_corner1(X, Y);    // shape corner 1
 
       if trace_mouse = True then
         gocalc(2, zoom_mode{+first_click});
-      trail_str := 'by  X : ' + captext(shapes_shiftx_now) + ' mm   Y : ' +
-        captext(shapes_shifty_now) + ' mm';
+      trail_str := 'by  X : ' + captext(shapes_shiftx_now) + ' mm   Y : ' + captext(shapes_shifty_now) + ' mm';
     end;
 
-    32: begin
+    32:
+    begin
       trail_corner2(X, Y);    // shape corner 2
 
       if trace_mouse = True then
         gocalc(2, zoom_mode{+first_click});
-      trail_str := 'by  X : ' + captext(shapes_shiftx_now) + ' mm   Y : ' +
-        captext(shapes_shifty_now) + ' mm';
+      trail_str := 'by  X : ' + captext(shapes_shiftx_now) + ' mm   Y : ' + captext(shapes_shifty_now) + ' mm';
     end;
 
-    33: begin
+    33:
+    begin
       trail_shape(X, Y);      // shift shape
 
       if trace_mouse = True then
         gocalc(2, zoom_mode{+first_click});
-      trail_str := 'by  X : ' + captext(shapes_shiftx_now) + ' mm   Y : ' +
-        captext(shapes_shifty_now) + ' mm';
+      trail_str := 'by  X : ' + captext(shapes_shiftx_now) + ' mm   Y : ' + captext(shapes_shifty_now) + ' mm';
     end;
 
-    34: begin
+    34:
+    begin
       trail_allshapes_shift(X, Y);  // shift all shapes
 
       if trace_mouse = True then
         gocalc(2, zoom_mode{+first_click});
-      trail_str := 'by  X : ' + captext(shapes_shiftx_now) + ' mm   Y : ' +
-        captext(shapes_shifty_now) + ' mm';
+      trail_str := 'by  X : ' + captext(shapes_shiftx_now) + ' mm   Y : ' + captext(shapes_shifty_now) + ' mm';
     end;
 
-    35: begin
+    35:
+    begin
       opp_convert;
       trail_snake(oppx);     // CTRL-F6 snake.
 
@@ -13894,7 +14363,8 @@ begin
       trail_str := 'X : ' + captext(0 - pegx) + ' mm';
     end;
 
-    36: begin
+    36:
+    begin
       trail_allshapes_scale(Y);  // scale all shapes
 
       if trace_mouse = True then
@@ -13902,7 +14372,8 @@ begin
       trail_str := 'by : ' + captext(shapes_scaled_already * 100) + ' %';
     end;
 
-    37: begin
+    37:
+    begin
       trail_allshapes_rotate(Y);  // rotate all shapes
 
       if trace_mouse = True then
@@ -13910,7 +14381,8 @@ begin
       trail_str := 'by : ' + captext(shapes_rotated_already * 180 / Pi) + ' degrees';
     end;
 
-    38: begin
+    38:
+    begin
       trail_oneshape_scale(X);  // scale one shape.
 
       if trace_mouse = True then
@@ -13919,7 +14391,8 @@ begin
     end;
 
 
-    39: begin
+    39:
+    begin
       trail_shove_length(Y);          // shove length
 
       if trace_mouse = True then
@@ -13927,7 +14400,8 @@ begin
       trail_str := current_shove_str + '  lengthened  by : ' + captext(shovel) + ' mm';
     end;
 
-    40: begin
+    40:
+    begin
       trail_shove_width(X);          // shove width
 
       if trace_mouse = True then
@@ -13935,16 +14409,18 @@ begin
       trail_str := current_shove_str + '  widened  by : ' + captext(shovew * 2) + ' mm';
     end;
 
-    41: begin
+    41:
+    begin
       trail_shove_twist(Y);          // shove twist
 
       if trace_mouse = True then
         gocalc(2, mode{+first_click});
-      trail_str := current_shove_str + '  twisted  by : ' + captext(
-        shovek * 180 / Pi) + ' degrees' + k_ram_str(shovek);
+      trail_str := current_shove_str + '  twisted  by : ' + captext(shovek * 180 / Pi) +
+        ' degrees' + k_ram_str(shovek);
     end;
 
-    42: begin
+    42:
+    begin
       opp_convert;
       trail_blanking(oppx);  // blanking length
 
@@ -13955,7 +14431,8 @@ begin
       trail_str := captext(startx) + ' mm';
     end;
 
-    43: begin
+    43:
+    begin
       opp_convert;
       trail_roll(oppx);      // CTRL-F4  roll rails and sleepers
 
@@ -13966,7 +14443,8 @@ begin
       trail_str := 'rolled - in : ' + captext(tb_roll_percent) + ' %  of  a  rail';
     end;
 
-    44: begin
+    44:
+    begin
       trail_ringdia(Y);         // adjust ring diameter.
       if mode = 1 then
         mode := 3;   // otherwise doesn't erase on pad.
@@ -13976,7 +14454,8 @@ begin
     end;
 
 
-    45: begin
+    45:
+    begin
       trail_ruler1(X, Y);       // move ruler start end.
 
       if mode = 1 then
@@ -13986,7 +14465,8 @@ begin
       trail_str := 'X : ' + captext(ruler_startx) + ' mm   Y : ' + captext(ruler_starty) + ' mm';
     end;
 
-    46: begin
+    46:
+    begin
       trail_ruler2(X, Y);       // move ruler start end.
 
       if mode = 1 then
@@ -13996,7 +14476,8 @@ begin
       trail_str := 'X : ' + captext(ruler_endx) + ' mm   Y : ' + captext(ruler_endy) + ' mm';
     end;
 
-    47: begin                            // curving swell...
+    47:
+    begin                            // curving swell...
       opp_convert;
       trail_swell(oppy);
       if trace_mouse = True then
@@ -14004,7 +14485,8 @@ begin
       trail_str := captext(nomrad) + ' mm';
     end;
 
-    48: begin
+    48:
+    begin
       trail_shove_crab(X);         // shove crab
 
       if trace_mouse = True then
@@ -14012,21 +14494,22 @@ begin
       trail_str := current_shove_str + '  crab  by : ' + captext(shovec) + ' mm';
     end;
 
-    49: begin      // move name labels  // 0.82.d
+    49:
+    begin      // move name labels  // 0.82.d
 
       trail_shift_labels(X, Y);
 
       //if mode=1 then mode:=3;                                // otherwise doesn't erase on pad.
       if trace_mouse = True then
         gocalc(2, zoom_mode{+first_click});
-      trail_str := 'X  by : ' + captext(xshift_labels) + ' mm   Y  by : ' +
-        captext(yshift_labels) + ' mm';
+      trail_str := 'X  by : ' + captext(xshift_labels) + ' mm   Y  by : ' + captext(yshift_labels) + ' mm';
     end;
 
     // 0.93.a mouse_modify matches repeat_last_index above 49 (see 99)...
 
 
-    50: begin              // TS platform start  0.93.a
+    50:
+    begin              // TS platform start  0.93.a
       opp_convert;
       trail_platform_ts_start_mm(oppx);
 
@@ -14035,7 +14518,8 @@ begin
       trail_str := captext(platform_ts_start_mm) + ' mm';
     end;
 
-    51: begin              // TS platform length  0.93.a
+    51:
+    begin              // TS platform length  0.93.a
       opp_convert;
       trail_platform_ts_length_mm(oppx);
 
@@ -14044,7 +14528,8 @@ begin
       trail_str := captext(platform_ts_length_mm) + ' mm';
     end;
 
-    52: begin              // TS platform starting width  0.93.a
+    52:
+    begin              // TS platform starting width  0.93.a
       opp_convert;
       trail_platform_ts_start_width_ins(oppy);
 
@@ -14053,7 +14538,8 @@ begin
       trail_str := captext(platform_ts_start_width_ins) + '  inches full-size';
     end;
 
-    53: begin              // TS platform ending width  0.93.a
+    53:
+    begin              // TS platform ending width  0.93.a
       opp_convert;
       trail_platform_ts_end_width_ins(oppy);
 
@@ -14062,7 +14548,8 @@ begin
       trail_str := captext(platform_ts_end_width_ins) + '  inches full-size';
     end;
 
-    54: begin              // MS platform start  0.93.a
+    54:
+    begin              // MS platform start  0.93.a
       opp_convert;
       trail_platform_ms_start_mm(oppx);
 
@@ -14071,7 +14558,8 @@ begin
       trail_str := captext(platform_ms_start_mm) + ' mm';
     end;
 
-    55: begin              // MS platform length  0.93.a
+    55:
+    begin              // MS platform length  0.93.a
       opp_convert;
       trail_platform_ms_length_mm(oppx);
 
@@ -14080,7 +14568,8 @@ begin
       trail_str := captext(platform_ms_length_mm) + ' mm';
     end;
 
-    56: begin              // MS platform starting width  0.93.a
+    56:
+    begin              // MS platform starting width  0.93.a
       opp_convert;
       trail_platform_ms_start_width_ins(oppy);
 
@@ -14089,7 +14578,8 @@ begin
       trail_str := captext(platform_ms_start_width_ins) + '  inches full-size';
     end;
 
-    57: begin              // MS platform ending width  0.93.a
+    57:
+    begin              // MS platform ending width  0.93.a
       opp_convert;
       trail_platform_ms_end_width_ins(oppy);
 
@@ -14099,7 +14589,8 @@ begin
     end;
 
 
-    58: begin                  // SHIFT-F12   0.93.a
+    58:
+    begin                  // SHIFT-F12   0.93.a
       opp_convert;
       trail_gaunt_offset(oppy);      // gaunt offset
       if trace_mouse = True then
@@ -14108,7 +14599,8 @@ begin
     end;//case 58
 
 
-    59: begin                  // F9   0.93.a
+    59:
+    begin                  // F9   0.93.a
       opp_convert;
       trail_vee(oppx);      // V-crossing angle.
       if trace_mouse = True then
@@ -14116,7 +14608,8 @@ begin
       trail_str := '1 : ' + captext(k3n);
     end;
 
-    60: begin                 // F10   0.93.a
+    60:
+    begin                 // F10   0.93.a
       opp_convert;
       trail_hdk(oppx);      // K-crossing angle.
       if trace_mouse = True then
@@ -14125,7 +14618,8 @@ begin
     end;
 
 
-    61: begin
+    61:
+    begin
       trail_rect_x1(X);    // output boundary rectangle left
 
       if trace_mouse = True then
@@ -14133,7 +14627,8 @@ begin
       trail_str := 'X : ' + captext(output_rectangle_x1) + ' mm';
     end;
 
-    62: begin
+    62:
+    begin
       trail_rect_x2(X);    // output boundary rectangle right
 
       if trace_mouse = True then
@@ -14141,7 +14636,8 @@ begin
       trail_str := 'X : ' + captext(output_rectangle_x2) + ' mm';
     end;
 
-    63: begin
+    63:
+    begin
       trail_rect_y2(Y);    // output boundary rectangle top
 
       if trace_mouse = True then
@@ -14149,7 +14645,8 @@ begin
       trail_str := 'Y : ' + captext(output_rectangle_y2) + ' mm';
     end;
 
-    64: begin
+    64:
+    begin
       trail_rect_y1(Y);    // output boundary rectangle top
 
       if trace_mouse = True then
@@ -14157,16 +14654,17 @@ begin
       trail_str := 'Y : ' + captext(output_rectangle_y1) + ' mm';
     end;
 
-    65: begin
+    65:
+    begin
       trail_rect_position(X, Y);    // output boundary rectangle move
 
       if trace_mouse = True then
         gocalc(2, zoom_mode);
-      trail_str := 'X : ' + captext(output_rectangle_x1) + ' mm   Y : ' +
-        captext(output_rectangle_y1) + ' mm';
+      trail_str := 'X : ' + captext(output_rectangle_x1) + ' mm   Y : ' + captext(output_rectangle_y1) + ' mm';
     end;
 
-    66: begin              // check diff length 0.94.a
+    66:
+    begin              // check diff length 0.94.a
       opp_convert;
       trail_check_len_mm(oppx);
 
@@ -14175,7 +14673,8 @@ begin
       trail_str := 'adjust  by : ' + captext(mouse_diff.len_diff * inscale) + ' mm';
     end;
 
-    67: begin              // check diff flare length 0.94.a
+    67:
+    begin              // check diff flare length 0.94.a
       opp_convert;
       trail_check_flare_mm(oppx);
 
@@ -14184,7 +14683,8 @@ begin
       trail_str := 'adjust  by : ' + captext(mouse_diff.flr_diff * inscale) + ' mm';
     end;
 
-    68: begin              // check diff end gap 0.94.a
+    68:
+    begin              // check diff end gap 0.94.a
       opp_convert;
       trail_check_gap_mm(oppy);
 
@@ -14193,7 +14693,8 @@ begin
       trail_str := 'adjust  by : ' + captext(mouse_diff.gap_diff) + ' mm';
     end;
 
-    69: begin              // dummy vehicle start
+    69:
+    begin              // dummy vehicle start
       opp_convert;
       trail_dv_start(oppx);
 
@@ -14202,19 +14703,20 @@ begin
       trail_str := 'roll  to :  ' + captext(cdvi.dv_start * inscale) + ' mm';
     end;
 
-    70: begin              // dummy vehicle clearance
+    70:
+    begin              // dummy vehicle clearance
       opp_convert;
       trail_dv_clearance(oppy);
 
       if trace_mouse = True then
         gocalc(2, mode);
-      trail_str := captext(cdvi.dv_clearance) + ' inches  ( ' + captext(
-        cdvi.dv_clearance * inscale) + ' mm )';
+      trail_str := captext(cdvi.dv_clearance) + ' inches  ( ' + captext(cdvi.dv_clearance * inscale) + ' mm )';
     end;
 
     // 207a ...
 
-    71: begin              // MS platform skew at start
+    71:
+    begin              // MS platform skew at start
       opp_convert;
       trail_platform_ms_start_skew_mm(oppx);
 
@@ -14223,7 +14725,8 @@ begin
       trail_str := captext(platform_ms_start_skew_mm) + ' mm';
     end;
 
-    72: begin              // MS platform skew at end
+    72:
+    begin              // MS platform skew at end
       opp_convert;
       trail_platform_ms_end_skew_mm(oppx);
 
@@ -14232,7 +14735,8 @@ begin
       trail_str := captext(platform_ms_end_skew_mm) + ' mm';
     end;
 
-    73: begin              // TS platform skew at start
+    73:
+    begin              // TS platform skew at start
       opp_convert;
       trail_platform_ts_start_skew_mm(oppx);
 
@@ -14241,7 +14745,8 @@ begin
       trail_str := captext(platform_ts_start_skew_mm) + ' mm';
     end;
 
-    74: begin              // TS platform skew at end
+    74:
+    begin              // TS platform skew at end
       opp_convert;
       trail_platform_ts_end_skew_mm(oppx);
 
@@ -14250,7 +14755,8 @@ begin
       trail_str := captext(platform_ts_end_skew_mm) + ' mm';
     end;
 
-    75: begin                  // turnout road CTRL+F12
+    75:
+    begin                  // turnout road CTRL+F12
       opp_convert;
       trail_turnout_road(oppx);
 
@@ -14260,7 +14766,8 @@ begin
     end;
 
 
-    76: begin              // adjacent centres TS  213a
+    76:
+    begin              // adjacent centres TS  213a
       opp_convert;
       trail_adj_centres_ts(oppy);
 
@@ -14269,7 +14776,8 @@ begin
       trail_str := captext(cpi.trtscent_pi) + ' mm';
     end;
 
-    77: begin              // adjacent centres MS  213a
+    77:
+    begin              // adjacent centres MS  213a
       opp_convert;
       trail_adj_centres_ms(oppy);
 
@@ -14279,7 +14787,8 @@ begin
     end;
 
 
-    78: begin              // TS trackbed start  215a ...
+    78:
+    begin              // TS trackbed start  215a ...
       opp_convert;
       trail_trackbed_ts_start_mm(oppx);
 
@@ -14288,7 +14797,8 @@ begin
       trail_str := captext(trackbed_ts_start_mm) + ' mm';
     end;
 
-    79: begin              // TS trackbed length
+    79:
+    begin              // TS trackbed length
       opp_convert;
       trail_trackbed_ts_length_mm(oppx);
 
@@ -14298,7 +14808,8 @@ begin
     end;
 
 
-    80: begin              // MS trackbed start
+    80:
+    begin              // MS trackbed start
       opp_convert;
       trail_trackbed_ms_start_mm(oppx);
 
@@ -14307,7 +14818,8 @@ begin
       trail_str := captext(trackbed_ms_start_mm) + ' mm';
     end;
 
-    81: begin              // MS trackbed length
+    81:
+    begin              // MS trackbed length
       opp_convert;
       trail_trackbed_ms_length_mm(oppx);
 
@@ -14316,7 +14828,8 @@ begin
       trail_str := captext(trackbed_ms_length_mm) + ' mm';
     end;
 
-    82: begin                  // main road exit  217a
+    82:
+    begin                  // main road exit  217a
       opp_convert;
       trail_main_road(oppx);
 
@@ -14325,7 +14838,8 @@ begin
       trail_str := captext(xorg + main_road_endx) + ' mm';
     end;
 
-    83: begin                  // gaunt radius  217b
+    83:
+    begin                  // gaunt radius  217b
       opp_convert;
       trail_gaunt_curvature(oppy);
       if trace_mouse = True then
@@ -14336,7 +14850,8 @@ begin
 
     // 0.93.a  99 was 50 ...
 
-    99: begin           // adjust crossing entry straight  0.91.b
+    99:
+    begin           // adjust crossing entry straight  0.91.b
       opp_convert;
       trail_entry_straight(oppx);  // entry straight length
 
@@ -14378,7 +14893,8 @@ begin
   {
      and (peg_code<>-1)
      and ((peg_code<>20) or (peg_rail<>0))
-     } then begin
+     } then
+  begin
 
     old_notchx := notchx;       // for group linking...
     old_notchy := notchy;
@@ -14400,7 +14916,8 @@ begin
 
     if ABS(linkangle) < minfp then
       mod_linkangle := linkangle
-    else begin
+    else
+    begin
       try
         shrink_factor := (curving_rad - (linky - g / 2)) / curving_rad;
         tanx := 1 / TAN(linkangle);
@@ -14456,8 +14973,8 @@ procedure click_bgnd_to_current(bgnd_options: boolean);
 begin
   cancel_adjusts(False);  // cancel flags and update the pad caption.
 
-  if (keeps_list.Count > 0) and (clicked_keep_index > -1) and (clicked_keep_index < keeps_list.Count)
-  then begin
+  if (keeps_list.Count > 0) and (clicked_keep_index > -1) and (clicked_keep_index < keeps_list.Count) then
+  begin
     list_position := clicked_keep_index;
     // make it current in the keeps box.
     copy_keep_to_current(False, bgnd_options, True, False);   // copy to pad.
@@ -14482,9 +14999,10 @@ begin
   //click_current:=False;           // the click cancels these...
   shift_click := False;
 
-  if (keeps_list.Count > 0) and (clicked_keep_index > -1) and (clicked_keep_index < keeps_list.Count)
-  then begin
-    with Ttemplate(keeps_list.Objects[clicked_keep_index]) do begin
+  if (keeps_list.Count > 0) and (clicked_keep_index > -1) and (clicked_keep_index < keeps_list.Count) then
+  begin
+    with Ttemplate(keeps_list.Objects[clicked_keep_index]) do
+    begin
       if template_info.keep_dims.box_dims1.bgnd_code_077 <> -1 then
         group_selected := not group_selected
       else
@@ -14506,9 +15024,11 @@ var
   y_offset: extended;
 
 begin
-  with keep_dims.box_dims1 do begin
+  with keep_dims.box_dims1 do
+  begin
 
-    with transform_info do begin
+    with transform_info do
+    begin
 
       y_datum := datum_y;                   // y datum (green dot).
 
@@ -14526,14 +15046,16 @@ begin
     end;//with
 
     if (pad_form.align_match_length_menu_entry.Checked = True)  //  0.91.b match overall length.
-      and (clicked = True) then begin
+      and (clicked = True) then
+    begin
       turnoutx := turnout_info1.turnout_length;
       if plain_track = True then
         xorg := turnoutx;
       turnout_i := 1;                             // length locked at new turnoutx.
     end;
 
-    with align_info do begin
+    with align_info do
+    begin
 
       //curved:=curving_flag;    // True=curved, False=straight.
       spiral := trans_flag;      // True=transition, False=fixed radius curving.
@@ -14565,7 +15087,8 @@ begin
 
     end;//with
 
-    if hand_i <> turnout_info1.hand then begin
+    if hand_i <> turnout_info1.hand then
+    begin
       hand_i := turnout_info1.hand;      // need to swap hand.
       gocalc(0, 0);                     // calcs for the peg, datum, etc.
       invert_handing;                  // swap again to preserve his handing.
@@ -14587,11 +15110,13 @@ begin
   if (index < 0) or (index > (keeps_list.Count - 1)) or (keeps_list.Count < 1) then
     EXIT;
 
-  with Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1 do begin    // 205d
+  with Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1 do
+  begin    // 205d
 
     if ABS(proto_info.gauge_pi - g) > minfp
     // ??? menu should be disabled   205d mixed-gauge templates
-    then begin
+    then
+    begin
       snake_onto_bgnd_peg(index, facing_facing, True);
       // 205d mixed-gauge must align on centre-lines.
       EXIT;
@@ -14602,7 +15127,8 @@ begin
   if facing_facing = False then
     swap_end_for_end;
 
-  if clicked = True then begin
+  if clicked = True then
+  begin
     temp_ti.keep_shove_list := Tshoved_timber_list.Create;
     try
       fill_kd(temp_ti);
@@ -14615,11 +15141,17 @@ begin
 
     if pad_form.align_match_length_menu_entry.Checked = True
     //  0.91.b matched overall length.
-    then begin
+    then
+    begin
       i := alert(3, '     align  and  match  length',
-        '||The control template has been matched to the length of the selected background template and aligned over it.' + '||Do you now want to delete or wipe the background template from under the control template?' + '||If you do so, remember to store the control template in its place after making any further changes.| ', '', '', '', 'delete  background  template', 'leave  background  template  unchanged', 'wipe  background  template', 0);
+        '||The control template has been matched to the length of the selected background template and aligned over it.'
+        + '||Do you now want to delete or wipe the background template from under the control template?' +
+        '||If you do so, remember to store the control template in its place after making any further changes.| ',
+        '', '', '', 'delete  background  template', 'leave  background  template  unchanged',
+        'wipe  background  template', 0);
       case i of
-        4: begin
+        4:
+        begin
           list_position := index;
           delete_keep(False, True);   // delete the background template
         end;
@@ -14639,10 +15171,12 @@ var
 begin
   Result := False;  // default init.
 
-  if ABS(pegy - g / 2) > minfp then begin
+  if ABS(pegy - g / 2) > minfp then
+  begin
     i := alert(3, '    current  peg  not  on  main-side  centre',
-      '|Align Control Template over Background Template.'
-      + '||For this function to work as intended, the peg on the control template should be located on the main-side track centre-line.' + '||This is not currently the case. If you continue with the peg in its present position, the result may not be as you intended.', '', '', '', 'continue  unchanged', 'cancel    ', 'move  peg  to  main-side  centre  and  continue          ', 0);
+      '|Align Control Template over Background Template.' +
+      '||For this function to work as intended, the peg on the control template should be located on the main-side track centre-line.'
+      + '||This is not currently the case. If you continue with the peg in its present position, the result may not be as you intended.', '', '', '', 'continue  unchanged', 'cancel    ', 'move  peg  to  main-side  centre  and  continue          ', 0);
     case i of
       5:
         EXIT;
@@ -14673,16 +15207,15 @@ begin
   this_g := keep_dims.box_dims1.proto_info.gauge_pi;
 
   if (ABS(this_pegy - this_g / 2) > minfp) and (alerts = True) then
-    if alert(3, '    background  peg  not  on  main-road  centre',
-      'Snake  onto  Background  Peg' +
+    if alert(3, '    background  peg  not  on  main-road  centre', 'Snake  onto  Background  Peg' +
       '||The fixing peg on the background template is not currently located on the main-road centre-line (the template curving line).'
-      + '||Are you sure that you want to snake the control template onto this peg ?',
-      '', '', '', '', 'no  -  cancel', 'yes  -  continue', 0) = 5 then
+      + '||Are you sure that you want to snake the control template onto this peg ?', '',
+      '', '', '', 'no  -  cancel', 'yes  -  continue', 0) = 5 then
       EXIT;
 
-  if (ABS(pegy - g / 2) > minfp) and (alerts = True) then begin
-    i := alert(3, '    current  peg  not  on  main-road  centre',
-      'Snake  onto  Background  Peg' +
+  if (ABS(pegy - g / 2) > minfp) and (alerts = True) then
+  begin
+    i := alert(3, '    current  peg  not  on  main-road  centre', 'Snake  onto  Background  Peg' +
       '||The fixing peg on the control template is not located on the main-road centre-line (the template curving line).'
       + '||Are you sure that you want to snake the control template onto this background template ?',
       '', '', '', 'yes  -  continue  unchanged', 'no  -  cancel',
@@ -14698,13 +15231,15 @@ begin
   align_current_over_this(keep_dims, False);
 
   if facing_facing = True          // both templates to face the same way (ladder)..
-  then begin
+  then
+  begin
     if spiral = True then
       os := os - (this_pegx - pegx);              // maintain transition alignment.
     if slewing = True then
       slew_s := slew_s - (this_pegx - pegx);     // maintain slewing alignment.
   end
-  else begin
+  else
+  begin
     // ends swapped to a facing-trailing combination (crossover or toe-to-toe)..
     swap_end_for_end;
     if spiral = True then
@@ -14757,14 +15292,14 @@ begin
 
   old_index := clicked_keep_index;   // save any existing index;
 
-  clicked_keep_index := hover_mousedown(mouse_x(pad_click_X),
-    mouse_y(pad_click_X, pad_click_Y), g / 2 + 1);
+  clicked_keep_index := hover_mousedown(mouse_x(pad_click_X), mouse_y(pad_click_X, pad_click_Y), g / 2 + 1);
 
   if clicked_keep_index = -1 then
     EXIT;    // not on one.
 
   if clicked_keep_index = old_index    // already clicked, so cancel the popup.
-  then begin
+  then
+  begin
     clicked_keep_index := -1;              // so cancels only on first click.
     pad_form.cancel_popup_entry.Click;
     EXIT;
@@ -14774,7 +15309,8 @@ begin
   //  draw directly on pad and highlight this one.
 
   if (classic_templot = False) and (right_click = False)   // 0.93.a Quick mode click on template
-  then begin
+  then
+  begin
     bgnd_clicked_in_quick_mode := True;
     pad_form.make_control_popup_entry.Click;
     bgnd_clicked_in_quick_mode := False;
@@ -14785,7 +15321,8 @@ begin
   now_bgkeep := Ttemplate(keeps_list.Objects[clicked_keep_index]).bgnd_keep;
   // next background keep.
 
-  with now_bgkeep do begin
+  with now_bgkeep do
+  begin
 
     menu_caption_str := UpperCase(Trim(full_label_string));
     if Length(menu_caption_str) > 20 then
@@ -14809,7 +15346,8 @@ begin
 
     list_position := clicked_keep_index;  // make it current in the box (for Show in Box).
 
-    with pad_form.Canvas do begin
+    with pad_form.Canvas do
+    begin
 
       Font.Assign(pad_form.bgnd_keeps_font_label.Font);
       Font.Color := clBlack;
@@ -14831,7 +15369,8 @@ begin
       text_end_X := text_begin_X + TextWidth(showing_label_string);
       text_end_Y := text_begin_Y + TextHeight(showing_label_string);
 
-      if pad_form.boxed_over_names_menu_entry.Checked = True then begin
+      if pad_form.boxed_over_names_menu_entry.Checked = True then
+      begin
         Pen.Color := Font.Color;
         Pen.Style := psSolid;     // 215b
         Rectangle(text_begin_X - 2, text_begin_Y - 2, text_end_X + 2, text_end_Y + 2);
@@ -14854,7 +15393,8 @@ begin
   else
     popup_Y := user_popup_Y;
 
-  with Ttemplate(keeps_list.Objects[clicked_keep_index]) do begin
+  with Ttemplate(keeps_list.Objects[clicked_keep_index]) do
+  begin
     if (template_info.keep_dims.box_dims1.mod_text_x = 0) and
       (template_info.keep_dims.box_dims1.mod_text_y = 0) then
       pad_form.restore_label_popup_entry.Enabled := False
@@ -14877,11 +15417,15 @@ var
   save_switch_free: boolean;
 
 begin
-  if trace_mouse = True then begin
+  if trace_mouse = True then
+  begin
     if mode = 1          // no longer used 0.93
-    then begin
-      for aq := 0 to aq_max_c do begin
-        if aqyn[aq] = True then begin
+    then
+    begin
+      for aq := 0 to aq_max_c do
+      begin
+        if aqyn[aq] = True then
+        begin
           ink_colour := paper_colour;
           show_a_line(pad_form.Canvas, aq, 1, True);
           // need to erase outer edges (ignore return).
@@ -14889,7 +15433,8 @@ begin
       end;//for
     end;
 
-    if full_draw = False then begin
+    if full_draw = False then
+    begin
       railedges(True, False, centre_lines);   // gauge faces only.
       guide_marks := True;
       // but show the guide marks for alignment with background.
@@ -14904,7 +15449,8 @@ begin
   end;
 
   if hide_current_flag = True             // no sense in adjusting an invisible template...
-  then begin
+  then
+  begin
     hide_current_flag := False;
     save_hide := False;
 
@@ -14927,7 +15473,8 @@ begin
   do_linked_notch;   // link notch if wanted.
 
   if (mouse_modify = 1) or (mouse_modify = 2)      // both, or F5 size, actions.
-  then begin
+  then
+  begin
     save_switch_free := switch_free;
     // don't want to change the switch, otherwise it might not stay pegged.
     switch_free := False;
@@ -14959,18 +15506,20 @@ begin
   allow_idle := not control_room_form.fast_100_menu_entry.Checked;
   // no mouse action - allow idle again.
 
-  if mouse_click_action <> 0 then begin
+  if mouse_click_action <> 0 then
+  begin
     action_form.action_label.Caption := mouse_label_string;    // remove any bullet.
     action_form.action_label.Width :=
       action_form.Canvas.TextWidth(action_form.action_label.Caption) + 2; // bug fix for Wine
   end;
 
-  with pad_form do begin
+  with pad_form do
+  begin
 
     guide_marks := guide_marks_menu_entry.Checked;        // guide marks back off if not wanted.
     rad_ends := rad_end_marks_menu_entry.Checked;         // ditto rad end marks.
-    timber_marks := timber_centres_menu_entry.Checked or
-      timber_outlines_menu_entry.Checked or timber_numbers_menu_entry.Checked;
+    timber_marks := timber_centres_menu_entry.Checked or timber_outlines_menu_entry.Checked or
+      timber_numbers_menu_entry.Checked;
     // ditto timbering.
     joint_marks := joint_marks_menu_entry.Checked;        // ditto joint marks.
 
@@ -14986,9 +15535,9 @@ begin
   if (cancelling_adjusts = True)
     // 0.94.a bug fix -- was "list index out of bounds" on next mouse_down if mouse wasn't moved first time.
     and (shove_timber_form.Showing = True)     // update enabled shove buttons..
-    and ((shove_along_mod = 1) or (shove_throw_mod = 1) or
-    (shove_crab_mod = 1) or (shove_length_mod = 1) or (shove_width_mod = 1) or
-    (shove_twist_mod = 1)) then begin
+    and ((shove_along_mod = 1) or (shove_throw_mod = 1) or (shove_crab_mod = 1) or
+    (shove_length_mod = 1) or (shove_width_mod = 1) or (shove_twist_mod = 1)) then
+  begin
     shove_index := find_shove(current_shove_str, False);
     shove_buttons(True, shove_index);
   end;
@@ -15029,7 +15578,8 @@ var
 
     if (kopp > (Pi / 2)) and (auto_dir = True)
     // 90 to 180 turnout facing opposite way ?
-    then begin
+    then
+    begin
       opposite_way := True;
       X := pad_form.ClientWidth - X;    // reverse sense of mouse action.
       Y := pad_form.ClientHeight - Y;
@@ -15046,7 +15596,8 @@ var
   procedure extend_if_zero;  // 0.93.a
 
   begin
-    if turnoutx = 0 then begin  // 0.93.a extend it
+    if turnoutx = 0 then
+    begin  // 0.93.a extend it
 
       turnoutx := 132 * scale;     // arbitrary new length 2 chains.
       turnout_i := 1;            // length locked at turnoutx.
@@ -15076,7 +15627,8 @@ begin
 
 
   if shift_state = [ssAlt, ssLeft]     // left click with ALT key.   0.71.b 2-6-01
-  then begin
+  then
+  begin
     jotter_dx_org := mouse_now_x;       // zero the relative X,Y readout.
     jotter_dy_org := mouse_now_y;       // zero the relative X,Y readout.
 
@@ -15086,7 +15638,8 @@ begin
         ''                    // wait for redraw to refill it.
     else
       jotter_form.jotter_rel_xy_readout_panel.Caption := ' ( mouse action )';
-    if show_ruler_tool = True then begin
+    if show_ruler_tool = True then
+    begin
       ruler_startx := mouse_now_x;
       ruler_starty := mouse_now_y;
       redraw_pad(True, False);
@@ -15096,7 +15649,8 @@ begin
 
   if (shift_state = [ssAlt, ssRight]) and (show_ruler_tool = True)
   // right click with ALT key. mod 0.78.a  18-11-02
-  then begin
+  then
+  begin
     ruler_endx := mouse_now_x;
     ruler_endy := mouse_now_y;
     redraw_pad(True, False);
@@ -15105,10 +15659,12 @@ begin
 
   if (shift_state = [ssAlt, ssMiddle]) or (shift_state = [ssAlt, ssCtrl, ssLeft])
   // middle click (or Ctrl-left) with ALT key.   0.71.b 2-6-01
-  then begin
-    with jotter_form do begin
-      if (jotter_abs_xy_readout_panel.Visible = True) or
-        (jotter_rel_xy_readout_panel.Visible = True) then begin
+  then
+  begin
+    with jotter_form do
+    begin
+      if (jotter_abs_xy_readout_panel.Visible = True) or (jotter_rel_xy_readout_panel.Visible = True) then
+      begin
         jotter_memo.Lines.Add('');
         if jotter_abs_xy_readout_panel.Visible = True then
           jotter_memo.Lines.Add(jotter_abs_xy_readout_panel.Caption);
@@ -15121,8 +15677,10 @@ begin
 
   if (shift_state = [ssAlt, ssCtrl, ssRight]) and (mouse_modify > -1)
   // right click with ALT key.   0.71.b 2-6-01
-  then begin                                                    // mouse action in force.
-    with jotter_form do begin
+  then
+  begin                                                    // mouse action in force.
+    with jotter_form do
+    begin
       jotter_memo.Lines.Add('');
       jotter_memo.Lines.Add(action_form.action_label.Caption);
       jotter_memo.Lines.Add(action_form.trail_dim_label.Caption);
@@ -15132,7 +15690,8 @@ begin
 
   if (mouse_draw_lines = True) and (mouse_button = mbLeft)
   // we are simply drawing with the mouse - save co-ords and exit.
-  then begin
+  then
+  begin
     draw_mouse_down_X := X;      // screen coords for line drawing start point.
     draw_mouse_down_Y := Y;
 
@@ -15148,18 +15707,20 @@ begin
 
   if (mouse_draw_lines = True) and (mouse_button = mbRight)
   // cancel mouse drawing on right button.
-  then begin
+  then
+  begin
     show_and_redraw(True, False);  // on idle, no rollback.
     EXIT;
   end;
 
   if (mouse_modify = -1)           // 291a     not if mouse action in force
-    and (bgnd_form.Visible = True) and (zoom_rectangle = False) and
-    (group_fence_rectangle = False) and
+    and (bgnd_form.Visible = True) and (zoom_rectangle = False) and (group_fence_rectangle = False) and
     (output_boundary_rectangle = False)  // 0.93.a  // he clicked shape corners.
     and (drawn_shape_rectangle = False)      // 214a
-  then begin
-    with pad_form.Canvas do begin
+  then
+  begin
+    with pad_form.Canvas do
+    begin
       Pen.Style := psSolid;
       Pen.Mode := pmCopy;
       Pen.Width := 1;
@@ -15178,9 +15739,11 @@ begin
     EXIT;
   end;
 
-  if { 0.91.a (mouse_button=mbMiddle) or ( } shift_state = [ssCtrl, ssLeft] { ) } then begin
+  if { 0.91.a (mouse_button=mbMiddle) or ( } shift_state = [ssCtrl, ssLeft] { ) } then
+  begin
     if mouse_modify <> -1     // mouse action in force...
-    then begin
+    then
+    begin
       cancel_adjusts(False);
       EXIT;
     end
@@ -15192,7 +15755,8 @@ begin
 
   if (select_centre = True) and { 0.91.a (} (mouse_button = mbLeft)
   {or (mouse_button=mbMiddle) )}// selecting the pad centre...
-  then begin
+  then
+  begin
     select_centre := False;
     if draw_mode <> 2 then
       pad_form.lock_scaling_menu_entry.Click;
@@ -15209,10 +15773,11 @@ begin
 
   // 0.91.a if mouse_button=mbMiddle then EXIT;       // shouldn't get here!
 
-  if ((zoom_rectangle = True) or (group_fence_rectangle = True) or
-    (output_boundary_rectangle = True) or (drawn_shape_rectangle = True)) and
-    (mouse_button = mbLeft)  // 0.93.a    // drawing with the mouse - save co-ords and exit.
-  then begin
+  if ((zoom_rectangle = True) or (group_fence_rectangle = True) or (output_boundary_rectangle = True) or
+    (drawn_shape_rectangle = True)) and (mouse_button = mbLeft)
+  // 0.93.a    // drawing with the mouse - save co-ords and exit.
+  then
+  begin
     draw_mouse_down_X := X;            // screen coords for first point.
     draw_mouse_down_Y := Y;
     rectangle_in_progress := True;
@@ -15223,7 +15788,8 @@ begin
   //---------------------
 
   if clicks_accepted = True {name_highlighted<>-1}      // over a bgnd template name label?
-  then begin
+  then
+  begin
     clicks_accepted := False;                   // only one click.
 
     clicked_keep_index := hover_keep_index;     // save the list indices.
@@ -15231,9 +15797,10 @@ begin
 
     list_position := clicked_keep_index;  // make it current in the box.
 
-    if (classic_templot = False) and (mouse_button = mbLeft) and
-      (click_bgnd_select = False)   // 0.93.a Quick mode left click on label
-    then begin
+    if (classic_templot = False) and (mouse_button = mbLeft) and (click_bgnd_select = False)
+    // 0.93.a Quick mode left click on label
+    then
+    begin
       bgnd_clicked_in_quick_mode := True;
       pad_form.make_control_popup_entry.Click;
       bgnd_clicked_in_quick_mode := False;
@@ -15242,7 +15809,8 @@ begin
 
     if (click_bgnd_select = True) and (mouse_button = mbLeft)
     // bgnd keep to or from group selection list.
-    then begin
+    then
+    begin
       click_bgnd_to_selected;
       EXIT;
     end;
@@ -15250,11 +15818,13 @@ begin
 
     if (shift_click = True) or (mouse_button = mbRight)
     // right click or either click if shift key was down when highlighted.
-    then begin
-      if (clicked_keep_index > -1) and (clicked_keep_index < keeps_list.Count) and
-        (keeps_list.Count > 0) then begin
+    then
+    begin
+      if (clicked_keep_index > -1) and (clicked_keep_index < keeps_list.Count) and (keeps_list.Count > 0) then
+      begin
 
-        with Ttemplate(keeps_list.Objects[clicked_keep_index]) do begin
+        with Ttemplate(keeps_list.Objects[clicked_keep_index]) do
+        begin
           if (template_info.keep_dims.box_dims1.mod_text_x = 0) and
             (template_info.keep_dims.box_dims1.mod_text_y = 0) then
             pad_form.restore_label_popup_entry.Enabled := False
@@ -15270,7 +15840,8 @@ begin
       if Length(menu_caption_str) > 20 then
         menu_caption_str := Copy(menu_caption_str, 1, 18) + '...';  // 20 arbitrary.
 
-      with Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1 do begin
+      with Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1 do
+      begin
 
         pad_form.align_current_popup_entry.Enabled :=
           (ABS(proto_info.gauge_pi - g) < minfp);  // 205d disabled for mixed-gauge templates
@@ -15299,10 +15870,12 @@ begin
   //--------------------------
 
   if mouse_button = mbRight                       //  right-click :
-  then begin
+  then
+  begin
     if popup_if_clicked(True) = False
     // go check if he clicked on a bgnd template and do pop-up.   // 0.93.a
-    then begin
+    then
+    begin
 
       // multiple monitors... 0.91.b
 
@@ -15325,7 +15898,8 @@ begin
   end;
 
   if mouse_modify = -1               // no mouse action selected.
-  then begin
+  then
+  begin
     if (shove_timber_form.Showing = True) and (hide_current_flag = False) then
     begin
       if shove_number_clicked(pad_click_X, pad_click_Y) = True then
@@ -15333,7 +15907,8 @@ begin
     end;
 
     if (check_diffs_form.Showing = True) and (hide_current_flag = False)   // 0.94.a ...
-    then begin
+    then
+    begin
       if checkrail_label_clicked(pad_click_X, pad_click_Y) = True then
         EXIT; // clicked on a check-rail label
     end;
@@ -15341,9 +15916,10 @@ begin
 
     if popup_if_clicked(False) = False
     // go check if he clicked on a bgnd template and do pop-up.
-    then begin
-      if pad_form.allow_left_drag_panning_menu_entry.Checked =
-        True then begin
+    then
+    begin
+      if pad_form.allow_left_drag_panning_menu_entry.Checked = True then
+      begin
         allow_left_button_pan := True;  // 0.91.c
         Screen.Cursor := crSizeAll;     // 0.91.c
 
@@ -15364,7 +15940,8 @@ begin
   if ABS(fy) < minfp then
     EXIT;
 
-  with pad_form do begin     // (for the Cursor)
+  with pad_form do
+  begin     // (for the Cursor)
 
     if X = 0 then
       X := 1;          // prevent divisions by zero later (screen-edge clicked).
@@ -15376,13 +15953,15 @@ begin
     Screen.Cursor := crDefault;     //  needed in case clicks get out of sync.
 
     if mouse_modify = 0                          // will be changed.
-    then begin
+    then
+    begin
       action_form.action_2_image.Show;
       action_form.image_panel.Color := clMaroon;
       allow_idle := control_room_form.allow_full_idle_menu_entry.Checked;
       // mouse action or always, disallow idle.
     end
-    else begin
+    else
+    begin
       action_form.action_2_image.Hide;
       action_form.image_panel.Color := clGray;
       allow_idle := not control_room_form.fast_100_menu_entry.Checked;
@@ -15408,10 +15987,12 @@ begin
                           end;
 *)
 
-    if both_mod = 1 then begin
+    if both_mod = 1 then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         if opposite_way = True then
           Screen.Cursor := adjust_corners_cursor_invert     //crSizeNWSE
         else
@@ -15434,7 +16015,8 @@ begin
 
       if spiral = False then
         nomrad_now := nomrad
-      else begin                        // transition.
+      else
+      begin                        // transition.
         case adjust_trans_rad of
           1:
             nomrad_now := nomrad1;
@@ -15457,10 +16039,12 @@ begin
       // save current peg position on pad and curving angle.
     end;
 
-    if sx_mod = 1 then begin
+    if sx_mod = 1 then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;    //crSizeWE;
         mouse_modify := 2;
         if draw_mode <> 2 then
@@ -15479,16 +16063,19 @@ begin
       // save current peg position on pad and curving angle.
     end;
 
-    if curving_mod = 1 then begin
+    if curving_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_ns_cursor_invert;   // custom_cursor.
         mouse_modify := 3;                          //  toggle the re-draw flag on.
         //no_mouse_move:=0;                       //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                 //  then toggle re-draw off.
       end;
@@ -15497,12 +16084,14 @@ begin
       nomrad_now := max_rad;    // keep compiler happy.
 
       if spiral = False               // no transition.
-      then begin
+      then
+      begin
         nomrad_now := nomrad;
 
         if (f6_swing_fixed = True) and (ABS(nomrad) > minfp)
         // 0.91.b      // constant radius only.
-        then begin
+        then
+        begin
           if nomrad = max_rad then
             f6_swing_angle := ARCTAN(1 / 7)
           // 1:7 RAM default 0.93.a was Pi/18 10 degs default for a straight starting template
@@ -15512,7 +16101,8 @@ begin
         else
           f6_swing_angle := 0;                                  // not used.
       end
-      else begin                // transition.
+      else
+      begin                // transition.
         case adjust_trans_rad of
           1:
             nomrad_now := nomrad1;
@@ -15533,11 +16123,13 @@ begin
       // save current peg position on pad and curving angle.
     end;
 
-    if length_mod = 1 then begin
+    if length_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
 
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         extend_if_zero;  // 0.93.a
 
         Screen.Cursor := adjust_we_cursor_invert; // crSizeWE;
@@ -15546,7 +16138,8 @@ begin
         if draw_mode <> 2 then
           mode := zoom_mode;   // free-scaling - change mode.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   // then toggle re-draw off.
       end;
@@ -15567,15 +16160,18 @@ begin
       // peg on TOLP, save current pegangle for curviform V-crossing. 0.79.a
     end;
 
-    if shift_mod = 1 then begin
+    if shift_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_ne_cursor_invert;//crDrag;
         mouse_modify := 5;                 //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15585,10 +16181,12 @@ begin
       yshift_now := yshift;
     end;
 
-    if twist_mod = 1 then begin
+    if twist_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_ns_cursor_invert;//crSizeNS;
         mouse_modify := 6;                 //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
@@ -15605,21 +16203,25 @@ begin
           twist_dir := 1;
 
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
     end;
 
-    if zoom_mod = 1 then begin
+    if zoom_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crHSplit;
         mouse_modify := 7;                 //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
         mode := zoom_mode;              //  free-scaling - change mode.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15630,11 +16232,13 @@ begin
       // no need to put this change in rollback register on redraw.
     end;
 
-    if approach_mod = 1 then begin
+    if approach_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         startx := 0;
         // cancel any blanking (we waited until mouse down in case F3 was in error).
 
@@ -15644,7 +16248,8 @@ begin
         if draw_mode <> 2 then
           mode := zoom_mode;    // free-scaling - change mode.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15664,15 +16269,18 @@ begin
     end;
 
     if datum_mod = 1                             // move Y datum
-    then begin
+    then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crVSplit;
         mouse_modify := 9;                 //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
         mode := zoom_mode;              // free-scaling - change mode.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15682,16 +16290,19 @@ begin
     end;
 
     if trans_length_mod = 1                  // SHIFT+CTRL-F4 adjust transition length
-    then begin
+    then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;//crHSplit;
         mouse_modify := 10;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15705,15 +16316,18 @@ begin
 
     end;
 
-    if zoffset_mod = 1 then begin
+    if zoffset_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := cross_size_cursor;//crDrag;
         mouse_modify := 11;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
         mode := zoom_mode;              // free-scaling - change mode.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15726,15 +16340,18 @@ begin
       // no need to put this change in rollback register on redraw.
     end;
 
-    if spot_mod = 1 then begin
+    if spot_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crVSplit;
         mouse_modify := 12;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
         mode := zoom_mode;              //  free-scaling - change mode.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15750,12 +16367,14 @@ begin
       do_rollback := False;       // no need to put this change in rollback register on redraw.
     end;
 
-    if peg_mod = 1 then begin
+    if peg_mod = 1 then
+    begin
       //popup_click:=False;           // mouse action click.
       extend_if_zero;  // 0.93.a
       if peg_rail <> 0 then
         set_opp;    //  do opposite way if running peg along rails.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         if peg_rail = 0 then
           Screen.Cursor := crNone     //  free move.
         else
@@ -15763,7 +16382,8 @@ begin
         mouse_modify := 13;                        //  toggle the re-draw flag on.
         //no_mouse_move:=0;                     //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15778,30 +16398,36 @@ begin
 
     end;
 
-    if orbit_mod = 1 then begin
+    if orbit_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;//crSizeWE;
         mouse_modify := 14;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
 
-        if spiral = False then begin
+        if spiral = False then
+        begin
           orbit_rad := clrad1;
           init_rotate(xt1, yt1, True);
           // set up transform constants (rad centre).
         end
         else
           case adjust_trans_rad of
-            1: begin
+            1:
+            begin
               init_rotate(xt1, yt1, True);
               orbit_rad := clrad1;
             end;
-            2: begin
+            2:
+            begin
               init_rotate(xt2, yt2, True);
               orbit_rad := clrad2;
             end;
-            else begin
+            else
+            begin
               init_rotate(xt1, yt1, True);
               orbit_rad := clrad1;
             end;
@@ -15815,22 +16441,26 @@ begin
         else
           orbit_dir := 0 - hand_i * SGZ(orbit_rad);
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
     end;
 
-    if notch_mod = 1 then begin
+    if notch_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crNone;
         mouse_modify := 15;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
         if mode = 1 then
           mode := 3;       // otherwise doesn't erase on pad.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15842,16 +16472,19 @@ begin
     end;
 
     if trans_start_mod = 1                  // SHIFT+CTRL-F3 adjust transition start
-    then begin
+    then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;//crHSplit;
         mouse_modify := 16;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15865,16 +16498,19 @@ begin
 
     end;
 
-    if shift_keeps_mod = 1 then begin
+    if shift_keeps_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crMultiDrag;
         mouse_modify := 17;              //  toggle the re-draw flag on.
         //no_mouse_move:=0;            //  permit mouse moves to do adjusts.
         if mode = 1 then
           mode := 3;        //  otherwise doesn't erase on pad.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15884,16 +16520,19 @@ begin
       yshift_now := yshift_keeps;
     end;
 
-    if twist_keeps_mod = 1 then begin
+    if twist_keeps_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 18;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
         if mode = 1 then
           mode := 3;       //  otherwise doesn't erase on pad.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15908,15 +16547,18 @@ begin
 
     end;
 
-    if ring_mod = 1 then begin
+    if ring_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crNone;
         mouse_modify := 19;                //  toggle the re-draw flag on.
         if mode = 1 then
           mode := 3;          //  otherwise doesn't erase on pad.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15926,16 +16568,19 @@ begin
       yring_now := rings[0, 1];
     end;
 
-    if slide_mod = 1 then begin
+    if slide_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;//crSizeWE;
         mouse_modify := 20;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15950,16 +16595,19 @@ begin
     end;
 
     if slew_start_mod = 1          // SHIFT+CTRL-F5 adjust slewing start
-    then begin
+    then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;//crHSplit;
         mouse_modify := 21;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15973,16 +16621,19 @@ begin
     end;
 
     if slew_length_mod = 1                  // SHIFT+CTRL-F6 adjust slewing length
-    then begin
+    then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;//crHSplit;
         mouse_modify := 22;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -15997,16 +16648,19 @@ begin
     end;
 
     if slew_amount_mod = 1               // CTRL-F7 adjust amount of slew.
-    then begin
+    then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_ns_cursor_invert;//crVSplit;
         mouse_modify := 23;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16019,13 +16673,16 @@ begin
       // save current peg data for peg_curve calcs.
     end;
 
-    if out_factor_mod = 1 then begin
-      if mouse_modify = 0 then begin
+    if out_factor_mod = 1 then
+    begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 24;             //  toggle the re-draw flag on.
         mode := zoom_mode;              //  outlines are on the backdrop.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;              //  then toggle re-draw off.
       end;
@@ -16034,15 +16691,18 @@ begin
       out_factor_now := out_factor;
     end;
 
-    if shove_along_mod = 1 then begin
+    if shove_along_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 25;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16053,15 +16713,18 @@ begin
       shovetimbx_now := shovetimbx;
     end;
 
-    if shove_throw_mod = 1 then begin
+    if shove_throw_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 26;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16069,11 +16732,13 @@ begin
       shoveo_now := shoveo;
     end;
 
-    if roam_mod = 1 then begin
+    if roam_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         startx := 0;
         // cancel any blanking (we waited until mouse down in case CTRL-F9 was in error).
 
@@ -16083,7 +16748,8 @@ begin
         if draw_mode <> 2 then
           mode := zoom_mode;    // free-scaling - change mode.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16096,16 +16762,19 @@ begin
     end;
 
     if slew_factor_mod = 1               // adjust mode 2 slew factor.
-    then begin
+    then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crHSplit;
         mouse_modify := 28;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16118,15 +16787,18 @@ begin
       // save current peg data for peg_curve calcs.
     end;
 
-    if bunch_mod = 1 then begin
+    if bunch_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNWSE;
         mouse_modify := 29;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
         mode := zoom_mode;              //  free-scaling - change mode.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16141,15 +16813,18 @@ begin
       // no need to put this change in rollback register on redraw.
     end;
 
-    if porg_mod = 1 then begin
+    if porg_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crMultiDrag;
         mouse_modify := 30;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;           //  permit mouse moves to do adjusts.
         mode := zoom_mode;              //  outlines are on the backdrop.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16163,15 +16838,18 @@ begin
       // no need to put this change in rollback register on redraw.
     end;
 
-    if corner1_mod = 1 then begin
+    if corner1_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crDrag;
         mouse_modify := 31;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;           //  permit mouse moves to do adjusts.
         mode := zoom_mode;              //  shapes are on the backdrop.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16189,15 +16867,18 @@ begin
       // no need to put this change in rollback register on redraw.
     end;
 
-    if corner2_mod = 1 then begin
+    if corner2_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crDrag;
         mouse_modify := 32;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;           //  permit mouse moves to do adjusts.
         mode := zoom_mode;              //  shapes are on the backdrop.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16215,15 +16896,18 @@ begin
       // no need to put this change in rollback register on redraw.
     end;
 
-    if oneshape_shift_mod = 1 then begin
+    if oneshape_shift_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crDrag;
         mouse_modify := 33;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;           //  permit mouse moves to do adjusts.
         mode := zoom_mode;              //  shapes are on the backdrop.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16240,15 +16924,18 @@ begin
       // no need to put this change in rollback register on redraw.
     end;
 
-    if allshapes_shift_mod = 1 then begin
+    if allshapes_shift_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crMultiDrag;
         mouse_modify := 34;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;           //  permit mouse moves to do adjusts.
         mode := zoom_mode;              //  shapes are on the backdrop.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16266,16 +16953,19 @@ begin
       // no need to put this change in rollback register on redraw.
     end;
 
-    if snake_mod = 1 then begin
+    if snake_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;//crSizeWE;
         mouse_modify := 35;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16294,15 +16984,18 @@ begin
     end;
 
 
-    if allshapes_scale_mod = 1 then begin
+    if allshapes_scale_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 36;             //  toggle the re-draw flag on.
         //no_mouse_move:=0;           //  permit mouse moves to do adjusts.
         mode := zoom_mode;              //  shapes are on the backdrop.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16315,15 +17008,18 @@ begin
       // no need to put this change in rollback register on redraw.
     end;
 
-    if allshapes_rotate_mod = 1 then begin
+    if allshapes_rotate_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 37;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;           //  permit mouse moves to do adjusts.
         mode := zoom_mode;              //  shapes are on the backdrop.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16341,15 +17037,18 @@ begin
       // no need to put this change in rollback register on redraw.
     end;
 
-    if oneshape_scale_mod = 1 then begin
+    if oneshape_scale_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 38;             //  toggle the re-draw flag on.
         //no_mouse_move:=0;           //  permit mouse moves to do adjusts.
         mode := zoom_mode;              //  shapes are on the backdrop.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16361,15 +17060,18 @@ begin
       // no need to put this change in rollback register on redraw.
     end;
 
-    if shove_length_mod = 1 then begin
+    if shove_length_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 39;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16377,15 +17079,18 @@ begin
       shovel_now := shovel;
     end;
 
-    if shove_width_mod = 1 then begin
+    if shove_width_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 40;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16393,15 +17098,18 @@ begin
       shovew_now := shovew;
     end;
 
-    if shove_twist_mod = 1 then begin
+    if shove_twist_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 41;                //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16409,17 +17117,20 @@ begin
       shovek_now := shovek;
     end;
 
-    if blanking_mod = 1 then begin
+    if blanking_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;//crSizeWE;
         mouse_modify := 42;                      //  toggle the re-draw flag on.
         //no_mouse_move:=0;                        //  permit mouse moves to do adjusts.
         //if draw_mode<>2 then mode:=zoom_mode;    // free-scaling - change mode.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16428,14 +17139,17 @@ begin
       startx_now := startx;
     end;
 
-    if roll_mod = 1 then begin
+    if roll_mod = 1 then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;//crSizeWE;
         mouse_modify := 43;                          //  toggle the re-draw flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16444,15 +17158,18 @@ begin
     end;
 
     if ringdia_mod = 1                             // adjust ring dia.
-    then begin
+    then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crVSplit;
         mouse_modify := 44;             //  toggle the re-draw flag on.
         if mode = 1 then
           mode := 3;       //  otherwise doesn't erase on pad.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16461,15 +17178,18 @@ begin
       ring_dia_now := ring_dia;
     end;
 
-    if ruler1_mod = 1 then begin
+    if ruler1_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crDrag;
         mouse_modify := 45;                //  toggle the re-draw flag on.
         if mode = 1 then
           mode := 3;          //  otherwise doesn't erase on pad.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16479,15 +17199,18 @@ begin
       ruler_starty_now := ruler_starty;
     end;
 
-    if ruler2_mod = 1 then begin
+    if ruler2_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crDrag;
         mouse_modify := 46;                //  toggle the re-draw flag on.
         if mode = 1 then
           mode := 3;          //  otherwise doesn't erase on pad.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16497,17 +17220,20 @@ begin
       ruler_endy_now := ruler_endy;
     end;
 
-    if swell_mod = 1 then begin
+    if swell_mod = 1 then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_ns_cursor_invert;   // custom_cursor.
         mouse_modify := 47;                         //  toggle the re-draw flag on.
         init_rotate(0, g / 2, False);
         // set up transform constants (for template datum).
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                 //  then toggle re-draw off.
       end;
@@ -16526,15 +17252,18 @@ begin
       ends_apart_now := SQRT(SQR(xc9 - xc0) + SQR(yc9 - yc0));           // chord length.
     end;
 
-    if shove_crab_mod = 1 then begin
+    if shove_crab_mod = 1 then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 48;               //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16543,16 +17272,19 @@ begin
     end;
 
     if move_labels_mod = 1    // 0.82.d
-    then begin
+    then
+    begin
       //popup_click:=False;     // mouse action click.
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crMultiDrag;
         mouse_modify := 49;               //  toggle the re-draw flag on.
         //no_mouse_move:=0;             //  permit mouse moves to do adjusts.
         if mode = 1 then
           mode := 3;         //  otherwise doesn't erase on pad.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16565,14 +17297,17 @@ begin
     // 0.93.a mouse_modify matches repeat_last_index for 50+ (see 99) ...
 
     if plat_ts_start_mod = 1       // 0.93.a
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 50;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -16583,14 +17318,17 @@ begin
 
 
     if plat_ts_length_mod = 1       // 0.93.a
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 51;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -16601,14 +17339,17 @@ begin
 
 
     if plat_ts_width1_mod = 1       // 0.93.a
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 52;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -16619,14 +17360,17 @@ begin
 
 
     if plat_ts_width2_mod = 1       // 0.93.a
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 53;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -16637,14 +17381,17 @@ begin
 
 
     if plat_ms_start_mod = 1       // 0.93.a
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 54;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -16655,14 +17402,17 @@ begin
 
 
     if plat_ms_length_mod = 1       // 0.93.a
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 55;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -16673,14 +17423,17 @@ begin
 
 
     if plat_ms_width1_mod = 1       // 0.93.a
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 56;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -16691,14 +17444,17 @@ begin
 
 
     if plat_ms_width2_mod = 1       // 0.93.a
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 57;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -16709,14 +17465,17 @@ begin
 
 
     if gaunt_offset_mod = 1  // SHIFT+F12
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 58;               //  toggle the re-draw flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16733,14 +17492,17 @@ begin
 
 
     if vee_mod = 1      // F9
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;    //crSizeWE;
         mouse_modify := 59;
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16757,14 +17519,17 @@ begin
 
 
     if hdk_mod = 1    // F10
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;    //crSizeWE;
         mouse_modify := 60;
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -16780,13 +17545,16 @@ begin
     end;
 
 
-    if rect_left_mod = 1 then begin
-      if mouse_modify = 0 then begin
+    if rect_left_mod = 1 then
+    begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 61;
         mode := zoom_mode;     //  outlines are on the backdrop.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;
       end;
@@ -16798,13 +17566,16 @@ begin
       // no need to put this change in rollback register on redraw.
     end;
 
-    if rect_right_mod = 1 then begin
-      if mouse_modify = 0 then begin
+    if rect_right_mod = 1 then
+    begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 62;
         mode := zoom_mode;     //  outlines are on the backdrop.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;
       end;
@@ -16816,13 +17587,16 @@ begin
       // no need to put this change in rollback register on redraw.
     end;
 
-    if rect_top_mod = 1 then begin
-      if mouse_modify = 0 then begin
+    if rect_top_mod = 1 then
+    begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 63;
         mode := zoom_mode;     //  outlines are on the backdrop.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;
       end;
@@ -16834,13 +17608,16 @@ begin
       // no need to put this change in rollback register on redraw.
     end;
 
-    if rect_bottom_mod = 1 then begin
-      if mouse_modify = 0 then begin
+    if rect_bottom_mod = 1 then
+    begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 64;
         mode := zoom_mode;     //  outlines are on the backdrop.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;
       end;
@@ -16852,13 +17629,16 @@ begin
       // no need to put this change in rollback register on redraw.
     end;
 
-    if rect_move_mod = 1 then begin
-      if mouse_modify = 0 then begin
+    if rect_move_mod = 1 then
+    begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeAll;
         mouse_modify := 65;
         mode := zoom_mode;     //  outlines are on the backdrop.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;
       end;
@@ -16873,14 +17653,17 @@ begin
     end;
 
     if check_diffs_len_mod = 1     // 0.94.a
-    then begin
+    then
+    begin
       extend_if_zero;    // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;   // custom_cursor.  crSizeWE;
         mouse_modify := 66;
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;
       end;
@@ -16905,14 +17688,17 @@ begin
     end;
 
     if check_diffs_flare_mod = 1   // 0.94.a
-    then begin
+    then
+    begin
       extend_if_zero;    // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 67;
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;
       end;
@@ -16931,14 +17717,16 @@ begin
 
       case current_diff_code of
         // !!!  k_flare_len is f-s ins,   xing_flare_len is model mm     *2.5 arbitrary, max flare angle 1:2.5
-        507, 508: begin
+        507, 508:
+        begin
           min_diff := (current_diffed_end_gap - fw) * 2.5 / inscale - k_flare_len;
           // minimum negative diff, K-crossing
           max_diff := current_diffed_len / inscale - k_flare_len;
           // maximum positive diff, K-crossing
         end;
 
-        else begin
+        else
+        begin
           // V-crossing
           min_diff := ((current_diffed_end_gap - fw) * 2.5 - xing_flare_len) / inscale;
           // minimum negative diff
@@ -16953,14 +17741,17 @@ begin
     end;
 
     if check_diffs_gap_mod = 1     // 0.94.a
-    then begin
+    then
+    begin
       extend_if_zero;    // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 68;
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;
       end;
@@ -16985,14 +17776,17 @@ begin
     end;
 
     if dv_mod = 1     // 0.98.a
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;//crSizeWE;
         mouse_modify := 69;                      //  toggle the re-draw flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -17004,14 +17798,17 @@ begin
     end;
 
     if dv_clear_mod = 1     // 0.98.a
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 70;                  //  toggle the re-draw flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -17022,14 +17819,17 @@ begin
 
     // 207a ...
 
-    if plat_ms_skew1_mod = 1 then begin
+    if plat_ms_skew1_mod = 1 then
+    begin
       extend_if_zero;
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 71;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -17038,14 +17838,17 @@ begin
       platform_ms_start_skew_mm_now := platform_ms_start_skew_mm;
     end;
 
-    if plat_ms_skew2_mod = 1 then begin
+    if plat_ms_skew2_mod = 1 then
+    begin
       extend_if_zero;
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 72;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -17055,14 +17858,17 @@ begin
     end;
 
 
-    if plat_ts_skew1_mod = 1 then begin
+    if plat_ts_skew1_mod = 1 then
+    begin
       extend_if_zero;
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 73;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -17071,14 +17877,17 @@ begin
       platform_ts_start_skew_mm_now := platform_ts_start_skew_mm;
     end;
 
-    if plat_ts_skew2_mod = 1 then begin
+    if plat_ts_skew2_mod = 1 then
+    begin
       extend_if_zero;
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 74;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -17088,14 +17897,17 @@ begin
     end;
 
     if turnout_road_mod = 1   // 209a  CTRL+F12
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert; //crSizeWE;
         mouse_modify := 75;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then toggle off.
       end;
@@ -17113,14 +17925,17 @@ begin
     end;
 
     if adjacent_ts_mod = 1    // 213a
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 76;                  //  toggle the re-draw flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -17130,14 +17945,17 @@ begin
     end;
 
     if adjacent_ms_mod = 1    // 213a
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 77;                  //  toggle the re-draw flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -17148,14 +17966,17 @@ begin
 
 
     if edge_ts_start_mod = 1       // 215a      trackbed edges ...
-    then begin
+    then
+    begin
       extend_if_zero;
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 78;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -17166,14 +17987,17 @@ begin
 
 
     if edge_ts_length_mod = 1       // 215a
-    then begin
+    then
+    begin
       extend_if_zero;
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 79;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -17183,14 +18007,17 @@ begin
     end;
 
     if edge_ms_start_mod = 1       // 215a
-    then begin
+    then
+    begin
       extend_if_zero;
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 80;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -17201,14 +18028,17 @@ begin
 
 
     if edge_ms_length_mod = 1       // 215a
-    then begin
+    then
+    begin
       extend_if_zero;
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeWE;
         mouse_modify := 81;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then off.
       end;
@@ -17218,14 +18048,17 @@ begin
     end;
 
     if main_road_mod = 1   // 217a
-    then begin
+    then
+    begin
       extend_if_zero;
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;
         mouse_modify := 82;                       //  toggle flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                        //  then toggle off.
       end;
@@ -17243,14 +18076,17 @@ begin
     end;
 
     if gaunt_radius_mod = 1  // 217b
-    then begin
+    then
+    begin
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := crSizeNS;
         mouse_modify := 83;               //  toggle the re-draw flag on.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -17270,18 +18106,21 @@ begin
     // 99 ...
 
     if entry_straight_mod = 1    // 0.91.b
-    then begin
+    then
+    begin
       //popup_click:=False;     // mouse action click.
       extend_if_zero;  // 0.93.a
       set_opp;
-      if mouse_modify = 0 then begin
+      if mouse_modify = 0 then
+      begin
         Screen.Cursor := adjust_we_cursor_invert;    //crSizeWE;
         mouse_modify := 99;
         //  99 0.93.a (was 50) toggle the re-draw flag on.
         //no_mouse_move:=0;                        //  permit mouse moves to do adjusts.
         //if draw_mode<>2 then mode:=zoom_mode;    // free-scaling - change mode.
       end
-      else begin
+      else
+      begin
         Screen.Cursor := crDefault;
         mouse_modify := 0;                   //  then toggle re-draw off.
       end;
@@ -17308,7 +18147,8 @@ begin
     //------------
   end;//with form
 
-  if mouse_modify = 0 then begin
+  if mouse_modify = 0 then
+  begin
     if mouse_action_button_down = False then
       mouse_action_release(False);   // second click.
   end
@@ -17327,7 +18167,15 @@ const
   TECHNOLOGY = 2;
 
   impact_str: string = '     Impact  Printer ?' +
-    '||Are you are using an older-pattern dot-matrix or other impact printer (i.e. one using an ink ribbon like a typewriter and capable of printing carbon copies) ?' + '|----------------------------------------------' + '|If you click YES Templot0 will simplify some of the output to reduce wear and tear on the print-head (and also the noise).' + ' This is strongly recommended when calibrating the printer.' + '||All line thicknesses (line widths) will be set to 1 dot, regardless of any other settings you may have made for them.' + '||Also click YES if this is a pen-plotter, but the fact that you are seeing this message implies something amiss in the plotter driver, as Windows has failed' + ' to inform Templot0 that this printer is a plotter.' + '|----------------------------------------------' + '|Click NO or just press ENTER if this printer is an ink-jet or laser-printer, or other modern printer capable of printing filled areas, or a virtual printer such as a Fax sender.' + '||Also click NO if you are not sure.' + '||If you click CANCEL, Templot0 will the assume that the answer is NO for the purpose of printing templates, but you will be unable to calibrate your printer for maximum accuracy.' + '||( Hopefully, the next version of Templot0 will have devised a means of answering this question for itself.)';
+    '||Are you are using an older-pattern dot-matrix or other impact printer (i.e. one using an ink ribbon like a typewriter and capable of printing carbon copies) ?'
+    +
+    '|----------------------------------------------' +
+    '|If you click YES Templot0 will simplify some of the output to reduce wear and tear on the print-head (and also the noise).'
+    + ' This is strongly recommended when calibrating the printer.' +
+    '||All line thicknesses (line widths) will be set to 1 dot, regardless of any other settings you may have made for them.'
+    + '||Also click YES if this is a pen-plotter, but the fact that you are seeing this message implies something amiss in the plotter driver, as Windows has failed'
+    + ' to inform Templot0 that this printer is a plotter.' + '|----------------------------------------------' +
+    '|Click NO or just press ENTER if this printer is an ink-jet or laser-printer, or other modern printer capable of printing filled areas, or a virtual printer such as a Fax sender.' + '||Also click NO if you are not sure.' + '||If you click CANCEL, Templot0 will the assume that the answer is NO for the purpose of printing templates, but you will be unable to calibrate your printer for maximum accuracy.' + '||( Hopefully, the next version of Templot0 will have devised a means of answering this question for itself.)';
 
 var
   impact: integer;
@@ -17376,12 +18224,10 @@ const
   PLANES = 14;
 
   print_col_help_str: string =
-    '||Templot0 has determined that this printer is capable of printing in colour, but you are currently'
-    + ' printing in black and white.' +
-    '||Changing to colour printing here affects only Templot0''s internal settings. To actually print in colour'
-    +
-    ' you must have the correct ink cartridge installed and make the necessary settings on the printer'
-    +
+    '||Templot0 has determined that this printer is capable of printing in colour, but you are currently' +
+    ' printing in black and white.' +
+    '||Changing to colour printing here affects only Templot0''s internal settings. To actually print in colour' +
+    ' you must have the correct ink cartridge installed and make the necessary settings on the printer' +
     ' setup dialog window. Refer to your printer documentation for details of colour printing settings.';
 var
   cal: Tcal_data;
@@ -17391,7 +18237,8 @@ var
   colour_depth_bits: integer;
 
 begin
-  if no_printer_available = True then begin
+  if no_printer_available = True then
+  begin
     alert(6, '    no  printer',
       'Templot is unable to locate a printer driver on this system. To install a printer driver, from the Windows taskbar click Start > Settings > Printers > Add Printer.',
       '', '', '', '', 'cancel', '', 0);
@@ -17402,7 +18249,8 @@ begin
 
     showing_dialog := True;   // 212a Wine bug
 
-    if pad_form.print_setup_dialog.Execute = False then begin
+    if pad_form.print_setup_dialog.Execute = False then
+    begin
       showing_dialog := False;   // 212a Wine bug
       EXIT;
     end;
@@ -17410,10 +18258,10 @@ begin
     showing_dialog := False;   // 212a Wine bug
 
     if get_prindex(prindex) = False      // current selected printer index.
-    then begin
-      if alert(6, '    no  printer',
-        'Templot is unable to find the selected printer.'
-        + '||Please select another.', '', '', '', '', 'cancel', 'O K', 0) = 5 then
+    then
+    begin
+      if alert(6, '    no  printer', 'Templot is unable to find the selected printer.' +
+        '||Please select another.', '', '', '', '', 'cancel', 'O K', 0) = 5 then
         EXIT;
     end
     else
@@ -17422,13 +18270,15 @@ begin
 
   prstr := printer_list.Strings[prindex];       // and name.
 
-  if Tprint_cal(printer_list.Objects[prindex]).cal_data.printer_impact = -1 then begin
+  if Tprint_cal(printer_list.Objects[prindex]).cal_data.printer_impact = -1 then
+  begin
     if ask_impact_matrix(prindex, prstr) = False then
       EXIT;
   end;
 
   try
-    with pad_form do begin
+    with pad_form do
+    begin
 
       cal := Tprint_cal(printer_list.Objects[prindex]).cal_data;
 
@@ -17440,12 +18290,12 @@ begin
       { OT-FIRST colour_depth_bits:=GetDeviceCaps(Printer.Handle,BITSPIXEL)*GetDeviceCaps(Printer.Handle,PLANES);}
       colour_depth_bits := 24;  // OT-FIRST
 
-      if (colour_depth_bits > 1) and (black_white = True) then begin
+      if (colour_depth_bits > 1) and (black_white = True) then
+      begin
         repeat
-          i := alert(4, '  ' + prstr, 'The current printer is  ' +
-            prstr + '||This is a colour printer.' +
-            '||Change to full-colour or grey-shade printing ?', '',
-            '', 'more  information', 'change  to  grey - shade  printing',
+          i := alert(4, '  ' + prstr, 'The current printer is  ' + prstr +
+            '||This is a colour printer.' + '||Change to full-colour or grey-shade printing ?',
+            '', '', 'more  information', 'change  to  grey - shade  printing',
             'continue  black && white  printing', 'change  to  full - colour  printing', 3);
           case i of
             3:
@@ -17453,7 +18303,8 @@ begin
             4:
               grey_shade_printing_menu_entry.Click;
             5:
-              if black_white_setup = False then begin
+              if black_white_setup = False then
+              begin
                 if set_black_and_white = True then
                   EXIT;     // for the setup warning, (but not if called from there).
                 // if True he re-entered this routine, so we can exit.
@@ -17464,17 +18315,14 @@ begin
         until i <> 3;
       end;
 
-      if (cal.printer_calibrated = False) and (cal_in_progress = False) then begin
+      if (cal.printer_calibrated = False) and (cal_in_progress = False) then
+      begin
         repeat                      // no cal done and not called from calibration function.
-          i := alert(2, '    printer  not  calibrated',
-            '||The current printer is  ' + prstr +
-            '||Templot0 has no calibration information for this printer.' +
+          i := alert(2, '    printer  not  calibrated', '||The current printer is  ' +
+            prstr + '||Templot0 has no calibration information for this printer.' +
             '||Using the printer uncalibrated will probably be satisfactory for overall track design and printing trial templates.'
-            +
-            '||Before printing the final construction templates a printer calibration is recommended to ensure dimensional accuracy.',
-            '', 'more  information',
-            'load  previous  calibration  settings  from  file', 'calibrate  this  printer  now',
-            '', 'use  printer  uncalibrated', 2);
+            + '||Before printing the final construction templates a printer calibration is recommended to ensure dimensional accuracy.', '', 'more  information', 'load  previous  calibration  settings  from  file',
+            'calibrate  this  printer  now', '', 'use  printer  uncalibrated', 2);
           case i of
             2:
               alert_help(0, cal_prompt_str, '');
@@ -17530,20 +18378,21 @@ begin
 
   i := alert(4, '   grid  line  spacings ...',
     'The grid can be drawn in any of these units. For small scale models it is usually more convenient to work in mm.'
-    + '||If PROTO-FEET is selected, the grid units will be in prototype feet at your current model scale.'
-    + '||Which do you want to use ?', 'feet', 'inches',
-    'proto - feet', 'cm', 'cancel', 'mm', 0);
+    +
+    '||If PROTO-FEET is selected, the grid units will be in prototype feet at your current model scale.' +
+    '||Which do you want to use ?', 'feet', 'inches', 'proto - feet', 'cm', 'cancel', 'mm', 0);
   case i of
 
-    1: begin                          // feet
-      n := putdim('', 6, 'X grid spacing on bottom margin (along page)',
-        grid_spacex / 304.8, True, False, True, False);     // neg or 0 not allowed.
-      n := putdim('', 6, 'Y grid spacing on left margin (across page)',
-        grid_spacey / 304.8, True, False, True, False);    // neg or 0 not allowed.
+    1:
+    begin                          // feet
+      n := putdim('', 6, 'X grid spacing on bottom margin (along page)', grid_spacex /
+        304.8, True, False, True, False);     // neg or 0 not allowed.
+      n := putdim('', 6, 'Y grid spacing on left margin (across page)', grid_spacey /
+        304.8, True, False, True, False);    // neg or 0 not allowed.
       if n <> 1 then
         EXIT;
-      if getdims('grid  line  spacings  in  feet', grid_help_all_str, calling_form, n, od) =
-        True then begin
+      if getdims('grid  line  spacings  in  feet', grid_help_all_str, calling_form, n, od) = True then
+      begin
         if od[0] = def_req then
           grid_spacex := 304.8              // 1 foot default
         else
@@ -17556,15 +18405,16 @@ begin
       grid_labels_code_i := 1;
     end;
 
-    2: begin                          // inches
-      n := putdim('', 2, 'X grid spacing on bottom margin (along page)',
-        grid_spacex / 25.4, True, False, True, False);     // neg or 0 not allowed.
-      n := putdim('', 2, 'Y grid spacing on left margin (across page)',
-        grid_spacey / 25.4, True, False, True, False);    // neg or 0 not allowed.
+    2:
+    begin                          // inches
+      n := putdim('', 2, 'X grid spacing on bottom margin (along page)', grid_spacex /
+        25.4, True, False, True, False);     // neg or 0 not allowed.
+      n := putdim('', 2, 'Y grid spacing on left margin (across page)', grid_spacey /
+        25.4, True, False, True, False);    // neg or 0 not allowed.
       if n <> 1 then
         EXIT;
-      if getdims('grid  line  spacings  in  inches', grid_help_all_str, calling_form, n, od) =
-        True then begin
+      if getdims('grid  line  spacings  in  inches', grid_help_all_str, calling_form, n, od) = True then
+      begin
         if od[0] = def_req then
           grid_spacex := 25.4              // 1 inch default
         else
@@ -17577,15 +18427,17 @@ begin
       grid_labels_code_i := 2;
     end;
 
-    3: begin                          // proto-feet
-      n := putdim('', 7, 'X grid spacing on bottom margin (along page)',
-        (grid_spacex / scale), True, False, True, False);     // neg or 0 not allowed.
-      n := putdim('', 7, 'Y grid spacing on left margin (across page)',
-        (grid_spacey / scale), True, False, True, False);    // neg or 0 not allowed.
+    3:
+    begin                          // proto-feet
+      n := putdim('', 7, 'X grid spacing on bottom margin (along page)', (grid_spacex / scale),
+        True, False, True, False);     // neg or 0 not allowed.
+      n := putdim('', 7, 'Y grid spacing on left margin (across page)', (grid_spacey / scale),
+        True, False, True, False);    // neg or 0 not allowed.
       if n <> 1 then
         EXIT;
-      if getdims('grid  line  spacings  in  prototype  feet', grid_help_all_str,
-        calling_form, n, od) = True then begin
+      if getdims('grid  line  spacings  in  prototype  feet', grid_help_all_str, calling_form,
+        n, od) = True then
+      begin
         if od[0] = def_req then
           grid_spacex := scale * 25           // 25ft (100 mm in 4mm scale) default
         else
@@ -17598,15 +18450,16 @@ begin
       grid_labels_code_i := 3;
     end;
 
-    4: begin                          // cm
-      n := putdim('', 5, 'X grid spacing on bottom margin (along page)',
-        (grid_spacex / 10), True, False, True, False);     // neg or 0 not allowed.
-      n := putdim('', 5, 'Y grid spacing on left margin (across page)',
-        (grid_spacey / 10), True, False, True, False);    // neg or 0 not allowed.
+    4:
+    begin                          // cm
+      n := putdim('', 5, 'X grid spacing on bottom margin (along page)', (grid_spacex / 10),
+        True, False, True, False);     // neg or 0 not allowed.
+      n := putdim('', 5, 'Y grid spacing on left margin (across page)', (grid_spacey / 10),
+        True, False, True, False);    // neg or 0 not allowed.
       if n <> 1 then
         EXIT;
-      if getdims('grid  line  spacings  in  cm', grid_help_all_str, calling_form, n, od) =
-        True then begin
+      if getdims('grid  line  spacings  in  cm', grid_help_all_str, calling_form, n, od) = True then
+      begin
         if od[0] = def_req then
           grid_spacex := 20               // 2 cm default
         else
@@ -17622,15 +18475,16 @@ begin
     5:
       EXIT;
 
-    6: begin                          // mm
-      n := putdim('', 1, 'X grid spacing on bottom margin (along page)',
-        grid_spacex, True, False, True, False);     // neg or 0 not allowed.
-      n := putdim('', 1, 'Y grid spacing on left margin (across page)',
-        grid_spacey, True, False, True, False);    // neg or 0 not allowed.
+    6:
+    begin                          // mm
+      n := putdim('', 1, 'X grid spacing on bottom margin (along page)', grid_spacex, True, False, True, False);
+      // neg or 0 not allowed.
+      n := putdim('', 1, 'Y grid spacing on left margin (across page)', grid_spacey, True, False, True, False);
+      // neg or 0 not allowed.
       if n <> 1 then
         EXIT;
-      if getdims('grid  line  spacings  in  mm', grid_help_all_str, calling_form, n, od) =
-        True then begin
+      if getdims('grid  line  spacings  in  mm', grid_help_all_str, calling_form, n, od) = True then
+      begin
         if od[0] = def_req then
           grid_spacex := 20            // 20 mm  default.
         else
@@ -17663,11 +18517,13 @@ end;
 procedure toggle_radius_lamp;
 
 begin
-  if toggle_1 = 0 then begin
+  if toggle_1 = 0 then
+  begin
     toggle_1 := 1;
     info_form.min_rad_lamp_panel.Color := clRed;
   end
-  else begin
+  else
+  begin
     toggle_1 := 0;
     info_form.min_rad_lamp_panel.Color := clBlack;
   end;
@@ -17677,14 +18533,16 @@ end;
 procedure toggle_ring_lamp;
 
 begin
-  if toggle_2 = 0 then begin
+  if toggle_2 = 0 then
+  begin
     toggle_2 := 1;
     if (cl_only = True) or (warn_centrelines = True) then
       info_form.ring_lamp_panel.Color := clWhite
     else
       info_form.ring_lamp_panel.Color := clRed;
   end
-  else begin
+  else
+  begin
     toggle_2 := 0;
     info_form.ring_lamp_panel.Color := clBlack;
   end;
@@ -17723,8 +18581,8 @@ function check_control_template_is_valid(cancel_str: string): boolean;   // 0.93
 
 const
   zero_help_str: string = 'php/199    `0Zero-Length Control Template`9' +
-    '||The control template can be invalidated by having its length set to zero.'
-    + '||The usual reason this is done is to prevent a copy of the control template being automatically stored in the storage box, which would otherwise create duplicate stored templates.' + '||A zero-length control template is shown on the trackpad as a red  `0<B>Z</B>`8  symbol replacing its fixing peg, and in `0red text`8 on the information bar.' + '||When the control template is shown as zero-length, your usual next action will be either to create a new mint template by clicking the <span style="color:#0000ff; font-size:15px;"><B>NEW</B></span> tool-button,' + ' or to click on an existing background template in order to modify or copy that template.' + '||More experienced users can simply extend the length of the control template (`0F4`2 mouse action) and continue working with it.' + ' Selecting any other mouse action will automatically extend the control template to a scale length of 2 chains (132ft).' + '||If desired the control template can be invalidated manually by clicking the Z tool-button or by pressing the `0DELETE`2 key.' + ' If the current control template is already zero-length when this button is clicked, the most recent manually invalidated template will be restored.';
+    '||The control template can be invalidated by having its length set to zero.' +
+    '||The usual reason this is done is to prevent a copy of the control template being automatically stored in the storage box, which would otherwise create duplicate stored templates.' + '||A zero-length control template is shown on the trackpad as a red  `0<B>Z</B>`8  symbol replacing its fixing peg, and in `0red text`8 on the information bar.' + '||When the control template is shown as zero-length, your usual next action will be either to create a new mint template by clicking the <span style="color:#0000ff; font-size:15px;"><B>NEW</B></span> tool-button,' + ' or to click on an existing background template in order to modify or copy that template.' + '||More experienced users can simply extend the length of the control template (`0F4`2 mouse action) and continue working with it.' + ' Selecting any other mouse action will automatically extend the control template to a scale length of 2 chains (132ft).' + '||If desired the control template can be invalidated manually by clicking the Z tool-button or by pressing the `0DELETE`2 key.' + ' If the current control template is already zero-length when this button is clicked, the most recent manually invalidated template will be restored.';
 
 var
   i: integer;
@@ -17732,18 +18590,20 @@ var
 begin
   Result := (turnoutx > 0);
 
-  if (Result = False) and (bgnd_clicked_in_quick_mode = False) then begin
+  if (Result = False) and (bgnd_clicked_in_quick_mode = False) then
+  begin
     repeat
       i := alert(2, 'php/199    zero - length  template',
-        ' |The length of the control template is zero.'
-        + '||A zero-length template can not be stored in the storage box, or saved in a data file, or used as a background template in a track plan, or used to make a crossover, diamond-crossing, branch track, etc.| ', '', '', '?  more  information', 'extend  template  to  2  chains  length  and  continue     ', 'cancel  ' + cancel_str, '', 3);
+        ' |The length of the control template is zero.' +
+        '||A zero-length template can not be stored in the storage box, or saved in a data file, or used as a background template in a track plan, or used to make a crossover, diamond-crossing, branch track, etc.| ', '', '', '?  more  information', 'extend  template  to  2  chains  length  and  continue     ', 'cancel  ' + cancel_str, '', 3);
 
       if i = 3 then
         alert_help(0, zero_help_str, '');
 
     until i <> 3;
 
-    if i = 4 then begin
+    if i = 4 then
+    begin
       extend_template_from_zero;
       Result := True;
     end;
@@ -17795,7 +18655,8 @@ begin
   //if (aq=20) and (draw_ms_platform_rear_edge=False) and (erasing=False) then EXIT;   // (platform rear edge must be in list for printing infill)
 
   try
-    with on_canvas do begin
+    with on_canvas do
+    begin
 
       Pen.Color := ink_colour;
       Pen.Mode := pmCopy;
@@ -17816,17 +18677,19 @@ begin
 
       now_max := nlmax_array[aq];
 
-      pt := outoflist(aq,0);
+      pt := outoflist(aq, 0);
       move_to.X := Round(pt.X * sx + ex - gx);
       move_to.Y := Round((pt.Y + yd) * sy + by - gy);
-      for now := 1 to now_max do begin
+      for now := 1 to now_max do
+      begin
         pt := outoflist(aq, now);
         line_to.X := Round(pt.X * sx + ex - gx);
         line_to.Y := Round((pt.Y + yd) * sy + by - gy);
 
         save_line_to := line_to;  // in case check_limits modifies it (e.g paper bunching)
 
-        if check_limits(move_to, line_to) = True then begin
+        if check_limits(move_to, line_to) = True then
+        begin
           MoveTo(move_to.X, move_to.Y);
           LineTo(line_to.X, line_to.Y);
         end;
@@ -17851,75 +18714,87 @@ begin
   Result := '-';     // default init.
 
   case code of
-    -2: begin
+    -2:
+    begin
       {on a rail joint} pegy := g / 2;
       pegangle := 0;
       Result := 'J';
     end;
     -1:
       Result := 'S'; // do nothing
-    0: begin
+    0:
+    begin
       pegx := 0;
       pegy := g / 2;
       pegangle := 0;
       Result := '0';
     end;
-    1: begin
+    1:
+    begin
       pegx := xorg;
       pegy := g / 2;
       pegangle := 0;
       Result := '1';
     end;
-    2: begin
+    2:
+    begin
       pegx := toemidx;
       pegy := g / 2;
       pegangle := 0;
       Result := '2';
     end;
-    3: begin
+    3:
+    begin
       pegx := dpx;
       pegy := g / 2;
       pegangle := 0;
       Result := '3';
     end;
-    4: begin
+    4:
+    begin
       pegx := fpx;
       pegy := g;
       pegangle := 0;
       Result := '4';
     end;
 
-    5: begin
+    5:
+    begin
       pegx := tcpx;
       pegy := tcpy;
       pegangle := k3;
       Result := 'N';
     end;
-    6: begin
+    6:
+    begin
       pegx := txpx;
       pegy := aq25offset(pegx, pegangle);
       Result := '5';
     end;
-    7: begin
+    7:
+    begin
       pegx := trpx;
       pegy := trpy;
       pegangle := 0;
       Result := 'N';
     end;
 
-    8: begin
+    8:
+    begin
       pegx := mcpx;
       pegy := g / 2;
       pegangle := 0;
       Result := 'N';
     end;
-    9: begin
+    9:
+    begin
       pegx := mxpx;
       pegy := g / 2;
       pegangle := 0;
       Result := '7';
     end;
-    10: begin
+    10:
+    begin
       pegx := mrpx;
       pegy := g / 2;
       pegangle := 0;
@@ -17939,100 +18814,117 @@ begin
 
     //end;
 
-    12: begin
+    12:
+    begin
       pegx := 0;
       pegy := g / 2 + trtscent;
       pegangle := 0;
       Result := 'N';
     end;  // adjacent turnout-side track centre.
-    13: begin
+    13:
+    begin
       pegx := 0;
       pegy := g / 2 - trmscent;
       pegangle := 0;
       Result := 'N';
     end;  // adjacent main-side track centre.
-    14: begin
+    14:
+    begin
       pegx := torgx;
       pegy := torgy;
       pegangle := k3 + Pi / 2;
       Result := 'N';
     end;  // turnout rad centre.
-    15: begin
+    15:
+    begin
       pegx := os;
       pegy := g / 2;
       pegangle := 0;
       Result := 'N';
     end;  // transition start.
-    16: begin
+    16:
+    begin
       pegx := os + tst;
       pegy := g / 2;
       pegangle := 0;
       Result := 'N';
     end;  // transition end (length).
-    17: begin
+    17:
+    begin
       pegx := mvjpx;
       pegy := g / 2;
       pegangle := 0;
       Result := '8';
     end;  // vee joint (point rail end).
-    18: begin
+    18:
+    begin
       pegx := tvjpx;
       pegy := aq25offset(pegx, pegangle);
       Result := '6';
     end;  // vee joint (splice rail end).
 
-    19: begin
+    19:
+    begin
       pegx := (turnoutx + startx) / 2;
       pegy := g / 2;
       pegangle := 0;
       Result := 'N';
     end;  // mid-length  5-3-01.     startx blanking included 216a
 
-    20: begin
+    20:
+    begin
       case peg_rail of
         // pegx set by trail_peg, slide or snake mouse actions...
         0:
           do_nothing;        // free move, pegy set by trail_peg also.
-        1: begin
+        1:
+        begin
           pegy := 0;                       // straight stock rail       aq=0.
           pegangle := 0;
         end;
         2:
           pegy := aq2offset(pegx, pegangle);  // curved turnout rail       aq=2.
-        3: begin
+        3:
+        begin
           pegy := g;                       // straight turnout rail     aq=1.
           pegangle := 0;
         end;
 
         4:
-          if plain_track = True then begin
+          if plain_track = True then
+          begin
             pegy := g;       // TS running rail plain track.
             pegangle := 0;
           end
           else
             pegy := aq3offset(pegx, pegangle);  // curved stock rail         aq=3.
 
-        5: begin
+        5:
+        begin
           pegy := g / 2 - trmscent;            // adjacent main-side centre-line.
           pegangle := 0;
         end;
-        6: begin
+        6:
+        begin
           pegy := g / 2 + trtscent;
           // adjacent turnout-side centre-line.
           pegangle := 0;
         end;
-        7: begin
+        7:
+        begin
           pegy := (g + trtscent) / 2;
           // double-track turnout-side centre-line.
           pegangle := 0;
         end;
-        8: begin
+        8:
+        begin
           pegy := g / 2;                     // main road centre-line     aq=24.
           pegangle := 0;
         end;
         9:
           pegy := aq25offset(pegx, pegangle); // turnout road centre-line  aq=25.
-        else begin
+        else
+        begin
           pegy := g / 2;
           pegangle := 0;
         end;
@@ -18043,44 +18935,51 @@ begin
         Result := 'F';
     end;
 
-    22: begin
+    22:
+    begin
       pegx := toemidx;
       pegy := g / 2;
       pegangle := k1;
       Result := '22';
     end;    // toggle CTRL-2 options.
-    33: begin
+    33:
+    begin
       pegx := dpx;
       pegy := g / 2;
       pegangle := k3;
       Result := '33';
     end;    // toggle CTRL-3 options.
-    44: begin
+    44:
+    begin
       pegx := fpx;
       pegy := g;
       pegangle := k3;
       Result := '44';
     end;    // toggle CTRL-4 options.
 
-    100: begin  // peg on end of planing...
+    100:
+    begin  // peg on end of planing...
 
       if (half_diamond = True) and (fixed_diamond = True)   // fixed diamond.
-      then begin
+      then
+      begin
         pegx := toemidx;
         // no planing - put it on centre instead (menu is disabled).
         pegy := g / 2;
         pegangle := k1;
       end
-      else begin
+      else
+      begin
         pegx := (plox + stox) / 2;
         // on nominal radial end mark (not strictly radial).
 
-        if (ABS(pegx - sworgx) < ABS(swrad - g / 2 - minfp)) and
-          (gaunt = False) then begin
+        if (ABS(pegx - sworgx) < ABS(swrad - g / 2 - minfp)) and (gaunt = False) then
+        begin
           pegy := sworgy - SQRT(SQR(swrad - g / 2) - SQR(pegx - sworgx));
           pegangle := ARCSIN((pegx - sworgx) / (swrad - g / 2));
         end
-        else begin          // gaunt or ??? ...
+        else
+        begin          // gaunt or ??? ...
           pegx := 0;
           pegy := g / 2 + h;
           pegangle := 0;
@@ -18090,22 +18989,27 @@ begin
     end;
 
 
-    104: begin                      // peg on switch heel...
-      if half_diamond = True then begin
+    104:
+    begin                      // peg on switch heel...
+      if half_diamond = True then
+      begin
         // fixed-diamond or switch-diamond.
         pegx := toemidx;
         // no heel - put it on centre instead (menu is disabled).
         pegy := g / 2;
         pegangle := k1;
       end
-      else begin
+      else
+      begin
         if gaunt = True     // 0.93.a ex 081 ...
-        then begin
+        then
+        begin
           pegx := xorg;
           pegy := g / 2 + h;
           pegangle := 0;
         end
-        else begin
+        else
+        begin
           pegx := torgx + (tradius - g / 2) * SIN(k2);
           //^^^  // switch curve end / turnout curve start.
           pegy := torgy - (tradius - g / 2) * COS(k2);  //^^^
@@ -18115,13 +19019,16 @@ begin
       Result := 'N';
     end;
 
-    108: begin   // CESP
+    108:
+    begin   // CESP
       if (tradius_is_straight = True) or (xing_type_i <> 0)  // no CESP, return TCP instead
-      then begin
+      then
+      begin
         pegx := tcpx;
         pegy := tcpy;
       end
-      else begin
+      else
+      begin
         // peg on CESP (crossing entry straight point=end of turnout curve)...
         pegx := torgx + (tradius - g / 2) * SIN(k3);  // turnout curve end.
         pegy := torgy - (tradius - g / 2) * COS(k3);
@@ -18131,63 +19038,73 @@ begin
       Result := 'N';
     end;
 
-    200: begin
+    200:
+    begin
       pegx := egpx;
       pegy := g / 2;
       pegangle := 0;
       Result := 'N';
     end;      // EGTP
-    201: begin
+    201:
+    begin
       pegx := egeo_orgx;
       pegy := egeo_orgy;
       pegangle := 0;
       Result := 'N';
     end;      // EGORG
-    220: begin
+    220:
+    begin
       pegx := igpx;
       pegy := g / 2;
       pegangle := 0;
       Result := 'N';
     end;      // IGTP
-    221: begin
+    221:
+    begin
       pegx := igeo_orgx;
       pegy := igeo_orgy;
       pegangle := 0;
       Result := 'N';
     end;      // IGORG
 
-    222: begin
+    222:
+    begin
       pegx := toemidx;
       pegy := g / 2;
       pegangle := k1 / 2;
       Result := 'SD';
     end;    // split deflection  213a
 
-    240: begin
+    240:
+    begin
       pegx := xorg + min_turnout_road_endx;
       pegy := aq25offset(pegx, pegangle);
       Result := 'N';
     end;    // TMINP   213b
-    241: begin
+    241:
+    begin
       pegx := xorg + turnout_road_endx;
       pegy := aq25offset(pegx, pegangle);
       Result := 'E';
     end;    // TEXITP  213b
 
-    260: begin
+    260:
+    begin
       pegx := xorg + min_main_road_endx;
       pegy := g / 2;
       pegangle := 0;
       Result := 'N';
     end;    // MMINP   217a
-    261: begin
+    261:
+    begin
       pegx := xorg + main_road_endx;
       pegy := g / 2;
       pegangle := 0;
       Result := 'E';
     end;    // MEXITP  217a
 
-    270: begin
+    270:
+    begin
       // 217b  mid-point of turnout curve   first get switch heel...
       if half_diamond = True then
         temp_x := toemidx    // no heel - put it on centre instead (menu is disabled).
@@ -18212,7 +19129,8 @@ begin
       Result := 'N';
     end;
 
-    275: begin
+    275:
+    begin
       // 218d  mid-point of return curve     used in radius calcs
       pegx := retrorgx - retr * SIN(tvjpk / 2);
       pegy := retrorgy + retr * COS(tvjpk / 2);
@@ -18222,80 +19140,93 @@ begin
     end;
 
 
-    279: begin
+    279:
+    begin
       pegx := wingcx_minus - scale / 6;
       pegy := g;
       pegangle := 0;
       Result := 'N';
     end;  // 218a  start of knuckle bend minus 2" arbitrary
 
-    280: begin
+    280:
+    begin
       pegx := atx;
       pegy := g;
       pegangle := 0;
       Result := 'N';
     end;     // 218a  peg on "A" timber, gauge face
 
-    285: begin
+    285:
+    begin
       pegx := bnox;
       pegy := g + j;
       pegangle := 0;
       Result := 'N';
     end;     // 218a  peg on end of vee splice
 
-    300: begin
+    300:
+    begin
       pegx := slew_s;
       pegy := g / 2;
       pegangle := 0;
       Result := 'N';
     end;     // peg on slewing start.
-    301: begin
+    301:
+    begin
       pegx := slew_s + slew_l;
       pegy := g / 2;
       pegangle := 0;
       Result := 'N';
     end;     // peg on slewing end.
 
-    400: begin
+    400:
+    begin
       pegx := os - ts1;
       pegy := g / 2;
       pegangle := 0;
       Result := 'N';
     end;     // peg on trans calcs origin.
 
-    600: begin
+    600:
+    begin
       pegx := turnoutx;
       pegy := aq25offset(pegx, pegangle);
       Result := 'N';
     end;  // TOLP peg on turnout road opposite end of main road (for parallel crossings). // 0.79.a
-    610: begin
+    610:
+    begin
       pegx := startx;
       pegy := g / 2;
       pegangle := 0;
       Result := 'N';
     end;  // blanking length  // 0.82.a
 
-    615: begin
+    615:
+    begin
       pegx := ipx;
       pegy := g / 2;
       pegangle := 0;
       Result := 'N';
     end;  // IP Intermediate 208a
 
-    999: begin                    // user-defined peg location and angle.
-      if udpeg_valid = True then begin
+    999:
+    begin                    // user-defined peg location and angle.
+      if udpeg_valid = True then
+      begin
         pegx := udpegx;
         pegy := udpegy;
         pegangle := udpegangle;
       end
-      else begin
+      else
+      begin
         pegx := 0;
         pegy := g / 2;
         pegangle := 0;
       end;
       Result := 'U';
     end;
-    else begin
+    else
+    begin
       pegx := 0;
       pegy := g / 2;
       pegangle := 0;
@@ -18331,22 +19262,26 @@ begin
     abandon_calcs := True;
 
   if abandon_calcs = False            //  curving calcs error-free ?
-  then begin
+  then
+  begin
     init_resize;                //  set up starting switch size for re-sizing upwards.
     done_calcs := calcturnout;  //  calc all turnout dims.
   end;
 
   if abandon_calcs = False            //  turnout calcs error-free ?
-  then begin
+  then
+  begin
     // first get geometrical rads...
 
-    if (spiral = False) and (slewing = False) and (plain_track = False) then begin
+    if (spiral = False) and (slewing = False) and (plain_track = False) then
+    begin
 
       tvjy := aq25offset(tvjpx, tvjk);   // peg calcs for TVJP (Ctrl-6).
 
       docurving(False, False, tvjpx, tvjy, geox, geoy, geok, dummy);
-      if calc_geo_radius(nomrad, geox, geoy - g / 2, geok + tvjk,
-        egeo_rad, egeo_k, egeo_swing, egpx) = False then begin
+      if calc_geo_radius(nomrad, geox, geoy - g / 2, geok + tvjk, egeo_rad, egeo_k,
+        egeo_swing, egpx) = False then
+      begin
         egeo_rad := max_rad;  // don't leave invalid data.
         egeo_k := 0;
         egeo_swing := 0;
@@ -18354,15 +19289,16 @@ begin
       end;
 
       docurving(False, False, tcpx, tcpy, geox, geoy, geok, dummy);
-      if calc_geo_radius(nomrad, geox, geoy - g / 2, geok + k3,
-        igeo_rad, igeo_k, igeo_swing, igpx) = False then begin
+      if calc_geo_radius(nomrad, geox, geoy - g / 2, geok + k3, igeo_rad, igeo_k, igeo_swing, igpx) = False then
+      begin
         igeo_rad := max_rad;  // don't leave invalid data.
         igeo_k := 0;
         igeo_swing := 0;
         igpx := 0;
       end;
     end
-    else begin                 // no geo rads if transition or slewing...
+    else
+    begin                 // no geo rads if transition or slewing...
       egeo_rad := max_rad;
       egeo_k := 0;
       egeo_swing := 0;
@@ -18393,7 +19329,8 @@ begin
 
     if ABS(pegangle) < minfp then
       mod_pegangle := pegangle
-    else begin
+    else
+    begin
       try
         shrink_factor := (curving_rad - (pegy - g / 2)) / curving_rad;
         tanx := 1 / TAN(pegangle);
@@ -18418,7 +19355,8 @@ begin
 
     // and the pad size data...
 
-    with info_form do begin
+    with info_form do
+    begin
       pad_width_label.Caption :=
         'pad  width   =  ' + round_str(screenx, 2) + ' mm  ( ' + round_str(screenx / 25.4, 2) + ' " )';
       pad_height_label.Caption :=
@@ -18546,7 +19484,8 @@ begin
       current_canvas := offdraw_bmp.Canvas;
   end;//case
 
-  if (draw_mode <> 0) and (mouse_modify < 0) and (Screen.Cursor = crDefault) then begin
+  if (draw_mode <> 0) and (mouse_modify < 0) and (Screen.Cursor = crDefault) then
+  begin
     hourglass := True;
     // out 0.93.a Screen.Cursor:=crHourglass;      // not during adjusts or draw mode 0 (diagnostic/init).
   end
@@ -18555,7 +19494,8 @@ begin
 
   try
 
-    if in_progress = False then begin
+    if in_progress = False then
+    begin
       in_progress := True;                //  prevent any re-entry here.
 
       abandon_calcs := False;             //  fresh start or re-calc.
@@ -18564,13 +19504,15 @@ begin
       turnout_dims;                     //  do all the turnout calcs for the pad.
 
       if abandon_calcs = False            //  turnout calcs error-free ?
-      then begin
+      then
+      begin
         if calcs_code = 0 then
           EXIT;  // only the turnout calcs were wanted.
 
         if calcs_code = 2
         // no screen calcs if calcs are for the keeps box - just calc the lists using the keeps box scaling factors.
-        then begin
+        then
+        begin
           if draw_mode < 2 then
             screenx := ABS(turnoutx + scale * 4);   //  add some right margin space (4ft scale).
           //  (can't use xy_max because list not yet filled.)
@@ -18613,12 +19555,14 @@ begin
 
       if (done_calcs = True) and (done_rails = True) and (abandon_calcs = False)
       //  all calcs ok ?
-      then begin
+      then
+      begin
         calcs_done_and_valid := True;     // ok for output to printer or keeps box.
 
         if (calcs_code = 2) and ((mode = 0) or (mode > 6))
         // no screen change if calcs are for the keeps box.
-        then begin
+        then
+        begin
           copy_draw_to_pad;
           // copy the draw bitmap to the pad.              do_background(0);   //  draw the complete background.
 
@@ -18626,7 +19570,8 @@ begin
 
         EXIT;            // all done.
       end
-      else begin
+      else
+      begin
         calcs_done_and_valid := False;    //  can't print or keep this.
         done_calcs := False;
         done_rails := False;
@@ -18639,7 +19584,8 @@ begin
 
     end;//if not in progress
   finally
-    if hourglass = True then begin
+    if hourglass = True then
+    begin
       Screen.Cursor := crDefault;
       case mouse_modify of
         -1:
@@ -18648,7 +19594,8 @@ begin
           pad_form.Cursor := mouse_action_cursor;
       end;//case
 
-      if GetCursorPos(mps) = False then begin
+      if GetCursorPos(mps) = False then
+      begin
         mps.X := 0;
         mps.Y := 0;
       end;
@@ -18673,34 +19620,42 @@ begin
   // and then some back on...
 
   if (cl_only = False) and (rail_section <> 0)     // rails wanted?
-  then begin
+  then
+  begin
 
     if pad_form.stock_rails_menu_entry.Checked = True  // generator switches...
-    then begin
+    then
+    begin
       if main_road_stock_rail_flag = True      // rail switches per template.
-      then begin
+      then
+      begin
         aqyn[0] := gf;    // straight stock rail.
         aqyn[8] := oe;
       end;
 
-      if turnout_road_stock_rail_flag = True then begin
+      if turnout_road_stock_rail_flag = True then
+      begin
         aqyn[3] := gf;    // curved stock rail.
         aqyn[11] := oe;
       end;
     end;
 
-    if pad_form.crossing_rails_menu_entry.Checked = True then begin
-      if main_road_crossing_rail_flag = True then begin
+    if pad_form.crossing_rails_menu_entry.Checked = True then
+    begin
+      if main_road_crossing_rail_flag = True then
+      begin
         aqyn[1] := gf;    // straight turnout/wing rail.
         aqyn[9] := oe;
       end;
 
-      if turnout_road_crossing_rail_flag = True then begin
+      if turnout_road_crossing_rail_flag = True then
+      begin
         aqyn[2] := gf;    // curved turnout/wing rail.
         aqyn[10] := oe;
       end;
 
-      if crossing_vee_flag = True then begin
+      if crossing_vee_flag = True then
+      begin
         aqyn[4] := gf;    // straight vee rail.
         aqyn[12] := oe;
 
@@ -18709,25 +19664,28 @@ begin
       end;
     end;
 
-    if pad_form.check_rails_menu_entry.Checked = True then begin
-      if main_road_check_rail_flag = True then begin
+    if pad_form.check_rails_menu_entry.Checked = True then
+    begin
+      if main_road_check_rail_flag = True then
+      begin
         aqyn[6] := gf;    // straight check rail.
         aqyn[14] := oe;
 
-        if (half_diamond = True) and (fixed_diamond = True)
-        then begin
+        if (half_diamond = True) and (fixed_diamond = True) then
+        begin
           aqyn[28] := gf;
           // h-d DS check rail. (DS check is in main road.)
           aqyn[29] := oe;
         end;
       end;
 
-      if turnout_road_check_rail_flag = True then begin
+      if turnout_road_check_rail_flag = True then
+      begin
         aqyn[7] := gf;    // curved check rail.
         aqyn[15] := oe;
 
-        if (half_diamond = True) and (fixed_diamond = True)
-        then begin
+        if (half_diamond = True) and (fixed_diamond = True) then
+        begin
           aqyn[26] := gf;
           // h-d MS check rail. (MS check is in diamond road.)
           aqyn[27] := oe;
@@ -18741,12 +19699,15 @@ begin
   // 0, do nothing.
 
   if gen_platforms = True     // generator switch
-  then begin
+  then
+  begin
 
     if adjacent_edges = False
     // 0.93.a   False=adjacent tracks,  True=trackbed edges and platform edges.
-    then begin
-      if (cl_only = False) and (rail_section <> 0) then begin
+    then
+    begin
+      if (cl_only = False) and (rail_section <> 0) then
+      begin
         // any adjacent tracks...
         //       if gen_tsnr=True
         //          then begin
@@ -18775,7 +19736,8 @@ begin
       end;
     end
 
-    else begin     // 0.93.a platforms and trackbed edges...
+    else
+    begin     // 0.93.a platforms and trackbed edges...
 
       aqyn[16] := draw_ts_platform;
       aqyn[17] := draw_ts_platform;
@@ -18794,7 +19756,8 @@ begin
 
   //  end;//case
 
-  if track_centre_lines_flag = True then begin
+  if track_centre_lines_flag = True then
+  begin
     aqyn[24] := cl;          // track centre-lines.
 
     if plain_track = False then
@@ -18848,21 +19811,26 @@ var
   dummy: extended;
 
 begin
-  if half_diamond = True then begin
-    if alert(3, '    switch  settings   -   half - diamond',
-      'The control template is a half-diamond.' +
+  if half_diamond = True then
+  begin
+    if alert(3, '    switch  settings   -   half - diamond', 'The control template is a half-diamond.' +
       '||Normally any changes which you make to the switch settings will have no effect until you change to a turnout template'
-      + ' by clicking the|`0TEMPLATE > CONVERT HALF-DIAMOND TO TURNOUT`1 menu item.'
-      + '|||But you can if you wish use the switch settings for the timber-spacing and rail joint marks on a movable K-crossing.' + ' This might apply if you are using a half-diamond template to improvise a split deflection switch, for example to create a symmetrical Y-turnout.' + ' For this to work, you need to click the|`0real > timbering > half-diamond timbering > movable K-crossing: timber-spacing as turnout switch`z menu option.' + ' Remember to de-select this option when you return to creating normal half-diamond templates for diamond-crossings and slips.' + ' Bear in mind that this option applies only to the timber spacings and rail joints, the switch geometry is ignored for a K-crossing.', '', '', '', '', 'cancel', 'continue  -  set  switch ...', 0) = 5 then
+      + ' by clicking the|`0TEMPLATE > CONVERT HALF-DIAMOND TO TURNOUT`1 menu item.' +
+      '|||But you can if you wish use the switch settings for the timber-spacing and rail joint marks on a movable K-crossing.'
+      + ' This might apply if you are using a half-diamond template to improvise a split deflection switch, for example to create a symmetrical Y-turnout.'
+      + ' For this to work, you need to click the|`0real > timbering > half-diamond timbering > movable K-crossing: timber-spacing as turnout switch`z menu option.'
+      + ' Remember to de-select this option when you return to creating normal half-diamond templates for diamond-crossings and slips.'
+      + ' Bear in mind that this option applies only to the timber spacings and rail joints, the switch geometry is ignored for a K-crossing.', '', '', '', '', 'cancel', 'continue  -  set  switch ...', 0) = 5 then
       EXIT;
   end;
 
-  if plain_track = True then begin
-    if alert(3, '    plain  track',
-      'The control template is plain track.' +
+  if plain_track = True then
+  begin
+    if alert(3, '    plain  track', 'The control template is plain track.' +
       '||Any changes which you make to the switch settings will have no effect until you change to a turnout template'
-      + ' by clicking the|TEMPLATE > INSERT TURNOUT IN PLAIN TRACK|menu item.',
-      '', '', '', '', 'cancel', 'continue  -  set  switch ...', 0) = 5 then
+      +
+      ' by clicking the|TEMPLATE > INSERT TURNOUT IN PLAIN TRACK|menu item.', '', '', '', '',
+      'cancel', 'continue  -  set  switch ...', 0) = 5 then
       EXIT;
   end;
 
@@ -18879,7 +19847,8 @@ begin
 
   sw_info := Tswitch(switch_select_form.switch_selector_listbox.Items.Objects[new_n]).list_switch_info;
 
-  if set_csi_from_switch_info(sw_info) = False then begin
+  if set_csi_from_switch_info(sw_info) = False then
+  begin
     // ??? data invalid.
     if set_csi_data(2, 2) = False    // set REA B default if copied data invalid.
     then
@@ -18902,7 +19871,8 @@ function check_radius(warn: boolean; var r: extended): boolean;
 begin
   Result := True;         // init return.
 
-  if Abs(r) > max_rad_limit then begin
+  if Abs(r) > max_rad_limit then
+  begin
     if r >= 0 then
       r := max_rad_limit
     else
@@ -18910,15 +19880,14 @@ begin
     Result := False;
     if warn = True then
       alert(6, '    invalid  radius', '||The maximum valid radius is ' + round_str(
-        max_rad_limit, 0) + ' mm.' +
-        '||( That is a radius of one hundred kilometres'
-        +
+        max_rad_limit, 0) + ' mm.' + '||( That is a radius of one hundred kilometres' +
         ' - more than sixty miles - which is effectively DEAD STRAIGHT in this context.)',
         '', '', '', '', '', 'O K  -  continue', 0);
     EXIT;
   end;
 
-  if Abs(r) < (g * 2) then begin
+  if Abs(r) < (g * 2) then
+  begin
     if r >= 0 then
       r := g * 2
     else
@@ -18926,9 +19895,8 @@ begin
     Result := False;
     if warn = True then
       alert(6, '    invalid  radius',
-        '||The minimum valid radius for the track centre-line is double the current track gauge.'
-        + '||i.e. current minimum valid radius = ' +
-        round_str(g * 2, 2) + ' mm.',
+        '||The minimum valid radius for the track centre-line is double the current track gauge.' +
+        '||i.e. current minimum valid radius = ' + round_str(g * 2, 2) + ' mm.',
         '', '', '', '', '', 'O K  -  continue', 0);
     EXIT;
   end;
@@ -18955,14 +19923,18 @@ begin
 
   if (xs < xe) or (xing_calc_i = 1) then
     ys := radcurve(aq,{0,0,}xs{,1})     // turnout rad part or curviform V-crossing runs on through.
-  else begin
-    if (xs > retx {csrendx}) and (retpar_i = 1) and (xs > fpx) then begin
+  else
+  begin
+    if (xs > retx {csrendx}) and (retpar_i = 1) and (xs > fpx) then
+    begin
       retrmod := gauge_mod - g / 2;               // retr rad is to centre-line.
       ys := returncurve(xs, retrmod);          // return curve part
     end
-    else begin
+    else
+    begin
       if xing_calc_i = -1        // generic crossing  - bug fix 27-5-01.
-      then begin
+      then
+      begin
         case aq of
           2:
             ys := g + (xs - fpx) / k3n;                // calc along straight crossing at this x.
@@ -18970,7 +19942,8 @@ begin
             ys := g + g * COS(k3) + (xs - csrfpx) / k3n;
         end;//case
       end
-      else begin      // regular crossing
+      else
+      begin      // regular crossing
         xb := xe;
         // end of turnout curve = start of
         ys := turnoutst_main(aq, xb, xe, xs);   // straight crossing part.
@@ -19007,12 +19980,14 @@ begin
   xs := xtb;
 
   if half_diamond = True  // mods 22-09-04 ...
-  then begin
+  then
+  begin
     xb := seg_termx[3, 2];   // segment_index=3, h-d all on turnout curve.
     xe := seg_termx[4, 2];
     xingoffset(2, 0);      // get ys,ks for aq=2.
   end
-  else begin
+  else
+  begin
     segment_index := 1;   // start search for current rail segment at toex.
 
     repeat
@@ -19084,12 +20059,14 @@ begin
   xs := xtb;
 
   if half_diamond = True  // mods 22-09-04...
-  then begin
+  then
+  begin
     xb := seg_termx[3, 3];   // segment_index=3, h-d all on turnout curve.
     xe := seg_termx[4, 3];
     xingoffset(3, g);  // get ys,ks for aq=3.
   end
-  else begin
+  else
+  begin
 
     segment_index := 0;     // turnout - start search for current rail segment.
 
@@ -19141,7 +20118,8 @@ procedure get_cpi;         // copy current prototype info from current list.
 
 // scale not changed - only done via gauge_dims.
 begin
-  with cpi do begin
+  with cpi do
+  begin
     g := gauge_pi;        // mm.
     fw := fw_pi;           // mm flangeway.
     fw_end := fwe_pi;          // mm flangeway end (flangeway+flare).
@@ -19221,18 +20199,22 @@ begin
 
     tb := tb_pi;           // plain sleepers length.
 
-    if Abs(tb - 108 * inscale) < minfp then begin
+    if Abs(tb - 108 * inscale) < minfp then
+    begin
       nine_foot := True;
       eight_foot_six := False;
       pad_form.sleepers_9ft_menu_entry.Checked := True;    // radio item.
     end
-    else begin
+    else
+    begin
       nine_foot := False;                        // non 9ft-standard length.
-      if Abs(tb - 102 * inscale) < minfp then begin
+      if Abs(tb - 102 * inscale) < minfp then
+      begin
         pad_form.sleepers_8ft6in_menu_entry.Checked := True;        // radio item.
         eight_foot_six := True;
       end
-      else begin
+      else
+      begin
         pad_form.sleepers_otherlength_menu_entry.Checked := True;   // radio item.
         eight_foot_six := False;
       end;
@@ -19270,9 +20252,12 @@ begin
   old_cg := cpi;   // !! may not have been initialised.
 
   if from_list = True         // copy to current from the gauge list
-  then begin
-    with gauge[gauge_i] do begin
-      with cpi do begin
+  then
+  begin
+    with gauge[gauge_i] do
+    begin
+      with cpi do
+      begin
 
         //list_str_pi:=list_str_glist;                           // full list string.
 
@@ -19349,29 +20334,29 @@ begin
         // !!! disused in 0.75.a 14-10-01. 30" timber spacing at crossing.
         ftimbspmax_pi := def_req;  // 30" ditto for closure space.
 
-        if (nine_foot = False) and
-          (eight_foot_six = False) and (gauge_i <> t_TT3_i) and
-          (gauge_i <> t_TTI_i) and (gauge_i <> t_TTF_i) and
-          (gauge_i <> t_TMS_i) and (gauge_i <> t_TMF_i) and
-          (gauge_i <> t_00SF_i) and (gauge_i <> t_00BF_i) and
-          (gauge_i <> t_00H0_i) and (gauge_i <> t_00DGF_i) and
-          (gauge_i <> t_00DGI_i) and (gauge_i <> t_00BRMSB_i)
+        if (nine_foot = False) and (eight_foot_six = False) and (gauge_i <> t_TT3_i) and
+          (gauge_i <> t_TTI_i) and (gauge_i <> t_TTF_i) and (gauge_i <> t_TMS_i) and
+          (gauge_i <> t_TMF_i) and (gauge_i <> t_00SF_i) and (gauge_i <> t_00BF_i) and
+          (gauge_i <> t_00H0_i) and (gauge_i <> t_00DGF_i) and (gauge_i <> t_00DGI_i) and
+          (gauge_i <> t_00BRMSB_i)
 
         // changing from an odd size to one which is not TT or 00...
-        then begin
-          i := alert(4, '    non-standard  timber  length ?',
-            'The existing nominal timber length is ' +
+        then
+        begin
+          i := alert(4, '    non-standard  timber  length ?', 'The existing nominal timber length is ' +
             round_str(tb / inscale, 2) + ' inches, which is non-standard (not 9ft or 8ft 6in, i.e. 108 or 102 inches).'
-            + '||Do you want to use this timber length for the new ' +
-            Trim(name_str_glist) + ' gauge/scale setting?', '',
-            '', 'yes  -  use  this  length', 'no  -  change  to  8ft 6ins  nominal  timber length',
-            '', 'no  -  change  to  9ft  nominal  timber length', 0);
+            + '||Do you want to use this timber length for the new ' + Trim(name_str_glist) +
+            ' gauge/scale setting?', '', '', 'yes  -  use  this  length',
+            'no  -  change  to  8ft 6ins  nominal  timber length', '',
+            'no  -  change  to  9ft  nominal  timber length', 0);
           case i of
-            4: begin
+            4:
+            begin
               eight_foot_six := True;
               nine_foot := False;
             end;
-            6: begin
+            6:
+            begin
               eight_foot_six := False;
               nine_foot := True;
             end;
@@ -19409,12 +20394,15 @@ begin
   gauge_str := cpi.name_str_pi;          //  current gauge name.
 
   if from_list = True                //  change of gauge, so...
-  then begin
+  then
+  begin
     if (initdone_flag = True)   // can't test old_cg if not.
-    then begin
-      if (old_cg.scale_pi > minfp) and (old_cg.gauge_pi > minfp) and
-        (mod_rads = True)  // not startup (old scale=0)
-      then begin
+    then
+    begin
+      if (old_cg.scale_pi > minfp) and (old_cg.gauge_pi > minfp) and (mod_rads = True)
+      // not startup (old scale=0)
+      then
+      begin
         // re-scale existing radii...
 
         mod_scale_ratio := scale / old_cg.scale_pi;
@@ -19428,7 +20416,8 @@ begin
 
         if grid_labels_code_i = 3
         // proto-feet on pad grid.  0.79.a  23-05-06
-        then begin
+        then
+        begin
           grid_spacex := grid_spacex * mod_gauge_ratio;
           grid_spacey := grid_spacey * mod_gauge_ratio;
         end;
@@ -19469,11 +20458,13 @@ begin
         // we are not not minting, so overwrite list data for these...
 
         //!!! scale ratio, not gauge, otherwise converting to say 00/H0 would produce much underscale centres.
-        then begin
+        then
+        begin
           // don't change the names, gauge, scale, flangeways, etc...
           // 0.82.a don't change min_rad for warning.
 
-          with cpi do begin
+          with cpi do
+          begin
 
             if old_cg.xing_fl_pi <> def_req then
               xing_fl_pi := old_cg.xing_fl_pi * mod_scale_ratio;                     // mm length of flares.
@@ -19576,7 +20567,8 @@ begin
           end;//for
 
 
-          with ccd do begin
+          with ccd do
+          begin
             // 0.94.a check-rail end-gap modifiers (mm)
 
             // (length modifiers are in full-size inches and don't need changing )
@@ -19614,7 +20606,8 @@ begin
 
     if (g <> def_req) and (g < 47.9 * inscale) and (csi.group_code = 2)
     // n.g. now selected with current REA switch
-    then begin
+    then
+    begin
       sz := csi.size_code;
       if sz > 1 then
         sz := sz - 1;       // use next shorter size,
@@ -19654,11 +20647,13 @@ begin
   set_y_datum;                 //  need to change the pad datum.
   redraw(False);               //  force immediate redraw.
 
-  if not_mint = True then begin
+  if not_mint = True then
+  begin
     rescale_notch(mod_ratio);
     shift_onto_notch(False, False);
   end
-  else begin
+  else
+  begin
     if gauge_form.retain_length_checkbox.Checked = True   // 208d test added, was (0)
     then
       mint_new_current(1)
@@ -19679,7 +20674,8 @@ begin
   Result := turnoutx;     // default init.
 
   if (spiral = False) and (slewing = False)      // shouldn't be here by rights!
-  then begin
+  then
+  begin
     Result := k_rads * nomrad;
     EXIT;
   end;
@@ -19707,13 +20703,14 @@ begin
     -1:
       EXIT;  // he cancelled  - leave template as it is.
 
-    0: begin
+    0:
+    begin
       alert(5, '    calculation  failed',
-        'Sorry, the angular swing calculations have failed to produce a result.'
+        'Sorry, the angular swing calculations have failed to produce a result.' +
+        '||The most likely reason is that you entered a swing angle in the wrong direction.' +
+        '||For negative curving or a negative slew (in the opposite direction to the hand of the template), the swing angle is also negative.'
         +
-        '||The most likely reason is that you entered a swing angle in the wrong direction.'
-        +
-        '||For negative curving or a negative slew (in the opposite direction to the hand of the template), the swing angle is also negative.' + '||Alternatively, your specified swing angle may be invalid for the current transition curve and/or slewing settings.',
+        '||Alternatively, your specified swing angle may be invalid for the current transition curve and/or slewing settings.',
         '', '', '', '', '', 'continue', 0);
       EXIT;
     end;
@@ -19750,7 +20747,8 @@ begin
     swing_start := total_swing;
 
     if ABS(length_in_degs - total_swing) < minfp   // already there.
-    then begin
+    then
+    begin
       Result := 1;
       EXIT;
     end;
@@ -19788,7 +20786,8 @@ begin
       len_step := saved_turnoutx / 4;   // 1/4 arbitrary.
 
     if ((length_in_degs < swing_start) and (swing_dir = 1))   // or start by going backwards.
-    then begin
+    then
+    begin
       dir := -1;
       len_step := 0 - len_step;
     end;
@@ -19807,14 +20806,16 @@ begin
       gocalc(0, 0);                   // fresh calc sets new total swing.
 
       if ABS(total_swing - length_in_degs) < 0.00001   // arbitrary tolerance.
-      then begin
+      then
+      begin
         length_in_mm := turnoutx;
         Result := 1;
         EXIT;
       end;
 
       if ((dir = 1) and (total_swing > length_in_degs))   // gone too far..
-        or ((dir = -1) and (total_swing < length_in_degs)) then begin
+        or ((dir = -1) and (total_swing < length_in_degs)) then
+      begin
         len_step := 0 - len_step / 10;     // change direction and use smaller steps.
         dir := 0 - dir;
       end;
@@ -19824,7 +20825,8 @@ begin
         Application.ProcessMessages;  // allow him to click.
 
       if wait_cancel_clicked = True   // he cancelled.
-      then begin
+      then
+      begin
         Result := -1;
         EXIT;
       end;
@@ -19835,7 +20837,8 @@ begin
 
     if Result = 0         // reset and start again with oppopsite sign of required swing...
     // (this is his most likely error).
-    then begin
+    then
+    begin
       length_in_degs := 0 - length_in_degs;  // required swing
 
       turnoutx := saved_turnoutx;
@@ -19847,7 +20850,8 @@ begin
         len_step := saved_turnoutx / 4;   // 1/4 arbitrary.
 
       if ((length_in_degs < swing_start) and (swing_dir = 1))   // or start by going backwards.
-      then begin
+      then
+      begin
         dir := -1;
         len_step := 0 - len_step;
       end;
@@ -19867,14 +20871,16 @@ begin
         gocalc(0, 0);                   // fresh calc sets new total swing.
 
         if ABS(total_swing - length_in_degs) < 0.00001   // arbitrary tolerance.
-        then begin
+        then
+        begin
           length_in_mm := turnoutx;
           Result := 1;
           EXIT;
         end;
 
         if ((dir = 1) and (total_swing > length_in_degs))   // gone too far..
-          or ((dir = -1) and (total_swing < length_in_degs)) then begin
+          or ((dir = -1) and (total_swing < length_in_degs)) then
+        begin
           len_step := 0 - len_step / 10;     // change direction and use smaller steps.
           dir := 0 - dir;
         end;
@@ -19884,7 +20890,8 @@ begin
           Application.ProcessMessages;  // allow him to click.
 
         if wait_cancel_clicked = True   // he cancelled.
-        then begin
+        then
+        begin
           Result := -1;
           EXIT;
         end;
@@ -19907,7 +20914,9 @@ procedure lengths_click(degs: boolean);
 // get xorg, startx and turnoutx lengths ...
 const
   startx_help_str: string =
-    '||The blanking length is measured from the template datum (the fixing peg RESET position, CTRL-0), towards the crossing and includes the approach track length, if any.' + '||Blanking part of the turnout is useful when superimposing two templates. For example you may want to omit the first two sleepers between the rail-joint and toe (blade tips)' + ' when creating a tandem turnout, or fitting two turnouts close together. Likewise by blanking up to the crossing you can use it as a separate component in a complex formation.' + '||The pre-set dimension is zero, i.e. no blanking.' + '||Note that setting a blanking length does not change the underlying overall length of the turnout, and any blanking is automatically cancelled by some Templot0 functions to avoid confusion.' + '||(e.g. the CONVERT TO PLAIN TRACK function, the SWAP CONTROL END-FOR-END and MAKE DOUBLE TRACK tools, and the ADJUST PLAIN TRACK LENGTH (F4), ADJUST APPROACH LENGTH (F3) and ROAM ALONG LENGTH (CTRL-F9) mouse actions.)' + '||Blanking is not available when drawing plain track. The same effect is obtained more conveniently by simply changing the plain track length (F4 mouse action),' + ' having first set the fixing peg at the opposite end (CTRL-0 or CTRL-1 peg positions).' + '||Blanking is not available when the V-crossing has been isolated.' + '||Handy Hints :' + '|It is easier to set the blanked length by mouse action (ACTION > MOUSE ACTIONS: GEOMETRY > ADJUST BLANKING LENGTH menu item) or by moving the peg to the desired position (with mouse action CTRL-F8)' + ' and then selecting the DO > BLANK UP TO PEG menu item. The blanked length can be increased or reduced this way.' + '||To blank out the part of a turnout beyond the peg (i.e towards the crossing end), select the DO > SNAP TO PEG menu item, or simply reduce the overall length (mouse action F4).' + '||To use the switch as a separate component (as a set of catch points, for example) select the DO > SNAP TO CATCH POINTS menu item.' + '||To cancel blanking, set a blanking length of zero, or select the DO > CANCEL BLANKING menu item.' + '||It is possible to set a negative blanking length. This permits a timber to be shoved out beyond the CTRL-0 datum position, if necessary, but otherwise it has no effect.' + ' Note that if you subsequently cancel blanking, such a shoved timber will become inaccessible.' + '||( Caution: If you blank to beyond the nose of the vee at the crossing, select the PRINT > PRINTED DRAWING OPTIONS > RAIL INFILL STYLE > NONE menu item before printing the template.' + ' Otherwise a risk exists with some printers that the rail colour infill function might fail, possibly wasting coloured ink across a large area of the paper.)';
+    '||The blanking length is measured from the template datum (the fixing peg RESET position, CTRL-0), towards the crossing and includes the approach track length, if any.'
+    +
+    '||Blanking part of the turnout is useful when superimposing two templates. For example you may want to omit the first two sleepers between the rail-joint and toe (blade tips)' + ' when creating a tandem turnout, or fitting two turnouts close together. Likewise by blanking up to the crossing you can use it as a separate component in a complex formation.' + '||The pre-set dimension is zero, i.e. no blanking.' + '||Note that setting a blanking length does not change the underlying overall length of the turnout, and any blanking is automatically cancelled by some Templot0 functions to avoid confusion.' + '||(e.g. the CONVERT TO PLAIN TRACK function, the SWAP CONTROL END-FOR-END and MAKE DOUBLE TRACK tools, and the ADJUST PLAIN TRACK LENGTH (F4), ADJUST APPROACH LENGTH (F3) and ROAM ALONG LENGTH (CTRL-F9) mouse actions.)' + '||Blanking is not available when drawing plain track. The same effect is obtained more conveniently by simply changing the plain track length (F4 mouse action),' + ' having first set the fixing peg at the opposite end (CTRL-0 or CTRL-1 peg positions).' + '||Blanking is not available when the V-crossing has been isolated.' + '||Handy Hints :' + '|It is easier to set the blanked length by mouse action (ACTION > MOUSE ACTIONS: GEOMETRY > ADJUST BLANKING LENGTH menu item) or by moving the peg to the desired position (with mouse action CTRL-F8)' + ' and then selecting the DO > BLANK UP TO PEG menu item. The blanked length can be increased or reduced this way.' + '||To blank out the part of a turnout beyond the peg (i.e towards the crossing end), select the DO > SNAP TO PEG menu item, or simply reduce the overall length (mouse action F4).' + '||To use the switch as a separate component (as a set of catch points, for example) select the DO > SNAP TO CATCH POINTS menu item.' + '||To cancel blanking, set a blanking length of zero, or select the DO > CANCEL BLANKING menu item.' + '||It is possible to set a negative blanking length. This permits a timber to be shoved out beyond the CTRL-0 datum position, if necessary, but otherwise it has no effect.' + ' Note that if you subsequently cancel blanking, such a shoved timber will become inaccessible.' + '||( Caution: If you blank to beyond the nose of the vee at the crossing, select the PRINT > PRINTED DRAWING OPTIONS > RAIL INFILL STYLE > NONE menu item before printing the template.' + ' Otherwise a risk exists with some printers that the rail colour infill function might fail, possibly wasting coloured ink across a large area of the paper.)';
 
   xorg_help_str: string =
     '||The approach length is the distance from the CTRL-0 datum position to the CTRL-1 rail-joint position at the toe of the turnout.'
@@ -19923,8 +20932,8 @@ const
     '||This dimension applies only when the main-road exit length setting is `0GEOMETRY > MAIN-ROAD EXIT LENGTH > ADJUSTABLE`1. For other settings this dimension is ignored.';
 
   deg_explain_str: string =
-    '||The actual length which this represents will be determined by the current track centre-line radius.'
-    + '||To enter the length directly in mm, cancel this and click the GEOMETRY > TEMPLATE LENGTHS (IN MM)... menu item instead.'
+    '||The actual length which this represents will be determined by the current track centre-line radius.' +
+    '||To enter the length directly in mm, cancel this and click the GEOMETRY > TEMPLATE LENGTHS (IN MM)... menu item instead.'
     + '||If desired the angle can be entered as a RAM unit value by prefixing the figure with the input conversion letter "n". For example an angular swing of 1:6 can be entered as "n6".' + ' Be aware that unit angles are an inverse measure, a larger unit angle will produce a shorter length.' + ' For more information about about input conversion factors click the ? HELP button.';
 
   mm_explain_str: string =
@@ -19945,17 +20954,24 @@ var
   old_xorg: extended;
 
 begin
-  if degs = True then begin
+  if degs = True then
+  begin
     deg_str := 'angular  swing';
 
     approach_help_str := '     Approach  Length' +
-      '||Enter a dimension in degrees of angular swing which represents the required length of plain approach track for the current turnout template.' + deg_explain_str + xorg_help_str;
+      '||Enter a dimension in degrees of angular swing which represents the required length of plain approach track for the current turnout template.'
+      +
+      deg_explain_str + xorg_help_str;
 
     overall_help_str := '     Overall  Length' +
-      '||Enter a dimension in degrees of angular swing which represents the required overall length of the current turnout template including any approach track.' + deg_explain_str + turnoutx_help_str;
+      '||Enter a dimension in degrees of angular swing which represents the required overall length of the current turnout template including any approach track.'
+      +
+      deg_explain_str + turnoutx_help_str;
 
     blank_help_str := '     Blanking  Length' +
-      '||Enter a dimension in degrees of angular swing which represents the length of your turnout which is required to be blanked out and not appear in the drawing.' + deg_explain_str + startx_help_str;
+      '||Enter a dimension in degrees of angular swing which represents the length of your turnout which is required to be blanked out and not appear in the drawing.'
+      +
+      deg_explain_str + startx_help_str;
 
     pt_help_str := '     Plain Track  Overall  Length' +
       '||Enter a dimension in degrees of angular swing which represents the required overall length of the current plain track template.'
@@ -19963,35 +20979,46 @@ begin
   end;
 
 
-  if ((ABS(nomrad) < max_rad_test) and (spiral = False) and (slewing = False)) or
-    (degs = False)  // fixed curve degs, or mm...
-  then begin
+  if ((ABS(nomrad) < max_rad_test) and (spiral = False) and (slewing = False)) or (degs = False)
+  // fixed curve degs, or mm...
+  then
+  begin
     if (degs = True) and (ABS(nomrad) > minfp)    // fixed curve degs...
-    then begin
+    then
+    begin
       code := 3;
       deg_factor := 180 / (Pi * ABS(nomrad));
     end
-    else begin
+    else
+    begin
       code := 1;
       deg_factor := 1.0;
       deg_str := 'mm';
 
       approach_help_str :=
         '     Approach  Length' +
-        '||Enter a dimension in mm which represents the required length of plain approach track for the current turnout template, measured along the track centre-line.' + mm_explain_str + xorg_help_str;
+        '||Enter a dimension in mm which represents the required length of plain approach track for the current turnout template, measured along the track centre-line.'
+        +
+        mm_explain_str + xorg_help_str;
 
 
       overall_help_str :=
         '     Overall  Length' +
-        '||Enter a dimension in mm which represents the required overall length of the current turnout template including any approach track.' + mm_explain_str + turnoutx_help_str;
+        '||Enter a dimension in mm which represents the required overall length of the current turnout template including any approach track.'
+        +
+        mm_explain_str + turnoutx_help_str;
 
       blank_help_str :=
         '     Blanking  Length' +
-        '||Enter a dimension in mm which represents the length of your turnout which is required to be blanked out and not appear in the drawing.' + mm_explain_str + startx_help_str;
+        '||Enter a dimension in mm which represents the length of your turnout which is required to be blanked out and not appear in the drawing.'
+        +
+        mm_explain_str + startx_help_str;
 
       pt_help_str :=
         '     Plain Track  Overall  Length' +
-        '||Enter a dimension in mm which represents the required overall length of the current plain track template, measured along the track centre-line.' + mm_explain_str + rails_explain_str;
+        '||Enter a dimension in mm which represents the required overall length of the current plain track template, measured along the track centre-line.'
+        +
+        mm_explain_str + rails_explain_str;
     end;
 
     old_xorg := xorg;
@@ -20008,42 +21035,38 @@ begin
         putdim(overall_help_str, code,
           'overall  length  of  turnout  including  approach', turnoutx * deg_factor, True, True, True, False);
         // no neg, no preset, no zero, don't terminate on zero.
-        putdim(blank_help_str, code, 'blanking  length', startx *
-          deg_factor, False, False, False, False);   // neg ok, preset ok, zero ok, don't terminate on zero.
+        putdim(blank_help_str, code, 'blanking  length', startx * deg_factor, False, False, False, False);
+        // neg ok, preset ok, zero ok, don't terminate on zero.
         putdim(turnout_road_help_str, code,
           'length  to  turnout-road  exit  including  approach',
           (xorg + turnout_road_endx) * deg_factor, True, True, True, False);
         // 209a no neg, no preset, no zero, don't terminate on zero.
-        n := putdim(main_road_help_str, code,
-          'length  to  main-road  exit  including  approach', (xorg + main_road_endx) *
-          deg_factor, True, True, True, False);
+        n := putdim(main_road_help_str, code, 'length  to  main-road  exit  including  approach',
+          (xorg + main_road_endx) * deg_factor, True, True, True, False);
         // 217a no neg, no preset, no zero, don't terminate on zero.
 
         if n <> 4 then
           EXIT;
-        if getdims('turnout  lengths  in  ' + deg_str, '', pad_form, n, od) =
-          True then begin
+        if getdims('turnout  lengths  in  ' + deg_str, '', pad_form, n, od) = True then
+        begin
           if od[0] = def_req then
             od[0] := 0;     // zero presets..
           if od[2] = def_req then
             od[2] := 0;
 
-          if (od[0] < 0) or (od[1] < 0) or (od[0] > od[1]) or
-            (od[2] > od[1]) or ((od[0] / deg_factor) > turnoutx_max) or
-            ((od[1] / deg_factor) > turnoutx_max) or ((od[2] / deg_factor) > turnoutx_max) or
-            ((od[3] / deg_factor) > turnoutx_max) or ((od[4] / deg_factor) > turnoutx_max)
-          then begin
+          if (od[0] < 0) or (od[1] < 0) or (od[0] > od[1]) or (od[2] > od[1]) or
+            ((od[0] / deg_factor) > turnoutx_max) or ((od[1] / deg_factor) > turnoutx_max) or
+            ((od[2] / deg_factor) > turnoutx_max) or ((od[3] / deg_factor) > turnoutx_max) or
+            ((od[4] / deg_factor) > turnoutx_max) then
+          begin
             i :=
               alert(6, '     one  or  more  invalid  lengths',
-              'One or more of the entered dimensions is invalid:'
-              +
-              '||The approach length cannot be more than the overall length.'
-              +
-              '||The blanking length cannot be more than the overall length.'
-              + '||None of the lengths can be more than ' +
-              round_str(turnoutx_max, 2) + ' mm.' +
-              '||Only the blanking length can be negative.',
-              '', '', '', '', 'cancel', 'O K  -  retry', 0);
+              'One or more of the entered dimensions is invalid:' +
+              '||The approach length cannot be more than the overall length.' +
+              '||The blanking length cannot be more than the overall length.' +
+              '||None of the lengths can be more than ' + round_str(turnoutx_max, 2) + ' mm.' +
+              '||Only the blanking length can be negative.', '', '', '', '',
+              'cancel', 'O K  -  retry', 0);
             if i = 5 then
               EXIT;
             CONTINUE;
@@ -20066,13 +21089,14 @@ begin
         else
           EXIT;
       until 0 <> 0
-    else begin
-      n := putdim(pt_help_str, code, 'overall  length  of  plain  track',
-        xorg * deg_factor, True, True, True, False);   // no neg, no preset, no zero, don't terminate on zero.
+    else
+    begin
+      n := putdim(pt_help_str, code, 'overall  length  of  plain  track', xorg *
+        deg_factor, True, True, True, False);   // no neg, no preset, no zero, don't terminate on zero.
       if n <> 0 then
         EXIT;
-      if getdims('plain  track  length  in  ' + deg_str, '', pad_form, n, od) =
-        True then begin
+      if getdims('plain  track  length  in  ' + deg_str, '', pad_form, n, od) = True then
+      begin
         xorg := ABS(od[0]) / deg_factor;
         turnoutx := xorg;
 
@@ -20084,7 +21108,8 @@ begin
       end;
     end;
   end
-  else begin     // transition or slewing in degrees...
+  else
+  begin     // transition or slewing in degrees...
 
     old_xorg := xorg;
 
@@ -20092,14 +21117,15 @@ begin
     docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
     // save current peg data for peg_curve calcs.
 
-    if plain_track = False then begin
-      n := putdim(overall_help_str, 3,
-        'overall  length  of  turnout  including  approach', total_swing * 180 / Pi, False, True, False, False);
+    if plain_track = False then
+    begin
+      n := putdim(overall_help_str, 3, 'overall  length  of  turnout  including  approach',
+        total_swing * 180 / Pi, False, True, False, False);
       // neg ok (s-curve), no preset, zero ok (s-curve), don't terminate on zero.
       if n <> 0 then
         EXIT;
-      if getdims('turnout  length  in  ' + deg_str, '', pad_form, n, od) =
-        True then begin
+      if getdims('turnout  length  in  ' + deg_str, '', pad_form, n, od) = True then
+      begin
         turnoutx := get_spiral_length(od[0] * Pi / 180);
         if turnoutx < 0 then
           turnoutx := 0;
@@ -20111,14 +21137,15 @@ begin
       else
         EXIT;
     end
-    else begin
-      n := putdim(pt_help_str, 3, 'overall  length  of  plain  track',
-        total_swing * 180 / Pi, False, True, False, False);
+    else
+    begin
+      n := putdim(pt_help_str, 3, 'overall  length  of  plain  track', total_swing *
+        180 / Pi, False, True, False, False);
       // neg ok (s-curve), no preset, zero ok (s-curve), don't terminate on zero.
       if n <> 0 then
         EXIT;
-      if getdims('plain  track  length  in  ' + deg_str, '', pad_form, n, od) =
-        True then begin
+      if getdims('plain  track  length  in  ' + deg_str, '', pad_form, n, od) = True then
+      begin
         xorg := get_spiral_length(od[0] * Pi / 180);
         if xorg < 0 then
           xorg := 0;
@@ -20135,7 +21162,8 @@ begin
   end;
 
 
-  if peg_code <> 0 then begin
+  if peg_code <> 0 then
+  begin
     if spiral = True then
       os := os + xorg - old_xorg;           //  os transition start changes with xorg ditto.
     if slewing = True then
@@ -20167,10 +21195,11 @@ begin
     { OT-FIRST colour_depth_bits:=GetDeviceCaps(Printer.Handle,BITSPIXEL)*GetDeviceCaps(Printer.Handle,PLANES);}
     colour_depth_bits := 24;  // OT-FIRST
 
-    if colour_depth_bits = 1 then begin
+    if colour_depth_bits = 1 then
+    begin
       i := alert(2, '    monochrome  printer',
-        'Your current printer is not a colour printer, or has not been set to print in colour.'
-        + '||Changes which you make to the printing colours will have no effect until you change to a colour printer.',
+        'Your current printer is not a colour printer, or has not been set to print in colour.' +
+        '||Changes which you make to the printing colours will have no effect until you change to a colour printer.',
         '', '', 'ignore  this  message', 'printer  setup ...', 'cancel', 'O K', 0);
       case i of
         4:
@@ -20182,13 +21211,11 @@ begin
       EXIT;
     end;
 
-    if black_white = True then begin
-      i := alert(3, '    black & white  printing',
-        'You are currently set to print in black and white only.'
-        +
-        '||Changes which you make to the printing colours will have no effect until you change to full-colour or grey-shade printing.',
-        '', '', 'change  to  grey - shade  printing',
-        'change  to  full - colour  printing', 'cancel', 'O K', 0);
+    if black_white = True then
+    begin
+      i := alert(3, '    black & white  printing', 'You are currently set to print in black and white only.'
+        + '||Changes which you make to the printing colours will have no effect until you change to full-colour or grey-shade printing.', '', '', 'change  to  grey - shade  printing', 'change  to  full - colour  printing',
+        'cancel', 'O K', 0);
       case i of
         3:
           pad_form.grey_shade_printing_menu_entry.Click;
@@ -20200,10 +21227,11 @@ begin
       EXIT;
     end;
 
-    if grey_shade = True then begin
-      i := alert(3, '    grey - shade  printing',
-        'You are currently set to print in grey shades.'
-        + '||Changes which you make to the printing colours will be converted to shades of grey until you change to full-colour printing.', '', '', '', 'change  to  full - colour  printing', 'cancel', 'O K', 0);
+    if grey_shade = True then
+    begin
+      i := alert(3, '    grey - shade  printing', 'You are currently set to print in grey shades.' +
+        '||Changes which you make to the printing colours will be converted to shades of grey until you change to full-colour printing.',
+        '', '', '', 'change  to  full - colour  printing', 'cancel', 'O K', 0);
       case i of
         4:
           pad_form.colour_printing_menu_entry.Click;
@@ -20229,14 +21257,16 @@ begin
   Result := max_rad;      // default init for straight track.
 
   if spiral = True    // currently a transition, so get rad at peg position..
-  then begin
-    if x > os then begin                         // peg is not in r1.
+  then
+  begin
+    if x > os then
+    begin                         // peg is not in r1.
       if x >= (os + tst)                     // 214a bug fix was x>(
       then
         Result := nomrad2{+ycurv}    // peg is in r2.
-      else begin                      // peg is in the transition zone.
-        if transcalcs(False, False, trans_k,
-          (x - os + ts1), dummy1, dummy2, dummy3, Result) = False then
+      else
+      begin                      // peg is in the transition zone.
+        if transcalcs(False, False, trans_k, (x - os + ts1), dummy1, dummy2, dummy3, Result) = False then
           Result := nomrad1;  // no change if trans error.
       end;
     end
@@ -20296,7 +21326,8 @@ begin
     //      0: do nothing, use previous radii and lengths, or startup defaults.
 
 
-    1: begin    // ease from new straight to existing radius...
+    1:
+    begin    // ease from new straight to existing radius...
 
       if (spiral = False) and (ABS(nomrad) > (max_rad / 2)) then
         nomrad := 660 * scale;  // change existing straight to 10 chains.
@@ -20327,7 +21358,8 @@ begin
     end;
 
 
-    2: begin    // ease to new straight from existing radius...
+    2:
+    begin    // ease to new straight from existing radius...
 
       if (spiral = False) and (ABS(nomrad) > (max_rad / 2)) then
         nomrad := 660 * scale;  // change existing straight to 10 chains.
@@ -20350,12 +21382,14 @@ begin
       //ycurv_def:=0;         // cancel default ycurv.
     end;
 
-    3: begin    // C-curve transition shrinking from existing radius...
+    3:
+    begin    // C-curve transition shrinking from existing radius...
 
       existing_rad := clrad_at_x(pegx);     // set rads from existing radius at peg.
 
       if peg_code = 0    // CTRL-0, use existing 1st radius.
-      then begin
+      then
+      begin
         nomrad1 := existing_rad;
 
         if ABS(nomrad1) > (max_rad / 2)                // arbitrary (is straight).
@@ -20364,7 +21398,8 @@ begin
         else
           nomrad2 := nomrad1 / 2;                // or down to half of 1st radius.
       end
-      else begin
+      else
+      begin
         nomrad2 := existing_rad;
 
         if ABS(nomrad2) > (max_rad / 2)                // arbitrary (is straight).
@@ -20378,12 +21413,14 @@ begin
       os := turnoutx * 0.2;      // arbitrary length of first radius 20% of template.
     end;
 
-    4: begin    // C-curve transition expanding from existing radius...
+    4:
+    begin    // C-curve transition expanding from existing radius...
 
       existing_rad := clrad_at_x(pegx);     // set rads from existing radius at peg.
 
       if peg_code = 0    // CTRL-0, use existing 1st radius.
-      then begin
+      then
+      begin
         nomrad1 := existing_rad;
 
         if ABS(nomrad1) > (max_rad / 2)                // arbitrary (is straight).
@@ -20392,7 +21429,8 @@ begin
         else
           nomrad2 := nomrad1 * 2;                // or up to double 1st radius.
       end
-      else begin
+      else
+      begin
         nomrad2 := existing_rad;
 
         if ABS(nomrad2) > (max_rad / 2)                // arbitrary (is straight).
@@ -20406,12 +21444,14 @@ begin
       os := turnoutx * 0.2;      // arbitrary length of first radius 20% of template.
     end;
 
-    5: begin    // S-curve reverse transition at existing radius...
+    5:
+    begin    // S-curve reverse transition at existing radius...
 
       existing_rad := clrad_at_x(pegx);     // set rads from existing radius at peg.
 
       if peg_code = 0    // CTRL-0, use existing 1st radius.
-      then begin
+      then
+      begin
         nomrad1 := existing_rad;
 
         if ABS(nomrad1) > (max_rad / 2)  // arbitrary (is straight).
@@ -20421,7 +21461,8 @@ begin
         nomrad2 := 0 - nomrad1;
         // to opposite direction same size as 1st radius.
       end
-      else begin
+      else
+      begin
         nomrad2 := existing_rad;
 
         if ABS(nomrad2) > (max_rad / 2)  // arbitrary (is straight).
@@ -20445,7 +21486,8 @@ begin
 
   temp := nomrad1 - nomrad2;
 
-  while ABS(temp) < minfp do begin   // no good if rads equal.
+  while ABS(temp) < minfp do
+  begin   // no good if rads equal.
     nomrad1 := nomrad1 * 1.05;         // increase r1 by 5%
     nomrad2 := nomrad2 / 1.05;         // reduce r2 by 5%
     temp := nomrad1 - nomrad2;
@@ -20453,14 +21495,16 @@ begin
 
   temp_ktrans := nomrad1 * nomrad2 * tst / temp;     // new spiral constant
 
-  if ABS(temp_ktrans) > max_spiral_constant then begin
+  if ABS(temp_ktrans) > max_spiral_constant then
+  begin
     tst := max_spiral_constant * SGZ(temp_ktrans) * temp / nomrad1 / nomrad2;
     //  no good, limit zone length.
     if tst < minfp then
       tst := 0;
   end;
 
-  with pad_form do begin
+  with pad_form do
+  begin
 
     adjust_trans_length_menu_entry.Enabled := True;  // mouse actions...
     adjust_trans_start_menu_entry.Enabled := True;
@@ -20526,14 +21570,16 @@ begin
 
       next_diff2_sq := SQR(xdiff2) + SQR(ydiff2);
 
-      if next_diff2_sq < 0.0001 then begin
+      if next_diff2_sq < 0.0001 then
+      begin
         Result := 1;
         // r2 centre now within a radius of .01mm of the original centre (dim is squared).
         EXIT;
       end;
 
       if next_diff2_sq > prev_diff2_sq     // gone too far (difference more than last time)?
-      then begin
+      then
+      begin
         k_step := 0 - k_step / 10;     // change direction and use smaller steps.
         dir := 0 - dir;
       end;
@@ -20545,13 +21591,13 @@ begin
         Application.ProcessMessages;  // allow him to click.
 
       if wait_cancel_clicked = True   // exit calcs but leave kform where we are.
-      then begin
+      then
+      begin
         Result := -1;
         EXIT;
       end;
 
-    until ((dir = 1) and (kform > (start_kform + 2 * Pi))) or
-      ((dir = -1) and (kform < (start_kform - 2 * Pi)))
+    until ((dir = 1) and (kform > (start_kform + 2 * Pi))) or ((dir = -1) and (kform < (start_kform - 2 * Pi)))
       // will take forever, but we must have a limit of some sort.
       or (ABS(k_step) < minfp);
 
@@ -20585,7 +21631,8 @@ var
 
   begin
 
-    if keeps_list.Count > 0 then begin
+    if keeps_list.Count > 0 then
+    begin
       list_position := keeps_list.Count - 1;
       // last one in box we just stored.
       delete_keep(False, False);          // delete it.
@@ -20619,9 +21666,11 @@ begin
     //----------------
 
     if spiral = True      // 19-09-2015  212a this is a kludge bug-fix...
-    then begin
+    then
+    begin
       if ABS(nomrad1) > max_rad_test    // straight?
-      then begin
+      then
+      begin
         kform_now := kform;
         docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
         // save current peg data for peg_curve calcs.
@@ -20635,7 +21684,8 @@ begin
       end;
 
       if ABS(nomrad2) > max_rad_test    // straight?
-      then begin
+      then
+      begin
         kform_now := kform;
         docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
         // save current peg data for peg_curve calcs.
@@ -20649,9 +21699,11 @@ begin
       end;
 
     end
-    else begin                            // fixed curve
+    else
+    begin                            // fixed curve
       if ABS(nomrad) > max_rad_test    // straight?
-      then begin
+      then
+      begin
         kform_now := kform;
         docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
         // save current peg data for peg_curve calcs.
@@ -20668,7 +21720,8 @@ begin
     //----------------
 
     if peg_rail <> 8   // bug fix 212a  (needed before putting notch under)
-    then begin
+    then
+    begin
       peg_rail := 8;    // peg must be on main-road centre-line.
       peg_code := 20;   // flag gocalc to use peg_rail.
       gocalc(0, 0);
@@ -20676,7 +21729,8 @@ begin
 
     if (spiral = True) and ((control_loc = 15) or (control_loc = 16))
     // move peg to trans start or length  212a
-    then begin
+    then
+    begin
       peg_code := control_loc;
       gocalc(0, 0);
     end;
@@ -20692,14 +21746,16 @@ begin
 
     // first convert it to fixed curve (so can get rad centre at instantaneous radius if peg in a transition zone or template straight).
 
-    if spiral = True then begin
+    if spiral = True then
+    begin
       fix_radius(clrad_at_x(pegx), False);
       // set nomrad from centre-line radius at peg.
       gocalc(0, 0);
     end;
 
 
-    with make_trans_data do begin
+    with make_trans_data do
+    begin
 
       old_rad1_orgx := rad1_orgx;       // 1st rad and centres on pad..
       old_rad1_orgy := rad1_orgy;
@@ -20718,9 +21774,11 @@ begin
       //------------------
 
       if spiral = True      // 19-09-2015  212a this is a kludge bug-fix...
-      then begin
+      then
+      begin
         if ABS(nomrad1) > max_rad_test    // straight?
-        then begin
+        then
+        begin
           kform_now := kform;
           docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
           // save current peg data for peg_curve calcs.
@@ -20734,7 +21792,8 @@ begin
         end;
 
         if ABS(nomrad2) > max_rad_test    // straight?
-        then begin
+        then
+        begin
           kform_now := kform;
           docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
           // save current peg data for peg_curve calcs.
@@ -20748,9 +21807,11 @@ begin
         end;
 
       end
-      else begin                            // fixed curve
+      else
+      begin                            // fixed curve
         if ABS(nomrad) > max_rad_test    // straight?
-        then begin
+        then
+        begin
           kform_now := kform;
           docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
           // save current peg data for peg_curve calcs.
@@ -20766,9 +21827,11 @@ begin
 
       //--------------------
 
-      if spiral = True then begin
+      if spiral = True then
+      begin
         if (bgnd_loc = 15) or (bgnd_loc = 16) // move peg to trans start or length  212a
-        then begin
+        then
+        begin
           peg_code := bgnd_loc;
           gocalc(0, 0);
         end;
@@ -20793,7 +21856,8 @@ begin
       plain_track := True;
       set_plain_track(True, True);
 
-      with pad_form do begin
+      with pad_form do
+      begin
 
         adjust_trans_length_menu_entry.Enabled := True;  // mouse actions...
         adjust_trans_start_menu_entry.Enabled := True;
@@ -20812,17 +21876,19 @@ begin
         slewing_panel.Hide;
       end;//with
 
-      with info_form do begin
+      with info_form do
+      begin
         slew_warn_panel.Hide;           // cover min rad box.
         min_rad_box.Show;               // restore rad change button...
         limit_rad_box.Show;
       end;//with
 
       if (ABS(rad_1st - rad_2nd) < minfp)      // 214a mod ...
-      then begin
+      then
+      begin
         alert(6, '    invalid  transition',
-          'The selected templates both have the same radius curving in the same direction.'
-          + '||A transition curve can only be created where there is a change in radius or direction.',
+          'The selected templates both have the same radius curving in the same direction.' +
+          '||A transition curve can only be created where there is a change in radius or direction.',
           '', '', '', '', '', 'continue', 0);
         error_restore;
         EXIT;
@@ -20846,7 +21912,8 @@ begin
 
       if (ABS(nomrad1) > (g * 2)) and (ABS(nomrad2) > (g * 2))  // min rads (arbitrary).
         and (cen_apart > (ABS(nomrad1) + ABS(nomrad2) - minfp))   // ok to try S-curve
-      then begin
+      then
+      begin
         wait_cancel_clicked := False;
         wait_form.cancel_button.Show;
         wait_form.waiting_label.Caption := 'calculating ...';
@@ -20875,14 +21942,16 @@ begin
       end;
 
       if got_transition = False      // now try C-curve instead...
-      then begin
+      then
+      begin
         nomrad2 := ABS(nomrad2);     // set C curve.
 
         temp := nomrad1 - nomrad2;
 
-        if (ABS(temp) > minfp) and
-          (cen_apart < (ABS(ABS(nomrad1) - ABS(nomrad2)) + minfp))  // ok to try C-curve
-        then begin
+        if (ABS(temp) > minfp) and (cen_apart < (ABS(ABS(nomrad1) - ABS(nomrad2)) + minfp))
+        // ok to try C-curve
+        then
+        begin
           wait_cancel_clicked := False;
           wait_form.cancel_button.Show;
           wait_form.waiting_label.Caption := 'calculating ...';
@@ -20905,10 +21974,10 @@ begin
           case pad_form.trans_calc_timer.Tag of
             -1:
               EXIT;  // he cancelled - leave transition as is.
-            0: begin
+            0:
+            begin
               alert(5, '    calculation  failed',
-                'Sorry, the transition calculations have failed to produce a result.'
-                +
+                'Sorry, the transition calculations have failed to produce a result.' +
                 '||The most likely reason is that the required transition zone length would exceed ' +
                 round_str(screenx_max, 2) + ' mm,' +
                 ' or that the transition curve would be more gentle than the current MAX SPIRAL limit permits.'
@@ -20922,11 +21991,13 @@ begin
               got_transition := True;
           end;//case
         end
-        else begin
+        else
+        begin
           if alert(6, '    impossible  transition',
-            'Sorry, it is not possible to create a transition curve alignment between these two templates.', '', '', '', 'more  information', 'cancel', '', 4) = 4 then begin
-            if help(0, make_trans_help_str,
-              'about  transition  curves') = 1 then
+            'Sorry, it is not possible to create a transition curve alignment between these two templates.',
+            '', '', '', 'more  information', 'cancel', '', 4) = 4 then
+          begin
+            if help(0, make_trans_help_str, 'about  transition  curves') = 1 then
               pad_form.transition_help_menu_entry.Click;
           end;
           error_restore;
@@ -20964,7 +22035,8 @@ begin
       error_allow := 0.000001;
       // r1 centre not within a radius of .001mm of the original centre (dim is squared).
 
-      if (SQR(old_rad1_orgx - rad1_orgx) + SQR(old_rad1_orgy - rad1_orgy)) > error_allow then begin
+      if (SQR(old_rad1_orgx - rad1_orgx) + SQR(old_rad1_orgy - rad1_orgy)) > error_allow then
+      begin
         // try rotating once
 
         rotate_turnout(Pi, False);
@@ -20976,7 +22048,8 @@ begin
 
         if (SQR(old_rad1_orgx - rad1_orgx) + SQR(old_rad1_orgy - rad1_orgy)) >
           error_allow  // r1 centre is still not within a radius of .001mm of the original centre (dim is squared).
-        then begin
+        then
+        begin
           alert(5, '    transition  calculation  failed',
             'Sorry, the transition calculations have failed to produce a result.',
             '', '', '', '', '', 'continue', 0);
@@ -21010,7 +22083,8 @@ begin
       -1:
         EXIT;  // he cancelled - leave transition as is.
 
-      0: begin
+      0:
+      begin
         alert(5, '    calculation  failed',
           'Sorry, the transition calculations have failed to produce a result.',
           '', '', '', '', '', 'continue', 0);
@@ -21064,28 +22138,30 @@ var
   dummy: extended;
 
 begin
-  if (clicked_keep_index < 0) or (clicked_keep_index > (keeps_list.Count - 1)) or
-    (keeps_list.Count < 1) then
+  if (clicked_keep_index < 0) or (clicked_keep_index > (keeps_list.Count - 1)) or (keeps_list.Count < 1) then
     EXIT;
 
   if check_control_template_is_valid('transition') = False then
     EXIT;  // zero length
 
-  if Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1.align_info.slewing_flag = True then begin
+  if Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1.align_info.slewing_flag =
+    True then
+  begin
     alert(6, 'php/201    make  transition',
-      'The selected background template contains a slew.'
-      + '||It is not possible to make a transition curve from a slewed template.'
-      + '||If a slew is needed, it should be applied after creating the transition curve.',
+      'The selected background template contains a slew.' +
+      '||It is not possible to make a transition curve from a slewed template.' +
+      '||If a slew is needed, it should be applied after creating the transition curve.',
       '', '', '', '', 'cancel  transition', '', 0);
     EXIT;
   end;
 
-  if slewing = True then begin
+  if slewing = True then
+  begin
     alert(6, 'php/201    make  transition',
       'The control template contains a slew.' +
-      '||It is not possible to make a transition curve from a slewed template.'
-      + '||If a slew is needed, it should be applied after creating the transition curve.'
-      + '||To cancel the slewing, click the GEOMETRY > SLEW (NUDGE) > CANCEL SLEW menu item.',
+      '||It is not possible to make a transition curve from a slewed template.' +
+      '||If a slew is needed, it should be applied after creating the transition curve.' +
+      '||To cancel the slewing, click the GEOMETRY > SLEW (NUDGE) > CANCEL SLEW menu item.',
       '', '', '', '', 'cancel  transition', '', 0);
     EXIT;
   end;
@@ -21093,15 +22169,16 @@ begin
   control_loc := 0;   // init for fixed curve..  212a
   bgnd_loc := 0;
 
-  if Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1.align_info.trans_flag = True then begin
+  if Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1.align_info.trans_flag =
+    True then
+  begin
     repeat
       i := alert(4, 'php/201    make  transition',
-        'The selected background template contains a transition curve.'
-        + '||Where on the background template do you want the new transition curve to be aligned?',
+        'The selected background template contains a transition curve.' +
+        '||Where on the background template do you want the new transition curve to be aligned?',
         'more  information', 'background  template :    on  the  1st  radius',
         'background  template :    on  the  2nd  radius',
-        'background  template :   at  the  current  peg  location',
-        'cancel  making  new  transition', '', 1);
+        'background  template :   at  the  current  peg  location', 'cancel  making  new  transition', '', 1);
       case i of
 
         1:
@@ -21114,17 +22191,22 @@ begin
         3:
           bgnd_loc := 16;     // peg code for trans length
 
-        4: begin
+        4:
+        begin
           bgnd_loc := 0;
 
-          with Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1 do begin
+          with Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1 do
+          begin
 
-            if (transform_info.peg_pos.x > align_info.trans_start)
-              and (transform_info.peg_pos.x <
-              (align_info.trans_start + align_info.trans_length))
-            then begin
+            if (transform_info.peg_pos.x > align_info.trans_start) and
+              (transform_info.peg_pos.x < (align_info.trans_start + align_info.trans_length)) then
+            begin
               if alert(3, 'php/201    make  transition',
-                'tree.gif||The peg on the background template is currently located within the transition zone.' + '||You will need to shorten the original template to this location' + ' in order to make a correct boundary with the new control template. Use the `0DO > SNAP TO PEG`1 menu item' + ' (possibly preceded by `0TEMPLATE > SWAP END-FOR-END`1 menu item).', '', '', '', '', 'cancel  making  new  transition', 'continue', 0) = 5 then
+                'tree.gif||The peg on the background template is currently located within the transition zone.' +
+                '||You will need to shorten the original template to this location' +
+                ' in order to make a correct boundary with the new control template. Use the `0DO > SNAP TO PEG`1 menu item' +
+                ' (possibly preceded by `0TEMPLATE > SWAP END-FOR-END`1 menu item).', '', '', '', '',
+                'cancel  making  new  transition', 'continue', 0) = 5 then
                 EXIT;
             end;
           end;//with
@@ -21140,11 +22222,10 @@ begin
 
 
   if spiral = True   // 212a
-  then begin
+  then
+  begin
     repeat
-      i := alert(4, 'php/201    make  transition',
-        'The control template contains a transition curve.'
-        +
+      i := alert(4, 'php/201    make  transition', 'The control template contains a transition curve.' +
         '||Where on the control template do you want the new transition curve to be aligned?',
         'more  information', 'control  template :    on  the  1st  radius',
         'control  template :    on  the  2nd  radius', 'control  template :    at  the  current  peg  location',
@@ -21161,12 +22242,18 @@ begin
         3:
           control_loc := 16;   // peg code for trans length
 
-        4: begin
+        4:
+        begin
           control_loc := 0;
 
-          if (pegx > os) and (pegx < (os + tst)) then begin
+          if (pegx > os) and (pegx < (os + tst)) then
+          begin
             if alert(3, 'php/201    make  transition',
-              'tree.gif||The peg is currently located within the transition zone on the control template.' + '||You will need to shorten the original template to this location' + ' in order to make a correct boundary with the new control template. Use the `0DO > SNAP TO PEG`1 menu item' + ' (possibly preceded by `0TEMPLATE > SWAP END-FOR-END`1 menu item).', '', '', '', '', 'cancel  making  new  transition', 'continue', 0) = 5 then
+              'tree.gif||The peg is currently located within the transition zone on the control template.' +
+              '||You will need to shorten the original template to this location' +
+              ' in order to make a correct boundary with the new control template. Use the `0DO > SNAP TO PEG`1 menu item' +
+              ' (possibly preceded by `0TEMPLATE > SWAP END-FOR-END`1 menu item).', '', '', '', '',
+              'cancel  making  new  transition', 'continue', 0) = 5 then
               EXIT;
           end;
         end;
@@ -21184,13 +22271,15 @@ begin
   save_index := clicked_keep_index;
 
   if make_transition_from_current(control_loc, bgnd_loc, trans_hand) = True    // first try one hand.
-  then begin
+  then
+  begin
     show_and_redraw(False, False);                 // force a draw.
     pad_form.fit_current_only_menu_entry.Click;   // see all of it.
 
     repeat
 
-      with alert_box do begin          // 205d
+      with alert_box do
+      begin          // 205d
         left_panbutton.Visible := True;
         right_panbutton.Visible := True;
         down_panbutton.Visible := True;
@@ -21200,17 +22289,16 @@ begin
       alert_option2a_click_code := 1;    // zoom in   205d
       alert_option2b_click_code := 2;    // zoom out
 
-      i := alert(4, 'php/202    make  transition',
-        'Is this the required transition curve?',
-        '_1anotick_delete the original templates',
-        '_2a_+  zoom in_2b_-  zoom out', 'more  information', 'no  -  try  opposite  hand  instead',
-        'cancel  transition', 'yes  -  continue', 3);
+      i := alert(4, 'php/202    make  transition', 'Is this the required transition curve?',
+        '_1anotick_delete the original templates', '_2a_+  zoom in_2b_-  zoom out',
+        'more  information', 'no  -  try  opposite  hand  instead', 'cancel  transition', 'yes  -  continue', 3);
       case i of
         3:
           if alert_help(0, make_trans_help_str, 'about  transition  curves') = 1 then
             pad_form.transition_help_menu_entry.Click;
 
-        4: begin
+        4:
+        begin
           list_position := keeps_list.Count - 1;
           // make one just added current in the keeps box.
           copy_keep_to_current(False, False, False, False);   // copy it back to pad.
@@ -21219,8 +22307,7 @@ begin
           gocalc(0, 0);
           trans_hand := 0 - trans_hand;
           clicked_keep_index := save_index;
-          if make_transition_from_current(
-            control_loc, bgnd_loc, trans_hand) = False then
+          if make_transition_from_current(control_loc, bgnd_loc, trans_hand) = False then
             EXIT;
 
           redraw_pad(False, False);                      // force a draw.
@@ -21228,7 +22315,8 @@ begin
           i := 3;                                         // ask again
         end;
 
-        5: begin
+        5:
+        begin
           list_position := keeps_list.Count - 1;
           // make one just added current in the keeps box.
           copy_keep_to_current(False, False, False, False);   // copy it back to pad.
@@ -21236,10 +22324,12 @@ begin
           redraw_pad(True, False);
         end;
 
-        6: begin
+        6:
+        begin
           if alert_box.option1a_checkbox.Checked = True
           // 205d  delete underlying templates
-          then begin
+          then
+          begin
             list_position := keeps_list.Count - 1;
             // make one just added current in the keeps box.
             delete_keep(False, False);              // remove it.
@@ -21251,7 +22341,8 @@ begin
 
           // 212a kludge. restore easement straights...
 
-          if ABS(nomrad1) > (max_rad_test - 2) then begin
+          if ABS(nomrad1) > (max_rad_test - 2) then
+          begin
             kform_now := kform;
             docurving(True, True, pegx, pegy, now_peg_x,
               now_peg_y, now_peg_k, dummy);    // save current peg data for peg_curve calcs.
@@ -21263,7 +22354,8 @@ begin
             gocalc(0, 0);
           end;
 
-          if ABS(nomrad2) > (max_rad_test - 2) then begin
+          if ABS(nomrad2) > (max_rad_test - 2) then
+          begin
             kform_now := kform;
             docurving(True, True, pegx, pegy, now_peg_x,
               now_peg_y, now_peg_k, dummy);    // save current peg data for peg_curve calcs.
@@ -21312,12 +22404,14 @@ begin
     // (now_apart ignores any slewing).
 
     if calc_transition(nomrad1, nomrad2, new_zone_len, dummy1, dummy2, dummy3, dummy4, now_apart, dummy5) =
-      False then begin
+      False then
+    begin
       EXIT;
     end;
 
     if ABS(now_apart - apart_len_wanted) < sep_limit    // already matches, do nothing.
-    then begin
+    then
+    begin
       tst := new_zone_len;     // new transition zone length = 0.
       Result := 1;
       EXIT;
@@ -21328,21 +22422,23 @@ begin
     else
       dir := 1;
     repeat
-      if calc_transition(nomrad1, nomrad2, new_zone_len, dummy1, dummy2, dummy3,
-        dummy4, now_apart, dummy5) = False then begin
+      if calc_transition(nomrad1, nomrad2, new_zone_len, dummy1, dummy2, dummy3, dummy4,
+        now_apart, dummy5) = False then
+      begin
         EXIT;
       end;
 
       if ABS(now_apart - apart_len_wanted) < sep_limit     // matching centre-to-centre dim?
-      then begin
+      then
+      begin
         tst := new_zone_len;
         // set new transition zone length to give wanted rad centre-to-centre distance.
         Result := 1;
         EXIT;
       end;
 
-      if ((dir = 1) and (now_apart > apart_len_wanted)) or
-        ((dir = -1) and (now_apart < apart_len_wanted)) then begin
+      if ((dir = 1) and (now_apart > apart_len_wanted)) or ((dir = -1) and (now_apart < apart_len_wanted)) then
+      begin
         new_zone_len := new_zone_len - zone_step;       // back track on previous step.
         if new_zone_len < 0 then
           new_zone_len := 0;     // can't be negative.
@@ -21354,7 +22450,8 @@ begin
       if Application.Terminated = False then
         Application.ProcessMessages;  // allow him to click.
 
-      if wait_cancel_clicked = True then begin
+      if wait_cancel_clicked = True then
+      begin
         Result := -1;       // he clicked cancel.
         EXIT;
       end;
@@ -21365,9 +22462,11 @@ begin
     temp := nomrad1 - nomrad2;      // 29-7-01 check any transition returned is not too gentle.
     if ABS(temp) < minfp then
       Result := 0
-    else begin
+    else
+    begin
       temp_ktrans := nomrad1 * nomrad2 * tst / temp;     // new spiral constant
-      if ABS(temp_ktrans) > max_spiral_constant then begin
+      if ABS(temp_ktrans) > max_spiral_constant then
+      begin
         tst := 0;       // no good.
         Result := 0;
       end;
@@ -21378,8 +22477,7 @@ begin
 end;
 //________________________________________________________________________________________
 
-function do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy, old_rad2_orgx,
-  old_rad2_orgy: extended): integer;
+function do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy, old_rad2_orgx, old_rad2_orgy: extended): integer;
 
   // this code moves the transition start (initial length os) to and fro in reducing steps
   // until the new position of the 2nd rad centre co-incides with the old.
@@ -21438,7 +22536,8 @@ begin
 
     if diff1_sq > 0.000001
     // r1 centre not within a radius of .001mm of the original centre (dim is squared).
-    then begin
+    then
+    begin
       // so try rotating once (shift onto notch may have failed)..
       rotate_turnout(Pi, False);   // rotate template 180 degrees anti-clockwise around peg.
       do_rollback := False;
@@ -21461,14 +22560,16 @@ begin
 
     next_diff2_sq := SQR(xdiff2) + SQR(ydiff2);
 
-    if next_diff2_sq < 0.0001 then begin
+    if next_diff2_sq < 0.0001 then
+    begin
       Result := 1;
       // r2 centre now within a radius of .01mm of the original centre (dim is squared).
       EXIT;
     end;
 
     if next_diff2_sq > prev_diff2_sq       // gone too far (difference more than last time)?
-    then begin
+    then
+    begin
       os_step := 0 - os_step / 10;     // change direction and use smaller steps.
       dir := 0 - dir;
     end;
@@ -21480,7 +22581,8 @@ begin
       Application.ProcessMessages;  // allow him to click.
 
     if wait_cancel_clicked = True   // exit calcs but leave os where we are.
-    then begin
+    then
+    begin
       Result := -1;
       EXIT;
     end;
@@ -21512,11 +22614,13 @@ begin
   { OT-FIRST colour_depth_bits:=GetDeviceCaps(Printer.Handle,BITSPIXEL)*GetDeviceCaps(Printer.Handle,PLANES);}
   colour_depth_bits := 24;  // OT-FIRST
 
-  if colour_depth_bits > 1 then begin
+  if colour_depth_bits > 1 then
+  begin
     i := alert(3, '    black & white  on  colour  printer',
       'You have selected the black & white only option for your template printing. Your current printer is a colour printer, you may get better black & white results with grey-shades printing.' + '||To print in black & white on some models of colour printer, you may also need to change a switch or setting on the printer itself, or in the printer setup dialog.' + '||Single-cartridge printers may also need to have the ink cartridge changed.' + '||Templot0 cannot make these changes for you.' + '||If the printed templates are unsatisfactory, please refer to the documentation for your printer.', '', '', '', 'printer  setup ...', 'cancel', 'O K  -  black && white  printing', 0);
     case i of
-      4: begin
+      4:
+      begin
         printer_setup(False, True);
         Result := True;
       end;
@@ -21552,10 +22656,12 @@ begin
 
   isolated_crossing := False;     // 217a
 
-  with pad_form do begin
+  with pad_form do
+  begin
     if peg_code = 0 then
       reset_peg_menu_entry.Click
-    else begin
+    else
+    begin
       peg_code := 20;
       // not on reset, so keep peg wherever it is.
       set_peg_menu_entry.Checked := True;         // radio item.
@@ -21577,7 +22683,8 @@ begin
 
   cancel_adjusts(False);  // 0.93.a may be from toolbutton
 
-  if spiral = False then begin
+  if spiral = False then
+  begin
     kform_now := kform;
     docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
     // save current peg data for peg_curve calcs.
@@ -21589,7 +22696,8 @@ begin
     nomrad := clrad;      // set the new radius.
     {end;}
   end
-  else begin                   // transition template...
+  else
+  begin                   // transition template...
     kform_now := kform;
     docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
     // save current peg data for peg_curve calcs.
@@ -21781,7 +22889,8 @@ begin
   ptr^.p2.X := p2.X;             // fill the LineTo data or other info.
   ptr^.p2.Y := p2.Y;
 
-  if code = 99 then begin
+  if code = 99 then
+  begin
     //ptr^.str:=text;             // TextOut data.
 
     timb_numbers_str := timb_numbers_str + num_str + Chr($1B);
@@ -21862,7 +22971,8 @@ var
 
 begin
 
-  if code < 0 then begin
+  if code < 0 then
+  begin
     info.X := Round(limits(minint, maxint, p2.x, dummy_i));
     // p2 contains other info or none.
     info.Y := Round(limits(minint, maxint, p2.y, dummy_i));
@@ -21872,23 +22982,23 @@ begin
       info, code, '');                       // and info in p2.
   end
 
-  else begin
+  else
+  begin
 
     // first do any blanking...
 
-    if (plain_track = False) and (code = 99) and (track = True)
-    then
+    if (plain_track = False) and (code = 99) and (track = True) then
     begin
-      if (Copy(num_str, 1, 1) <> 'B') and (Copy(num_str, 1, 1) <> 'R') and
-        (p1.x < (startx - 6 * inscale)) then
+      if (Copy(num_str, 1, 1) <> 'B') and (Copy(num_str, 1, 1) <> 'R') and (p1.x < (startx - 6 * inscale)) then
         EXIT;  // blank timber numbering (not plain track or bonus timbers 0.76.a) .
       if (Copy(num_str, 1, 1) = 'R') and (p1.x < (startx - 30 * inscale)) then
         EXIT;
     end;
 
-    if (p1.x < (startx - minfp_big)) and (p2.x < (startx - minfp_big)) and
-      (track = True)  // not timbering, these are joint marks, etc.
-    then begin
+    if (p1.x < (startx - minfp_big)) and (p2.x < (startx - minfp_big)) and (track = True)
+    // not timbering, these are joint marks, etc.
+    then
+    begin
       case code of
         1, 2, 3, 4, 5, 6, 14, 33, 44, 54, 55, 93, 95, 203, 233,
         293, 493, 501..508, 600..605, 700..703:
@@ -21899,8 +23009,8 @@ begin
     // and no unnecessary marks beyond end of template (0,3,4 = timbers, etc, checked elsewhere)...
     // (allow 1ft beyond railends for angled joint marks, etc.)
 
-    if ((p1.x > (turnoutx + scale)) or (p2.x > (turnoutx + scale))) and
-      (track = True) then begin
+    if ((p1.x > (turnoutx + scale)) or (p2.x > (turnoutx + scale))) and (track = True) then
+    begin
       case code of
         1, 2, 6, 501..508, 600..605, 700..703:
           EXIT;    // no guide marks or joints.
@@ -21909,7 +23019,8 @@ begin
 
 
     case code of    // 99 timber numbers
-      99: begin
+      99:
+      begin
 
         // 208a mods...
 
@@ -21923,7 +23034,8 @@ begin
           code, num_str);
       end;
 
-      501..508, 601..605: begin
+      501..508, 601..605:
+      begin
         // 0.94.a  501..508 check labels added.   601-605 added 206b switch labels.  !!! 701,702,703 crossing labels entered directly  211b
         info.X := 0;
         info.Y := 0;
@@ -21952,7 +23064,8 @@ begin
   p2.x := 0;    // not used.
   p2.y := 0;
 
-  if main_road_check_rail_flag = True then begin
+  if main_road_check_rail_flag = True then
+  begin
     p1.x := ckx_ms;
     p1.y := g / 3;
     enter_mark(True, p1, p2, 501, '');  // main-side working end
@@ -21962,13 +23075,15 @@ begin
     enter_mark(True, p1, p2, 502, '');  // main-side extension end
   end;
 
-  if turnout_road_crossing_rail_flag = True then begin
+  if turnout_road_crossing_rail_flag = True then
+  begin
     p1.x := wingendox;
     p1.y := g * 2 / 3;
     enter_mark(True, p1, p2, 503, '');  // main-side wing rail
   end;
 
-  if turnout_road_check_rail_flag = True then begin
+  if turnout_road_check_rail_flag = True then
+  begin
     p1.x := cuckx;
     p1.y := aq3offset(p1.x, dummy_k) - g / 3;  // curved stock rail offset
     enter_mark(True, p1, p2, 504, '');      // turnout-side working end
@@ -21978,20 +23093,24 @@ begin
     enter_mark(True, p1, p2, 505, '');      // turnout-side extension end
   end;
 
-  if main_road_crossing_rail_flag = True then begin
+  if main_road_crossing_rail_flag = True then
+  begin
     p1.x := flcendox;
     p1.y := aq2offset(p1.x, dummy_k) + g / 3;
     enter_mark(True, p1, p2, 506, '');      // turnout-side wing rail
   end;
 
-  if (half_diamond = True) and (fixed_diamond = True) then begin
-    if k_main_side_check_rail_flag = True then begin
+  if (half_diamond = True) and (fixed_diamond = True) then
+  begin
+    if k_main_side_check_rail_flag = True then
+    begin
       p1.x := kckmsflendox;
       p1.y := aq2offset(p1.x, dummy_k) - g / 8;
       enter_mark(True, p1, p2, 507, '');      // main-side K check rail
     end;
 
-    if k_diagonal_side_check_rail_flag = True then begin
+    if k_diagonal_side_check_rail_flag = True then
+    begin
       p1.x := kckdsflendox;
       p1.y := g * 9 / 8;
       enter_mark(True, p1, p2, 508, '');     // diagonal-side wing rail
@@ -22059,14 +23178,16 @@ begin
 
   // next comes the label position...
 
-  if plain_track = False then begin
+  if plain_track = False then
+  begin
     if half_diamond = True then
       p1.x := (dpx + fpx * 2) / 3   // half-diamond label top-left. (dpx+ 2/3 of lead to fpx).
     else
       p1.x := dpx;            // turnout label top-left at deflection point.
     p1.y := g / 2;
   end
-  else begin
+  else
+  begin
     p1.x := xorg / 2;     // for plain track label at mid point.
     p1.y := g / 2;
   end;
@@ -22101,11 +23222,12 @@ begin
 
   if (guide_marks = True) and ((ABS(nomrad) < max_rad_test) or (spiral = True)) and
     (turnoutx <> 0)  // 0.93.a  (turnoutx<>0) added
-  then begin            // rad centre markers. don't call enter_mark - no curving wanted.
+  then
+  begin            // rad centre markers. don't call enter_mark - no curving wanted.
 
-    if ((spiral = True) and
-      (ABS(nomrad1) < 1.0E6))    // 1E6 arbitrary max radius for marking centres (mm).
-      or ((spiral = False) and (ABS(nomrad) < 1.0E6)) then begin
+    if ((spiral = True) and (ABS(nomrad1) < 1.0E6))    // 1E6 arbitrary max radius for marking centres (mm).
+      or ((spiral = False) and (ABS(nomrad) < 1.0E6)) then
+    begin
       // rad 1 centre marker...    (p2=0)
       pin.x := xt1;
       pin.y := yt1;
@@ -22123,7 +23245,8 @@ begin
       // rad 1 mark location
 
       if slewing = True     // centre(s) of slewed over portion ...
-      then begin
+      then
+      begin
         // slewed rad 1 centre marker...    (p2=0)
         pin.x := xt1 - slew * SIN(slew_t);
         pin.y := yt1 + slew * COS(slew_t);
@@ -22145,7 +23268,8 @@ begin
     end;//rad 1
 
     if (spiral = True) and (ABS(nomrad2) < 1.0E6)      // rad 2 centre marker ...
-    then begin
+    then
+    begin
       pin.x := xt2;
       pin.y := yt2;
       dotransform(kform, xform, yform, pin, pout);
@@ -22163,7 +23287,8 @@ begin
 
 
       if slewing = True      // slewed rad 2 centre marker ...
-      then begin
+      then
+      begin
         pin.x := xt2 - slew * SIN(slew_t);
         pin.y := yt2 + slew * COS(slew_t);
 
@@ -22186,7 +23311,8 @@ begin
   // transition curve,  also for plain track....
 
   if (rad_ends = True) and (spiral = True) and (turnoutx <> 0)  // 0.93.a  (turnoutx<>0) added
-  then begin
+  then
+  begin
     p1.x := os;
     p1.y := 0 - g;                          // mark start of transition zone.
     p2.x := os;
@@ -22228,7 +23354,8 @@ begin
   // slewing zone...
 
   if (rad_ends = True) and (slewing = True) and (turnoutx <> 0)  // 0.93.a  (turnoutx<>0) added
-  then begin
+  then
+  begin
     p1.x := slew_s;
     p1.y := 0 - g * 3 / 2;                        // mark start of slewing zone.
     p2.x := slew_s;
@@ -22292,7 +23419,8 @@ begin
 
   if (guide_marks = True) and (centre_lines = True) and (track_centre_lines_flag = True) and
     (turnoutx <> 0)  // 0.93.a  (turnoutx<>0) added
-  then begin
+  then
+  begin
     // rail-end mark...
     p1.x := 0;
     p1.y := g / 2 - gm;
@@ -22302,14 +23430,16 @@ begin
 
     // rail-joint centre mark (or plain track end mark)...
 
-    if plain_track = False then begin
+    if plain_track = False then
+    begin
       p1.x := xorg;
       p1.y := g / 2 - gm;
       p2.x := xorg;
       p2.y := g / 2 + gm;
       enter_mark(True, p1, p2, 1, '');      // mark vertical.
     end
-    else begin
+    else
+    begin
       // prominent marks for plain track CTRL-1 rail joint (start) end...
       // use 3 marks to avoid overwriting the rail joints (already drawn by the plain track prog.)
       p1.x := xorg;
@@ -22354,16 +23484,19 @@ begin
   end;
 
   if (guide_marks = True) and (plain_track = False)    // turnouts only guide marks...
-  then begin
+  then
+  begin
 
     // joggle marks ...
 
     if (joggled = True) and (gaunt = False) and (half_diamond = False)   // h_d added 208a
-    then begin
+    then
+    begin
 
-      if (turnout_road_crossing_rail_flag = True) and
-        (main_road_stock_rail_flag = True)    // not if there is no switch blade or stock rail.
-      then begin
+      if (turnout_road_crossing_rail_flag = True) and (main_road_stock_rail_flag = True)
+      // not if there is no switch blade or stock rail.
+      then
+      begin
         p1.x := toex - joggle_long;
         p1.y := gmi;
 
@@ -22376,9 +23509,10 @@ begin
         // main-side joggle mark. scale 6" each side of rail.
       end;
 
-      if (main_road_crossing_rail_flag = True) and
-        (turnout_road_stock_rail_flag = True)    // not if there is no switch blade or stock rail.
-      then begin
+      if (main_road_crossing_rail_flag = True) and (turnout_road_stock_rail_flag = True)
+      // not if there is no switch blade or stock rail.
+      then
+      begin
         p1.x := setx - joggle_long;
         p1.y := g - gmi;
         p2.x := setx - joggle_long;
@@ -22392,10 +23526,9 @@ begin
 
       // 206b  joggle label...
 
-      if (turnout_road_crossing_rail_flag = True) and
-        (main_road_stock_rail_flag = True) and
-        (main_road_crossing_rail_flag = True) and (turnout_road_stock_rail_flag = True)
-      then begin
+      if (turnout_road_crossing_rail_flag = True) and (main_road_stock_rail_flag = True) and
+        (main_road_crossing_rail_flag = True) and (turnout_road_stock_rail_flag = True) then
+      begin
         enter_mark(True, joggle_labels_p1, joggle_labels_p2, 600, '');
         // long joggle mark across track linking first marks
 
@@ -22412,7 +23545,8 @@ begin
     // toe marks ...   206b changes...
 
     if gaunt = False    // 215a  flags ignored (for slip switches)
-    then begin
+    then
+    begin
       p1.x := toex;
       p1.y := gmi;
 
@@ -22423,7 +23557,8 @@ begin
       // normal toe mark (trackpad). each side of rail.
 
       if half_diamond = False   // 208a
-      then begin
+      then
+      begin
 
         p2.y := 0 - gm_swlabels_ms;
         // 206b longer mark to clear timbers after fixing on template
@@ -22436,7 +23571,8 @@ begin
     end;
 
     if gaunt = False       // 215a
-    then begin
+    then
+    begin
       p1.x := setx;
       p1.y := g - gmi;
 
@@ -22447,7 +23583,8 @@ begin
       // normal set mark (trackpad). each side of rail.
 
       if half_diamond = False   // 208a
-      then begin
+      then
+      begin
         p2.y := g + gm_swlabels_ts;
         // 206b longer mark to clear timbers after fixing on template
 
@@ -22460,7 +23597,8 @@ begin
 
     if (midline = False) and ((half_diamond = False) or (fixed_diamond = False)) and
       (gaunt = False)    // no planing end marks if drawing rail centreline only or this is a fixed-diamond.
-    then begin
+    then
+    begin
 
       {if turnout_road_crossing_rail_flag=True // not if no switch blade.
                          then begin}
@@ -22474,7 +23612,8 @@ begin
       // normal planing end mark (trackpad). each side of rail.
 
       if half_diamond = False   // 208a
-      then begin
+      then
+      begin
 
         p2.y := 0 - gm_swlabels_ms;
 
@@ -22498,7 +23637,8 @@ begin
       // normal stock gauge mark (trackpad). each side of rail.
 
       if half_diamond = False   // 208a
-      then begin
+      then
+      begin
 
         p2.y := g + railtop + gm_swlabels_ts;
 
@@ -22513,20 +23653,23 @@ begin
 
     // 211b half-diamond...
 
-    if (midline = False) and (half_diamond = True) and (fixed_diamond = True) and
-      (gaunt = False)    // no diamond points mark if rail centreline only or this is a fixed-diamond.
-    then begin
+    if (midline = False) and (half_diamond = True) and (fixed_diamond = True) and (gaunt = False)
+    // no diamond points mark if rail centreline only or this is a fixed-diamond.
+    then
+    begin
 
-      if (turnout_road_crossing_rail_flag = True) or
-        (main_road_crossing_rail_flag = True) // either rail, mark across both
-      then begin
+      if (turnout_road_crossing_rail_flag = True) or (main_road_crossing_rail_flag = True)
+      // either rail, mark across both
+      then
+      begin
 
         if tradius_is_straight = True    // regular diamond
 
         then
           p1 := draw_xing_label(hdk / 2, seg_termx[3, 2], 0 - gm_hdlabels_ms, g + gm_hdlabels_ts, fw, 0, 0)
         // 211b do blunt nose marks, and get BN note position
-        else begin
+        else
+        begin
           // irregular diamond
 
           k_irreg := hdk + seg_termx[3, 2] / tradius;   // angle at tips
@@ -22545,11 +23688,11 @@ begin
 
     // knuckle marks  214a ...
 
-    if ((turnout_road_crossing_rail_flag = True) and
-      (main_road_crossing_rail_flag = True))   // both rails
+    if ((turnout_road_crossing_rail_flag = True) and (main_road_crossing_rail_flag = True))   // both rails
       and (knuckle_code <> -1)
     // no marks if sharp bend
-    then begin
+    then
+    begin
 
       p1.x := wingcx_minus;
       p1.y := g;
@@ -22582,11 +23725,11 @@ begin
 
     // f.p. cross mark
 
-    if ((turnout_road_crossing_rail_flag = True) and
-      (main_road_crossing_rail_flag = True))   // both rails
+    if ((turnout_road_crossing_rail_flag = True) and (main_road_crossing_rail_flag = True))   // both rails
       or (crossing_vee_flag = True)
     // or vee
-    then begin
+    then
+    begin
 
       p1.x := fpx - 1.5 * inscale;
       // fine point target horizontal 3 scale inches overall size.
@@ -22608,8 +23751,8 @@ begin
       p1 := draw_xing_label(k3 / 2, fpx, g / 2, g - 3 * inscale, g, 0, 0);
       // 211b do short FP mark
 
-      p1 := draw_xing_label(k3 / 2, fpx, g + 3 * inscale, g + gm_xinglabels_ts +
-        6 * inscale, g, 0 - scale, 15 * inscale);  // 211b do long FP marks, and get FP note position
+      p1 := draw_xing_label(k3 / 2, fpx, g + 3 * inscale, g + gm_xinglabels_ts + 6 *
+        inscale, g, 0 - scale, 15 * inscale);  // 211b do long FP marks, and get FP note position
 
       if (p1.x <> 0) and (p1.y <> 0) then
         fill_mark(convert_point(p1), convert_point(dummy_p), 701, 'fp');
@@ -22618,11 +23761,12 @@ begin
     end;
 
     if (midline = False) and (crossing_vee_flag = True)     // blunt nose label  211b...
-    then begin
+    then
+    begin
       // for equalized label marker lines, must do curving and transforms and fill_mark directly ...
 
-      p1 := draw_xing_label(k3 / 2, bnx, g - gm_xinglabels_ms, g +
-        gm_xinglabels_ts, g, scale, 18 * inscale);  // 211b do blunt nose marks, and get BN note position
+      p1 := draw_xing_label(k3 / 2, bnx, g - gm_xinglabels_ms, g + gm_xinglabels_ts, g, scale, 18 * inscale);
+      // 211b do blunt nose marks, and get BN note position
 
       if (p1.x <> 0) and (p1.y <> 0) then
         fill_mark(convert_point(p1), convert_point(dummy_p), 702, 'bn');
@@ -22631,7 +23775,8 @@ begin
     end;
 
 
-    if (centre_lines = True) and (track_centre_lines_flag = True) then begin
+    if (centre_lines = True) and (track_centre_lines_flag = True) then
+    begin
       // toe centre-line mark...
       p1.x := toemidx;
       p1.y := g / 2 - gm;
@@ -22680,7 +23825,8 @@ begin
 
       if retpar_i = 1
       // main side return-point mark...  (turnout-side mark is a rad-end mark instead).
-      then begin
+      then
+      begin
         p1.x := mrpx;
         p1.y := g / 2 - gm;
         p2.x := mrpx;
@@ -22694,7 +23840,8 @@ begin
   // tie-bar centre mark...
 
   if (switch_drive_markx = True) and (switch_drive_flag = True) and (plain_track = False) and
-    (half_diamond = False) and (gaunt = False) then begin
+    (half_diamond = False) and (gaunt = False) then
+  begin
     tbe := scale;         // tie-bar ends 1ft scale beyond gauge.
     tbw := 2 * inscale;     // tie-bar half-width 2" scale.
 
@@ -22703,7 +23850,8 @@ begin
 
     if (turnout_road_crossing_rail_flag = True) or (main_road_crossing_rail_flag = True)
     // not if no switch blades.
-    then begin
+    then
+    begin
       p1.x := xtb - tbw;
       p1.y := g + tbe;
       p2.x := xtb + tbw;
@@ -22730,13 +23878,16 @@ begin
     end;
   end;
 
-  if (joint_marks = True) and (plain_track = False) then begin
+  if (joint_marks = True) and (plain_track = False) then
+  begin
     // switch front joints (we may be overwriting approach track joints already done)...
 
-    if (omit_swfj_marks = False) and (csi.stock_rail > minfp) and
-      (half_diamond = False)  // ignore if stock rail length is zero (custom switch).
-    then begin
-      if turnout_road_stock_rail_flag = True then begin
+    if (omit_swfj_marks = False) and (csi.stock_rail > minfp) and (half_diamond = False)
+    // ignore if stock rail length is zero (custom switch).
+    then
+    begin
+      if turnout_road_stock_rail_flag = True then
+      begin
         p1.x := xorg;
         p1.y := g - gmi;
         p2.x := xorg;
@@ -22744,7 +23895,8 @@ begin
         enter_mark(True, p1, p2, 6, '');  // curved stock rail end joint mark.
       end;
 
-      if main_road_stock_rail_flag = True then begin
+      if main_road_stock_rail_flag = True then
+      begin
         p1.x := xorg;
         p1.y := gmi;
         p2.x := xorg;
@@ -22756,12 +23908,14 @@ begin
 
     // switch rail joints...
 
-    if ((half_diamond = False) and (gaunt = False)) or
-      ((half_diamond = True) and (fixed_diamond = False) and (hd_switch_timbering = True))  // 213a
-    then begin
+    if ((half_diamond = False) and (gaunt = False)) or ((half_diamond = True) and
+      (fixed_diamond = False) and (hd_switch_timbering = True))  // 213a
+    then
+    begin
       if (omit_swrj_marks = False) and (csi.switch_rail > minfp)
       // ignore if switch rail length is zero (custom switch).
-      then begin
+      then
+      begin
         tempx := toex + csi.switch_rail * inscale;
         // switch rail length (from TOE).
         tempy := aq3offset(tempx, k);
@@ -22773,8 +23927,8 @@ begin
         else
           tempy := tempy - g;
 
-        if turnout_road_crossing_rail_flag = True
-        then begin
+        if turnout_road_crossing_rail_flag = True then
+        begin
           p1.x := tempx + gmo * tempsin;
           // ignore rail-width - so mark is offset to the gauge side.
           p1.y := tempy - gmo * tempcos;
@@ -22784,8 +23938,8 @@ begin
           // curved switch rail joint mark.
         end;
 
-        if main_road_crossing_rail_flag = True
-        then begin
+        if main_road_crossing_rail_flag = True then
+        begin
           p1.x := tempx;
           // ignore rail-width - so mark is offset to the gauge side.
           p1.y := g + gmo;
@@ -22799,7 +23953,8 @@ begin
 
       if (omit_skj_marks = False) and (csi.stock_rail > minfp)
       // ignore if stock rail length is zero (custom switch).
-      then begin
+      then
+      begin
 
         if half_diamond = True
         // 213a timbering movable K-crossing as a switch..
@@ -22814,8 +23969,8 @@ begin
         tempcos := COS(k);
         tempsin := SIN(k);
 
-        if turnout_road_stock_rail_flag = True
-        then begin
+        if turnout_road_stock_rail_flag = True then
+        begin
           p1.x := tempx - (gmo + railtop) * tempsin;
           p1.y := tempy + (gmo + railtop) * tempcos;
           p2.x := tempx + (gmi - railtop) * tempsin;
@@ -22825,8 +23980,8 @@ begin
           // curved stock rail joint mark.
         end;
 
-        if main_road_stock_rail_flag = True
-        then begin
+        if main_road_stock_rail_flag = True then
+        begin
           p1.x := tempx;
           p1.y := gmi - railtop;
           p2.x := tempx;
@@ -22836,28 +23991,33 @@ begin
         end;
       end;
     end
-    else begin    // normal half_diamond (wing rail joints, not point rails NYI) ...
+    else
+    begin    // normal half_diamond (wing rail joints, not point rails NYI) ...
 
-      if (omit_kx_marks = False) and ((hd_proto_timbering = True) or
-        (fixed_diamond = False)) and (gaunt = False)
+      if (omit_kx_marks = False) and ((hd_proto_timbering = True) or (fixed_diamond = False)) and
+        (gaunt = False)
       // no joints if non prototypical fixed-crossing spacings.
-      then begin
+      then
+      begin
 
         if use_k_custom_wing_rails = True      // // 0.95.a
         then
           kwl := k_custom_wing_long / 2
-        else begin
-          if fixed_diamond = True
-          then begin
+        else
+        begin
+          if fixed_diamond = True then
+          begin
             if hdkn <= 6.375       // 0.94.a bug fix was k3n
-            then begin
+            then
+            begin
               if rail_section <> 2   // BH or none.
               then
                 kwl := 173 / 2   //  14'5" BH k-wing rails overall.
               else
                 kwl := 168 / 2;  //  14'0" FB.
             end
-            else begin
+            else
+            begin
               if rail_section <> 2   // BH or none.
               then
                 kwl := 185 / 2   //  15'5" BH k-wing rails overall.
@@ -22865,7 +24025,8 @@ begin
                 kwl := 220 / 2;  //  18'4" FB.
             end;
           end
-          else begin
+          else
+          begin
             if rail_section <> 2 then
               kwl := 216      // BH 18'0"
             else
@@ -22879,8 +24040,8 @@ begin
         tempcos := COS(k);
         tempsin := SIN(k);
 
-        if turnout_road_stock_rail_flag = True
-        then begin
+        if turnout_road_stock_rail_flag = True then
+        begin
           p1.x := tempx - (gmo + railtop) * tempsin;
           p1.y := tempy + (gmo + railtop) * tempcos;
           p2.x := tempx + gmi * tempsin;
@@ -22890,8 +24051,8 @@ begin
           // curved stock rail joint mark.
         end;
 
-        if main_road_stock_rail_flag = True
-        then begin
+        if main_road_stock_rail_flag = True then
+        begin
 
           tempx := toex + (kwl * inscale / COS(hdk / 2));  // 0.95.a  was k3
 
@@ -22909,15 +24070,17 @@ begin
 
     if (half_diamond = False) or (hd_vcheck_rails = 0) or (k3n > 7.99)
     // 205a  remove joint marks if slip and shorter than 1:8
-    then begin
+    then
+    begin
 
       if (omit_wj_marks = False) and (no_timbering = False)
       // need the timbering calcs for these.
-      then begin
+      then
+      begin
         tempx := (xtbzz + xtbz) / 2;
 
-        if main_road_crossing_rail_flag = True
-        then begin
+        if main_road_crossing_rail_flag = True then
+        begin
           p1.x := tempx;
           // crossing joint timber centres.
           p1.y := g + gmo + railtop;
@@ -22934,8 +24097,8 @@ begin
         tempcos := COS(k);
         tempsin := SIN(k);
 
-        if turnout_road_crossing_rail_flag = True
-        then begin
+        if turnout_road_crossing_rail_flag = True then
+        begin
           p1.x := tempx - gmi * tempsin;
           p1.y := tempy + gmi * tempcos;
           p2.x := tempx + (gmo + railtop) * tempsin;
@@ -22948,10 +24111,12 @@ begin
 
     //  vee point and splice rail joints ...
 
-    if (omit_vj_marks = False) and (crossing_vee_flag = True) then begin
+    if (omit_vj_marks = False) and (crossing_vee_flag = True) then
+    begin
 
       if xing_calc_i = 1     // joint position and angles for curviform V-crossing...
-      then begin
+      then
+      begin
         if Abs(tradius) < minfp then
           tempk := k4_limit
         else
@@ -22965,7 +24130,8 @@ begin
         tempcos := COS(tempk);
         tempsin := SIN(tempk);
       end
-      else begin
+      else
+      begin
         tempx := bnx + veelong * COS(k3);
         // x to splice rail joint, straight crossing.
         // also for parallel crossing, even if on return curve - slight error?
@@ -22996,22 +24162,26 @@ begin
     // mark across gauge-faces at each end of curves.
     and ((turnout_road_stock_rail_flag = True) or (turnout_road_crossing_rail_flag = True))
   // only if there is some rail to mark.
-  then begin
+  then
+  begin
     // start of switch curve (end of planing)...
 
     if (Abs(k1 - k2) > minfp) and (swrad < max_rad_test) and (half_diamond = False)
     // (do nothing for straight switch.)
-    then begin
+    then
+    begin
       if switch_type = 0
       // curved planing, switch curve starts at toe (mark across between tips instead of strictly radial).
-      then begin
+      then
+      begin
         p1.x := setx;
         p1.y := g;
         p2.x := toex;
         p2.y := 0;
         enter_mark(True, p1, p2, 2, '');
       end
-      else begin
+      else
+      begin
         //  semi-curved switch (mark across between planing end marks instead of strictly radial).
 
         p1.x := stox;
@@ -23023,9 +24193,11 @@ begin
       end;
     end;
 
-    if tradius_is_straight = False then begin
+    if tradius_is_straight = False then
+    begin
       if half_diamond = False   // turnout only (and gaunt curve start).
-      then begin
+      then
+      begin
         p1.x := torgx + csradius * SIN(k2);
         // switch curve end / turnout curve start.
         p1.y := torgy - csradius * COS(k2);
@@ -23035,7 +24207,8 @@ begin
       end;
 
       if xing_calc_i <> 1     // not curviform V-crossing
-      then begin
+      then
+      begin
         p1.x := torgx + csradius * SIN(k3);    // turnout/diagonal curve end.
         p1.y := torgy - csradius * COS(k3);
         p2.x := torgx + tradius * SIN(k3);     //^^^
@@ -23043,8 +24216,10 @@ begin
         enter_mark(True, p1, p2, 2, '');
       end;
     end
-    else begin                     // straight turnout radius.
-      if (half_diamond = False) and (gaunt = False) then begin
+    else
+    begin                     // straight turnout radius.
+      if (half_diamond = False) and (gaunt = False) then
+      begin
         p1.x := sworgx + (swrad - g) * SIN(k2);    // switch "curve" end mark.
         p1.y := sworgy - (swrad - g) * COS(k2);
         p2.x := sworgx + swrad * SIN(k2);
@@ -23057,8 +24232,9 @@ begin
 
   // return curves..
 
-  if (rad_ends = True) and (plain_track = False) and (retpar_i = 1) and
-    (crossing_vee_flag = True) and (turnout_road_stock_rail_flag = True) then begin
+  if (rad_ends = True) and (plain_track = False) and (retpar_i = 1) and (crossing_vee_flag = True) and
+    (turnout_road_stock_rail_flag = True) then
+  begin
     p1.x := retrorgx - (retr + g / 2) * SIN(k3);         // return curve start.
     p1.y := retrorgy + (retr + g / 2) * COS(k3);
     p2.x := retrorgx - (retr - g / 2) * SIN(k3);
@@ -23085,7 +24261,8 @@ var
   start_boundary, end_boundary: extended;
 
 begin
-  for aq := 0 to aq_max_c do begin
+  for aq := 0 to aq_max_c do
+  begin
     endmarks_yn[aq, 0] := False;         // init defaults.
     endmarks_yn[aq, 1] := False;
   end;
@@ -23094,33 +24271,40 @@ begin
     (draw_ms_platform = False) then
     EXIT;
 
-  if plain_track = True then begin
+  if plain_track = True then
+  begin
     aq_begin := 16;   // platform ends
     aq_end := 23;
   end
-  else begin
+  else
+  begin
     aq_begin := 0;         // turnout
     aq_end := aq_max_c;
   end;
 
-  for aq := aq_begin to aq_end do begin
+  for aq := aq_begin to aq_end do
+  begin
 
     if cl_only = True     // platforms /trackbed only
-    then begin
+    then
+    begin
       if (aq < 16) or (aq > 23) then
         CONTINUE;
     end;
 
-    if aqyn[aq] = True then begin
+    if aqyn[aq] = True then
+    begin
       case aq of
 
-        16, 17, 20, 21: begin
+        16, 17, 20, 21:
+        begin
           start_boundary := startx - scale;
           //minfp_big;   // platforms - increase limits by 1ft to show ends always
           end_boundary := turnoutx + scale; //minfp_big;
         end;
 
-        else begin
+        else
+        begin
           start_boundary := startx + minfp_big;
           // rails - reduce limits to exclude ends if rail not complete
           end_boundary := turnoutx - minfp_big;
@@ -23130,14 +24314,16 @@ begin
       p1 := xy_ends[aq, 0];        // start end of rail
       p2 := xy_ends[aq, 1];        // finish end of rail
 
-      if (p1.x < end_boundary) and (p1.x > start_boundary) then begin
+      if (p1.x < end_boundary) and (p1.x > start_boundary) then
+      begin
         endmarks[aq, 0] := convert_point(curve_point(p1));
         endmarks_yn[aq, 0] := True;
       end;
 
-      if (p2.x < end_boundary) and (p2.x > start_boundary) and
-        (ABS(p2.x - p1.x) > minfp_big) // ignore end mark if same position as start mark.
-      then begin
+      if (p2.x < end_boundary) and (p2.x > start_boundary) and (ABS(p2.x - p1.x) > minfp_big)
+      // ignore end mark if same position as start mark.
+      then
+      begin
         endmarks[aq, 1] := convert_point(curve_point(p2));
         endmarks_yn[aq, 1] := True;
       end;
@@ -23160,12 +24346,13 @@ var
   begin
     try
 
-      if (endmarks_yn[aq1, aq1end] = True) and (endmarks_yn[aq2, aq2end] = True)
-      then begin
+      if (endmarks_yn[aq1, aq1end] = True) and (endmarks_yn[aq2, aq2end] = True) then
+      begin
         P1 := endmarks[aq1, aq1end];
         P2 := endmarks[aq2, aq2end];
 
-        with on_canvas do begin
+        with on_canvas do
+        begin
 
           Pen.Width := 1;
 
@@ -23178,7 +24365,8 @@ var
             Pen.Style := psDot;
 
           if ink = True                           // not erasing ?
-          then begin
+          then
+          begin
             if (aq1 = 16) or (aq1 = 20)     // 0.93.a platforms
             then
               Pen.Color := guide_colour
@@ -23194,7 +24382,8 @@ var
           move_to.Y := Round((P1.Y + yd) * sy + by - gy);
           line_to.X := Round(P2.X * sx + ex - gx);
           line_to.Y := Round((P2.Y + yd) * sy + by - gy);
-          if check_limits(move_to, line_to) = True then begin
+          if check_limits(move_to, line_to) = True then
+          begin
             MoveTo(move_to.X, move_to.Y);
             LineTo(line_to.X, line_to.Y);
           end;
@@ -23226,7 +24415,8 @@ begin
 
   mark_end(20, 1, 21, 1, draw_ms_platform_end_edge);
 
-  if plain_track = False then begin                                       // mark rail-ends...
+  if plain_track = False then
+  begin                                       // mark rail-ends...
 
     //            if off_screen=True then pad_canvas:=pad_bmp.Canvas
     //                               else pad_canvas:=pad_form.Canvas;
@@ -23242,9 +24432,11 @@ begin
 
     mark_end(4, 0, 5, 0, True);    // blunt nose.
 
-    if (half_diamond = True) and (fixed_diamond = True) then begin
+    if (half_diamond = True) and (fixed_diamond = True) then
+    begin
       if isolated_crossing = False    // 217a
-      then begin
+      then
+      begin
         mark_end(1, 0, 9, 0, True);
         // planed faced of point rails for a fixed-diamond. Solid line.
         mark_end(2, 0, 10, 0, True);
@@ -23294,7 +24486,8 @@ var
 begin
   Result := False;  // default init.
 
-  with pad_form do begin
+  with pad_form do
+  begin
     pad_guide_marks := show_current_template_guides_menu_entry.Checked;
     // 0.79.a  current_guides_menu_entry.Checked;
     pad_timber_outlines := current_timber_outlines_menu_entry.Checked;
@@ -23313,9 +24506,11 @@ begin
   tbnum_str := timb_numbers_str;
   // the full string of timber numbering for the control template.
 
-  with on_canvas do begin
+  with on_canvas do
+  begin
 
-    for i := 0 to (mark_index - 1){markmax_c} do begin   // (mark_index is always the next free slot)
+    for i := 0 to (mark_index - 1){markmax_c} do
+    begin   // (mark_index is always the next free slot)
 
       try
         ptr_1st := @marks_list_ptr[i];  // pointer to the next Tmark record.
@@ -23326,14 +24521,17 @@ begin
         code := ptr_1st^.code;
 
         if code = 0 then
-          CONTINUE;     // ignore mark entries with code zero (might be the second or third of a multi-mark entry, e.g. for timber infill).
+          CONTINUE;
+        // ignore mark entries with code zero (might be the second or third of a multi-mark entry, e.g. for timber infill).
 
         if code > 599 then
-          CONTINUE;  // 206b 211b ignore long marks and switch/xing labels for control template on trackpad  600,601-605, 700,701-703
+          CONTINUE;
+        // 206b 211b ignore long marks and switch/xing labels for control template on trackpad  600,601-605, 700,701-703
 
         if ((code = 203) or (code = 233) or (code = 293) or (code = 493)) and (i < (mark_index - 1))
         // timber infill, chair outlines
-        then begin
+        then
+        begin
           ptr_2nd := @marks_list_ptr[i + 1];
           // pointer to the second infill Tmark record.
           if ptr_2nd = nil then
@@ -23348,7 +24546,8 @@ begin
         p1 := ptr_1st^.p1;              // x1,y1 in  1/100ths mm
 
         if (code <> 99) and (code < 501)  // 0.94.a  501-508 is check-rail labels
-        then begin
+        then
+        begin
           p2 := ptr_1st^.p2;    // x2,y2 in  1/100ths mm
 
           //Pen.Style:=ptr^.pen_style;
@@ -23356,7 +24555,8 @@ begin
           Pen.Width := 1;
 
           if ink = True            // not erasing ?
-          then begin
+          then
+          begin
             case code of
               -5:
                 CONTINUE;                                        // ignore label position.
@@ -23414,12 +24614,14 @@ begin
                 else
                   CONTINUE;
 
-              8: begin                  // peg 1st arm.
+              8:
+              begin                  // peg 1st arm.
                 peg_arm1 := ptr_1st^;  // save mark for marking later.
                 CONTINUE;            // next mark.
               end;
 
-              9: begin                  // peg 2nd arm.
+              9:
+              begin                  // peg 2nd arm.
                 peg_arm2 := ptr_1st^;  // save mark for marking later.
                 CONTINUE;            // next mark.
               end;
@@ -23473,19 +24675,23 @@ begin
           check_int2x := limits(h_minint, h_maxint, p2.X * sx + ex - gx, dummy_i);
           check_int2y := limits(h_minint, h_maxint, (p2.Y + yd) * sy + by - gy, dummy_i);
 
-          if (code > 0) and (code < 200) then begin
+          if (code > 0) and (code < 200) then
+          begin
             move_to.X := Round(check_int1x);
             move_to.Y := Round(check_int1y);
             line_to.X := Round(check_int2x);
             line_to.Y := Round(check_int2y);
-            if check_limits(move_to, line_to) = True then begin
+            if check_limits(move_to, line_to) = True then
+            begin
               MoveTo(move_to.X, move_to.Y);
               LineTo(line_to.X, line_to.Y);
             end;
           end
-          else begin
+          else
+          begin
             if code = -1              // code -1, draw fixing peg (not arms) ...
-            then begin
+            then
+            begin
               if ink = True then
               begin
                 draw_notch(on_canvas);
@@ -23504,8 +24710,7 @@ begin
               if peg_dim > Round(scale * fx) then
                 peg_dim := Round(scale * fx); // but not more than 2ft scale.
 
-              if pad_form.peg_solid_red_menu_entry.Checked =
-                True    // 0.95.a
+              if pad_form.peg_solid_red_menu_entry.Checked = True    // 0.95.a
               then
                 Brush.Color := Pen.Color                       // solid red
               else
@@ -23513,7 +24718,8 @@ begin
 
               if peg_dim < 5
               // 0.91.b was (pad_form.ClientWidth div 200) // but then not less than this.
-              then begin
+              then
+              begin
                 peg_dim := 5;
                 // 0.91.b was pad_form.ClientWidth div 200;
                 Brush.Color := Pen.Color;
@@ -23533,13 +24739,15 @@ begin
 
               if turnoutx = 0
               // 0.93.a  invalidated template -- draw red Z instead of peg ...
-              then begin
+              then
+              begin
                 Pen.Width := 2;
                 move_to.X := pad_pegx - peg_dim;
                 move_to.Y := pad_pegy - peg_dim;    // top of Z
                 line_to.X := pad_pegx + peg_dim;
                 line_to.Y := pad_pegy - peg_dim;
-                if check_limits(move_to, line_to) = True then begin
+                if check_limits(move_to, line_to) = True then
+                begin
                   MoveTo(move_to.X, move_to.Y);
                   LineTo(line_to.X, line_to.Y);
                 end;
@@ -23548,7 +24756,8 @@ begin
                 move_to.Y := pad_pegy - peg_dim;    // diagonal of Z
                 line_to.X := pad_pegx - peg_dim;
                 line_to.Y := pad_pegy + peg_dim;
-                if check_limits(move_to, line_to) = True then begin
+                if check_limits(move_to, line_to) = True then
+                begin
                   MoveTo(move_to.X, move_to.Y);
                   LineTo(line_to.X, line_to.Y);
                 end;
@@ -23557,30 +24766,31 @@ begin
                 move_to.Y := pad_pegy + peg_dim;    // bottom of Z
                 line_to.X := pad_pegx + peg_dim;
                 line_to.Y := pad_pegy + peg_dim;
-                if check_limits(move_to, line_to) = True then begin
+                if check_limits(move_to, line_to) = True then
+                begin
                   MoveTo(move_to.X, move_to.Y);
                   LineTo(line_to.X, line_to.Y);
                 end;
 
                 Pen.Width := 1; // restore
               end
-              else begin     // normal peg ...
+              else
+              begin     // normal peg ...
 
                 move_to.X := pad_pegx - peg_dim;
                 move_to.Y := pad_pegy - peg_dim;
                 line_to.X := pad_pegx + peg_dim;
                 line_to.Y := pad_pegy + peg_dim;
 
-                if pad_form.peg_hollow_menu_entry.Checked =
-                  True    // 0.95.a
-                then begin
-                  if check_limits(move_to,
-                    line_to) = True then
+                if pad_form.peg_hollow_menu_entry.Checked = True    // 0.95.a
+                then
+                begin
+                  if check_limits(move_to, line_to) = True then
                     arc_ellipse(on_canvas, move_to.X, move_to.Y, line_to.X, line_to.Y);  // 0.95.a clear centre
                 end
-                else begin
-                  if check_limits(move_to,
-                    line_to) = True then
+                else
+                begin
+                  if check_limits(move_to, line_to) = True then
                     Ellipse(move_to.X, move_to.Y, line_to.X, line_to.Y);
                 end;
 
@@ -23588,7 +24798,8 @@ begin
                 move_to.Y := pad_pegy;
                 line_to.X := pad_pegx + peg_dim * 2;
                 line_to.Y := pad_pegy;
-                if check_limits(move_to, line_to) = True then begin
+                if check_limits(move_to, line_to) = True then
+                begin
                   MoveTo(move_to.X, move_to.Y);
                   LineTo(line_to.X, line_to.Y);
                 end;
@@ -23597,7 +24808,8 @@ begin
                 move_to.Y := pad_pegy - peg_dim * 2;
                 line_to.X := pad_pegx;
                 line_to.Y := pad_pegy + peg_dim * 2;
-                if check_limits(move_to, line_to) = True then begin
+                if check_limits(move_to, line_to) = True then
+                begin
                   MoveTo(move_to.X, move_to.Y);
                   LineTo(line_to.X, line_to.Y);
                 end;
@@ -23606,7 +24818,8 @@ begin
             end;
 
             if (code = -2) or (code = -3)              // draw curving rad centres...
-            then begin
+            then
+            begin
               radcen_dim := 6;
               // 0.91.b was Screen.Width div 150; // 150 arbitrary. (larger for the current than bgnd keeps).
               if radcen_dim > Round(scale * 5 * fx) then
@@ -23622,15 +24835,15 @@ begin
                 rad_centy := radceny;
               end;
 
-              if (spiral = True) and (adjust_trans_rad = 1) and
-                (code = -2) then begin
+              if (spiral = True) and (adjust_trans_rad = 1) and (code = -2) then
+              begin
                 rad_centx := radcenx;
                 // save pad co-ords for orbit action (r1).
                 rad_centy := radceny;
               end;
 
-              if (spiral = True) and (adjust_trans_rad = 2) and
-                (code = -3) then begin
+              if (spiral = True) and (adjust_trans_rad = 2) and (code = -3) then
+              begin
                 rad_centx := radcenx;
                 // save pad co-ords for orbit action (r2).
                 rad_centy := radceny;
@@ -23640,7 +24853,8 @@ begin
               move_to.Y := radceny;
               line_to.X := radcenx + radcen_dim * 2;
               line_to.Y := radceny;
-              if check_limits(move_to, line_to) = True then begin
+              if check_limits(move_to, line_to) = True then
+              begin
                 MoveTo(move_to.X, move_to.Y);
                 LineTo(line_to.X, line_to.Y);
               end;
@@ -23649,7 +24863,8 @@ begin
               move_to.Y := radceny - radcen_dim * 2;
               line_to.X := radcenx;
               line_to.Y := radceny + radcen_dim * 2;
-              if check_limits(move_to, line_to) = True then begin
+              if check_limits(move_to, line_to) = True then
+              begin
                 MoveTo(move_to.X, move_to.Y);
                 LineTo(line_to.X, line_to.Y);
               end;
@@ -23681,17 +24896,18 @@ begin
               infill_points[3].Y := Round(check_int4y);
 
               if (check_limits(infill_points[0], infill_points[1]) = True) and
-                (check_limits(infill_points[2], infill_points[3]) = True)
-              then
+                (check_limits(infill_points[2], infill_points[3]) = True) then
               begin
                 if Pen.Color = paper_colour then
                 begin                          // erasing...
                   Brush.Color :=
                     paper_colour;
                   Brush.Style :=
-                    bsSolid;        // always a solid infill on erase, in case of problems with hatched infill (e.g. Tony Miles' version of Windows).
+                    bsSolid;
+                  // always a solid infill on erase, in case of problems with hatched infill (e.g. Tony Miles' version of Windows).
                 end
-                else begin
+                else
+                begin
                   Pen.Color :=
                     paper_colour;
                   Brush.Color :=
@@ -23707,12 +24923,11 @@ begin
                       Brush.Style := bsDiagCross;
                     3:
                       Brush.Style := bsSolid;
-                    4: begin
+                    4:
+                    begin
                       // blank.
-                      Brush.Style
-                      := bsSolid;
-                      Brush.Color
-                      := paper_colour;   // overide.
+                      Brush.Style := bsSolid;
+                      Brush.Color := paper_colour;   // overide.
                     end;
                     else
                       CONTINUE;                 // ??
@@ -23720,21 +24935,19 @@ begin
 
                   // shoved timber overides...
 
-                  if
-                  code = 293        // shoved but not selected.
-                  then begin
-                    if
-                    paper_colour <> clBlue then
+                  if code = 293        // shoved but not selected.
+                  then
+                  begin
+                    if paper_colour <> clBlue then
                       Brush.Color := clBlue
                     else
                       Brush.Color := clWhite;
                   end;
 
-                  if
-                  code = 233        // currently selected for shoving.
-                  then begin
-                    if
-                    paper_colour <> clRed then
+                  if code = 233        // currently selected for shoving.
+                  then
+                  begin
+                    if paper_colour <> clRed then
                       Brush.Color := clRed
                     else
                       Brush.Color := clYellow;
@@ -23742,15 +24955,12 @@ begin
 
                   // chair outline overides...
 
-                  if
-                  code = 493        // chair outlines (appear hollow)
-                  then begin
-                    Pen.Color
-                    := timber_colour;
-                    Brush.Color
-                    := $00B0D0D0; // was paper_colour;
-                    Brush.Style
-                    := bsSolid;
+                  if code = 493        // chair outlines (appear hollow)
+                  then
+                  begin
+                    Pen.Color := timber_colour;
+                    Brush.Color := $00B0D0D0; // was paper_colour;
+                    Brush.Style := bsSolid;
                   end;
 
                 end;
@@ -23759,11 +24969,14 @@ begin
             end;
           end;
         end
-        else begin   // 99 or 501+  0.94.a
+        else
+        begin   // 99 or 501+  0.94.a
 
-          if code = 99 then begin
+          if code = 99 then
+          begin
             if pad_timber_numbers = True // code=99, text mark (timber numbering).
-            then begin
+            then
+            begin
               check_int1x := limits(h_minint, h_maxint, p1.X * sx + ex - gx, dummy_i);
               // h_min, h_max 31 bit to give room for some arithmetic on the data (shift keeps, etc.)
               check_int1y :=
@@ -23777,10 +24990,11 @@ begin
               if num_str = '' then
                 CONTINUE;              // no string available??
 
-              if check_limit(True, True, move_to) = True
-              then begin
+              if check_limit(True, True, move_to) = True then
+              begin
                 if num_str[1] = '!'   // it's an omitted timber
-                then begin
+                then
+                begin
                   Delete(num_str, 1, 1);
                   // remove the omit indicator.
                   omitted := True;
@@ -23796,8 +25010,7 @@ begin
                 Brush.Color := paper_colour;
                 Brush.Style := bsSolid;
 
-                if ink = False
-                then
+                if ink = False then
                   Font.Color := paper_colour             // erasing.
                 else
                 if shove_timber_form.Showing = True then
@@ -23806,21 +25019,23 @@ begin
 
                   temp_str := timb_num_strip(num_str);
 
-                  if (num_str = current_shove_str) or
-                    (temp_str = current_shove_str) or (omitted = True)   // needs a rectangle box.
-                  then begin
-                    if
-                    (num_str = current_shove_str) or (temp_str = current_shove_str)   // shoving this one?
-                    then begin
-                      if paper_colour
-                        = clYellow then
+                  if (num_str = current_shove_str) or (temp_str = current_shove_str) or
+                    (omitted = True)   // needs a rectangle box.
+                  then
+                  begin
+                    if (num_str = current_shove_str) or (temp_str = current_shove_str)
+                    // shoving this one?
+                    then
+                    begin
+                      if paper_colour = clYellow then
                       begin
                         Brush.
                           Color := clBlack;      // highlight selected timber number for shoving.
                         Font.
                           Color := clWhite;
                       end
-                      else begin
+                      else
+                      begin
                         Brush.
                           Color := clYellow;
                         Font.
@@ -23834,8 +25049,8 @@ begin
                     Pen.Style := psSolid;
                     Pen.Color := Font.Color;
                     Rectangle(
-                      move_to.X - half_stringwidth - 3, move_to.Y - half_stringheight - 2, move_to.X +
-                      half_stringwidth + 4, move_to.Y + half_stringheight + 3);
+                      move_to.X - half_stringwidth - 3, move_to.Y - half_stringheight - 2,
+                      move_to.X + half_stringwidth + 4, move_to.Y + half_stringheight + 3);
                   end;
                 end;//if shove_timber showing
 
@@ -23846,9 +25061,11 @@ begin
               end;
             end;//numbers wanted
           end
-          else begin     // 501+  0.94.a  check-rail labels ...
+          else
+          begin     // 501+  0.94.a  check-rail labels ...
 
-            if check_diffs_form.Showing = True then begin
+            if check_diffs_form.Showing = True then
+            begin
               check_int1x := limits(h_minint, h_maxint, p1.X * sx + ex - gx, dummy_i);
               // h_min, h_max 31 bit to give room for some arithmetic on the data (shift keeps, etc.)
               check_int1y :=
@@ -23890,8 +25107,8 @@ begin
 
               end;//case
 
-              if check_limit(True, True, move_to) = True
-              then begin
+              if check_limit(True, True, move_to) = True then
+              begin
                 Font.Assign(pad_form.pad_timber_font_label.Font);
 
                 half_stringwidth := TextWidth(num_str) div 2;
@@ -23900,20 +25117,21 @@ begin
                 Brush.Color := paper_colour;
                 Brush.Style := bsSolid;
 
-                if ink = False
-                then
+                if ink = False then
                   Font.Color := paper_colour             // erasing.
-                else begin
+                else
+                begin
                   // see if current check-end is selected for diffing..
-                  if code = current_diff_code
-                  then begin
-                    if paper_colour =
-                      clYellow then begin
+                  if code = current_diff_code then
+                  begin
+                    if paper_colour = clYellow then
+                    begin
                       Brush.Color := clBlack;
                       // highlight selected timber number for shoving.
                       Font.Color := clWhite;
                     end
-                    else begin
+                    else
+                    begin
                       Brush.Color := clYellow;
                       Font.Color := clBlack;
                     end;
@@ -23925,8 +25143,8 @@ begin
                   Pen.Style := psSolid;
                   Pen.Color := Font.Color;
                   RoundRect(
-                    move_to.X - half_stringwidth - 3, move_to.Y - half_stringheight - 2, move_to.X +
-                    half_stringwidth + 4, move_to.Y + half_stringheight + 3, 6, 6);
+                    move_to.X - half_stringwidth - 3, move_to.Y - half_stringheight - 2,
+                    move_to.X + half_stringwidth + 4, move_to.Y + half_stringheight + 3, 6, 6);
                 end;//ink=True
 
                 TextOut(
@@ -23976,13 +25194,15 @@ begin
   exit_last_xtb := turnoutx;
 
   if (half_diamond = True) and (hd_timbers > 0)     // init for slip timber extensions...
-  then begin
+  then
+  begin
     sliptipsl := fpx - toex - scale * k3n;
     // from hd toe to slip-switch toe (arbitrary where wing rails 12" separation).
     sliprad := sliptipsl / TAN(k3 / 2);    // approx slip road radius.
   end;
 
-  if timber_marks = True then begin
+  if timber_marks = True then
+  begin
 
     if outline_extensions = True then
       tbl := 4.5 * inscale             // outline extensions = 4.5" scale
@@ -24013,7 +25233,8 @@ begin
 
     if gaunt = False then
       switchtimbers    // first do switch timbers, end sleepers, and approach track.
-    else begin
+    else
+    begin
       if xorg > 0 then
         plain_sleepers(xorg, -1, True, False);   // approach plain-track wanted on gaunt template.
       xtbswend := xorg - (psleep[pt_i, 0] * inscale);
@@ -24022,10 +25243,12 @@ begin
 
     // now do crossing timbers from Z timber on...
 
-    if plain_track = False then begin
+    if plain_track = False then
+    begin
 
       if include_xing_timbers = True   // 218a
-      then begin
+      then
+      begin
 
         timb_str := 'X';        // restart numbering. "X" for crossing
         tbn := 1;
@@ -24042,8 +25265,8 @@ begin
 
         //eqtimb:=timbers_equalized;      // allow equalizing if wanted.
 
-        if (half_diamond = True) or (timbers_equalized = True) or
-          (square_on_angled = True)          // mod 29-7-01.
+        if (half_diamond = True) or (timbers_equalized = True) or (square_on_angled = True)
+        // mod 29-7-01.
         then
           frackeq := 1    // full equalizing angle or angled-on through crossing.
         else
@@ -24087,21 +25310,24 @@ begin
 
           unmod_xtb := xtb;            // so can restore for spacing calc...
 
-          if (curviform_timbering = True) and
-            (tradius_is_straight = False) and (xing_calc_i = 1) and (xtb > (xtba + xingtb_v))
+          if (curviform_timbering = True) and (tradius_is_straight = False) and
+            (xing_calc_i = 1) and (xtb > (xtba + xingtb_v))
           // only for timbers "C" and above
 
-          then begin
+          then
+          begin
             mod_for_curvi := True;
 
             if ((xtb - fpx) / k3n) < (15 * inscale)
             // if rail separation under 15" (crossing chairs needed)
-            then begin
+            then
+            begin
               try
                 curvi_alpha := (xtb - fpx) / ABS(tradius);
                 // angle turned through beyond FP.
                 xtb_mod :=
-                  ABS(tradius) * (1 - COS(curvi_alpha)) * k3n;   // adjust chair position to maintain vee rail separation
+                  ABS(tradius) * (1 - COS(curvi_alpha)) * k3n;
+                // adjust chair position to maintain vee rail separation
 
                 xtb := xtb - xtb_mod;
                 // and mod this one for the chair
@@ -24112,14 +25338,16 @@ begin
                 mod_for_curvi := False;
               end;//try
             end
-            else begin
+            else
+            begin
               // next timbers (ordinary chairs)...
               if xtb_mod > 0
               // some mods have taken place
-              then begin
-                if (xtb - modded_xtb) >
-                  (31 * inscale)     // 31" max spacing arbitrary
-                then begin
+              then
+              begin
+                if (xtb - modded_xtb) > (31 * inscale)     // 31" max spacing arbitrary
+                then
+                begin
                   total_space_remaining :=
                     tb_xing_end - modded_xtb;
 
@@ -24139,8 +25367,7 @@ begin
                     // save position of last one.
 
                     xtb := xtb + new_spacing;
-                  until xtb >
-                    (tb_xing_end + inscale);
+                  until xtb > (tb_xing_end + inscale);
 
                   BREAK; // all done
                 end;
@@ -24164,7 +25391,8 @@ begin
 
       end
 
-      else begin    // no xing timbers   218a ...
+      else
+      begin    // no xing timbers   218a ...
 
         last_xtb := mvjpx - (mvj_sp * inscale);
         // so start exit timbering at last timber before MVJP
@@ -24184,7 +25412,8 @@ begin
       end;
 
       if include_closure_timbers = True   // 218a
-      then begin
+      then
+      begin
 
         // then fill closure timbers between switch and crossing...
 
@@ -24203,8 +25432,9 @@ begin
         else
           xtbzz := xtbz - wingj_sp * inscale;  // move back joint spacing from Z. mod 0.75.a 11-10-01.
 
-        if (timbers_equalized = True) and (equalizing_fixed = True) and
-          (half_diamond = False) and (ABS(k3n) > minfp) then begin
+        if (timbers_equalized = True) and (equalizing_fixed = True) and (half_diamond = False) and
+          (ABS(k3n) > minfp) then
+        begin
           eqfix_closeup := 20 * inscale / k3n;
           // 20"/xing RAM arbitrary - close up a bit for constant equalizing.
           if eqfix_closeup > (6 * inscale) then
@@ -24228,22 +25458,25 @@ begin
           tbint := 1;     // no division by zero.
         xclosespace := xclose / tbint;    // spacing for each interval
 
-        for tbnext := 1 to tbint do begin
+        for tbnext := 1 to tbint do
+        begin
           xtb := xtbclose_start + tbnext * xclosespace;      // x to next timber
 
           if half_diamond = True then
             frackeq := 1      // ignore flags, always constant.
-          else begin
+          else
+          begin
 
-            if timbers_equalized = True
-            then begin
+            if timbers_equalized = True then
+            begin
               if equalizing_fixed = True then
                 frackeq := 1              // constant equalizing angle.
               else
                 frackeq := tbnext / tbint;
               // incremental, so fraction of the equalizing angle to avoid sudden change at heel of switch.
             end
-            else begin
+            else
+            begin
               if square_on_angled = True then
                 frackeq := 1   // angled-on 20-7-01
               else
@@ -24259,14 +25492,14 @@ begin
 
       // finally add exit sleepering if any ...
 
-      if exittb_i = 2 then begin
+      if exittb_i = 2 then
+      begin
         //if turnout_road=-1 then full_length:=False      // for crossover exit
         //                   else full_length:=True;
         full_length := True;
         frackeq := 0;
 
-        if last_xtb > (mvjpx - (mvj_sp * inscale) + minfp)
-        then
+        if last_xtb > (mvjpx - (mvj_sp * inscale) + minfp) then
           exit_begin := last_xtb + (mvj_sp * inscale)
         // crossover with wide spacing? - space exit joint beyond last timber drawn.
         else
@@ -24275,20 +25508,22 @@ begin
         plain_sleepers(exit_begin, 1, full_length, False);
 
         if retpar_i = 1    // and finally any return curve sleepering...
-        then begin
+        then
+        begin
           full_length := True;
           frackeq := 0;
           // square-on.
 
-          plain_sleepers(exit_begin +
-            (22.5 - k3n / 2) * inscale, 1, full_length, True);  // +(22.5-k3n/2)" interlacing (arbitrary).
+          plain_sleepers(exit_begin + (22.5 - k3n / 2) * inscale, 1, full_length, True);
+          // +(22.5-k3n/2)" interlacing (arbitrary).
         end;
       end;//exit sleepering
     end;//if turnout
 
     // 0.76.a 23-10-01 finally add any bonus timbers...
 
-    if bontimb > 0 then begin
+    if bontimb > 0 then
+    begin
       timb_str := 'B';        //  prefix for bonus timber numbering.
       tbn := 1;               //  init numbering.
 
@@ -24330,9 +25565,11 @@ var
     repeat
       if (joint_marks = True) and (rjcode > -1)
       // first mark the next rail-joint.
-      then begin
+      then
+      begin
         if first_joint = False           // skip the point rail joint
-        then begin
+        then
+        begin
           if retcurve = True then
             ret_offset := aq25offset(xtb, ret_k) - g / 2
           else
@@ -24340,7 +25577,8 @@ var
 
           if (odd_rail = True) or (rjcode = 0)
           // staggered or normal, main-side rail.
-          then begin
+          then
+          begin
             p1.x := xtb;
             p1.y := gmi + ret_offset;
             if retcurve = True then
@@ -24351,17 +25589,16 @@ var
             if retcurve = True then
               dotransform(ret_k, xtb, g / 2, p2, p2);       // twist joint marks.
 
-            if ((main_road_stock_rail_flag = True) and
-              ((timb_str = 'A') or (timb_str = 'E') or (timb_str = 'N')))
-              or
-              ((crossing_vee_flag = True) and (timb_str = 'R'))
+            if ((main_road_stock_rail_flag = True) and ((timb_str = 'A') or
+              (timb_str = 'E') or (timb_str = 'N'))) or ((crossing_vee_flag = True) and (timb_str = 'R'))
             then
               enter_mark(True, p1, p2, 6, '');              // make rail-joint mark, straight stock rail.
           end;
 
           if (odd_rail = False) or (rjcode = 0)
           // staggered or normal, turnout-side rail.
-          then begin
+          then
+          begin
             p1.x := xtb;
             p1.y := g - gmi + ret_offset;
             if retcurve = True then
@@ -24372,10 +25609,8 @@ var
             if retcurve = True then
               dotransform(ret_k, xtb, g / 2, p2, p2);       // twist joint marks.
 
-            if
-            ((turnout_road_stock_rail_flag = True) and ((timb_str = 'A') or (timb_str = 'R') or
-              (timb_str = 'N'))) or
-              ((crossing_vee_flag = True) and (timb_str = 'E'))
+            if ((turnout_road_stock_rail_flag = True) and ((timb_str = 'A') or
+              (timb_str = 'R') or (timb_str = 'N'))) or ((crossing_vee_flag = True) and (timb_str = 'E'))
             then
               enter_mark(True, p1, p2, 6, '');              // make rail-joint mark, curved stock rail.
           end;
@@ -24384,7 +25619,8 @@ var
         odd_rail := not odd_rail;     // for staggered joints.
       end;
 
-      for slco := 0 to psleep_c do begin
+      for slco := 0 to psleep_c do
+      begin
         // do the sleepers for a rail length.
 
         joint_sl := ((slco = 0) or (slco = (sleeper_count[pt_i] - 1)));
@@ -24399,7 +25635,8 @@ var
         case dir of
           -1:
             if xtb < (xrail - railen[pt_i] * inscale) then
-              BREAK; // gone past end of this rail..                                            // gone far enough back on this rail (4 inches past rail end).
+              BREAK;
+          // gone past end of this rail..                                            // gone far enough back on this rail (4 inches past rail end).
           1:
             if xtb > (xrail + railen[pt_i] * inscale) then
               BREAK;
@@ -24407,12 +25644,12 @@ var
             run_error(216);
         end;//case
 
-        if (xtb < (0 - scale / 3)) or (xtb > (turnoutx + scale / 3))
-        then begin
-          if timb_str <> 'N'
-          then
+        if (xtb < (0 - scale / 3)) or (xtb > (turnoutx + scale / 3)) then
+        begin
+          if timb_str <> 'N' then
             BREAK    // gone far enough on this rail (4 inches past rail end).
-          else begin
+          else
+          begin
             Inc(tbn);
             // keep rolled timber numbering in line (for shoves).
             CONTINUE;
@@ -24420,14 +25657,14 @@ var
           end;
         end;
 
-        if (xtb > fpx + k3n * 4.5 * scale) or (dir = -1)
-        then
+        if (xtb > fpx + k3n * 4.5 * scale) or (dir = -1) then
           endsleeper(xtb, True, retcurve, joint_sl, dir)
         // draw normal sleepering beyond 4ft6in scale vee separation, or for approach track.
         else
           endsleeper(xtb, full_length, retcurve, joint_sl, dir); // might be reduced sleepers for crossover exit.
 
-        if retcurve = False then begin
+        if retcurve = False then
+        begin
           case dir of
             -1:
               approach_last_xtb := xtb;   // save last xtb drawn for length snapping...
@@ -24462,7 +25699,8 @@ begin
 
   tb_roll_mm := tb_roll_percent * railen[pt_i] * inscale / 100;  // timber rolling.
 
-  if retcurve = False then begin
+  if retcurve = False then
+  begin
     case dir of
       -1:
         approach_last_xtb := 0;      // init for length snapping...
@@ -24471,14 +25709,16 @@ begin
     end;//case
   end;
 
-  if dir = 1 then begin
+  if dir = 1 then
+  begin
     first_joint := True;                     // point rail joints already drawn.
     if retcurve = True then
       timb_str := 'R'    //  prefix numbering for return curve.
     else
       timb_str := 'E';   //  prefix for numbering exit plain track.
   end
-  else begin
+  else
+  begin
     first_joint := False;   // but not if approach track or plain track.
     timb_str := 'A';        // prefix for numbering approach plain track.
   end;
@@ -24495,7 +25735,8 @@ begin
 
   // now add any timbering in the rolled section, if any...
 
-  if (plain_track = True) and (tb_roll_mm > minfp) then begin
+  if (plain_track = True) and (tb_roll_mm > minfp) then
+  begin
     timb_str := 'N';             // "new" inserted sleepers.
     xtb := turnoutx - tb_roll_mm;  // start from first joint already done...
     dir := 1;
@@ -24534,7 +25775,8 @@ begin
     drawtimbcl(False);   // sleeper centre-lines wanted.
   if pad_form.timber_outlines_menu_entry.Checked = True
   // sleeper outlines wanted.
-  then begin
+  then
+  begin
     if csi.front_timbered = True then
       sf_width := tbwide    // timber width.
     else
@@ -24575,9 +25817,11 @@ begin                             // for rail-joint marks.
   // !!! spacings are negative...
 
   if (plain_track = False) and (half_diamond = False) and (include_switch_timbers = True)   // 218a
-  then begin
+  then
+  begin
     repeat
-      if csi.sleeper_j1 < (0 - minfp) then begin
+      if csi.sleeper_j1 < (0 - minfp) then
+      begin
         xtb := toex + csi.sleeper_j1 * inscale;
         // first switch front timber J1 (next to toe).
         toesleeper(csi.sleeper_j2 = 0);
@@ -24585,28 +25829,32 @@ begin                             // for rail-joint marks.
       else
         BREAK;
 
-      if csi.sleeper_j2 < (0 - minfp) then begin
+      if csi.sleeper_j2 < (0 - minfp) then
+      begin
         xtb := xtb + csi.sleeper_j2 * inscale; // next switch front timber J2.
         toesleeper(csi.sleeper_j3 = 0);
       end
       else
         BREAK;
 
-      if csi.sleeper_j3 < (0 - minfp) then begin
+      if csi.sleeper_j3 < (0 - minfp) then
+      begin
         xtb := xtb + csi.sleeper_j3 * inscale; // next switch front timber J3.
         toesleeper(csi.sleeper_j4 = 0);
       end
       else
         BREAK;
 
-      if csi.sleeper_j4 < (0 - minfp) then begin
+      if csi.sleeper_j4 < (0 - minfp) then
+      begin
         xtb := xtb + csi.sleeper_j4 * inscale; // next switch front timber J4.
         toesleeper(csi.sleeper_j5 = 0);
       end
       else
         BREAK;
 
-      if csi.sleeper_j5 < (0 - minfp) then begin
+      if csi.sleeper_j5 < (0 - minfp) then
+      begin
         xtb := xtb + csi.sleeper_j5 * inscale; // next switch front timber J5.
         toesleeper(True);                // True = joint sleeper  212a
       end
@@ -24621,11 +25869,13 @@ begin                             // for rail-joint marks.
 
   // now do the switch timbering...
 
-  if plain_track = False then begin
+  if plain_track = False then
+  begin
     if (half_diamond = False)       // turnout or...
       or ((half_diamond = True) and (fixed_diamond = False) and (hd_switch_timbering = True))
     // 213a
-    then begin
+    then
+    begin
       swtb := 0;             // initialise switch timber number
       xtb := toex;           // switch timber centres start from toe.
 
@@ -24643,11 +25893,11 @@ begin                             // for rail-joint marks.
         xtb := xtb + csi.timber_centres[swtb] * inscale;  // get next timber centre
         if csi.timber_centres[swtb + 1] = 0
         // this is actually the first closure timber
-        then begin
+        then
+        begin
           timb_str := 'T';                 // so reset numbering
           tbn := 1;
-          if (timbers_equalized = False) and (square_on_angled = True)
-          then
+          if (timbers_equalized = False) and (square_on_angled = True) then
             frackeq := 1  // 29-7-01 angled-on style.
           else
             frackeq := 0;
@@ -24673,19 +25923,22 @@ begin                             // for rail-joint marks.
 
       //   ( rail-joint spacing is included in switch timbering,
     end               //     so the first closure timber has been drawn.)
-    else begin
+    else
+    begin
       tbn := 1;         // restart numbering for half-diamond.
       timb_str := 'K';  // prefix for k-crossing timber numbers.
       frackeq := 1;     // equalized constant;
 
       if fixed_diamond = False  // switch diamond...
-      then begin
+      then
+      begin
 
         // half-k-wing rail = 18'0" = 216"  BH = 0 + 24 + 6*30 + 12 to joint.
         //                    16'1" = 193"  FB = 11 + 6*28 + 14 to joint.
 
         case rail_section of
-          0, 1: begin                    // bullhead or no rails.
+          0, 1:
+          begin                    // bullhead or no rails.
             xtb := 0;
             // centre timber for bullhead switch diamonds.
             dotimber(False, False);
@@ -24693,7 +25946,8 @@ begin                             // for rail-joint marks.
             xtb := xtb + 24 * inscale;    // 24" spacing for next.
             dotimber(False, False);
 
-            for n := 0 to 5 do begin    // 6 spaces
+            for n := 0 to 5 do
+            begin    // 6 spaces
               xtb := xtb + 30 * inscale;    // at 30" spacing.
               dotimber(False, False);
             end;
@@ -24708,12 +25962,14 @@ begin                             // for rail-joint marks.
               dotimber(False, False);
           end;
 
-          2: begin                  // flat-bottom.
+          2:
+          begin                  // flat-bottom.
             xtb := 11 * inscale;
             // separate timbers for flat-bottom switch diamonds, tips 4.5" from centre.
             dotimber(False, False);
 
-            for n := 0 to 5 do begin    // 6 spaces
+            for n := 0 to 5 do
+            begin    // 6 spaces
               xtb := xtb + 28 * inscale;    // at 28" spacing.
               dotimber(False, False);
             end;
@@ -24730,13 +25986,13 @@ begin                             // for rail-joint marks.
         end;//case
       end
 
-      else begin           // fixed diamond...
-        if hd_proto_timbering = True
-        then
+      else
+      begin           // fixed diamond...
+        if hd_proto_timbering = True then
         begin
-          if ((rail_section <> 2) and
-            (hdkn >= 5.25)) or ((rail_section = 2) and (hdkn >= 4.875))
-          then begin
+          if ((rail_section <> 2) and (hdkn >= 5.25)) or ((rail_section = 2) and (hdkn >= 4.875))
+          then
+          begin
             xtb := 0;
             // centre timber for BH 5.5 or more, FB 5 or more.
             dotimber(False, False);
@@ -24749,16 +26005,18 @@ begin                             // for rail-joint marks.
           if use_k_custom_wing_rails = True      // // 0.95.a
           then
             kwl := k_custom_wing_long / 2
-          else begin
-            if hdkn <= 6.375
-            then begin
+          else
+          begin
+            if hdkn <= 6.375 then
+            begin
               if rail_section <> 2   // BH or none.
               then
                 kwl := 173 / 2   //  14'5" BH k-wing rails overall.
               else
                 kwl := 168 / 2;  //  14'0" FB.
             end
-            else begin
+            else
+            begin
               if rail_section <> 2   // BH or none.
               then
                 kwl := 185 / 2   //  15'5" BH k-wing rails overall.
@@ -24774,14 +26032,16 @@ begin                             // for rail-joint marks.
 
           if (rail_section <> 2) or (hdkn <= 6.375)
           // BH or none. 2 spaces.
-          then begin
+          then
+          begin
             xtb := xtb + ksp / 2;
             dotimber(False, False);
 
             xtb := xtb + ksp / 2;
             dotimber(False, False);
           end
-          else begin                // long FB. 3 spaces.
+          else
+          begin                // long FB. 3 spaces.
             xtb := xtb + ksp / 3;
             dotimber(False, False);
 
@@ -24804,7 +26064,8 @@ begin                             // for rail-joint marks.
           if include_closure_timbers = True then
             dotimber(False, False);
         end
-        else begin
+        else
+        begin
           // model timbering (based on actual flangeway, a timber under diamond points)...
           xtb := 0;
           dotimber(False, False);
@@ -24816,7 +26077,8 @@ begin                             // for rail-joint marks.
 
           if xdpb > (33 * inscale)
           // arbitrary 33" spacing (e.g. wide 00/H0 flangeways at 1:8)
-          then begin
+          then
+          begin
             xtb := xdpb / 2;
             // insert additional timber.
             dotimber(False, False);
@@ -24887,11 +26149,13 @@ var
   sl_width: extended;
 
 begin
-  if maintimb = 1 then begin
+  if maintimb = 1 then
+  begin
     xns := xtb - tbwide * inscale / 2;   // timber width, ( half each side of centre )
     xfs := xtb + tbwide * inscale / 2;
   end
-  else begin
+  else
+  begin
     if joint = True then
       sl_width := jt_slwide
     else
@@ -24921,7 +26185,8 @@ begin
 
   try
     if retcurve = True    // sleepering the return curve..
-    then begin
+    then
+    begin
       y := aq25offset(xtb, kret) - g - scale;     // g +1ft scale arbitrary.
 
       p1.y := y + (tb + g / 2) * COS(kret);
@@ -24932,12 +26197,15 @@ begin
       p1.x := xtb - (tb + g / 2) * SIN(kret) - 2;
       p2.x := p1.x;
     end
-    else begin
-      if pad_form.timber_centres_menu_entry.Checked = True then begin
+    else
+    begin
+      if pad_form.timber_centres_menu_entry.Checked = True then
+      begin
         p1 := number_point_screen;     // gets changed for omitted timber below.
         p2 := number_point_output;
       end
-      else begin                // default positions if no timber centre-line calcs.
+      else
+      begin                // default positions if no timber centre-line calcs.
         pnum.x := xtb;
 
         pnum.y := tbnumy_screen;
@@ -24952,17 +26220,22 @@ begin
     marktext_str := timb_str + IntToStr(tbn);     // set up numbering text string
 
     if shove_timber_form.Showing = False        // not shoving.
-    then begin
-      for n := 0 to current_shove_list.Count - 1 do begin
+    then
+    begin
+      for n := 0 to current_shove_list.Count - 1 do
+      begin
         if (marktext_str = current_shove_list[n].timber_string) and
           (current_shove_list[n].sv_code = svcOmit) then
           EXIT; // omit this timber, shove list.
       end;//next
     end
-    else begin                             // show numbers for omitted timbers when shoving...
-      for n := 0 to current_shove_list.Count - 1 do begin
+    else
+    begin                             // show numbers for omitted timbers when shoving...
+      for n := 0 to current_shove_list.Count - 1 do
+      begin
         if (marktext_str = current_shove_list[n].timber_string) and
-          (current_shove_list[n].sv_code = svcOmit) then begin
+          (current_shove_list[n].sv_code = svcOmit) then
+        begin
           // find somewhere to put it, timber centre-line calcs will be omitted.
           pnum.x := xtb;
           pnum.y := tbnumy_screen / 2;
@@ -24978,7 +26251,8 @@ begin
       end;//next
     end;
 
-    if timb_str = 'X' then begin
+    if timb_str = 'X' then
+    begin
       case (tbn + 3 - wing_tbcount) of
         1:
           marktext_str := marktext_str + ' - Z';
@@ -25040,7 +26314,8 @@ begin
     drawtimbcl(retcurve);     // sleeper centre-lines wanted
   if pad_form.timber_outlines_menu_entry.Checked = True
   // sleeper outlines wanted
-  then begin
+  then
+  begin
     xns := xtb - sl_width * inscale / 2;      // sleeper width, ( half each side of centre )
     xfs := xtb + sl_width * inscale / 2;
     drawtimber(full_length, retcurve);
@@ -25084,8 +26359,8 @@ var                                // enter with xtb, yns, yfs, tbq
   begin
     // first any blanking? (not bonus timbers or plain track)...
 
-    if (timb_str <> 'B') and (plain_track = False) and
-      ((p1.x < (startx - minfp)) or (p2.x < (startx - minfp))) then
+    if (timb_str <> 'B') and (plain_track = False) and ((p1.x < (startx - minfp)) or
+      (p2.x < (startx - minfp))) then
       EXIT;
 
     dotransform(keq + k_curtimb, {xeq}xtimbcl, yeq{ytimbcl}, p1, pk1);
@@ -25134,19 +26409,21 @@ begin
 
   // see if this one gets shoved or omitted...
 
-  for n := 0 to current_shove_list.Count - 1 do begin
+  for n := 0 to current_shove_list.Count - 1 do
+  begin
     shove := current_shove_list[n];
     if (str = shove.timber_string) and (shove.sv_code <> svcEmpty)
     // this timber number is in shove list.
-    then begin
-      if (shove_timber_form.Showing = True) and
-        (shove_timber_form.show_all_blue_checkbox.Checked = True) then
+    then
+    begin
+      if (shove_timber_form.Showing = True) and (shove_timber_form.show_all_blue_checkbox.Checked = True) then
         shove_this := 40;  // will be drawn highlighted in blue or red.
 
       if shove.sv_code = svcOmit     // this value in the list is a flag.
       then
         omit := True       // he wants this timber omitted.
-      else begin
+      else
+      begin
         xshove := shove.sv_x;
         kshove := shove.sv_k;
         oshove := shove.sv_o;
@@ -25161,13 +26438,15 @@ begin
   end;//for
   // see if this one is selected for shoving...
 
-  if (str = current_shove_str) and (shove_timber_form.Showing = True) then begin
+  if (str = current_shove_str) and (shove_timber_form.Showing = True) then
+  begin
     shovetimbx := xtimbcl;       // centre of shoved timber.
 
     //shove_timber_form.xtb_panel.Caption:='  centre  X :  '+round_str(shovetimbx,2)+' mm';
 
 
-    with shove_timber_form do begin
+    with shove_timber_form do
+    begin
       // first clear these read-outs in case timber outlines (which calcs them) are switched off.
       throw_panel.Caption := '';
       length_panel.Caption := '';
@@ -25201,10 +26480,12 @@ begin
     EXIT;      // omit this timber.
 
   if retcurve = True    // sleepering the return curve..
-  then begin
+  then
+  begin
     yret := aq25offset(xtimbcl, kret) - g / 2;
   end
-  else begin
+  else
+  begin
     yret := 0;
     kret := 0;
   end;
@@ -25234,8 +26515,10 @@ begin
 
   if (pad_form.timber_outlines_menu_entry.Checked = True) or (chair_marks = True)
   // added 213b
-  then begin
-    with timbcentre_wait do begin
+  then
+  begin
+    with timbcentre_wait do
+    begin
       // save the actual co-ords, to be entered in list after the outlines.
       pex1 := p1;
       // (this is a fix - we must do the centre-line calcs first for shove timbers,
@@ -25247,7 +26530,8 @@ begin
     end;//with
   end;
 
-  if pad_form.timber_outlines_menu_entry.Checked = False then begin
+  if pad_form.timber_outlines_menu_entry.Checked = False then
+  begin
     // not doing any outlines, so do the timber centres now...
 
     // mods for parallel edges - 0.76.a  16-10-01...
@@ -25425,27 +26709,29 @@ begin
 
   // see if this one gets shoved or omitted...
 
-  for n := 0 to current_shove_list.Count - 1 do begin
+  for n := 0 to current_shove_list.Count - 1 do
+  begin
     shove := current_shove_list[n];
     if (str = shove.timber_string) and (shove.sv_code <> svcEmpty)
     // this timber number is in shove list.
-    then begin
-      if (shove_timber_form.Showing = True) and
-        (shove_timber_form.show_all_blue_checkbox.Checked = True) then
+    then
+    begin
+      if (shove_timber_form.Showing = True) and (shove_timber_form.show_all_blue_checkbox.Checked = True) then
         shove_this := 90;  // draw highlighted blue if required (may be overidden later for red if currently selected).
 
-      if shove.sv_code =
-        svcOmit                         // this value in the list is a flag.
+      if shove.sv_code = svcOmit                         // this value in the list is a flag.
       then
         EXIT//omit:=True              // he wants this timber omitted.
-      else begin
+      else
+      begin
         xns := xns + shove.sv_x - shove.sv_w;
         // he wants it shoved along and/or widened/narrowed.
         xfs := xfs + shove.sv_x + shove.sv_w;
 
         if xfs < (xns - inscale / 2)
         // if shoving produces a negative width (by more than 1/2" scale), average the sides to the centre-line.
-        then begin
+        then
+        begin
           xfs := (xfs + xns) / 2;
           xns := xfs;
           shove.sv_w := 0;
@@ -25472,10 +26758,12 @@ begin
   total_template_timber_length := total_template_timber_length + (yfs - yns);  // 0/95.a
 
   if retcurve = True    // sleepering the return curve..
-  then begin
+  then
+  begin
     yret := aq25offset(xtimbcl, kret) - g / 2;
   end
-  else begin
+  else
+  begin
     yret := 0;
     kret := 0;
   end;
@@ -25484,14 +26772,16 @@ begin
 
   // see if this one is to be shown selected for shoving...
 
-  if (str = current_shove_str) and (shove_timber_form.Showing = True) then begin
+  if (str = current_shove_str) and (shove_timber_form.Showing = True) then
+  begin
 
     shovetimb_wide := xfs - xns;
     shovetimb_len := yfs - yns;
     shovetimb_throw := throw;
     shovetimb_crab := crab;
 
-    if show_shove_fs = True then begin
+    if show_shove_fs = True then
+    begin
       shove_timber_form.width_panel.Caption :=
         ' width :  ' + round_str(shovetimb_wide / inscale, 2) + ' ins';
       shove_timber_form.length_panel.Caption :=
@@ -25501,7 +26791,8 @@ begin
       shove_timber_form.crab_panel.Caption :=
         ' crab :  ' + round_str(shovetimb_crab / inscale, 2) + ' ins';
     end
-    else begin
+    else
+    begin
       shove_timber_form.width_panel.Caption :=
         ' width :  ' + round_str(shovetimb_wide, 2) + ' mm';
       shove_timber_form.length_panel.Caption :=
@@ -25512,7 +26803,8 @@ begin
         ' crab :  ' + round_str(shovetimb_crab, 2) + ' mm';
     end;
 
-    if show_origin_k = True then begin
+    if show_origin_k = True then
+    begin
       docurving(False, True,{xtb}xtimbcl, g / 2, dummy1, dummy2, temp_k, dummy3);
       // curving angle to this xtb.
       shovetimb_keq := (keq + temp_k) * hand_i;
@@ -25526,7 +26818,8 @@ begin
       shove_timber_form.twist_panel.Caption :=
         ' twist :  ' + round_str(shovetimb_keq * 180 / Pi, 2) + deg_str + '÷';
     end
-    else begin
+    else
+    begin
       shovetimb_keq := keq * hand_i;
       if shovetimb_keq < 0 then
         deg_str := ' degs '        // no room for "degrees" in full if negative.
@@ -25560,7 +26853,8 @@ begin
 
     // first do any timber infill, so outlines and reduced ends can can overwrite, possibly in a different colour..
 
-    if timbering_infill = True then begin
+    if timbering_infill = True then
+    begin
       p1.x := xns + crab;
       p1.y := yns + yret;
       p2.x := xns + crab;
@@ -25583,7 +26877,8 @@ begin
     calc_fill_timber_mark(3 + shove_this);  // mark timber near end. ( 3 = timber outline.)
     // (33 = highlighted timber outline).
 
-    if full_length = True then begin
+    if full_length = True then
+    begin
       p1.x := xns - tbl + crab;
       p1.y := yfs + yret;
       p2.x := xfs + tbl + crab;
@@ -25607,7 +26902,8 @@ begin
     //-------------
 
     if (nine_foot = True) and (reduced_ends = True)   // standard 9ft timbering..
-    then begin
+    then
+    begin
       if shove_this = 30 then
         shove_this := 50;
 
@@ -25618,7 +26914,8 @@ begin
       calc_fill_timber_mark(5 + shove_this); // 5 =  timber reduced near end
       // 55 = highlighted reduced ends (selected, red).
       // 95 = highlighted reduced ends (shoved, blue).
-      if full_length = True then begin
+      if full_length = True then
+      begin
         p1.x := xns - tbl + crab;
         p1.y := yfsred + yret;
         p2.x := xfs + tbl + crab;
@@ -25629,11 +26926,11 @@ begin
 
     // can now do the timber centre-lines if there is some data...
 
-    if (pad_form.timber_centres_menu_entry.Checked = True) and
-      (timbcentre_wait.valid = True) then
+    if (pad_form.timber_centres_menu_entry.Checked = True) and (timbcentre_wait.valid = True) then
     begin
 
-      with timbcentre_wait do begin
+      with timbcentre_wait do
+      begin
         // saved actual co-ords, to be entered in list after the outlines.
         p1 := pex1;
         // (this is a fix - we must do the centre-line calcs first for the shove timber select,
@@ -25657,7 +26954,8 @@ begin
     //(*
 
     if (chair_marks = True) and (exp_chairing = True)    // generator  AND  template option
-    then begin
+    then
+    begin
       // add chair outlines and markers  214a ...
 
       if (timb_str = 'S') and (csi.num_slide_chairs = 0) then
@@ -25724,10 +27022,9 @@ begin
       // see if L1 bridge chairs needed instead...
       // calc space available on the turnout side. (main side has priority for ordinary chairs)
 
-      if (timb_str = 'T') or ((timb_str = 'S') and
-        (csi.num_slide_chairs > 0) and (tbn >
-        (csi.num_slide_chairs + csi.num_block_slide_chairs + csi.num_block_heel_chairs)))
-      then begin
+      if (timb_str = 'T') or ((timb_str = 'S') and (csi.num_slide_chairs > 0) and
+        (tbn > (csi.num_slide_chairs + csi.num_block_slide_chairs + csi.num_block_heel_chairs))) then
+      begin
         chair_space_y := aq3offset(xtimbcl - S1_chair_halfwide, dummy_k) - g;
         // calc for turnout side
 
@@ -25736,7 +27033,8 @@ begin
 
         if chair_space_y < (S1_chair_outlong + S1_chair_inlong + inscale)
         // require 1" space between them
-        then begin
+        then
+        begin
 
           // need 1 or 2 L1 bridge chairs.
 
@@ -25758,8 +27056,8 @@ begin
         end;
       end;
 
-      if (timb_str = 'S') and (csi.num_slide_chairs > 0) and
-        (tbn <= csi.num_slide_chairs) then begin
+      if (timb_str = 'S') and (csi.num_slide_chairs > 0) and (tbn <= csi.num_slide_chairs) then
+      begin
         chair_code := 2;  // P slide chairs
 
         // from gauge-face
@@ -25769,10 +27067,9 @@ begin
         chair_halfwide := 4 * inscale;
       end;
 
-      if (timb_str = 'S') and (csi.num_block_slide_chairs > 0) and
-        (tbn > csi.num_slide_chairs) and
-        (tbn <= (csi.num_slide_chairs + csi.num_block_slide_chairs))
-      then begin
+      if (timb_str = 'S') and (csi.num_block_slide_chairs > 0) and (tbn > csi.num_slide_chairs) and
+        (tbn <= (csi.num_slide_chairs + csi.num_block_slide_chairs)) then
+      begin
         chair_code := 3;
         // 1P and 2P block slide chairs (no inner jaw - bolted distance blocks)
 
@@ -25786,8 +27083,8 @@ begin
 
       if (timb_str = 'S') and (csi.num_block_heel_chairs > 0) and
         (tbn > (csi.num_slide_chairs + csi.num_block_slide_chairs)) and
-        (tbn <= (csi.num_slide_chairs + csi.num_block_slide_chairs + csi.num_block_heel_chairs))
-      then begin
+        (tbn <= (csi.num_slide_chairs + csi.num_block_slide_chairs + csi.num_block_heel_chairs)) then
+      begin
         chair_code := 4;  // 3P+ block chairs (inner jaw)
 
         // from gauge-face
@@ -25813,7 +27110,8 @@ begin
       // main road stock rail...
 
       if (chair_code = 5) and (num_bridge = 1)  // over-ride bridge chairs?
-      then begin
+      then
+      begin
         bridge_over_ride := True;
 
         chair_code := 1;  // S1 ordinary chairs instead
@@ -25856,8 +27154,8 @@ begin
 
       if (timb_str <> 'S')  // chairing restarts at heel
         or ((timb_str = 'S') and (csi.num_slide_chairs > 0) and
-        (tbn > (csi.num_slide_chairs + csi.num_block_slide_chairs + csi.num_block_heel_chairs)))
-      then begin
+        (tbn > (csi.num_slide_chairs + csi.num_block_slide_chairs + csi.num_block_heel_chairs))) then
+      begin
 
         chair_k := 0;
         chair_y := g;  // TS
@@ -25886,7 +27184,8 @@ begin
 
 
       if bridge_over_ride = True  // reset bridge chairs for turnout road ?
-      then begin
+      then
+      begin
         chair_code := 5;  // L1 bridge chairs
 
         chair_outlong := L1_chair_outlong;
@@ -25900,10 +27199,9 @@ begin
       //end;
 
 
-      if (timb_str = 'T') or ((timb_str = 'S') and
-        (csi.num_slide_chairs > 0) and (tbn >
-        (csi.num_slide_chairs + csi.num_block_slide_chairs + csi.num_block_heel_chairs)))
-      then begin
+      if (timb_str = 'T') or ((timb_str = 'S') and (csi.num_slide_chairs > 0) and
+        (tbn > (csi.num_slide_chairs + csi.num_block_slide_chairs + csi.num_block_heel_chairs))) then
+      begin
 
         // turnout road crossing-rail chairs...
 
@@ -25911,10 +27209,12 @@ begin
 
         if keq = 0 then
           xcl_mod := 0    // no equalizing
-        else begin
+        else
+        begin
           try
             xcl_mod :=
-              (chair_y - eq_y - chair_mod) * SIN(keq) / COS(chair_k - keq) * COS(chair_k);  // approx shift when equalized
+              (chair_y - eq_y - chair_mod) * SIN(keq) / COS(chair_k - keq) * COS(chair_k);
+            // approx shift when equalized
           except
             xcl_mod := 0;    // !!! 90 degrees?
           end;//try
@@ -25940,7 +27240,8 @@ begin
 
       end;// T timbers
 
-      if (timb_str = 'T') or (timb_str = 'S') then begin
+      if (timb_str = 'T') or (timb_str = 'S') then
+      begin
 
         // turnout road stock rail chairs...
 
@@ -25948,10 +27249,12 @@ begin
 
         if keq = 0 then
           xcl_mod := 0    // no equalizing
-        else begin
+        else
+        begin
           try
             xcl_mod :=
-              (chair_y - eq_y + chair_mod) * SIN(keq) / COS(chair_k - keq) * COS(chair_k);  // approx shift when equalized
+              (chair_y - eq_y + chair_mod) * SIN(keq) / COS(chair_k - keq) * COS(chair_k);
+            // approx shift when equalized
           except
             xcl_mod := 0;    // !!! 90 degrees?
           end;//try
@@ -26009,7 +27312,8 @@ begin
 
   // extend timbers for tandem   218a  ...
 
-  if (size = 0) and (tandem_timb > 0) then begin
+  if (size = 0) and (tandem_timb > 0) then
+  begin
     if tandem_timb = 1 then
       if xtb > dpx then
         rawns := (g - rawfs) * 3 / 4;     // =1  1st double-sided tandem turnout
@@ -26033,8 +27337,8 @@ begin
 
   // calc extension length of half_diamond timbers for slip...
 
-  if (size = 0) and (half_diamond = True) and (hd_timbers > 0) and (xtb > setx) and (xtb < (toex + sliptipsl))
-  then begin
+  if (size = 0) and (half_diamond = True) and (hd_timbers > 0) and (xtb > setx) and (xtb < (toex + sliptipsl)) then
+  begin
     extended_for_slip := True;
     try
       sliptimb_inc := sliprad - SQRT(SQR(sliprad) - SQR(sliptipsl - (xtb - toex)));
@@ -26048,7 +27352,8 @@ begin
     if (hd_timbers = 2) or (hd_timbers = 3) then
       rawns := rawns - sliptimb_inc;    // MS or both.
   end
-  else begin
+  else
+  begin
     extended_for_slip := False;
     sliptimb_inc := 0;
   end;
@@ -26059,9 +27364,11 @@ begin
   // mods 0.78.a   11-11-02... (adjustable step size, also for 00 gauge).
 
   case size of
-    0: begin                          // timber...
+    0:
+    begin                          // timber...
       if timbinc > minfp             // stepped timber lengths.
-      then begin
+      then
+      begin
         rawtblen := rawfs - rawns;                // raw timber length.
         tblen6 := (rawtblen) / inscale / timbinc;
         // number of length increments in this timber length.
@@ -26072,14 +27379,16 @@ begin
         maintimb := 1;                          // flag timber width
         yfsnorm := rawns + tblen;                 // return adjusted far end.
       end
-      else begin
+      else
+      begin
         yfsnorm := rawfs;                 // gradual steps, leave unadjusted.
         tblen := yfsnorm - rawns;
         maintimb := 1;                    // flag timber width
       end;
     end;
 
-    1: begin
+    1:
+    begin
       tblen := tb;        // standard sleeper.
 
       if (gaunt = False) or (xtb >= xorg) or (plain_track = True)
@@ -26094,7 +27403,8 @@ begin
       maintimb := 0;             // flag sleeper width.
     end;
 
-    2: begin
+    2:
+    begin
       tblen := tb / 8;             // 1/8th of standard sleeper.
       yfsnorm := rawns + tblen;    // return adjusted far end.
       yaq3 := g;                 // for end centralizing.
@@ -26106,15 +27416,18 @@ begin
 
   end;//case
 
-  if (half_diamond = True) and (size = 0) then begin
+  if (half_diamond = True) and (size = 0) then
+  begin
     if tradius_is_straight = True then
       keq := k3 / 2   // regular diamond, timbers equalized-constant at half V-crossing angle.
     else
       keq := k / 2;   // 0.93.a irregular diamond, maintain timbers at half angle in stock rail.
   end
-  else begin
+  else
+  begin
     if timbers_equalized = True       // equalized style, rotate timbers...
-    then begin
+    then
+    begin
       if (equalizing_fixed = True) and (frackeq <> 0)
       // constant angle and not a square-on portion..
       then
@@ -26123,7 +27436,8 @@ begin
         keq := k / 2 * frackeq;
       // angle is half gradient of curved stock rail, modified by the equalizing fraction in force for this timber.
     end
-    else begin                                     // square-on style...
+    else
+    begin                                     // square-on style...
       if (square_on_angled = True) and (frackeq <> 0) then
         keq := k    // to turnout road. (29-7-01 approximately square to turnout road, rotation point is not on outer rail)
       else
@@ -26141,9 +27455,9 @@ begin
 
   eqendmod := 0;            // init amount of movement needed.
   if size <> 2              // normal length sleeper or timber.
-  then begin
-    if ((half_diamond = False) and
-      (ms_ends = False))  // turnout/plain track with centralized ends.
+  then
+  begin
+    if ((half_diamond = False) and (ms_ends = False))  // turnout/plain track with centralized ends.
       or (half_diamond = True) and (tandem_timb <> 4)
     // half-diamond always centralized    unless partial in a tandem 218b
     then
@@ -26153,7 +27467,8 @@ begin
 
     if (half_diamond = True) and (extended_for_slip = True)
     // half-diamond extended timbers for slip.
-    then begin
+    then
+    begin
       case hd_timbers of
         1:
           eqendmod := eqendmod + sliptimb_inc / 2;  // TS side.
@@ -26183,9 +27498,11 @@ var
 
 begin
 
-  with pad_form do begin
+  with pad_form do
+  begin
     if pt = True                       // set up for drawing plain track.
-    then begin
+    then
+    begin
       //track_menu_top_entry.Caption:='      PLAIN  TRACK  :';
 
       save_peg_code := peg_code;
@@ -26249,7 +27566,8 @@ begin
 
       //control_room_form.plain_track_menu_entry.Checked:=True;           // radio item.
     end
-    else begin
+    else
+    begin
       //track_menu_top_entry.Caption:='      TURNOUT  :';
 
       peg_on_rail2_menu_entry.Enabled := True;
@@ -26296,7 +27614,8 @@ begin
   railedges(gauge_faces, outer_edges, centre_lines);
   // !!! 30-11-99 may need to put aq 25 back on.
 
-  if shove_timber_form.Showing = True then begin
+  if shove_timber_form.Showing = True then
+  begin
     current_shove_str := '';      // de-select any shoved timber.
     shovetimbx := 0;
     shove_buttons(False, -1);
@@ -26312,12 +27631,11 @@ function check_infill_ok(str: string): boolean;
 begin
   Result := False;                // default init.
 
-  if timbering_infill = False then begin
-    if alert(3, '    show  timber  infill',
-      'It is not possible to show ' + str +
+  if timbering_infill = False then
+  begin
+    if alert(3, '    show  timber  infill', 'It is not possible to show ' + str +
       ' infilled timbers for the control template while this feature remains switched off in the GENERATOR SETTINGS.',
-      '', '', '', '', 'cancel', 'change  generator  setting  -  timber  infill  on', 0) =
-      5 then
+      '', '', '', '', 'cancel', 'change  generator  setting  -  timber  infill  on', 0) = 5 then
       EXIT;
 
     pad_form.timbering_infill_menu_entry.Click;
@@ -26386,16 +27704,19 @@ procedure set_pad_start_colours(change_flag: boolean);
 // default pad (screen) colours  (not for printing)...
 begin
   if (pad_cols_set = False) or (change_flag = True)  // not if already set unless overide asked for.
-  then begin
+  then
+  begin
     if hi_color = True                   // can we use 16-bit colours or better ?
     then
       pad_normal                 // yes.
-    else begin                                   // no, 256 colours or less.
+    else
+    begin                                   // no, 256 colours or less.
       //info_form.user_memo.Color:=clWindow;  // use her normal screen colour for the memo.
       case start_colours of
         0:
           pad_silver;
-        1: begin
+        1:
+        begin
           pad_bright;
           timber_colour := clOlive;
           timber_infill_colour := clMaroon;
@@ -26640,14 +27961,16 @@ end;
 procedure no_rails_warn;
 
 begin
-  with pad_form do begin
-    if (centre_lines_menu_entry.Checked = False) and (stock_rails_menu_entry.Checked = False)
-    then
+  with pad_form do
+  begin
+    if (centre_lines_menu_entry.Checked = False) and (stock_rails_menu_entry.Checked = False) then
     begin
       alert(3, '    no  outer  rails  or  track  centre - lines',
-        '||You have switched off the generation of all outer rail and track centre-line elements.'
-        + '||It may not be possible to print this template, and it may not be drawn correctly in the storage box.'
-        + '||To print a template without any rails or centre-lines, switch them back on in the GENERATOR > GENERATOR SETTINGS > menu options,' + ' and then select instead the|PRINT > PRINTED ELEMENT OPTIONS > OMIT RAILS menu item.',
+        '||You have switched off the generation of all outer rail and track centre-line elements.' +
+        '||It may not be possible to print this template, and it may not be drawn correctly in the storage box.' +
+        '||To print a template without any rails or centre-lines, switch them back on in the GENERATOR > GENERATOR SETTINGS > menu options,'
+        +
+        ' and then select instead the|PRINT > PRINTED ELEMENT OPTIONS > OMIT RAILS menu item.',
         '', '', '', '', '', 'O K', 0);
     end;
   end;//with
@@ -26691,14 +28014,16 @@ var
 
 begin
 
-  with keep_info.keep_dims.box_dims1 do begin
+  with keep_info.keep_dims.box_dims1 do
+  begin
 
     exact_flag := gauge_exact;
     //nyi ignored in version 0  // If true this is an exact-scale template.
     custom_flag := gauge_custom;
     //nyi ignored in version 0  // If true this is (or was when saved) a custom gauge setting.
 
-    with rail_info do begin
+    with rail_info do
+    begin
 
       flare_type := flared_ends_ri;  // 0=straight bent  1=straight machined.
 
@@ -26756,7 +28081,8 @@ begin
     // 211b not used for control template, but retained for use when stored again
     label_mody := mod_text_y;    // 211b ditto
 
-    with transform_info do begin
+    with transform_info do
+    begin
 
       y_datum := datum_y;                   // y datum (green dot).
 
@@ -26780,7 +28106,8 @@ begin
 
     end;//with
 
-    with platform_trackbed_info do begin   // 0.93.a was  Tcheck_rail_mints=record
+    with platform_trackbed_info do
+    begin   // 0.93.a was  Tcheck_rail_mints=record
 
       adjacent_edges := adjacent_edges_keep;
       // False=adjacent tracks,  True=trackbed edges and platform edges.
@@ -26846,7 +28173,8 @@ begin
     end;//with platform_trackbed_info
 
 
-    with align_info do begin
+    with align_info do
+    begin
 
       spiral := trans_flag;      // True=transition, False=fixed radius curving.
 
@@ -26880,9 +28208,11 @@ begin
       cl_options_custom_offset := cl_options_custom_offset_ext; // 206a
 
       if reminder_flag = True       // 216a
-      then begin
+      then
+      begin
 
-        with jotter_form.jotter_memo.Lines do begin
+        with jotter_form.jotter_memo.Lines do
+        begin
 
           Add('');
           Add('_______________________');
@@ -26896,7 +28226,8 @@ begin
 
     end;//with
 
-    with turnout_info1 do begin
+    with turnout_info1 do
+    begin
 
       plain_track := plain_track_flag;               //  True = plain track only.
       hand_i := hand;                                //  hand of turnout.
@@ -26939,7 +28270,8 @@ begin
 
   end;//with
 
-  with keep_info.keep_dims.turnout_info2 do begin
+  with keep_info.keep_dims.turnout_info2 do
+  begin
 
     equalizing_fixed := equalizing_fixed_flag;     //  {spare_flag1:boolean;}   1-4-00
     no_timbering := no_timbering_flag;             //  {spare_flag2:boolean;}   7-9-00
@@ -26965,9 +28297,11 @@ begin
 
     startx := start_draw_x;               //  {spare_float3:extended;}  turnout startx  3-11-99
 
-    with plain_track_info do begin
+    with plain_track_info do
+    begin
 
-      if (pt_custom = True) or (list_index > 4) then begin
+      if (pt_custom = True) or (list_index > 4) then
+      begin
         pt_i := plain_track_form.plain_track_spacings_listbox.Items.Count - 1;
         // list index for current custom plain track.
         railen[pt_i] := rail_length;
@@ -27003,7 +28337,8 @@ begin
     // switch stuff...
 
     if set_csi_from_switch_info(switch_info) = False  // set current switch from supplied info.
-    then begin
+    then
+    begin
       if set_csi_data(2, 2) = False     // set REA B default if copied data invalid.
       then
         run_error(82);         // ?????? no B switch in list?
@@ -27011,25 +28346,31 @@ begin
 
     // crossing stuff...
 
-    with crossing_info do begin
+    with crossing_info do
+    begin
       case pattern of
-        -1: begin
+        -1:
+        begin
           xing_type_i := -1;
           retpar_i := 0;
         end;  // generic crossing.
-        0: begin
+        0:
+        begin
           xing_type_i := 0;
           retpar_i := 0;
         end;  // straight crossing...
-        1: begin
+        1:
+        begin
           xing_type_i := 1;
           retpar_i := 0;
         end;  // curviform V-crossing...
-        2: begin
+        2:
+        begin
           xing_type_i := 0;
           retpar_i := 1;
         end;  // parallel crossing...
-        else begin
+        else
+        begin
           xing_type_i := 0;
           retpar_i := 0;
         end;  // safety ! (default straight crossing)...
@@ -27123,7 +28464,8 @@ begin
 
   //------------------------------
 
-  with pad_form do begin
+  with pad_form do
+  begin
 
     if spiral = True then
       zone_normal_menu_entry.Checked := True;          // radio item - normal length adjust action.
@@ -27134,7 +28476,8 @@ begin
 
     snap_exit_to_return_curve_menu_entry.Enabled := (retpar_i = 1);
 
-    with peg_indicator_panel do begin
+    with peg_indicator_panel do
+    begin
       case peg_code of
         -2:
           Caption := 'J';
@@ -27174,8 +28517,8 @@ begin
     gauge_dims(False, False, False);
     // data from cg current gauge, not from the gauge list (ignore return).
 
-    if (cl_only = False) and (gen_centre_lines_were_off = True) and
-      (centre_lines_menu_entry.Checked = True) then begin
+    if (cl_only = False) and (gen_centre_lines_were_off = True) and (centre_lines_menu_entry.Checked = True) then
+    begin
       centre_lines_menu_entry.Checked := False;
       // toggle centre-lines off (not needed for this one)...
       centre_lines := False;
@@ -27184,7 +28527,8 @@ begin
     end;
 
     if (cl_only = True) and (centre_lines_menu_entry.Checked = False)  // toggles on click
-    then begin
+    then
+    begin
       centre_lines_menu_entry.Checked := True;     // make sure centre-lines are on.
       centre_lines := True;
       railedges(gauge_faces, outer_edges, centre_lines);
@@ -27198,9 +28542,11 @@ begin
 
   //gauge_i:=0; //init
 
-  for n := 0 to gauge_form.gauge_listbox.Items.Count - 1 do begin
+  for n := 0 to gauge_form.gauge_listbox.Items.Count - 1 do
+  begin
 
-    if gauge[n].name_str_glist = cpi.name_str_pi then begin
+    if gauge[n].name_str_glist = cpi.name_str_pi then
+    begin
       gauge_i := n;
       BREAK;
     end;
@@ -27219,12 +28565,10 @@ begin
 
   pt_all := turnout_road_stock_rail_flag and main_road_stock_rail_flag;
 
-  turnout_all := pt_all and turnout_road_check_rail_flag and
-    turnout_road_crossing_rail_flag and crossing_vee_flag and
-    main_road_check_rail_flag and main_road_crossing_rail_flag;
+  turnout_all := pt_all and turnout_road_check_rail_flag and turnout_road_crossing_rail_flag and
+    crossing_vee_flag and main_road_check_rail_flag and main_road_crossing_rail_flag;
 
-  hd_all := turnout_all and k_diagonal_side_check_rail_flag and
-    k_main_side_check_rail_flag;
+  hd_all := turnout_all and k_diagonal_side_check_rail_flag and k_main_side_check_rail_flag;
 
   if plain_track = True then
     Result := not pt_all
@@ -27246,14 +28590,17 @@ var
 begin
   if plain_track = True then
     prefix_str := 'P'
-  else begin
-    if half_diamond = True then begin
+  else
+  begin
+    if half_diamond = True then
+    begin
       if turnoutx < fpx then
         prefix_str := 'C'      // custom partial template
       else
         prefix_str := 'D';     // full half-diamond
     end
-    else begin
+    else
+    begin
       if turnoutx < ipx then
         prefix_str := 'S'   // switch or catch points
       else
@@ -27289,7 +28636,8 @@ begin
   FillChar(keep_info.keep_dims, SizeOf(keep_info.keep_dims), 0);
   // all unused bytes to zero.  26-6-00
 
-  with keep_info.keep_dims.box_dims1 do begin
+  with keep_info.keep_dims.box_dims1 do
+  begin
 
     now_time := time_now_modified(Random($7FFFFFFF));
     // modify Delphi float time format to integer.
@@ -27308,12 +28656,13 @@ begin
 
     id_number := highest_id_number + 1;    // 208a
 
-    id_number_str := create_id_number_str(id_number, hand_i, startx, turnoutx, ipx,
-      fpx, plain_track, half_diamond, any_control_rails_omitted);   // 208a
+    id_number_str := create_id_number_str(id_number, hand_i, startx, turnoutx, ipx, fpx,
+      plain_track, half_diamond, any_control_rails_omitted);   // 208a
 
     total_length_of_timbering := total_template_timber_length;  // 0.96.a  for box totals info
 
-    with rail_info do begin
+    with rail_info do
+    begin
 
       flared_ends_ri := flare_type;  // 0=straight bent  1=straight machined.
 
@@ -27359,8 +28708,8 @@ begin
     else
       gauge_exact := False;
 
-    if (gauge_i < gauge_form.gauge_listbox.Items.Count - 1) and
-      (gauge_i > gauge_form.gauge_listbox.Items.Count - 6)  // 4 custom slots -2, -3, -4, -5.
+    if (gauge_i < gauge_form.gauge_listbox.Items.Count - 1) and (gauge_i >
+      gauge_form.gauge_listbox.Items.Count - 6)  // 4 custom slots -2, -3, -4, -5.
 
     then
       gauge_custom := True   // nyi // If true this is (or was when saved) a custom gauge setting.
@@ -27394,20 +28743,23 @@ begin
 
     if (control_room_form.previous_labels_menu_entry.Checked = True)   // 211b option
       or ((GetAsyncKeyState(VK_CONTROL) and -2) <> 0)                    // or CTRL-Key down
-    then begin
+    then
+    begin
       mod_text_x := label_modx;    // 211b put label back where it was
       mod_text_y := label_mody;
     end
-    else begin
+    else
+    begin
       // 0.82.a randomise label position (if currently on default)...
 
-      if control_room_form.fixed_labels_menu_entry.Checked = True then begin
+      if control_room_form.fixed_labels_menu_entry.Checked = True then
+      begin
         mod_text_x := 0;
         mod_text_y := 0;
       end
-      else begin
-        if control_room_form.very_random_labels_menu_entry.Checked =
-          True then
+      else
+      begin
+        if control_room_form.very_random_labels_menu_entry.Checked = True then
           rand_label_factor := 3.0
         else
           rand_label_factor := 1.0;
@@ -27419,7 +28771,8 @@ begin
       end;
     end;
 
-    with transform_info do begin
+    with transform_info do
+    begin
 
       datum_y := y_datum;                   // y datum (green dot).
 
@@ -27454,7 +28807,8 @@ begin
       {spare_float3:extended;}
     end;//with
 
-    with platform_trackbed_info do begin   // 0.93.a was  Tcheck_rail_mints=record
+    with platform_trackbed_info do
+    begin   // 0.93.a was  Tcheck_rail_mints=record
 
       adjacent_edges_keep := adjacent_edges;
       // False=adjacent tracks,  True=trackbed edges and platform edges.
@@ -27519,7 +28873,8 @@ begin
     end;//with platform_trackbed_info
 
 
-    with align_info do begin
+    with align_info do
+    begin
 
       curving_flag := True;      // no longer used 0.77.a - all templates curved (straight=max_rad).
 
@@ -27572,7 +28927,8 @@ begin
     disable_f7_snap := False;           // 0.82.a  14-10-06  default.
 
 
-    with turnout_info1 do begin
+    with turnout_info1 do
+    begin
 
       plain_track_flag := plain_track;            //  True = plain track only.
       hand := hand_i;                             //  hand of turnout.
@@ -27591,20 +28947,23 @@ begin
       // compatibility mods 211a  217a ...
 
       if turnout_road_i = 2          // adjustable turnout road exit
-      then begin
+      then
+      begin
         turnout_road_code := 0;
         // so can be loaded in 208 and earlier ( =2 will crash)
         turnout_road_is_adjustable := True;
       end
       else
       if turnout_road_i = 3  // minimum turnout road exit   217a
-      then begin
+      then
+      begin
         turnout_road_code := 0;
         // so can be loaded in 208 and earlier ( =3 will crash)
         turnout_road_is_minimum := True;
       end
 
-      else begin
+      else
+      begin
         turnout_road_code := turnout_road_i;    //  length of turnout exit road.
         turnout_road_is_adjustable := False;
         turnout_road_is_minimum := False;       // 217a
@@ -27619,7 +28978,8 @@ begin
 
   end;//with
 
-  with keep_info.keep_dims.turnout_info2 do begin
+  with keep_info.keep_dims.turnout_info2 do
+  begin
 
     equalizing_fixed_flag := equalizing_fixed;  // {spare_flag1:boolean;} equalizing style 1-4-00
     no_timbering_flag := no_timbering;          // {spare_flag2:boolean;} 7-9-00
@@ -27662,7 +29022,8 @@ begin
     ipx_stored := ipx;    // 208a needed for ID number creation -- not loaded to the control
     fpx_stored := fpx;    // 208a needed for ID number creation -- not loaded to the control
 
-    with plain_track_info do begin
+    with plain_track_info do
+    begin
 
       if pt_i > 4 then
         pt_custom := True       // list index for custom plain track.
@@ -27677,8 +29038,7 @@ begin
       for n := 0 to psleep_c do
         sleeper_centres[n] := psleep[pt_i, n];   // spacings (only used for custom spacings).
 
-      pt_spacing_name_str := Copy(
-        plain_track_form.plain_track_spacings_listbox.Items.Strings[pt_i], 1, 198);
+      pt_spacing_name_str := Copy(plain_track_form.plain_track_spacings_listbox.Items.Strings[pt_i], 1, 198);
       // get name from the list.
 
       user_pegx := udpegx;    // user-defined peg data (here to use former spare floats in file)
@@ -27701,7 +29061,8 @@ begin
 
     // crossing stuff...
 
-    with crossing_info do begin
+    with crossing_info do
+    begin
 
       if retpar_i = 1 then
         pattern := 2
@@ -27818,7 +29179,8 @@ begin
 
 
   if (group_only = False) or (any_selected = 0)      // include control template unless group only.
-  then begin
+  then
+  begin
     max_wide := y_datum * 100 + xy_max[1];
     //xy_most[1];   // init for control template in 1/100th mm...
     max_long := xy_max[0];//xy_most[0];
@@ -27826,7 +29188,8 @@ begin
     min_wide := y_datum * 100 + xy_min[1];//:=0;
     min_long := xy_min[0];//:=0;
   end
-  else begin                                 // group only
+  else
+  begin                                 // group only
     max_wide := 0 - screenx_max * 100;        // init max neg.
     max_long := 0 - screenx_max * 100;
 
@@ -27836,10 +29199,13 @@ begin
 
 
   if any_bgnd > 0      // any in list and on background?
-  then begin
-    for n := 0 to (keeps_list.Count - 1) do begin
+  then
+  begin
+    for n := 0 to (keeps_list.Count - 1) do
+    begin
 
-      with Ttemplate(keeps_list.Objects[n]) do begin
+      with Ttemplate(keeps_list.Objects[n]) do
+      begin
 
         if bg_copied = False then
           CONTINUE;  // this one not a background template.
@@ -27847,7 +29213,8 @@ begin
         if (group_only = True) and (group_selected = False) then
           CONTINUE;  // ignore if not in group.
 
-        with bgnd_keep do begin
+        with bgnd_keep do
+        begin
 
           if xlist_max > max_long then
             max_long := xlist_max;
@@ -27920,7 +29287,8 @@ begin
     new_screenx := screenx_min;
 
   if (wheel = True) and (wheel_zoom_code = 1)  // mouse wheel, zoom and keep mouse on location
-  then begin
+  then
+  begin
 
     zoom_factor := new_screenx / screenx;
 
@@ -27935,7 +29303,8 @@ begin
 
 
   if (wheel = True) and (wheel_zoom_code = 2)  // mouse wheel, jump to centre and zoom.
-  then begin
+  then
+  begin
 
     // first zoom normal settings...
 
@@ -27944,14 +29313,16 @@ begin
 
     screenx := new_screenx;
 
-    if GetCursorPos(mps) = False then begin
+    if GetCursorPos(mps) = False then
+    begin
       mps.X := 0;
       mps.Y := 0;
     end;  // get cursor X,Y
 
     // move cursor to centre of pad ...
 
-    with pad_form do begin
+    with pad_form do
+    begin
 
       border_width := Round((Width - ClientWidth) / 2);
 
@@ -27995,7 +29366,8 @@ var
 begin
   mouse_shift_sync_wanted := False;    // not mouse action here
 
-  if any_selected = 0 then begin
+  if any_selected = 0 then
+  begin
     if alert_no_group = True    // alert him, and does he want all?
     then
       EXIT;
@@ -28004,9 +29376,11 @@ begin
   min_wide := screenx_max * 100;          // init max pos.
   min_long := screenx_max * 100;
 
-  for n := 0 to (keeps_list.Count - 1) do begin
+  for n := 0 to (keeps_list.Count - 1) do
+  begin
 
-    with Ttemplate(keeps_list.Objects[n]) do begin
+    with Ttemplate(keeps_list.Objects[n]) do
+    begin
 
       if bg_copied = False then
         CONTINUE;  // this one not a background template.
@@ -28014,7 +29388,8 @@ begin
       if group_selected = False then
         CONTINUE;  // ignore if not in group.
 
-      with bgnd_keep do begin
+      with bgnd_keep do
+      begin
 
         if xlist_min < min_long then
           min_long := xlist_min;
@@ -28028,14 +29403,19 @@ begin
   min_long := min_long / 100;      // to mm.
   min_wide := min_wide / 100;
 
-  if (min_long >= 0) and (min_wide >= 0) then begin
+  if (min_long >= 0) and (min_wide >= 0) then
+  begin
     ShowMessage('All group templates are currently within the positive quadrant on the grid.');
     EXIT;
   end;
 
-  if warn = True then begin
+  if warn = True then
+  begin
     i := alert(7, '    shift  group  into  positive  quadrant',
-      '||You are about to shift all group templates as a block such that every one is within the positive quadrant on the grid.' + '||This is a one-time process which cannot be undone.' + '||You may wish to save a data file first, so that you can revert to the existing template locations if necessary.', '', '', '', 'save  group  templates  first', 'cancel  shift', 'shift  group  without  saving', 0);
+      '||You are about to shift all group templates as a block such that every one is within the positive quadrant on the grid.'
+      + '||This is a one-time process which cannot be undone.' +
+      '||You may wish to save a data file first, so that you can revert to the existing template locations if necessary.',
+      '', '', '', 'save  group  templates  first', 'cancel  shift', 'shift  group  without  saving', 0);
 
     case i of
       4:
@@ -28064,14 +29444,13 @@ begin
 
   redraw(True);
 
-  if (bgnd_form.bgnd_shapes_listbox.Items.Count < 1) or
-    (bgnd_form.allow_sync_checkbox.Checked = False) then
+  if (bgnd_form.bgnd_shapes_listbox.Items.Count < 1) or (bgnd_form.allow_sync_checkbox.Checked = False) then
     EXIT;
 
   if alert(4, '    shift  background  shapes  in  sync ?',
-    'The group templates have been shifted into the positive quadrant.'
-    + '||Do you now want all your background shapes to be shifted by the same amount?',
-    '', '', '', '', 'no  thanks', 'yes  please', 0) = 5 then
+    'The group templates have been shifted into the positive quadrant.' +
+    '||Do you now want all your background shapes to be shifted by the same amount?', '', '',
+    '', '', 'no  thanks', 'yes  please', 0) = 5 then
     EXIT;
 
   shift_all_shapes(xshapes, yshapes);
@@ -28095,7 +29474,8 @@ begin
   if rad_centre = False then
     docurving(False, True, x, y, pc.x, pc.y, dummy1, dummy2)
   // curve untransformed rotation centre position in pc (rad and angle not needed).
-  else begin
+  else
+  begin
     pc.x := x;
     pc.y := y;
   end;                         // but don't curve the curving centre!
@@ -28125,7 +29505,10 @@ function alert_no_group: boolean;    // return False if any get selected.
 
 const
   nosel_help_str: string = '      Selecting  Group  Templates' +
-    '||Before a group of stored templates can be subject to shift, rotate, save, or other group operations, they must first be selected.' + '||To select all background templates as a group, click the GROUP > GROUP SELECT ALL menu item (or press CTRL+A).' + '||To add or remove individual templates to or from a group, click anywhere on each template and then click the GROUP SELECT (TOGGLE) menu item on the pop-up menu which appears for that template.' + '||Or to quickly select multiple background templates with the mouse, click the GROUP > GROUP SELECT > CLICK BACKGND TO GROUP menu item and then click on their name labels.' + '||A group of templates can also be selected by clicking the GROUP-SELECTION FENCE toolbutton at the top of the pad, and then drawing a rectangle around them.' + '||Group templates can also be selected or de-selected in the Storage Box, and the group can then also include unused stored templates. Click the ? HELP button on the Storage Box for more information.';
+    '||Before a group of stored templates can be subject to shift, rotate, save, or other group operations, they must first be selected.'
+    +
+    '||To select all background templates as a group, click the GROUP > GROUP SELECT ALL menu item (or press CTRL+A).' +
+    '||To add or remove individual templates to or from a group, click anywhere on each template and then click the GROUP SELECT (TOGGLE) menu item on the pop-up menu which appears for that template.' + '||Or to quickly select multiple background templates with the mouse, click the GROUP > GROUP SELECT > CLICK BACKGND TO GROUP menu item and then click on their name labels.' + '||A group of templates can also be selected by clicking the GROUP-SELECTION FENCE toolbutton at the top of the pad, and then drawing a rectangle around them.' + '||Group templates can also be selected or de-selected in the Storage Box, and the group can then also include unused stored templates. Click the ? HELP button on the Storage Box for more information.';
 
 var
   i: integer;
@@ -28134,13 +29517,13 @@ begin
   Result := True;       // default init, no group.
   repeat
 
-    i := alert(3, '        no  group',
-      'There are no stored templates currently selected for group operations.',
+    i := alert(3, '        no  group', 'There are no stored templates currently selected for group operations.',
       '', '', '', '?  help', 'cancel', 'group  select  all', 4);
     case i of
       4:
         alert_help(0, nosel_help_str, '');
-      6: begin
+      6:
+      begin
         pad_form.select_all_keeps_menu_entry.Click;
         if any_selected <> 0 then
           Result := False;
@@ -28154,10 +29537,15 @@ procedure alert_no_bgnd;      // mod 0.93.a
 
 begin
   alert(3, '    no  templates  currently  on  background',
-    '||There are no stored templates currently on the background drawing on the trackpad.'
+    '||There are no stored templates currently on the background drawing on the trackpad.' +
+    '||The template which you can see on the trackpad is the control template.' +
+    '||Many functions in Templot0 apply to background templates only, for example setting a marker colour, exporting a DXF file, selecting a group of templates.'
     +
-    '||The template which you can see on the trackpad is the control template.'
-    + '||Many functions in Templot0 apply to background templates only, for example setting a marker colour, exporting a DXF file, selecting a group of templates.' + '||And some control template functions require a background template to be present, for example make transition curve, extend template to meet.' + '||To place a copy of the current control template on the background, click the `0PROGRAM > STORE & BACKGROUND`1 menu item or press the `0INSERT`2 key.' + '||To make an unused stored template appear on the background, click the `0COPY TO BACKGROUND`1 button on the storage box.| ',
+    '||And some control template functions require a background template to be present, for example make transition curve, extend template to meet.'
+    +
+    '||To place a copy of the current control template on the background, click the `0PROGRAM > STORE & BACKGROUND`1 menu item or press the `0INSERT`2 key.'
+    +
+    '||To make an unused stored template appear on the background, click the `0COPY TO BACKGROUND`1 button on the storage box.| ',
     '', '', '', '', '', 'continue', 0);
 end;
 //____________________________________________________________________________________________
@@ -28167,8 +29555,8 @@ procedure alert_no_unused;
 begin
   alert(3, '    no  templates  currently  unused',
     'There are currently no unused stored templates.' +
-    '||To store an unused copy of the control template, click the|`0PROGRAM > STORE AS UNUSED`1 menu item.'
-    + '||To remove a stored template from the background, so making it an unused stored template, click the|`0WIPE FROM BACKGROUND`1 button in the storage box.',
+    '||To store an unused copy of the control template, click the|`0PROGRAM > STORE AS UNUSED`1 menu item.' +
+    '||To remove a stored template from the background, so making it an unused stored template, click the|`0WIPE FROM BACKGROUND`1 button in the storage box.',
     '', '', '', '', '', 'continue', 0);
 end;
 //____________________________________________________________________________________________
@@ -28177,9 +29565,9 @@ procedure alert_no_library;
 
 begin
   alert(3, '    no  library  templates',
-    'There are currently no library templates in your storage box.'
-    + '||To store a library copy of the control template, click the|`0MAIN > STORE AS LIBRARY`1 menu item.'
-    + '||To add library templates from a file, click the `0ADD LIBRARY...`1 button on the storage box.',
+    'There are currently no library templates in your storage box.' +
+    '||To store a library copy of the control template, click the|`0MAIN > STORE AS LIBRARY`1 menu item.' +
+    '||To add library templates from a file, click the `0ADD LIBRARY...`1 button on the storage box.',
     '', '', '', '', '', 'continue', 0);
 end;
 //____________________________________________________________________________________________
@@ -28188,11 +29576,17 @@ function get_new_rad_org(rad_str: string; var orgx, orgy: extended): boolean;
   // get new radial centres.
 
 const
-  help_xradshift_str: string = '     Shift radial centre to X dimension.'
-    + '||Enter an X-dimension in millimetres for the new position of the radial centre on the trackpad (the centre location from which the curving line radius is drawn).' + '||X-dimensions are measured across the width of the screen, positive from left to right.' + '||Unless the exact location of the radial centre is important, shifting the control template is more usually done with the mouse action, select the|`0ACTION > MOUSE ACTIONS: GEOMETRY > SHIFT POSITION`1 menu item (or press `0F7`2).';
+  help_xradshift_str: string = '     Shift radial centre to X dimension.' +
+    '||Enter an X-dimension in millimetres for the new position of the radial centre on the trackpad (the centre location from which the curving line radius is drawn).'
+    +
+    '||X-dimensions are measured across the width of the screen, positive from left to right.' +
+    '||Unless the exact location of the radial centre is important, shifting the control template is more usually done with the mouse action, select the|`0ACTION > MOUSE ACTIONS: GEOMETRY > SHIFT POSITION`1 menu item (or press `0F7`2).';
 
-  help_yradshift_str: string = '     Shift radial centre to Y dimension.'
-    + '||Enter an Y-dimension in millimetres for the new position of the radial centre on the trackpad (the centre location from which the curving line radius is drawn).' + '||Y-dimensions are measured vertically on the screen, the positive direction is upwards from the bottom.' + '||Unless the exact location of the radial centre is important, shifting the control template is more usually done with the mouse action, select the|`0ACTION > MOUSE ACTIONS: GEOMETRY > SHIFT POSITION`1 menu item (or press `0F7`2).';
+  help_yradshift_str: string = '     Shift radial centre to Y dimension.' +
+    '||Enter an Y-dimension in millimetres for the new position of the radial centre on the trackpad (the centre location from which the curving line radius is drawn).'
+    +
+    '||Y-dimensions are measured vertically on the screen, the positive direction is upwards from the bottom.' +
+    '||Unless the exact location of the radial centre is important, shifting the control template is more usually done with the mouse action, select the|`0ACTION > MOUSE ACTIONS: GEOMETRY > SHIFT POSITION`1 menu item (or press `0F7`2).';
 
 var
   n: integer;
@@ -28208,7 +29602,8 @@ begin
 
   if n <> 1 then
     EXIT;
-  if getdims('shift  ' + rad_str + 'radial  centre  to...', '', pad_form, n, od) = True then begin
+  if getdims('shift  ' + rad_str + 'radial  centre  to...', '', pad_form, n, od) = True then
+  begin
     orgx := od[0];
     orgy := od[1];
     Result := True;
@@ -28224,18 +29619,20 @@ var
   i: integer;
 
 begin
-  if spiral = False then begin
-    if ABS(nomrad) > max_rad_test then begin
+  if spiral = False then
+  begin
+    if ABS(nomrad) > max_rad_test then
+    begin
       alert(6, '    no  radial  centre',
-        '            Shift  radial  centre.'
-        +
+        '            Shift  radial  centre.' +
         'The current curving radius is so great that the template is effectively dead straight and there is no radial centre to be shifted.',
         '', '', '', '', 'cancel', '', 0);
       EXIT;
     end;
 
     if to_notch = True    // move centre to notch
-    then begin
+    then
+    begin
       orgx := notchx;
       orgy := notchy;
       xshift := xshift + (orgx - rad1_orgx);
@@ -28244,12 +29641,14 @@ begin
       //if transform=False then transform_on_and_redraw;    //  won't work otherwise - also does a redraw.
       redraw(True);
     end
-    else begin                // move centre somewhere else...
+    else
+    begin                // move centre somewhere else...
       orgx := rad1_orgx;
       orgy := rad1_orgy;
 
       if get_new_rad_org('', orgx, orgy) = True   // get new radial centres.
-      then begin
+      then
+      begin
         xshift := xshift + (orgx - rad1_orgx);
         yshift := yshift + (orgy - rad1_orgy) * hand_i;
 
@@ -28258,31 +29657,28 @@ begin
       end;
     end;
   end
-  else begin
+  else
+  begin
     if (ABS(nomrad1) <= max_rad_test) and (ABS(nomrad2) <= max_rad_test)
     // neither rad straight?
-    then begin
-      if to_notch = True then begin
+    then
+    begin
+      if to_notch = True then
+      begin
         i :=
-          alert(4, '    which  radial  centre ?',
-          '      Shift  radial  centre  to  notch.'
-          +
+          alert(4, '    which  radial  centre ?', '      Shift  radial  centre  to  notch.' +
           '||The control template is on a transition curve. Which radial centre do you want to shift to the pegging notch?',
-          '', '', 'shift  centre  of  1st  radius  to  notch',
-          'shift  centre  of  2nd  radius  to  notch', 'cancel', '', 0);
+          '', '', 'shift  centre  of  1st  radius  to  notch', 'shift  centre  of  2nd  radius  to  notch',
+          'cancel', '', 0);
       end
-      else begin
+      else
+      begin
         i :=
-          alert(4, '    which  radial  centre ?',
-          '            Shift  radial  centre.'
-          +
+          alert(4, '    which  radial  centre ?', '            Shift  radial  centre.' +
           '||The control template is on a transition curve. For which radial centre do you want to set a new position?'
-          +
-          '||(It is not possible to set both centres directly. The other centre can be moved using the CTRL-F5 ORBIT mouse action,'
-          +
-          ' or by adjusting the transition start and length settings while the fixing peg is in the fixed part of the curve.)',
-          '', '', 'shift  centre  of  1st  radius  to ...',
-          'shift  centre  of  2nd  radius  to ...', 'cancel', '', 0);
+          + '||(It is not possible to set both centres directly. The other centre can be moved using the CTRL-F5 ORBIT mouse action,'
+          + ' or by adjusting the transition start and length settings while the fixing peg is in the fixed part of the curve.)', '', '', 'shift  centre  of  1st  radius  to ...', 'shift  centre  of  2nd  radius  to ...',
+          'cancel', '', 0);
       end;
       case i of
         3:
@@ -28293,15 +29689,18 @@ begin
           first_rad := False;
       end;//case
     end
-    else begin
+    else
+    begin
       if ABS(nomrad1) > max_rad_test then
         first_rad := False  //easement from straight.
       else
         first_rad := True;  //easement to straight.
     end;
 
-    if first_rad = True then begin
-      if to_notch = True then begin
+    if first_rad = True then
+    begin
+      if to_notch = True then
+      begin
         orgx := notchx;
         orgy := notchy;
         xshift := xshift + (orgx - rad1_orgx);
@@ -28310,13 +29709,15 @@ begin
         //if transform=False then transform_on_and_redraw;    //  won't work otherwise - also does a redraw.
         redraw(True);
       end
-      else begin
+      else
+      begin
         orgx := rad1_orgx;
         orgy := rad1_orgy;
 
         if get_new_rad_org('1st  ', orgx, orgy) = True
         // get new radial centres.
-        then begin
+        then
+        begin
           xshift := xshift + (orgx - rad1_orgx);
           yshift := yshift + (orgy - rad1_orgy) * hand_i;
 
@@ -28325,8 +29726,10 @@ begin
         end;
       end;
     end//rad1
-    else begin
-      if to_notch = True then begin
+    else
+    begin
+      if to_notch = True then
+      begin
         orgx := notchx;
         orgy := notchy;
         xshift := xshift + (orgx - rad2_orgx);
@@ -28335,13 +29738,15 @@ begin
         //if transform=False then transform_on_and_redraw;    //  won't work otherwise - also does a redraw.
         redraw(True);
       end
-      else begin
+      else
+      begin
         orgx := rad2_orgx;
         orgy := rad2_orgy;
 
         if get_new_rad_org('2nd  ', orgx, orgy) = True
         // get new radial centres.
-        then begin
+        then
+        begin
           xshift := xshift + (orgx - rad2_orgx);
           yshift := yshift + (orgy - rad2_orgy) * hand_i;
 
@@ -28361,13 +29766,15 @@ var
   notch_data: Tnotch;
 
 begin
-  with Result do begin      // default inits...
+  with Result do
+  begin      // default inits...
     notch_x := 0;
     notch_y := 0;
     notch_k := 0;
   end;//with
 
-  with notch_data do begin
+  with notch_data do
+  begin
     try
       normalize_transforms;
       docurving(True, True, pegx, pegy, notch_x, temp, dummy1, dummy2);
@@ -28385,7 +29792,8 @@ end;
 function get_current_notch: Tnotch;
 
 begin
-  with Result do begin
+  with Result do
+  begin
     notch_x := notchx;
     notch_y := notchy;
     notch_k := notch_angle;
@@ -28396,7 +29804,8 @@ end;
 procedure set_current_notch(notch_data: Tnotch);
 
 begin
-  with notch_data do begin
+  with notch_data do
+  begin
     notchx := notch_x;
     notchy := notch_y;
     notch_angle := notch_k;
@@ -28465,7 +29874,8 @@ begin
 
   if (click = True) or (min_rot = True)
   // he's not likely to be wanting more than 90 degs of rotation...
-  then begin
+  then
+  begin
     while angle_diff < (0 - Pi / 2) do
       angle_diff := angle_diff + Pi;  // less than -90, add 180 degrees.
     while angle_diff > Pi / 2 do
@@ -28480,7 +29890,8 @@ begin
   // if it was already on notch, rotate it instead (but not if creating a tandem 218a).
 
 
-  if click = True then begin
+  if click = True then
+  begin
 
     docurving(True, True, pegx, pegy, new_padpegx, new_padpegy, dummy1, dummy2);
     // calc new peg position.
@@ -28489,8 +29900,7 @@ begin
     saved_pegging_shifty := (new_padpegy - padpegy) * hand_i;
     saved_pegging_rot := 0 - angle_diff * hand_i;
 
-    if (ABS(saved_pegging_shiftx) < minfp) and
-      (ABS(saved_pegging_shifty) < minfp) and
+    if (ABS(saved_pegging_shiftx) < minfp) and (ABS(saved_pegging_shifty) < minfp) and
       (ABS(saved_pegging_rot) < minfp) and (creating_tandem = False)
     // 218a
     then
@@ -28511,7 +29921,8 @@ begin
   omit_wj_marks := False;     // always put back on (turned off in make_slip)    215a
 
   if making_a_diamond = False    // global flag    215a
-  then begin
+  then
+  begin
     hd_vcheck_rails := 0;   // normal
     hd_timbers := 0;        // normal
   end
@@ -28528,11 +29939,13 @@ begin
 
   if (retain_entry_straight_on_make = False) and (entry_straight_code <> 0)
   // 213a 0=using auto-fit instead
-  then begin
+  then
+  begin
 
     if plain_track = True then
       entry_straight_code := 0     // changing to auto-fit has no effect on plain track geometry
-    else begin
+    else
+    begin
 
       // modify the new control template for the changed entry straight...
 
@@ -28586,13 +29999,13 @@ var
       Application.ProcessMessages;
 
     if slewing = True then
-      slew_str := ', or try repeating the process with slewing cancelled. Slewing can then be re-applied to the new template as required.'
+      slew_str :=
+        ', or try repeating the process with slewing cancelled. Slewing can then be re-applied to the new template as required.'
     else
       slew_str := '.';
 
     alert(5, '    calculation  failed',
-      'Sorry, automatic adjustment has failed.'
-      + '||Please adjust the new template manually' + slew_str,
+      'Sorry, automatic adjustment has failed.' + '||Please adjust the new template manually' + slew_str,
       '', '', '', '', '', 'continue', 0);
 
   end;
@@ -28608,13 +30021,14 @@ begin
     old_rad2_orgx := 0;
     old_rad2_orgy := 0;
 
-    if (spiral = True) and (auto_spiral_adjust = True) then begin
+    if (spiral = True) and (auto_spiral_adjust = True) then
+    begin
 
       // first get the existing transition data (relative to TRANSITION datum).
       // (apartl ignores any slewing)
 
-      if calc_transition(nomrad1, nomrad2, tst, dummy1, dummy2, dummy3, dummy4, old_apartl, dummy5) =
-        False then begin
+      if calc_transition(nomrad1, nomrad2, tst, dummy1, dummy2, dummy3, dummy4, old_apartl, dummy5) = False then
+      begin
         calc_error;
         auto_spiral_adjust := False;
       end;
@@ -28627,7 +30041,8 @@ begin
 
     end;
 
-    with pad_form do begin
+    with pad_form do
+    begin
 
       //if adjacent_lines_code=1 then adjacent_lines_code:=0;   // 0.82.d  cancel any adjacent tracks.
 
@@ -28648,12 +30063,14 @@ begin
 
       do_rollback := False;
       case side of
-        -1: begin
+        -1:
+        begin
           rad_mod := 0 - trmscent;
           peg_on_adjacent_ms_menu_entry.Click;
           // put the peg on the adjacent main-side track.
         end;
-        1: begin
+        1:
+        begin
           rad_mod := trtscent;
           peg_on_adjacent_ts_menu_entry.Click;
           // put the peg on the adjacent turnout-side track.
@@ -28665,7 +30082,8 @@ begin
       if (spiral = True) and (auto_spiral_adjust = True)
       // !!! 14-7-00 put peg well behind transition start.
       // (os might be negative and peg must be in rad1 for calcs to work).
-      then begin
+      then
+      begin
 
         do_rollback := False;
         gocalc(0, 0);                     // first set pegy for adjacent.
@@ -28700,12 +30118,14 @@ begin
 
       if (ABS(nomrad) < max_rad_test) and (spiral = False)
       // fixed curved template, so must adjust the curving rad...
-      then begin
+      then
+      begin
         old_rad := nomrad;
         nomrad := 0 - (nomrad - rad_mod);   // adjust for adjacent track (swapping hand).
 
         if ABS(old_rad) > minfp   // 0.79.a
-        then begin
+        then
+        begin
           xorg := xorg * ABS(nomrad / old_rad);
           // adjust length to maintain swing angle. 0.79.a
           turnoutx := xorg;
@@ -28713,18 +30133,21 @@ begin
       end;
 
       if spiral = True     // transition template, adjust the rads...
-      then begin
+      then
+      begin
         nomrad1 := 0 - (nomrad1 - rad_mod);     // adjust for adjacent track (swapping hand)...
         nomrad2 := 0 - (nomrad2 - rad_mod);
 
-        if auto_spiral_adjust = True then begin
+        if auto_spiral_adjust = True then
+        begin
           case do_auto_trans_length_adjust(old_apartl) of
             // set the new transition length.
 
             -1:
               auto_spiral_adjust := False;    // he cancelled.
 
-            0: begin                         // calc error.
+            0:
+            begin                         // calc error.
               auto_spiral_adjust := False;
               calc_error;
             end;
@@ -28757,14 +30180,16 @@ begin
 
       //!!! mods 14-7-00 ...
 
-      if (spiral = True) and (auto_spiral_adjust = True) and (wait_cancel_clicked = False) then begin
-        case do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy,
-            old_rad2_orgx, old_rad2_orgy) of   // set the new transition start.
+      if (spiral = True) and (auto_spiral_adjust = True) and (wait_cancel_clicked = False) then
+      begin
+        case do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy, old_rad2_orgx, old_rad2_orgy) of
+          // set the new transition start.
 
           -1:
             auto_spiral_adjust := False;    // he cancelled.
 
-          0: begin                         // calc error.
+          0:
+          begin                         // calc error.
             auto_spiral_adjust := False;
             calc_error;
           end;
@@ -28797,8 +30222,8 @@ const
   slew_adj_str: string = '      Make  Slewed  Double - Track' +
     '||The MAKE DOUBLE-TRACK functions create double-track by first storing the control template and making a copy of it on the background, and then creating a new plain track template alongside,' + ' adjusting the curving radius according to the current setting for the turnout-side or main-side adjacent track spacings.' + '||When the tracks are slewed, some additional adjustment is necessary.' + '||To adjust the new track created, do this:' + '||First using the MOVE SLEWING START (SHIFT+CTRL-F5) mouse action, move the slewing zone start marker on the newly created track until it aligns' + ' with the slewing zone start marker on the original track.' + '||Then using the ADJUST SLEWING LENGTH (SHIFT+CTRL-F6) mouse action, move the slewing zone end marker on the newly created track until it aligns' + ' with the slewing zone end marker on the original track.' + '||It is helpful to zoom in on these marks while making the adjustments, and to check the spacing between the tracks while doing so. On sharp curves or where there is significant slewing,' + ' the slewing zone end marks may need to be displaced slightly to maintain the proper clearance between the tracks.' + '||Use the SPACING-RING tool to check track spacing clearances.' + '||N.B. If the original template was being drawn with ADJACENT TRACKS switched on in the GENERATOR SETTINGS, these will be switched off to avoid duplication.';
 
-  spiral_adj_str: string = '      Make  Double - Track  on  Transition  Curve'
-    + '||The MAKE DOUBLE-TRACK functions create double-track by first storing the control template and making a copy of it on the background, and then creating a new plain track template alongside,' + ' adjusting the curving radius according to the current setting for the turnout-side or main-side adjacent track spacings.' + '||When the tracks are on a transition curve, additional adjustments are made to the transition start and length settings to ensure that the initial and final radii remain concentric with those of the previous template.' + '||The calculations for these adjustments may take some time to complete, during which a PLEASE WAIT message will be displayed.' + '||You can watch these calculations being performed by expanding the INFORMATION panel, and scrolling the INFO area to see the transition data.' + '||Occasionally these calculations may not be able to reach a conclusion, in which case you should click the CANCEL button on the PLEASE WAIT window (or press the ESC key), and then complete the adjustment manually.' + '||Or if preferred, you can perform the whole adjustment manually, for more information see below.' + '||Caution: It is not mathematically possible to have two perfectly "parallel" transition curves. This means that within the transition zones it may not be possible to maintain the current adjacent track spacing dimension.' + '||Before making double-track on a transition curve therefore, it may be advisable to increase the adjacent track spacing slightly above the minimum (GEOMETRY > ADJACENT TRACK CENTRES... menu item), and to check the spacing afterwards' + ' (UTILS > DUMMY VEHICLE • SPACING-RING menu item).' + '||These precautions are more important when working with a reverse S-curve transition. For easements to or from straight track and transitions where both the initial and final radii are curving' + ' in the same direction (both radii having the same sign), it will usually be found that the spacing discrepancy is small or insignificant.' + '||If the double-track templates also contain a SLEW, the slew settings should be adjusted manually if necessary before checking the spacings.' + '|------------------------' + '||To manually adjust the new track created, do this:' + '||First using the MOVE TRANSITION START (SHIFT+CTRL-F3) mouse action, move the transition start marker on the newly created track until it aligns' + ' with the transition start marker on the original track.' + '||Then using the ADJUST TRANSITION LENGTH (SHIFT+CTRL-F4) mouse action, move the transition end marker on the newly created track until it aligns' + ' with the transition end marker on the original track.' + '||It is helpful to zoom in on these marks while making the adjustments, and to check the rail alignments while doing so. On sharp curves the best rail alignment' + ' may require one or both of the transition marks to be displaced slightly from these positions.' + '||( A slight discrepancy in the curving centres may remain, because it is not mathematically possible to have two perfectly "parallel" transition curves. The alternative method' + ' of applying the transition maths to the double-track centre-line is not used because this would introduce unacceptable distortion when the tracks are widely spaced, and also disrupt' + ' the alignment of the original track.)' + '||The adjustments detailed above will produce satisfactory double-track on transition curves in the majority of situations found in practice.' + ' Use the SPACING-RING tool to check the track spacings for adequate clearance.' + '||If the double-track templates also contain a SLEW, the slew settings should be adjusted similarly if necessary before checking the spacings.' + '|------------------------' + '||N.B. If the original track or turnout was being drawn with ADJACENT TRACKS switched on in the GENERATOR SETTINGS, these will be switched off to avoid duplication.';
+  spiral_adj_str: string = '      Make  Double - Track  on  Transition  Curve' +
+    '||The MAKE DOUBLE-TRACK functions create double-track by first storing the control template and making a copy of it on the background, and then creating a new plain track template alongside,' + ' adjusting the curving radius according to the current setting for the turnout-side or main-side adjacent track spacings.' + '||When the tracks are on a transition curve, additional adjustments are made to the transition start and length settings to ensure that the initial and final radii remain concentric with those of the previous template.' + '||The calculations for these adjustments may take some time to complete, during which a PLEASE WAIT message will be displayed.' + '||You can watch these calculations being performed by expanding the INFORMATION panel, and scrolling the INFO area to see the transition data.' + '||Occasionally these calculations may not be able to reach a conclusion, in which case you should click the CANCEL button on the PLEASE WAIT window (or press the ESC key), and then complete the adjustment manually.' + '||Or if preferred, you can perform the whole adjustment manually, for more information see below.' + '||Caution: It is not mathematically possible to have two perfectly "parallel" transition curves. This means that within the transition zones it may not be possible to maintain the current adjacent track spacing dimension.' + '||Before making double-track on a transition curve therefore, it may be advisable to increase the adjacent track spacing slightly above the minimum (GEOMETRY > ADJACENT TRACK CENTRES... menu item), and to check the spacing afterwards' + ' (UTILS > DUMMY VEHICLE • SPACING-RING menu item).' + '||These precautions are more important when working with a reverse S-curve transition. For easements to or from straight track and transitions where both the initial and final radii are curving' + ' in the same direction (both radii having the same sign), it will usually be found that the spacing discrepancy is small or insignificant.' + '||If the double-track templates also contain a SLEW, the slew settings should be adjusted manually if necessary before checking the spacings.' + '|------------------------' + '||To manually adjust the new track created, do this:' + '||First using the MOVE TRANSITION START (SHIFT+CTRL-F3) mouse action, move the transition start marker on the newly created track until it aligns' + ' with the transition start marker on the original track.' + '||Then using the ADJUST TRANSITION LENGTH (SHIFT+CTRL-F4) mouse action, move the transition end marker on the newly created track until it aligns' + ' with the transition end marker on the original track.' + '||It is helpful to zoom in on these marks while making the adjustments, and to check the rail alignments while doing so. On sharp curves the best rail alignment' + ' may require one or both of the transition marks to be displaced slightly from these positions.' + '||( A slight discrepancy in the curving centres may remain, because it is not mathematically possible to have two perfectly "parallel" transition curves. The alternative method' + ' of applying the transition maths to the double-track centre-line is not used because this would introduce unacceptable distortion when the tracks are widely spaced, and also disrupt' + ' the alignment of the original track.)' + '||The adjustments detailed above will produce satisfactory double-track on transition curves in the majority of situations found in practice.' + ' Use the SPACING-RING tool to check the track spacings for adequate clearance.' + '||If the double-track templates also contain a SLEW, the slew settings should be adjusted similarly if necessary before checking the spacings.' + '|------------------------' + '||N.B. If the original track or turnout was being drawn with ADJACENT TRACKS switched on in the GENERATOR SETTINGS, these will be switched off to avoid duplication.';
 
 var
   i: integer;
@@ -28815,10 +30240,12 @@ begin
     EXIT;  // 0.93.a  zero length
 
   if no_spacings_confirm = False      // 215b
-  then begin
+  then
+  begin
 
     case side of
-      -1: begin
+      -1:
+      begin
         sp := cpi.trmscent_pi;   //   MS
 
         way_ft := ABS((sp / inscale - 62) / 12);
@@ -28834,19 +30261,16 @@ begin
 
         way_str := '<SPAN STYLE="COLOR:BLUE;">' + ft_str + ins_str + ' way</SPAN>';
 
-        sp_str := '||   prototype: <SPAN STYLE="COLOR:BLUE;">' +
-          FormatFloat('0.##', sp / inscale) + ' inches</SPAN>      model: <SPAN STYLE="COLOR:BLUE;">' +
-          FormatFloat('0.##', sp) + ' mm</SPAN>' +
-          '||For standard-gauge tracks at your current scale, this spacing would make ' +
+        sp_str := '||   prototype: <SPAN STYLE="COLOR:BLUE;">' + FormatFloat('0.##', sp / inscale) +
+          ' inches</SPAN>      model: <SPAN STYLE="COLOR:BLUE;">' + FormatFloat('0.##', sp) +
+          ' mm</SPAN>' + '||For standard-gauge tracks at your current scale, this spacing would make ' +
           way_str + ' between the rails.' +
           '||If this is not correct you can change it before continuing. Remember to allow sufficient running clearance on sharp curves.';
 
 
-        i := alert(2, '    make  double-track  MS',
-          '||You are about to make main-side (MS) double-track.'
-          + '||The current setting for the main-side (MS) adjacent track centre spacing is:'
-          + sp_str,
-          'continue  and  don''t  show  this  message  again  today    ',
+        i := alert(2, '    make  double-track  MS', '||You are about to make main-side (MS) double-track.'
+          + '||The current setting for the main-side (MS) adjacent track centre spacing is:' +
+          sp_str, 'continue  and  don''t  show  this  message  again  today    ',
           'widen  MS  spacing  by  18  inches  and  continue', 'reduce  MS  spacing  by  18  inches  and  continue',
           'set  new  track  spacings  and  continue ...', 'cancel  double-track', 'continue', 0);
         case i of
@@ -28865,7 +30289,8 @@ begin
       end;
 
 
-      1: begin
+      1:
+      begin
         sp := cpi.trtscent_pi;   //   TS
 
         way_ft := ABS((sp / inscale - 62) / 12);
@@ -28881,18 +30306,16 @@ begin
 
         way_str := '<SPAN STYLE="COLOR:BLUE;">' + ft_str + ins_str + ' way</SPAN>';
 
-        sp_str := '||   prototype: <SPAN STYLE="COLOR:BLUE;">' +
-          FormatFloat('0.##', sp / inscale) + ' inches</SPAN>      model: <SPAN STYLE="COLOR:BLUE;">' +
-          FormatFloat('0.##', sp) + ' mm</SPAN>' +
-          '||For standard-gauge tracks at your current scale, this spacing would make ' +
+        sp_str := '||   prototype: <SPAN STYLE="COLOR:BLUE;">' + FormatFloat('0.##', sp / inscale) +
+          ' inches</SPAN>      model: <SPAN STYLE="COLOR:BLUE;">' + FormatFloat('0.##', sp) +
+          ' mm</SPAN>' + '||For standard-gauge tracks at your current scale, this spacing would make ' +
           way_str + ' between the rails.' +
           '||If this is not correct you can change it before continuing. Remember to allow sufficient running clearance on sharp curves.';
 
         i := alert(2, '    make  double-track  TS',
-          '||You are about to make turnout-side (TS) double-track.'
-          + '||The current setting for the turnout-side (TS) adjacent track centre spacing is:'
-          + sp_str,
-          'continue  and  don''t  show  this  message  again  today    ',
+          '||You are about to make turnout-side (TS) double-track.' +
+          '||The current setting for the turnout-side (TS) adjacent track centre spacing is:' +
+          sp_str, 'continue  and  don''t  show  this  message  again  today    ',
           'widen  TS  spacing  by  18  inches  and  continue', 'reduce  TS  spacing  by  18  inches  and  continue',
           'set  new  track  spacings  and  continue ...', 'cancel  double-track', 'continue', 0);
         case i of
@@ -28914,23 +30337,36 @@ begin
 
   end;
 
-  if (side = -1) and (g > (47 * inscale)) and (cpi.trmscent_pi < (134 * inscale)) then begin
+  if (side = -1) and (g > (47 * inscale)) and (cpi.trmscent_pi < (134 * inscale)) then
+  begin
     if alert(1, '   make  double-track  -  MS',
-      'Your current setting for the MS (main-side) track spacing is less than the 11ft-2in centres (134 inches) minimum for UK standard-gauge railways.' + '||If you continue it is very likely that there will be insufficient running clearance between rolling stock on the two tracks.' + '||If the tracks are sharply curved you will need additional track spacing above the minimum to provide sufficient clearance.' + '||To change the setting, click the `0tools > adjacent track centres`1 menu item.', '', '', '', '', 'cancel', 'continue - make  MS  double-track  at  current  setting    ', 0) = 5 then
+      'Your current setting for the MS (main-side) track spacing is less than the 11ft-2in centres (134 inches) minimum for UK standard-gauge railways.'
+      +
+      '||If you continue it is very likely that there will be insufficient running clearance between rolling stock on the two tracks.'
+      + '||If the tracks are sharply curved you will need additional track spacing above the minimum to provide sufficient clearance.'
+      + '||To change the setting, click the `0tools > adjacent track centres`1 menu item.', '',
+      '', '', '', 'cancel', 'continue - make  MS  double-track  at  current  setting    ', 0) = 5 then
       EXIT;
   end;
 
-  if (side = 1) and (g > (47 * inscale)) and (cpi.trtscent_pi < (134 * inscale)) then begin
+  if (side = 1) and (g > (47 * inscale)) and (cpi.trtscent_pi < (134 * inscale)) then
+  begin
     if alert(1, '   make  double-track  -  TS',
-      'Your current setting for the TS (turnout-side) track spacing is less than the 11ft-2in centres (134 inches) minimum for UK standard-gauge railways.' + '||If you continue it is very likely that there will be insufficient running clearance between rolling stock on the two tracks.' + '||If the tracks are sharply curved you will need additional track spacing above the minimum to provide sufficient clearance.' + '||To change the setting, click the `0tools > adjacent track centres`1 menu item.', '', '', '', '', 'cancel', 'continue - make  TS  double-track  at  current  setting    ', 0) = 5 then
+      'Your current setting for the TS (turnout-side) track spacing is less than the 11ft-2in centres (134 inches) minimum for UK standard-gauge railways.'
+      +
+      '||If you continue it is very likely that there will be insufficient running clearance between rolling stock on the two tracks.'
+      + '||If the tracks are sharply curved you will need additional track spacing above the minimum to provide sufficient clearance.'
+      + '||To change the setting, click the `0tools > adjacent track centres`1 menu item.', '',
+      '', '', '', 'cancel', 'continue - make  TS  double-track  at  current  setting    ', 0) = 5 then
       EXIT;
   end;
 
-  if slewing = True then begin
+  if slewing = True then
+  begin
     repeat
-      i := alert(3, '   make  double-track  -  slewed  track',
-        'Your control template contains a slew.' +
-        '||The new template created may need to have the slewing zone start and length settings adjusted to ensure a proper spacing from the original track.', '', '', '', 'more  information', 'cancel  make', 'continue  -  make  double-track', 4);
+      i := alert(3, '   make  double-track  -  slewed  track', 'Your control template contains a slew.' +
+        '||The new template created may need to have the slewing zone start and length settings adjusted to ensure a proper spacing from the original track.',
+        '', '', '', 'more  information', 'cancel  make', 'continue  -  make  double-track', 4);
       case i of
         4:
           alert_help(0, slew_adj_str, '');
@@ -28940,23 +30376,23 @@ begin
     until i <> 4;
   end;
 
-  if spiral = True then begin
+  if spiral = True then
+  begin
     auto_spiral_adjust := True;    // default init.
 
-    if (ABS(nomrad1) < max_rad_test) and (ABS(nomrad2) < max_rad_test) and
-      (SGZ(nomrad1) <> SGZ(nomrad2)) then
-      s_curve_str := '||This is a reverse S-curve transition. It may be necessary to check the track spacing within the transition zone for adequate passing clearance.'
+    if (ABS(nomrad1) < max_rad_test) and (ABS(nomrad2) < max_rad_test) and (SGZ(nomrad1) <> SGZ(nomrad2)) then
+      s_curve_str :=
+        '||This is a reverse S-curve transition. It may be necessary to check the track spacing within the transition zone for adequate passing clearance.'
     else
       s_curve_str := '';
 
     repeat
       i := alert(4, '   make  double-track  -  transition  curve',
-        'Your control template is on a transition curve.'
-        + '||The new track created will need to have the transition start and length settings adjusted.'
-        + '||You can let Templot0 do this automatically, or make the adjustments yourself manually.'
-        + s_curve_str, '', '',
-        'more  information', 'make  double-track  -  manual  adjust', 'cancel  make',
-        'make  double-track  -  automatic  adjust', 3);
+        'Your control template is on a transition curve.' +
+        '||The new track created will need to have the transition start and length settings adjusted.' +
+        '||You can let Templot0 do this automatically, or make the adjustments yourself manually.' +
+        s_curve_str, '', '', 'more  information', 'make  double-track  -  manual  adjust',
+        'cancel  make', 'make  double-track  -  automatic  adjust', 3);
       case i of
         3:
           alert_help(0, spiral_adj_str, '');
@@ -29008,14 +30444,16 @@ begin
     EXIT;    // ? shouldn't get here, menu disabled for plain track.
 
   case int_ext of
-    -1: begin                 // internal geometrical radius...
+    -1:
+    begin                 // internal geometrical radius...
       geor := igeo_rad;
       geox := igpx;
       geok := igeo_swing;
       pad_form.peg_on_IGTP_menu_entry.Click;
     end;
 
-    else begin               // external geometrical radius...
+    else
+    begin               // external geometrical radius...
       geor := egeo_rad;
       geox := egpx;
       geok := egeo_swing;
@@ -29029,11 +30467,13 @@ begin
 
   //if click=True then if check_t_55_ok=False then EXIT;   // check he wants it if T-55.
 
-  if click = True then begin
+  if click = True then
+  begin
     if check_control_template_is_valid('turnout  road') = False then
       EXIT;  // 0.93.a  zero length
   end
-  else begin
+  else
+  begin
     if turnoutx = 0 then
       EXIT;    // 0.93.a  zero length, no alert
   end;
@@ -29061,13 +30501,15 @@ begin
   retain_on_make;
 
   if geox > inscale     // minimum 1" scale length for stored template (arbitrary)..
-  then begin
+  then
+  begin
     xorg := geox;
     turnoutx := geox;                   // new length
     redraw(False);
 
     store_and_background(False, False);   // keep it and copy to background.
-    if keep_added = False then begin
+    if keep_added = False then
+    begin
       show_and_redraw(True, False);
       EXIT;                                // he cancelled.
     end;
@@ -29102,24 +30544,27 @@ var
 
 begin
 
-  if (plain_track = True) and (click = True) then begin
+  if (plain_track = True) and (click = True) then
+  begin
     alert(6, '    make  separate  approach  track',
-      'The control template is a plain track template.'
-      + '||A plain track template has no approach track to be split off.'
-      + '||To make a split in plain track, click the `0tools > make split > make split at peg`1 menu item.',
+      'The control template is a plain track template.' +
+      '||A plain track template has no approach track to be split off.' +
+      '||To make a split in plain track, click the `0tools > make split > make split at peg`1 menu item.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
 
-  if (half_diamond = True) and (click = True) then begin
+  if (half_diamond = True) and (click = True) then
+  begin
     alert(6, '    make  separate  approach  track',
-      'The control template is a half-diamond template.'
-      + '||A half-diamond template has no approach track to be split off.',
+      'The control template is a half-diamond template.' +
+      '||A half-diamond template has no approach track to be split off.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
 
-  if (xorg < minfp) and (click = True) then begin
+  if (xorg < minfp) and (click = True) then
+  begin
     alert(6, '    make  separate  approach  track',
       'This turnout has no approach track to be separated.',
       '', '', '', '', 'cancel', '', 0);
@@ -29127,21 +30572,23 @@ begin
   end;
 
   if (xorg < (10 * scale)) and (click = True)            // 10ft scale arbitrary minimum
-  then begin
+  then
+  begin
     if alert(7, '  make  separate  approach  track  -  very  short',
-      'The approach track to this turnout is very short.'
-      + '||Are you sure you want it to be a separate template?',
-      '', '', '', '', 'no  -  cancel', 'yes  -  make  separate  approach  track', 0) =
-      5 then
+      'The approach track to this turnout is very short.' +
+      '||Are you sure you want it to be a separate template?', '', '', '', '', 'no  -  cancel',
+      'yes  -  make  separate  approach  track', 0) = 5 then
       EXIT;
   end;
 
 
-  if click = True then begin
+  if click = True then
+  begin
     if check_control_template_is_valid('split') = False then
       EXIT;  // 0.93.a  zero length
   end
-  else begin
+  else
+  begin
     if turnoutx = 0 then
       EXIT;    // 0.93.a  zero length, no alert
   end;
@@ -29153,19 +30600,21 @@ begin
     crop_approach;       // then crop all approach.
     gocalc(0, 0);         // peg calcs.
 
-    if (spiral = True) and (pad_form.make_tools_normalize_transitions_menu_entry.Checked = True)
-    then begin
+    if (spiral = True) and (pad_form.make_tools_normalize_transitions_menu_entry.Checked = True) then
+    begin
       normalize_transition;   // ignore result.
       gocalc(0, 0);            // peg calcs.
     end;
 
-    if (slewing = True) and (slew_s > turnoutx) then begin
+    if (slewing = True) and (slew_s > turnoutx) then
+    begin
       pad_form.disable_slewing_menu_entry.Click;   // new template in unslewed section.
       gocalc(0, 0);                                 // peg calcs.
     end;
 
     store_and_background(False, False); // keep it and copy to background.
-    if keep_added = False then begin
+    if keep_added = False then
+    begin
       copy_keep(cur_tem);                  // restore original.
       show_and_redraw(True, False);
       EXIT;                                // he cancelled.
@@ -29184,13 +30633,14 @@ begin
     plain_track := True;
     set_plain_track(True, True);
 
-    if (spiral = True) and (pad_form.make_tools_normalize_transitions_menu_entry.Checked = True)
-    then begin
+    if (spiral = True) and (pad_form.make_tools_normalize_transitions_menu_entry.Checked = True) then
+    begin
       gocalc(0, 0);                 // peg calcs.
       normalize_transition;        // ignore result.
     end;
 
-    if (slewing = True) and (slew_s > turnoutx) then begin
+    if (slewing = True) and (slew_s > turnoutx) then
+    begin
       gocalc(0, 0);                                 // peg calcs.
       pad_form.disable_slewing_menu_entry.Click;   // new template in unslewed section.
     end;
@@ -29209,8 +30659,7 @@ end;
 function make_crossover(simple, allow_curviform, for_slip: boolean): boolean;
 
 const
-  slewed_cross_str: string = '      Crossover  in  Slewed  Track' +
-    '||Your control template contains a slew.' +
+  slewed_cross_str: string = '      Crossover  in  Slewed  Track' + '||Your control template contains a slew.' +
     '||If a crossover on a constant radius cannot be accommodated it is usually better to use one or more transition curves instead of slewing. The slewing function is intended primarily for plain track.' + '||It is generally unwise to construct a crossover if any part of it will be within the slewing zone (unless the amount of slew is very small and/or the slewing zone is very long).' + '||If you do so, some additional adjustment will probably be necessary. To adjust the new turnout created, do this:' + '||First using the MOVE SLEWING START (SHIFT+CTRL-F5) mouse action, move the slewing zone start marker on the newly created turnout until it aligns' + ' with the slewing zone end marker on the original turnout.' + '||Then using the ADJUST SLEWING LENGTH (SHIFT+CTRL-F6) mouse action, move the slewing zone end marker on the newly created turnout until it aligns' + ' with the slewing zone start marker on the original turnout.' + '||It is helpful to zoom in on these marks while making the adjustments, and to check the spacing between the tracks while doing so. On sharp curves or where there is significant slewing,' + ' the rail alignments and clearances will need to be carefully checked and the slewing zone marks may need to be displaced slightly to maintain the proper clearance between the tracks.' + '||Use the SPACING-RING tool to check track spacing clearances.' + '||For more help information about slewing, select the GEOMETRY > SLEW (NUDGE) > SLEWING DATA... menu item.';
 
   curved_cross_str: string = '      Crossover  with  Curviform  V-Crossings' +
@@ -29221,7 +30670,14 @@ const
 
     {  +'||It will also be helpful when making the adjustments to have the turnout-side adjacent track rails showing (select the GENERATOR > GENERATOR SETTINGS > ADJACENT TRACKS (TURNOUT-SIDE) menu items),'
   +' so that you can check the alignment of the rails on the newly created turnout with the existing ones. De-select the adjacent track rails when you have completed the adjustment.'
-} + '||To adjust the turnout created, do this:' + '||First using the MOVE TRANSITION START (SHIFT+CTRL-F3) mouse action, move the transition start marker on the newly created turnout until it aligns' + ' with the transition end marker on the original turnout.' + '||Then using the ADJUST TRANSITION LENGTH (SHIFT+CTRL-F4) mouse action, move the transition end marker on the newly created turnout until it aligns' + ' with the transition start marker on the original turnout.' + '||It is helpful to zoom in on these marks while making the adjustments, and to check the rail alignments while doing so. On sharp curves the best rail alignment with the adjacent track' + ' may require one or both of the transition marks to be displaced slightly from these positions.' + '||A slight discrepancy in the radial centres may remain, because it is not mathematically possible to have two perfectly "parallel" transition curves.' + '||The adjustments detailed above will produce satisfactory crossovers on transition curves in the majority of situations found in practice.' + ' Use the SPACING-RING tool to check the track spacings for adequate clearance.' + '||-----------------' + '|Maths notes:' + '||The TOOLS > MAKE DOUBLE-TRACK TS function uses slightly different maths, and can produce exactly concentric transition radii if the AUTO-ADJUST option is selected.' + ' If the crossover mid-point is not within the transition zone, an alternative method of making a crossover is to use this function first to create an adjacent track.' + ' The crossover is then created using the TEMPLATE > INSERT TURNOUT IN PLAIN TRACK menu item and the SNAKE THROUGH PEG (CTRL-F6) mouse action.' + '||If the crossover mid-point is within the transition zone, this method is not suitable.' + '||The alternative approach of applying the transition maths to the double-track centre-line is not used because this would introduce unacceptable distortion when the tracks are widely spaced,' + ' and also disrupt the alignment of the original turnout.';
+} + '||To adjust the turnout created, do this:' +
+    '||First using the MOVE TRANSITION START (SHIFT+CTRL-F3) mouse action, move the transition start marker on the newly created turnout until it aligns'
+    +
+    ' with the transition end marker on the original turnout.' +
+    '||Then using the ADJUST TRANSITION LENGTH (SHIFT+CTRL-F4) mouse action, move the transition end marker on the newly created turnout until it aligns'
+    +
+    ' with the transition start marker on the original turnout.' +
+    '||It is helpful to zoom in on these marks while making the adjustments, and to check the rail alignments while doing so. On sharp curves the best rail alignment with the adjacent track' + ' may require one or both of the transition marks to be displaced slightly from these positions.' + '||A slight discrepancy in the radial centres may remain, because it is not mathematically possible to have two perfectly "parallel" transition curves.' + '||The adjustments detailed above will produce satisfactory crossovers on transition curves in the majority of situations found in practice.' + ' Use the SPACING-RING tool to check the track spacings for adequate clearance.' + '||-----------------' + '|Maths notes:' + '||The TOOLS > MAKE DOUBLE-TRACK TS function uses slightly different maths, and can produce exactly concentric transition radii if the AUTO-ADJUST option is selected.' + ' If the crossover mid-point is not within the transition zone, an alternative method of making a crossover is to use this function first to create an adjacent track.' + ' The crossover is then created using the TEMPLATE > INSERT TURNOUT IN PLAIN TRACK menu item and the SNAKE THROUGH PEG (CTRL-F6) mouse action.' + '||If the crossover mid-point is within the transition zone, this method is not suitable.' + '||The alternative approach of applying the transition maths to the double-track centre-line is not used because this would introduce unacceptable distortion when the tracks are widely spaced,' + ' and also disrupt the alignment of the original turnout.';
 
 var
   dummy: extended;
@@ -29234,19 +30690,21 @@ var
 
 begin
   Result := False;
-  if plain_track = True then begin
+  if plain_track = True then
+  begin
     alert(6, '    make  crossover  -  plain  track',
-      'The control template is plain track. It is not possible to construct a crossover from plain track.'
-      + '||You must first change to a turnout or half-diamond template, by selecting the `0TEMPLATE > INSERT TURNOUT IN PLAIN TRACK`1 or the `0TEMPLATE > INSERT HALF-DIAMOND IN PLAIN TRACK`1 menu items.',
+      'The control template is plain track. It is not possible to construct a crossover from plain track.' +
+      '||You must first change to a turnout or half-diamond template, by selecting the `0TEMPLATE > INSERT TURNOUT IN PLAIN TRACK`1 or the `0TEMPLATE > INSERT HALF-DIAMOND IN PLAIN TRACK`1 menu items.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
 
-  if retpar_i = 1 then begin
+  if retpar_i = 1 then
+  begin
     alert(6, '    make  crossover  -  parallel  V-crossing',
-      'It is not possible to form a crossover when the V-crossing type is parallel.'
-      + '||To change to a regular or generic type of V-crossing suitable for a crossover, select the'
-      + '|TEMPLATE > V-CROSSING OPTIONS... menu item' +
+      'It is not possible to form a crossover when the V-crossing type is parallel.' +
+      '||To change to a regular or generic type of V-crossing suitable for a crossover, select the' +
+      '|TEMPLATE > V-CROSSING OPTIONS... menu item' +
       '|or copy a suitable turnout from your storage box or background drawing.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
@@ -29256,7 +30714,10 @@ begin
   then
     repeat
       i := alert(2, '    make  crossover  -  curviform  V-crossing',
-        '|Your current V-crossing type is curviform. It is not sensible to construct an ordinary or slip crossover or a regular ladder using curviform V-crossings.' + '||It is possible to override this and form such a crossover manually - click `0more information`1 below.', '', '', '', 'more  information', 'cancel  crossover', 'change  to  regular  V-crossing  and  continue', 4);
+        '|Your current V-crossing type is curviform. It is not sensible to construct an ordinary or slip crossover or a regular ladder using curviform V-crossings.'
+        +
+        '||It is possible to override this and form such a crossover manually - click `0more information`1 below.',
+        '', '', '', 'more  information', 'cancel  crossover', 'change  to  regular  V-crossing  and  continue', 4);
 
       if i = 4 then
         if alert_help(0, curved_cross_str, 'crossover  on  transition  curve') = 1 then
@@ -29270,14 +30731,13 @@ begin
 
     until i <> 4;
 
-  if slewing = True then begin
+  if slewing = True then
+  begin
     repeat
-      i := alert(3, '    make  crossover  -  slewed  track',
-        '||Your control template contains a slew.' +
-        '||It is generally unwise to construct a crossover if any part of it will be within the slewing zone.'
-        + '||The slewing function is intended primarily for plain track.',
-        '', '', 'more  information', 'make  slewed  crossover',
-        'cancel  crossover', 'cancel  slewing  -  make  normal  crossover', 3);
+      i := alert(3, '    make  crossover  -  slewed  track', '||Your control template contains a slew.' +
+        '||It is generally unwise to construct a crossover if any part of it will be within the slewing zone.' +
+        '||The slewing function is intended primarily for plain track.', '', '', 'more  information',
+        'make  slewed  crossover', 'cancel  crossover', 'cancel  slewing  -  make  normal  crossover', 3);
       case i of
         3:
           alert_help(0, slewed_cross_str, '');
@@ -29293,7 +30753,8 @@ begin
     EXIT;  // 0.93.a  zero length
 
   if no_spacings_confirm = False      // 215b
-  then begin
+  then
+  begin
 
     sp := cpi.trtscent_pi;   //   TS
 
@@ -29310,18 +30771,15 @@ begin
 
     way_str := '<SPAN STYLE="COLOR:BLUE;">' + ft_str + ins_str + ' way</SPAN>';
 
-    sp_str := '||   prototype: <SPAN STYLE="COLOR:BLUE;">' + FormatFloat(
-      '0.##', sp / inscale) + ' inches</SPAN>      model: <SPAN STYLE="COLOR:BLUE;">' +
-      FormatFloat('0.##', sp) + ' mm</SPAN>' +
-      '||For standard-gauge tracks at your current scale, this spacing would make ' +
+    sp_str := '||   prototype: <SPAN STYLE="COLOR:BLUE;">' + FormatFloat('0.##', sp / inscale) +
+      ' inches</SPAN>      model: <SPAN STYLE="COLOR:BLUE;">' + FormatFloat('0.##', sp) +
+      ' mm</SPAN>' + '||For standard-gauge tracks at your current scale, this spacing would make ' +
       way_str + ' between the rails.' +
       '||If this is not correct you can change it before continuing. Remember to allow sufficient running clearance on sharp curves.';
 
 
-    i := alert(2, '    make  crossover',
-      '||You are about to make a crossover.' +
-      '||The current setting for the turnout-side (TS) adjacent track centre spacing is:'
-      +
+    i := alert(2, '    make  crossover', '||You are about to make a crossover.' +
+      '||The current setting for the turnout-side (TS) adjacent track centre spacing is:' +
       sp_str, 'continue  and  don''t  show  this  message  again  today    ',
       'widen  TS  spacing  by  18  inches  and  continue', 'reduce  TS  spacing  by  18  inches  and  continue',
       'set  new  track  spacings  and  continue ...', 'cancel  crossover', 'continue', 0);
@@ -29340,9 +30798,15 @@ begin
 
   end;
 
-  if (g > (47 * inscale)) and (cpi.trtscent_pi < (134 * inscale)) then begin
+  if (g > (47 * inscale)) and (cpi.trtscent_pi < (134 * inscale)) then
+  begin
     if alert(1, '   make  crossover',
-      'Your current setting for the TS (turnout-side) track spacing is less than the 11ft-2in centres (134 inches) minimum for UK standard-gauge railways.' + '||If you continue it is very likely that there will be insufficient running clearance between rolling stock on the two tracks.' + '||If the tracks are sharply curved you will need additional track spacing above the minimum to provide sufficient clearance.' + '||To change the setting, click the `0tools > adjacent track centres`1 menu item.', '', '', '', '', 'cancel', 'continue - make  crossover  at  current  setting    ', 0) = 5 then
+      'Your current setting for the TS (turnout-side) track spacing is less than the 11ft-2in centres (134 inches) minimum for UK standard-gauge railways.'
+      +
+      '||If you continue it is very likely that there will be insufficient running clearance between rolling stock on the two tracks.'
+      + '||If the tracks are sharply curved you will need additional track spacing above the minimum to provide sufficient clearance.'
+      + '||To change the setting, click the `0tools > adjacent track centres`1 menu item.', '',
+      '', '', '', 'cancel', 'continue - make  crossover  at  current  setting    ', 0) = 5 then
       EXIT;
   end;
 
@@ -29363,7 +30827,8 @@ begin
     turnout_road_i := -1;              // shorten turnout road to suit.
 
     if turnoutx < (txpx + 2.5 * scale)     // lengthen existing if nec. (2ft6ins arbitrary)
-    then begin
+    then
+    begin
       turnoutx := txpx + 2 * scale;                                   // 2ft arbitrary.
       if turnoutx > turnoutx_max then
         turnoutx := turnoutx_max;
@@ -29375,7 +30840,8 @@ begin
     store_and_background(False, False);       // keep it (does a recalc) and copy to background.
 
     if keep_added = False          // he cancelled because still on T-55, or no memory for it.
-    then begin
+    then
+    begin
       copy_keep(save_current);    // retrieve previous control template.
       // (this is OK even if gauge change on T-55, because
       //  gauge form is not showing Modal, we come back here first.)
@@ -29390,7 +30856,8 @@ begin
     do_rollback := False;
     pad_form.rotate_current_180_menu_entry.Click;      // rotate it.
 
-    if spiral = True then begin
+    if spiral = True then
+    begin
 
       if turnoutx < (txpx * 2 - xorg) then
         turnoutx := txpx * 2 - xorg;     // and some extra length...
@@ -29418,7 +30885,8 @@ begin
 
       peg_curve;                     // do curving calcs for the current peg position.
     end
-    else begin                       // fixed curve or straight...
+    else
+    begin                       // fixed curve or straight...
 
       turnoutx := txpx + 2.5 * scale;
       // reduce to 2ft6ins arbitrary.
@@ -29428,7 +30896,8 @@ begin
       gocalc(0, 0);      // need to do new curving calcs, but no need to show results.
 
       if (ABS(nomrad) < max_rad_test)    // curved turnout, so must adjust the curving rad...
-      then begin
+      then
+      begin
         kform_now := kform;
         docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
         // save current peg data for peg_curve calcs.
@@ -29443,7 +30912,8 @@ begin
 
     clear_current_name;
 
-    if half_diamond = True then begin
+    if half_diamond = True then
+    begin
       convert_to_turnout;
       gocalc(0, 0);
       pad_form.peg_on_txp_menu_entry.Click;      // restore Ctrl-5.
@@ -29458,19 +30928,22 @@ begin
     show_and_redraw(True, False);       // rollback already done.
 
     if (spiral = True) and (simple = True) and (for_slip = False)     // 215a
-    then begin
+    then
+    begin
 
       repeat
         i := alert(3, '    crossover  on  transition  curve',
-          '||The crossover just created is on a transition curve.'
-          +
-          '||The newly created template may need to have the transition start and length settings adjusted to achieve the optimum alignment with the adjacent track.', '', '', '', 'more  information'{,temp_str}, 'cancel  crossover', 'O K', 4);
+          '||The crossover just created is on a transition curve.' +
+          '||The newly created template may need to have the transition start and length settings adjusted to achieve the optimum alignment with the adjacent track.',
+          '', '', '', 'more  information'{,temp_str}, 'cancel  crossover', 'O K', 4);
         case i of
           4:
             alert_help(0, spiral_cross_str, '');
 
-          5: begin
-            if keeps_list.Count > 0 then begin
+          5:
+          begin
+            if keeps_list.Count > 0 then
+            begin
               list_position := keeps_list.Count - 1;
               // make last one in current in the keeps box.
               delete_keep(False, False);
@@ -29502,12 +30975,11 @@ begin
 
   save_timbering := pad_form.square_on_menu_entry.Checked;
 
-  if save_timbering = True then begin
+  if save_timbering = True then
+  begin
     i := alert(3, '    make  branch  crossover    -    timbering  style',
-      'The timbering style is currently set to square-on timbering.'
-      +
-      '||For a branch crossover the equalized-incremental style is usually more appropriate.'
-      +
+      'The timbering style is currently set to square-on timbering.' +
+      '||For a branch crossover the equalized-incremental style is usually more appropriate.' +
       '||Do you want Templot0 to change it?' +
       '||If you answer yes, you may want to change it back later to the square-on style for subsequent templates.||The settings are in the `0real > timbering >`1 menu options.', '', '', '', 'no  thanks', 'cancel  branch  crossover', 'yes  please', 0);
 
@@ -29522,7 +30994,8 @@ begin
     end;//case
   end;
 
-  if save_timbering = True then begin
+  if save_timbering = True then
+  begin
     // change to equalized timbering for a junction crossover...
 
     pad_form.equalized_incremental_menu_entry.Click;
@@ -29530,9 +31003,11 @@ begin
   end;
 
   if make_crossover(False, True, False) = False     // not simple, allow curviform
-  then begin
+  then
+  begin
     if save_timbering = True   // restore his square-on
-    then begin
+    then
+    begin
       pad_form.square_on_menu_entry.Click;
       // not needed pad_form.timbers_in_line_menu_entry.Click;
     end;
@@ -29595,9 +31070,9 @@ end;
 function make_diamond_crossing: boolean;
 
 const
-  make_diamond_help_str: string = 'php/101     `0make  irregular  diamond-crossing`9'
-    + '||It is not possible to create a full diamond-crossing from this half-diamond template.'
-    + '||The difference between the V-crossing angle and the K-crossing angle is too great.' +
+  make_diamond_help_str: string = 'php/101     `0make  irregular  diamond-crossing`9' +
+    '||It is not possible to create a full diamond-crossing from this half-diamond template.' +
+    '||The difference between the V-crossing angle and the K-crossing angle is too great.' +
     '||Try using the `0F9`2 and `0F10`2 mouse actions, to adjust the V-crossing and K-crossing angles respectively.';
 
 var
@@ -29619,7 +31094,8 @@ begin
   try
 
     if half_diamond = False      // force a half-diamond...
-    then begin
+    then
+    begin
       if plain_track = True then
         insert_half_diamond
       else
@@ -29636,33 +31112,41 @@ begin
     new_hdk := hdk;
 
     if tradius_is_straight = False    // check we can make a valid irregular diamond..
-    then begin
+    then
+    begin
       cos_new_hdk := (torgy - g) / (tradius - g);
       // irregular diamond has differing K-crossing angles.
       cos_new_k3 := cos_new_hdk - (th - h) / (g - tradius);
       // calc new V-crossing angle.
       if (ABS(cos_new_k3) > (1 - minfp)) or (ABS(cos_new_hdk) > (1 - minfp))
       // invalid crossing angles (COS out of range - rails do not intersect?).
-      then begin
+      then
+      begin
         repeat
           i := alert(6, 'php/101   impossible  diamond - crossing',
-            'It is not possible to create a full diamond-crossing using the current settings.'
-            + '||The rails would not intersect to create a new V-crossing.',
-            '', '', '', '?  help', 'cancel', '', 4);
+            'It is not possible to create a full diamond-crossing using the current settings.' +
+            '||The rails would not intersect to create a new V-crossing.', '', '', '', '?  help', 'cancel', '', 4);
           if i = 4 then
             alert_help(0, make_diamond_help_str, '');
         until i <> 4;
         EXIT;
       end;
 
-      if (xing_type_i = 0) and (irreg_crossings_msg_pref = False) then begin
+      if (xing_type_i = 0) and (irreg_crossings_msg_pref = False) then
+      begin
 
         alert_box.preferences_checkbox.Checked := False;       //%%%%
         alert_box.preferences_checkbox.Visible := True;
 
         repeat
           i := alert(7, 'php/102   make  irregular  diamond - crossing',
-            'Using the current settings, you are about to make an irregular-type diamond-crossing having regular-type V-crossings.' + '||The result will be that the diagonal road will not follow a single ruling curve through the V-crossings.' + '||This is normally correct only when a half-diamond template is forming part of a crossover with a turnout also having a regular or generic type of V-crossing,' + ' or the half-diamond is connected to a return curve.' + '||Otherwise it is generally better to use curviform V-crossings in an irregular diamond-crossing, so that the diagonal road follows a single curve through the full diamond.' + '||In special cases it is possible to mix different types of V-crossing in the same diamond-crossing, and/or to have a different diagonal radius in each half-diamond.' + ' Make such changes after creating the full diamond-crossing, so that the K-crossing angles in each half always match.' + '||(This diamond-crossing will be irregular-type because the current V-crossing and K-crossing angles are unequal.)', '', '', '', 'more  information  about  types  of  V-crossing', 'cancel', 'continue  with  regular  V-crossings', 4);
+            'Using the current settings, you are about to make an irregular-type diamond-crossing having regular-type V-crossings.'
+            +
+            '||The result will be that the diagonal road will not follow a single ruling curve through the V-crossings.' +
+            '||This is normally correct only when a half-diamond template is forming part of a crossover with a turnout also having a regular or generic type of V-crossing,'
+            +
+            ' or the half-diamond is connected to a return curve.' +
+            '||Otherwise it is generally better to use curviform V-crossings in an irregular diamond-crossing, so that the diagonal road follows a single curve through the full diamond.' + '||In special cases it is possible to mix different types of V-crossing in the same diamond-crossing, and/or to have a different diagonal radius in each half-diamond.' + ' Make such changes after creating the full diamond-crossing, so that the K-crossing angles in each half always match.' + '||(This diamond-crossing will be irregular-type because the current V-crossing and K-crossing angles are unequal.)', '', '', '', 'more  information  about  types  of  V-crossing', 'cancel', 'continue  with  regular  V-crossings', 4);
 
           if i = 4 then
             alert_help(0, v_xing_types_help_str, '');
@@ -29675,14 +31159,21 @@ begin
           EXIT;
       end;
 
-      if (xing_type_i = -1) and (irreg_crossings_msg_pref = False) then begin
+      if (xing_type_i = -1) and (irreg_crossings_msg_pref = False) then
+      begin
 
         alert_box.preferences_checkbox.Checked := False;       //%%%%
         alert_box.preferences_checkbox.Visible := True;
 
         repeat
           i := alert(7, 'php/103   make  irregular  diamond - crossing',
-            'Using the current settings, you are about to make an irregular-type diamond-crossing having generic-type type V-crossings.' + '||The result will be that the diagonal road will not follow a single ruling curve through the V-crossings.' + '||This is normally correct only when a half-diamond template is forming part of a crossover with a turnout also having a regular or generic type of V-crossing,' + ' or the half-diamond is connected to a return curve.' + '||Otherwise it is generally better to use curviform V-crossings in an irregular diamond-crossing, so that the diagonal road follows a single curve through the full diamond.' + '||In special cases it is possible to mix different types of V-crossing in the same diamond-crossing, and/or to have a different diagonal radius in each half-diamond.' + ' Make such changes after creating the full diamond-crossing, so that the K-crossing angles in each half always match.' + '||(This diamond-crossing will be irregular-type because the current V-crossing and K-crossing angles are unequal.)', '', '', '', 'more  information  about  types  of  V-crossing', 'cancel', 'continue  with  generic  V-crossings', 4);
+            'Using the current settings, you are about to make an irregular-type diamond-crossing having generic-type type V-crossings.'
+            +
+            '||The result will be that the diagonal road will not follow a single ruling curve through the V-crossings.' +
+            '||This is normally correct only when a half-diamond template is forming part of a crossover with a turnout also having a regular or generic type of V-crossing,'
+            +
+            ' or the half-diamond is connected to a return curve.' +
+            '||Otherwise it is generally better to use curviform V-crossings in an irregular diamond-crossing, so that the diagonal road follows a single curve through the full diamond.' + '||In special cases it is possible to mix different types of V-crossing in the same diamond-crossing, and/or to have a different diagonal radius in each half-diamond.' + ' Make such changes after creating the full diamond-crossing, so that the K-crossing angles in each half always match.' + '||(This diamond-crossing will be irregular-type because the current V-crossing and K-crossing angles are unequal.)', '', '', '', 'more  information  about  types  of  V-crossing', 'cancel', 'continue  with  generic  V-crossings', 4);
 
           if i = 4 then
             alert_help(0, v_xing_types_help_str, '');
@@ -29701,12 +31192,12 @@ begin
       new_k3 := ARCCOS(cos_new_k3);
       new_k3n := 1 / TAN(new_k3);
 
-      if (ABS(new_k3n) < 1.5) or (ABS(new_hdkn) < 1.5) then begin
+      if (ABS(new_k3n) < 1.5) or (ABS(new_hdkn) < 1.5) then
+      begin
         repeat
           i := alert(6, 'php/107   invalid  diamond - crossing',
-            'It is not possible to create a full diamond-crossing using the current settings.'
-            + '||One of the new crossing angles would be shorter than 1 : 1.5',
-            '', '', '', '?  help', 'cancel', '', 4);
+            'It is not possible to create a full diamond-crossing using the current settings.' +
+            '||One of the new crossing angles would be shorter than 1 : 1.5', '', '', '', '?  help', 'cancel', '', 4);
           if i = 4 then
             alert_help(0, make_diamond_help_str, '');
         until i <> 4;
@@ -29720,7 +31211,8 @@ begin
       EXIT;          // he cancelled.
 
     if tradius_is_straight = False     // set new crossing angles if not a regular diamond ...
-    then begin
+    then
+    begin
       hdk := new_hdk;
       hdkn := 1 / TAN(hdk);
 
@@ -29788,25 +31280,26 @@ var
 begin
   Result := False;  // init
 
-  if plain_track = True then begin
+  if plain_track = True then
+  begin
     alert(6, '    make  ladder  -  plain  track',
-      'The control template is plain track. It is not possible to construct a ladder from plain track.'
-      + '||You must first change to a turnout or half-diamond template, by selecting the TEMPLATE > INSERT TURNOUT IN PLAIN TRACK or the TEMPLATE > INSERT HALF-DIAMOND IN PLAIN TRACK menu item.',
+      'The control template is plain track. It is not possible to construct a ladder from plain track.' +
+      '||You must first change to a turnout or half-diamond template, by selecting the TEMPLATE > INSERT TURNOUT IN PLAIN TRACK or the TEMPLATE > INSERT HALF-DIAMOND IN PLAIN TRACK menu item.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
 
-  if slewing = True then begin
-    i := alert(3, '    make  laddder  -  slewed  track',
-      '||Your control template contains a slew.' +
-      '||It is generally unwise to construct a ladder if any part of it will be within the slewing zone.'
-      + '||The slewing function is intended primarily for plain track.',
-      '', '', '', 'make  slewed  laddder', 'cancel  ladder',
-      'cancel  slewing  -  make  unslewed  ladder', 3);
+  if slewing = True then
+  begin
+    i := alert(3, '    make  laddder  -  slewed  track', '||Your control template contains a slew.' +
+      '||It is generally unwise to construct a ladder if any part of it will be within the slewing zone.' +
+      '||The slewing function is intended primarily for plain track.', '', '', '',
+      'make  slewed  laddder', 'cancel  ladder', 'cancel  slewing  -  make  unslewed  ladder', 3);
     case i of
       5:
         EXIT;
-      6: begin
+      6:
+      begin
         pad_form.disable_slewing_menu_entry.Click;
         gocalc(0, 0);
       end;
@@ -29814,14 +31307,14 @@ begin
   end;
 
   if xing_calc_i <> 1    // regular/generic crossing, or tradius is straight - make regular ladder...
-  then begin
+  then
+  begin
     {if ladder_message=True
                then begin}
     repeat
-      i := alert(7, '   make  regular  ladder',
-        'You are about to make a REGULAR ladder.'
-        +
-        '||If you are not sure, or your intention was to make a CURVIFORM ladder, click the white bar below for more information about ladder tracks.', '', '', '', '?  more  information', 'cancel', 'continue  -  make  regular  ladder', 4);
+      i := alert(7, '   make  regular  ladder', 'You are about to make a REGULAR ladder.' +
+        '||If you are not sure, or your intention was to make a CURVIFORM ladder, click the white bar below for more information about ladder tracks.',
+        '', '', '', '?  more  information', 'cancel', 'continue  -  make  regular  ladder', 4);
       case i of
         4:
           alert_help(0, ladder_help_str, '');
@@ -29844,9 +31337,9 @@ begin
 
   // make curviform ladder...
   repeat
-    i := alert(7, '   make  curviform  ladder',
-      'You are about to make a CURVIFORM ladder.'
-      + '||If you are not sure, or your intention was to make a REGULAR ladder, click the white bar below for more information about ladder tracks.| ', '', '', '', '?  more  information', 'cancel', 'continue  -  make  curviform  ladder', 4);
+    i := alert(7, '   make  curviform  ladder', 'You are about to make a CURVIFORM ladder.' +
+      '||If you are not sure, or your intention was to make a REGULAR ladder, click the white bar below for more information about ladder tracks.| ',
+      '', '', '', '?  more  information', 'cancel', 'continue  -  make  curviform  ladder', 4);
     case i of
       4:
         alert_help(0, ladder_help_str, '');
@@ -29856,7 +31349,8 @@ begin
   until i <> 4;
 
   if no_spacings_confirm = False      // 215b
-  then begin
+  then
+  begin
     sp := cpi.trtscent_pi;   //   TS
 
     way_ft := ABS((sp / inscale - 62) / 12);
@@ -29872,17 +31366,14 @@ begin
 
     way_str := '<SPAN STYLE="COLOR:BLUE;">' + ft_str + ins_str + ' way</SPAN>';
 
-    sp_str := '||   prototype: <SPAN STYLE="COLOR:BLUE;">' + FormatFloat(
-      '0.##', sp / inscale) + ' inches</SPAN>      model: <SPAN STYLE="COLOR:BLUE;">' +
-      FormatFloat('0.##', sp) + ' mm</SPAN>' +
-      '||For standard-gauge tracks at your current scale, this spacing would make ' +
+    sp_str := '||   prototype: <SPAN STYLE="COLOR:BLUE;">' + FormatFloat('0.##', sp / inscale) +
+      ' inches</SPAN>      model: <SPAN STYLE="COLOR:BLUE;">' + FormatFloat('0.##', sp) +
+      ' mm</SPAN>' + '||For standard-gauge tracks at your current scale, this spacing would make ' +
       way_str + ' between the rails.' +
       '||If this is not correct you can change it before continuing. Remember to allow sufficient running clearance on sharp curves.';
 
-    i := alert(2, '    make  ladder',
-      '||You are about to make a ladder.' +
-      '||The current setting for the turnout-side (TS) adjacent track centre spacing is:'
-      +
+    i := alert(2, '    make  ladder', '||You are about to make a ladder.' +
+      '||The current setting for the turnout-side (TS) adjacent track centre spacing is:' +
       sp_str, 'continue  and  don''t  show  this  message  again  today    ',
       'widen  TS  spacing  by  18  inches  and  continue', 'reduce  TS  spacing  by  18  inches  and  continue',
       'set  new  track  spacings  and  continue ...', 'cancel  ladder', 'continue', 0);
@@ -29901,9 +31392,16 @@ begin
 
   end;
 
-  if (g > (47 * inscale)) and (cpi.trtscent_pi < (134 * inscale)) then begin
+  if (g > (47 * inscale)) and (cpi.trtscent_pi < (134 * inscale)) then
+  begin
     if alert(1, '   make  ladder',
-      'Your current setting for the TS (turnout-side) track spacing is less than the 11ft-2in centres (134 inches) minimum for UK standard-gauge railways.' + '||If you continue it is very likely that there will be insufficient running clearance between rolling stock on the double tracks.' + '||If the tracks are sharply curved you will need additional track spacing above the minimum to provide sufficient clearance.' + '||To change the setting, click the `0tools > adjacent track centres`1 menu item.', '', '', '', '', 'cancel', 'continue - make  ladder  at  current  setting    ', 0) = 5 then
+      'Your current setting for the TS (turnout-side) track spacing is less than the 11ft-2in centres (134 inches) minimum for UK standard-gauge railways.'
+      +
+      '||If you continue it is very likely that there will be insufficient running clearance between rolling stock on the double tracks.'
+      +
+      '||If the tracks are sharply curved you will need additional track spacing above the minimum to provide sufficient clearance.'
+      + '||To change the setting, click the `0tools > adjacent track centres`1 menu item.', '',
+      '', '', '', 'cancel', 'continue - make  ladder  at  current  setting    ', 0) = 5 then
       EXIT;
   end;
 
@@ -29915,10 +31413,11 @@ begin
 
   if (ABS(cos_new_k3) > (1 - minfp)) or (ABS(cos_new_hdk_inner) > (1 - minfp))
   // invalid crossing angles.
-  then begin
+  then
+  begin
     alert(6, '   impossible  curviform  ladder',
-      'It is not possible to create a curviform ladder using the current settings.'
-      + '||The most likely reason is that the extended curve does not fully cross the adjacent track.',
+      'It is not possible to create a curviform ladder using the current settings.' +
+      '||The most likely reason is that the extended curve does not fully cross the adjacent track.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
@@ -29958,7 +31457,8 @@ begin
     turnout_road_i := -1;              // shorten turnout road to crossover
 
     if turnoutx < (txpx + 2.5 * scale)     // lengthen existing if nec. (2ft6ins arbitrary)
-    then begin
+    then
+    begin
       turnoutx := txpx + 2 * scale;                                   // 2ft arbitrary.
       if turnoutx > turnoutx_max then
         turnoutx := turnoutx_max;
@@ -29978,7 +31478,8 @@ begin
     new_rad_at_txp := 0 - (old_rad_at_txp - trtscent);    // rad at crossover mid-point on new side
 
 
-    if spiral = True then begin
+    if spiral = True then
+    begin
       kform_now := kform;
       docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
       // save current peg data for peg_curve calcs.
@@ -29996,10 +31497,12 @@ begin
       peg_curve;              // do curving calcs for the current peg position.
 
     end
-    else begin     // fixed curve or straight...
+    else
+    begin     // fixed curve or straight...
 
       if (ABS(nomrad) < max_rad_test)    // curved turnout, so must adjust the curving rad...
-      then begin
+      then
+      begin
         kform_now := kform;
         docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
         // save current peg data for peg_curve calcs.
@@ -30062,8 +31565,8 @@ begin
   green := paper_colour and $0000FF00;
   blue := paper_colour and $00FF0000;
 
-  if (red > $70) and (red < $90) and (green > $7000) and (green < $9000) and
-    (blue > $700000) and (blue < $900000) then
+  if (red > $70) and (red < $90) and (green > $7000) and (green < $9000) and (blue > $700000) and
+    (blue < $900000) then
     Result := True
   else
     Result := False;
@@ -30096,7 +31599,8 @@ begin
     Result := 0               // div by zero on startup.
   else
     Result := (X + gx - ex) / fx;
-  if paper_bunching = True then begin
+  if paper_bunching = True then
+  begin
     if X < bunch_start then
       EXIT;
     if X < (bunch_start + bunch_gap) then
@@ -30115,7 +31619,8 @@ begin
   else
     Result := (Y + gy - by) / fy;
 
-  if paper_bunching = True then begin
+  if paper_bunching = True then
+  begin
     if X < bunch_start then
       EXIT;
     if X < (bunch_start + bunch_gap) then
@@ -30166,7 +31671,8 @@ var
   i: integer;
 
 begin
-  for i := 0 to undo_c do begin
+  for i := 0 to undo_c do
+  begin
     rollback_reg[i].valid_flag := False;        // initial flag no valid content.
 
     rollback_reg[i].rollback_name_str := '';    // 0.93.a
@@ -30180,7 +31686,8 @@ begin
   pad_form.redo_changes_menu_entry.Enabled := True;
 
 
-  for i := 0 to notch_c do begin     // also init the notch rollback...
+  for i := 0 to notch_c do
+  begin     // also init the notch rollback...
     undo_notch[i].notch_x := 0;      // x
     undo_notch[i].notch_y := 0;      // y
     undo_notch[i].notch_k := 0;      // angle
@@ -30206,22 +31713,27 @@ begin
     if keeps_list.Count < 1 then
       EXIT;     // no keeps to shift.
 
-    for n := 0 to (keeps_list.Count - 1) do begin
+    for n := 0 to (keeps_list.Count - 1) do
+    begin
 
-      with Ttemplate(keeps_list.Objects[n]) do begin
+      with Ttemplate(keeps_list.Objects[n]) do
+      begin
 
         now_kd := template_info.keep_dims;    // get the current keep data (don't need the shoves).
 
-        with now_kd do begin
+        with now_kd do
+        begin
 
           if group_selected = False then
             CONTINUE;     // don't shift this one.
 
-          with box_dims1.transform_info do begin
+          with box_dims1.transform_info do
+          begin
             x2_shift := x2_shift + xshift_keeps;
             y2_shift := y2_shift + yshift_keeps * box_dims1.turnout_info1.hand;
 
-            with notch_info do begin             // update the stored pegging data..
+            with notch_info do
+            begin             // update the stored pegging data..
               notch_x := notch_x + xshift_keeps;
               notch_y := notch_y + yshift_keeps;
             end;//with
@@ -30237,7 +31749,8 @@ begin
     end;//for next n
 
     if mouse_shift_sync_wanted = True                        // 219a ..
-    then begin
+    then
+    begin
       shift_all_shapes(xshift_keeps, yshift_keeps);
 
       shapes_saved := False;      // need a resave.
@@ -30272,18 +31785,22 @@ begin
     if keeps_list.Count < 1 then
       EXIT;     // no keeps to rotate.
 
-    for n := 0 to (keeps_list.Count - 1) do begin
+    for n := 0 to (keeps_list.Count - 1) do
+    begin
 
-      with Ttemplate(keeps_list.Objects[n]) do begin
+      with Ttemplate(keeps_list.Objects[n]) do
+      begin
 
         now_kd := template_info.keep_dims;    // get the current keep data (don't need the shoves).
 
-        with now_kd do begin
+        with now_kd do
+        begin
 
           if group_selected = False then
             CONTINUE;     // don't rotate this one.
 
-          with box_dims1.transform_info do begin
+          with box_dims1.transform_info do
+          begin
 
             hand := box_dims1.turnout_info1.hand;
             k_shift := k_shift - kform_keeps * hand;    // update angle.
@@ -30296,7 +31813,8 @@ begin
             // rotate and shift back onto notch.
             y2_shift := (x * SIN(0 - kform_keeps) + y * COS(0 - kform_keeps) + notchy - datum_y) * hand;
 
-            with notch_info do begin                 // update the stored pegging data...
+            with notch_info do
+            begin                 // update the stored pegging data...
 
               x := notch_x - notchx;                     // shift pegging data to origin.
               y := notch_y - notchy;
@@ -30328,7 +31846,8 @@ begin
     end;//for next n
 
     if mouse_rotate_sync_wanted = True                        // 219a ..
-    then begin
+    then
+    begin
       bgnd_form.rotate_notch_radiobutton.Checked := True;
       rotate_centre_code := 1;
 
@@ -30355,7 +31874,9 @@ procedure get_ring_size;
 const
   dia_help_str: string = '    Spacing  Ring  Inner  Diameter' +
     '||Enter the required inner diameter for the spacing ring tool in mm.' +
-    '||This dimension is often set to the "6ft way" minimum spacing (clear between the rails) for double track (6''-0.1/2" on GWR with rail 2.75" wide).' + '||For more notes about using the spacing-ring tool click MORE GENERAL INFORMATION below.';
+    '||This dimension is often set to the "6ft way" minimum spacing (clear between the rails) for double track (6''-0.1/2" on GWR with rail 2.75" wide).'
+    +
+    '||For more notes about using the spacing-ring tool click MORE GENERAL INFORMATION below.';
 
 var
   n: integer;
@@ -30366,7 +31887,8 @@ begin
   // no neg, preset ok, zero ok, don't terminate on zero.
   if n <> 0 then
     EXIT;
-  if getdims('spacing-ring  size ...', ring_help_str, grid_form, n, od) = True then begin
+  if getdims('spacing-ring  size ...', ring_help_str, grid_form, n, od) = True then
+  begin
     ring_dia := od[0];
 
     if ring_dia = def_req then
@@ -30397,7 +31919,8 @@ begin
   // neg ok, no preset, zero ok, don't terminate on zero.
   if n <> 1 then
     EXIT;
-  if getdims('spacing-ring  position ...', ring_help_str, grid_form, n, od) = True then begin
+  if getdims('spacing-ring  position ...', ring_help_str, grid_form, n, od) = True then
+  begin
     rings[0, 0] := od[0];
     rings[0, 1] := od[1];
     do_rollback := False;
@@ -30427,7 +31950,8 @@ begin
   kform_keeps := k_rot;
 
   if (xshift_keeps <> 0) or (yshift_keeps <> 0)      // update after mouse shift all keeps.
-  then begin
+  then
+  begin
     if egg_timer = True then
       Screen.Cursor := crHourglass;
     shift_all_group;
@@ -30436,7 +31960,8 @@ begin
   end;
 
   if kform_keeps <> 0      // update after mouse twist all keeps.
-  then begin
+  then
+  begin
     if egg_timer = True then
       Screen.Cursor := crHourglass;
     twist_all_group;
@@ -30463,23 +31988,27 @@ var
   dummy: extended;
 
 begin
-  if do_peg_calcs_first = True then begin
+  if do_peg_calcs_first = True then
+  begin
     kform_now := kform;
     // before we change the mode..
     docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
     // current peg data for peg_curve calcs.
   end;
 
-  with pad_form do begin
+  with pad_form do
+  begin
 
     case mode of
-      1: begin
+      1:
+      begin
         slew_mode1_menu_entry.Checked := True;   // radio item.
         slew_mode := 1;
         adjust_slew2_factor_menu_entry.Enabled := False;
       end;
 
-      2: begin
+      2:
+      begin
         slew_mode2_menu_entry.Checked := True;   // radio item.
         slew_mode := 2;
         adjust_slew2_factor_menu_entry.Enabled := True;
@@ -30489,15 +32018,16 @@ begin
         run_error(13);
     end;//case
 
-    slewing_panel.Caption := '  caution :  template  contains  a  SLEW  ( mode  ' +
-      IntToStr(slew_mode) + ' )';
+    slewing_panel.Caption := '  caution :  template  contains  a  SLEW  ( mode  ' + IntToStr(slew_mode) + ' )';
     info_form.slew_caution_mode_label.Caption :=
       'caution :    this  template  contains  a  SLEW  ( mode  ' + IntToStr(slew_mode) + ' )';
 
     if (plain_track = False) or (slew_mode = 2)
     // min rad info not available for slewed turnouts or any mode 2.
-    then begin
-      with info_form do begin
+    then
+    begin
+      with info_form do
+      begin
         min_rad_box.Hide;               // so can't focus for min rad change button...
         limit_rad_box.Hide;
         slew_warn_panel.Show;           // show warning in info form.
@@ -30559,12 +32089,14 @@ begin
   allow_left_button_pan := False;   // 0.91.c
 
   if (mouse_modify > 0) and (mouse_action_button_down = True)       // mouse action in progress
-  then begin
+  then
+  begin
     mouse_action_release(False);
     EXIT;
   end;
 
-  if (zoom_rectangle = True) and (rectangle_in_progress = True) then begin
+  if (zoom_rectangle = True) and (rectangle_in_progress = True) then
+  begin
     zoom_rectangle := False;
     rectangle_in_progress := False;
     rectangle_exists := False;
@@ -30600,11 +32132,13 @@ begin
     else
       zoom_offsetx := x1 - (screenx - (x2 - x1)) / 2;
 
-    if y1 > y2 then begin
+    if y1 > y2 then
+    begin
       if wl_factor > minfp then
         zoom_offsety := y2 - (screenx / wl_factor - (y1 - y2)) / 2;
     end
-    else begin
+    else
+    begin
       if wl_factor > minfp then
         zoom_offsety := y1 - (screenx / wl_factor - (y2 - y1)) / 2;
     end;
@@ -30620,7 +32154,8 @@ begin
     EXIT;
   end;
 
-  if (group_fence_rectangle = True) and (rectangle_in_progress = True) then begin
+  if (group_fence_rectangle = True) and (rectangle_in_progress = True) then
+  begin
     group_fence_rectangle := False;
     rectangle_in_progress := False;
     rectangle_exists := False;
@@ -30628,7 +32163,8 @@ begin
 
     // group select all templates inside the last rectangle drawn...
 
-    if any_bgnd > 0 then begin
+    if any_bgnd > 0 then
+    begin
 
       x1 := mouse_x(X);              // mm...
       y1 := mouse_y(X, Y);
@@ -30638,14 +32174,16 @@ begin
 
       if pad_form.group_fence_whole_menu_entry.Checked = True
       // wholly contained templates?
-      then begin
+      then
+      begin
         X_left := Round(min(x1, x2) * 100);
         // 1/100ths mm. Use actual clicked corners.
         X_right := Round(max(x1, x2) * 100);
         Y_bottom := Round(min(y1, y2) * 100);
         Y_top := Round(max(y1, y2) * 100);
       end
-      else begin
+      else
+      begin
         X_left := Round((min(x1, x2) - g / 2) * 100);
         // 1/100ths mm. Add a tolerance og g/2 (arbitrary),
         X_right := Round((max(x1, x2) + g / 2) * 100);
@@ -30657,47 +32195,54 @@ begin
 
       first_one_found := False; // init.
 
-      for bgk := 0 to (keeps_list.Count - 1) do begin
+      for bgk := 0 to (keeps_list.Count - 1) do
+      begin
 
-        with Ttemplate(keeps_list.Objects[bgk]) do begin
+        with Ttemplate(keeps_list.Objects[bgk]) do
+        begin
 
           if bg_copied = False then
             CONTINUE;  // this one not a background template.
 
           try
-            with bgnd_keep do begin
+            with bgnd_keep do
+            begin
 
               this_is_contained := False;  // init flag for this template.
 
-              if pad_form.group_fence_whole_menu_entry.Checked =
-                True  // wholly contained templates?
+              if pad_form.group_fence_whole_menu_entry.Checked = True  // wholly contained templates?
 
-              then begin
+              then
+              begin
                 // yes, so only need to check the template's enclosing rectangle...
 
-                if (xlist_min < X_left) or (xlist_max > X_right) or
-                  (ylist_min < Y_bottom) or (ylist_max > Y_top) then
+                if (xlist_min < X_left) or (xlist_max > X_right) or (ylist_min < Y_bottom) or
+                  (ylist_max > Y_top) then
                   CONTINUE  // not this one, next template.
                 else
                   this_is_contained := True;
               end
-              else begin
+              else
+              begin
                 // no, to test for partially contained templates we must search the whole template...
 
-                for aq := 29 downto 0 do begin
+                for aq := 29 downto 0 do
+                begin
                   // 205e was 25    ignore FB foot lines.
 
                   if Length(list_bgnd_rails[aq]) = 0 then
                     CONTINUE;                       // empty rail, next aq.
 
                   array_max := High(list_bgnd_rails[aq]);
-                  for nk := 0 to array_max do begin
+                  for nk := 0 to array_max do
+                  begin
 
                     xint := list_bgnd_rails[aq][nk].X;
                     yint := list_bgnd_rails[aq][nk].Y;
 
-                    if (xint > X_left) and (xint < X_right) and
-                      (yint > Y_bottom) and (yint < Y_top) then begin
+                    if (xint > X_left) and (xint < X_right) and (yint > Y_bottom) and
+                      (yint < Y_top) then
+                    begin
                       this_is_contained := True;
                       BREAK;
                       // ignore remainder of this rail.
@@ -30711,7 +32256,8 @@ begin
 
               if this_is_contained = True
               // found a bgnd template for group select...
-              then begin
+              then
+              begin
 
                 if (first_one_found = False) and
                   (pad_form.group_fence_new_menu_entry.Checked = True) then
@@ -30719,13 +32265,11 @@ begin
 
                 first_one_found := True;
 
-                if template_info.keep_dims.box_dims1.bgnd_code_077 =
-                  -1 then
+                if template_info.keep_dims.box_dims1.bgnd_code_077 = -1 then
                   group_selected := False      // library template???
-                else begin
-                  if
-                  pad_form.group_fence_toggle_menu_entry.Checked = True
-                  then
+                else
+                begin
+                  if pad_form.group_fence_toggle_menu_entry.Checked = True then
                     group_selected := not group_selected                                  // toggle.
                   else
                     group_selected := not pad_form.group_fence_remove_menu_entry.Checked; // add or new, or remove.
@@ -30750,7 +32294,8 @@ begin
 
   // 0.93.a ...
 
-  if (output_boundary_rectangle = True) and (rectangle_in_progress = True) then begin
+  if (output_boundary_rectangle = True) and (rectangle_in_progress = True) then
+  begin
     output_boundary_rectangle := False;
     rectangle_in_progress := False;
     rectangle_exists := False;
@@ -30773,7 +32318,8 @@ begin
 
     redraw_pad(True, False);
 
-    if export_form_was_showing = True then begin
+    if export_form_was_showing = True then
+    begin
       export_form_was_showing := False;
       pad_form.export_file_menu_entry.Click;
     end;
@@ -30781,7 +32327,8 @@ begin
   end;
 
   if (drawn_shape_rectangle = True) and (rectangle_in_progress = True)  // add the shape...
-  then begin
+  then
+  begin
     drawn_shape_rectangle := False;
     rectangle_in_progress := False;
     rectangle_exists := False;
@@ -30811,11 +32358,13 @@ begin
 
   mouse_drawing_in_progress := False;
 
-  with pad_form.Canvas do begin
+  with pad_form.Canvas do
+  begin
     // first draw it immediately on the pad, so no redraw of shapes needed to show it.
     Pen.Width := 1;
     Pen.Mode := pmCopy;
-    if bgnd_form.dotted_radio_button.Checked = True then begin
+    if bgnd_form.dotted_radio_button.Checked = True then
+    begin
       Brush.Color := paper_colour;  // for gaps in dotted lines
       Brush.Style := bsClear;
 
@@ -30831,7 +32380,8 @@ begin
     LineTo(draw_mouse_up_X, draw_mouse_up_Y);       // line ends on mouse up.
   end;//with
 
-  with new_shape do begin
+  with new_shape do
+  begin
 
     shape_name := '';  // init
 
@@ -30858,17 +32408,19 @@ begin
     p2.x := mouse_up_x;    // end point on mouse up..
     p2.y := mouse_up_y;
 
-    if (p1.x = p2.x) and (p1.y = p2.y) then begin
+    if (p1.x = p2.x) and (p1.y = p2.y) then
+    begin
       alert(6, 'php/301    invalid  line  shape',
-        'This shape can not appear because the length of the line is zero.'
-        + '||The most likely reason is that you simply clicked the trackpad instead of drawing a line.',
+        'This shape can not appear because the length of the line is zero.' +
+        '||The most likely reason is that you simply clicked the trackpad instead of drawing a line.',
         '', '', '', '', 'cancel  shape', '', 0);
       EXIT;
     end;
 
     normalize_line(p1, p2);
 
-    with bgnd_form.bgnd_shapes_listbox do begin
+    with bgnd_form.bgnd_shapes_listbox do
+    begin
       n := Items.AddObject(new_shape.shape_name, Tbgshape.Create);
       // create and add a new line in the shapes list.
       Tbgshape(Items.Objects[n]).bgimage := nil;                   // not bitmap image 3-2-01.
@@ -30890,21 +32442,22 @@ begin
 
   // 208c mods -- bug fix
 
-  if no_timbering = True then begin
+  if no_timbering = True then
+  begin
     alert(3, '    no  timbers',
-      'There are no timbers to shove because the control template has been set to `0no timbering`1.'
-      + '||To restore the timbers, click one of the timbering styles in the `0real > timbering >`1 menu options.',
+      'There are no timbers to shove because the control template has been set to `0no timbering`1.' +
+      '||To restore the timbers, click one of the timbering styles in the `0real > timbering >`1 menu options.',
       '', '', '', '', '', 'O K', 0);
     EXIT;
   end;
 
 
-  if cl_only = True then begin
+  if cl_only = True then
+  begin
     if alert(3, '    no  timbers  showing',
-      'There are no timbers to shove because the control template has been set to show track centre-lines only.'
-      + '||Do you want to restore the rails and timbers for this template?',
-      '', '', '', '', 'no  -  cancel',
-      'yes  -  restore  rails  and  timbers  and  continue', 0) = 5 then
+      'There are no timbers to shove because the control template has been set to show track centre-lines only.' +
+      '||Do you want to restore the rails and timbers for this template?', '', '', '', '',
+      'no  -  cancel', 'yes  -  restore  rails  and  timbers  and  continue', 0) = 5 then
       EXIT;
     pad_form.normal_track_centre_lines_menu_radio.Click;   // radio item.
   end;
@@ -30920,11 +32473,14 @@ var
 
 begin
   n := 0;
-  while n < current_shove_list.Count do begin
-    if current_shove_list[n].can_restore then begin
+  while n < current_shove_list.Count do
+  begin
+    if current_shove_list[n].can_restore then
+    begin
       Inc(n);
     end
-    else begin
+    else
+    begin
       current_shove_list.Delete(n);
     end;
 
@@ -30944,16 +32500,20 @@ begin
 
   delete_null_shove_entries;    // first remove any unshoved entries.
 
-  with current_shove_list do begin               // mods for 0.71.a 27-4-01 ...
+  with current_shove_list do
+  begin               // mods for 0.71.a 27-4-01 ...
 
     n := -1;
-    for i := 0 to Count - 1 do begin
-      if Items[i].timber_string = str then begin
+    for i := 0 to Count - 1 do
+    begin
+      if Items[i].timber_string = str then
+      begin
         n := i;
         break;
       end;
     end;
-    if n >= 0 then begin
+    if n >= 0 then
+    begin
       Result := n;
       EXIT;           // already in list.
     end;
@@ -30976,7 +32536,8 @@ begin
   cancel_adjusts(True);
   shove_index := find_shove(current_shove_str, True);
 
-  if shove_index <> -1 then begin
+  if shove_index <> -1 then
+  begin
     current_shove_list[shove_index].set_shovex(shovex);
 
     mouse_action_selected('    shove  timber  along ...',
@@ -30997,7 +32558,8 @@ begin
   cancel_adjusts(True);
   shove_index := find_shove(current_shove_str, True);
 
-  if shove_index <> -1 then begin
+  if shove_index <> -1 then
+  begin
     current_shove_list[shove_index].set_offset(shoveo);
 
     mouse_action_selected('    throw  timber  endways ...',
@@ -31017,7 +32579,8 @@ begin
   cancel_adjusts(True);
   shove_index := find_shove(current_shove_str, True);
 
-  if shove_index <> -1 then begin
+  if shove_index <> -1 then
+  begin
     current_shove_list[shove_index].set_crab(shovec);
     mouse_action_selected('    crab  timber  sideways ...',
       'crab  timber  sideways', current_shove_str + '  crab  by : ' + captext(shovec) + ' mm');
@@ -31036,7 +32599,8 @@ begin
   cancel_adjusts(True);
   shove_index := find_shove(current_shove_str, True);
 
-  if shove_index <> -1 then begin
+  if shove_index <> -1 then
+  begin
     current_shove_list[shove_index].set_length(shovel);
     mouse_action_selected('    lengthen  timber ...', 'lengthen  timber',
       current_shove_str + '  lengthened  by : ' + captext(shovel) + ' mm');
@@ -31055,7 +32619,8 @@ begin
   cancel_adjusts(True);
   shove_index := find_shove(current_shove_str, True);
 
-  if shove_index <> -1 then begin
+  if shove_index <> -1 then
+  begin
     current_shove_list[shove_index].set_width(shovew);
     mouse_action_selected('    widen  timber ...', 'widen  timber',
       current_shove_str + '  widened  by : ' + captext(shovew * 2) + ' mm');
@@ -31074,7 +32639,8 @@ begin
   cancel_adjusts(True);
   shove_index := find_shove(current_shove_str, True);
 
-  if shove_index <> -1 then begin
+  if shove_index <> -1 then
+  begin
     current_shove_list[shove_index].set_twist(shovek);
 
     mouse_action_selected('    twist  timber ...', 'twist  timber',
@@ -31127,7 +32693,8 @@ begin
 
   udpegx := udpegx + xorg - xorg_old;   // user-defined position.
 
-  if peg_code <> 0 then begin
+  if peg_code <> 0 then
+  begin
     kform_now := kform;
     docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy1);
     // get current peg data for peg_curve calcs.
@@ -31167,7 +32734,8 @@ begin
   if turnoutx > turnoutx_max then
     turnoutx := turnoutx_max;
 
-  if peg_code = 11 then begin               // peg is on length...
+  if peg_code = 11 then
+  begin               // peg is on length...
     kform_now := kform;
     docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy1);
     // get current peg data for peg_curve calcs.
@@ -31190,7 +32758,8 @@ var
   x, y: extended;
 
 begin
-  with t_data do begin
+  with t_data do
+  begin
     x := x1_shift - x1_shift * COS(k_shift) + y1_shift * SIN(k_shift) + x2_shift;
     y := y1_shift - x1_shift * SIN(k_shift) - y1_shift * COS(k_shift) + y2_shift;
 
@@ -31215,20 +32784,24 @@ begin
   if keeps_list.Count < 1 then
     EXIT;     // no keeps to mirror.
 
-  for n := 0 to (keeps_list.Count - 1) do begin
+  for n := 0 to (keeps_list.Count - 1) do
+  begin
 
-    with Ttemplate(keeps_list.Objects[n]) do begin
+    with Ttemplate(keeps_list.Objects[n]) do
+    begin
 
       now_keep := template_info.keep_dims;    // get the current keep data.
 
-      with now_keep do begin
+      with now_keep do
+      begin
 
         if group_selected = False then
           CONTINUE;     // don't mirror this one.
 
         normalize_keep_transforms(box_dims1.transform_info);
 
-        with box_dims1.transform_info do begin
+        with box_dims1.transform_info do
+        begin
 
           k_shift := k_shift + Pi;                    // rotate 180 degs.
           normalize_angle(k_shift);
@@ -31239,7 +32812,8 @@ begin
 
           y2_shift := 0 - y2_shift;                   // because of changed hand.
 
-          with notch_info do begin
+          with notch_info do
+          begin
             // update the stored pegging data.. !!! bug fix 15-7-01.
             notch_x := notchx + (notchx - notch_x);
             notch_k := Pi * 2 - notch_k;
@@ -31272,7 +32846,8 @@ begin
 
   if ((curving_mod = 1) or (orbit_mod = 1) or (both_mod = 1)) and (spiral = True)
   // curving mouse action already active for transition?
-  then begin
+  then
+  begin
     if adjust_trans_rad = 1 then
       pad_form.adjust_rad2_menu_entry.Click
     else
@@ -31282,25 +32857,30 @@ begin
 
   // ruler swap ends...
 
-  if ruler1_mod = 1 then begin
+  if ruler1_mod = 1 then
+  begin
     pad_form.move_ruler_2nd_end_menu_entry.Click;
     EXIT;
   end;
 
-  if ruler2_mod = 1 then begin
+  if ruler2_mod = 1 then
+  begin
     pad_form.move_ruler_1st_end_menu_entry.Click;
     EXIT;
   end;
 
   // swap F9 - F10
 
-  if half_diamond = True then begin
-    if vee_mod = 1 then begin
+  if half_diamond = True then
+  begin
+    if vee_mod = 1 then
+    begin
       pad_form.adjust_k_crossing_angle_menu_entry.Click;
       EXIT;
     end;
 
-    if hdk_mod = 1 then begin
+    if hdk_mod = 1 then
+    begin
       pad_form.adjust_v_crossing_angle_menu_entry.Click;
       EXIT;
     end;
@@ -31309,13 +32889,16 @@ begin
 
   // 205c  swap F9 - SHIFT-F12 ...
 
-  if gaunt = True then begin
-    if vee_mod = 1 then begin
+  if gaunt = True then
+  begin
+    if vee_mod = 1 then
+    begin
       pad_form.adjust_gaunt_radius_menu_entry.Click;
       EXIT;
     end;
 
-    if (gaunt_offset_mod = 1) or (gaunt_radius_mod = 1) then begin
+    if (gaunt_offset_mod = 1) or (gaunt_radius_mod = 1) then
+    begin
       pad_form.adjust_v_crossing_angle_menu_entry.Click;
       EXIT;
     end;
@@ -31324,12 +32907,14 @@ begin
 
   // 205c  shift group - rotate group ...
 
-  if shift_keeps_mod = 1 then begin
+  if shift_keeps_mod = 1 then
+  begin
     pad_form.rotate_keeps_menu_entry.Click;
     EXIT;
   end;
 
-  if twist_keeps_mod = 1 then begin
+  if twist_keeps_mod = 1 then
+  begin
     pad_form.shift_keeps_menu_entry.Click;
     EXIT;
   end;
@@ -31337,12 +32922,14 @@ begin
 
   // 205c  trans start - trans length ...
 
-  if trans_start_mod = 1 then begin
+  if trans_start_mod = 1 then
+  begin
     pad_form.adjust_trans_length_menu_entry.Click;
     EXIT;
   end;
 
-  if trans_length_mod = 1 then begin
+  if trans_length_mod = 1 then
+  begin
     pad_form.adjust_trans_start_menu_entry.Click;
     EXIT;
   end;
@@ -31350,12 +32937,14 @@ begin
 
   // 205c  F7 - F8 ...
 
-  if shift_mod = 1 then begin
+  if shift_mod = 1 then
+  begin
     pad_form.rotate_menu_entry.Click;
     EXIT;
   end;
 
-  if twist_mod = 1 then begin
+  if twist_mod = 1 then
+  begin
     pad_form.shift_menu_entry.Click;
     EXIT;
   end;
@@ -31375,7 +32964,8 @@ begin
 
   if (pegx < 0) or (pegx > (turnoutx - g * 4))
   // reset peg if not in sensible position. (g*4 arbitrary).
-  then begin
+  then
+  begin
     pad_form.reset_peg_menu_entry.Click;
     redraw(False);
   end;
@@ -31442,14 +33032,16 @@ begin
   gocalc(0, 0);
 
   if slewing = True       // slewing, swap end positions..
-  then begin
+  then
+  begin
     slew_s := turnoutx - (slew_s + slew_l);   // neg slew_s is OK.
     slew := 0 - slew;
     gocalc(0, 0);
   end;
 
   if spiral = True        // transition, swap end positions and rads...
-  then begin
+  then
+  begin
     os := turnoutx - (os + tst);         // neg os is OK.
 
     clrad1 := nomrad1{+ycurv};         // centre-line 1st radius.
@@ -31540,15 +33132,18 @@ begin
   if spiral = False then
     EXIT;  // ???
 
-  if (os >= 0) and ((os + tst) <= turnoutx) then begin
+  if (os >= 0) and ((os + tst) <= turnoutx) then
+  begin
     Result := True;
     EXIT;         // zone is completely within template (already normalized).
   end;
 
   if (os + tst) < 0   // template is all in r2...
-  then begin
+  then
+  begin
     if pegx < (os + tst)      // but peg not in r2..
-    then begin
+    then
+    begin
       pad_form.reset_peg_menu_entry.Click;   // peg on datum
       gocalc(0, 0);                           // calc it.
     end;
@@ -31558,9 +33153,11 @@ begin
   end;
 
   if os > turnoutx   // template is all in r1...
-  then begin
+  then
+  begin
     if pegx > os     // but peg not in r1..
-    then begin
+    then
+    begin
       pad_form.reset_peg_menu_entry.Click;   // peg on datum
       gocalc(0, 0);                           // calc it.
     end;
@@ -31570,7 +33167,8 @@ begin
   end;
 
   if (pegx < 0) or (pegx > turnoutx)   // peg not in template extents...
-  then begin
+  then
+  begin
     pad_form.reset_peg_menu_entry.Click;   // peg on datum
     gocalc(0, 0);                           // calc it.
   end;
@@ -31581,14 +33179,16 @@ begin
   new_r2 := nomrad2;
 
   if os < 0            // trans starts before template...
-  then begin
+  then
+  begin
     new_r1 := clrad_at_x(0);  // set new r1 from centre-line radius at datum.
     new_tst := tst + os;        // new zone is shorter.
     new_os := 0;
   end;
 
   if (os + tst) > turnoutx    // trans ends beyond template...
-  then begin
+  then
+  begin
     new_r2 := clrad_at_x(turnoutx);  // set new r2 from centre-line radius at template end.
     new_tst := turnoutx - new_os;      // new zone is shorter.
   end;
@@ -31601,8 +33201,8 @@ begin
   else
     temp_ktrans := max_spiral_constant * 2;           // force error.
 
-  if (ABS(temp_ktrans) > max_spiral_constant) or (rad_diff < minfp) or
-    (ABS(new_r1) < (g * 2))    // min rad (arbitrary).
+  if (ABS(temp_ktrans) > max_spiral_constant) or (rad_diff < minfp) or (ABS(new_r1) <
+    (g * 2))    // min rad (arbitrary).
     or (ABS(new_r2) < (g * 2)) or (new_tst < 0) then
     EXIT;
 
@@ -31638,11 +33238,13 @@ end;
 procedure peg_indicator_click;
 
 begin
-  with pad_form do begin
+  with pad_form do
+  begin
     // toggle peg end to end.
     if peg_code <> 0 then
       reset_peg_menu_entry.Click
-    else begin
+    else
+    begin
       if plain_track = True then
         peg_on_joint_end_menu_entry.Click
       else
@@ -31661,14 +33263,17 @@ begin
   if (any_bgnd = 0) or (clicked_keep_index < 0) or (clicked_keep_index > (keeps_list.Count - 1)) then
     EXIT;
 
-  with Ttemplate(keeps_list.Objects[clicked_keep_index]) do begin
+  with Ttemplate(keeps_list.Objects[clicked_keep_index]) do
+  begin
 
     if bg_copied = False then
       EXIT;  // ??? not on background.
 
-    with bgnd_keep do begin
+    with bgnd_keep do
+    begin
 
-      with pad_form.dummy_label_panel do begin        // copy the dummy label position...
+      with pad_form.dummy_label_panel do
+      begin        // copy the dummy label position...
 
         mod_X := Left - text_begin_X + 22;        // distance label moved (pixels).
         mod_Y := Top - text_begin_Y + 2;
@@ -31681,7 +33286,8 @@ begin
       end;//with panel.
     end;//with bgnd_keep.
 
-    with template_info.keep_dims.box_dims1 do begin
+    with template_info.keep_dims.box_dims1 do
+    begin
       mod_text_x := mod_text_x + mod_X * ffx;
       mod_text_y := mod_text_y + mod_Y * ffy;
     end;//with
@@ -31767,14 +33373,16 @@ begin
 
   normalize_transforms;
 
-  if (xshift = 0) and (yshift = 0) and (kform = 0) then begin
+  if (xshift = 0) and (yshift = 0) and (kform = 0) then
+  begin
     clear_transform_data;  // clear shifts if not already.
     on_datum := True;        // set this now - routines below include a peg_curve.
   end
   else
     on_datum := False;
 
-  with pad_form do begin
+  with pad_form do
+  begin
 
     do_rollback := False;
 
@@ -31787,7 +33395,8 @@ begin
     switch_drive_flag := True;     // 0.82.a
 
     do_rollback := False;
-    if (no_timbering = True) or (half_diamond = True) then begin
+    if (no_timbering = True) or (half_diamond = True) then
+    begin
       equalized_incremental_menu_entry.Enabled := True;
       equalized_incremental_menu_entry.Click;         // radio item.
     end;
@@ -31798,7 +33407,8 @@ begin
     nomrad := ABS(nomrad);                    // cancel any contraflexure.
 
     if (spiral = True) or (nomrad > max_rad_test)   // transition or straight.
-    then begin
+    then
+    begin
       spiral := False;                // no transition.
       nomrad := 660 * scale;            // fixed 10 chains curve.
     end;
@@ -31830,12 +33440,15 @@ begin
     do_rollback := False;
 
     if locked_length = 0  // length free
-    then begin
-      if plain_track = False then begin
+    then
+    begin
+      if plain_track = False then
+      begin
         xorg := 0;         // remove any aproach track;
         turnout_i := 0;    // 0=length free. default overall turnout length.
       end
-      else begin
+      else
+      begin
         //xorg:=2.5*railen[pt_i]*inscale;    // give him 2.5 rail lengths (arbitrary).
         xorg := 132 * scale;
         // give him 2 chains (arbitrary). 0.93.a
@@ -31879,7 +33492,8 @@ begin
 
 
     do_rollback := False;
-    if on_datum = True then begin
+    if on_datum = True then
+    begin
       xshift := 0;                  // cancel any shifts.
       yshift := 0;
       gocalc(2, 0);                            // need screen calcs to set y_datum.
@@ -31887,7 +33501,8 @@ begin
       fit_current_only_menu_entry.Click;
       // 0.93.a     //fit_org_extents_current_menu_entry.Click;    // zoom to fit on datum.
     end
-    else begin
+    else
+    begin
       xshift := zoom_offsetx + (screenx - turnoutx) / 2;
       // or put it across the centre of the pad,
       yshift := (zoom_offsety + screeny / 2.5 - y_datum) * hand_i - g / 2;
@@ -31901,7 +33516,8 @@ begin
 
     do_rollback := False;
 
-    if plain_track = True then begin
+    if plain_track = True then
+    begin
       redraw(False);                              // force sleeper calcs.
       snap_approach_to_nearest_menu_entry.Click;  // to nearest sleeper.
     end;
@@ -31910,7 +33526,8 @@ begin
 
   if (csi.group_code = 2) and (plain_track = False)
   // REA switch, so re-set REA bullhead crossing...
-  then begin
+  then
+  begin
     bn_wide := 0.75;      // full-size inches.  3/4" blunt nose BH default.
     bn_to_a := 4.0;       // full-size inches - 4" to A timber centre.
     wingj_sp := 25;       // full-size inches - 25" timber spacing at wing rail joint.
@@ -31944,7 +33561,8 @@ begin
 
     // restore default REA check rails...
 
-    with cpi do begin
+    with cpi do
+    begin
 
       ck_ms_working1_pi := def_req;
       // full-size  78 inches - size 1 MS check rail working length (back from "A").
@@ -32062,7 +33680,8 @@ procedure adjust_direct(code: integer);
 
 begin
   cancel_adjusts(False);
-  with pad_form do begin
+  with pad_form do
+  begin
 
     case code of
       0:
@@ -32260,367 +33879,451 @@ procedure action_label_click;
 
 // cancel adjusts and go adjust dimension by direct entry...
 begin
-  if spot_mod = 1 then begin
+  if spot_mod = 1 then
+  begin
     adjust_direct(0);
     EXIT;
   end;
-  if zoom_mod = 1 then begin
+  if zoom_mod = 1 then
+  begin
     adjust_direct(1);
     EXIT;
   end;
-  if datum_mod = 1 then begin
+  if datum_mod = 1 then
+  begin
     adjust_direct(2);
     EXIT;
   end;
-  if peg_mod = 1 then begin
+  if peg_mod = 1 then
+  begin
     adjust_direct(3);
     EXIT;
   end;
-  if notch_mod = 1 then begin
+  if notch_mod = 1 then
+  begin
     adjust_direct(4);
     EXIT;
   end;
-  if out_factor_mod = 1 then begin
+  if out_factor_mod = 1 then
+  begin
     adjust_direct(5);
     EXIT;
   end;
-  if shove_along_mod = 1 then begin
+  if shove_along_mod = 1 then
+  begin
     adjust_direct(6);
     EXIT;
   end;
-  if shove_throw_mod = 1 then begin
+  if shove_throw_mod = 1 then
+  begin
     adjust_direct(7);
     EXIT;
   end;
-  if trans_length_mod = 1 then begin
+  if trans_length_mod = 1 then
+  begin
     adjust_direct(8);
     EXIT;
   end;
-  if trans_start_mod = 1 then begin
+  if trans_start_mod = 1 then
+  begin
     adjust_direct(9);
     EXIT;
   end;
-  if slew_amount_mod = 1 then begin
+  if slew_amount_mod = 1 then
+  begin
     adjust_direct(10);
     EXIT;
   end;
-  if slew_length_mod = 1 then begin
+  if slew_length_mod = 1 then
+  begin
     adjust_direct(11);
     EXIT;
   end;
-  if slew_start_mod = 1 then begin
+  if slew_start_mod = 1 then
+  begin
     adjust_direct(12);
     EXIT;
   end;
-  if length_mod = 1 then begin
+  if length_mod = 1 then
+  begin
     adjust_direct(13);
     EXIT;
   end;
-  if approach_mod = 1 then begin
+  if approach_mod = 1 then
+  begin
     adjust_direct(14);
     EXIT;
   end;
-  if shift_mod = 1 then begin
+  if shift_mod = 1 then
+  begin
     adjust_direct(15);
     EXIT;
   end;
-  if slide_mod = 1 then begin
+  if slide_mod = 1 then
+  begin
     adjust_direct(16);
     EXIT;
   end;
-  if ring_mod = 1 then begin
+  if ring_mod = 1 then
+  begin
     adjust_direct(17);
     EXIT;
   end;
-  if shift_keeps_mod = 1 then begin
+  if shift_keeps_mod = 1 then
+  begin
     adjust_direct(18);
     EXIT;
   end;
-  if twist_keeps_mod = 1 then begin
+  if twist_keeps_mod = 1 then
+  begin
     adjust_direct(19);
     EXIT;
   end;
-  if zoffset_mod = 1 then begin
+  if zoffset_mod = 1 then
+  begin
     adjust_direct(20);
     EXIT;
   end;
-  if twist_mod = 1 then begin
+  if twist_mod = 1 then
+  begin
     adjust_direct(21);
     EXIT;
   end;
-  if orbit_mod = 1 then begin
+  if orbit_mod = 1 then
+  begin
     adjust_direct(22);
     EXIT;
   end;
-  if both_mod = 1 then begin
+  if both_mod = 1 then
+  begin
     adjust_direct(23);
     EXIT;
   end;
-  if sx_mod = 1 then begin
+  if sx_mod = 1 then
+  begin
     adjust_direct(24);
     EXIT;
   end;
-  if curving_mod = 1 then begin
+  if curving_mod = 1 then
+  begin
     adjust_direct(25);
     EXIT;
   end;
-  if roam_mod = 1 then begin
+  if roam_mod = 1 then
+  begin
     adjust_direct(26);
     EXIT;
   end;
-  if slew_factor_mod = 1 then begin
+  if slew_factor_mod = 1 then
+  begin
     adjust_direct(27);
     EXIT;
   end;
-  if bunch_mod = 1 then begin
+  if bunch_mod = 1 then
+  begin
     adjust_direct(28);
     EXIT;
   end;
-  if porg_mod = 1 then begin
+  if porg_mod = 1 then
+  begin
     adjust_direct(29);
     EXIT;
   end;
 
-  if corner1_mod = 1 then begin
+  if corner1_mod = 1 then
+  begin
     adjust_direct(30);
     EXIT;
   end;
-  if corner2_mod = 1 then begin
+  if corner2_mod = 1 then
+  begin
     adjust_direct(31);
     EXIT;
   end;
 
-  if oneshape_shift_mod = 1 then begin
+  if oneshape_shift_mod = 1 then
+  begin
     adjust_direct(32);
     EXIT;
   end;
-  if allshapes_shift_mod = 1 then begin
+  if allshapes_shift_mod = 1 then
+  begin
     adjust_direct(33);
     EXIT;
   end;
 
-  if snake_mod = 1 then begin
+  if snake_mod = 1 then
+  begin
     adjust_direct(34);
     EXIT;
   end;
 
-  if allshapes_scale_mod = 1 then begin
+  if allshapes_scale_mod = 1 then
+  begin
     adjust_direct(35);
     EXIT;
   end;
-  if allshapes_rotate_mod = 1 then begin
+  if allshapes_rotate_mod = 1 then
+  begin
     adjust_direct(36);
     EXIT;
   end;
-  if oneshape_scale_mod = 1 then begin
+  if oneshape_scale_mod = 1 then
+  begin
     adjust_direct(37);
     EXIT;
   end;
 
-  if shove_length_mod = 1 then begin
+  if shove_length_mod = 1 then
+  begin
     adjust_direct(38);
     EXIT;
   end;
-  if shove_width_mod = 1 then begin
+  if shove_width_mod = 1 then
+  begin
     adjust_direct(39);
     EXIT;
   end;
-  if shove_twist_mod = 1 then begin
+  if shove_twist_mod = 1 then
+  begin
     adjust_direct(40);
     EXIT;
   end;
 
-  if blanking_mod = 1 then begin
+  if blanking_mod = 1 then
+  begin
     adjust_direct(41);
     EXIT;
   end;
 
-  if roll_mod = 1 then begin
+  if roll_mod = 1 then
+  begin
     adjust_direct(42);
     EXIT;
   end;
 
-  if ringdia_mod = 1 then begin
+  if ringdia_mod = 1 then
+  begin
     adjust_direct(43);
     EXIT;
   end;
 
-  if ruler1_mod = 1 then begin
+  if ruler1_mod = 1 then
+  begin
     adjust_direct(44);
     EXIT;
   end;
-  if ruler2_mod = 1 then begin
+  if ruler2_mod = 1 then
+  begin
     adjust_direct(45);
     EXIT;
   end;
 
-  if swell_mod = 1 then begin
+  if swell_mod = 1 then
+  begin
     adjust_direct(46);
     EXIT;
   end;
 
-  if shove_crab_mod = 1 then begin
+  if shove_crab_mod = 1 then
+  begin
     adjust_direct(47);
     EXIT;
   end;
 
-  if move_labels_mod = 1 then begin
+  if move_labels_mod = 1 then
+  begin
     adjust_direct(48);
     EXIT;
   end;  // 0.82.d
 
-  if entry_straight_mod = 1 then begin
+  if entry_straight_mod = 1 then
+  begin
     adjust_direct(49);
     EXIT;
   end;  // 0.91.b
 
   // 0.93.a ...
 
-  if plat_ts_start_mod = 1 then begin
+  if plat_ts_start_mod = 1 then
+  begin
     adjust_direct(50);
     EXIT;
   end;
-  if plat_ts_length_mod = 1 then begin
+  if plat_ts_length_mod = 1 then
+  begin
     adjust_direct(51);
     EXIT;
   end;
-  if plat_ts_width1_mod = 1 then begin
+  if plat_ts_width1_mod = 1 then
+  begin
     adjust_direct(52);
     EXIT;
   end;
-  if plat_ts_width2_mod = 1 then begin
+  if plat_ts_width2_mod = 1 then
+  begin
     adjust_direct(53);
     EXIT;
   end;
 
-  if plat_ms_start_mod = 1 then begin
+  if plat_ms_start_mod = 1 then
+  begin
     adjust_direct(54);
     EXIT;
   end;
-  if plat_ms_length_mod = 1 then begin
+  if plat_ms_length_mod = 1 then
+  begin
     adjust_direct(55);
     EXIT;
   end;
-  if plat_ms_width1_mod = 1 then begin
+  if plat_ms_width1_mod = 1 then
+  begin
     adjust_direct(56);
     EXIT;
   end;
-  if plat_ms_width2_mod = 1 then begin
+  if plat_ms_width2_mod = 1 then
+  begin
     adjust_direct(57);
     EXIT;
   end;
 
-  if gaunt_offset_mod = 1 then begin
+  if gaunt_offset_mod = 1 then
+  begin
     adjust_direct(58);
     EXIT;
   end;  // SHIFT+F12  // 0.93.a ex 081
-  if vee_mod = 1 then begin
+  if vee_mod = 1 then
+  begin
     adjust_direct(59);
     EXIT;
   end;  // F9         // 0.93.a ex 081
-  if hdk_mod = 1 then begin
+  if hdk_mod = 1 then
+  begin
     adjust_direct(60);
     EXIT;
   end;  // F10        // 0.93.a ex 081
 
-  if rect_left_mod = 1 then begin
+  if rect_left_mod = 1 then
+  begin
     adjust_direct(61);
     EXIT;
   end;  // output boundary rectangle 0.93.a ...
-  if rect_right_mod = 1 then begin
+  if rect_right_mod = 1 then
+  begin
     adjust_direct(62);
     EXIT;
   end;
-  if rect_top_mod = 1 then begin
+  if rect_top_mod = 1 then
+  begin
     adjust_direct(63);
     EXIT;
   end;
-  if rect_bottom_mod = 1 then begin
+  if rect_bottom_mod = 1 then
+  begin
     adjust_direct(64);
     EXIT;
   end;
-  if rect_move_mod = 1 then begin
+  if rect_move_mod = 1 then
+  begin
     adjust_direct(65);
     EXIT;
   end;
 
-  if check_diffs_len_mod = 1 then begin
+  if check_diffs_len_mod = 1 then
+  begin
     adjust_direct(66);
     EXIT;
   end;    // 0.94.a  mouse check rails
-  if check_diffs_flare_mod = 1 then begin
+  if check_diffs_flare_mod = 1 then
+  begin
     adjust_direct(67);
     EXIT;
   end;    // 0.94.a
-  if check_diffs_gap_mod = 1 then begin
+  if check_diffs_gap_mod = 1 then
+  begin
     adjust_direct(68);
     EXIT;
   end;    // 0.94.a
 
-  if dv_mod = 1 then begin
+  if dv_mod = 1 then
+  begin
     adjust_direct(69);
     EXIT;
   end;    // 0.98.a
-  if dv_clear_mod = 1 then begin
+  if dv_clear_mod = 1 then
+  begin
     adjust_direct(70);
     EXIT;
   end;    // 0.98.a
 
-  if plat_ms_skew1_mod = 1 then begin
+  if plat_ms_skew1_mod = 1 then
+  begin
     adjust_direct(71);
     EXIT;
   end;    // 207a
-  if plat_ms_skew2_mod = 1 then begin
+  if plat_ms_skew2_mod = 1 then
+  begin
     adjust_direct(72);
     EXIT;
   end;    // 207a
-  if plat_ts_skew1_mod = 1 then begin
+  if plat_ts_skew1_mod = 1 then
+  begin
     adjust_direct(73);
     EXIT;
   end;    // 207a
-  if plat_ts_skew2_mod = 1 then begin
+  if plat_ts_skew2_mod = 1 then
+  begin
     adjust_direct(74);
     EXIT;
   end;    // 207a
 
-  if turnout_road_mod = 1 then begin
+  if turnout_road_mod = 1 then
+  begin
     adjust_direct(75);
     EXIT;
   end;    // 209a
 
-  if adjacent_ts_mod = 1 then begin
+  if adjacent_ts_mod = 1 then
+  begin
     adjust_direct(76);
     EXIT;
   end;    // 213a
-  if adjacent_ms_mod = 1 then begin
+  if adjacent_ms_mod = 1 then
+  begin
     adjust_direct(77);
     EXIT;
   end;    // 213a
 
-  if edge_ts_start_mod = 1 then begin
+  if edge_ts_start_mod = 1 then
+  begin
     adjust_direct(78);
     EXIT;
   end;    // 215a ...
-  if edge_ts_length_mod = 1 then begin
+  if edge_ts_length_mod = 1 then
+  begin
     adjust_direct(79);
     EXIT;
   end;
 
-  if edge_ms_start_mod = 1 then begin
+  if edge_ms_start_mod = 1 then
+  begin
     adjust_direct(80);
     EXIT;
   end;
-  if edge_ms_length_mod = 1 then begin
+  if edge_ms_length_mod = 1 then
+  begin
     adjust_direct(81);
     EXIT;
   end;
 
-  if main_road_mod = 1 then begin
+  if main_road_mod = 1 then
+  begin
     adjust_direct(82);
     EXIT;
   end;    // 217a
 
-  if gaunt_radius_mod = 1 then begin
+  if gaunt_radius_mod = 1 then
+  begin
     adjust_direct(83);
     EXIT;
   end;    // 217b
@@ -32634,7 +34337,8 @@ procedure update_rail_section(var box_kd: Tkeep_dims);
 // 0.94.a
 
 begin
-  with box_kd.box_dims1 do begin
+  with box_kd.box_dims1 do
+  begin
     rail_info.flared_ends_ri := flare_type;  // 0=straight bent, 1=straight machined
 
     rail_info.knuckle_code_ri := knuckle_code;
@@ -32692,7 +34396,8 @@ procedure update_trackbed_edges(var box_kd: Tkeep_dims);
 // 0.93.a
 
 begin
-  with box_kd.box_dims1.platform_trackbed_info do begin
+  with box_kd.box_dims1.platform_trackbed_info do
+  begin
 
     adjacent_edges_keep := True;  // False=adjacent tracks,  True=trackbed edges and platform edges.
 
@@ -32722,7 +34427,8 @@ procedure update_customize_xing(var box_kd: Tkeep_dims);   // 214b  update V-cro
 
 begin
 
-  with box_kd.turnout_info2.crossing_info do begin
+  with box_kd.turnout_info2.crossing_info do
+  begin
 
     blunt_nose_width := bn_wide;         // full-size inches.
     blunt_nose_to_timb := bn_to_a;       // full-size inches - to A timber centre.
@@ -32755,7 +34461,8 @@ begin
 
   end;//with
 
-  with box_kd.box_dims1 do begin     // check and wing rails...
+  with box_kd.box_dims1 do
+  begin     // check and wing rails...
 
     proto_info.wing_ms_reach1_pi := cpi.wing_ms_reach1_pi;
     proto_info.wing_ms_reach2_pi := cpi.wing_ms_reach2_pi;
@@ -32782,7 +34489,8 @@ var
   n: integer;
 
 begin
-  with box_kd.turnout_info2.plain_track_info do begin
+  with box_kd.turnout_info2.plain_track_info do
+  begin
 
     if pt_i > 4 then
       pt_custom := True       // list index for custom plain track.
@@ -32796,8 +34504,7 @@ begin
     for n := 0 to psleep_c do
       sleeper_centres[n] := psleep[pt_i, n];   // spacings (only used for custom spacings).
 
-    pt_spacing_name_str := Copy(plain_track_form.plain_track_spacings_listbox.Items.Strings[
-      pt_i], 1, 198);
+    pt_spacing_name_str := Copy(plain_track_form.plain_track_spacings_listbox.Items.Strings[pt_i], 1, 198);
     // get name from the list.
 
     rail_joints_code := rjcode;  // 0=normal, 1=staggered, -1=none (cwr).
@@ -32810,9 +34517,11 @@ procedure update_timbering(var box_kd: Tkeep_dims);
 // update stored template timbering to match the control template.
 
 begin
-  with box_kd do begin
+  with box_kd do
+  begin
 
-    with turnout_info2 do begin
+    with turnout_info2 do
+    begin
 
       timber_length_inc := timbinc;                          // length increments  212a
       diamond_proto_timbering_flag := hd_proto_timbering;    // 212a
@@ -32828,7 +34537,8 @@ begin
 
     end;//with
 
-    with box_dims1 do begin
+    with box_dims1 do
+    begin
 
       proto_info.tbwide_pi := tbwide;           // inches full-size width of turnout timbers.
       proto_info.slwide_pi := slwide;           // inches full-size width of plain sleepers.
@@ -32844,7 +34554,8 @@ begin
       proto_info.random_end_pi := randend;       //  amount of timber-end randomising.
       proto_info.random_angle_pi := randangle;   //  amount of timber_angle randomising.
 
-      with turnout_info1 do begin
+      with turnout_info1 do
+      begin
 
         timbering_flag := timbers_equalized;  //  True = equalized timbering.
         exit_timbering := exittb_i;           //  exit timbering style.
@@ -32885,7 +34596,8 @@ begin
 
   Result := False;   // 0.91.c  init.
 
-  with enter_timber_form.Canvas do begin
+  with enter_timber_form.Canvas do
+  begin
     Font.Assign(pad_form.pad_timber_font_label.Font);
 
     // 0.91.b was Screen.Width ..
@@ -32912,7 +34624,8 @@ begin
   tbnum_str := timb_numbers_str;
   // the full string of timber numbering for the control template.
 
-  for i := 0 to (mark_index - 1) do begin     // (mark_index is always the next free slot)
+  for i := 0 to (mark_index - 1) do
+  begin     // (mark_index is always the next free slot)
     try
       ptr_1st := @marks_list_ptr[i];  // pointer to the next Tmark record.
       if ptr_1st = nil then
@@ -32931,8 +34644,9 @@ begin
       num_X := Round(ptr_1st^.p1.X * sx + ex - gx);       // and the centre co-ords for it.
       num_Y := Round((ptr_1st^.p1.Y + yd) * sy + by - gy);
 
-      if (X >= (num_X - half_width)) and (X <= (num_X + half_width)) and
-        (Y >= (num_Y - half_height)) and (Y <= (num_Y + half_height)) then begin
+      if (X >= (num_X - half_width)) and (X <= (num_X + half_width)) and (Y >= (num_Y - half_height)) and
+        (Y <= (num_Y + half_height)) then
+      begin
 
         Result := True;   // 0.91.c  clicked on a timber number.
 
@@ -32947,15 +34661,17 @@ begin
         n := find_shove(current_shove_str, True);
         // find it or an empty slot, or warn him if no room.
         if n >= 0                                // found a slot.
-        then begin
-          if current_shove_list[n].sv_code =
-            svcEmpty then begin
+        then
+        begin
+          if current_shove_list[n].sv_code = svcEmpty then
+          begin
             current_shove_list[n].sv_code := svcShove;
             // flag to shove this timber if not already in list.
           end;
           shove_buttons(True, n);
         end
-        else begin
+        else
+        begin
           current_shove_str := '';         // !!! no room for it ?
           shove_buttons(False, -1);
         end;
@@ -32989,7 +34705,8 @@ var
 
 begin
 
-  with enter_timber_form.Canvas do begin
+  with enter_timber_form.Canvas do
+  begin
     Font.Assign(pad_form.pad_timber_font_label.Font);
 
     // 0.91.b was Screen.Width
@@ -33015,7 +34732,8 @@ begin
   tbnum_str := timb_numbers_str;
   // the full string of timber numbering for the control template.
 
-  for i := 0 to (mark_index - 1) do begin     // (mark_index is always the next free slot)
+  for i := 0 to (mark_index - 1) do
+  begin     // (mark_index is always the next free slot)
     try
       ptr_1st := @marks_list_ptr[i];  // pointer to the next Tmark record.
       if ptr_1st = nil then
@@ -33038,7 +34756,8 @@ begin
       int_num_Y := Round(num_y);
 
       if (X >= (int_num_X - half_width)) and (X <= (int_num_X + half_width)) and
-        (Y >= (int_num_Y - half_height)) and (Y <= (int_num_Y + half_height)) then begin
+        (Y >= (int_num_Y - half_height)) and (Y <= (int_num_Y + half_height)) then
+      begin
 
         if timb_num_strip(num_str) = current_shove_str then
           EXIT;  // do nothing if over the currently selected timber number.
@@ -33046,20 +34765,22 @@ begin
         move_to.X := Round(limits(h_minint, h_maxint, num_x, dummy_i));
         move_to.Y := Round(limits(h_minint, h_maxint, num_y, dummy_i));
 
-        if check_limit(True, True, move_to) = True then begin
+        if check_limit(True, True, move_to) = True then
+        begin
           if num_str[1] = '!'               // it's an omitted timber
           then
             Delete(num_str, 1, 1);    // remove the omit indicator.
 
-          with pad_form.Canvas do begin     // direct overdraw.
+          with pad_form.Canvas do
+          begin     // direct overdraw.
 
             Font.Assign(pad_form.pad_timber_font_label.Font);
 
-            if (highlighted_timbnum_str <> '') and
-              (highlighted_timbnum_str <> num_str) and
+            if (highlighted_timbnum_str <> '') and (highlighted_timbnum_str <> num_str) and
               (timb_num_strip(highlighted_timbnum_str) <> current_shove_str)
             // first de-highlight any previous number (but not this one)...
-            then begin
+            then
+            begin
               Brush.Color := paper_colour;
               Brush.Style := bsSolid;
 
@@ -33076,12 +34797,14 @@ begin
             highlighted_timbnum_Y := move_to.Y - half_stringheight;
             highlighted_timbnum_str := num_str;
 
-            if paper_colour = clLime then begin
+            if paper_colour = clLime then
+            begin
               Brush.Color := clBlack;
               // highlight selected timber number for shoving.
               Font.Color := clWhite;
             end
-            else begin
+            else
+            begin
               Brush.Color := clLime;
               Font.Color := clBlack;
             end;
@@ -33104,8 +34827,10 @@ begin
 
   // no match found, mouse moved off, so de-highlight any previous...
 
-  if highlighted_timbnum_str <> '' then begin
-    with pad_form.Canvas do begin     // direct overdraw.
+  if highlighted_timbnum_str <> '' then
+  begin
+    with pad_form.Canvas do
+    begin     // direct overdraw.
 
       Font.Assign(pad_form.pad_timber_font_label.Font);
 
@@ -33136,7 +34861,8 @@ begin
 
   Result := False;   // 0.91.c  init.
 
-  with enter_timber_form.Canvas do begin
+  with enter_timber_form.Canvas do
+  begin
     Font.Assign(pad_form.pad_timber_font_label.Font);
 
     // 0.91.b was Screen.Width ..
@@ -33160,7 +34886,8 @@ begin
   if mark_index > markmax then
     mark_index := markmax;  // ??? shouldn't be.
 
-  for i := 0 to (mark_index - 1) do begin     // (mark_index is always the next free slot)
+  for i := 0 to (mark_index - 1) do
+  begin     // (mark_index is always the next free slot)
     try
       ptr_1st := @marks_list_ptr[i];  // pointer to the next Tmark record.
       if ptr_1st = nil then
@@ -33175,8 +34902,9 @@ begin
       num_X := Round(ptr_1st^.p1.X * sx + ex - gx);       // and the centre co-ords for it.
       num_Y := Round((ptr_1st^.p1.Y + yd) * sy + by - gy);
 
-      if (X >= (num_X - half_width)) and (X <= (num_X + half_width)) and
-        (Y >= (num_Y - half_height)) and (Y <= (num_Y + half_height)) then begin
+      if (X >= (num_X - half_width)) and (X <= (num_X + half_width)) and (Y >= (num_Y - half_height)) and
+        (Y <= (num_Y + half_height)) then
+      begin
 
         Result := True;   // 0.91.c  clicked on a timber number.
 
@@ -33217,7 +34945,8 @@ var
 
 begin
 
-  with enter_timber_form.Canvas do begin
+  with enter_timber_form.Canvas do
+  begin
     Font.Assign(pad_form.pad_timber_font_label.Font);
 
     if pad_form.ClientWidth > 1000 then
@@ -33241,7 +34970,8 @@ begin
   tbnum_str := timb_numbers_str;
   // the full string of timber numbering for the control template.
 
-  for i := 0 to (mark_index - 1) do begin     // (mark_index is always the next free slot)
+  for i := 0 to (mark_index - 1) do
+  begin     // (mark_index is always the next free slot)
     try
       ptr_1st := @marks_list_ptr[i];  // pointer to the next Tmark record.
       if ptr_1st = nil then
@@ -33292,7 +35022,8 @@ begin
       int_num_Y := Round(num_y);
 
       if (X >= (int_num_X - half_width)) and (X <= (int_num_X + half_width)) and
-        (Y >= (int_num_Y - half_height)) and (Y <= (int_num_Y + half_height)) then begin
+        (Y >= (int_num_Y - half_height)) and (Y <= (int_num_Y + half_height)) then
+      begin
 
         if code = current_diff_code then
           EXIT;  // do nothing if over the currently selected label.
@@ -33300,16 +35031,19 @@ begin
         move_to.X := Round(limits(h_minint, h_maxint, num_x, dummy_i));
         move_to.Y := Round(limits(h_minint, h_maxint, num_y, dummy_i));
 
-        if check_limit(True, True, move_to) = True then begin
-          with pad_form.Canvas do begin     // direct overdraw.
+        if check_limit(True, True, move_to) = True then
+        begin
+          with pad_form.Canvas do
+          begin     // direct overdraw.
 
             Font.Assign(pad_form.pad_timber_font_label.Font);
 
             // 0.94.a re-use shove timber variables ...
 
-            if (highlighted_timbnum_str <> '') and
-              (highlighted_timbnum_str <> num_str) // first de-highlight any previous label (but not this one)...
-            then begin
+            if (highlighted_timbnum_str <> '') and (highlighted_timbnum_str <> num_str)
+            // first de-highlight any previous label (but not this one)...
+            then
+            begin
               Brush.Color := paper_colour;
               Brush.Style := bsSolid;
 
@@ -33327,12 +35061,14 @@ begin
             highlighted_timbnum_str := num_str;
 
             if paper_colour = $00FF0060   // violet
-            then begin
+            then
+            begin
               Brush.Color := clBlack;
               // highlight selected label for diffing.
               Font.Color := clWhite;
             end
-            else begin
+            else
+            begin
               Brush.Color := $00FF0060;
               Font.Color := clWhite;
             end;
@@ -33344,8 +35080,8 @@ begin
             Pen.Style := psSolid;
             Pen.Color := Font.Color;
 
-            RoundRect(move_to.X - half_stringwidth - 3, move_to.Y -
-              half_stringheight - 2, move_to.X + half_stringwidth + 4, move_to.Y + half_stringheight + 3, 6, 6);
+            RoundRect(move_to.X - half_stringwidth - 3, move_to.Y - half_stringheight -
+              2, move_to.X + half_stringwidth + 4, move_to.Y + half_stringheight + 3, 6, 6);
 
             highlighted_round_rect_x1 := move_to.X - half_stringwidth - 3;
             highlighted_round_rect_y1 := move_to.Y - half_stringheight - 2;
@@ -33368,8 +35104,10 @@ begin
 
   // no match found, mouse moved off, so de-highlight any previous...
 
-  if highlighted_timbnum_str <> '' then begin
-    with pad_form.Canvas do begin     // direct overdraw.
+  if highlighted_timbnum_str <> '' then
+  begin
+    with pad_form.Canvas do
+    begin     // direct overdraw.
 
       Font.Assign(pad_form.pad_timber_font_label.Font);
 
@@ -33395,7 +35133,8 @@ end;
 procedure enable_peg_positions;    // enable/disable the peg options (for Ctrl-# KB shortcuts).
 
 begin
-  with pad_form do begin
+  with pad_form do
+  begin
     case peg_code of
       -2:
         peg_on_joints_menu_entry.Checked := True;       // radio item.  'J'  on plain track joints
@@ -33530,8 +35269,7 @@ begin
 
     peg_on_split_deflection_menu_entry.Enabled := not plain_track;  // 213a
 
-    peg_on_planing_menu_entry.Enabled :=
-      not (plain_track or ((half_diamond = True) and (fixed_diamond = True)));
+    peg_on_planing_menu_entry.Enabled := not (plain_track or ((half_diamond = True) and (fixed_diamond = True)));
     // not for a fixed-diamond.
     peg_on_heel_menu_entry.Enabled := not (plain_track or (half_diamond = True));
     // not for fixed-diamond or switch-diamond
@@ -33539,8 +35277,8 @@ begin
 
     peg_on_ip_menu_entry.Enabled := not plain_track;   // 208a
 
-    peg_on_CESP_menu_entry.Enabled :=
-      not (plain_track or (tradius_is_straight = True) or (xing_type_i <> 0));  // no CESP  205e
+    peg_on_CESP_menu_entry.Enabled := not (plain_track or (tradius_is_straight = True) or (xing_type_i <> 0));
+    // no CESP  205e
 
     peg_on_fp_menu_entry.Enabled := not plain_track;
     peg_on_tcp_menu_entry.Enabled := not plain_track;
@@ -33550,8 +35288,8 @@ begin
 
     // out 205c peg_on_length_menu_entry.Enabled:=    NOT plain_track;
 
-    peg_on_TORG_menu_entry.Enabled :=
-      not (plain_track or (ABS(nomrad) < max_rad_test) or (spiral = True) or (xing_type_i <> 1));
+    peg_on_TORG_menu_entry.Enabled := not (plain_track or (ABS(nomrad) < max_rad_test) or
+      (spiral = True) or (xing_type_i <> 1));
     peg_on_MVJP_menu_entry.Enabled := not plain_track;
     peg_on_TVJP_menu_entry.Enabled := not plain_track;
 
@@ -33617,8 +35355,7 @@ var
   i: integer;
 
 begin
-  if (pad_form.show_group_menu_entry.Checked = False) or (group_colour_msg_pref = True) or
-    (any_selected < 1) then
+  if (pad_form.show_group_menu_entry.Checked = False) or (group_colour_msg_pref = True) or (any_selected < 1) then
     EXIT;
 
   alert_box.preferences_checkbox.Checked := False;       //%%%%
@@ -33626,8 +35363,7 @@ begin
 
 
   i := alert(3, '    group  showing  in  selected  group  colour',
-    'Selected groups of templates are normally shown in the SELECTED GROUP colour.'
-    +
+    'Selected groups of templates are normally shown in the SELECTED GROUP colour.' +
     '||To see this group in their MARKER colours, de-select the group (GROUP > GROUP SELECT NONE menu item).',
     '', '', '', 'de-select  the  group  now', '', 'continue', 0);
 
@@ -33635,7 +35371,8 @@ begin
   group_colour_msg_pref := alert_box.preferences_checkbox.Checked;
   alert_box.preferences_checkbox.Hide;
 
-  if i = 4 then begin
+  if i = 4 then
+  begin
     clear_all_selections;
     redraw(True);
   end;
@@ -33661,8 +35398,7 @@ var
     // d is in full-size inches
 
   begin
-    if ABS(d * inscale) >= max_rad_test
-    then
+    if ABS(d * inscale) >= max_rad_test then
       Result := ' = straight'
     else
       Result := ' = ' + round_str(d * fs_factor, 2) + '  ( ' + round_str(d * inscale, 2) + ' model mm )';
@@ -33673,87 +35409,81 @@ begin
   with switch_select_form.switch_selector_listbox do
     sw_info := Tswitch(Items.Objects[ItemIndex]).list_switch_info;
 
-  if full_size_mm = True then begin
+  if full_size_mm = True then
+  begin
     fs_factor := 25.4;
     fs_unit_str := 'MM';
   end
-  else begin
+  else
+  begin
     fs_factor := 1.0;
     fs_unit_str := 'INCHES';
   end;
 
-  info_str := 'Dimensions  for  ' + sw_info.sw_name_str + '  Switch :|--------------------------------'
-    + '||Dimensions are in FULL-SIZE prototype ' + fs_unit_str + ',' +
-    ' with model conversions at ' + round_str(scale, 2) + ' mm/ft.'
+  info_str := 'Dimensions  for  ' + sw_info.sw_name_str + '  Switch :|--------------------------------' +
+    '||Dimensions are in FULL-SIZE prototype ' + fs_unit_str + ',' + ' with model conversions at ' +
+    round_str(scale, 2) + ' mm/ft.'
     //+'|Unit angles are RAM if not stated.'
     + '||This switch is a ';
 
   case sw_info.sw_pattern of
     // type of switch.  0 = curved planing or straight switch; -1 = semi-curved switch;  1 = double-curved switch.
 
-    -1: begin   // semi-curved switch ...
+    -1:
+    begin   // semi-curved switch ...
 
       info_str := info_str + 'SEMI-CURVED pattern switch:';
 
-      info_str := info_str + '||straight planing length (along blade)'
-        + val_str(sw_info.planing);
-      info_str := info_str + '|straight planing unit angle = ' +
-        ram_clm_str(sw_info.planing_angle);  //   1 : '+round_str(sw_info.planing_angle,2);
-      info_str := info_str + '|lead length to heel (incl. planing)'
-        + val_str(sw_info.heel_lead_inches);
-      info_str := info_str + '||switch radius' +
-        val_str(sw_info.switch_radius_inchormax);
-      info_str := info_str + '||length of switch-front (stock-rail joint to toe)'
-        + val_str(sw_info.switch_front_inches);
-      info_str := info_str + '|length of switch-rail (blade)' +
-        val_str(sw_info.switch_rail);
-      info_str := info_str + '|length of stock-rail from joint' +
-        val_str(sw_info.stock_rail);
+      info_str := info_str + '||straight planing length (along blade)' + val_str(sw_info.planing);
+      info_str := info_str + '|straight planing unit angle = ' + ram_clm_str(sw_info.planing_angle);
+      //   1 : '+round_str(sw_info.planing_angle,2);
+      info_str := info_str + '|lead length to heel (incl. planing)' + val_str(sw_info.heel_lead_inches);
+      info_str := info_str + '||switch radius' + val_str(sw_info.switch_radius_inchormax);
+      info_str := info_str + '||length of switch-front (stock-rail joint to toe)' +
+        val_str(sw_info.switch_front_inches);
+      info_str := info_str + '|length of switch-rail (blade)' + val_str(sw_info.switch_rail);
+      info_str := info_str + '|length of stock-rail from joint' + val_str(sw_info.stock_rail);
     end;
 
-    0: begin
+    0:
+    begin
       if sw_info.switch_radius_inchormax < max_rad_test  // not a straight switch.
 
-      then begin       // curved switch...
+      then
+      begin       // curved switch...
         info_str := info_str + 'CURVED pattern switch:';
 
-        info_str := info_str + '||lead length to heel (incl. planing)'
-          + val_str(sw_info.heel_lead_inches);
-        info_str := info_str + '|offset at the heel (heel spread)'
-          + val_str(sw_info.heel_offset_inches);
-        info_str := info_str + '||switch radius' +
-          val_str(sw_info.switch_radius_inchormax);
-        info_str := info_str + '||length of switch-front (stock-rail joint to toe)'
-          + val_str(sw_info.switch_front_inches);
-        info_str := info_str + '|length of switch-rail (blade)'
-          + val_str(sw_info.switch_rail);
-        info_str := info_str + '|length of stock-rail from joint'
-          + val_str(sw_info.stock_rail);
+        info_str := info_str + '||lead length to heel (incl. planing)' + val_str(sw_info.heel_lead_inches);
+        info_str := info_str + '|offset at the heel (heel spread)' + val_str(sw_info.heel_offset_inches);
+        info_str := info_str + '||switch radius' + val_str(sw_info.switch_radius_inchormax);
+        info_str := info_str + '||length of switch-front (stock-rail joint to toe)' +
+          val_str(sw_info.switch_front_inches);
+        info_str := info_str + '|length of switch-rail (blade)' + val_str(sw_info.switch_rail);
+        info_str := info_str + '|length of stock-rail from joint' + val_str(sw_info.stock_rail);
       end
-      else begin       // straight switch...
+      else
+      begin       // straight switch...
         info_str := info_str + 'STRAIGHT pattern switch:';
 
-        info_str := info_str + '||lead length to heel (incl. planing)'
-          + val_str(sw_info.heel_lead_inches);
-        info_str := info_str + '|offset at the heel (heel spread)'
-          + val_str(sw_info.heel_offset_inches);
-        info_str := info_str + '||length of switch-front (stock-rail joint to toe)'
-          + val_str(sw_info.switch_front_inches);
-        info_str := info_str + '|length of switch-rail (blade)'
-          + val_str(sw_info.switch_rail);
-        info_str := info_str + '|length of stock-rail from joint'
-          + val_str(sw_info.stock_rail);
+        info_str := info_str + '||lead length to heel (incl. planing)' + val_str(sw_info.heel_lead_inches);
+        info_str := info_str + '|offset at the heel (heel spread)' + val_str(sw_info.heel_offset_inches);
+        info_str := info_str + '||length of switch-front (stock-rail joint to toe)' +
+          val_str(sw_info.switch_front_inches);
+        info_str := info_str + '|length of switch-rail (blade)' + val_str(sw_info.switch_rail);
+        info_str := info_str + '|length of stock-rail from joint' + val_str(sw_info.stock_rail);
       end;
     end;
 
-    1: begin
+    1:
+    begin
       info_str := info_str + 'DOUBLE-CURVED pattern switch (not yet implemented)';
     end;
 
   end;//case
 
   if calc_switch(sw_info, False, False) = 0    // no error
-  then begin
+  then
+  begin
     //info_str:=info_str+'||deflection angle at blade tip = 1 : '+round_str(k1n,2);
 
     info_str := info_str + '||deflection angle at blade tip = ' + ram_clm_str(k1n);
@@ -33768,8 +35498,8 @@ begin
       info_str := info_str + '|heel offset' + val_str(h / inscale);
   end;
 
-  info_str := info_str + '||FB switch-rail foot-width at blade tip (from stock-rail gauge-face)'
-    + val_str(sw_info.fb_tip_offset);
+  info_str := info_str + '||FB switch-rail foot-width at blade tip (from stock-rail gauge-face)' +
+    val_str(sw_info.fb_tip_offset);
 
   info_str := info_str + '||sideways depth of joggle' + val_str(sw_info.joggle_depth);
   info_str := info_str + '|joggle-length in front of blade tips' + val_str(sw_info.joggle_length);
@@ -33781,43 +35511,41 @@ begin
 
   info_str := info_str + '|-------------------|Timber spacings (to timber centres) :';
   info_str := info_str + '||switch-front is ' + front_str + 'ed:';
-  info_str := info_str + '|spacing back from toe (blade tips) to first front ' +
-    front_str + ' (J1)' + val_str(0 - sw_info.sleeper_j1);
-  info_str := info_str + '|spacing back to next front ' + front_str + ' (J2)'
-    + val_str(0 - sw_info.sleeper_j2);
-  info_str := info_str + '|spacing back to next front ' + front_str + ' (J3)'
-    + val_str(0 - sw_info.sleeper_j3);
-  info_str := info_str + '|spacing back to next front ' + front_str + ' (J4)'
-    + val_str(0 - sw_info.sleeper_j4);
-  info_str := info_str + '|spacing back to next front ' + front_str + ' (J5)'
-    + val_str(0 - sw_info.sleeper_j5);
+  info_str := info_str + '|spacing back from toe (blade tips) to first front ' + front_str +
+    ' (J1)' + val_str(0 - sw_info.sleeper_j1);
+  info_str := info_str + '|spacing back to next front ' + front_str + ' (J2)' + val_str(0 - sw_info.sleeper_j2);
+  info_str := info_str + '|spacing back to next front ' + front_str + ' (J3)' + val_str(0 - sw_info.sleeper_j3);
+  info_str := info_str + '|spacing back to next front ' + front_str + ' (J4)' + val_str(0 - sw_info.sleeper_j4);
+  info_str := info_str + '|spacing back to next front ' + front_str + ' (J5)' + val_str(0 - sw_info.sleeper_j5);
 
-  info_str := info_str + '||spacing forward from toe (blade tips) to first timber (S1)'
-    + val_str(sw_info.timber_centres[0]) + '|';
+  info_str := info_str + '||spacing forward from toe (blade tips) to first timber (S1)' +
+    val_str(sw_info.timber_centres[0]) + '|';
 
   i := 1;
 
-  while sw_info.timber_centres[i] > minfp do begin
+  while sw_info.timber_centres[i] > minfp do
+  begin
 
     if sw_info.timber_centres[i + 1] < minfp then
       swnum_str := '(T1)'                         // timber number.
     else
       swnum_str := '(S' + IntToStr(i + 1) + ')';
 
-    info_str := info_str + '|spacing forward to next timber ' + swnum_str + val_str(
-      sw_info.timber_centres[i]);
+    info_str := info_str + '|spacing forward to next timber ' + swnum_str + val_str(sw_info.timber_centres[i]);
     Inc(i);
 
   end;//while
 
-  if already_showing = False then begin
+  if already_showing = False then
+  begin
 
     data_child_form.Close; // if showing elsewhere
 
     if data_child_form.Parent <> nil then
       data_child_form.Parent.RemoveControl(data_child_form);
 
-    with switch_select_form do begin
+    with switch_select_form do
+    begin
 
       InsertControl(data_child_form);     // make it a child
 
@@ -33862,15 +35590,18 @@ begin
   csi := sw_info;         // set control template switch data.
 
   if csi.group_code < 1   // custom switch, put a copy in bottom slot in list...
-  then begin
+  then
+  begin
     cu_sw_info := csi;            // copy the data.
 
     cu_sw_info.group_code := 0;   // custom - in the info (for the bottom slot).
     cu_sw_info.size_code := 1;    // custom can only be one size (should be already 1).
     cu_sw_info.group_count := 1;  // ditto.
 
-    with switch_select_form.switch_selector_listbox.Items do begin
-      if Count > 0 then begin
+    with switch_select_form.switch_selector_listbox.Items do
+    begin
+      if Count > 0 then
+      begin
         Tswitch(Objects[Count - 1]).list_switch_info := cu_sw_info;
         // put custom data in selector list.
         Strings[Count - 1] := '  custom :  ' + csi.sw_name_str;
@@ -33900,7 +35631,8 @@ begin
   startx := 0;       // cancel any blanking.
 
   if half_diamond = False  // converting from turnout
-  then begin
+  then
+  begin
 
     if xorg > 0 then
       crop_approach;
@@ -33940,7 +35672,8 @@ begin
 
     peg_curve;
   end
-  else begin
+  else
+  begin
 
     kform_now := kform;
     docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
@@ -34010,7 +35743,8 @@ end;
 procedure insert_half_diamond;
 
 begin
-  if plain_track = True then begin
+  if plain_track = True then
+  begin
     if gaunt = True then
       convert_to_or_from_gaunt(False);  // 0.93.a cancel any gaunt
     pad_form.reset_peg_menu_entry.Click;
@@ -34036,10 +35770,12 @@ begin
   docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
   // save current peg data for peg_curve calcs.
 
-  with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.turnout_info2 do begin
+  with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.turnout_info2 do
+  begin
 
     if set_csi_from_switch_info(switch_info) = False  // set current switch from supplied info.
-    then begin
+    then
+    begin
       if set_csi_data(2, 2) = False     // set REA B default if copied data invalid.
       then
         run_error(82);         // ?????? no B switch in list?
@@ -34064,7 +35800,8 @@ begin
   begin
 
     if (pt_custom = True) or (list_index > 4)  // put data in bottom slot.
-    then begin
+    then
+    begin
       pt_i := plain_track_form.plain_track_spacings_listbox.Items.Count - 1;
       // list index for current custom plain track.
       railen[pt_i] := rail_length;
@@ -34093,22 +35830,23 @@ end;
 procedure do_info_colours; // indicate if control template visible and accessible...
 
 begin
-  if (current_is_showing = True) and (keep_form.Active = False) then begin
+  if (current_is_showing = True) and (keep_form.Active = False) then
+  begin
     if turnoutx = 0                                        // 0.93.a
-    then begin
+    then
+    begin
       info_form.info_gauge_panel.Color := $00D0D0FF;  // pale red
       info_form.gauge_label.Font.Color := clRed;
       //205e pad_form.store_bgnd_toolbutton.Font.Color:=clRed;
       //205e pad_form.zero_control_toolbutton.Down:=True;
     end
-    else begin
+    else
+    begin
       info_form.gauge_label.Font.Color := clBlack;
       //205e pad_form.store_bgnd_toolbutton.Font.Color:=clBlack;
       //205e pad_form.zero_control_toolbutton.Down:=False;
 
-      if ((sx_mod = 1) or (both_mod = 1)) and
-        ((switch_free = False) or (xing_free = False))
-      then
+      if ((sx_mod = 1) or (both_mod = 1)) and ((switch_free = False) or (xing_free = False)) then
         info_form.info_gauge_panel.Color := $00FFA0FF   // clFuchsia
       else
         info_form.info_gauge_panel.Color := $00FFFFA0;  // clAqua;
@@ -34138,7 +35876,8 @@ var
 
 begin
 
-  with Result do begin     // defalt inits.
+  with Result do
+  begin     // defalt inits.
     notch_x := 0;
     notch_y := 0;
     notch_k := 0;
@@ -34152,7 +35891,8 @@ begin
 
   dummy_str := calc_peg_dims(code, x, y, k);     // code is the peg_code.
 
-  with notch_data do begin
+  with notch_data do
+  begin
     normalize_transforms;
 
     docurving(True, True, x, y, notch_x, temp_y, turn_k, curving_rad);
@@ -34163,7 +35903,8 @@ begin
 
     if ABS(k) < minfp then
       modk := k
-    else begin
+    else
+    begin
       try
         shrink_factor := (curving_rad - (y - g / 2)) / curving_rad;
         tanx := 1 / TAN(k);
@@ -34232,9 +35973,11 @@ begin
   cur_pegs[3] := calc_snap_peg_data(11);  // ctrl-9
   cur_pegs[4] := calc_snap_peg_data(600); // TOLP
 
-  for n := 0 to (keeps_list.Count - 1) do begin
+  for n := 0 to (keeps_list.Count - 1) do
+  begin
 
-    with Ttemplate(keeps_list.Objects[n]) do begin
+    with Ttemplate(keeps_list.Objects[n]) do
+    begin
 
       if template_info.keep_dims.box_dims1.disable_f7_snap = True then
         CONTINUE;  // 0.82.a disabled for this template.
@@ -34248,7 +35991,8 @@ begin
       bgnd_pegs[3] := snap_peg_positions.ctrl_9_pos;
       bgnd_pegs[4] := snap_peg_positions.ctrl_tolp_pos;
 
-      for nc := 0 to 4 do begin
+      for nc := 0 to 4 do
+      begin
 
         // check valid snap position on control template...
 
@@ -34263,7 +36007,8 @@ begin
         if (retpar_i <> 1) and (nc = 4) then
           CONTINUE;  // TOLP valid only for parallel crossing.
 
-        for nb := 0 to 4 do begin
+        for nb := 0 to 4 do
+        begin
 
           // check valid snap position on background template...
 
@@ -34286,40 +36031,47 @@ begin
           x2 := bgnd_pegs[nb].notch_x;
           y2 := bgnd_pegs[nb].notch_y;
 
-          if (ABS(x1 - x2) < proximity) and (ABS(y1 - y2) < proximity) then begin
+          if (ABS(x1 - x2) < proximity) and (ABS(y1 - y2) < proximity) then
+          begin
 
-            with pad_form do begin
+            with pad_form do
+            begin
               // move current peg to snapping position...
               case nc of
-                0: begin                                 // set Ctrl-0
+                0:
+                begin                                 // set Ctrl-0
                   peg_on_rail8_menu_entry.Click;
                   // main-road centre-line (sets peg_code=20, so do first),
                   peg_code := 0;                        // then set it.
                   peg_indicator_panel.Caption := '0';   // show him Ctrl-0
                 end;
 
-                1: begin                                 // set ctrl-1
+                1:
+                begin                                 // set ctrl-1
                   peg_on_rail8_menu_entry.Click;
                   // main-road centre-line (sets peg_code=20, so do first),
                   peg_code := 1;                        // then set it.
                   peg_indicator_panel.Caption := '1';   // show him Ctrl-1
                 end;
 
-                2: begin                                 // set ctrl-6
+                2:
+                begin                                 // set ctrl-6
                   peg_on_rail9_menu_entry.Click;
                   // turnout-road centre-line (sets peg_code=20, so do first),
                   peg_code := 18;                       // then set it.
                   peg_indicator_panel.Caption := '6';   // show him Ctrl-6
                 end;
 
-                3: begin                                 // set ctrl-9
+                3:
+                begin                                 // set ctrl-9
                   peg_on_rail8_menu_entry.Click;
                   // main-road centre-line (sets peg_code=20, so do first),
                   peg_code := 11;                       // then set it.
                   peg_indicator_panel.Caption := '9';   // show him Ctrl-9
                 end;
 
-                4: begin                                 // set TOLP
+                4:
+                begin                                 // set TOLP
                   peg_on_rail9_menu_entry.Click;
                   // main-road centre-line (sets peg_code=20, so do first),
                   peg_code := 600;                      // then set it.
@@ -34336,12 +36088,10 @@ begin
 
             // rotate bgnd angle for facing-facing or trailing-trailing connections...
 
-            if (nc = nb) or ((nc = 1) and (nb = 2)) or
-              ((nc = 1) and (nb = 3)) or ((nc = 1) and (nb = 4)) or
-              ((nc = 2) and (nb = 1)) or ((nc = 2) and (nb = 3)) or
-              ((nc = 2) and (nb = 4)) or ((nc = 3) and (nb = 1)) or
-              ((nc = 3) and (nb = 2)) or ((nc = 3) and (nb = 4)) or
-              ((nc = 4) and (nb = 1)) or ((nc = 4) and (nb = 2)) or
+            if (nc = nb) or ((nc = 1) and (nb = 2)) or ((nc = 1) and (nb = 3)) or
+              ((nc = 1) and (nb = 4)) or ((nc = 2) and (nb = 1)) or ((nc = 2) and (nb = 3)) or
+              ((nc = 2) and (nb = 4)) or ((nc = 3) and (nb = 1)) or ((nc = 3) and (nb = 2)) or
+              ((nc = 3) and (nb = 4)) or ((nc = 4) and (nb = 1)) or ((nc = 4) and (nb = 2)) or
               ((nc = 4) and (nb = 3)) then
               bgnd_pegs[nb].notch_k := bgnd_pegs[nb].notch_k + Pi;   // rotate angle 180 degs
 
@@ -34384,18 +36134,18 @@ procedure match_rolled_lengths(ctrl: integer);
 // control template boundary must be Ctrl-1.
 
 var
-  bgnd_template_len_mm, bgnd_rail_len_in, bgnd_rail_len_mm, rolled_out_mm,
-  match_percent, bgnd_roll_percent: extended;
+  bgnd_template_len_mm, bgnd_rail_len_in, bgnd_rail_len_mm, rolled_out_mm, match_percent, bgnd_roll_percent: extended;
 
 begin
   try
-    if (clicked_keep_index < 0) or (clicked_keep_index > (keeps_list.Count - 1)) or
-      (keeps_list.Count < 1) then
+    if (clicked_keep_index < 0) or (clicked_keep_index > (keeps_list.Count - 1)) or (keeps_list.Count < 1) then
       EXIT;
 
-    with Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims do begin
+    with Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims do
+    begin
 
-      if (box_dims1.turnout_info1.plain_track_flag = False) or (plain_track = False) then begin
+      if (box_dims1.turnout_info1.plain_track_flag = False) or (plain_track = False) then
+      begin
         alert(6, '      roll  rails  to  match  background  template',
           '|Templates are not both plain track.' +
           '||The ROLL RAILS TO MATCH BACKGROUND TEMPLATE function requires that both the control template and the selected background template must be plain track templates.' + '||For approach or exit tracks on a turnout or half-diamond template, these should first be split off as separate plain track templates.' + ' Click the TOOLS > MAKE SPLIT > menu items.',
@@ -34403,10 +36153,13 @@ begin
         EXIT;
       end;
 
-      if ABS(scale - box_dims1.proto_info.scale_pi) > minfp then begin
+      if ABS(scale - box_dims1.proto_info.scale_pi) > minfp then
+      begin
         alert(6, '      roll  rails  to  match  background  template',
           '|Template scales differ.' +
-          '||The ROLL RAILS TO MATCH BACKGROUND TEMPLATE function requires that both the control template and the selected background template must be to the same scale.' + ' (The track gauges may differ, where gauge-widening is wanted on one of them.)',
+          '||The ROLL RAILS TO MATCH BACKGROUND TEMPLATE function requires that both the control template and the selected background template must be to the same scale.'
+          +
+          ' (The track gauges may differ, where gauge-widening is wanted on one of them.)',
           '', '', '', '', 'cancel', '', 0);
         EXIT;
       end;
@@ -34422,7 +36175,8 @@ begin
 
     end;//with
 
-    if ABS(railen[pt_i] - bgnd_rail_len_in) > minfp then begin
+    if ABS(railen[pt_i] - bgnd_rail_len_in) > minfp then
+    begin
       alert(6, '      roll  rails  to  match  background  template',
         '|Template rail length settings differ.' +
         '||The ROLL RAILS TO MATCH BACKGROUND TEMPLATE function requires that both the control template and the selected background template must be set for the same prototype rail length.' + '||To change the settings, click the REAL > PLAIN TRACK OPTIONS > RAIL LENGTHS AND SLEEPER SPACINGS... menu item.',
@@ -34439,7 +36193,8 @@ begin
 
     case ctrl of
 
-      0: begin   // Ctrl-0 on background
+      0:
+      begin   // Ctrl-0 on background
         bgnd_rail_len_mm := bgnd_rail_len_in * inscale;  // rail length in mm.
         if ABS(bgnd_rail_len_mm) < minfp then
           EXIT;    //  ??? div 0
@@ -34500,7 +36255,8 @@ begin
   Result := False;                            // init default.
 
   if slow_run <> 0      // do slow-running delay...
-  then begin
+  then
+  begin
     try
       for n := 0 to Round(slow_run * 100) do
         m := SIN(SQR(Pi));
@@ -34509,21 +36265,25 @@ begin
     end;//try
   end;
 
-  if paper_bunching = True then begin
+  if paper_bunching = True then
+  begin
     bunch_length := bunch_gap + bunch_jump_i;
     if bunch_length < 1 then
       EXIT;          // div zero or neg!!!
 
     bunch_end := bunch_start + bunch_length;
 
-    if p.X > bunch_end then begin
+    if p.X > bunch_end then
+    begin
       if bunch = True then
         p.X := p.X - bunch_jump_i;
       if shear = True then
         p.Y := p.Y + bunch_shear_i;
     end
-    else begin
-      if p.X > bunch_start then begin
+    else
+    begin
+      if p.X > bunch_start then
+      begin
         X := p.X;
         if bunch = True then
           p.X := bunch_start + (bunch_gap * (X - bunch_start) div bunch_length);
@@ -34534,7 +36294,8 @@ begin
   end;
 
   if export_limits = True      // 0.93.a
-  then begin
+  then
+  begin
     if p.x > max_export_y then
       EXIT;
     if p.x < min_export_y then
@@ -34547,7 +36308,8 @@ begin
   end;
 
   if graphics_limits = True      // 0.76.a 25-5-02.
-  then begin
+  then
+  begin
     if p.x > max_draw_int then
       EXIT;
     if p.x < min_draw_int then
@@ -34576,7 +36338,8 @@ begin
   Result := False;                            // init default.
 
   if slow_run <> 0    // do slow-running delay...
-  then begin
+  then
+  begin
     try
       for n := 0 to Round(slow_run * 100) do
         m := SIN(SQR(Pi));
@@ -34585,31 +36348,38 @@ begin
     end;//try
   end;
 
-  if paper_bunching = True then begin
+  if paper_bunching = True then
+  begin
     bunch_length := bunch_gap + bunch_jump_i;
     if bunch_length < 1 then
       EXIT;          // div zero or neg!!!
 
     bunch_end := bunch_start + bunch_length;
 
-    if p1.X > bunch_end then begin
+    if p1.X > bunch_end then
+    begin
       p1.X := p1.X - bunch_jump_i;
       p1.Y := p1.Y + bunch_shear_i;
     end
-    else begin
-      if p1.X > bunch_start then begin
+    else
+    begin
+      if p1.X > bunch_start then
+      begin
         X := p1.X;
         p1.X := bunch_start + (bunch_gap * (X - bunch_start) div bunch_length);
         p1.Y := p1.Y + (bunch_shear_i * (X - bunch_start) div bunch_length);
       end;             // must do multiply first - these are integers!
     end;
 
-    if p2.X > bunch_end then begin
+    if p2.X > bunch_end then
+    begin
       p2.X := p2.X - bunch_jump_i;
       p2.Y := p2.Y + bunch_shear_i;
     end
-    else begin
-      if p2.X > bunch_start then begin
+    else
+    begin
+      if p2.X > bunch_start then
+      begin
         X := p2.X;
         p2.X := bunch_start + (bunch_gap * (X - bunch_start) div bunch_length);
         p2.Y := p2.Y + (bunch_shear_i * (X - bunch_start) div bunch_length);
@@ -34620,7 +36390,8 @@ begin
 
 
   if export_limits = True      // 0.93.a
-  then begin
+  then
+  begin
     if p1.x > max_export_y then
       EXIT;
     if p1.x < min_export_y then
@@ -34643,7 +36414,8 @@ begin
   end;
 
   if graphics_limits = True      // 0.76.a 25-5-02.
-  then begin
+  then
+  begin
     if p1.x > max_draw_int then
       EXIT;
     if p1.x < min_draw_int then
@@ -34676,7 +36448,8 @@ begin
   Result := False;  //init
 
   if export_limits = True      // 0.93.a
-  then begin
+  then
+  begin
     if d > max_export_x then
       EXIT;
     if d < min_export_x then
@@ -34684,7 +36457,8 @@ begin
   end;
 
   if graphics_limits = True      // !!! Bug Fix 0.78.b 10-12-02.
-  then begin
+  then
+  begin
     if d > max_draw_int then
       EXIT;
     if d < min_draw_int then
@@ -34702,7 +36476,8 @@ begin
   Result := False;  //init
 
   if export_limits = True      // 0.93.a
-  then begin
+  then
+  begin
     if d > max_export_y then
       EXIT;
     if d < min_export_y then
@@ -34710,7 +36485,8 @@ begin
   end;
 
   if graphics_limits = True      // !!! Bug Fix 0.78.b 10-12-02.
-  then begin
+  then
+  begin
     if d > max_draw_int then
       EXIT;
     if d < min_draw_int then
@@ -34753,13 +36529,15 @@ begin
     run_error(56);
   if x = 0 then
     Result := '0'
-  else begin         //  use Delphi string formatting for up to 4 decimal places
+  else
+  begin         //  use Delphi string formatting for up to 4 decimal places
     case n of
       0:
         Result := FormatFloat('0', x);
       1:
         Result := FormatFloat('0.0', x);       // show at least one decimal place, even if zero...
-      2: begin
+      2:
+      begin
         case zero_supp of
           2:
             Result := FormatFloat('0.##', x);
@@ -34793,7 +36571,8 @@ begin
     run_error(57);
   if x = 0 then
     Result := 0
-  else begin
+  else
+  begin
     mul := POWER(10, n);
     mulx := INT(x * mul + 0.5 * SGN(x));
     Result := mulx / mul;
@@ -34810,12 +36589,14 @@ begin
   if max < min then
     d := 0;       // ???
 
-  if d > max then begin
+  if d > max then
+  begin
     d := max;
     return_code := 1;   // set to max.
   end;
 
-  if d < min then begin
+  if d < min then
+  begin
     d := min;
     return_code := -1;  // set to min.
   end;
@@ -34927,7 +36708,8 @@ function captext(d: extended): string;
 begin
   if ABS(d) >= max_rad_test then
     Result := ' straight '
-  else begin
+  else
+  begin
     Result := FormatFloat('###0.00;"- "###0.00', d);
     if (omit_neg_brackets = False) and (d < 0) then
       Result := '[ ' + Result + ' ]';
@@ -35012,7 +36794,8 @@ begin
 
   repeat
     i := Pos(' ', name_str);                        // find next space
-    if i > 0 then begin
+    if i > 0 then
+    begin
       Delete(name_str, i, 1);
       Insert('_', name_str, i);
     end;
@@ -35032,11 +36815,12 @@ begin
 
   s := ExtractFileName(str);
 
-  if Copy(s, 1, 5) = '_85a_' then begin
+  if Copy(s, 1, 5) = '_85a_' then
+  begin
     alert(6, '    invalid  file  name',
-      '|||Sorry,   ' + s + '   is not a valid file name.'
-      + '|||The prefix   _85a_   is reserved for use internally by Templot0.'
-      + '|||Please choose a different name for your file.',
+      '|||Sorry,   ' + s + '   is not a valid file name.' +
+      '|||The prefix   _85a_   is reserved for use internally by Templot0.' +
+      '|||Please choose a different name for your file.',
       '', '', '', '', '', 'O K      ', 0);
     Result := True;
   end;
@@ -35088,7 +36872,8 @@ var
   acc: extended;
 
 begin
-  if a < 1 then begin
+  if a < 1 then
+  begin
     Result := 0;
     EXIT;
   end;
@@ -35196,8 +36981,8 @@ begin
 end;
 //___________________________________________________________________________________________
 
-function transcalcs(draw_in_progress, auto_terms: boolean; k, tsn: extended;
-  var xn, yn, tn, rn: extended): boolean; //  Transition equations.
+function transcalcs(draw_in_progress, auto_terms: boolean; k, tsn: extended; var xn, yn, tn, rn: extended): boolean;
+  //  Transition equations.
 
   //  return xn,yn,tn,rn at tsn for transition constant k.
 
@@ -35230,7 +37015,8 @@ begin
   n := 0;                        // keep compiler happy.
   try
     if ABS(tsn) < minfp          // transition origin (no div by zero later).
-    then begin
+    then
+    begin
       xn := 0;
       yn := 0;
       tn := 0;
@@ -35248,7 +37034,8 @@ begin
     sign_of_yn := 1.0;
 
     if (trans_auto = False) and (auto_terms = False)      // use custom number of terms
-    then begin
+    then
+    begin
       for n := 1 to trans_terms do    // number of terms in expansion.
       begin
         nt := n * 4;
@@ -35257,8 +37044,8 @@ begin
 
         x_term := POWER(s_trans, (nt + 1)) / (nt + 1) / POWER(2, nb) / fact(nb) / POWER(k_trans, nb);
 
-        y_term := POWER(s_trans, (nt - 1)) / (nt - 1) / POWER(2, (nb - 1)) / fact(
-          nb - 1) / POWER(k_trans, (nb - 1));
+        y_term := POWER(s_trans, (nt - 1)) / (nt - 1) / POWER(2, (nb - 1)) / fact(nb - 1) /
+          POWER(k_trans, (nb - 1));
 
         x_trans := x_trans + (sign_of_xn * x_term);    // add next term, swapping signs.
         y_trans := y_trans + (sign_of_yn * y_term);
@@ -35268,7 +37055,8 @@ begin
       end;//for
       n := trans_terms;     // keep compiler happy.
     end
-    else begin
+    else
+    begin
       // use less accuracy if for drawing or mouse action in progress..
 
       if (draw_in_progress = True) or (mouse_modify <> -1) then
@@ -35284,8 +37072,8 @@ begin
 
         x_term := POWER(s_trans, (nt + 1)) / (nt + 1) / POWER(2, nb) / fact(nb) / POWER(k_trans, nb);
 
-        y_term := POWER(s_trans, (nt - 1)) / (nt - 1) / POWER(2, (nb - 1)) / fact(
-          nb - 1) / POWER(k_trans, (nb - 1));
+        y_term := POWER(s_trans, (nt - 1)) / (nt - 1) / POWER(2, (nb - 1)) / fact(nb - 1) /
+          POWER(k_trans, (nb - 1));
 
         x_trans := x_trans + (sign_of_xn * x_term);    // add next term, swapping signs.
         y_trans := y_trans + (sign_of_yn * y_term);
@@ -35314,26 +37102,22 @@ begin
 
     repeat                             // reset transition defaults.
       i := alert(0, '    transition  error',
-        '||The calculations for this transition have exceeded the capabilities of your system,'
-        + ' and your transition curve has been cancelled.' +
-        '||Re-try using a less exotic transition.' +
+        '||The calculations for this transition have exceeded the capabilities of your system,' +
+        ' and your transition curve has been cancelled.' + '||Re-try using a less exotic transition.' +
         '||( It may be necessary to change a radius or length dimension by only a few millimetres.)',
         '', '', '', '?  help', '', 'O K', 4);
 
       if i = 4 then
         if alert_help(0, 'If you are using the normal AUTO TERMS option, this error has probably been caused'
-          +
-          ' by the need for too many terms in the expansion to reach the required level of accuracy.'
-          + ' The number of terms being used when the error occurred was ' +
-          IntToStr(n) + '.' +
-          '||If this number is more than about 60, or less for older processors, this transition'
-          +
+          + ' by the need for too many terms in the expansion to reach the required level of accuracy.'
+          + ' The number of terms being used when the error occurred was ' + IntToStr(n) +
+          '.' + '||If this number is more than about 60, or less for older processors, this transition' +
           ' is not really a practical proposition because of the very long re-draw times (during which Templot0 may'
-          + ' appear to have crashed but probably hasn''t - coffee while you wait?).'
           +
-          '||If you can accept less accuracy, you could try using the CUSTOM TERMS option instead,'
-          + ' and setting fewer terms than this. '
-          + '||Do you want to do this now?| ', 'yes - use custom terms') = 1 then
+          ' appear to have crashed but probably hasn''t - coffee while you wait?).' +
+          '||If you can accept less accuracy, you could try using the CUSTOM TERMS option instead,' +
+          ' and setting fewer terms than this. ' + '||Do you want to do this now?| ',
+          'yes - use custom terms') = 1 then
           control_room_form.custom_terms_menu_entry.Click;
     until i <> 4;
   end;//try
@@ -35434,7 +37218,8 @@ var
 begin
   str_pos := Pos(Chr($1B), tbnum_str);    // find next separator.
 
-  if str_pos <> 0 then begin
+  if str_pos <> 0 then
+  begin
     Result := Copy(tbnum_str, 1, str_pos - 1);
     // extract next number string (without the separator).
     Delete(tbnum_str, 1, str_pos);          // and remove it (including the separator).
@@ -35447,7 +37232,8 @@ end;
 function set_font(fname: string; fsize: integer; fstyle: TFontStyles; fcolour: integer): TFont;
 
 begin
-  with temp_font do begin
+  with temp_font do
+  begin
     Name := fname;
     Size := fsize;
     Style := fstyle;
@@ -35514,15 +37300,14 @@ procedure memory_alert;      // do memory fail message.
 
 begin
   alert(5, '    memory  problem',
-    'There is insufficient memory available on your system to meet the current requirements.'
-    + '||You could try :' +
-    '||1. Closing other applications and/or waiting for any printing to finish.'
-    + '|2. Saving and clearing your storage box contents and background drawing.'
-    + '|3. Shortening the control template.' +
-    '|4. Having fewer background items on the trackpad by wiping finalised templates to become unused templates.'
-    + '|5. Simplifying the background items, for example rail gauge-faces only or no timbering (GENERATOR menu items).'
-    + '|6. Increasing the step-size (PROGRAM > EXPERT menu on the PROGRAM PANEL menus).'
-    + '||Do a background REBUILD for items 5 and 6 to take effect.',
+    'There is insufficient memory available on your system to meet the current requirements.' +
+    '||You could try :' + '||1. Closing other applications and/or waiting for any printing to finish.' +
+    '|2. Saving and clearing your storage box contents and background drawing.' +
+    '|3. Shortening the control template.' +
+    '|4. Having fewer background items on the trackpad by wiping finalised templates to become unused templates.' +
+    '|5. Simplifying the background items, for example rail gauge-faces only or no timbering (GENERATOR menu items).' +
+    '|6. Increasing the step-size (PROGRAM > EXPERT menu on the PROGRAM PANEL menus).' +
+    '||Do a background REBUILD for items 5 and 6 to take effect.',
     '', '', '', '', '', 'OK', 0);
 end;
 //________________________________________________________________________________________
@@ -35581,7 +37366,8 @@ begin
   x := p2.x - p1.x;
   y := p2.y - p1.y;
   h := x * SIN(tn) - y * COS(tn);
-  if ABS(h) < minfp then begin
+  if ABS(h) < minfp then
+  begin
     rad := SGZ(h) * max_rad;   // "straight"
     swing := 0;
     EXIT;
@@ -35589,14 +37375,16 @@ begin
   else
     rad := (SQR(x) + SQR(y)) / 2 / h;
 
-  if ABS(rad) < minfp then begin
+  if ABS(rad) < minfp then
+  begin
     swing := 0;
     EXIT;
   end;
 
   cosk := (rad - h) / rad;     // cosine of swing along curve.
 
-  if ABS(cosk) > (1 - minfp) then begin
+  if ABS(cosk) > (1 - minfp) then
+  begin
     swing := 0;
     EXIT;
   end;
@@ -35630,7 +37418,8 @@ begin
   try
 
     if ABS(rout) < max_rad_test{curved} = True        // curved template.
-    then begin
+    then
+    begin
       z := TAN(kp);
       if ABS(z) < minfp then
         EXIT;
@@ -35672,7 +37461,8 @@ begin
       gpx := 0 - kin * rout;    // along the curve.
 
     end
-    else begin      // straight template
+    else
+    begin      // straight template
 
       z := SIN(kp);
       if ABS(z) < minfp then
@@ -35710,12 +37500,15 @@ var
 begin
   // see if view has remained unchanged for 5 seconds...
 
-  with pad_view_now do begin
-    if (offset_x = zoom_offsetx) and (offset_y = zoom_offsety) and (width_x = screenx) then begin
+  with pad_view_now do
+  begin
+    if (offset_x = zoom_offsetx) and (offset_y = zoom_offsety) and (width_x = screenx) then
+    begin
       if view_delay_count < 6 then
         Inc(view_delay_count);  // no need to count beyond 6 seconds.
     end
-    else begin                        // update current view..
+    else
+    begin                        // update current view..
       offset_x := zoom_offsetx;
       offset_y := zoom_offsety;
       width_x := screenx;
@@ -35740,10 +37533,13 @@ begin
 
   i := -1;  // init
 
-  for n := 0 to (pad_view_list.Count - 1) do begin
-    with Tpad_view(pad_view_list.Objects[n]).pad_view_data do begin
+  for n := 0 to (pad_view_list.Count - 1) do
+  begin
+    with Tpad_view(pad_view_list.Objects[n]).pad_view_data do
+    begin
       if (offset_x = pad_view_now.offset_x) and (offset_y = pad_view_now.offset_y) and
-        (width_x = pad_view_now.width_x) then begin
+        (width_x = pad_view_now.width_x) then
+      begin
         i := n;    // found match in list.
         BREAK;
       end;
@@ -35760,12 +37556,14 @@ begin
 
 
   if (i > 0) and (i < pad_view_list.Count)  // if in list, remove old entry from list
-  then begin
+  then
+  begin
     Tpad_view(pad_view_list.Objects[i]).Free;
     pad_view_list.Delete(i);
   end;
 
-  while pad_view_list.Count > 8 do begin
+  while pad_view_list.Count > 8 do
+  begin
     // not more than 8 views wanted in list, so delete the bottom entry...
 
     Tpad_view(pad_view_list.Objects[(pad_view_list.Count - 1)]).Free;
@@ -35791,11 +37589,13 @@ begin
 
   //if check_t_55_ok=False then EXIT;   // check he wants it if T-55.
 
-  if click = True then begin
+  if click = True then
+  begin
     if check_control_template_is_valid('store') = False then
       EXIT;  // 0.93.a  zero length
   end
-  else begin
+  else
+  begin
     if turnoutx = 0 then
       EXIT;    // 0.93.a  zero length
   end;
@@ -35807,23 +37607,26 @@ begin
 
   // 0.93.a   ...
 
-  if (click = True) and (classic_templot = True) and
-    (keep_form.briefly_hide_on_store_menu_entry.Checked = True)  // 205e now radio item.  205c
-  then begin
+  if (click = True) and (classic_templot = True) and (keep_form.briefly_hide_on_store_menu_entry.Checked = True)
+  // 205e now radio item.  205c
+  then
+  begin
     do_hide_current;
     hidden_on_store := 8;         // 205c count down in timer to show it again.
   end;
 
   if (click = True) and (classic_templot = True) and (keep_form.hide_on_store_menu_entry.Checked = True)
   // 205e radio item
-  then begin
+  then
+  begin
     do_hide_current;
     hidden_on_store := 0;   // cancel any countdown in progress
   end;
 
   if (click = True) and (classic_templot = True) and (hide_current_flag = False) and
     (keep_form.reveal_on_store_menu_entry.Checked = True)  // 206a radio item
-  then begin
+  then
+  begin
     stored_xshift := xshift;
     stored_yshift := yshift;
     slide_inc := g / 25;
@@ -35840,15 +37643,18 @@ begin
 
   if (click = True) and (classic_templot = True) and (keep_form.alert_on_store_menu_entry.Checked = True)
   // 206c radio item
-  then begin
+  then
+  begin
 
     alert_box.preferences_checkbox.Checked := False;
     alert_box.preferences_checkbox.Show;
 
     repeat
       i := alert(2, 'php/123    store  &  background',
-        '`0store &amp; background  -  notes for beginners`9'
-        + '||A copy of the control template has been stored in your `0storage box`3, and displayed as a `0background template`3 on the trackpad as part of your track plan.' + '||You can''t see much of it yet, because the control template is in front of it on the screen. When you move the control template away, the background template will become fully visible.' + '||green_panel_begin tree.gif If you want to see the new background template without moving the control template, press the `0HOME`2 key on the keyboard to hide the control template.' + ' Press the `0HOME`2 key again to see the control template again.' + '||You can see a little of the background template because the most recently stored template is always shown with bold timber outlines.green_panel_end' + '|If you don''t want to see this message again, tick the|`0don''t show this message again`1 box at the bottom|of this dialog window.', '', '', 'more  information  and  options', 'show  storage  box', '', 'continue', 3);
+        '`0store &amp; background  -  notes for beginners`9' +
+        '||A copy of the control template has been stored in your `0storage box`3, and displayed as a `0background template`3 on the trackpad as part of your track plan.'
+        +
+        '||You can''t see much of it yet, because the control template is in front of it on the screen. When you move the control template away, the background template will become fully visible.' + '||green_panel_begin tree.gif If you want to see the new background template without moving the control template, press the `0HOME`2 key on the keyboard to hide the control template.' + ' Press the `0HOME`2 key again to see the control template again.' + '||You can see a little of the background template because the most recently stored template is always shown with bold timber outlines.green_panel_end' + '|If you don''t want to see this message again, tick the|`0don''t show this message again`1 box at the bottom|of this dialog window.', '', '', 'more  information  and  options', 'show  storage  box', '', 'continue', 3);
 
       if i = 3 then
         alert_help(0, get_store_beginner_help, '');
@@ -35866,7 +37672,8 @@ begin
   end;
 
   if (zero_it = True) and (classic_templot = False)  // Quick mode
-  then begin
+  then
+  begin
     pad_form.snap_to_zero_menu_entry.Click;
     // 0.93.a invalidate after storing.
     xshift := zoom_offsetx + (screenx - turnoutx) / 2;
@@ -35886,7 +37693,10 @@ function get_store_beginner_help: string;  // 208a
 
 begin
   Result := 'php/123    `0store  &amp;  background`9' +
-    '||After storing a copy of it, the control template remains unchanged and is ready for you to use again in building up your track plan of background templates.' + ' The control template is always shown in front of any background templates. It is not itself part of your track plan.' + '||If you want the control template to be temporarily hidden when you store a copy of it on the background, there are some option settings on the `0options`1 menu on the `0storage box`3:' + '||<IMG SRC="' + exe_str + 'internal\hlp\store_bgnd_options.png">' + '||To see the storage box, click the `0main > storage box`1 menu item, or press `0CTRL+B`2.';
+    '||After storing a copy of it, the control template remains unchanged and is ready for you to use again in building up your track plan of background templates.'
+    +
+    ' The control template is always shown in front of any background templates. It is not itself part of your track plan.'
+    + '||If you want the control template to be temporarily hidden when you store a copy of it on the background, there are some option settings on the `0options`1 menu on the `0storage box`3:' + '||<IMG SRC="' + exe_str + 'internal\hlp\store_bgnd_options.png">' + '||To see the storage box, click the `0main > storage box`1 menu item, or press `0CTRL+B`2.';
 end;
 //______________________________________________________________________________
 
@@ -35960,7 +37770,8 @@ begin
   xorg := xorg + old_dp - new_dp;   // adjust xorg approach length to maintain overall length constant.
 
   if xorg < 0        // approach length can't go negative.
-  then begin
+  then
+  begin
     turnoutx := turnoutx - xorg;
     // increase overall length to keep V-crossing and exit track on alignment.
     if spiral = True then
@@ -36063,7 +37874,8 @@ begin
   Result := True;  // init
 
   if (same_point(p1, p2) = True) or (same_point(p1, p3) = True) or (same_point(p2, p3) = True) or
-    ((ABS(p1.x - p2.x) < minfp) and (ABS(p1.x - p3.x) < minfp)) then begin
+    ((ABS(p1.x - p2.x) < minfp) and (ABS(p1.x - p3.x) < minfp)) then
+  begin
     arc_centre.x := 0;
     arc_centre.y := 0;
     Result := False;
@@ -36089,7 +37901,8 @@ begin
   if (ABS(len1) < minfp) and (ABS(len2) < minfp) then
     Result := False;
 
-  if Result = True then begin
+  if Result = True then
+  begin
     x := (len1 * len2 * (p1.y - p3.y) + len2 * (p1.x + p2.x) - len1 * (p2.x + p3.x)) / (2 * (len2 - len1));
 
     if ABS(len1) > minfp then
@@ -36103,8 +37916,8 @@ begin
 end;
 //______________________________________________________________________________
 
-function calculate_turnout_radius(curving_rad: extended;
-  var heel_notch, mid_notch, xing_notch: Tnotch): extended;  // 218a
+function calculate_turnout_radius(curving_rad: extended; var heel_notch, mid_notch, xing_notch: Tnotch): extended;
+  // 218a
 
   // using a Tnotch for convenience, no effect on the pegging notch
 
@@ -36335,7 +38148,8 @@ var
   temp_y, dummy2, temp_k: extended;
 
 begin
-  with Result do begin     // defalt inits.
+  with Result do
+  begin     // defalt inits.
     notch_x := 0;
     notch_y := 0;
     notch_k := 0;   // not used
@@ -36347,7 +38161,8 @@ begin
 
   dummy_str := calc_peg_dims(code, x, y, k);     // code is the peg_code.
 
-  with Result do begin
+  with Result do
+  begin
     docurving(True, True, x, y, notch_x, temp_y, temp_k, dummy2);
     // get notch data from current peg position.
     notch_y := temp_y * hand_i + y_datum;
@@ -36449,7 +38264,8 @@ end;
 function do_show_modal(modal_form: TForm): TModalResult;   // 212a wine bug
 
 begin
-  if running_under_wine = True then begin
+  if running_under_wine = True then
+  begin
     Inc(modal_form_count);
 
     if modal_form_count > 12 then
@@ -36503,9 +38319,12 @@ procedure Tmath_form.math_editboxKeyPress(Sender: TObject; var Key: Char);
 // 214a  overwrite mode ...
 
 begin
-  if (Sender is TCustomEdit) and (form_overwrite_mode = True) then begin
-    with TCustomEdit(Sender) do begin
-      if (SelLength = 0) and (SelStart < Length(Text)) then begin
+  if (Sender is TCustomEdit) and (form_overwrite_mode = True) then
+  begin
+    with TCustomEdit(Sender) do
+    begin
+      if (SelLength = 0) and (SelStart < Length(Text)) then
+      begin
         case Key of
           ' '..#126, #128..#255:
             SelLength := 1;    // select next character
@@ -36526,6 +38345,10 @@ end;
 initialization
 
   int_size := SizeOf(integer);     // only need to call this once.
+  cdvi := Tdummy_vehicle_info.Create;
+  centre_line_path := Tcentre_line_path.Create;
+  dv_envelopes := Tdv_envelope_list.Create;
+
   //______________________________________________________________________________
 
 end.
