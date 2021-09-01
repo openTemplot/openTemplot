@@ -41,10 +41,10 @@ procedure export_draw(on_canvas: TCanvas; canvas_width, canvas_height, output_co
 // draw control template or entire pad on on_canvas
 
 procedure export_bgnd_shapes(on_canvas: TCanvas; canvas_height: integer;
-  grid_left, grid_top: extended; output_code: integer);  // export all background shapes.
+  grid_left, grid_top: double; output_code: integer);  // export all background shapes.
 
 procedure export_bgnd(on_canvas: TCanvas; canvas_height: integer;
-  grid_left, grid_top: extended; output_code: integer);         // export background templates.
+  grid_left, grid_top: double; output_code: integer);         // export background templates.
 
 
 //______________________________________________________________________________
@@ -172,15 +172,15 @@ end;
 procedure print_line_thickness_setup;
 
 var
-  av_dpi: extended;
+  av_dpi: double;
 
   ///////////////////////////////////////////////
 
-  function calc_thick(mm_thick: extended; adjust: boolean): integer;
+  function calc_thick(mm_thick: double; adjust: boolean): integer;
     // calc line thickness in dots.
 
   var
-    line_dots: extended;
+    line_dots: double;
 
   begin
     line_dots := mm_thick * av_dpi / 25.4;
@@ -333,15 +333,15 @@ procedure do_export_draw(on_canvas: TCanvas; canvas_width, canvas_height, output
 var
   infill_points: array[0..3] of TPoint;   // array of corners for infilled timbers.
 
-  gridx, gridy, now_gridx, now_gridy: extended;
-  grid_label: extended;
+  gridx, gridy, now_gridx, now_gridy: double;
+  grid_label: double;
 
   grid_now_dots: integer;
 
   aq, rail, now, dots_index, mark_code: integer;
 
   p1, p2, p3, p4: Tpoint;
-  radcen_arm: extended;
+  radcen_arm: double;
 
   move_to, line_to: TPoint;
 
@@ -356,7 +356,7 @@ var
   ptr_1st, ptr_2nd: ^Tmark;     // pointers to a Tmark record
   markmax: integer;
 
-  fontsize: extended;
+  fontsize: double;
   num_str, tbnum_str: string;
 
   grid_str: string;        // grid units
@@ -366,7 +366,7 @@ var
 
   //////////////////////////////////////////////////////////////////
 
-  procedure draw_marks(grid_left, grid_top: extended; rail_joints: boolean);
+  procedure draw_marks(grid_left, grid_top: double; rail_joints: boolean);
 
   // if rail_joints=True draw only the rail joints, otherwise omit them.
 
@@ -1951,13 +1951,13 @@ end;
 //______________________________________________________________________________
 
 procedure export_bgnd_shapes(on_canvas: TCanvas; canvas_height: integer;
-  grid_left, grid_top: extended; output_code: integer);  // print all background shapes.
+  grid_left, grid_top: double; output_code: integer);  // print all background shapes.
 
 var
   i, maxbg_index: integer;
   font_size: integer;
 
-  arm, diamond: extended;
+  arm, diamond: double;
 
   now_shape: Tbgnd_shape;
   move_to, line_to: TPoint;
@@ -2286,7 +2286,7 @@ end;
 //_______________________________________________________________________________________
 
 procedure export_bgnd_marks(on_canvas: TCanvas; canvas_height: integer;
-  grid_left, grid_top: extended; maxbg_index: integer; rail_joints: boolean);
+  grid_left, grid_top: double; maxbg_index: integer; rail_joints: boolean);
 // export all the background timbering and marks
 
 // if rail_joints=True print only the rail joints, otherwise omit them.
@@ -2302,11 +2302,11 @@ var
   array_max: integer;
   code: integer;
 
-  radcen_arm: extended;
+  radcen_arm: double;
 
   infill_points: array [0..3] of TPoint;
 
-  fontsize: extended;
+  fontsize: double;
   num_str: string;
   tbnum_str: string;
 
@@ -2682,7 +2682,7 @@ begin
 end;
 //__________________________________________________________________________________________
 
-procedure export_bgnd(on_canvas: TCanvas; canvas_height: integer; grid_left, grid_top: extended;
+procedure export_bgnd(on_canvas: TCanvas; canvas_height: integer; grid_left, grid_top: double;
   output_code: integer);    // export background templates
 
 var

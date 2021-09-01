@@ -62,9 +62,9 @@ type
 var
   tandem_form: Ttandem_form;
 
-  swbegin_for_tandem: extended = 0;
+  swbegin_for_tandem: double = 0;
   // x to S1 timber on current control template        set in switchtimbers (math_unit)
-  swend_for_tandem: extended = 0;     // x to last S timber on current control template
+  swend_for_tandem: double = 0;     // x to last S timber on current control template
 
   creating_tandem: boolean = False;
 
@@ -89,11 +89,11 @@ var
   saved_name_str: string;
   saved_memo_str: string;
 
-  trad_1st: extended;
+  trad_1st: double;
 
-  first_atx: extended;
-  first_fpx: extended;
-  first_torgx, first_torgy, first_trad: extended;
+  first_atx: double;
+  first_fpx: double;
+  first_torgx, first_torgy, first_trad: double;
 
   first_heel_notch, first_mid_notch, first_xing_notch, far_notch: Tnotch;
 
@@ -106,49 +106,49 @@ function create_double_sided_tandem(curviform, jump_forward: boolean): boolean;
 var
   i, n: integer;
 
-  equivalent_rad: extended;
+  equivalent_rad: double;
 
-  stagger: extended;
-  new_atx: extended;
+  stagger: double;
+  new_atx: double;
 
   check_count: integer;
 
-  trad_2nd: extended;
+  trad_2nd: double;
 
   second_heel_notch, second_mid_notch, second_xing_notch: Tnotch;
 
   knuckle_notch, isol_notch: Tnotch;
 
-  upto, onfrom: extended;
+  upto, onfrom: double;
 
   p1_1, p2_1, p3_1, centre_1: Tpex;
   p1_2, p2_2, p3_2, centre_2: Tpex;
 
-  qx1, qy1, k1_r1, k1_r2, qx2, qy2, k2_r1, k2_r2: extended;
+  qx1, qy1, k1_r1, k1_r2, qx2, qy2, k2_r1, k2_r2: double;
 
-  a1, a2, a3, k_v, k_s: extended;
+  a1, a2, a3, k_v, k_s: double;
 
   temp_notch_v, temp_notch_s: Tnotch;
 
-  k3n_v, k3n_s: extended;
+  k3n_v, k3n_s: double;
 
   modsw: integer;
 
-  gaunt_offset: extended;
+  gaunt_offset: double;
 
-  k3n_1, k3n_2, k3n_3: extended;
+  k3n_1, k3n_2, k3n_3: double;
 
   first_bgnd_template: integer;
 
-  left_rad, middle_rad, right_rad: extended;
-  left_rad_ins, right_rad_ins, middle_rad_ins: extended;
+  left_rad, middle_rad, right_rad: double;
+  left_rad_ins, right_rad_ins, middle_rad_ins: double;
   left_rad_str, middle_rad_str, right_rad_str: string;
 
   curvi_str: string;
 
   try_gaunt: boolean;
 
-  rcurv_heel: extended;
+  rcurv_heel: double;
   dummy_notch1, dummy_notch2, dummy_notch3: Tnotch;
 
 
@@ -206,7 +206,7 @@ var
   end;
   ////////////////////////////////////////////////////////////////
 
-  function get_k3n(increment: extended): boolean;
+  function get_k3n(increment: double): boolean;
     // get xing angle to match intersection of turnout curves
 
     // this incremental method provides better results than direct calc from the curves
@@ -218,7 +218,7 @@ var
     // and FP already on intersection of rail gauge faces
 
   var
-    old_a3: extended;
+    old_a3: double;
 
   begin
     Result := False;     // init
@@ -1013,16 +1013,16 @@ function create_single_sided_tandem(jump_forward: boolean): boolean;
 var
   i, n: integer;
 
-  equivalent_rad: extended;
+  equivalent_rad: double;
 
-  stagger: extended;
+  stagger: double;
 
-  second_fpx: extended;
-  second_torgx, second_torgy, second_trad: extended;
+  second_fpx: double;
+  second_torgx, second_torgy, second_trad: double;
 
   check_count: integer;
 
-  trad_2nd: extended;
+  trad_2nd: double;
 
   second_end_notch, second_mid_notch, second_xing_notch: Tnotch;
 
@@ -1031,40 +1031,40 @@ var
   p1_1, p2_1, p3_1, centre_1: Tpex;
   p1_2, p2_2, p3_2, centre_2: Tpex;
 
-  qx1, qy1, k1_r1, k1_r2, qx2, qy2, k2_r1, k2_r2: extended;
+  qx1, qy1, k1_r1, k1_r2, qx2, qy2, k2_r1, k2_r2: double;
 
-  a1, a2, a3, k_v, k_s: extended;
+  a1, a2, a3, k_v, k_s: double;
 
   temp_notch_v, temp_notch_s: Tnotch;
 
-  k3n_v, k3n_s: extended;
+  k3n_v, k3n_s: double;
 
   modsw: integer;
 
-  k3n_1, k3n_2, k3n_3: extended;
+  k3n_1, k3n_2, k3n_3: double;
 
   first_bgnd_template: integer;
 
-  left_rad, middle_rad, right_rad: extended;
-  left_rad_ins, right_rad_ins, middle_rad_ins: extended;
+  left_rad, middle_rad, right_rad: double;
+  left_rad_ins, right_rad_ins, middle_rad_ins: double;
   left_rad_str, middle_rad_str, right_rad_str: string;
 
-  dummy: extended;
-  temp_k: extended;
-  temp_y: extended;
+  dummy: double;
+  temp_k: double;
+  temp_y: double;
 
   swsize: integer;
 
-  midx, midy: extended;
-  midsplicex, midsplicey: extended;
+  midx, midy: double;
+  midsplicex, midsplicey: double;
 
-  old_turnoutx: extended;
+  old_turnoutx: double;
 
-  gaunt_offset: extended;
+  gaunt_offset: double;
 
   try_hd, try_gaunt: boolean;
 
-  rcurv_heel: extended;
+  rcurv_heel: double;
   dummy_notch1, dummy_notch2, dummy_notch3: Tnotch;
 
 
@@ -1122,7 +1122,7 @@ var
   end;
   ////////////////////////////////////////////////////////////////
 
-  function get_k3n_hd(increment: extended): boolean;
+  function get_k3n_hd(increment: double): boolean;
     // irregular half-diamond    get xing angle to match intersection of turnout curves
 
     // this incremental method provides better results than direct calc from the curves
@@ -1134,7 +1134,7 @@ var
     // and FP already on intersection of rail gauge faces
 
   var
-    old_a3: extended;
+    old_a3: double;
 
   begin
     Result := False;     // init
@@ -1197,7 +1197,7 @@ var
   end;
   ////////////////////////////////////////////////////////////////
 
-  function get_k3n_gaunt(increment: extended): boolean;
+  function get_k3n_gaunt(increment: double): boolean;
     // gaunt turnout   get xing angle to match intersection of turnout curves
 
     // this incremental method provides better results than direct calc from the curves
@@ -1209,7 +1209,7 @@ var
     // and FP already on intersection of rail gauge faces
 
   var
-    old_a3: extended;
+    old_a3: double;
 
   begin
     Result := False;     // init

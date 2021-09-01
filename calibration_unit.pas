@@ -61,8 +61,8 @@ type
 
     alignment_byte_1: byte;   // D5 0.91.a
 
-    printer_head_factor: extended;
-    printer_roller_factor: extended;
+    printer_head_factor: double;
+    printer_roller_factor: double;
 
     alignment_byte_2: byte;   // D5 0.91.a
     alignment_byte_3: byte;   // D5 0.91.a
@@ -92,7 +92,7 @@ const
     + '||You can choose to calibrate any or all of your printers, and switch between them without losing the calibration information for each.' + ' This allows you to to do quick trial templates on one printer and the final construction templates on another, for example.' + '||If the printer being used is uncalibrated, Templot0 will mark the printed templates with a warning. They may be acceptably accurate' + ' for trial planning purposes.' + '||For the final construction templates, calibration is strongly recommended, and for maximum accuracy it is important to use the same' + ' type of paper for both the calibration test print and the finished templates.' + '||Take your time to follow through the calibration process carefully and without hurry, as entering incorrect figures will wreck the accuracy' + ' of your templates.' + '||To delete incorrect or unwanted calibrations, select the PRINT > PRINTER CALIBRATION > DELETE menu items.' + '||If you are not confident of your ability to measure the test print with sufficient accuracy it would probably be better' + ' to leave the printer uncalibrated.' + '||Click CALIBRATE THIS PRINTER NOW to start the process - there are further detailed help notes as you go along.';
 
 var
-  temp: extended;
+  temp: double;
 
 procedure calibrate_printer;                    // get calibration data for printer.
 procedure proof_sheet;                          // print proof sheet.
@@ -257,11 +257,11 @@ const
     '||This factor corrects movements of the paper through the printer rollers, to ensure accurate dimensions down the length of the sheet.' + ' The Roller Factor is likely to vary with different paper surfaces and thicknesses.' + '||Take care to enter the figure correctly as an invalid correction factor will render your templates' + ' unusable. In most cases the correction factor will be a figure close to 100 %, for example a figure such as 102.43 % or 99.72 %.' + '||If you are not SURE that the your figures are correct for this printer, or you have changed the type of paper, please click' + ' CANCEL ALL and perform a fresh calibration.';
 
 var
-  head_factor, roller_factor: extended;
+  head_factor, roller_factor: double;
   printer_str: string;
   prindex: integer;
   n: integer;
-  od: Toutdim;    // [0..7] array of extended;
+  od: Toutdim;    // [0..7] array of double;
 
 begin
   Result := False;                                   // default init.
@@ -334,7 +334,7 @@ const
 
 var
   n: integer;
-  od: Toutdim;    // [0..7] array of extended;
+  od: Toutdim;    // [0..7] array of double;
 
   i: integer;
   prstr: string;
@@ -346,8 +346,8 @@ var
   width_dpi: integer;     // dpi across width.
   length_dpi: integer;    // dpi down length.
 
-  width_mm: extended;     // printer page-width in mm.
-  length_mm: extended;    // printer page-length in mm.
+  width_mm: double;     // printer page-width in mm.
+  length_mm: double;    // printer page-length in mm.
 
   l_left: integer;      // large rectangle left X.
   l_right: integer;     // large rectangle right X.
@@ -372,7 +372,7 @@ var
 
   web_note_left, web_note_top, web_url_left, web_url_top: integer;
 
-  hunslet_ratio: extended;  // hunslet picture aspect ratio.
+  hunslet_ratio: double;  // hunslet picture aspect ratio.
 
   picture_left: integer;    // hunslet picture position
   picture_right: integer;
@@ -382,7 +382,7 @@ var
 
   inner_rect: TRect;
 
-  test_width, test_height: extended;
+  test_width, test_height: double;
 
   which_frame_str, frame_info_str: string;   // 214a
 label
@@ -822,11 +822,11 @@ var
   width_dpi: integer;     // reported dpi across width.
   length_dpi: integer;    // reported dpi down length.
 
-  cal_width_dpi: extended;   // calibrated dpi...
-  cal_length_dpi: extended;
+  cal_width_dpi: double;   // calibrated dpi...
+  cal_length_dpi: double;
 
-  width_mm: extended;     // printer page-width in mm.
-  length_mm: extended;    // printer page-length in mm.
+  width_mm: double;     // printer page-width in mm.
+  length_mm: double;    // printer page-length in mm.
 
   vertbar_left: integer;      // vertical bar left X.
   vertbar_right: integer;     // vertical bar right X.

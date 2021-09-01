@@ -763,7 +763,7 @@ var
 
   valid_calcs: boolean = False;
 
-  box_width: extended = 50000;     // startup box width in 1/100 mm.
+  box_width: double = 50000;     // startup box width in 1/100 mm.
 
   info_str: string = '';
 
@@ -783,14 +783,14 @@ var
   search_str: string = '';
   searched_index: integer = -1;
 
-  total_bgnd_template_length: extended = 0;      // 0.93.a
-  total_group_template_length: extended = 0;      // 0.93.a
+  total_bgnd_template_length: double = 0;      // 0.93.a
+  total_group_template_length: double = 0;      // 0.93.a
 
-  total_bgnd_timbering_length: extended = 0;      // 0.96.a
-  total_group_timbering_length: extended = 0;      // 0.96.a
+  total_bgnd_timbering_length: double = 0;      // 0.96.a
+  total_group_timbering_length: double = 0;      // 0.96.a
 
-  smallest_bgnd_radius: extended = 1.0E8 - 5000;      // 208a for box data    init=max_rad ="straight"
-  smallest_group_radius: extended = 1.0E8 - 5000;     // 208a for box data    init=max_rad ="straight"
+  smallest_bgnd_radius: double = 1.0E8 - 5000;      // 208a for box data    init=max_rad ="straight"
+  smallest_group_radius: double = 1.0E8 - 5000;     // 208a for box data    init=max_rad ="straight"
 
   smallest_bgnd_radius_index: integer = 0;      // 208a
   smallest_group_radius_index: integer = 0;     // 208a
@@ -1384,7 +1384,7 @@ begin
 
         if templot_version < 35 then
           old_keep_dims2.turnout_info2.start_draw_x := 0;
-        {spare_float1:extended;}// startx  not in earlier than version 0.35
+        {spare_float1:double;}// startx  not in earlier than version 0.35
 
         if templot_version < 38 then begin
           mod_text_x := 0;      // position modifiers for labels.
@@ -4767,15 +4767,15 @@ var
 
   pad_ti: Ttemplate_info;  // save existing control template on the pad.
 
-  xrange, yrange: extended;
+  xrange, yrange: double;
   xmax, ymax: integer;
   peg_dim, keep_pegx, keep_pegy: integer;
   radcen_dim, radcenx, radceny: integer;
 
-  sx, sy, ypd, x_offset, y_offset: extended;
+  sx, sy, ypd, x_offset, y_offset: double;
 
   bary, scony, incb: integer;
-  scx, sbex, black, incbar: extended;
+  scx, sbex, black, incbar: double;
   sb_str: string;
   grid_str: string;
 
@@ -4785,7 +4785,7 @@ var
   label_str: string;
   tw: integer;
 
-  peg_linex, peg_liney: extended;
+  peg_linex, peg_liney: double;
 
   i, code: integer;
   p1, p2: TPoint;
@@ -6129,7 +6129,7 @@ const
 
 var
   n: integer;
-  od: Toutdim;    // [0..7] array of extended;
+  od: Toutdim;    // [0..7] array of double;
 
 begin
   if box_width < minfp then
@@ -6265,9 +6265,9 @@ var
   ptr: ^Tmark;          // pointer to a Tmark record.   ###
   markmax: integer;
 
-  temp_rad: extended;      // 213b..
+  temp_rad: double;      // 213b..
   //boundary_centre:Tpex;
-  temp: extended;
+  temp: double;
 
   ///////////////////////////////////////////////////////////
 
@@ -7200,7 +7200,7 @@ var
   peg_dim, bg_pegx, bg_pegy: integer;
 
   p1, move_to, line_to: TPoint;
-  //gauge:extended;
+  //gauge:double;
 
 begin
   if (index < 0) or (index > (keeps_list.Count - 1))
@@ -10230,7 +10230,7 @@ var
   bgnd: integer;
   save_bgnd_option: boolean;
 
-  save_label_x, save_label_y: extended;   // 0.82.d
+  save_label_x, save_label_y: double;   // 0.82.d
 
 begin
   if keeps_list.Count < 1 then

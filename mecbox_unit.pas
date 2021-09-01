@@ -84,7 +84,7 @@ var
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    function force_dot_decimal(x: extended): string;
+    function force_dot_decimal(x: double): string;
 
     var
       s: string;

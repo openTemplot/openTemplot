@@ -406,32 +406,32 @@ const
   cross_hairs_cursor = 10;          // added 13-1-01.
   group_rectangle_cursor = 11;      // added 22-2-01.
 
-  maxfp: extended = 1.0E300;         // max float value for our calcs.
-  minfp: extended = 1.0E-12;         // min float value for our calcs
+  maxfp: double = 1.0E300;         // max float value for our calcs.
+  minfp: double = 1.0E-12;         // min float value for our calcs
   // (less than this is regarded as zero to avoid rounding errors).
 
   max_single: single = 1.0E10;       // used for sketchboard calcs. 212a
 
-  minfp_big: extended = 1.0E-6;      // min float value for rounding and tolerancing.
+  minfp_big: double = 1.0E-6;      // min float value for rounding and tolerancing.
 
-  max_rad: extended = 1.0E8 - 5000;
+  max_rad: double = 1.0E8 - 5000;
   // maximum radius="straight", -5000 to allow for offsets without exceeding 1E8 max_rad_limit.
-  max_rad_test: extended = 1.0E8 - 10000; // used for testing maximum radius (approx 62 miles rad).
-  max_rad_limit: extended = 1.0E8;
+  max_rad_test: double = 1.0E8 - 10000; // used for testing maximum radius (approx 62 miles rad).
+  max_rad_limit: double = 1.0E8;
 
-  def_req: extended = 0 - 1.0E300;
+  def_req: double = 0 - 1.0E300;
   // DON'T CHANGE (used directly as the value in some places 0.93.a)  // this value in a float requests a default to be used instead.
   def_req_i: integer = Integer($80000001);    // this value in an integer ditto.
 
   def_req_single: single = 0 - 1.0E10;       // 212a for jt_slwide
 
-  maxint: extended = Integer($7FFFFFFF);
+  maxint: double = Integer($7FFFFFFF);
   //  these are floats - max 32-bit value for range checks.
-  minint: extended = Integer($80000000);      //             ditto - min 32-bit value.
+  minint: double = Integer($80000000);      //             ditto - min 32-bit value.
 
-  h_maxint: extended = Integer($3FFFFFFF);
+  h_maxint: double = Integer($3FFFFFFF);
   //  maxint/2   these are floats. 31-bit range to leave room for some arithmetic on the values.
-  h_minint: extended = Integer($C0000000);    //  minint/2
+  h_minint: double = Integer($C0000000);    //  minint/2
 
 // defaults for Win 95/98/ME graphics limits
 
@@ -496,7 +496,7 @@ var
   under_way: boolean = False;       // pad repaints, etc not yet permitted.
 
   prog_running: boolean = True;      // for run_error no repaints.
-  slow_run: extended = 0;            // for slow running.
+  slow_run: double = 0;            // for slow running.
 
   quit_alert_done: boolean = False;
 
@@ -531,11 +531,11 @@ var
   //                 9  mirror-y
   //                10..  unused
 
-  aspect_distortion_factor, re_org_x, re_org_y: extended;
-  x_distortion_factor, y_distortion_factor: extended;
-  x_coning_distortion_factor, y_coning_distortion_factor: extended;
-  x_skewing_distortion_factor, y_skewing_distortion_factor: extended;
-  mirror_x, mirror_y: extended;
+  aspect_distortion_factor, re_org_x, re_org_y: double;
+  x_distortion_factor, y_distortion_factor: double;
+  x_coning_distortion_factor, y_coning_distortion_factor: double;
+  x_skewing_distortion_factor, y_skewing_distortion_factor: double;
+  mirror_x, mirror_y: double;
 
   auto_dir: boolean = True;
   backup_wanted: boolean = False;
@@ -544,8 +544,8 @@ var
 
   mouse_click_action: integer = -1;   // either click-move-click or drag allowed.
 
-  printer_text_left_margin: extended = 10;   // 10mm page margins when printing.
-  printer_text_right_margin: extended = 10;
+  printer_text_left_margin: double = 10;   // 10mm page margins when printing.
+  printer_text_right_margin: double = 10;
 
   jpg_quality: integer = 100;  // 214a
 
@@ -2496,7 +2496,7 @@ const
 var
   i: integer;
   n: integer;
-  od: Toutdim;    // [0..7] array of extended;
+  od: Toutdim;    // [0..7] array of double;
   revert_auto: boolean;
 
 begin
@@ -2616,7 +2616,7 @@ const
 var
   i, n: integer;
   od: Toutdim;
-  m: extended;
+  m: double;
 
 begin
   repeat
@@ -2823,7 +2823,7 @@ const
 
 var
   i, n: integer;
-  total_colour_bits: extended;     // just might overflow integers !!
+  total_colour_bits: double;     // just might overflow integers !!
 
 begin
 
@@ -3008,7 +3008,7 @@ const
 var
   n, i: integer;
   od: Toutdim;
-  temp: extended;
+  temp: double;
 
 begin
   if cleared_bgnd = False then
@@ -3107,7 +3107,7 @@ const
 var
   n, i: integer;
   od: Toutdim;
-  temp: extended;
+  temp: double;
 
 begin
   if cleared_bgnd = False then
@@ -3205,7 +3205,7 @@ const
 var
   n, i: integer;
   od: Toutdim;
-  temp: extended;
+  temp: double;
 
 begin
   if cleared_bgnd = False then
@@ -3690,7 +3690,7 @@ const
 var
   n: integer;
   od: Toutdim;
-  m: extended;
+  m: double;
   dummy_i: integer;
 
 begin
@@ -3721,7 +3721,7 @@ const
 var
   n: integer;
   od: Toutdim;
-  m: extended;
+  m: double;
 
 begin
   m := peg_arm_length;

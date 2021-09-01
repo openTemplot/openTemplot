@@ -3879,7 +3879,7 @@ begin
 end;
 
 //BG, 14.07.2010:
-function DecodeSize(const Str: ThtString; out V: extended; out U: ThtString): Boolean;
+function DecodeSize(const Str: ThtString; out V: double; out U: ThtString): Boolean;
  {$ifdef UseInline} inline; {$endif}
 var
   I, J, L: Integer;
@@ -3974,7 +3974,7 @@ function FontSizeConv(const Str: ThtString; OldSize, DefPointSize : Double; cons
  {$ifdef UseInline} inline; {$endif}
 {given a font-size ThtString, return the point size}
 var
-  V: extended;
+  V: double;
   U: ThtString;
   i : Integer;
 begin
@@ -4045,7 +4045,7 @@ function LengthConv(const Str: ThtString; Relative: Boolean; Base, EmSize, ExSiz
  Relative makes a numerical entry relative to Base.
  Default returned if no match.}
 var
-  V: Extended;
+  V: double;
   U: ThtString;
 begin
   if DecodeSize(Str, V, U) then

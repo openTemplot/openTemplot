@@ -92,11 +92,11 @@ type
   public
     // all in prototype inches...
 
-    dv_start: extended;   // to first axle/bogie-pin from CTRL-0
-    dv_length: extended;   // body length
-    dv_width: extended;
-    dv_clearance: extended;
-    dv_wheelbase: extended;
+    dv_start: double;   // to first axle/bogie-pin from CTRL-0
+    dv_length: double;   // body length
+    dv_width: double;
+    dv_clearance: double;
+    dv_wheelbase: double;
 
     constructor Create;
     function generate_envelope(inscale: double; path: IPath): Tdv_envelope;

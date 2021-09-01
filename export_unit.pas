@@ -143,27 +143,27 @@ var
 
   export_form_was_showing: boolean = False;
 
-  output_rectangle_x1: extended = 0;     // export image rectangle mm...
-  output_rectangle_y1: extended = 0;
+  output_rectangle_x1: double = 0;     // export image rectangle mm...
+  output_rectangle_y1: double = 0;
 
-  output_rectangle_x2: extended = 1200;  // arbitrary default 1200mm x 600mm (4ft x 2ft)
-  output_rectangle_y2: extended = 600;
+  output_rectangle_x2: double = 1200;  // arbitrary default 1200mm x 600mm (4ft x 2ft)
+  output_rectangle_y2: double = 600;
 
-  output_rectangle_width: extended = 1200;
-  output_rectangle_height: extended = 600;
+  output_rectangle_width: double = 1200;
+  output_rectangle_height: double = 600;
 
   his_image_file_name: string = '';
   his_emf_file_name: string = '';
 
-  //pdf_head_factor:extended=1.0;
-  //pdf_roller_factor:extended=1.0;
+  //pdf_head_factor:double=1.0;
+  //pdf_roller_factor:double=1.0;
 
   // OT-FIRST moved from dtp_unit ...
 
   export_black_white: boolean = False;
   export_grey_shade: boolean = False;
 
-  track_bgnd_width_in: extended = 288;  // 24ft default  206a
+  track_bgnd_width_in: double = 288;  // 24ft default  206a
 
 procedure set_boundary_rectangle_dims(calling_form: TForm);
 
@@ -171,9 +171,9 @@ function do_metafile(file_str: string; met_width_dots, met_height_dots: integer)
 
 //procedure sb_draw(on_canvas:TCanvas; canvas_width,canvas_height,output_code:integer);    // draw control template or entire pad on a bitmap or metafile. OT-FIRST moved from dtp_unit
 
-//procedure export_bgnd_shapes(on_canvas:TCanvas; canvas_height:integer; grid_left,grid_top:extended; output_code:integer);  // print all background shapes.
+//procedure export_bgnd_shapes(on_canvas:TCanvas; canvas_height:integer; grid_left,grid_top:double; output_code:integer);  // print all background shapes.
 
-//procedure export_bgnd(on_canvas:TCanvas; canvas_height:integer; grid_left,grid_top:extended; output_code:integer);        // print background templates.
+//procedure export_bgnd(on_canvas:TCanvas; canvas_height:integer; grid_left,grid_top:double; output_code:integer);        // print background templates.
 
 
 implementation
@@ -273,11 +273,11 @@ end;
 procedure Texport_form.create_pdf_buttonClick(Sender: TObject);
 
 var
-  temp: extended;
+  temp: double;
 
   box_value_dpi: integer;      // 205e ...
-  box_value_long: extended;
-  box_value_short: extended;
+  box_value_long: double;
+  box_value_short: double;
 
 begin
   if check_int(pdf_dpi_edit.text,50,4800,box_value_dpi)=False          // input limits 50dpi to 4800dpi
@@ -382,8 +382,8 @@ begin
 end;
 //______________________________________________________________________________
 
-function sb_check_valid_float(edit_box: TEdit; limit_low, limit_high: extended;
-  var float_val: extended): boolean;
+function sb_check_valid_float(edit_box: TEdit; limit_low, limit_high: double;
+  var float_val: double): boolean;
 
   // check valid float dimension entered in sketchboard TEdit boxes...
 
@@ -509,16 +509,16 @@ var
   file_name_str: string;  // name part
   file_str: string;       // including full path
 
-  save_print_pages_top_origin: extended;
-  save_print_pages_left_origin: extended;
-  save_out_factor: extended;
+  save_print_pages_top_origin: double;
+  save_print_pages_left_origin: double;
+  save_out_factor: double;
 
   i: integer;
 
-  img_width_mm: extended;
-  img_height_mm: extended;
+  img_width_mm: double;
+  img_height_mm: double;
 
-  box_value: extended;
+  box_value: double;
 
   emf_warning_str, emf_alert_str: string;
 
@@ -837,14 +837,14 @@ var
   file_name_str: string;  // name part
   file_str: string;       // including path
 
-  save_print_pages_top_origin: extended;
-  save_print_pages_left_origin: extended;
-  save_out_factor: extended;
+  save_print_pages_top_origin: double;
+  save_print_pages_left_origin: double;
+  save_out_factor: double;
 
   i: integer;
 
-  img_width_mm: extended;
-  img_height_mm: extended;
+  img_width_mm: double;
+  img_height_mm: double;
 
   box_value: integer;  // 205e ...
 
