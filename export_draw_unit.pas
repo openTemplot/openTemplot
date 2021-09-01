@@ -54,7 +54,7 @@ implementation
 
 uses
   control_room, pad_unit, math_unit, export_unit, print_settings_unit,
-  preview_unit, print_unit, bgnd_unit;
+  preview_unit, print_unit, background_shapes, bgnd_unit;
 
 
 //______________________________________________________________________________

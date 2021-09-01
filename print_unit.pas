@@ -171,9 +171,13 @@ implementation
 {$R *.lfm}
 
 uses
-  Printers, calibration_unit, preview_unit, control_room, pad_unit, alert_unit,
+  Printers, calibration_unit, preview_unit, control_room,
+  point_ex,
+  pad_unit, alert_unit,
   keep_select, math_unit, gauge_unit,
-  info_unit, colour_unit, bgnd_unit, bgkeeps_unit, help_sheet,
+  info_unit, colour_unit,
+  background_shapes,
+  bgnd_unit, bgkeeps_unit, help_sheet,
   stay_visible_unit, panning_unit, shove_timber, grid_unit, edit_memo_unit,
   print_settings_unit, print_now_box, { OT-FIRST dtp_settings_unit,} export_unit,
   { OT-FIRST dtp_unit,} rail_options_unit, platform_unit, check_diffs_unit,

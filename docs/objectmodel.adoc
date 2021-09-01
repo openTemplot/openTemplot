@@ -1,0 +1,28 @@
+== Templot3 Object Model
+
+This document describes the internal object model to be used by Templot3. 
+Note that this is not the *current* structure, but is rather what we are 
+intending to move towards.
+
+The first objective is to achieve a clear separation between Model classes and 
+Presentation/UI classes. Model classes will be unit tested, and compilable without
+referencing any Form or UI code.
+
+This first diagram shows the top-level model classes:
+
+[plantuml, diagram-classes, png]
+....
+class Tbox
+abstract class Ttemplate
+class Tturnout
+class Tplain_track
+class Thalf_diamond
+class Tdummy_vehicle
+
+Tbox *- "*" Ttemplate
+Ttemplate <|-- Tturnout
+Ttemplate <|-- Tplain_track
+Ttemplate <|-- Thalf_diamond
+Tbox *-- "*" Tdummy_vehicle
+....
+

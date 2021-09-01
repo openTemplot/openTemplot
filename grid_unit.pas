@@ -200,7 +200,10 @@ implementation
 
 
 uses
-  control_room, pad_unit, bgnd_unit, bgkeeps_unit, math_unit, Math, preview_unit,
+  point_ex, control_room, pad_unit,
+  background_shapes,
+  dummy_vehicle,
+  bgnd_unit, bgkeeps_unit, math_unit, Math, preview_unit,
   colour_unit, help_sheet, shove_timber, keep_select, print_settings_unit,
   { OT-FIRST dtp_unit, dtp_settings_unit,} export_unit, { OT-FIRST pdf_unit,} entry_sheet,
   alert_unit,
@@ -4665,10 +4668,6 @@ begin
   with dv_copies[dv_copies_index] do begin       // modify y dims for bgnd...
     pt1.y := pt1.y * hand_i + y_datum;
     pt2.y := pt2.y * hand_i + y_datum;
-    pb1.y := pb1.y * hand_i + y_datum;
-    pc1.y := pc1.y * hand_i + y_datum;
-    pb2.y := pb2.y * hand_i + y_datum;
-    pc2.y := pc2.y * hand_i + y_datum;
     b1.y := b1.y * hand_i + y_datum;
     b2.y := b2.y * hand_i + y_datum;
     b3.y := b3.y * hand_i + y_datum;
@@ -4878,82 +4877,15 @@ var
 
 begin
 
-  Inc(dv_envelopes_index);
-
-  if dv_envelopes_index > dv_envelopes_c then begin
+  if dv_envelopes.Count >= dv_envelopes_c then begin
     ShowMessage('Unable to create more than ' + IntToStr(dv_envelopes_c + 1) +
       ' outline envelopes.' + #13 + #13 + 'Delete one or more existing enelopes first.');
-    dv_envelopes_index := dv_envelopes_c;
     EXIT;
   end;
 
   show_dummy_vehicles_radio_button.Checked := True;  // make sure showing
 
-  with dv_envelopes[dv_envelopes_index] do begin
-
-    with cdvi do begin     // vehicle dimensions
-
-      save_start := dv_start;
-
-      dv_start := 0 - dv_length;
-
-      end_pos := turnoutx / inscale + dv_length - dv_wheelbase;
-
-      n := 0;  // init
-
-      repeat      // fill the envelope...
-
-        draw_dummy_vehicle_on_control_template(True, grid_form.Canvas);
-        // True=do calcs only, canvas not used
-
-        with dv_outlines[n] do begin
-
-          b1 := dv_corners_calc.b1;
-          b2 := dv_corners_calc.b2;
-          b3 := dv_corners_calc.b3;
-          b4 := dv_corners_calc.b4;
-
-          c1 := dv_corners_calc.c1;
-          c2 := dv_corners_calc.c2;
-          c3 := dv_corners_calc.c3;
-          c4 := dv_corners_calc.c4;
-
-          o1 := dv_corners_calc.o1;
-          o2 := dv_corners_calc.o2;
-          o3 := dv_corners_calc.o3;
-          o4 := dv_corners_calc.o4;
-
-          // modify y dims for bgnd...
-
-          b1.y := b1.y * hand_i + y_datum;
-          b2.y := b2.y * hand_i + y_datum;
-          b3.y := b3.y * hand_i + y_datum;
-          b4.y := b4.y * hand_i + y_datum;
-
-          c1.y := c1.y * hand_i + y_datum;
-          c2.y := c2.y * hand_i + y_datum;
-          c3.y := c3.y * hand_i + y_datum;
-          c4.y := c4.y * hand_i + y_datum;
-
-          o1.y := o1.y * hand_i + y_datum;
-          o2.y := o2.y * hand_i + y_datum;
-          o3.y := o3.y * hand_i + y_datum;
-          o4.y := o4.y * hand_i + y_datum;
-        end;//with
-
-        dv_start := dv_start + 3;   // increment 3"
-
-        Inc(n);
-
-      until (dv_start > end_pos) or (n > dv_outlines_c);         // reached end or list full
-
-      dv_start := save_start;  // restore
-
-    end;//with
-
-    dv_outlines_limit := n - 1;  // for bgnd drawing
-
-  end;//with
+  dv_envelopes.Add(cdvi.generate_envelope(inscale, centre_line_path));
 
   redraw(True);
 end;
@@ -4965,23 +4897,12 @@ var
   n: integer;
 
 begin
-  if dv_envelopes_index < 0 then begin
+  if dv_envelopes.Count = 0 then begin
     ShowMessage('There are no envelopes to delete.');
     EXIT;
   end;
 
-  if dv_envelopes_index = 0     // only one exists
-  then begin
-    dv_envelopes_index := -1;
-    redraw(True);
-    EXIT;
-  end;
-
-  for n := 1 to dv_envelopes_index do
-    dv_envelopes[n - 1] := dv_envelopes[n];     // move all remaining up one
-
-  Dec(dv_envelopes_index);
-
+  dv_envelopes.Delete(0);
   redraw(True);
 end;
 //______________________________________________________________________________
@@ -4989,13 +4910,12 @@ end;
 procedure Tgrid_form.clear_last_envelope_buttonClick(Sender: TObject);
 
 begin
-  if dv_envelopes_index < 0 then begin
+  if dv_envelopes.Count = 0 then begin
     ShowMessage('There are no envelopes to delete.');
     EXIT;
   end;
 
-  Dec(dv_envelopes_index);
-
+  dv_envelopes.Delete(dv_envelopes.Count - 1);
   redraw(True);
 end;
 //______________________________________________________________________________
@@ -5003,13 +4923,12 @@ end;
 procedure Tgrid_form.clear_all_envelopes_buttonClick(Sender: TObject);
 
 begin
-  if dv_envelopes_index < 0 then begin
+  if dv_envelopes.Count = 0 then begin
     ShowMessage('There are no envelopes to delete.');
     EXIT;
   end;
 
-  dv_envelopes_index := -1;
-
+  dv_envelopes.Clear;
   redraw(True);
 end;
 //______________________________________________________________________________
@@ -5033,16 +4952,16 @@ begin
   if grid_form.show_dummy_vehicles_radio_button.Checked = False then
     EXIT;   // turned off
 
-  if dv_envelopes_index < 0 then
+  if dv_envelopes.Count = 0 then
     EXIT;  // no envelopes exist
 
   with on_canvas do begin
 
-    for i := 0 to dv_envelopes_index do begin
+    for i := 0 to dv_envelopes.Count - 1 do begin
 
       with dv_envelopes[i] do begin
 
-        if dv_outlines_limit < 0 then
+        if Length(dv_outlines) = 0 then
           CONTINUE;  // ??? no outlines exist at this index
 
         Pen.Width := 1;
@@ -5052,7 +4971,7 @@ begin
         Pen.Color := ring_copy_colour;
         Brush.Color := ring_copy_colour;
 
-        for n := 0 to dv_outlines_limit do begin
+        for n := 0 to High(dv_outlines) do begin
 
           with dv_outlines[n] do begin
 
@@ -5068,7 +4987,7 @@ begin
         Pen.Color := clYellow;
         Brush.Color := clYellow;
 
-        for n := 0 to dv_outlines_limit do begin
+        for n := 0 to High(dv_outlines) do begin
 
           with dv_outlines[n] do begin
 
@@ -5090,9 +5009,9 @@ begin
           Polygon([dvo_mm_to_pixels(dv_outlines[0].o1), dvo_mm_to_pixels(
             dv_outlines[0].o2), dvo_mm_to_pixels(dv_outlines[0].o3), dvo_mm_to_pixels(dv_outlines[0].o4)]);
 
-          Polygon([dvo_mm_to_pixels(dv_outlines[dv_outlines_limit].o1),
-            dvo_mm_to_pixels(dv_outlines[dv_outlines_limit].o2), dvo_mm_to_pixels(
-            dv_outlines[dv_outlines_limit].o3), dvo_mm_to_pixels(dv_outlines[dv_outlines_limit].o4)]);
+          Polygon([dvo_mm_to_pixels(dv_outlines[High(dv_outlines)].o1),
+            dvo_mm_to_pixels(dv_outlines[High(dv_outlines)].o2), dvo_mm_to_pixels(
+            dv_outlines[High(dv_outlines)].o3), dvo_mm_to_pixels(dv_outlines[High(dv_outlines)].o4)]);
         end;
       end;//with
     end;//next i

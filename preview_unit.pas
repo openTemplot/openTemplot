@@ -32,7 +32,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls,
-  pad_unit;  // needs to be here for Tpex
+  point_ex;  // needs to be here for Tpex
 
 type
   Tpreview_form = class(TForm)
@@ -199,7 +199,10 @@ implementation
 {$R *.lfm}
 
 uses Printers, control_room, grid_unit, alert_unit, math_unit, calibration_unit,
-  bgkeeps_unit, bgnd_unit, print_unit, info_unit, help_sheet,
+  pad_unit,
+  bgkeeps_unit,
+  background_shapes,
+  bgnd_unit, print_unit, info_unit, help_sheet,
   print_settings_unit, pdf_unit, { OT-FIRST dtp_unit, dtp_settings_unit,} export_unit;
 
 var
