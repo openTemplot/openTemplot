@@ -61,13 +61,13 @@ type
 
     property timber_string: string Read Ftimber_string Write Ftimber_string;
     property sv_code: Tshove_code Read shove_data.sv_code Write shove_data.sv_code;
-    property sv_x: extended Read shove_data.sv_x Write shove_data.sv_x;
-    property sv_k: extended Read shove_data.sv_k Write shove_data.sv_k;
-    property sv_o: extended Read shove_data.sv_o Write shove_data.sv_o;
-    property sv_l: extended Read shove_data.sv_l Write shove_data.sv_l;
-    property sv_w: extended Read shove_data.sv_w Write shove_data.sv_w;
-    property sv_c: extended Read shove_data.sv_c Write shove_data.sv_c;
-    property sv_t: extended Read shove_data.sv_t Write shove_data.sv_t;
+    property sv_x: double Read shove_data.sv_x Write shove_data.sv_x;
+    property sv_k: double Read shove_data.sv_k Write shove_data.sv_k;
+    property sv_o: double Read shove_data.sv_o Write shove_data.sv_o;
+    property sv_l: double Read shove_data.sv_l Write shove_data.sv_l;
+    property sv_w: double Read shove_data.sv_w Write shove_data.sv_w;
+    property sv_c: double Read shove_data.sv_c Write shove_data.sv_c;
+    property sv_t: double Read shove_data.sv_t Write shove_data.sv_t;
     property sv_sp_int: integer Read shove_data.sv_sp_int Write shove_data.sv_sp_int;
 
 
