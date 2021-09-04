@@ -700,11 +700,11 @@ begin
 end;
 //______________________________________________________________________________
 
-function get_pref_float(str: string; def_float: extended): extended;
+function get_pref_float(str: string; def_float: double): double;
 
 var
   val_str: string;
-  temp_float: extended;
+  temp_float: double;
 
 begin
   Result := def_float;  // default init.
@@ -1662,11 +1662,11 @@ begin
 end;
 //______________________________________________________________________________
 
-function get_pref_float_cgs(list: TStringList; str: string; def_float: extended): extended;
+function get_pref_float_cgs(list: TStringList; str: string; def_float: double): double;
 
 var
   val_str: string;
-  temp_float: extended;
+  temp_float: double;
 
 begin
   Result := def_float;  // default init.

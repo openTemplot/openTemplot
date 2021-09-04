@@ -211,15 +211,15 @@ var
 
   form_scaling: boolean = False;
 
-  print_intensity: extended = 50.0;   // ink intensity 0-100.
+  print_intensity: double = 50.0;   // ink intensity 0-100.
 
   impact: integer = 0;
 
 
-procedure print_bgnd(grid_left, grid_top: extended); forward;        // print background items.
-procedure print_bgnd_shapes(grid_left, grid_top: extended); forward; // print all background shapes.
+procedure print_bgnd(grid_left, grid_top: double); forward;        // print background items.
+procedure print_bgnd_shapes(grid_left, grid_top: double); forward; // print all background shapes.
 
-procedure print_sketchboard_items(on_canvas: TCanvas; grid_left, grid_top: extended); forward;
+procedure print_sketchboard_items(on_canvas: TCanvas; grid_left, grid_top: double); forward;
 // 206e
 
 procedure print_info_banner(top_str, bottom_str: string); forward;
@@ -229,7 +229,7 @@ procedure print_info_banner(top_str, bottom_str: string); forward;
 
 procedure rotate_bitmap(i: integer); forward;     // rotate bitmap for picture shape.
 
-procedure rotate_bitmap_by_dots(i: integer; p1, p2: Tpex; grid_left, grid_top: extended;
+procedure rotate_bitmap_by_dots(i: integer; p1, p2: Tpex; grid_left, grid_top: double;
   source_canv, dest_canv: TCanvas); forward;
 
 function check_if_on_page(corner1, corner2: TPoint; check_within_limits: boolean): boolean; forward;
@@ -282,7 +282,7 @@ function calc_intensity(colour: integer): integer;
 
 var
   red, green, blue, av: integer;    // colour components (0-255).
-  mod_col: extended;
+  mod_col: double;
 
 begin
   if colour = clWhite     // no change to white (bare paper).
@@ -418,15 +418,15 @@ end;
 procedure print_line_thickness_setup;
 
 var
-  av_dpi: extended;
+  av_dpi: double;
 
   ///////////////////////////////////////////////
 
-  function calc_thick(mm_thick: extended; adjust: boolean): integer;
+  function calc_thick(mm_thick: double; adjust: boolean): integer;
     // calc line thickness in dots.
 
   var
-    line_dots: extended;
+    line_dots: double;
 
   begin
     line_dots := mm_thick * av_dpi / 25.4;
@@ -503,11 +503,11 @@ var
   cal_ok: boolean;
   prindex: integer;
 
-  gridx, gridy, now_gridx, now_gridy: extended;
-  grid_label: extended;
+  gridx, gridy, now_gridx, now_gridy: double;
+  grid_label: double;
 
-  down: extended;                  // temp x and y from list.
-  across: extended;
+  down: double;                  // temp x and y from list.
+  across: double;
 
   sheet_down: integer;             // current sheet index.
   sheet_across: integer;           // ditto
@@ -538,7 +538,7 @@ var
   stry: integer;
 
   p1, p2, p3, p4: Tpoint;
-  radcen_arm: extended;
+  radcen_arm: double;
 
   move_to, line_to: TPoint;
 
@@ -555,7 +555,7 @@ var
   ptr_1st, ptr_2nd: ^Tmark;          // pointers to a Tmark record.
   markmax: integer;
 
-  fontsize: extended;
+  fontsize: double;
   num_str, tbnum_str: string;
 
   grid_str: string;
@@ -619,7 +619,7 @@ var
   end;
   /////////////////////////////
 
-  procedure draw_marks(grid_left, grid_top: extended; rail_joints: boolean);
+  procedure draw_marks(grid_left, grid_top: double; rail_joints: boolean);
 
   // if rail_joints=True draw only the rail joints, otherwise omit them.
   var
@@ -1730,7 +1730,7 @@ var
   end;
   //////////////////////////////////////////////////////////////////
 
-  procedure print_shapes_and_sketchboard_items(grid_left, grid_top: extended);    // 206e
+  procedure print_shapes_and_sketchboard_items(grid_left, grid_top: double);    // 206e
 
   begin
     if bgnd_form.output_shapes_in_front_of_sb_checkbox.Checked =
@@ -3438,11 +3438,11 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure print_sketchboard_items(on_canvas: TCanvas; grid_left, grid_top: extended);   // 206e
+procedure print_sketchboard_items(on_canvas: TCanvas; grid_left, grid_top: double);   // 206e
 
 var
   dtp_rect: TRect;
-  dtp_width, dtp_height: extended;
+  dtp_width, dtp_height: double;
   p1, p2: Tpex;
 
   move_to, line_to: TPoint;   // 208a
@@ -3603,13 +3603,13 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure print_bgnd_shapes(grid_left, grid_top: extended);  // print all background shapes.
+procedure print_bgnd_shapes(grid_left, grid_top: double);  // print all background shapes.
 
 var
   i, maxbg_index: integer;
   font_size: integer;
 
-  arm, diamond: extended;
+  arm, diamond: double;
 
   now_shape: Tbgnd_shape;
   move_to, line_to: TPoint;
@@ -3954,7 +3954,7 @@ begin
 end;
 //_______________________________________________________________________________________
 
-procedure print_bgnd_marks(grid_left, grid_top: extended; maxbg_index: integer; rail_joints: boolean);
+procedure print_bgnd_marks(grid_left, grid_top: double; maxbg_index: integer; rail_joints: boolean);
 // print all the background timbering and marks.
 
 // if rail_joints=True print only the rail joints, otherwise omit them.
@@ -3969,11 +3969,11 @@ var
   array_max: integer;
   code: integer;
 
-  radcen_arm: extended;
+  radcen_arm: double;
 
   infill_points: array [0..3] of TPoint;
 
-  fontsize: extended;
+  fontsize: double;
   num_str: string;
   tbnum_str: string;
 
@@ -4468,7 +4468,7 @@ begin
 end;
 //__________________________________________________________________________________________
 
-procedure print_bgnd(grid_left, grid_top: extended);        // print background templates.
+procedure print_bgnd(grid_left, grid_top: double);        // print background templates.
 
 var
   max_list_index: integer;
@@ -6136,7 +6136,7 @@ begin
 end;
 //________________________________________________________________________________________
 
-procedure rotate_bitmap_by_dots(i: integer; p1, p2: Tpex; grid_left, grid_top: extended;
+procedure rotate_bitmap_by_dots(i: integer; p1, p2: Tpex; grid_left, grid_top: double;
   source_canv, dest_canv: TCanvas);
 
 // rotate bitmap image and draw directly on printer, dot by dot.
@@ -6155,10 +6155,10 @@ var
   width_pixels: integer;
   height_pixels: integer;
 
-  width_mm_per_pixel: extended;
-  height_mm_per_pixel: extended;
+  width_mm_per_pixel: double;
+  height_mm_per_pixel: double;
 
-  xmm, ymm: extended;
+  xmm, ymm: double;
 
   out1, out2: TPoint;
 

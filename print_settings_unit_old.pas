@@ -116,17 +116,17 @@ var
   sb_diagram_colour:integer=$00B08050;     // 209c  steel blue
   save_sb_diagram_col:integer=$00B08050;   // 209c  steel blue
 
-  printgrid_thick:extended=0.02;             // mm minimum thickness.
-  printpicborder_thick:extended=0.02;        // mm minimum thickness. (1 dot).
+  printgrid_thick:double=0.02;             // mm minimum thickness.
+  printpicborder_thick:double=0.02;        // mm minimum thickness. (1 dot).
 
-  printmargin_thick:extended=0.22;           // mm.
-  printshape_thick:extended=0.22;            // mm.
+  printmargin_thick:double=0.22;           // mm.
+  printshape_thick:double=0.22;            // mm.
 
-  printtimber_thick:extended=0.16;           // mm.
-  printrail_thick:extended=0.16;             // mm.
-  printmark_thick:extended=0.16;             // mm.
+  printtimber_thick:double=0.16;           // mm.
+  printrail_thick:double=0.16;             // mm.
+  printmark_thick:double=0.16;             // mm.
 
-  printcl_thick:extended=0.02;               // mm. track centre-lines 0.79.a minimum thickness. (1 dot).
+  printcl_thick:double=0.02;               // mm. track centre-lines 0.79.a minimum thickness. (1 dot).
 
   printguide_colour:integer=$000070F0;        // 211b orange was fuchsia
   save_pgc:integer=$000070F0;                 // 211b orange was fuchsia
@@ -151,7 +151,7 @@ var
   print_corner_page_numbers_font:TFont;  // 0.93.a
 
 
-  out_factor:extended=1.0;     // output scaling factor.
+  out_factor:double=1.0;     // output scaling factor.
 
   function create_fb_kludge_templates:integer;
   procedure delete_fb_kludge_templates;

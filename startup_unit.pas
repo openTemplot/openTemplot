@@ -55,7 +55,7 @@ type
 var
   old_startup_form: Told_startup_form;
 
-  global_factor: extended = 1.0;
+  global_factor: double = 1.0;
 
 //--------------------------
 
@@ -262,7 +262,7 @@ var
   sz_list: TStringList;
 
   fracmul, fracdiv: integer;
-  factor: extended;
+  factor: double;
 
   rem_width: integer;
 

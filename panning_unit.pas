@@ -140,7 +140,7 @@ var
 
   pad_view_index: integer = 0;  // 0.91.c
 
-procedure pan_button_click(scroll: extended; dir: integer; max_jump: boolean);
+procedure pan_button_click(scroll: double; dir: integer; max_jump: boolean);
 // called from pad for edge-panning.
 
 //_________________________________________________________________________________________
@@ -194,12 +194,12 @@ begin
 end;
 //_______________________________________________________________________________________
 
-procedure pan_button_click(scroll: extended; dir: integer; max_jump: boolean);
+procedure pan_button_click(scroll: double; dir: integer; max_jump: boolean);
 // also called from pad for edge-panning.
 
 // dir= 1=left, 2=right, 3=up, 4=down.   // scroll=-1.0 is paper, +1.0 is scroll.
 var
-  jump_factor: extended;
+  jump_factor: double;
 
 begin
   if mouse_modify > 0 then
@@ -343,7 +343,7 @@ procedure Tpanning_form.up_panbuttonMouseDown(Sender: TObject; Button: TMouseBut
   Shift: TShiftState; X, Y: Integer);
 
 var
-  scroll: extended;
+  scroll: double;
   ctrl: boolean;
 
 begin
@@ -384,7 +384,7 @@ procedure Tpanning_form.down_panbuttonMouseDown(Sender: TObject; Button: TMouseB
   Shift: TShiftState; X, Y: Integer);
 
 var
-  scroll: extended;
+  scroll: double;
   ctrl: boolean;
 
 begin
@@ -407,7 +407,7 @@ procedure Tpanning_form.left_panbuttonMouseDown(Sender: TObject; Button: TMouseB
   Shift: TShiftState; X, Y: Integer);
 
 var
-  scroll: extended;
+  scroll: double;
   ctrl: boolean;
 
 begin
@@ -430,7 +430,7 @@ procedure Tpanning_form.right_panbuttonMouseDown(Sender: TObject; Button: TMouse
   Shift: TShiftState; X, Y: Integer);
 
 var
-  scroll: extended;
+  scroll: double;
   ctrl: boolean;
 
 begin

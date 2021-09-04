@@ -110,10 +110,10 @@ var
 
   show_diffs_fs: boolean = False;       // True = show dims in full-size inches.
 
-  current_diffed_len: extended = 0;
+  current_diffed_len: double = 0;
   // all in model mm... (set in procedure update_check_diff_panels)
-  current_diffed_fl_len: extended = 0;
-  current_diffed_end_gap: extended = 0;
+  current_diffed_fl_len: double = 0;
+  current_diffed_end_gap: double = 0;
 
 procedure diffs_length_mouse_action;
 procedure diffs_flare_mouse_action;
@@ -495,14 +495,14 @@ const
 var
   i: integer;
   od: Toutdim;
-  fs_convert: extended;
+  fs_convert: double;
   fs_str: string;
   fs_code: integer;
 
   this_diff: Tcheck_end_diff;
   end_str, num_str, help_str: string;
 
-  mod_diff_by_mm: extended;
+  mod_diff_by_mm: double;
 
 begin
   cancel_adjusts(False);
@@ -576,14 +576,14 @@ const
 var
   i: integer;
   od: Toutdim;
-  fs_convert: extended;
+  fs_convert: double;
   fs_str: string;
   fs_code: integer;
 
   this_diff: Tcheck_end_diff;
   end_str, num_str, help_str: string;
 
-  mod_diff_by_mm: extended;
+  mod_diff_by_mm: double;
 
 begin
   cancel_adjusts(False);
@@ -657,14 +657,14 @@ const
 var
   i: integer;
   od: Toutdim;
-  fs_convert: extended;
+  fs_convert: double;
   fs_str: string;
   fs_code: integer;
 
   this_diff: Tcheck_end_diff;
   end_str, num_str, help_str: string;
 
-  mod_diff_by_mm: extended;
+  mod_diff_by_mm: double;
 
 begin
   cancel_adjusts(False);
@@ -875,7 +875,7 @@ procedure Tcheck_diffs_form.shorten_buttonClick(Sender: TObject);
 
 var
   this_diff: Tcheck_end_diff;
-  min_diff: extended;
+  min_diff: double;
 
 begin
   cancel_adjusts(False);

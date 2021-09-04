@@ -218,13 +218,13 @@ uses
 type
 
   Tlat_lon = record
-    lat: extended;  // latitude degrees
-    lon: extended;  // longitude degrees
+    lat: double;  // latitude degrees
+    lon: double;  // longitude degrees
   end;
 
   Tos_grid = record
-    easting: extended;
-    northing: extended;
+    easting: double;
+    northing: double;
   end;
 
 var
@@ -238,13 +238,13 @@ var
   map_tile_count_x: integer = 0;
   map_tile_count_y: integer = 0;
 
-  map_tile_size_mm: extended = 0;
+  map_tile_size_mm: double = 0;
 
   map_num_tiles_x: integer = 0;
   map_num_tiles_y: integer = 0;
 
-  map_org_x: extended = 0;
-  map_org_y: extended = 0;
+  map_org_x: double = 0;
+  map_org_y: double = 0;
 
   map_name_str: string = '';
 
@@ -260,8 +260,8 @@ var
   stop_loading: boolean = False;
   pause_loading: boolean = False;
 
-  base_width: extended = 2000;   // arbitrary init ...
-  base_height: extended = 1000;
+  base_width: double = 2000;   // arbitrary init ...
+  base_height: double = 1000;
 
   cancel_clicked: boolean = False;
 
@@ -282,7 +282,7 @@ function format_his_name: string; forward;
 
 //______________________________________________________________________________
 
-function parse_os_grid(modx, mody: extended; letter_str, easting_str, northing_str: string): Tos_grid;
+function parse_os_grid(modx, mody: double; letter_str, easting_str, northing_str: string): Tos_grid;
 
   // e.g. TG 51409 13177  = easting:651409  northing:313177
   // e.g. ND 51 13        = easting:351000  northing:913000
@@ -690,12 +690,12 @@ end;
 
 // (c) Chris Veness 2005-2016   MIT Licence
 
-function os_grid_to_lat_lon(easting, northing: extended): Tlat_lon;
+function os_grid_to_lat_lon(easting, northing: double): Tlat_lon;
 
 var
   E, NN, a, b, F0, k10, k20, N0, E0, e2, n, n2, n3, k1, M, Ma, Mb, Mc, Md,
   cosk1, sink1, v, k3, k42, tank1, tan2k1, tan4k1, tan6k1, seck1, v3, v5, v7,
-  VII, VIII, IX, X, XI, XII, XIIA, dE, dE2, dE3, dE4, dE5, dE6, dE7, k2: extended;
+  VII, VIII, IX, X, XI, XII, XIIA, dE, dE2, dE3, dE4, dE5, dE6, dE7, k2: double;
 
 begin
   E := easting;
@@ -787,16 +787,16 @@ var
 
   url_str: string;
 
-  latitude: extended;
+  latitude: double;
   zoom_level: integer;
 
   i, n: integer;
   zoom_str: string;
 
   od: Toutdim;
-  map_width_mm, map_height_mm: extended;
+  map_width_mm, map_height_mm: double;
 
-  shotx, shoty: extended;
+  shotx, shoty: double;
 
   new_shape: Tbgnd_shape;
 
@@ -804,7 +804,7 @@ var
 
   sheet_code: integer;
 
-  scan_factor: extended;
+  scan_factor: double;
 
   georef: boolean;
   zoom_ok: boolean;
@@ -1637,8 +1637,8 @@ var
 
   shape_str: string;
 
-  wl_factor: extended;
-  margin_factor: extended;
+  wl_factor: double;
+  margin_factor: double;
 
 begin
   map_name_str := 'map::' + format_his_name;    // global
@@ -1874,9 +1874,9 @@ var
 
   xtile_str, ytile_str, zoom_str: string;
 
-  xtile_org, ytile_org: extended;
+  xtile_org, ytile_org: double;
 
-  numtilesx, numtilesy: extended;
+  numtilesx, numtilesy: double;
 
   numx, numy: integer;
 
@@ -1884,9 +1884,9 @@ var
 
   dummy_zoom: integer;
 
-  lat_radians: extended;
+  lat_radians: double;
 
-  xscaling, yscaling: extended;
+  xscaling, yscaling: double;
 
   mapx, mapy: integer;
 
@@ -1905,7 +1905,7 @@ var
 
   load_picture: TPicture;
 
-  wl_factor, max_long, min_long, max_wide, min_wide, margin_factor: extended;
+  wl_factor, max_long, min_long, max_wide, min_wide, margin_factor: double;
 
   web_str: string;
 

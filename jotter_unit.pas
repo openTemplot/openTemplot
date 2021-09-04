@@ -111,8 +111,8 @@ var
 
   //____________________________
 
-  jotter_dx_org: extended = 0;        // for relative x,y mouse read-out on jotter.
-  jotter_dy_org: extended = 0;
+  jotter_dx_org: double = 0;        // for relative x,y mouse read-out on jotter.
+  jotter_dy_org: double = 0;
 
   jot_readout_units: integer = 0;
 
@@ -374,7 +374,7 @@ var
   pf: TextFile;                // text file to be redirected to printer.
   line_now: integer;
   prinor: TPrinterOrientation;
-  text_width_dots: extended;
+  text_width_dots: double;
   left_margin_str: string;
 
 begin

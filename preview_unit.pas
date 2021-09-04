@@ -73,11 +73,11 @@ var
 
 type                              // from origin in 1/100th mm to:
   Tsheet = record
-    grid_top: extended;          //  grid means trim margin lines inside the sheet edges.
-    grid_bottom: extended;
-    grid_left: extended;
-    grid_right: extended;
-    //grid_mid:extended;
+    grid_top: double;          //  grid means trim margin lines inside the sheet edges.
+    grid_bottom: double;
+    grid_left: double;
+    grid_right: double;
+    //grid_mid:double;
 
     empty: boolean;              //  True means there is nothing to print on this sheet.
   end;
@@ -94,46 +94,46 @@ var
 
   // API printer info (defaults in case no printer) ...
 
-  nom_width_dpi: extended = 300;         // nominal dpi across width.
-  nom_length_dpi: extended = 300;        // nominal dpi down length.
+  nom_width_dpi: double = 300;         // nominal dpi across width.
+  nom_length_dpi: double = 300;        // nominal dpi down length.
 
 
   printer_width_indexmax_dots: integer = 2399;    // printer width in dots -1 (index 0-).
   printer_length_indexmax_dots: integer = 3349;   // ditto length.
 
-  page_width: extended = 18000;
+  page_width: double = 18000;
   // 180mm 0.93.a was 19420     // in 1/100 mm. between trim margins (actual printer),
-  page_length: extended = 26000;
+  page_length: double = 26000;
   // 260mm 0.93.a was 27370     // these sizes are used for the page outlines on the pad view.
 
-  page_width_out: extended = 18000;
+  page_width_out: double = 18000;
   // 180mm 0.93.a was 19420 // and data size per page at the output scaling,
-  page_length_out: extended = 26000;
+  page_length_out: double = 26000;
   // 260mm 0.93.a was 27370 // these sizes are used for the printer preview and printing.
 
-  print_width: extended = 20320;
+  print_width: double = 20320;
   // full sheet sizes printable area including margins in 1/100th mm.
-  print_length: extended = 28420;
+  print_length: double = 28420;
 
-  scal: extended;               // scale dots per 1/100th mm at 100% output.
-  scaw: extended;
+  scal: double;               // scale dots per 1/100th mm at 100% output.
+  scaw: double;
 
-  scaw_out: extended;           // scale dots per 1/100th mm at the output scaling.
-  scal_out: extended;
+  scaw_out: double;           // scale dots per 1/100th mm at the output scaling.
+  scal_out: double;
 
   // default trim margins.
 
-  page_margin_top_mm: extended = 6.0;     // 6 mm top trim margin.       mod 0.76.a was 6.5 mm
-  page_margin_bottom_mm: extended = 4.5;  // 4.5 mm bottom trim margin.  mod 0.76.a was 4 mm
-  page_margin_left_mm: extended = 7.0;    // 7 mm left trim margin.
-  page_margin_right_mm: extended = 2.0;   // 2 mm right trim margin.
-  alignmarks_inner_mm: extended = 3.0;    // 3 mm extent of alignment marks inside the trim margins.
-  halfmm_mm: extended = 0.5;              // 0.5 mm general spacing dimension.
-  left_blanking_mm: extended = 0;         // no left blanking.
-  top_blanking_mm: extended = 0;          // no top blanking.
+  page_margin_top_mm: double = 6.0;     // 6 mm top trim margin.       mod 0.76.a was 6.5 mm
+  page_margin_bottom_mm: double = 4.5;  // 4.5 mm bottom trim margin.  mod 0.76.a was 4 mm
+  page_margin_left_mm: double = 7.0;    // 7 mm left trim margin.
+  page_margin_right_mm: double = 2.0;   // 2 mm right trim margin.
+  alignmarks_inner_mm: double = 3.0;    // 3 mm extent of alignment marks inside the trim margins.
+  halfmm_mm: double = 0.5;              // 0.5 mm general spacing dimension.
+  left_blanking_mm: double = 0;         // no left blanking.
+  top_blanking_mm: double = 0;          // no top blanking.
 
-  right_blanking_mm: extended = 5000;     // no right blanking (default 5 metres page width).
-  bottom_blanking_mm: extended = 5000;    // no bottom blanking. (ditto).
+  right_blanking_mm: double = 5000;     // no right blanking (default 5 metres page width).
+  bottom_blanking_mm: double = 5000;    // no bottom blanking. (ditto).
 
   per_printer_margins: boolean = True;    // use above defaults.
 
@@ -152,24 +152,24 @@ var
   top_blanking_dots: integer = 0;
   bottom_blanking_dots: integer = 0;
 
-  ypd: extended;
+  ypd: double;
 
   sheet_co_wide: integer;          // no of sheets wide.
   sheet_co_long: integer;          // no of sheets long.
 
-  print_pages_top_origin: extended = 0;      // mm..
-  print_pages_left_origin: extended = 0;
+  print_pages_top_origin: double = 0;      // mm..
+  print_pages_left_origin: double = 0;
 
-  page_top_offset: extended = 0;            // actual offset used in 1/100th mm.
-  page_left_offset: extended = 0;
+  page_top_offset: double = 0;            // actual offset used in 1/100th mm.
+  page_left_offset: double = 0;
 
   metafile_width: integer = 24000;        // 0.93.a
   metafile_height: integer = 12000;
-  metafile_dpi: extended = 600;
+  metafile_dpi: double = 600;
 
   track_bmp_width: integer = 3900;        // 0.93.a
   track_bmp_height: integer = 2700;
-  track_bmp_dpi: extended = 381;
+  track_bmp_dpi: double = 381;
 
   previous_print_width: integer = 0;   // 1/100th mm..
   previous_print_length: integer = 0;
@@ -206,8 +206,8 @@ uses Printers, control_room, grid_unit, alert_unit, math_unit, calibration_unit,
   print_settings_unit, pdf_unit, { OT-FIRST dtp_unit, dtp_settings_unit,} export_unit;
 
 var
-  pvsx: extended = 1;
-  pvsy: extended = 1;
+  pvsx: double = 1;
+  pvsy: double = 1;
   left_dots: integer = 0;
   bottom_dots: integer = 0;
 
@@ -220,8 +220,8 @@ function get_fit_all_shapes_size_mm(showing_trackpad_only, showing_output_only: 
   // 0.93.a  calc a rectangle to contain all background shapes
 
 var
-  max_x, max_y: extended;
-  min_x, min_y: extended;
+  max_x, max_y: double;
+  min_x, min_y: double;
   n: integer;
 
 begin
@@ -291,8 +291,8 @@ function get_fit_all_templates_size_mm(include_control, include_bgnd, group_only
   // calc extents to fit all, from grid origin (neg ignored), in mm
 
 var
-  max_wide, max_long: extended;
-  yd: extended;
+  max_wide, max_long: double;
+  yd: double;
   n: integer;
 
 begin
@@ -368,30 +368,30 @@ var
   cur_cal: Tcal_data;
 
   prindex: integer;
-  head_factor, roller_factor: extended;
+  head_factor, roller_factor: double;
 
-  cal_wide_dpi: extended;    // adjusted for calibration...
-  cal_long_dpi: extended;
+  cal_wide_dpi: double;    // adjusted for calibration...
+  cal_long_dpi: double;
 
   printer_width_dots, printer_length_dots: integer;
 
   now: integer;
 
-  max_wide: extended;
-  max_long: extended;
+  max_wide: double;
+  max_long: double;
 
   max_extents: Tpex;  // mm  0.93.a
 
-  banner_top_offset: extended;  // for banner paper.
+  banner_top_offset: double;  // for banner paper.
 
-  out_single_factor_wide: extended;
-  out_single_factor_long: extended;
+  out_single_factor_wide: double;
+  out_single_factor_long: double;
 
   sheet_down: integer;             // current sheet index.
   sheet_across: integer;           // ditto
 
-  down: extended;
-  across: extended;
+  down: double;
+  across: double;
 
   any_sheets: boolean;             // False = nothing to print.
   column_started: boolean;
@@ -1020,11 +1020,11 @@ procedure preview_sketchboard_items(on_canvas: TCanvas);    // 0.93.a  add sketc
 
 var
   dtp_rect: TRect;
-  dtp_width, dtp_height: extended;
+  dtp_width, dtp_height: double;
 
   p1, p2: Tpex;
 
-  x1, y1, x2, y2: extended;
+  x1, y1, x2, y2: double;
 
   sb_saved_page_colour: TColor;
 
@@ -1158,11 +1158,11 @@ var
 
   something_drawn: boolean;
 
-  font_height, font_size: extended;
+  font_height, font_size: double;
   now_shape: Tbgnd_shape;
-  x1, y1, x2, y2: extended;
+  x1, y1, x2, y2: double;
 
-  arm, diamond: extended;
+  arm, diamond: double;
 
   raster_rect: TRect;
 
@@ -1993,7 +1993,7 @@ procedure print_index_sheet(pdf: boolean);
 // 0.91.d pdf // print a preview of printed sheets as a page index.
 
 var
-  pvsx, pvsy: extended;            // don't use the global
+  pvsx, pvsy: double;            // don't use the global
   psx: integer;
 
   sheet_down: integer;             // current sheet index.
@@ -2020,9 +2020,9 @@ var
 
   something_drawn: boolean;
 
-  font_height, font_size: extended;
+  font_height, font_size: double;
   now_shape: Tbgnd_shape;
-  x1, y1, x2, y2: extended;
+  x1, y1, x2, y2: double;
 
   dummy_i: integer;
 

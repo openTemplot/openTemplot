@@ -35,11 +35,11 @@ uses
 
 type
   Tpex = record                      // x,y point floats (TPoint is integer).
-    x: extended;
-    y: extended;
-    class function xy(x, y: extended): Tpex; static;
+    x: double;
+    y: double;
+    class function xy(x, y: double): Tpex; static;
 
-    procedure set_xy(x, y: extended);
+    procedure set_xy(x, y: double);
 
     function magnitude: double;
     function normalise: Tpex;
@@ -56,13 +56,13 @@ type
 
 implementation
 
-class function Tpex.xy(x, y: extended): Tpex;
+class function Tpex.xy(x, y: double): Tpex;
 begin
   Result.x := x;
   Result.y := y;
 end;
 
-procedure Tpex.set_xy(x, y: extended);
+procedure Tpex.set_xy(x, y: double);
 begin
   self.x := x;
   self.y := y;
