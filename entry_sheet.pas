@@ -879,7 +879,7 @@ begin
     Close;
   end;
 
-  if ((Key = Word(VkKeyScan('J'))) or (Key = Word(VkKeyScan('j')))) and (Shift = [ssCtrl])   // CTRL-J.
+  if ((Key = VK_J) or (Key = VK_j)) and (Shift = [ssCtrl])   // CTRL-J.
   then begin
     if jotter_form.Showing = True  // toggle
     then

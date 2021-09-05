@@ -32,7 +32,7 @@ unit pad_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, LCLType, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Menus, StdCtrls, ExtCtrls, ComCtrls, Buttons,
   ExtDlgs, ImgList, PrintersDlgs,
   point_ex,
@@ -7032,14 +7032,14 @@ begin
   end;
   //--------------------
 
-  if ((Key = VK_ADD) and (Shift = [])) or ((key = Word(VkKeyScan('='))) and (Shift = [ssShift, ssCtrl]))
+  if ((Key = VK_ADD) and (Shift = [])) or ((key = VK_LCL_EQUAL) and (Shift = [ssShift, ssCtrl]))
   // numpad + key  or Shift+Ctrl+=
   then begin
     explode_normal_menu_entry.Click;
     Key := 0;
   end;
 
-  if ((Key = VK_SUBTRACT) and (Shift = [])) or ((key = Word(VkKeyScan('-'))) and
+  if ((Key = VK_SUBTRACT) and (Shift = [])) or ((key = VK_LCL_MINUS) and
     (Shift = [ssShift, ssCtrl]))  // numpad - key  or Shift+Ctrl+-
   then begin
     shrink_normal_menu_entry.Click;
@@ -7058,7 +7058,7 @@ begin
 
   //----------------------
 
-  if (Key = VK_MULTIPLY) or ((Key = Word(VkKeyScan(''''))) and (Shift = [ssShift, ssCtrl]))
+  if (Key = VK_MULTIPLY) or ((Key = VK_LCL_QUOTE) and (Shift = [ssShift, ssCtrl]))
   // numpad * key  or Shift+Ctrl+'
   then begin
     hide_current_flag := False;
@@ -7066,7 +7066,7 @@ begin
     Key := 0;
   end;
 
-  if (Key = VK_DIVIDE) or ((Key = Word(VkKeyScan('/'))) and (Shift = [ssShift, ssCtrl]))
+  if (Key = VK_DIVIDE) or ((Key = VK_OEM_2) and (Shift = [ssShift, ssCtrl]))
   // numpad / key  or Shift+Ctrl+/ (slash)
   then begin
     hide_current_flag := False;
@@ -7225,7 +7225,7 @@ begin
     Key := 0;
   end;
 
-  if (Key = Word(VkKeyScan('v'))) and (Shift = [ssCtrl])
+  if (Key = VK_V) and (Shift = [ssCtrl])
   // 0.93.a CTRL+V is STORE & BACKGROUND (same as INSERT)
   then begin
     // undocumented for long-time users..   206c
@@ -7238,13 +7238,13 @@ begin
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('.'))) and (Shift = [ssCtrl])        // full-stop key virtual code.
+  if (key = VK_OEM_PERIOD) and (Shift = [ssCtrl])        // full-stop key virtual code.
   then begin
     cross_hairs_pointer_menu_entry.Click;
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('/')){key=$BF}) and (Shift = [ssCtrl])
+  if (key = VK_OEM_2){key=$BF} and (Shift = [ssCtrl])
   // forward slash key virtual code.
   then begin
     if show_reminders_menu_entry.Checked = True
@@ -7256,41 +7256,41 @@ begin
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('\')){key=$DC}) and (Shift = [ssCtrl])        // backslash key virtual code.
+  if (key = VK_OEM_5{key=$DC}) and (Shift = [ssCtrl])        // backslash key virtual code.
   then begin
     reset_notch_menu_entry.Click;     // 0.93.a change CTRL+BACKSLASH
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('-'))) and (Shift = [ssCtrl])        // minus key virtual code.
+  if (key = VK_LCL_MINUS) and (Shift = [ssCtrl])        // minus key virtual code.
   then begin
     hide_current_flag := False;
     shorten_approach_one_menu_entry.Click;
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('='))) and (Shift = [ssCtrl])        // equal key virtual code.
+  if (key = VK_LCL_EQUAL) and (Shift = [ssCtrl])        // equal key virtual code.
   then begin
     hide_current_flag := False;
     extend_approach_one_menu_entry.Click;
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('['))) and (Shift = [ssCtrl])        // left bracket key virtual code.
+  if (key = VK_OEM_4) and (Shift = [ssCtrl])        // left bracket key virtual code.
   then begin
     hide_current_flag := False;
     shorten_exit_one_menu_entry.Click;
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan(']'))) and (Shift = [ssCtrl])        // right bracket key virtual code.
+  if (key = VK_OEM_6) and (Shift = [ssCtrl])        // right bracket key virtual code.
   then begin
     hide_current_flag := False;
     extend_exit_one_menu_entry.Click;
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('`'))) and (Shift = [ssCtrl])
+  if (key = VK_OEM_3) and (Shift = [ssCtrl])
   //  ` (top-left) key virtual code.
   then begin
     hide_current_flag := False;
@@ -7298,7 +7298,7 @@ begin
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('`'))) and (Shift = [ssShift, ssCtrl])
+  if (key = VK_OEM_3) and (Shift = [ssShift, ssCtrl])
   //  ` (top-left) key virtual code.
   then begin
     hide_current_flag := False;
