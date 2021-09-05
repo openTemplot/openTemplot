@@ -661,7 +661,8 @@ implementation
 {$BOOLEVAL ON}
 
 uses
-  LCLIntf, Math, Clipbrd, {FileCtrl,} {@demo Clipbrd,} Printers, alert_unit,
+  LCLIntf, Math, Clipbrd, {FileCtrl,} {@demo Clipbrd,} Printers,
+  alert_unit,
   help_sheet, math_unit,
   pad_unit, info_unit,
   gauge_unit, chat_unit, entry_sheet, print_unit, keep_select,
@@ -4718,7 +4719,7 @@ begin
 
   folder_str := folder_str + '\';
 
-  if ShellExecute(0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <= 32 then
+  if not OpenDocument(folder_str) then
     ShowMessage('Sorry, unable to open the folder.')
   else
     external_window_showing := True;
@@ -4740,7 +4741,7 @@ begin
 
   folder_str := folder_str + '\';
 
-  if ShellExecute(0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <= 32 then
+  if not OpenDocument(folder_str) then
     ShowMessage('Sorry, unable to open the folder.')
   else
     external_window_showing := True;

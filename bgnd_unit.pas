@@ -505,7 +505,8 @@ implementation
 {$R *.lfm}
 
 uses
-  ShellAPI, Math, Clipbrd, control_room, grid_unit, colour_unit, help_sheet, chat_unit, alert_unit,
+  LCLIntf, Math, Clipbrd,
+  control_room, grid_unit, colour_unit, help_sheet, chat_unit, alert_unit,
   entry_sheet, math_unit, wait_message, image_viewer_unit, xml_unit, map_loader_unit, action_unit;
 
 //________________________________________________________________________________________
@@ -7253,9 +7254,7 @@ begin
                   begin
                     folder_str := ExtractFilePath(emf_str);
 
-                    if ShellExecute(
-                      0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <= 32
-                    then
+                    if not OpenDocument(folder_str) then
                       show_modal_message('Sorry, unable to open the folder.')
                     else
                       external_window_showing := True;
@@ -7347,9 +7346,7 @@ begin
                   begin
                     folder_str := ExtractFilePath(FileName);
 
-                    if ShellExecute(
-                      0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <= 32
-                    then
+                    if not OpenDocument(folder_str) then
                       show_modal_message('Sorry, unable to open the folder.')
                     else
                       external_window_showing := True;

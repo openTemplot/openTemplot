@@ -25634,8 +25634,7 @@ begin
         if i = 3 then begin
           folder_str := file_str;
 
-          if ShellExecute(0, 'open', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <=
-            32 then
+          if not OpenDocument(folder_str) then
             ShowMessage('Sorry, unable to display the image.')
           else
             external_window_showing := True;
@@ -25644,8 +25643,7 @@ begin
         if i = 4 then begin
           folder_str := ExtractFilePath(file_str);
 
-          if ShellExecute(0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <= 32
-          then
+          if not OpenDocument(folder_str) then
             ShowMessage('Sorry, unable to open the folder.')
           else
             external_window_showing := True;
@@ -27996,7 +27994,7 @@ var
 begin
   folder_str := exe_str + 'PRINT-PREVIEW-FILES\';
 
-  if ShellExecute(0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <= 32 then
+  if not OpenDocument(folder_str) then
     ShowMessage('Sorry, unable to open the folder.')
   else
     external_window_showing := True;
@@ -28011,7 +28009,7 @@ var
 begin
   folder_str := exe_str + 'PDF-PREVIEW-FILES\';
 
-  if ShellExecute(0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <= 32 then
+  if not OpenDocument(folder_str) then
     ShowMessage('Sorry, unable to open the folder.')
   else
     external_window_showing := True;
