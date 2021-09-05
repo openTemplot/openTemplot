@@ -1586,7 +1586,7 @@ var
 
   default_file_str: string;  // 206b ...
 
-  window_handle: HWND;
+  { window_handle: HWND; }
 
   title_str: string;
 

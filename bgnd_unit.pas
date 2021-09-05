@@ -666,107 +666,110 @@ function get_EMF_from_file_to_memory(file_str: string; var new_met_DC_handle: HD
 
   // return metafile handle
 
-var
-  met_DC_handle: HDC;
-  failed: boolean;
-  met_size: integer;
-  met_copied: integer;
-  p: Pointer;
-
+// EMF
+//var
+//  met_DC_handle: HDC;
+//  failed: boolean;
+//  met_size: integer;
+//  met_copied: integer;
+//  p: Pointer;
+//
 begin
-  Result := False;  // init
-  failed := False;
-
-  try
-    try
-      met_DC_handle := GetEnhMetaFile(PChar(file_str));   // load EMF file
-    except
-      failed := True;
-      EXIT;
-    end;//try
-
-    try
-      met_size := GetEnhMetaFileBits(met_DC_handle, 0, nil);   // get size of EMF data
-    except
-      failed := True;
-      EXIT;
-    end;//try
-
-    try
-      GetMem(p, met_size);    // memory space for it
-    except
-      memory_alert;          // tell him what's happened.
-      p := nil;
-      EXIT;
-    end;//try
-
-    try
-      met_copied := GetEnhMetaFileBits(met_DC_handle, met_size, p);   // get the EMF contents
-    except
-      failed := True;
-      EXIT;
-    end;//try
-
-    try
-      new_met_DC_handle := SetEnhMetaFileBits(met_copied, p);    // put them in memory
-    except
-      failed := True;
-      EXIT;
-    end;//try
-
-    try
-      DeleteEnhMetaFile(met_DC_handle);
-      // release the file handle     (n.b. CloseEnh.. after saving a file.  DeleteEnh.. after loading a file)
-      FreeMem(p);
-    except
-      failed := True;
-      EXIT;
-    end;//try
-
-    Result := not failed;
-
-  finally
-    if failed = True then
-      show_modal_message('error: sorry, unable to load the EMF metafile');
-  end;
+//EMF
+//  Result := False;  // init
+//  failed := False;
+//
+//  try
+//    try
+//      met_DC_handle := GetEnhMetaFile(PChar(file_str));   // load EMF file
+//    except
+//      failed := True;
+//      EXIT;
+//    end;//try
+//
+//    try
+//      met_size := GetEnhMetaFileBits(met_DC_handle, 0, nil);   // get size of EMF data
+//    except
+//      failed := True;
+//      EXIT;
+//    end;//try
+//
+//    try
+//      GetMem(p, met_size);    // memory space for it
+//    except
+//      memory_alert;          // tell him what's happened.
+//      p := nil;
+//      EXIT;
+//    end;//try
+//
+//    try
+//      met_copied := GetEnhMetaFileBits(met_DC_handle, met_size, p);   // get the EMF contents
+//    except
+//      failed := True;
+//      EXIT;
+//    end;//try
+//
+//    try
+//      new_met_DC_handle := SetEnhMetaFileBits(met_copied, p);    // put them in memory
+//    except
+//      failed := True;
+//      EXIT;
+//    end;//try
+//
+//    try
+//      DeleteEnhMetaFile(met_DC_handle);
+//      // release the file handle     (n.b. CloseEnh.. after saving a file.  DeleteEnh.. after loading a file)
+//      FreeMem(p);
+//    except
+//      failed := True;
+//      EXIT;
+//    end;//try
+//
+//    Result := not failed;
+//
+//  finally
+//    if failed = True then
+//      show_modal_message('error: sorry, unable to load the EMF metafile');
+//  end;
 end;
 //______________________________________________________________________________
 
 function get_metafile_for_existing_shape(image_file_str: string; bgshape: Tbgshape): boolean;
-
-var
-  emf_header: Temf_header;
+// EMF
+//var
+//  emf_header: Temf_header;
 
 begin
-  Result := False;    // init
-
-  with bgshape do begin
-    with bgimage.image_shape do begin
-
-      if get_EMF_from_file_to_memory(image_file_str, image_metafile.emf_HDC) = True then begin
-        if GetEnhMetaFileHeader(image_metafile.emf_HDC, SizeOf(emf_header), @emf_header) <>
-          0 then begin
-          with emf_header.emf_frame do begin                  //  full image frame
-            image_metafile.emf_width_mm := ABS(Right - Left) / 100;
-            image_metafile.emf_height_mm := ABS(Bottom - Top) / 100;
-          end;//with
-
-          if image_metafile.emf_width_mm > minfp   // no zero div or neg
-          then begin
-            image_width := 6000;
-            // arbitrary    not meaningful for EMF, used to set aspect ratio for display
-            image_height :=
-              Round(image_width * image_metafile.emf_height_mm / image_metafile.emf_width_mm);
-
-            bgnd_shape.picture_is_metafile := True;  // into file
-
-            Result := True;
-          end;
-        end;
-      end;
-
-    end;//with
-  end;//with
+// EMF
+//  Result := False;    // init
+//
+//  with bgshape do begin
+//    with bgimage.image_shape do begin
+//
+//      if get_EMF_from_file_to_memory(image_file_str, image_metafile.emf_HDC) = True then begin
+//        if GetEnhMetaFileHeader(image_metafile.emf_HDC, SizeOf(emf_header), @emf_header) <>
+//          0 then begin
+//          with emf_header.emf_frame do begin                  //  full image frame
+//            image_metafile.emf_width_mm := ABS(Right - Left) / 100;
+//            image_metafile.emf_height_mm := ABS(Bottom - Top) / 100;
+//          end;//with
+//
+//          if image_metafile.emf_width_mm > minfp   // no zero div or neg
+//          then begin
+//            image_width := 6000;
+//            // arbitrary    not meaningful for EMF, used to set aspect ratio for display
+//            image_height :=
+//              Round(image_width * image_metafile.emf_height_mm / image_metafile.emf_width_mm);
+//
+//            bgnd_shape.picture_is_metafile := True;  // into file
+//
+//            Result := True;
+//          end;
+//        end;
+//      end;
+//
+//    end;//with
+//  end;//with
 end;
 //______________________________________________________________________________
 
@@ -3172,9 +3175,10 @@ begin
             if rotated_picture <> nil then
               rotated_picture.Free;
 
-            if bgnd_shape.picture_is_metafile = True              // 291a
-            then
-              DeleteEnhMetaFile(image_metafile.emf_HDC);  // release the metafile handle and free memory
+            //  EMF
+            //if bgnd_shape.picture_is_metafile = True              // 291a
+            //then
+            //  DeleteEnhMetaFile(image_metafile.emf_HDC);  // release the metafile handle and free memory
 
           end;//with
 
@@ -3981,8 +3985,9 @@ begin
                     // EMF frame size in mm
                     WriteFloat('emf_height_mm', image_metafile.emf_height_mm, 0);
 
-                    met_size := GetEnhMetaFileBits(image_metafile.emf_HDC, 0, nil);
-                    // get size of EMF data
+                    //  EMF
+                    //met_size := GetEnhMetaFileBits(image_metafile.emf_HDC, 0, nil);
+                    //// get size of EMF data
 
                     if met_size = 0 then begin
                       failed := True;
@@ -3998,8 +4003,9 @@ begin
                       EXIT;
                     end;//try
 
-                    met_copied :=
-                      GetEnhMetaFileBits(image_metafile.emf_HDC, met_size, p);   // get the EMF contents into buffer
+                    // EMF
+                    //met_copied :=
+                    //  GetEnhMetaFileBits(image_metafile.emf_HDC, met_size, p);   // get the EMF contents into buffer
 
                     if met_copied = 0    // size of data copied
                     then begin
@@ -4236,8 +4242,9 @@ begin
                     then
                     begin
                       load_stream.Position := 0;
-                      image_metafile.emf_HDC :=
-                        SetEnhMetaFileBits(load_stream.Size, load_stream.Memory);
+                      // EMF
+                      //image_metafile.emf_HDC :=
+                      //  SetEnhMetaFileBits(load_stream.Size, load_stream.Memory);
                     end;
                     load_stream.Free;
                   end
@@ -7244,27 +7251,28 @@ begin
 
                 emf_str := ChangeFileExt(FileName, '.emf');   // force extension
 
-                if CopyEnhMetaFile(emf_HDC, PChar(emf_str)) <>
-                  0 then begin
-                  if alert(2, '   picture  shape  content  saved',
-                    'The EMF metafile was created successfully:||' + emf_str
-                    + '| ', '', '', '',
-                    'open  the  containing  folder', '', 'continue', 0) = 4
-                  then
-                  begin
-                    folder_str := ExtractFilePath(emf_str);
-
-                    if not OpenDocument(folder_str) then
-                      show_modal_message('Sorry, unable to open the folder.')
-                    else
-                      external_window_showing := True;
-                  end;
-                end
-                else begin
+                //  EMF
+                //if CopyEnhMetaFile(emf_HDC, PChar(emf_str)) <>
+                //  0 then begin
+                //  if alert(2, '   picture  shape  content  saved',
+                //    'The EMF metafile was created successfully:||' + emf_str
+                //    + '| ', '', '', '',
+                //    'open  the  containing  folder', '', 'continue', 0) = 4
+                //  then
+                //  begin
+                //    folder_str := ExtractFilePath(emf_str);
+                //
+                //    if not OpenDocument(folder_str) then
+                //      show_modal_message('Sorry, unable to open the folder.')
+                //    else
+                //      external_window_showing := True;
+                //  end;
+                //end
+                //else begin
                   user_save_img_path := '';
                   show_modal_message(
                     'Sorry, an error occurred in saving the metafile to ' + #13 + #13 + emf_str);
-                end;
+                //end;
               end;//with metafile
             end
             else begin     // bitmap...

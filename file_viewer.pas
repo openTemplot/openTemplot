@@ -938,14 +938,20 @@ begin
 
   fv_has_been_active := True;
 
+
+  // It may be possible to remove the following code entirely, since the
+  // THTMLViewer component is liely to be dropped since it is not itself
+  // cross-platform
+  //                      GTD : 15/9/21
+
   // bug in THTMLViewer -- see Lazarus version -- middle mouse scrolling conflicts with custom cursors.
 
   // bug fix for THTMLViewer -- prevent middle mouse button scrolling from using our custom cursors...
 
-  Screen.Cursors[adjust_ns_cursor_invert] := LoadCursor(0, IDC_SIZENS);
+  //Screen.Cursors[adjust_ns_cursor_invert] := LoadCursor(0, IDC_SIZENS);
   // use N-S arrows scrolling instead.
-  Screen.Cursors[adjust_we_cursor_invert] := LoadCursor(0, IDC_SIZENS);
-  Screen.Cursors[mouse_action_cursor] := LoadCursor(0, IDC_SIZENS);
+  //Screen.Cursors[adjust_we_cursor_invert] := LoadCursor(0, IDC_SIZENS);
+  //Screen.Cursors[mouse_action_cursor] := LoadCursor(0, IDC_SIZENS);
 
 end;
 
@@ -1232,7 +1238,8 @@ begin
     count_label.Show;
     found_label.Show;
 
-    ShowCursor(False);   // Windows SDK
+    //ShowCursor(False);   // Windows SDK
+    Screen.Cursor := crNone;
 
     // first set up the trackpad...
 
@@ -1430,9 +1437,10 @@ begin
 
     use_bmp_image_streams := False; // restore normal image files
 
-    repeat
-      windows_cursor_count := ShowCursor(True);   // Windows SDK
-    until windows_cursor_count > -1;              // ensure visible
+    //repeat
+    //  windows_cursor_count := ShowCursor(True);   // Windows SDK
+    //until windows_cursor_count > -1;              // ensure visible
+    Screen.Cursor := crDefault;
 
     refresh_button.Caption := 'refresh  list';
   end;//if count>0

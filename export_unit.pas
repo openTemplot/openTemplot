@@ -433,70 +433,71 @@ function do_metafile(file_str: string; met_width_dots, met_height_dots: integer)
   // 291a
 
   // if file_str='' create  \internal\temp_emf.emf
-
-var
-  met_rect, output_rect: TRect;
-  met_DC_handle, load_DC: HDC;
-  met_canvas: TCanvas;
-
-  met_file_str: string;
-
-  horz_factor, vert_factor: double;
-
-  ref_DC: HDC;
-
-  met_width_units, met_height_units: integer;
-
-  failed: boolean;
+// EMF
+//
+//var
+//  met_rect, output_rect: TRect;
+//  met_DC_handle, load_DC: HDC;
+//  met_canvas: TCanvas;
+//
+//  met_file_str: string;
+//
+//  horz_factor, vert_factor: double;
+//
+//  ref_DC: HDC;
+//
+//  met_width_units, met_height_units: integer;
+//
+//  failed: boolean;
 
 begin
-  Result := False;  // init
-  failed := False;
-  met_file_str := '';
-
-  try
-    ref_DC := GetDC(0);  // screen
-  except
-    failed := True;
-  end;
-
-  horz_factor := GetDeviceCaps(ref_DC, HORZSIZE) * 100 / GetDeviceCaps(ref_DC, HORZRES);
-  vert_factor := GetDeviceCaps(ref_DC, VERTSIZE) * 100 / GetDeviceCaps(ref_DC, VERTRES);
-
-  met_width_units := Round(met_width_dots * horz_factor);
-  met_height_units := Round(met_height_dots * vert_factor);
-
-  met_rect := Rect(0, 0, met_width_units, met_height_units);
-
-  if file_str <> '' then
-    met_file_str := file_str
-  else
-    met_file_str := exe_str + 'internal\temp_emf.emf';
-
-  try
-    met_dc_handle := CreateEnhMetaFile(ref_DC, PChar(met_file_str), @met_rect, nil);
-  except
-    failed := True;
-  end;//try
-
-  met_canvas := TCanvas.Create;
-
-  met_canvas.Handle := met_dc_handle;
-
-  export_draw(met_canvas, met_width_dots, met_height_dots, 4);
-  // draw control template or entire pad    4= for exported metafile.
-
-  try
-    CloseEnhMetaFile(met_dc_handle);
-  except
-    failed := True;
-  end;//try
-
-  met_canvas.Free;
-
-  ReleaseDC(0, ref_DC);
-
-  Result := not failed;
+  //Result := False;  // init
+  //failed := False;
+  //met_file_str := '';
+  //
+  //try
+  //  ref_DC := GetDC(0);  // screen
+  //except
+  //  failed := True;
+  //end;
+  //
+  //horz_factor := GetDeviceCaps(ref_DC, HORZSIZE) * 100 / GetDeviceCaps(ref_DC, HORZRES);
+  //vert_factor := GetDeviceCaps(ref_DC, VERTSIZE) * 100 / GetDeviceCaps(ref_DC, VERTRES);
+  //
+  //met_width_units := Round(met_width_dots * horz_factor);
+  //met_height_units := Round(met_height_dots * vert_factor);
+  //
+  //met_rect := Rect(0, 0, met_width_units, met_height_units);
+  //
+  //if file_str <> '' then
+  //  met_file_str := file_str
+  //else
+  //  met_file_str := exe_str + 'internal\temp_emf.emf';
+  //
+  //try
+  //  met_dc_handle := CreateEnhMetaFile(ref_DC, PChar(met_file_str), @met_rect, nil);
+  //except
+  //  failed := True;
+  //end;//try
+  //
+  //met_canvas := TCanvas.Create;
+  //
+  //met_canvas.Handle := met_dc_handle;
+  //
+  //export_draw(met_canvas, met_width_dots, met_height_dots, 4);
+  //// draw control template or entire pad    4= for exported metafile.
+  //
+  //try
+  //  CloseEnhMetaFile(met_dc_handle);
+  //except
+  //  failed := True;
+  //end;//try
+  //
+  //met_canvas.Free;
+  //
+  //ReleaseDC(0, ref_DC);
+  //
+  //Result := not failed;
 end;
 //______________________________________________________________________________
 

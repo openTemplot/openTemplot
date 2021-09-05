@@ -1215,11 +1215,12 @@ begin
             if num_of_print_pages = help_form.html_view.NumPrinterPages
             // he hasn't changed paper size
             then begin
-              if PrintRange = prAllPages
-              then
-                help_form.html_view.Print(1, 9999)
-              else
-                help_form.html_view.Print(FromPage, ToPage);
+              // EMF (Kinda) THTMLViewer only has a print procedure under Windows
+              //if PrintRange = prAllPages
+              //then
+              //  help_form.html_view.Print(1, 9999)
+              //else
+              //  help_form.html_view.Print(FromPage, ToPage);
               all_done := True;
             end;
           end;
@@ -1230,11 +1231,12 @@ begin
             if num_of_print_pages = keep_form.keep_html_view.NumPrinterPages
             // he hasn't changed paper size
             then begin
-              if PrintRange = prAllPages
-              then
-                keep_form.keep_html_view.Print(1, 9999)
-              else
-                keep_form.keep_html_view.Print(FromPage, ToPage);
+              // EMF (Kinda) THTMLViewer only has a print procedure under Windows
+              //if PrintRange = prAllPages
+              //then
+              //  keep_form.keep_html_view.Print(1, 9999)
+              //else
+              //  keep_form.keep_html_view.Print(FromPage, ToPage);
               all_done := True;
             end;
           end;
