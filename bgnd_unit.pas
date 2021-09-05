@@ -31,7 +31,7 @@ unit bgnd_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   ExtCtrls, ComCtrls, StdCtrls, Menus, ExtDlgs, Buttons,
   point_ex,
   background_shapes,

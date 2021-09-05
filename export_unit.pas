@@ -30,7 +30,7 @@ unit export_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   ExtCtrls, StdCtrls, ComCtrls, ExtDlgs, Utils;
 
 type
@@ -179,7 +179,7 @@ function do_metafile(file_str: string; met_width_dots, met_height_dots: integer)
 implementation
 
 uses
-  LCLIntf,
+  LCLType, LCLIntf,
   control_room, point_ex, pad_unit, keep_select, math_unit, preview_unit, entry_sheet, help_sheet,
      { OT-FIRST dtp_unit, dtp_settings_unit,} alert_unit, grid_unit, pdf_unit, print_settings_unit,colour_unit,
   bgnd_unit, dxf_unit, image_viewer_unit,

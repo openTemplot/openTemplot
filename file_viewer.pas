@@ -30,7 +30,7 @@ unit file_viewer;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, FileCtrl, ComCtrls, Grids, Outline, ExtCtrls, ShellCtrls, Htmlview,
   HtmlGlobals, HTMLUn2;
 
@@ -135,7 +135,7 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLIntf, control_room, pad_unit, grid_unit, math_unit, panning_unit,
+  LCLType, LCLIntf, control_room, pad_unit, grid_unit, math_unit, panning_unit,
   shove_timber, rail_options_unit, platform_unit, check_diffs_unit,
   data_memo_unit, stay_visible_unit, info_unit, keep_select, help_sheet, alert_unit;
 

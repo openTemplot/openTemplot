@@ -30,8 +30,8 @@ unit help_sheet;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, Buttons, ComCtrls, Menus, Clipbrd, ShellAPI,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, Buttons, ComCtrls, Menus, Clipbrd,
   // RVScroll, RichView, RVStyle, RVFuncs,
   { OT-FIRST WPPDFPRP, WPPDFR1, WPPDFR2,} Htmlview, MetaFilePrinter, styleun,
   PrintersDlgs, HtmlGlobals;
@@ -205,7 +205,7 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLIntf, math_unit, alert_unit, control_room, colour_unit, preview_unit, print_unit, calibration_unit,
+  LCLType, LCLIntf, math_unit, alert_unit, control_room, colour_unit, preview_unit, print_unit, calibration_unit,
   stay_visible_unit, grid_unit, jotter_unit, pad_unit, keep_select, chat_unit,
   entry_sheet, prefs_unit,
   mint_unit { OT-FIRST , file_viewer} {, docs_unit};

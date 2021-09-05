@@ -30,7 +30,7 @@ unit grid_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls;
 
 type
@@ -200,6 +200,7 @@ implementation
 
 
 uses
+  LCLType, LCLIntf,
   point_ex, control_room, pad_unit,
   background_shapes,
   dummy_vehicle,

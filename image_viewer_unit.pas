@@ -30,8 +30,8 @@ unit image_viewer_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ShellApi, Clipbrd, ExtCtrls, StdCtrls, Menus;
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Clipbrd, ExtCtrls, StdCtrls, Menus;
 
 type
 
