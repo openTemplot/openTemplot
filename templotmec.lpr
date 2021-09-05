@@ -31,7 +31,7 @@ uses
 
            // Lazarus units:
 
-  Forms, Interfaces, SysUtils, Dialogs, ShellAPI, FileUtil, Classes,
+  Forms, Interfaces, SysUtils, Dialogs, FileUtil, Classes,
 
 
            // Templot3 units:

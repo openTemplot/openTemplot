@@ -30,7 +30,7 @@ unit data_memo_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, Clipbrd,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, Clipbrd,
   control_room, math_unit,
   StdCtrls;
 

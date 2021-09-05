@@ -32,9 +32,8 @@ unit calibration_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls
-  , LCLtype;     // OT-FIRST
+  LCLType, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls;
 
 type
   Tcalibration_form = class(TForm)
