@@ -174,7 +174,7 @@ implementation
 //  6 buttons: 6 is always default accept.
 //             5 is always cancel (on ESC key or close form).
 uses
-  ShellAPI, math_unit, control_room, help_sheet, colour_unit, chat_unit,
+  LCLIntf, math_unit, control_room, help_sheet, colour_unit, chat_unit,
   pad_unit, panning_unit;
 
 var
@@ -980,7 +980,7 @@ end;
 procedure Talert_box.online_help_buttonClick(Sender: TObject);
 
 begin
-  if ShellExecute(0, 'open', PChar(online_url_str), nil, nil, SW_SHOWNORMAL) <= 32 then
+  if not OpenURL(online_url_str) then
     show_modal_message('Sorry, unable to open your browser window and connect to the Templot web site.'
       + #13 + #13 + 'Please check your internet connection.');
 end;
