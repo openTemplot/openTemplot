@@ -33,7 +33,7 @@ unit background_shapes;
 interface
 
 uses
-  Windows,
+  LCLType,
   Classes,
   SysUtils,
   Graphics,

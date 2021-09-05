@@ -30,7 +30,7 @@ unit math2_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls, MaskEdit, FileCtrl, Math,
   pad_unit;      //  need Tpex declaration in this part for parameters to routines.
 

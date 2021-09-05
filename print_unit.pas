@@ -30,7 +30,7 @@ unit print_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  LCLType, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls
 
   { OT-FIRST ,dtpShape,dtpGR32};  // 206e
