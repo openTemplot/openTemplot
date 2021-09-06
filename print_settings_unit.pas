@@ -6,7 +6,7 @@ unit print_settings_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   ExtCtrls, ComCtrls, StdCtrls, Buttons, Menus;
 
 type
@@ -163,7 +163,7 @@ implementation
 {$BOOLEVAL ON}
 
 
-{$R *.LFM}
+{$R *.lfm}
 
 uses control_room, pad_unit, math_unit, keep_select, help_sheet, shove_timber, wait_message,
   shoved_timber;
