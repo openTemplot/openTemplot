@@ -161,7 +161,7 @@ begin
     jotter_help_popup_entry.Click;
   end;
 
-  if ((Key = Word(VkKeyScan('J'))) or (Key = Word(VkKeyScan('j')))) and (Shift = [ssCtrl])   // CTRL-J.
+  if ((Key = VK_J) and (Shift = [ssCtrl]))   // CTRL-J.
   then begin
     Key := 0;
     Close;
