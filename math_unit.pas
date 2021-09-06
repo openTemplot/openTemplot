@@ -32,7 +32,8 @@ unit math_unit;
 interface
 
 uses
-  Windows,
+  LCLType,
+  LCLIntf,
   Messages,
   SysUtils,
   Classes,
