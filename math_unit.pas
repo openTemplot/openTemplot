@@ -28743,7 +28743,7 @@ begin
     // 211b mods...
 
     if (control_room_form.previous_labels_menu_entry.Checked = True)   // 211b option
-      or ((GetAsyncKeyState(VK_CONTROL) and -2) <> 0)                    // or CTRL-Key down
+      or ((GetKeyState(VK_CONTROL) and -2) <> 0)                       // or CTRL-Key down
     then
     begin
       mod_text_x := label_modx;    // 211b put label back where it was

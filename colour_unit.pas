@@ -30,7 +30,7 @@ unit colour_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls;
 
 type
@@ -76,29 +76,28 @@ uses
 
 function get_colour(str: string; colour: TColor): TColor;     //  get a new colour.
 
+var
+  dlg: TColorDialog;
 begin
-  with colour_form do begin
-    Caption := '    ' + Application.Title + '  colours ...';
-    colour_label.Caption := '  ' + str + ' ...';
-    colour_form.colour_dialog.Color := colour;
-    Show;
-    BringToFront;
-
-    colour_dialog_caption_str := str;
+  dlg := TColorDialog.Create(nil);
+  try
+    dlg.Color := colour;
+    dlg.Title := '   ' + str;
 
     showing_dialog := True;        // 212a Wine bug
 
-    if colour_form.colour_dialog.Execute = True then
-      Result := colour_form.colour_dialog.Color
+    if dlg.Execute = True then
+      Result := dlg.Color
     else
       Result := colour;
 
     showing_dialog := False;
 
-    Hide;
-  end;//with
-  show_and_redraw(True, False);    // no rollback.
+  finally
+    dlg.Close;
+  end;
 
+  show_and_redraw(True, False);    // no rollback.
 end;
 //_________________________________________________________________________________________
 
@@ -207,7 +206,8 @@ begin
   new_name_str := '    ' + colour_dialog_caption_str;
 
   if colour_dialog.Handle <> 0 then
-    SetWindowText(colour_dialog.Handle, PChar(new_name_str));
+    colour_dialog.Title := new_name_str;
+
 end;
 //______________________________________________________________________________
 
@@ -220,7 +220,7 @@ begin
   new_name_str := '    ' + font_dialog_caption_str;
 
   if font_dialog.Handle <> 0 then
-    SetWindowText(font_dialog.Handle, PChar(new_name_str));
+    font_dialog.Title := new_name_str;
 end;
 //______________________________________________________________________________
 

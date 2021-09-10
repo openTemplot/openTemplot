@@ -30,9 +30,8 @@ unit gauge_unit;
 interface
 
 uses
-  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls
-  , LCLtype;     // OT-FIRST
+  LCLType, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, ComCtrls;
 
 type
   Tgauge_form = class(TForm)
