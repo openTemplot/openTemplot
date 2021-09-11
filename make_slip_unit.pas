@@ -36,18 +36,19 @@ uses
   StdCtrls;
 
 type
+
+  { Tmake_slip_form }
+
   Tmake_slip_form = class(TForm)
     datestamp_label: TLabel;
     Button1: TButton;
     Button2: TButton;
     Label1: TLabel;
+    procedure FormChangeBounds(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
   private
-
-    procedure move_message(var Msg: TWMMove); message WM_MOVE;
-
     { Private declarations }
   public
     { Public declarations }
@@ -1072,12 +1073,9 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure Tmake_slip_form.move_message(var Msg: TWMMove);
-
+procedure Tmake_slip_form.FormChangeBounds(Sender: TObject);
 begin
-  if Msg.Result = 0 then begin
-    do_toolbars;
-  end;
+  do_toolbars;
 end;
 //______________________________________________________________________________
 
