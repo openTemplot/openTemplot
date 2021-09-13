@@ -1,0 +1,44 @@
+== Background
+
+OpenTemplot is developed using the Lazarus IDE, and hence is a Pasal program
+using FPC - the Free Pascal Compiler..
+
+
+== Getting Started
+
+* Install Lazarus on your system.
+
+Details for installing Lazarus will vary according to your platform.
+For full instructions see https://wiki.freepascal.org/Installing_Lazarus
+(plus YouTube videos, of course)
+
+* Clone the source
+
+Use git to clone github.com/opentemplot/templot3
+
+* Change your formatting configuration
+
+See Configuring JEDI below.
+
+== Configuring JEDI
+
+The OpenTemplot project makes heavy use of the JEDI code formatter
+(which is built into the Lazarus IDE) and it is important that all developers
+make use of standard JEDI configuration settings to ensure consistency across
+the code base.
+
+It is worth getting into the habit of using Ctrl-D *regularly* as you work
+on the code, rather than reformatting it all at the end.
+This will ensure that your changes stay in line with the project standards.
+
+To (slightly mis-)quote the Go-lang community, the format is nobody's favourite,
+but everyone loves the fact that it exists.
+
+In order to configure JEDI the settings file you need is provided in 
+the project's root directory (jcfsettings.cfg). To make use of this file, you need
+to copy it into the appropriate directory. This again varies by platform. You can
+find where it lives on your system by opening Lazarus and using the menu
+
+     Source -> JEDI Code Format -> Format Settings
+
+The window will show you where the settings file lives.
