@@ -414,11 +414,6 @@ const
 
   minfp_big: extended = 1.0E-6;      // min float value for rounding and tolerancing.
 
-  max_rad: extended = 1.0E8 - 5000;
-  // maximum radius="straight", -5000 to allow for offsets without exceeding 1E8 max_rad_limit.
-  max_rad_test: extended = 1.0E8 - 10000; // used for testing maximum radius (approx 62 miles rad).
-  max_rad_limit: extended = 1.0E8;
-
   def_req: extended = 0 - 1.0E300;
   // DON'T CHANGE (used directly as the value in some places 0.93.a)  // this value in a float requests a default to be used instead.
   def_req_i: integer = Integer($80000001);    // this value in an integer ditto.
