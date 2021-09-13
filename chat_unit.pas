@@ -30,7 +30,7 @@ unit chat_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  LCLType, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ComCtrls, ExtCtrls, PrintersDlgs;
 
 type
@@ -150,7 +150,7 @@ const   //  WINAPI GetDeviceCaps Constants
   LOGPIXELSY = 90;
 
 var
-  n: extended;
+  n: double;
 
   width_dots: integer;    // printer page-width in dots.
   length_dots: integer;   // printer page-length in dots.
@@ -160,7 +160,7 @@ var
 
   save_po: TPrinterOrientation;
 
-  x, y, y0, y1, y2: extended;
+  x, y, y0, y1, y2: double;
   str: string;
 
   str_len: integer;

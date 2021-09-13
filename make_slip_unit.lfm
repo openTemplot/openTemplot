@@ -15,6 +15,7 @@ object make_slip_form: Tmake_slip_form
   Font.Height = -13
   Font.Name = 'Arial'
   Font.Style = [fsBold]
+  OnChangeBounds = FormChangeBounds
   OnCreate = FormCreate
   ShowHint = True
   LCLVersion = '1.8.4.0'

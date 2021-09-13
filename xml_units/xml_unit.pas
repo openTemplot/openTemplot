@@ -63,7 +63,7 @@ interface
 
 uses
 
-  Windows, Classes, Graphics, SysUtils;
+  Classes, Graphics, SysUtils;
 
 const
 

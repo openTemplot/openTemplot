@@ -30,7 +30,7 @@ unit shove_timber;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  LCLType, LCLIntf, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls, Buttons,
   shoved_timber;
 
@@ -850,7 +850,7 @@ const
 var
   n, i: integer;
   od: Toutdim;
-  fs_convert: extended;
+  fs_convert: double;
   fs_str: string;
   fs_code: integer;
   shove: Tshoved_timber;
@@ -906,7 +906,7 @@ const
 var
   n, i: integer;
   od: Toutdim;
-  fs_convert: extended;
+  fs_convert: double;
   fs_str: string;
   fs_code: integer;
   shove: Tshoved_timber;
@@ -959,7 +959,7 @@ const
 var
   n, i: integer;
   od: Toutdim;
-  fs_convert: extended;
+  fs_convert: double;
   fs_str: string;
   fs_code: integer;
   shove: Tshoved_timber;
@@ -1015,7 +1015,7 @@ const
 var
   n, i: integer;
   od: Toutdim;
-  fs_convert: extended;
+  fs_convert: double;
   fs_str: string;
   fs_code: integer;
   shove: Tshoved_timber;
@@ -1134,7 +1134,7 @@ const
 var
   n, i: integer;
   od: Toutdim;
-  fs_convert: extended;
+  fs_convert: double;
   fs_str: string;
   fs_code: integer;
   shove: Tshoved_timber;

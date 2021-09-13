@@ -31,7 +31,7 @@ uses
 
            // Lazarus units:
 
-  Forms, Interfaces, SysUtils, Dialogs, ShellAPI, FileUtil, Classes,
+  Forms, Interfaces, SysUtils, Dialogs, FileUtil, Classes,
 
 
            // Templot3 units:
@@ -241,8 +241,6 @@ begin
 }
 
   { OT-FIRST set_menu_style(False);    // modify all menus to XP style  // 0.95.a  in startup unit}
-
-  minimize_consolehost_window;      // 291a  in startup unit
 
   detect_wine;   // 205a in startup unit
 

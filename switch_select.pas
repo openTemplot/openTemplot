@@ -30,7 +30,7 @@ unit switch_select;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  LCLType, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls;
 
 type
@@ -1200,9 +1200,9 @@ list entries:
 var
   sw_init_info: Tswitch_info;
 
-  mf: extended;  // metric_factor 25.4
+  mf: double;  // metric_factor 25.4
 
-  vert_spacing, vert_joint, vert_front, vert_tips: extended;
+  vert_spacing, vert_joint, vert_front, vert_tips: double;
 
 
   /////////////////////////////////////////////////////////////

@@ -30,7 +30,7 @@ unit math2_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls, MaskEdit, FileCtrl, Math,
   pad_unit;      //  need Tpex declaration in this part for parameters to routines.
 
@@ -43,8 +43,8 @@ function make_diamond_crossing_at_intersection: boolean;
 
 function notch_on_intersection(move_notch: boolean;
   control_rail_offset, bgnd_rail_offset: integer): integer;
-function get_circle_intersections(x1, y1, r1, x2, y2, r2: extended;
-  var qx1, qy1, k1_r1, k1_r2, qx2, qy2, k2_r1, k2_r2: extended): integer;
+function get_circle_intersections(x1, y1, r1, x2, y2, r2: double;
+  var qx1, qy1, k1_r1, k1_r2, qx2, qy2, k2_r1, k2_r2: double): integer;
 
 function check_if_control_template_on_screen: boolean;
 
@@ -63,13 +63,13 @@ uses
   shoved_timber;
 
 var
-  dummy: extended = 0;
+  dummy: double = 0;
 
   which_one: integer = 1;       // which_one = +1 or -1 to select which intersection
-  xing_angle: extended = 0;     // radians
+  xing_angle: double = 0;     // radians
 
-  x_for_notch: extended = 0;
-  y_for_notch: extended = 0;
+  x_for_notch: double = 0;
+  y_for_notch: double = 0;
 
   fail_code: integer = 0;
 
@@ -81,17 +81,17 @@ function check_if_control_template_on_screen: boolean;
   // part of intersection selector for the user.
 
 var
-  ctx_max: extended;
-  ctx_min: extended;
+  ctx_max: double;
+  ctx_min: double;
 
-  cty_max: extended;
-  cty_min: extended;
+  cty_max: double;
+  cty_min: double;
 
-  scx_max: extended;
-  scx_min: extended;
+  scx_max: double;
+  scx_min: double;
 
-  scy_max: extended;
-  scy_min: extended;
+  scy_max: double;
+  scy_min: double;
 
 begin
   Result := False;  // init
@@ -128,12 +128,12 @@ begin
 end;
 //______________________________________________________________________________
 
-function calc_radial_angle(xc, yc, x, y: extended): extended;
+function calc_radial_angle(xc, yc, x, y: double): double;
 
   // return all positive angles (acw), so we can do arithmetic on them easily
 
 var
-  k: extended;
+  k: double;
 
 begin
   Result := 0;          // init
@@ -172,8 +172,8 @@ end;
 
 // This is a public domain work. 26/3/2005 Tim Voght
 
-function get_circle_intersections(x1, y1, r1, x2, y2, r2: extended;
-  var qx1, qy1, k1_r1, k1_r2, qx2, qy2, k2_r1, k2_r2: extended): integer;
+function get_circle_intersections(x1, y1, r1, x2, y2, r2: double;
+  var qx1, qy1, k1_r1, k1_r2, qx2, qy2, k2_r1, k2_r2: double): integer;
 
   // return code:
   // 2 = OK, two usable intersections
@@ -187,9 +187,9 @@ function get_circle_intersections(x1, y1, r1, x2, y2, r2: extended;
   // return intersections at q1 and q2   // k is radial angle to intersection, not rail angle.
 
 var
-  a, dx, dy, d, h, rx, ry, xp, yp: extended;
+  a, dx, dy, d, h, rx, ry, xp, yp: double;
 
-  limit_dim: extended;
+  limit_dim: double;
 
 begin
   Result := 2;  // init good result
@@ -362,13 +362,13 @@ var
   saved_name_str: string;
   saved_memo_str: string;
 
-  x1, y1, r1: extended;
-  x2, y2, r2: extended;
-  xi, yi, xj, yj: extended;
+  x1, y1, r1: double;
+  x2, y2, r2: double;
+  xi, yi, xj, yj: double;
 
-  k1_i, k1_j, k2_i, k2_j: extended;
+  k1_i, k1_j, k2_i, k2_j: double;
 
-  k: extended;
+  k: double;
 
   ///////////////////////////////////////////////////////////////////
 
@@ -539,7 +539,7 @@ var
 
   target_showing: boolean;
 
-  temp: extended;
+  temp: double;
 
 begin
   Result := False;  // init
@@ -803,20 +803,20 @@ var
 
   type
     Tcrossing = record
-      x: extended;
-      y: extended;
-      kk: extended;    // radians
-      kn: extended;    // unit angle
+      x: double;
+      y: double;
+      kk: double;    // radians
+      kn: double;    // unit angle
     end;//record
 
   var
     k1, k2, v1, v2: Tcrossing;    // rails
-    proximity_limit: extended;
+    proximity_limit: double;
     found_it: boolean;
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    function convert_to_unit_angle(k: extended): extended;
+    function convert_to_unit_angle(k: double): double;
 
     begin
       try
@@ -833,9 +833,9 @@ var
       // return True if within limit.
 
     var
-      fp_loc_x, fp_loc_y: extended;
-      fp_on_pad_x, fp_on_pad_y: extended;
-      dummy1, dummy2: extended;
+      fp_loc_x, fp_loc_y: double;
+      fp_on_pad_x, fp_on_pad_y: double;
+      dummy1, dummy2: double;
     begin
       gocalc(0, 0);
 
@@ -1208,28 +1208,28 @@ const
 var
   end0, end9, new_end: Tnotch;
 
-  bgnd_x, bgnd_y: extended;
+  bgnd_x, bgnd_y: double;
 
-  nearest_diag: extended;
-  //long_diag:extended;
+  nearest_diag: double;
+  //long_diag:double;
 
   i, which_end, which_boundary: integer;
 
   mod_dir: integer;      // 1=extend, -1=shorten
-  arc_length: extended;  // change in template length needed
-  arc_rad: extended;
+  arc_length: double;  // change in template length needed
+  arc_rad: double;
 
-  x_diff, y_diff, k_diff: extended;
+  x_diff, y_diff, k_diff: double;
 
   was_end_swapped: boolean;
 
-  old_xorg, old_turnoutx: extended;
+  old_xorg, old_turnoutx: double;
 
   bg_pt, bg_hd, bg_rp: boolean;
 
-  diag0, diag9: extended;
+  diag0, diag9: double;
 
-  temp: extended;
+  temp: double;
 
   been_here_before: integer;
 
@@ -1255,7 +1255,7 @@ label
     // update nearest and return which end of control
 
   var
-    diag: extended;
+    diag: double;
 
   begin
     Result := 0 - 1; // init no change to nearest
@@ -1934,18 +1934,18 @@ function grow_prune_to_meet(boundary1, boundary2: Tnotch; index1, index2: intege
 
 var
   n, step_count, calc_count: integer;
-  step: extended;
-  approach_length: extended;
+  step: double;
+  approach_length: double;
 
   nb: integer;
   start_peg, end_peg: Tnotch;
   bgnd_pegs: array[0..4] of Tnotch;
-  x1, y1, x2, y2, k1, k2, proximity: extended;
+  x1, y1, x2, y2, k1, k2, proximity: double;
   readout_str: string;
 
-  k_diff, nearest_bgnd: extended;
+  k_diff, nearest_bgnd: double;
 
-  temp1, temp2: extended;
+  temp1, temp2: double;
 
 label
   100;

@@ -30,7 +30,7 @@ unit jotter_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  LCLType, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Menus, ComCtrls, ExtCtrls, PrintersDlgs;
 
 type
@@ -111,8 +111,8 @@ var
 
   //____________________________
 
-  jotter_dx_org: extended = 0;        // for relative x,y mouse read-out on jotter.
-  jotter_dy_org: extended = 0;
+  jotter_dx_org: double = 0;        // for relative x,y mouse read-out on jotter.
+  jotter_dy_org: double = 0;
 
   jot_readout_units: integer = 0;
 
@@ -161,7 +161,7 @@ begin
     jotter_help_popup_entry.Click;
   end;
 
-  if ((Key = Word(VkKeyScan('J'))) or (Key = Word(VkKeyScan('j')))) and (Shift = [ssCtrl])   // CTRL-J.
+  if ((Key = VK_J) and (Shift = [ssCtrl]))   // CTRL-J.
   then begin
     Key := 0;
     Close;
@@ -374,7 +374,7 @@ var
   pf: TextFile;                // text file to be redirected to printer.
   line_now: integer;
   prinor: TPrinterOrientation;
-  text_width_dots: extended;
+  text_width_dots: double;
   left_margin_str: string;
 
 begin

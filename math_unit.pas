@@ -32,7 +32,8 @@ unit math_unit;
 interface
 
 uses
-  Windows,
+  LCLType,
+  LCLIntf,
   Messages,
   SysUtils,
   Classes,
@@ -85,27 +86,27 @@ type
   Ttimbcentre_wait = record
     pex1: Tpex;
     pex2: Tpex;
-    kq: extended;
+    kq: double;
     shove_code: integer;
     valid: boolean;
   end;//record
 
   Tmake_trans_data = record
     // data record for the make transition from current function.
-    old_rad1_orgx: extended;
-    old_rad1_orgy: extended;
-    rad_1st: extended;
+    old_rad1_orgx: double;
+    old_rad1_orgy: double;
+    rad_1st: double;
 
-    old_rad2_orgx: extended;
-    old_rad2_orgy: extended;
-    rad_2nd: extended;
+    old_rad2_orgx: double;
+    old_rad2_orgy: double;
+    rad_2nd: double;
 
-    cen_apart: extended;
+    cen_apart: double;
 
-    peg1x: extended;
-    peg1y: extended;
-    peg2x: extended;
-    peg2y: extended;
+    peg1x: double;
+    peg1y: double;
+    peg2x: double;
+    peg2y: double;
   end;//record
 
 
@@ -168,7 +169,7 @@ var
 
   //________________________________________
 
-  list_factor_x, list_factor_y: extended;
+  list_factor_x, list_factor_y: double;
 
   trans_terms: integer = 8;
   trans_auto: boolean = True;
@@ -265,90 +266,90 @@ var
 
   peg_rail: integer = 8;               // move peg along rail 8 = main-road centre-line (aq=24).
 
-  pegx: extended = 0;
-  pegy: extended = 0;
+  pegx: double = 0;
+  pegy: double = 0;
 
-  notchx_now, notchy_now: extended;
-  xring_now, yring_now: extended;
-  ring_dia_now: extended;
+  notchx_now, notchy_now: double;
+  xring_now, yring_now: double;
+  ring_dia_now: double;
 
-  ruler_startx_now, ruler_starty_now, ruler_endx_now, ruler_endy_now: extended;   // 0.78.a
+  ruler_startx_now, ruler_starty_now, ruler_endx_now, ruler_endy_now: double;   // 0.78.a
 
-  shapes_shiftx_now: extended = 0;
-  shapes_shifty_now: extended = 0;
+  shapes_shiftx_now: double = 0;
+  shapes_shifty_now: double = 0;
 
-  shifted_already_x: extended = 0;
-  shifted_already_y: extended = 0;
+  shifted_already_x: double = 0;
+  shifted_already_y: double = 0;
 
-  shapes_scaled_already: extended = 1.0;
+  shapes_scaled_already: double = 1.0;
 
-  shapes_rot_now: extended = 0;
-  shapes_rotated_already: extended = 0;
+  shapes_rot_now: double = 0;
+  shapes_rotated_already: double = 0;
 
-  screenx_zoom_now: extended;
-  xorg_now, turnoutx_now, startx_now: extended;
-  tb_roll_percent_now, tb_roll_factor: extended;
-  y_datum_now: extended;
-  tst_now, os_now: extended;
+  screenx_zoom_now: double;
+  xorg_now, turnoutx_now, startx_now: double;
+  tb_roll_percent_now, tb_roll_factor: double;
+  y_datum_now: double;
+  tst_now, os_now: double;
 
-  fixed_sl_now, min_sl_offset, min_sl: extended;  // 0.91.b
+  fixed_sl_now, min_sl_offset, min_sl: double;  // 0.91.b
 
-  slew_s_now, slew_l_now, slew_now, slew2_kmax_now: extended;
+  slew_s_now, slew_l_now, slew_now, slew2_kmax_now: double;
 
-  screenx_spot_now: extended;
+  screenx_spot_now: double;
 
-  out_factor_now: extended;
+  out_factor_now: double;
 
-  endx_now: extended;
-  nomrad_now: extended;
-  curvature_now: extended;
-  ends_apart_now: extended;
-  k3n_now: extended;
-  xshift_now, yshift_now, kform_now: extended;
-  arm_angle_now, pegangle_now: extended;
-  swing_0, swing_9, total_swing: extended;
+  endx_now: double;
+  nomrad_now: double;
+  curvature_now: double;
+  ends_apart_now: double;
+  k3n_now: double;
+  xshift_now, yshift_now, kform_now: double;
+  arm_angle_now, pegangle_now: double;
+  swing_0, swing_9, total_swing: double;
 
   // 0.93.a ...
 
-  platform_ms_start_width_ins_now: extended;
-  platform_ms_end_width_ins_now: extended;
+  platform_ms_start_width_ins_now: double;
+  platform_ms_end_width_ins_now: double;
 
-  platform_ts_start_width_ins_now: extended;
-  platform_ts_end_width_ins_now: extended;
+  platform_ts_start_width_ins_now: double;
+  platform_ts_end_width_ins_now: double;
 
-  platform_ms_start_mm_now: extended;
-  platform_ms_length_mm_now: extended;
+  platform_ms_start_mm_now: double;
+  platform_ms_length_mm_now: double;
 
-  platform_ts_start_mm_now: extended;
-  platform_ts_length_mm_now: extended;
+  platform_ts_start_mm_now: double;
+  platform_ts_length_mm_now: double;
 
-  platform_ms_start_skew_mm_now: extended = 0;  // 207a
-  platform_ms_end_skew_mm_now: extended = 0;    // 207a
-  platform_ts_start_skew_mm_now: extended = 0;  // 207a
-  platform_ts_end_skew_mm_now: extended = 0;    // 207a
+  platform_ms_start_skew_mm_now: double = 0;  // 207a
+  platform_ms_end_skew_mm_now: double = 0;    // 207a
+  platform_ts_start_skew_mm_now: double = 0;  // 207a
+  platform_ts_end_skew_mm_now: double = 0;    // 207a
 
-  trackbed_ms_start_mm_now: extended;      // 215a
-  trackbed_ms_length_mm_now: extended;     // 215a
+  trackbed_ms_start_mm_now: double;      // 215a
+  trackbed_ms_length_mm_now: double;     // 215a
 
-  trackbed_ts_start_mm_now: extended;      // 215a
-  trackbed_ts_length_mm_now: extended;     // 215a
+  trackbed_ts_start_mm_now: double;      // 215a
+  trackbed_ts_length_mm_now: double;     // 215a
 
-  turnout_road_endx_now: extended = 0;  // 209a
+  turnout_road_endx_now: double = 0;  // 209a
 
-  main_road_endx_now: extended = 0;  // 217a
+  main_road_endx_now: double = 0;  // 217a
 
 
-  xlabels_now: extended = 0;  // 0.82.d
-  ylabels_now: extended = 0;  // 0.82.d
+  xlabels_now: double = 0;  // 0.82.d
+  ylabels_now: double = 0;  // 0.82.d
 
-  pegx_now: extended = 0;
-  pegy_now: extended = 0;
-  udpegx_now: extended = 0;
+  pegx_now: double = 0;
+  pegy_now: double = 0;
+  udpegx_now: double = 0;
 
-  k3n: extended = 6.0;     // V-crossing unit angle
-  hdkn: extended = 6.0;    // K-crossing unit angle  //^^^ 0.93.a
+  k3n: double = 6.0;     // V-crossing unit angle
+  hdkn: double = 6.0;    // K-crossing unit angle  //^^^ 0.93.a
 
-  sl: extended = 12; // 1mm flangeway 1:6
+  sl: double = 12; // 1mm flangeway 1:6
 
 
   hide_current_flag: boolean = False;
@@ -360,14 +361,14 @@ var
 
   // 0.75.a 14-10-01...
 
-  bn_wide: extended = 0.75;      // full-size inches.  3/4" blunt nose BH default.
-  bn_to_a: extended = 4.0;       // full-size inches - 4" to A timber centre.
-  wingj_sp: extended = 25;       // full-size inches - 25" timber spacing at wing rail joint.
-  mvj_sp: extended = 12.5;       // full-size inches - 12.5" spacing to vee point rail joint.
+  bn_wide: double = 0.75;      // full-size inches.  3/4" blunt nose BH default.
+  bn_to_a: double = 4.0;       // full-size inches - 4" to A timber centre.
+  wingj_sp: double = 25;       // full-size inches - 25" timber spacing at wing rail joint.
+  mvj_sp: double = 12.5;       // full-size inches - 12.5" spacing to vee point rail joint.
 
-  wingtimb_sp: extended = 30;
+  wingtimb_sp: double = 30;
   // full-size inches - 30" timber spacing for wing rail front part of crossing (up to "A").
-  veetimb_sp: extended = 30;
+  veetimb_sp: double = 30;
   // full-size inches - 30" timber spacing for vee point rail part of crossing (on from "A").
 
   // number of timbers spanned by vee rail including the "A" timber...
@@ -391,53 +392,53 @@ var
 
   // for half-diamond, 0.77.a 28-08-02...
 
-  kck1_long: extended = 185;   // inches full-size 15'5" k-crossing check rails, BH 1:6 and shorter.
-  kck2_long: extended = 197;   // 16'5" over 1:6
+  kck1_long: double = 185;   // inches full-size 15'5" k-crossing check rails, BH 1:6 and shorter.
+  kck2_long: double = 197;   // 16'5" over 1:6
 
   // 0.95.a K wing rails ..
 
-  k_custom_wing_long: extended = 185;
+  k_custom_wing_long: double = 185;
   // inches full-size 15'5" k-crossing wing rails, BH 1:6.5 - 1:8
-  k_custom_point_long: extended = 144;  // inches full-size 12' k-crossing point rails   NYI
+  k_custom_point_long: double = 144;  // inches full-size 12' k-crossing point rails   NYI
   use_k_custom_wing_rails: boolean = False;
   use_k_custom_point_rails: boolean = False;
 
 
-  //kckmsmod:extended=0;      // main side modifier.// out of use 0.94.a .
-  //kckdsmod:extended=0;      // diamond side modifier.// out of use 0.94.a
+  //kckmsmod:double=0;      // main side modifier.// out of use 0.94.a .
+  //kckdsmod:double=0;      // diamond side modifier.// out of use 0.94.a
 
-  k_flare_len: extended = 36;
-  // 0.94.a  was kck_fl_long:extended=36;  // inches full-size flare length on k-crossing check rails.
+  k_flare_len: double = 36;
+  // 0.94.a  was kck_fl_long:double=36;  // inches full-size flare length on k-crossing check rails.
 
-  //kck_k5:extended=0;        // out 0.94.a flare angle.
+  //kck_k5:double=0;        // out 0.94.a flare angle.
 
   // in mm...
 
-  // out 0.94.a  kck_jbend:extended=0;     // width across rail bend.
-  // out 0.94.a  kckflgf_mm:extended=0;    // gauge-face flare length in mm.
-  // out 0.94.a  kckfloe_mm:extended=0;    // ditto flare length along outer edge.
+  // out 0.94.a  kck_jbend:double=0;     // width across rail bend.
+  // out 0.94.a  kckflgf_mm:double=0;    // gauge-face flare length in mm.
+  // out 0.94.a  kckfloe_mm:double=0;    // ditto flare length along outer edge.
 
-  kckdsx: extended = 0;        // x to start of DS check rail, gf. aq=28.
-  kckdsox: extended = 0;       // ditto oe.                        aq=29.
+  kckdsx: double = 0;        // x to start of DS check rail, gf. aq=28.
+  kckdsox: double = 0;       // ditto oe.                        aq=29.
 
-  kckdsflx: extended = 0;      // x to DS flare bend, gf.
-  kckdsflox: extended = 0;     // ditto oe.
+  kckdsflx: double = 0;      // x to DS flare bend, gf.
+  kckdsflox: double = 0;     // ditto oe.
 
-  kckdsflendx: extended = 0;   // x to end of DS check rail, gf.
-  kckdsflendox: extended = 0;  // ditto oe.
+  kckdsflendx: double = 0;   // x to end of DS check rail, gf.
+  kckdsflendox: double = 0;  // ditto oe.
 
   //--
 
-  kckmsx: extended = 0;        // x to start of MS check rail, gf. aq=26.
-  kckmsox: extended = 0;       // ditto oe.                        aq=27.
+  kckmsx: double = 0;        // x to start of MS check rail, gf. aq=26.
+  kckmsox: double = 0;       // ditto oe.                        aq=27.
 
-  kckmsflx: extended = 0;      // x to MS flare bend, gf.
-  kckmsflox: extended = 0;     // ditto oe.
+  kckmsflx: double = 0;      // x to MS flare bend, gf.
+  kckmsflox: double = 0;     // ditto oe.
 
-  kckmsflendx: extended = 0;   // x to end of MS check rail, gf.
-  kckmsflendox: extended = 0;  // ditto oe.
+  kckmsflendx: double = 0;   // x to end of MS check rail, gf.
+  kckmsflendox: double = 0;  // ditto oe.
 
-  g: extended;
+  g: double;
 
   nodraw, fw, k1n, h, h_inches, p, ph, k2n, toel, hdk, //^^^ 0.93.a irregular diamonds
 
@@ -448,16 +449,16 @@ var
 
   ckl_ms, ckl_ts, veelong, xing_flare_len, // mm  // 0.94.a  was xing_fl,
   fw_end          // mm  // 0.94.a  was fwe,
-  : extended;
+  : double;
 
   flare_type: integer = 0;
   // 0.94.a was flared_ends:integer=0;        // 0=straight bent  1=straight machined.
 
   knuckle_code: integer = 0;         // 214a   0=normal, -1=sharp, 1=use knuckle_radius
-  knuckle_radius: extended = 72.0;   // 214a   custom setting - default to 72 inches full size
+  knuckle_radius: double = 72.0;   // 214a   custom setting - default to 72 inches full size
 
-  knuck_rad: extended = 33.0;      // 214a   mm used in calcs. 6ft rad at 5.5mm/ft
-  wing_bend_offset: extended = 0;  // 214a   mm offset at end of knuckle curve  -- used for marks.
+  knuck_rad: double = 33.0;      // 214a   mm used in calcs. 6ft rad at 5.5mm/ft
+  wing_bend_offset: double = 0;  // 214a   mm offset at end of knuckle curve  -- used for marks.
 
 
   k5_mw,          // 0.94.a  was k5, ...
@@ -475,16 +476,16 @@ var
   k2cossw, tl, scl, pl, lh, lh_inches, ipx,  // 208a
 
   fpx, dpx, tcpx, tcpy, txpx, txpy, txpk, trpx, trpy, mcpx, mxpx, mrpx, tvjpx, tvjpk,
-  pegx_on_pad, pegy_on_pad: extended;
+  pegx_on_pad, pegy_on_pad: double;
 
-  pegangle: extended = 0;
-  arm_angle: extended = 0;
+  pegangle: double = 0;
+  arm_angle: double = 0;
 
-  now_peg_x, now_peg_y, now_peg_k, now_peg600: extended;    // 0.79.a
+  now_peg_x, now_peg_y, now_peg_k, now_peg600: double;    // 0.79.a
 
-  udpegx: extended = 0;
-  udpegy: extended = 0;
-  udpegangle: extended = 0;
+  udpegx: double = 0;
+  udpegy: double = 0;
+  udpegangle: double = 0;
 
   toex, toeoxhd, toemidx, setx, setox, plx, plox, plx3, plox11, stox, heelx, heelox, tx,
   bnx, bnxx, atx, wingendx_ms, csrfpx, csrfpox, torgx, sworgx, bnox, vendx, vendox, csrendx,
@@ -505,13 +506,13 @@ var
   maintimb, xns, xfs, yfs, yfsred, keq,{xeq,}yeq, randend, randmod, ynsnorm, yfsnorm, eqendmod,
   randangle, randk, rety, retr, retx, retrorgx, retrorgy, retrmod, retcent,//fleg,
   torgy, sworgy, min_radius, fbtip, fbsetx, fbsetox, fbtoex, fbplx, fbplox, fbplx3, fbplox11,
-  fbstox, fbheelx, fbheelox: extended;
+  fbstox, fbheelx, fbheelox: double;
   // all above f.p. values 10-bytes for calcs.
 
 
-  total_template_timber_length: extended = 0; // 0.96.a
+  total_template_timber_length: double = 0; // 0.96.a
 
-  smallest_radius: extended = 1.0E8 - 5000;      // 208a for box data    init=max_rad ="straight"
+  smallest_radius: double = 1.0E8 - 5000;      // 208a for box data    init=max_rad ="straight"
 
   // was turnout_road  208g mod for easier searching..
 
@@ -536,55 +537,55 @@ var
 
   other_k3n_i: integer;
 
-  clrad1, clrad2, ssrad1, ssrad2: extended;
-  xt1, yt1, xt0, xt2, yt2: extended;
+  clrad1, clrad2, ssrad1, ssrad2: double;
+  xt1, yt1, xt0, xt2, yt2: double;
 
-  os, ts1, tst{,ycurv}: extended;
-  r1, r2, tos, t0, t1, t2: extended;
-  orbit_rad: extended;
-  xtrans1, ytrans1, xtrans2, ytrans2: extended;
-  trans_k: extended;
+  os, ts1, tst{,ycurv}: double;
+  r1, r2, tos, t0, t1, t2: double;
+  orbit_rad: double;
+  xtrans1, ytrans1, xtrans2, ytrans2: double;
+  trans_k: double;
 
-  rad1_orgx: extended = 0;     // radial centres on pad.
-  rad1_orgy: extended = 0;
-  rad2_orgx: extended = 0;
-  rad2_orgy: extended = 0;
+  rad1_orgx: double = 0;     // radial centres on pad.
+  rad1_orgy: double = 0;
+  rad2_orgx: double = 0;
+  rad2_orgy: double = 0;
 
-  slew_s: extended = 0;           // slewing dims 7-7-99...
-  slew_l: extended = 600;         // 600 mm default startup slew length
-  slew_t: extended = 0;
+  slew_s: double = 0;           // slewing dims 7-7-99...
+  slew_l: double = 600;         // 600 mm default startup slew length
+  slew_t: double = 0;
   // slewing angle at centre of slewing zone (used to mark slewed over rad centres).
-  slew: extended = 0;             // total amount of slew
+  slew: double = 0;             // total amount of slew
 
-  slew2_kmax: extended = 2.0;    // kmax radians for slew mode 2 (tanh).
-  slew2_rot: extended = 0;       // rotation needed to straighten tanh curve (in trig units).
-  slew2_ymax: extended = 0;
-  slew2_ymin: extended = 0;
+  slew2_kmax: double = 2.0;    // kmax radians for slew mode 2 (tanh).
+  slew2_rot: double = 0;       // rotation needed to straighten tanh curve (in trig units).
+  slew2_ymax: double = 0;
+  slew2_ymin: double = 0;
 
-  slew_angle: extended = 0;       // twist introduced by the slew.
+  slew_angle: double = 0;       // twist introduced by the slew.
 
-  length_in_degs: extended = 0;
-  length_in_mm: extended = 0;
+  length_in_degs: double = 0;
+  length_in_mm: double = 0;
 
-  saved_pegging_shiftx: extended = 0;
-  saved_pegging_shifty: extended = 0;
-  saved_pegging_rot: extended = 0;
+  saved_pegging_shiftx: double = 0;
+  saved_pegging_shifty: double = 0;
+  saved_pegging_rot: double = 0;
 
-  old_notchx: extended = 0;      // 21-1-01.
-  old_notchy: extended = 0;
-  old_notch_angle: extended = 0;
+  old_notchx: double = 0;      // 21-1-01.
+  old_notchy: double = 0;
+  old_notch_angle: double = 0;
 
-  approach_last_xtb: extended = 0;
-  exit_last_xtb: extended = 0;
+  approach_last_xtb: double = 0;
+  exit_last_xtb: double = 0;
 
-  pre_examine_peg_x: extended = 0;
-  pre_examine_peg_y: extended = 0;
-  pre_examine_peg_screen: extended = 0;
-  examined_peg_x: extended = 0;
-  examined_peg_y: extended = 0;
-  examined_peg_screen: extended = 0;
+  pre_examine_peg_x: double = 0;
+  pre_examine_peg_y: double = 0;
+  pre_examine_peg_screen: double = 0;
+  examined_peg_x: double = 0;
+  examined_peg_y: double = 0;
+  examined_peg_screen: double = 0;
 
-  snap_proximity_limit: extended = 36;   // F7 snap limit 36" prototype  0.79.a  29-05-06
+  snap_proximity_limit: double = 36;   // F7 snap limit 36" prototype  0.79.a  29-05-06
 
   gen_platforms: boolean = True;     // 0.93.a  generator switch for trackbed and platforms
 
@@ -595,22 +596,22 @@ var
 
   // trackbed ...
 
-  //trackbed_width_ins_old:extended=180;       // 0.82.d   180 inches full-size 15ft. out of use, 215a
+  //trackbed_width_ins_old:double=180;       // 0.82.d   180 inches full-size 15ft. out of use, 215a
 
   draw_ms_trackbed_edge: boolean = False;
   draw_ts_trackbed_edge: boolean = False;
 
-  //cess_width_ins_old:extended=24;            // 206a ...    was 30    out of use, 215a
+  //cess_width_ins_old:double=24;            // 206a ...    was 30    out of use, 215a
   //draw_trackbed_cess_edge_old:boolean=False;    // out of use 215a
 
   // 215a ...
 
-  trackbed_ms_start_mm: extended = 0;            // 215a
-  trackbed_ms_length_mm: extended = 0 - 1.0E300;
+  trackbed_ms_start_mm: double = 0;            // 215a
+  trackbed_ms_length_mm: double = 0 - 1.0E300;
   // 215a   (def_req)    // set to template end in strails()
 
-  trackbed_ts_start_mm: extended = 0;            // 215a
-  trackbed_ts_length_mm: extended = 0 - 1.0E300;
+  trackbed_ts_start_mm: double = 0;            // 215a
+  trackbed_ts_length_mm: double = 0 - 1.0E300;
   // 215a   (def_req)    // set to template end in strails()
 
   trackbed_ms_width_ins: Single = 90;     // Single   215a  7ft-6in full-size  half-trackbed width  MS
@@ -624,30 +625,30 @@ var
 
   // platforms ...
 
-  platform_ms_front_edge_ins: extended = 57;
+  platform_ms_front_edge_ins: double = 57;
   //  215a  from centre       was 2ft-4.3/4in from rail
-  platform_ts_front_edge_ins: extended = 57;
+  platform_ts_front_edge_ins: double = 57;
   //  215a  from centre       was 2ft-4.3/4in from rail
 
-  platform_ms_start_width_ins: extended = 144;             // 12ft defaults
-  platform_ms_end_width_ins: extended = 144;               // 12ft
+  platform_ms_start_width_ins: double = 144;             // 12ft defaults
+  platform_ms_end_width_ins: double = 144;               // 12ft
 
-  platform_ts_start_width_ins: extended = 144;             // 12ft
-  platform_ts_end_width_ins: extended = 144;               // 12ft
-
-
-  platform_ms_start_skew_mm: extended = 0;      // 207a
-  platform_ms_end_skew_mm: extended = 0;        // 207a
-
-  platform_ts_start_skew_mm: extended = 0;      // 207a
-  platform_ts_end_skew_mm: extended = 0;        // 207a
+  platform_ts_start_width_ins: double = 144;             // 12ft
+  platform_ts_end_width_ins: double = 144;               // 12ft
 
 
-  platform_ms_start_mm: extended = 0;
-  platform_ms_length_mm: extended = 0 - 1.0E300;   // (def_req)    // set to template end
+  platform_ms_start_skew_mm: double = 0;      // 207a
+  platform_ms_end_skew_mm: double = 0;        // 207a
 
-  platform_ts_start_mm: extended = 0;
-  platform_ts_length_mm: extended = 0 - 1.0E300;   // (def_req)    // set to template end
+  platform_ts_start_skew_mm: double = 0;      // 207a
+  platform_ts_end_skew_mm: double = 0;        // 207a
+
+
+  platform_ms_start_mm: double = 0;
+  platform_ms_length_mm: double = 0 - 1.0E300;   // (def_req)    // set to template end
+
+  platform_ts_start_mm: double = 0;
+  platform_ts_length_mm: double = 0 - 1.0E300;   // (def_req)    // set to template end
 
 
   draw_ms_platform: boolean = False;
@@ -766,9 +767,9 @@ var
   reveal_limit_count: integer = 0; // 206a  0=time limit - abandon slide and jump it back
   slide_on_store: integer = 0;
   // 206a  >0 = control template was shifted on storing to background - slide wanted
-  stored_xshift: extended = 0;     // 206a
-  stored_yshift: extended = 0;     // 206a
-  slide_inc: extended = 0;         // 206a
+  stored_xshift: double = 0;     // 206a
+  stored_yshift: double = 0;     // 206a
+  slide_inc: double = 0;         // 206a
 
 
   wheel_zoom_code: integer = 0;
@@ -801,7 +802,7 @@ var
 
   dv_envelopes: Tdv_envelope_list;
 
-  radius_for_obtain: extended = 1000;  // 205e  for obtain to the control   1000mm arbitrary init
+  radius_for_obtain: double = 1000;  // 205e  for obtain to the control   1000mm arbitrary init
 
   curviform_timbering: boolean = False;  // 215a
 
@@ -811,22 +812,22 @@ var
 function xy_to_dwg100(pin: Tpex): TPex;
 // this function and next prepare x,y data for lists.
 function xy_to_list(pin: Tpex): TPoint;        // prepare x,y data for list.
-function blank_start(x: extended): extended;   // 17-10-02 0,76.a  blanking mods.
+function blank_start(x: double): double;   // 17-10-02 0,76.a  blanking mods.
 
-function SGN(x: extended): extended;
-function SGZ(x: extended): extended;
+function SGN(x: double): double;
+function SGZ(x: double): double;
 
-function round_float(x: extended; n: integer): extended;
-function round_str(x: extended; n: integer): string;
-function rad_str(r: extended; dp: integer): string; // get radius as a string.
+function round_float(x: double; n: integer): double;
+function round_str(x: double; n: integer): string;
+function rad_str(r: double; dp: integer): string; // get radius as a string.
 
-function limits(min, max, d: extended; var return_code: integer): extended;
+function limits(min, max, d: double; var return_code: integer): double;
 function limits_i(min, max, i: integer): integer;
 
 function max_i(n, m: integer): integer;              // return greatest of 2 integers.
 
-function max(a, b: extended): extended;              // return greatest of 2 floats.
-function min(a, b: extended): extended;              // return smallest of 2 floats.
+function max(a, b: double): double;              // return greatest of 2 floats.
+function min(a, b: double): double;              // return smallest of 2 floats.
 
 function remove_esc_str(msg_str: string): string;
 function insert_crlf_str(msg_str: string): string;
@@ -844,14 +845,14 @@ function remove_space_str(msg_str: string): string;
 // remove all space characters from string.
 function remove_multispace_str(msg_str: string): string;
 // reduce multiple spaces in string to singles.
-function captext(d: extended): string;
+function captext(d: double): string;
 
-function fact(a: integer): extended;        // return (a! = a factorial)
+function fact(a: integer): double;        // return (a! = a factorial)
 
-function transcalcs(draw_in_progress, auto_terms: boolean; k, tsn: extended; var xn, yn, tn, rn: extended): boolean;
+function transcalcs(draw_in_progress, auto_terms: boolean; k, tsn: double; var xn, yn, tn, rn: double): boolean;
 //  Transition equations.
-function calc_transition(rad1, rad2, zonel: extended;
-  var cen1x, cen1y, cen2x, cen2y, apartl, kval: extended): boolean;
+function calc_transition(rad1, rad2, zonel: double;
+  var cen1x, cen1y, cen2x, cen2y, apartl, kval: double): boolean;
 
 function set_font(fname: string; fsize: integer; fstyle: TFontStyles; fcolour: integer): TFont;
 
@@ -868,16 +869,16 @@ function check_draw_dim_w(d: integer): boolean;         // 0.93.a mods
 function extract_tbnumber_str(var tbnum_str: string): string;
 // return next timber numbering string from the acummulated string.
 
-procedure normalize_angle(var k: extended);
-function k_ram_str(k: extended): string;
+procedure normalize_angle(var k: double);
+function k_ram_str(k: double): string;
 // get k angle as 1:n RAM string (up to 1:1)
-procedure dotransform(krot, xrot, yrot: extended; pin: Tpex; var pout: Tpex);
+procedure dotransform(krot, xrot, yrot: double; pin: Tpex; var pout: Tpex);
 
-function rad_tanp1_p2(p1, p2: Tpex; tn: extended; var rad, swing: extended): boolean;    // 15-9-99.
+function rad_tanp1_p2(p1, p2: Tpex; tn: double; var rad, swing: double): boolean;    // 15-9-99.
 
 procedure memory_alert;             // do memory fail message.
 
-function calc_geo_radius(rout, xp, yp, kp: extended; var rin, kin, krin, gpx: extended): boolean;
+function calc_geo_radius(rout, xp, yp, kp: double; var rin, kin, krin, gpx: double): boolean;
 
 procedure print_control_template(pdf: boolean);  // 0.91.d
 procedure print_entire_pad(pdf: boolean);        // 0.91.d
@@ -924,13 +925,13 @@ procedure pad_caption(Text: string);
 
 procedure set_xing_k_i;     // set selector list index to match current k3n.
 
-procedure docurving(transform_flag, slew_flag: boolean; xs, ys: extended; var xc, yc, tn, rn: extended);
+procedure docurving(transform_flag, slew_flag: boolean; xs, ys: double; var xc, yc, tn, rn: double);
 
-procedure rotate_turnout(k: extended; draw: boolean);    // rotate turnout k radians around peg.
+procedure rotate_turnout(k: double; draw: boolean);    // rotate turnout k radians around peg.
 procedure peg_curve;
 // do curving calcs for the current peg position.
 
-function check_radius(warn: boolean; var r: extended): boolean;
+function check_radius(warn: boolean; var r: double): boolean;
 // return true if curving radius was within limits.
 
 procedure clear_transform_data;
@@ -968,17 +969,17 @@ procedure lengths_click(degs: boolean);
 function check_black_white: boolean;
 // return True if he cancels (called from change printer colours).
 
-procedure fix_radius(rad: extended; click: boolean);     // set up fixed-radius curving.
+procedure fix_radius(rad: double; click: boolean);     // set up fixed-radius curving.
 
-function clrad_at_x(x: extended): extended;      // return the track centre-line radius at this xs.
+function clrad_at_x(x: double): double;      // return the track centre-line radius at this xs.
 
 procedure transition_clicked(trans_code: integer);
 procedure make_transition_click(trans_hand: integer);
 function make_transition_from_current_calcs: integer;
 
-function do_auto_trans_swing_adjust(old_rad2_orgx, old_rad2_orgy: extended): integer;
+function do_auto_trans_swing_adjust(old_rad2_orgx, old_rad2_orgy: double): integer;
 
-function do_degs_length_adjust(length_in_degs: extended; var length_in_mm: extended): integer;
+function do_degs_length_adjust(length_in_degs: double; var length_in_mm: double): integer;
 
 function set_black_and_white: boolean;
 
@@ -1000,7 +1001,7 @@ procedure no_rails_warn;
 
 procedure pad_view_fit_bgnd(group_only: boolean);  // zoom to fit background templates.
 
-procedure explode_shrink(new_screenx: extended; loop, wheel: boolean);
+procedure explode_shrink(new_screenx: double; loop, wheel: boolean);
 // mouse wheel mode added 0.97.d
 
 procedure calc_peg_pad_pos;    // calculate position of peg on screen.
@@ -1012,7 +1013,7 @@ procedure shift_radial_centre(to_notch: boolean);
 function get_peg_for_notch: Tnotch;
 function get_current_notch: Tnotch;
 
-procedure shift_rotate_group(x_move, y_move, k_rot: extended; egg_timer: boolean);
+procedure shift_rotate_group(x_move, y_move, k_rot: double; egg_timer: boolean);
 
 procedure do_group_link_to_notch;
 procedure do_linked_notch;         // link notch to control template.
@@ -1047,15 +1048,15 @@ procedure clear_current_name;
 
 function snake_onto_this_peg(keep_dims: Tkeep_dims; facing_facing, alerts: boolean): boolean;
 
-function aq25offset(xs: extended; var k: extended): extended;
+function aq25offset(xs: double; var k: double): double;
 // return offset at xs on turnout road centre-line.
 
-function curved_onto_calc(org_rad, onto_rad: extended): extended;
-function equiv_rad_calc(curved_rad, onto_rad: extended): extended;    // 217a
+function curved_onto_calc(org_rad, onto_rad: double): double;
+function equiv_rad_calc(curved_rad, onto_rad: double): double;    // 217a
 
-function aq3offset(xtb: extended; var k: extended): extended;
+function aq3offset(xtb: double; var k: double): double;
 //  general utility - return offset at any xtb on aq=3 (curved stock rail).
-function aq2offset(xtb: extended; var k: extended): extended;
+function aq2offset(xtb: double; var k: double): double;
 //  general utility - return offset at any xtb on aq=2 (curved turnout rail).
 
 procedure shift_all_group;  // add current xshift_keeps, yshift_keeps to all group templates.
@@ -1063,15 +1064,15 @@ procedure twist_all_group;  // rotate all group templates.
 
 function check_shove: boolean;    // check some timbers there for shove / select.
 
-procedure fix_approach_length(snap: boolean; lmod: extended);
-procedure fix_exit_length(lmod: extended);
+procedure fix_approach_length(snap: boolean; lmod: double);
+procedure fix_exit_length(lmod: double);
 
 procedure mirror_keeps_x;     // X mirror a group of templates about the notch.
 
 procedure insert_turnout;
 
-procedure set_trans_position_from_ctrl_0(os_offset, zone_len: extended);
-procedure set_slew_position_from_ctrl_0(start_offset, zone_len: extended);
+procedure set_trans_position_from_ctrl_0(os_offset, zone_len: double);
+procedure set_slew_position_from_ctrl_0(start_offset, zone_len: double);
 
 procedure new_label_position;
 
@@ -1165,12 +1166,12 @@ procedure obtain_switch(n: integer);
 procedure obtain_plain_track(n: integer);
 // obtain control template plain-track settings from template in list.
 
-function gauge_dims(from_list, mod_rads, mod_gauge_data: boolean): extended;
+function gauge_dims(from_list, mod_rads, mod_gauge_data: boolean): double;
 // set up gauge and scale from selected item in list.
 
 procedure set_y_datum;          // set up default y position.
 
-procedure rescale_notch(ratio: extended);
+procedure rescale_notch(ratio: double);
 
 procedure printer_setup(cal_in_progress, black_white_setup: boolean);
 
@@ -1181,8 +1182,8 @@ procedure mouse_symbol_click;  // symbol clicked on action form.
 
 procedure action_label_click;
 
-function mouse_x(X: integer): extended;     // return x mm at this pad X pixels.
-function mouse_y(X, Y: integer): extended;   // return y mm at this pad Y pixels.
+function mouse_x(X: integer): double;     // return x mm at this pad X pixels.
+function mouse_y(X, Y: integer): double;   // return y mm at this pad Y pixels.
 
 function check_grey_paper: boolean;     // return True if the paper colour is near to mid grey.
 function check_dark_paper: boolean;     // return True if the paper colour is black or very dark.
@@ -1229,7 +1230,7 @@ function store_and_background(click, zero_it: boolean): boolean;
 
 procedure extend_template_from_zero;  // 0.93.a
 
-procedure debug(str: string; abc: extended); // 0.93.a
+procedure debug(str: string; abc: double); // 0.93.a
 
 function make_curviform_ladder: boolean; // 0.93.a
 
@@ -1243,7 +1244,7 @@ function get_current_diffed_dims: string;
 
 procedure action_panel_hint(hint_str: string);   // 205c  set hollow-triangle mouse action hint
 
-function create_id_number_str(idnum, hand: integer; startx, turnoutx, ipx, fpx: extended;
+function create_id_number_str(idnum, hand: integer; startx, turnoutx, ipx, fpx: double;
   plain_track, half_diamond, any_omitted: boolean): string;    // 208a
 
 function get_store_beginner_help: string;  // 208a
@@ -1257,25 +1258,25 @@ procedure show_modal_message(msg: string);                // 212a Wine bug
 
 procedure retain_on_make;  // 213a
 
-function ram_clm_str(ram_kn: extended): string;
+function ram_clm_str(ram_kn: double): string;
 
 procedure companion_help(topic_url_str: string);     // 214a
 
 function count_substrings(sub_str, text_str: string): integer;      // 215a
 
-function calculate_turnout_radius(curving_rad: extended; var heel_notch, mid_notch, xing_notch: Tnotch): extended;
+function calculate_turnout_radius(curving_rad: double; var heel_notch, mid_notch, xing_notch: Tnotch): double;
 // 218a
-function calculate_turnout_radius_beyond(curving_rad: extended;
-  var xing_notch, mid_notch, end_notch: Tnotch): extended;  // 218b
-function calculate_return_curve_radius(var exit_notch, mid_notch, trp_notch: Tnotch): extended;
+function calculate_turnout_radius_beyond(curving_rad: double;
+  var xing_notch, mid_notch, end_notch: Tnotch): double;  // 218b
+function calculate_return_curve_radius(var exit_notch, mid_notch, trp_notch: Tnotch): double;
 // 218d
 
-function calc_peg_dims(code: integer; var pegx, pegy, pegangle: extended): Tpeg_indicator_string;
+function calc_peg_dims(code: integer; var pegx, pegy, pegangle: double): Tpeg_indicator_string;
 // 218a moved to interface for make tandem
 
 function tpex_from_tnotch(notch: Tnotch): Tpex;
 function get_nearer_pex(p0, p1, p2: Tpex): Tpex;
-function get_notch_distance(n1, n2: Tnotch): extended;
+function get_notch_distance(n1, n2: Tnotch): double;
 function get_snap_peg_xy_data(code: integer): Tnotch;
 
 procedure shift_group_into_positive_quadrant(warn: boolean);    // 219a
@@ -1360,22 +1361,22 @@ var
   switch_type: integer = -1;
   // type of switch.  0 = curved planing or straight switch; -1 = semi-curved switch;  1 = double-curved switch.
 
-  //   k4_limit:extended=Pi/2-0.001;   // turnout road mustn't swing more than 90 degrees (for straight turnout).
-  k4_limit: extended = Pi / 3;
+  //   k4_limit:double=Pi/2-0.001;   // turnout road mustn't swing more than 90 degrees (for straight turnout).
+  k4_limit: double = Pi / 3;
   // 0.93.a turnout road mustn't swing more than 60 degrees (for straight turnout).
 
-  sep_limit: extended = 0.0001;
+  sep_limit: double = 0.0001;
   // make transition rad centres, separation limit 0.0001 mm for a match (arbitrary).
 
-  shovetimbx_now: extended = 0;
-  shovex_now: extended = 0;
-  shovek_now: extended = 0;
-  shoveo_now: extended = 0;
-  shovel_now: extended = 0;
-  shovew_now: extended = 0;
-  shovec_now: extended = 0;
+  shovetimbx_now: double = 0;
+  shovex_now: double = 0;
+  shovek_now: double = 0;
+  shoveo_now: double = 0;
+  shovel_now: double = 0;
+  shovew_now: double = 0;
+  shovec_now: double = 0;
 
-  yd: extended;                      // y datum for drawing.
+  yd: double;                      // y datum for drawing.
 
   wing_tbcount: integer;
 
@@ -1383,7 +1384,7 @@ var
 
   f7_snap_allow: boolean = True;       // 0.82.a  allow F7 snapping (Shift key toggle).
 
-  f6_swing_angle: extended = 0;        // 0.91.b  F6 options.
+  f6_swing_angle: double = 0;        // 0.91.b  F6 options.
 
   in_progress: boolean;            // gocalc no re-entry flag.
 
@@ -1448,41 +1449,41 @@ var
   veexing_now: integer = 0;
   hdxing_now: integer = 0;
 
-  gaunt_offset_now_mm: extended = 0;
-  vee_now: extended = 0;
-  hdkn_now: extended = 0;
+  gaunt_offset_now_mm: double = 0;
+  vee_now: double = 0;
+  hdkn_now: double = 0;
 
   gaunt_rad_now: integer = 0;      // 217b
-  gaunt_curvature_now: extended = 0;  // 217b
+  gaunt_curvature_now: double = 0;  // 217b
 
   rect_now_X: integer = 0;
   rect_now_Y: integer = 0;
 
-  output_rectangle_x_now: extended = 0;
-  output_rectangle_y_now: extended = 0;
+  output_rectangle_x_now: double = 0;
+  output_rectangle_y_now: double = 0;
 
 
   dv_now: integer = 0;              // 0.98.a  dummy vehicle
   dv_clear_now: integer = 0;
-  dv_start_now: extended = 0;
-  dv_copy_start_now: extended = 0;  // 215c
-  dv_clearance_now: extended = 0;
+  dv_start_now: double = 0;
+  dv_copy_start_now: double = 0;  // 215c
+  dv_clearance_now: double = 0;
 
   ts_adj_now: integer = 0;          // 213a
-  trtscent_pi_now: extended = 0;
+  trtscent_pi_now: double = 0;
 
   ms_adj_now: integer = 0;
-  trmscent_pi_now: extended = 0;
+  trmscent_pi_now: double = 0;
 
 
   mouse_diffs_now_X: integer = 0;       // 0.94.a ...
   mouse_diffs_now_Y: integer = 0;
 
-  mouse_check_len_mm_now: extended = 0;
-  mouse_check_flare_mm_now: extended = 0;
-  mouse_check_gap_mm_now: extended = 0;
+  mouse_check_len_mm_now: double = 0;
+  mouse_check_flare_mm_now: double = 0;
+  mouse_check_gap_mm_now: double = 0;
 
-  diff_dir: extended = 1.0;  // +/-1 mouse diffing direction
+  diff_dir: double = 1.0;  // +/-1 mouse diffing direction
 
   printsize_now_X: integer;
 
@@ -1493,8 +1494,8 @@ var
 
   mouse_drawing_in_progress: boolean = False;
 
-  mouse_down_x: extended = 0;
-  mouse_down_y: extended = 0;
+  mouse_down_x: double = 0;
+  mouse_down_y: double = 0;
 
   draw_mouse_down_X: integer = 0;
   draw_mouse_down_Y: integer = 0;
@@ -1505,8 +1506,8 @@ var
   toggle_1: integer = 0;     // flashing lamps toggles.
   toggle_2: integer = 0;
 
-  twist_dir: extended = 1;
-  orbit_dir: extended = 1;
+  twist_dir: double = 1;
+  orbit_dir: double = 1;
 
   opposite_way: boolean = False;
   // reverse sense of mouse actions for turnout facing opposite way.
@@ -1540,56 +1541,56 @@ var
 
   auto_spiral_adjust: boolean = True;   // for make double track.
 
-  wing_reach1: extended = 48;   // full-size inches - size 1 wing rail reach length (forward from "A").
-  wing_reach2: extended = 78;   // full-size inches - size 2 wing rail reach length (forward from "A").
+  wing_reach1: double = 48;   // full-size inches - size 1 wing rail reach length (forward from "A").
+  wing_reach2: double = 78;   // full-size inches - size 2 wing rail reach length (forward from "A").
 
-  ck_working1: extended = 78;   // full-size inches - size 1 check rail working length (back from "A").
-  ck_working2: extended = 108;
+  ck_working1: double = 78;   // full-size inches - size 1 check rail working length (back from "A").
+  ck_working2: double = 108;
   // full-size inches - size 2 check rail working length (back from "A").
-  ck_working3: extended = 138;
+  ck_working3: double = 138;
   // full-size inches - size 3 check rail working length (back from "A").
 
-  ck_ext1: extended = 48;
+  ck_ext1: double = 48;
   // full-size inches - size 1 check rail extension length (forward from "A").
-  ck_ext2: extended = 78;
+  ck_ext2: double = 78;
   // full-size inches - size 2 check rail extension length (forward from "A").
 
-  check_ms_wklen: extended = 108;   // control template check MS lengths
-  check_ms_extlen: extended = 48;
-  wgl_ms_len: extended = 48;        // ditto wing.
+  check_ms_wklen: double = 108;   // control template check MS lengths
+  check_ms_extlen: double = 48;
+  wgl_ms_len: double = 48;        // ditto wing.
 
-  check_ts_wklen: extended = 108;   // control template check TS lengths
-  check_ts_extlen: extended = 48;
-  wgl_ts_len: extended = 48;        // ditto wing.
+  check_ts_wklen: double = 108;   // control template check TS lengths
+  check_ts_extlen: double = 48;
+  wgl_ts_len: double = 48;        // ditto wing.
 
-  wgl_ms: extended = 0;            // wing reach in mm.
-  wgl_ts: extended = 0;            // ditto wing.
+  wgl_ms: double = 0;            // wing reach in mm.
+  wgl_ts: double = 0;            // ditto wing.
 
-  kckl_dk: extended = 0;           // K check lengths in mm (half-length)
-  kckl_mk: extended = 0;
+  kckl_dk: double = 0;           // K check lengths in mm (half-length)
+  kckl_mk: double = 0;
 
-  ckmidx_ms: extended = 0;
-  cktsmid_offset: extended = 0;
-
-
-  min_diff: extended = 0;    // 0.94.a mouse diffs limits
-  max_diff: extended = 0;
+  ckmidx_ms: double = 0;
+  cktsmid_offset: double = 0;
 
 
-  sliptipsl: extended;
+  min_diff: double = 0;    // 0.94.a mouse diffs limits
+  max_diff: double = 0;
+
+
+  sliptipsl: double;
   // approx slip switch tips from hd-toe for timber extension calcs. 0.77.b  10-11-02.
-  sliprad: extended;      // approx slip radius (mm).
+  sliprad: double;      // approx slip radius (mm).
 
-  datumx_on_pad, datumy_on_pad: extended;
+  datumx_on_pad, datumy_on_pad: double;
 
-  sw_front_inches: extended = 65;   // f.s. inches. (arbitrary);
+  sw_front_inches: double = 65;   // f.s. inches. (arbitrary);
 
-  shovex: extended = 0;
-  shovek: extended = 0;
-  shoveo: extended = 0;
-  shovel: extended = 0;
-  shovew: extended = 0;
-  shovec: extended = 0;
+  shovex: double = 0;
+  shovek: double = 0;
+  shoveo: double = 0;
+  shovel: double = 0;
+  shovew: double = 0;
+  shovec: double = 0;
 
   view_delay_count: integer = 0;     // 0.91.c
   pad_view_now: Tpad_view_data;    // 0.91.c
@@ -1599,7 +1600,7 @@ var
   done_calcs: boolean = False;  // 0.93.a
 
 
-  rmin_mm: extended = 0;  // 0.98.a moved to global for dummy vehicle calcs.
+  rmin_mm: double = 0;  // 0.98.a moved to global for dummy vehicle calcs.
 
 
   old_mouse_move_X: integer = 0;   // 205e
@@ -1609,7 +1610,7 @@ var
   //-----------------------------------------------------------------------
   //      arrays...
 
-  seg_termx: array[0..4, 0..11] of extended;        // only aq=2, 3, 10, 11 actually used.
+  seg_termx: array[0..4, 0..11] of double;        // only aq=2, 3, 10, 11 actually used.
 
   //_________________________________________________________________________________________
 
@@ -1617,7 +1618,7 @@ var
 
   making_a_diamond: boolean = False;  // 215a
 
-function f28000(aq: integer; xs, ys: extended): integer; forward;
+function f28000(aq: integer; xs, ys: double): integer; forward;
 function f29000(aq: integer; pc: Tpex): integer; forward;
 //  Put xc,yc (in pc) in rail-data array.
 
@@ -1626,28 +1627,28 @@ function intolist(aq, nl: integer; pt: TPoint): integer; forward;
 function new_calc_draw(on_canvas: TCanvas; calcs_code, mode: integer): boolean;
   forward;   // calc and draw all rail lines and marks.
 
-function turnoutst_main(aq: integer; xb, xe, xs: extended): extended; forward;
-function turnoutst_wing(aq: integer; {fl,}xb, xe, xs: extended): extended; forward;
-function turnoutst_check(aq: integer; {fl,}xb, xe, xs: extended): extended; forward;
+function turnoutst_main(aq: integer; xb, xe, xs: double): double; forward;
+function turnoutst_wing(aq: integer; {fl,}xb, xe, xs: double): double; forward;
+function turnoutst_check(aq: integer; {fl,}xb, xe, xs: double): double; forward;
 
-function flarerad(aq: integer; {fl,k5,}xs: extended{; flinout:integer}): extended;
+function flarerad(aq: integer; {fl,k5,}xs: double{; flinout:integer}): double;
   forward;   // calc instantaneous radius in curved flares.
 
 
-function cuflare(fl, flk, flb, fle, xs: extended; fld: integer): extended; forward;
+function cuflare(fl, flk, flb, fle, xs: double; fld: integer): double; forward;
 
-function radcurve(aq: integer; {fl,k5,}xs: extended{; flway:integer}): extended;
+function radcurve(aq: integer; {fl,k5,}xs: double{; flway:integer}): double;
   forward;  // 0.93.a ex 081
 
-function returncurve(xs, radmod: extended): extended; forward;
+function returncurve(xs, radmod: double): double; forward;
 function calc_curving: boolean; forward;
 
 function convert_point(p: Tpex): Tpoint; forward;
 // input in mm f.p. , convert to 1/100ths mm. integer.
 
-function do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy, old_rad2_orgx, old_rad2_orgy: extended): integer;
+function do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy, old_rad2_orgx, old_rad2_orgy: double): integer;
   forward;
-function do_auto_trans_length_adjust(apart_len_wanted: extended): integer; forward;
+function do_auto_trans_length_adjust(apart_len_wanted: double): integer; forward;
 
 function pad_marks_current(on_canvas: TCanvas; ink: boolean): boolean; forward;
 // draw all the marks (control template). (not rail ends)
@@ -1656,15 +1657,15 @@ procedure set_current_notch(notch_data: Tnotch); forward;
 
 function oneline(aq: integer): boolean; forward; //  Calc a rail-line.
 
-procedure doradcurve(aq: integer; {fl,}xb, xe: extended); forward;
-procedure dostr(aq: integer; xb, xe, ys: extended); forward;
-procedure dostr_joggle(aq: integer; xb, xe, ys: extended); forward;
+procedure doradcurve(aq: integer; {fl,}xb, xe: double); forward;
+procedure dostr(aq: integer; xb, xe, ys: double); forward;
+procedure dostr_joggle(aq: integer; xb, xe, ys: double); forward;
 
 procedure turnroad_cl; forward;                           // turnout road track centre-line.
 
 procedure k_checkrail_ds(aq: integer); forward;    // K-crossing check rail, DS.
 
-procedure stflare(aq: integer; fl, flk, xb, xe, yfl: extended; fldir: integer; flsgn: extended;
+procedure stflare(aq: integer; fl, flk, xb, xe, yfl: double; fldir: integer; flsgn: double;
   machined_end: boolean); forward;
 procedure stckrail(aq: integer{; fl:extended}); forward;
 procedure cuckrail(aq: integer{; fl:extended}); forward;
@@ -1681,10 +1682,10 @@ procedure stwing(aq: integer{; fl:extended}); forward;
 procedure stcurail(aq: integer{; fl:extended}); forward;
 procedure stvee(aq: integer); forward;
 procedure cuvee(aq: integer{; fl:extended}); forward;
-procedure docrossing(aq: integer;{fl,}xb, xe: extended; flway: integer); forward;
-procedure doreturn(aq: integer; xb, xe, radmod: extended); forward;
+procedure docrossing(aq: integer;{fl,}xb, xe: double; flway: integer); forward;
+procedure doreturn(aq: integer; xb, xe, radmod: double); forward;
 
-procedure init_rotate(x, y: extended; rad_centre: boolean); forward;
+procedure init_rotate(x, y: double; rad_centre: boolean); forward;
 // set up transform constants for rotates.
 
 function show_a_line(on_canvas: TCanvas; aq, pen_width: integer; erasing: boolean): boolean;
@@ -1703,7 +1704,7 @@ procedure add_check_labels; forward;          // 0.94.a
 
 procedure calctimbers; forward;
 procedure toesleeper(joint: boolean); forward;
-procedure plain_sleepers(xtb: extended; dir: integer; full_length, retcurve: boolean); forward;
+procedure plain_sleepers(xtb: double; dir: integer; full_length, retcurve: boolean); forward;
 procedure switchtimbers; forward;
 procedure dotimber(retcurve, joint: boolean); forward;
 procedure drawtimbol(retcurve, joint: boolean); forward;
@@ -1711,7 +1712,7 @@ procedure drawtimbol(retcurve, joint: boolean); forward;
 //procedure drawchairs(retcurve:boolean);forward;                      // mark chair outlines on timber
 
 procedure tbnumber(retcurve: boolean); forward;
-procedure endsleeper(x: extended; full_length, retcurve, joint: boolean; dir: integer); forward;
+procedure endsleeper(x: double; full_length, retcurve, joint: boolean; dir: integer); forward;
 
 procedure drawtimbcl(retcurve: boolean); forward;
 // mark timber centre-line
@@ -1728,10 +1729,10 @@ procedure trail_check_len_mm(X: integer); forward;    // 0.94.a  check rail diff
 procedure trail_check_flare_mm(X: integer); forward;  // 0.94.a  check rail diffs
 procedure trail_check_gap_mm(Y: integer); forward;    // 0.94.a  check rail diffs
 
-function pad_X(x: extended): integer; forward;   // return pad X pixels at this x mm.
-function pad_Y(y: extended): integer; forward;   // return pad Y pixels at this y mm.
+function pad_X(x: double): integer; forward;   // return pad X pixels at this x mm.
+function pad_Y(y: double): integer; forward;   // return pad Y pixels at this y mm.
 
-function draw_xing_label(k, xlabel, yms, yts, ymid, xnote, ynote: extended): Tpex; forward;
+function draw_xing_label(k, xlabel, yms, yts, ymid, xnote, ynote: double): Tpex; forward;
 // 211b mark the crossing labels
 
 //______________________________________________________________________________________
@@ -1749,7 +1750,7 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure debug(str: string; abc: extended);
+procedure debug(str: string; abc: double);
 
 begin
   show_modal_message(str + ' = ' + FloatToStr(abc));
@@ -2222,7 +2223,7 @@ procedure templot_init;         // this routine runs only once.
 var
   n: integer;
   printers_count: integer;
-  temp: extended;
+  temp: double;
 
 begin
 
@@ -2800,9 +2801,9 @@ function calc_switch(sw_info: Tswitch_info; h_diamond, current_calc: boolean): i
   // calculate switch - return error code,
 
 var
-  alpha, beta: extended;
-  temp: extended;
-  h_inches, lh_inches, sw_front_inches: extended;
+  alpha, beta: double;
+  temp: double;
+  h_inches, lh_inches, sw_front_inches: double;
 
 begin      // calculate the switch data.
 
@@ -3302,12 +3303,12 @@ begin      // calculate the switch data.
 end;
 //______________________________________________________________________________
 
-function rails_sleepers(len: extended; var num_rails, num_sl_over: integer; var percent_over: extended): boolean;
+function rails_sleepers(len: double; var num_rails, num_sl_over: integer; var percent_over: double): boolean;
 
   // return number of full current rail lengths and extra sleepers over in length len.
   // assumes starting from a rail joint.
 var
-  len_rail, len_over: extended;
+  len_rail, len_over: double;
 
 begin
   Result := False;       // init defaults...
@@ -3345,8 +3346,8 @@ const
     '||You may have to click USE LONGER SWITCH more than once to find a switch which fits.';
 var
   i: integer;
-  heel_to_xing: extended;  // 0.93.a
-  flend_out: extended;
+  heel_to_xing: double;  // 0.93.a
+  flend_out: double;
 
 begin
 
@@ -4039,18 +4040,18 @@ end;
 function xdims: boolean;          //  calculate rail x dimensions from origin.
   //  N.B. heelx and all subsequent dims (except turnout_road_endx, main_road_endx) include xorg.
 var
-  temp, tempx, tempy, tempk: extended;
+  temp, tempx, tempy, tempk: double;
   i: integer;
-  k88, angled_sl: extended;
-  bnw: extended;
-  tcosk3: extended;
+  k88, angled_sl: double;
+  bnw: double;
+  tcosk3: double;
 
-  swing_on_k_check: extended;  // 0.93.a
+  swing_on_k_check: double;  // 0.93.a
 
-  tradius_cl: extended;  // 0.93.a
+  tradius_cl: double;  // 0.93.a
 
-  ka: extended;          // 214a  angle at knuckle
-  knuck_max: extended;
+  ka: double;          // 214a  angle at knuckle
+  knuck_max: double;
 
 begin
   Result := False;  // default init.
@@ -5175,10 +5176,10 @@ begin
 end;
 //_______________________________________________________________________________________________________________________________
 
-function ram_clm_str(ram_kn: extended): string;
+function ram_clm_str(ram_kn: double): string;
 
 var
-  clm_kn: extended;
+  clm_kn: double;
 
 begin        //  calc CLM unit angle...
   try
@@ -5200,19 +5201,19 @@ procedure compile_template_data;   // compile results of calcs.
 
 var
   trans_0rad, trans_orgrad, trans_toerad, trans_heelrad, trans_dprad, trans_txrad, trans_fprad,
-  trans_vjrad, trans_9rad: extended;
-  rcurv_0, rcurv_toe, rcurv_heel, rcurv_dp, rcurv_tx, rcurv_fp, rcurv_vj: extended;
-  rmin_inch: extended;
+  trans_vjrad, trans_9rad: double;
+  rcurv_0, rcurv_toe, rcurv_heel, rcurv_dp, rcurv_tx, rcurv_fp, rcurv_vj: double;
+  rmin_inch: double;
 
-  rcurv_return, trans_retstartrad, rcurv_retstart, trans_retendrad, rcurv_retend: extended;
+  rcurv_return, trans_retstartrad, rcurv_retstart, trans_retendrad, rcurv_retend: double;
   // 0.79.a
 
-  slew_rad, slew_minrad, trans_slewrad: extended;
+  slew_rad, slew_minrad, trans_slewrad: double;
   no_zone_str: string;
   num_dec: integer;
 
   hand_str: string;
-  temp1, temp2, temp3: extended;
+  temp1, temp2, temp3: double;
   indent_str, temp_str: string;
   temp_flag: boolean;
 
@@ -5220,7 +5221,7 @@ var
   hd_str, reg_hd_str, section_str, vertical_str: string;
 
   num_rails, num_sl_over, num_sl_full: integer;
-  percent_over, tb_roll_mm, dummy1: extended;
+  percent_over, tb_roll_mm, dummy1: double;
   dummy_i: integer;
   tb_rolling: boolean;
   tb_roll_str: string;
@@ -6489,10 +6490,10 @@ end;
 //_________________________________________________________________________________________
 
 
-function curved_onto_calc(org_rad, onto_rad: extended): extended;
+function curved_onto_calc(org_rad, onto_rad: double): double;
 
 var                // return approx radius of org_rad when curved onto onto_rad.
-  temp: extended;
+  temp: double;
 
 begin
   temp := org_rad + onto_rad;
@@ -6504,12 +6505,12 @@ begin
 end;
 //______________________________________________________________________________
 
-function equiv_rad_calc(curved_rad, onto_rad: extended): extended;    // 217a
+function equiv_rad_calc(curved_rad, onto_rad: double): double;    // 217a
 
   // return approx orginal rad before being curved onto onto_rad to become curved_rad
 
 var
-  temp: extended;
+  temp: double;
 
 begin
   temp := onto_rad - curved_rad;
@@ -6771,7 +6772,7 @@ var
   n, mark_count: integer;
   array_max: integer;
 
-  num_rail_lengths: extended;
+  num_rail_lengths: double;
   num_sleepers, num_timbers: integer;
   min_count: integer;
 
@@ -6876,7 +6877,7 @@ function new_aqarray(aq: integer): boolean;   // finished with old rail data, so
 var
   n: integer;
   p: Pointer;
-  list_size: extended;
+  list_size: double;
   max_list: integer;
 
 begin
@@ -7038,7 +7039,7 @@ var
   i, n, aq: integer;
   p1, p2: TPoint;
   move_to, line_to: TPoint;
-  clear_by, infringed_by, ring_rad: extended;
+  clear_by, infringed_by, ring_rad: double;
 
   pen_width: integer; // 212a
 
@@ -7334,7 +7335,7 @@ begin
 end;
 //_______________________________________________________________________________________________________________________________
 
-function get_cl_offset: extended;
+function get_cl_offset: double;
 
 begin
   case cl_options_code of     // 213a
@@ -7390,15 +7391,15 @@ end;
 
 function Tcentre_line_path.get_xy(dist: double): Tpex;
 var
-   tr_y : extended;
-   tr_k : extended;
-   xtr : extended;
-   ytr : extended;
-   dvx1 : extended;
-   dvy1 : extended;
-   dummy1 : extended;
-   dummy2 : extended;
-   cl_offset : extended;
+   tr_y : double;
+   tr_k : double;
+   xtr : double;
+   ytr : double;
+   dvx1 : double;
+   dvy1 : double;
+   dummy1 : double;
+   dummy2 : double;
+   cl_offset : double;
 begin
   if grid_form.turnout_road_dummy_vehicle_radio_button.Checked = True then   // turnout road ...
   begin
@@ -7691,7 +7692,7 @@ procedure straight_planing(aq: integer; do_joggle: boolean);
 // semi-curved switch : return ys, ks along planing length at this xs.
 
 var
-  xpl, y, len, jog: extended;
+  xpl, y, len, jog: double;
 
 begin
   if switch_type <> -1 then
@@ -7733,8 +7734,8 @@ end;
 procedure swcurve(aq: integer; do_joggle: boolean);    // do switch curve / straight switch.
 // return ys,ks at this xs.
 var
-  x, temp: extended;
-  xjog, len, jog: extended;
+  x, temp: double;
+  xjog, len, jog: double;
 
 begin
   if gaunt = True then
@@ -7818,8 +7819,8 @@ end;
 function strails(aq: integer): boolean;     //   all straight rails.
 
 var
-  stxmax: extended;
-  bnw, xbn: extended;
+  stxmax: double;
+  bnw, xbn: double;
 
 begin
   Result := False;   // default init.
@@ -8195,14 +8196,14 @@ begin
 end;
 //_______________________________________________________________________________________________________________________________
 
-function aq25offset(xs: extended; var k: extended): extended;
+function aq25offset(xs: double; var k: double): double;
   // return offset at xs on turnout road centre-line.
   // also return the angle in k.
 var
-  temp: extended;
-  x, xlim, rto: extended;
+  temp: double;
+  x, xlim, rto: double;
 
-  curve_endx: extended;
+  curve_endx: double;
 
   ////////////////////////////////////////////////////////////
 
@@ -8360,8 +8361,8 @@ end;
 procedure turnroad_cl;            // turnout road track centre-line.
 
 var
-  xs, ys, ks, xe: extended;
-  curve_startx: extended;  // 213a
+  xs, ys, ks, xe: double;
+  curve_startx: double;  // 213a
 
 begin
   if plain_track = True then
@@ -8434,11 +8435,11 @@ var
 
   ////////////////////////////////////////////////////////////
 
-  procedure do_kuckle_curve(aq: integer; kr, xb, xe: extended);
+  procedure do_kuckle_curve(aq: integer; kr, xb, xe: double);
   // do a turnout curve.
 
   var
-    xs, ys, temp: extended;
+    xs, ys, temp: double;
 
   begin
     if xb > turnoutx then
@@ -8640,7 +8641,7 @@ end;
 procedure retrails(aq: integer);       // return curve rails.
 
 var
-  xb, retrmod: extended;
+  xb, retrmod: double;
 
 begin
   if xing_calc_i = 1 then
@@ -8695,7 +8696,7 @@ procedure curails(aq: integer{; fl:extended});    //  central curved part of tur
 var
   do_joggle: boolean;
   plox_done: boolean;
-  bnw, xbn: extended;
+  bnw, xbn: double;
   segment_index: integer;
 
   // fill the curved rail lists.
@@ -8945,10 +8946,10 @@ begin
 end;
 //_______________________________________________________________________________________________________________________________
 
-procedure doreturn(aq: integer; xb, xe, radmod: extended);              // do return curve
+procedure doreturn(aq: integer; xb, xe, radmod: double);              // do return curve
 
 var
-  xs, ys: extended;
+  xs, ys: double;
 
 begin
   xs := blank_start(xb);
@@ -8973,13 +8974,13 @@ begin
 end;
 //_______________________________________________________________________________________________________________________________
 
-procedure docrossing(aq: integer; xb, xe: extended; flway: integer);
+procedure docrossing(aq: integer; xb, xe: double; flway: integer);
 
 // stcurails and cuckrail come here also.
 // K-crossing MS check rails also.
 
 var
-  xs, ys, xend: extended;
+  xs, ys, xend: double;
 
 begin
   //if xb>xe then EXIT;     // 20-6-99.
@@ -9053,18 +9054,18 @@ begin
 end;
 //_______________________________________________________________________________________________________________________________
 
-procedure dostr(aq: integer; xb, xe, ys: extended);       // fill all straight rails.
+procedure dostr(aq: integer; xb, xe, ys: double);       // fill all straight rails.
 
 var
-  xs: extended;        //  enter with constant ys for straight rails (except K-crossing checks, platform rear edges).
-  stxmax: extended;
-  xxs, yys: extended;
-  sp, w1, w2: extended;
+  xs: double;        //  enter with constant ys for straight rails (except K-crossing checks, platform rear edges).
+  stxmax: double;
+  xxs, yys: double;
+  sp, w1, w2: double;
 
-  y_at_aq3, k_at_aq3, aq3_endx: extended;  // 207b
+  y_at_aq3, k_at_aq3, aq3_endx: double;  // 207b
   aq3_done: boolean;                     // 207b
 
-  //bed_endx:extended;  // 215a
+  //bed_endx:double;  // 215a
 
 begin
   yys := ys;  // for all except K-crossing check rails, platform rear edges, trackbed edges.
@@ -9286,12 +9287,12 @@ begin
 end;
 //________________________________________________________________________________________
 
-procedure dostr_joggle(aq: integer; xb, xe, ys: extended);
+procedure dostr_joggle(aq: integer; xb, xe, ys: double);
 // fill joggled part of straight stock rail.
 
 var
-  xs, x, len, jog: extended;
-  stxmax: extended;
+  xs, x, len, jog: double;
+  stxmax: double;
 
 begin
   if abandon_calcs = True then
@@ -9397,9 +9398,9 @@ end;
 procedure stvee(aq: integer);          // straight vee rail.
 
 var
-  xb, xe, ys: extended;
+  xb, xe, ys: double;
 
-  endx: extended;  //217a
+  endx: double;  //217a
 
 begin
   xb := 0;
@@ -9440,7 +9441,7 @@ end;
 procedure cuvee(aq: integer{; fl:extended});    // curved vee rail (up to return curve if any).
 
 var
-  xb, xe: extended;
+  xb, xe: double;
 
 begin
 
@@ -9495,12 +9496,12 @@ begin
 end;
 //_______________________________________________________________________________________________________________________________
 
-function returncurve(xs, radmod: extended): extended;   // calc ys, ks for return curve.
+function returncurve(xs, radmod: double): double;   // calc ys, ks for return curve.
   // enter with xs.  (aq not needed.)
 var
-  ys: extended;
-  ysmod_sq: extended;
-  kscos: extended;
+  ys: double;
+  ysmod_sq: double;
+  kscos: double;
 
 begin
   if xs >= retrorgx                         // on parallel part.
@@ -9537,13 +9538,13 @@ begin
 end;
 //______________________________________________________________________________________
 
-function radcurve(aq: integer; {fl,k5,}xs: extended{; flway:integer}): extended;
+function radcurve(aq: integer; {fl,k5,}xs: double{; flway:integer}): double;
 
   // return ys along turnout curve at this xs.
 
 var
-  rto, x: extended;
-  ytemp, costemp, temp: extended;
+  rto, x: double;
+  ytemp, costemp, temp: double;
 
 begin
   Result := 0;      // default init.
@@ -9634,11 +9635,11 @@ begin
 end;
 //_______________________________________________________________________________________________________________________________
 
-function turnoutst_main(aq: integer; xb, xe, xs: extended): extended;
+function turnoutst_main(aq: integer; xb, xe, xs: double): double;
   // calc ys, ks for main turnout rails on straight section.
 
 var
-  x, yst, k3cos: extended;
+  x, yst, k3cos: double;
 
 begin
 
@@ -9709,16 +9710,16 @@ begin
 end;
 //______________________________________________________________________________________
 
-function turnoutst_wing(aq: integer; {fl,}xb, xe, xs: extended): extended;
+function turnoutst_wing(aq: integer; {fl,}xb, xe, xs: double): double;
   // calc ys, ks for turnout-side wing rail.
 
   // calc ys, ks for turnout-side wing rail.
   // also for K-crossing MS check rail
 
 var
-  y_temp, fl_offset: extended;
+  y_temp, fl_offset: double;
 
-  k_temp: extended;  // 0.93.a
+  k_temp: double;  // 0.93.a
 
 begin
   //081  with cpi do begin
@@ -9807,11 +9808,11 @@ begin
 end;
 //______________________________________________________________________________
 
-function turnoutst_check(aq: integer; {fl,}xb, xe, xs: extended): extended;
+function turnoutst_check(aq: integer; {fl,}xb, xe, xs: double): double;
   // calc ys, ks for turnout-side check rail.
 
 var
-  y_temp, fl_offset: extended;
+  y_temp, fl_offset: double;
 
 begin
   case aq of
@@ -9875,7 +9876,7 @@ end;
 procedure cuckrail(aq: integer);      // turnout-side check rail.
 
 var
-  xb, xe: extended;
+  xb, xe: double;
 
 begin
   case aq of
@@ -9945,7 +9946,7 @@ end;
 procedure stckrail(aq: integer);        // main-side check rail.
 
 var
-  xb, xe, ys: extended;
+  xb, xe, ys: double;
 
 begin
   case aq of
@@ -10005,12 +10006,12 @@ begin
 end;
 //_______________________________________________________________________________________________________________________________
 
-procedure stflare(aq: integer; fl, flk, xb, xe, yfl: extended; fldir: integer; flsgn: extended;
+procedure stflare(aq: integer; fl, flk, xb, xe, yfl: double; fldir: integer; flsgn: double;
   machined_end: boolean);      // fill list for straight flare.
 
 //  flsgn  flag used in calcs, so it's a float.
 var
-  xs, ys, xend: extended;
+  xs, ys, xend: double;
 
 begin
   xs := blank_start(xb);
@@ -10046,7 +10047,7 @@ end;
 procedure k_checkrail_ds(aq: integer);        // K-crossing check rail, DS.
 
 var
-  xb, xe, ys: extended;
+  xb, xe, ys: double;
 
 begin
   case aq of
@@ -10083,10 +10084,10 @@ begin
 end;
 //_________________________________________________________________________________________
 
-procedure doradcurve(aq: integer; {fl,}xb, xe: extended);            // do a turnout curve.
+procedure doradcurve(aq: integer; {fl,}xb, xe: double);            // do a turnout curve.
 
 var
-  xs, ys: extended;
+  xs, ys: double;
 
 begin
   if xb > turnoutx then
@@ -10125,7 +10126,7 @@ begin
 end;
 //_______________________________________________________________________________________
 
-function cuflare(fl, flk, flb, fle, xs: extended; fld: integer): extended;
+function cuflare(fl, flk, flb, fle, xs: double; fld: integer): double;
   // calc flare-out on turnout-side wing rail.
 
   // enter with fl flare length along rail edge, flk flare angle
@@ -10135,7 +10136,7 @@ function cuflare(fl, flk, flb, fle, xs: extended; fld: integer): extended;
 
   // n.b. this routine does not need aq.
 var
-  gfl: extended;
+  gfl: double;
 
 begin
 
@@ -10170,7 +10171,7 @@ begin
 end;
 //_________________________________________________________________________________________
 
-function flarerad(aq: integer; {fl,k5,}xs: extended{; flinout:integer}): extended;
+function flarerad(aq: integer; {fl,k5,}xs: double{; flinout:integer}): double;
   // calc instantaneous radius in curved flares.
 
 begin
@@ -10208,14 +10209,14 @@ begin
 end;
 //_________________________________________________________________________________________
 
-function calc_slew(x, slew, slew_length: extended; var y: extended): boolean;
+function calc_slew(x, slew, slew_length: double; var y: double): boolean;
 
   //  x is distance into slewing zone.
   //  slew_2_kmax is used to determine the maximum value of theta for TANH. (gets closer to +/-1).
 var
-  theta: extended;
+  theta: double;
   pin, pout: Tpex;
-  temp: extended;
+  temp: double;
 
 begin
   Result := False;
@@ -10265,7 +10266,7 @@ begin
 end;
 //________________________________________________________________________________________
 
-procedure docurving(transform_flag, slew_flag: boolean; xs, ys: extended; var xc, yc, tn, rn: extended);
+procedure docurving(transform_flag, slew_flag: boolean; xs, ys: double; var xc, yc, tn, rn: double);
 // calc curving, and call any transforms wanted.
 
 //   Do  any slewing/curving as required.
@@ -10276,19 +10277,19 @@ procedure docurving(transform_flag, slew_flag: boolean; xs, ys: extended; var xc
 //   If transform_flag = True, perform any transformations on xc,yc.
 
 var
-  slew_over, slew_over1, slew_over2, x1, x2, y1, y2, slew_twist: extended;
-  delta_xs, xc1, xc2, yc1, yc2, xc_mid, yc_mid, offs: extended;
-  dummy1, dummy2: extended;
+  slew_over, slew_over1, slew_over2, x1, x2, y1, y2, slew_twist: double;
+  delta_xs, xc1, xc2, yc1, yc2, xc_mid, yc_mid, offs: double;
+  dummy1, dummy2: double;
 
   pc: Tpex;                        //  point  xc,yc  after slewing/curving.
   pf: Tpex;                        //  point  xc,yc  after any transforms.
 
   //////////////////////////////////////////////////////////////////
 
-  procedure do_curve_calcs(xs, ys: extended; var xc, yc, tn, rn: extended);
+  procedure do_curve_calcs(xs, ys: double; var xc, yc, tn, rn: double);
 
   var
-    ymod, tsn, xonr2, xn, yn: extended;
+    ymod, tsn, xonr2, xn, yn: double;
 
     //======= do plain curve along r1...
 
@@ -10465,11 +10466,11 @@ begin
 end;
 //_____________________________________________________________________________________
 
-function f28000(aq: integer; xs, ys: extended): integer;   // calc any curving and put in list.
+function f28000(aq: integer; xs, ys: double): integer;   // calc any curving and put in list.
 
 var
   pc: Tpex;
-  xc, yc, tc, rc: extended;
+  xc, yc, tc, rc: double;
 
 begin
   Result := 0;
@@ -10528,12 +10529,12 @@ var
     // this code assumes aq remains constant on consecutive calls until line finished.
 
   var
-    diag_distance, stepx, stepy, ring_rad: extended;
+    diag_distance, stepx, stepy, ring_rad: double;
     i, xlist_old, ylist_old: integer;
 
     //============================================
 
-    function check_ring_point(x, y: extended): extended;
+    function check_ring_point(x, y: double): double;
       // calc a single point distance from ring centre.
 
     begin
@@ -10725,9 +10726,9 @@ end;
 function calc_curving: boolean;    // calc curving/transition constants.
 
 var
-  temp, xn, yn, tn, rn, x9, y9: extended;
+  temp, xn, yn, tn, rn, x9, y9: double;
 
-  slew_pull_back, slew_trans: extended;    //!!! 1-11-99
+  slew_pull_back, slew_trans: double;    //!!! 1-11-99
 
   pin, pout: Tpex;
 
@@ -11632,7 +11633,7 @@ end;
 procedure trail_length(X: integer);
 
 var
-  dir: extended;
+  dir: double;
 
 begin
   if (peg_code = 11) or (peg_code = 600)   //  0.79.a  29-05-06
@@ -11692,7 +11693,7 @@ end;
 procedure trail_approach(X: integer);
 
 var
-  dir: extended;
+  dir: double;
 
 begin
   if peg_code = 0 then
@@ -12111,7 +12112,7 @@ end;
 procedure trail_entry_straight(X: integer);      // change fixed_sl.   0.91.b
 
 var
-  new_fixed_sl: extended;
+  new_fixed_sl: double;
 
 begin
   new_fixed_sl := fixed_sl_now - (X - entry_straight_now) * ffx;    // ffx in mm per pixel at mouse-down.
@@ -12271,7 +12272,7 @@ procedure calc_peg_pad_pos;    // calculate position of peg on screen.
 
 var
   peg_p: Tpex;
-  dummy: extended;
+  dummy: double;
 
 begin
   docurving(True, True, pegx, pegy, peg_p.x, peg_p.y, now_peg_k, dummy);
@@ -12422,7 +12423,7 @@ end;
 procedure trail_allshapes_scale(Y: integer);
 
 var
-  shapes_scalefactor: extended;
+  shapes_scalefactor: double;
 
 begin
   if pad_form.ClientHeight < 1 then
@@ -12443,7 +12444,7 @@ end;
 procedure trail_allshapes_rotate(Y: integer);
 
 var
-  shapes_rot: extended;
+  shapes_rot: double;
 
 begin
   shapes_rot := shapes_rot_now + twist_dir * (Y - shapes_now_y) * ffy * 100 /
@@ -12458,7 +12459,7 @@ end;
 procedure trail_oneshape_scale(X: integer);
 
 var
-  shapes_scalefactor: extended;
+  shapes_scalefactor: double;
 
 begin
   if pad_form.ClientWidth < 1 then
@@ -12508,7 +12509,7 @@ end;
 procedure trail_zoom(X: integer);
 
 var
-  temp: extended;
+  temp: double;
 
 begin
   if X < 1 then
@@ -12530,8 +12531,8 @@ end;
 procedure trail_spot(X, Yneg: integer);
 
 var
-  temp: extended;
-  x_offset_mod: extended;
+  temp: double;
+  x_offset_mod: double;
 
 begin
   temp := screeny / screenx;                            // aspect ratio
@@ -12568,9 +12569,9 @@ end;
 procedure trail_trans_start(X: integer);          // adjust transition start.
 
 var
-  old_os, dummy1, dummy2, dummy3, new_rad: extended;
+  old_os, dummy1, dummy2, dummy3, new_rad: double;
   limit_code: integer;
-  //temp:extended;
+  //temp:double;
 
 begin
   old_os := os;
@@ -12610,9 +12611,9 @@ end;
 procedure trail_trans_length(X: integer);           // adjust transition length.
 
 var
-  old_tst, dummy1, dummy2, dummy3, new_rad: extended;
+  old_tst, dummy1, dummy2, dummy3, new_rad: double;
   limit_code: integer;
-  //temp:extended;
+  //temp:double;
 
 begin
   old_tst := tst;     // in case we need to re-instate.
@@ -12818,7 +12819,7 @@ end;
 procedure trail_xing(X: integer);    //  adjust crossing size on new mouse X position.
 
 var
-  temp, dummy1, dummy2: extended;
+  temp, dummy1, dummy2: double;
   pc, pf: Tpex;
 
 begin
@@ -12881,9 +12882,9 @@ procedure peg_curve;  // do curving calcs for the current peg position.
 // called after radius changes, e.g. from F6 curving mouse action.
 // N.B. this routine does not do a redraw - calcs only.
 var
-  peg_k: extended;
-  peg600, peg_kkk: extended;
-  dummy1, dummy2, dummy3: extended;
+  peg_k: double;
+  peg600, peg_kkk: double;
+  dummy1, dummy2, dummy3: double;
   pc, pf: Tpex;
 
 begin
@@ -12958,9 +12959,9 @@ end;
 procedure trail_gaunt_offset(Y: integer);
 
 var
-  dummy1, dummy2: extended;
+  dummy1, dummy2: double;
   pc, pf: Tpex;
-  old_dp, new_dp: extended;
+  old_dp, new_dp: double;
 
 begin
   old_dp := dpx - xorg;
@@ -13020,10 +13021,10 @@ end;
 procedure trail_gaunt_curvature(Y: integer);
 
 var
-  dummy1, dummy2: extended;
+  dummy1, dummy2: double;
   pc, pf: Tpex;
-  old_dp, new_dp: extended;
-  gaunt_rad, new_gaunt_offset: extended;
+  old_dp, new_dp: double;
+  gaunt_rad, new_gaunt_offset: double;
 
 begin
   old_dp := dpx - xorg;
@@ -13085,14 +13086,14 @@ end;
 procedure trail_vee(X: integer);    //  F9 adjust V-crossing size on new mouse X position.
 
 var
-  temp, dummy1, dummy2, gaunt_rad, k3_angle: extended;
+  temp, dummy1, dummy2, gaunt_rad, k3_angle: double;
   pc, pf: Tpex;
 
-  old_dp, new_dp: extended;
+  old_dp, new_dp: double;
 
-  old_k3n: extended;
+  old_k3n: double;
 
-  new_gaunt_offset: extended;
+  new_gaunt_offset: double;
 
 begin
   old_dp := dpx - xorg;         // mods 217a for fixed gaunt radius ...
@@ -13183,7 +13184,7 @@ end;
 procedure trail_hdk(X: integer);    // F10 adjust K-crossing size on new mouse X position.
 
 var
-  temp, dummy1, dummy2: extended;
+  temp, dummy1, dummy2: double;
   pc, pf: Tpex;
 
 begin
@@ -13216,7 +13217,7 @@ end;
 procedure trail_curving(Y: integer);     //  adjust curving radius (pegged) on new mouse Y position.
 
 var
-  new_curvature: extended;
+  new_curvature: double;
   dummy: integer;
 
 begin
@@ -13301,9 +13302,9 @@ end;
 procedure trail_swell(Y: integer);     //  adjust curving radius (swell) on new mouse Y position.
 
 var
-  new_curvature, temp: extended;
+  new_curvature, temp: double;
   dummy: integer;
-  swing_sin: extended;
+  swing_sin: double;
 
 begin
   new_curvature := curvature_now - (Y - curving_now) * ffy * hand_i / (mouse_curv_factor *
@@ -13456,14 +13457,14 @@ var
   //tx_str:string;             // for name highlighting ...
   //tx_x, tx_y, f_z:integer;
 
-  mouse_relx, mouse_rely: extended;
-  measured_x, measured_y, measured_diag: extended;
+  mouse_relx, mouse_rely: double;
+  measured_x, measured_y, measured_diag: double;
 
   //maxbg:integer;
   //bgk:integer;
   //md_label_left, md_label_top:integer;
 
-  grid_factor: extended;
+  grid_factor: double;
   grid_str: string;
 
   /////////////////////////////////////
@@ -13599,7 +13600,7 @@ var
   end;
   /////////////////////////////////////////////////////////////
 
-  function jot_xy_text(d: extended): string;
+  function jot_xy_text(d: double): string;
 
   begin
     Result := FormatFloat('###0.00;"- "###0.00', d * grid_factor);
@@ -14880,12 +14881,12 @@ end;
 procedure do_linked_notch;       // link notch to control template.
 
 var
-  temp_y, temp_k, dummy, linkx, linky, linkangle, link_arm_angle: extended;
+  temp_y, temp_k, dummy, linkx, linky, linkangle, link_arm_angle: double;
   dummy_str: string;
 
   // 217b ..
 
-  curving_rad, mod_linkangle, shrink_factor, tanx: extended;
+  curving_rad, mod_linkangle, shrink_factor, tanx: double;
 
 begin
 
@@ -14953,7 +14954,7 @@ procedure normalize_transforms;     // update shifts so that xform, yform can be
 // i.e. any subsequent rotation is about the origin,
 // until xform, yform are modified again.
 var
-  x, y: extended;     // use current transform data to transform/shift the origin to x,y.
+  x, y: double;     // use current transform data to transform/shift the origin to x,y.
 
 begin
   x := xform - xform * COS(kform) + yform * SIN(kform) + xshift;
@@ -15021,7 +15022,7 @@ procedure align_current_over_this(keep_dims: Tkeep_dims; clicked: boolean);
 // align the control template over other template.
 // (gauge, size, timbering, etc unchanged).
 var
-  y_offset: extended;
+  y_offset: double;
 
 begin
   with keep_dims.box_dims1 do
@@ -15193,7 +15194,7 @@ function snake_onto_this_peg(keep_dims: Tkeep_dims; facing_facing, alerts: boole
 
 var
   i: integer;
-  this_pegx, this_pegy, this_g: extended;
+  this_pegx, this_pegy, this_g: double;
   saved_notch: Tnotch;
 
 begin
@@ -15553,8 +15554,8 @@ procedure pad_mouse_down(mouse_button: TMouseButton; shift_state: TShiftState; X
 // now never come here if middle button 0.91.c
 
 var
-  dummy1, dummy2, dummy3: extended;
-  xc0, yc0, xc9, yc9: extended;
+  dummy1, dummy2, dummy3: double;
+  xc0, yc0, xc9, yc9: double;
   mode, zoom_mode: integer;
   menu_caption_str: string;
   fb_str: string;   // 0.95.a
@@ -15566,7 +15567,7 @@ var
   procedure set_opp;
 
   var
-    kopp: extended;   // 0.93.a mods
+    kopp: double;   // 0.93.a mods
 
   begin
     //if ( (kform<(0-Pi/2)) or (kform>(Pi/2)) ) and (auto_dir=True)  // turnout facing opposite way ?
@@ -18359,7 +18360,7 @@ procedure set_grid_spacings(calling_form: TForm);
 
 var
   i, n: integer;
-  od: Toutdim;        // [0..7] array of extended;
+  od: Toutdim;        // [0..7] array of double;
 
 begin
   //pad_form.set_any_grid_spacing_menu_entry.Checked:=True;  // radio item
@@ -18703,11 +18704,11 @@ begin
 end;
 //_______________________________________________________________________________________________________________________________
 
-function calc_peg_dims(code: integer; var pegx, pegy, pegangle: extended): Tpeg_indicator_string;
+function calc_peg_dims(code: integer; var pegx, pegy, pegangle: double): Tpeg_indicator_string;
 
   // called from turnout_dims.
 var
-  temp_x: extended;
+  temp_x: double;
 
 begin
 
@@ -19246,13 +19247,13 @@ procedure turnout_dims;       // calc and display all the turnout dimensions on 
 // called only from gocalc.
 
 var
-  temp_k, dummy: extended;
-  geox, geoy, geok: extended;
-  tvjy, tvjk: extended;
+  temp_k, dummy: double;
+  geox, geoy, geok: double;
+  tvjy, tvjk: double;
 
   // 217b ..
 
-  curving_rad, mod_pegangle, shrink_factor, tanx: extended;
+  curving_rad, mod_pegangle, shrink_factor, tanx: double;
 
 begin
   reset_defaults;                   //  set up any defaults and distortions.
@@ -19777,7 +19778,7 @@ end;
 procedure swap_hand;
 
 var
-  dummy1, dummy2: extended;
+  dummy1, dummy2: double;
   pc, pf: Tpex;
 
 begin
@@ -19808,7 +19809,7 @@ procedure select_switch;
 var
   old_n, new_n: integer;
   sw_info: Tswitch_info;
-  dummy: extended;
+  dummy: double;
 
 begin
   if half_diamond = True then
@@ -19865,7 +19866,7 @@ begin
 end;
 //__________________________________________________________________________________________
 
-function check_radius(warn: boolean; var r: extended): boolean;
+function check_radius(warn: boolean; var r: double): boolean;
   // return true if curving radius was within limits.
   // otherwise force it there and return false.
 begin
@@ -19903,7 +19904,7 @@ begin
 end;
 //_____________________________________________________________________________________
 
-procedure xingoffset(aq: integer; gauge_mod: extended);
+procedure xingoffset(aq: integer; gauge_mod: double);
 // return ys and ks for turnout curve/crossing
 
 // used for timbering, peg, rail-joints, debug, etc.
@@ -19955,7 +19956,7 @@ begin
 end;
 //______________________________________________________________________________________
 
-function aq2offset(xtb: extended; var k: extended): extended;
+function aq2offset(xtb: double; var k: double): double;
   //  general utility - return offset at any xtb
   //  along curved turnout rail (gauge-face, aq=2). Enter with xtb.
   //  also returns gradient angle in k.
@@ -19966,7 +19967,7 @@ function aq2offset(xtb: extended; var k: extended): extended;
   // !!! switch joggle (if any) is ignored.
 
 var
-  xxs, yys, kks, xxb, xxe: extended;
+  xxs, yys, kks, xxb, xxe: double;
   segment_index: integer;
 
 begin
@@ -20032,7 +20033,7 @@ begin
 end;
 //_______________________________________________________________________________________________________________________________
 
-function aq3offset(xtb: extended; var k: extended): extended;
+function aq3offset(xtb: double; var k: double): double;
   //  general utility - return offset at any xtb
   //  along curved stock rail (gauge-face, aq=3). Enter with xtb.
   //  also returns gradient angle in k.
@@ -20045,7 +20046,7 @@ function aq3offset(xtb: extended; var k: extended): extended;
   // !!! switch joggle (if any) is ignored.
 
 var
-  xxs, yys, kks, xxb, xxe: extended;
+  xxs, yys, kks, xxb, xxe: double;
   segment_index: integer;
 
 begin
@@ -20235,14 +20236,14 @@ begin
 end;
 //___________________________________________________________________________________________
 
-function gauge_dims(from_list, mod_rads, mod_gauge_data: boolean): extended;
+function gauge_dims(from_list, mod_rads, mod_gauge_data: boolean): double;
   // set up gauge and scale from selected item in list.
 
   // return ratio between old and new scales.
 
 var
   old_cg: Tproto_info;
-  mod_scale_ratio, mod_gauge_ratio: extended;
+  mod_scale_ratio, mod_gauge_ratio: double;
   i, n, sz: integer;
 
 begin
@@ -20621,7 +20622,7 @@ begin
 end;
 //________________________________________________________________________________________
 
-procedure rescale_notch(ratio: extended);
+procedure rescale_notch(ratio: double);
 
 begin
   notchx := notchx * ratio;
@@ -20632,7 +20633,7 @@ end;
 procedure quick_gauge_click(i: integer);   // quick change of gauge and scale.
 
 var
-  mod_ratio: extended;
+  mod_ratio: double;
   not_mint: boolean;
 
 begin
@@ -20665,7 +20666,7 @@ begin
 end;
 //________________________________________________________________________________________
 
-function get_spiral_length(k_rads: extended): extended;      // 0.71.a  13-4-01.
+function get_spiral_length(k_rads: double): double;      // 0.71.a  13-4-01.
 
   // return length of transition curve template for given k_rads angular swing.
   // !! length is from template datum, not transition origin.
@@ -20721,7 +20722,7 @@ begin
 end;
 //________________________________________________________________________________________
 
-function do_degs_length_adjust(length_in_degs: extended; var length_in_mm: extended): integer;
+function do_degs_length_adjust(length_in_degs: double; var length_in_mm: double): integer;
 
   // this code moves the template overall length to and fro in reducing steps
   // until the total angular swing matches length_in_degs.
@@ -20729,10 +20730,10 @@ function do_degs_length_adjust(length_in_degs: extended; var length_in_mm: exten
   // Return 1 if valid result, 0 if calc error, or -1 if he clicks cancel.
 
 var
-  dir, len_step: extended;
-  saved_turnoutx, saved_xorg: extended;
-  swing_start, swing_dir: extended;
-  diff_swing_start: extended;
+  dir, len_step: double;
+  saved_turnoutx, saved_xorg: double;
+  swing_start, swing_dir: double;
+  diff_swing_start: double;
 
 begin
   Result := 0;                   // default init..
@@ -20945,13 +20946,13 @@ const
 var
   n, i: integer;
   od: Toutdim;
-  dummy: extended;
-  deg_factor: extended;
+  dummy: double;
+  deg_factor: double;
   code: integer;
   deg_str: string;
   approach_help_str, overall_help_str, blank_help_str, pt_help_str: string;
 
-  old_xorg: extended;
+  old_xorg: double;
 
 begin
   if degs = True then
@@ -21247,11 +21248,11 @@ begin
 end;
 //_____________________________________________________________________________________________
 
-function clrad_at_x(x: extended): extended;
+function clrad_at_x(x: double): double;
   // return the main-road track centre-line radius at this xs.
 
 var
-  dummy1, dummy2, dummy3: extended;
+  dummy1, dummy2, dummy3: double;
 
 begin
   Result := max_rad;      // default init for straight track.
@@ -21285,10 +21286,10 @@ begin
 end;
 //_________________________________________________________________________________________
 
-procedure fix_radius(rad: extended; click: boolean);     // set up fixed-radius curving.
+procedure fix_radius(rad: double; click: boolean);     // set up fixed-radius curving.
 
 var
-  dummy: extended;
+  dummy: double;
 
 begin
   kform_now := kform;
@@ -21314,7 +21315,7 @@ end;
 procedure transition_clicked(trans_code: integer);
 
 var
-  temp, temp_ktrans, existing_rad: extended;
+  temp, temp_ktrans, existing_rad: double;
 
 begin
   kform_now := kform;
@@ -21520,7 +21521,7 @@ begin
 end;
 //______________________________________________________________________________
 
-function do_auto_trans_swing_adjust(old_rad2_orgx, old_rad2_orgy: extended): integer;
+function do_auto_trans_swing_adjust(old_rad2_orgx, old_rad2_orgy: double): integer;
 
   // this code swings the transition curve on rad1 to and fro in reducing steps
   // until the new position of the 2nd rad centre co-incides with the old.
@@ -21533,10 +21534,10 @@ function do_auto_trans_swing_adjust(old_rad2_orgx, old_rad2_orgy: extended): int
   // Return 1 if valid result, 0 if calc error, or -1 if he clicks cancel.
 
 var
-  xdiff2, ydiff2: extended;
-  prev_diff2_sq, next_diff2_sq: extended;
+  xdiff2, ydiff2: double;
+  prev_diff2_sq, next_diff2_sq: double;
 
-  dir, k_step, start_kform: extended;
+  dir, k_step, start_kform: double;
 
 begin
   try
@@ -21614,7 +21615,7 @@ function make_transition_from_current(control_loc, bgnd_loc, trans_hand: integer
   // 20-4-01  trans_hand: 1= r1 is LH, -1= r1 is RH .
 
 var
-  temp, dummy, dummy1, dummy2: extended;
+  temp, dummy, dummy1, dummy2: double;
   saved_current: Ttemplate_info;
   saved_notch: Tnotch;
   saved_name_str: string;
@@ -21622,7 +21623,7 @@ var
 
   got_transition: boolean;
 
-  error_allow: extended;
+  error_allow: double;
 
 
   ///////////////////////////////////////////////////////////////////
@@ -22135,7 +22136,7 @@ var
   control_loc: integer;  // 0=at peg, 15=at 1st radius, 16=at 2nd radius.  212a
   bgnd_loc: integer;
 
-  dummy: extended;
+  dummy: double;
 
 begin
   if (clicked_keep_index < 0) or (clicked_keep_index > (keeps_list.Count - 1)) or (keeps_list.Count < 1) then
@@ -22377,7 +22378,7 @@ begin
 end;
 //________________________________________________________________________________________
 
-function do_auto_trans_length_adjust(apart_len_wanted: extended): integer;
+function do_auto_trans_length_adjust(apart_len_wanted: double): integer;
 
   // adjust transition zone length until the distance between the rad centres is apart_len_wanted.
   // return 1 if achieved, 0 if calc error, -1 if he cancels.
@@ -22385,13 +22386,13 @@ function do_auto_trans_length_adjust(apart_len_wanted: extended): integer;
   // !!! N.B. apart_len_wanted and transition calcs are based on transition datum, not template datum, and ignore any slewing.
 
 var
-  dummy1, dummy2, dummy3, dummy4, dummy5: extended;
+  dummy1, dummy2, dummy3, dummy4, dummy5: double;
 
-  now_apart: extended;
-  new_zone_len, zone_step: extended;
+  now_apart: double;
+  new_zone_len, zone_step: double;
   dir: integer;
 
-  temp, temp_ktrans: extended;
+  temp, temp_ktrans: double;
 
 begin
   Screen.Cursor := crHourglass;
@@ -22477,7 +22478,7 @@ begin
 end;
 //________________________________________________________________________________________
 
-function do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy, old_rad2_orgx, old_rad2_orgy: extended): integer;
+function do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy, old_rad2_orgx, old_rad2_orgy: double): integer;
 
   // this code moves the transition start (initial length os) to and fro in reducing steps
   // until the new position of the 2nd rad centre co-incides with the old.
@@ -22491,13 +22492,13 @@ function do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy, old_rad2_orgx,
   // Return 1 if valid result, 0 if calc error, or -1 if he clicks cancel.
 
 var
-  xdiff2, ydiff2: extended;
-  prev_diff2_sq, next_diff2_sq: extended;
+  xdiff2, ydiff2: double;
+  prev_diff2_sq, next_diff2_sq: double;
 
-  xdiff1, ydiff1: extended;
-  diff1_sq: extended;
+  xdiff1, ydiff1: double;
+  diff1_sq: double;
 
-  dir, os_step, dummy: extended;
+  dir, os_step, dummy: double;
 
 begin
 
@@ -22676,7 +22677,7 @@ end;
 procedure invert_curving;
 
 var
-  clrad, clrad1, clrad2, dummy: extended;
+  clrad, clrad1, clrad2, dummy: double;
 
 begin
   //if (curved=False) and (slewing=False) then EXIT;         // straight template.
@@ -22907,7 +22908,7 @@ end;
 function curve_point(p: Tpex): Tpex;
 
 var
-  x, y, t, r: extended;
+  x, y, t, r: double;
 
 begin                                     // return point p curved onto rad and transformed.
   docurving(True, True, p.x, p.y, x, y, t, r);   // t, r not used here.
@@ -23058,7 +23059,7 @@ procedure add_check_labels;          // 0.94.a   enter check-rail end labels
 
 var
   p1, p2: Tpex;
-  dummy_k: extended;
+  dummy_k: double;
 
 begin
   p2.x := 0;    // not used.
@@ -23126,23 +23127,23 @@ var
 
   joggle_labels_p1, joggle_labels_p2: Tpex;    // 206b
 
-  temp, tempx, tempy, tempcos, tempsin, tempk: extended;
-  gmi, gmo, gm, k, arm_long: extended;
+  temp, tempx, tempy, tempcos, tempsin, tempk: double;
+  gmi, gmo, gm, k, arm_long: double;
 
-  gm_swlabels_ms, gm_swlabels_ts: extended;  // 206b
+  gm_swlabels_ms, gm_swlabels_ts: double;  // 206b
 
-  gm_xinglabels_ms, gm_xinglabels_ts: extended;  // 211b
+  gm_xinglabels_ms, gm_xinglabels_ts: double;  // 211b
 
-  gm_hdlabels_ms, gm_hdlabels_ts: extended;  // 211b
+  gm_hdlabels_ms, gm_hdlabels_ts: double;  // 211b
 
-  k_irreg: extended; // 211b
+  k_irreg: double; // 211b
 
-  xtb: extended;
-  sw2, tbe, tbw, kwl: extended;
+  xtb: double;
+  sw2, tbe, tbw, kwl: double;
 
   pin, pout: Tpex;
 
-  ms_loop: extended;    // 216b
+  ms_loop: double;    // 216b
 
 begin
   if fb_kludge <> 0 then
@@ -24258,7 +24259,7 @@ var
 
   aq_begin, aq_end: integer;
 
-  start_boundary, end_boundary: extended;
+  start_boundary, end_boundary: double;
 
 begin
   for aq := 0 to aq_max_c do
@@ -24464,8 +24465,8 @@ var
   ptr_2nd: ^Tmark;
   markmax: integer;
 
-  check_int1x, check_int1y, check_int2x, check_int2y: extended;
-  check_int3x, check_int3y, check_int4x, check_int4y: extended;
+  check_int1x, check_int1y, check_int2x, check_int2y: double;
+  check_int3x, check_int3y, check_int4x, check_int4y: double;
 
   shove_dim, pad_shovex, pad_shovey: integer;
 
@@ -25175,19 +25176,19 @@ procedure calctimbers;               //  calc all timbering
 var
   n: integer;
   tbnext, tbint: integer;
-  last_xtb: extended;
-  exit_begin: extended;
+  last_xtb: double;
+  exit_begin: double;
   full_length: boolean;
 
-  eqfix_closeup, xtbclose_start: extended;
+  eqfix_closeup, xtbclose_start: double;
 
-  xingtb_w, xingtb_v: extended;
-  bontimb_posx: extended;
+  xingtb_w, xingtb_v: double;
+  bontimb_posx: double;
 
   mod_for_curvi: boolean;               // 215a ...
-  unmod_xtb, curvi_alpha: extended;
-  xtb_mod, modded_xtb: extended;
-  total_space_remaining, num_timbers, new_spacing: extended;
+  unmod_xtb, curvi_alpha: double;
+  xtb_mod, modded_xtb: double;
+  total_space_remaining, num_timbers, new_spacing: double;
 
 begin
   approach_last_xtb := 0;         // init for length snapping...
@@ -25541,15 +25542,15 @@ begin
 end;
 //_____________________________________________________________________________________________
 
-procedure plain_sleepers(xtb: extended; dir: integer; full_length, retcurve: boolean);
+procedure plain_sleepers(xtb: double; dir: integer; full_length, retcurve: boolean);
 // dir = direction  -1 = approach tracks, +1 = exit tracks
 
 var
-  xrail: extended;
+  xrail: double;
   p1, p2: Tpex;
   first_joint: boolean;
-  sl_space, tb_roll_mm: extended;
-  ret_offset, ret_k: extended;
+  sl_space, tb_roll_mm: double;
+  ret_offset, ret_k: double;
   odd_rail: boolean;
 
   joint_sl: boolean;
@@ -25757,7 +25758,7 @@ procedure toesleeper(joint: boolean);   //  deal with switch front sleepers or t
 // joint=True means adjacent to rail joint (may be wide joint sleeper if switch front sleepered)  // 212a
 
 var
-  sf_width: extended;
+  sf_width: double;
 
 begin
 
@@ -25801,9 +25802,9 @@ procedure switchtimbers;         // do switch timbering and approach track.
 // (no equalizing for switch timbers).
 var
   n, swtb: integer;
-  xdpb, kwl, ksp: extended;
+  xdpb, kwl, ksp: double;
 
-  dummy: extended;  // 218b
+  dummy: double;  // 218b
 
 begin                             // for rail-joint marks.
   gmi := 5 * inscale;                 // 5" scale length of mark inside gauge-face.
@@ -26146,7 +26147,7 @@ procedure drawtimbol(retcurve, joint: boolean);        // draw main timber outli
 // joint=True this is a joint sleeper 212a   (never actually used here)
 
 var
-  sl_width: extended;
+  sl_width: double;
 
 begin
   if maintimb = 1 then
@@ -26172,7 +26173,7 @@ end;
 procedure tbnumber(retcurve: boolean);    // mark timber numbering !!! n.b. increments tbn !!!
 
 var
-  y, kret: extended;
+  y, kret: double;
   pnum, p1, p2: Tpex;
   n: integer;
   marktext_str: string;
@@ -26282,7 +26283,7 @@ begin
 end;
 //_______________________________________________________________________________________________________________________________
 
-procedure endsleeper(x: extended; full_length, retcurve, joint: boolean; dir: integer);
+procedure endsleeper(x: double; full_length, retcurve, joint: boolean; dir: integer);
 //  deal with approach and exit plain-track sleepers
 //  enter with xtb to sleeper centre.
 // joint=True this is a joint sleeper 212a
@@ -26290,7 +26291,7 @@ procedure endsleeper(x: extended; full_length, retcurve, joint: boolean; dir: in
 // dir added 218a
 
 var
-  sl_width: extended;
+  sl_width: double;
 
 begin
   if x > (turnoutx + scale / 3) then
@@ -26334,16 +26335,16 @@ var                                // enter with xtb, yns, yfs, tbq
   pnum, p1, p2: Tpex;
   shove_this: integer;
   omit: boolean;
-  xtimbcl: extended;
-  xshove, kshove, oshove, lshove, wshove, cshove: extended;
-  save_keq: extended;
+  xtimbcl: double;
+  xshove, kshove, oshove, lshove, wshove, cshove: double;
+  save_keq: double;
 
-  yret, kret: extended;
+  yret, kret: double;
 
   str: string;
 
-  dummy: extended;
-  x_curmod, x_curtimb, y_curmod, y_curtimb, k_curtimb: extended;
+  dummy: double;
+  x_curmod, x_curtimb, y_curmod, y_curtimb, k_curtimb: double;
 
   shove: Tshoved_timber;
 
@@ -26562,42 +26563,42 @@ var
   n: integer;
   p1, p2: Tpex;
   shove_this: integer;
-  save_keq: extended;
+  save_keq: double;
   str: string;
-  xtimbcl: extended;
+  xtimbcl: double;
 
-  yret, kret: extended;
-  throw, crab: extended;
-  temp_k: extended;
-  dummy, dummy1, dummy2, dummy3: extended;
+  yret, kret: double;
+  throw, crab: double;
+  temp_k: double;
+  dummy, dummy1, dummy2, dummy3: double;
   deg_str: string;
 
-  x_curmod, x_curtimb, y_curmod, y_curtimb, k_curtimb: extended;
+  x_curmod, x_curtimb, y_curmod, y_curtimb, k_curtimb: double;
 
   // 214a for chairs...
 
-  chair_code: extended;      // converted to integer later  1=S1 chair, 2=P chair, 3=
-  chair_y: extended;         // offset to chair centre.
-  chair_k: extended;         // chair angle (rail angle).
-  chair_mod: extended;
+  chair_code: double;      // converted to integer later  1=S1 chair, 2=P chair, 3=
+  chair_y: double;         // offset to chair centre.
+  chair_k: double;         // chair angle (rail angle).
+  chair_mod: double;
 
-  S1_chair_outlong: extended;    // Standard Railway Equipment 1926  S1 ordinary chairs
-  S1_chair_inlong: extended;     // chair length 14.1/2"
-  S1_chair_halfwide: extended;   // chair width 8"
+  S1_chair_outlong: double;    // Standard Railway Equipment 1926  S1 ordinary chairs
+  S1_chair_inlong: double;     // chair length 14.1/2"
+  S1_chair_halfwide: double;   // chair width 8"
 
-  L1_chair_outlong: extended;    // Standard Railway Equipment 1926  L1 bridge chairs
-  L1_chair_inlong: extended;     // chair length 10.1/2"
-  L1_chair_halfwide: extended;   // chair width 11"
+  L1_chair_outlong: double;    // Standard Railway Equipment 1926  L1 bridge chairs
+  L1_chair_inlong: double;     // chair length 10.1/2"
+  L1_chair_halfwide: double;   // chair width 11"
 
-  chair_outlong: extended;
-  chair_inlong: extended;
-  chair_halfwide: extended;
+  chair_outlong: double;
+  chair_inlong: double;
+  chair_halfwide: double;
 
-  chair_space_y: extended;
+  chair_space_y: double;
 
-  eq_y, rail_y, xcl_mod: extended;
+  eq_y, rail_y, xcl_mod: double;
 
-  dummy_k: extended;
+  dummy_k: double;
 
   num_bridge: integer;
 
@@ -26613,7 +26614,7 @@ var
   var
     pk1, pk2, ponpad, pp1, pp2, pc1, pc2: Tpex;
 
-    dummy1, dummy2: extended;
+    dummy1, dummy2: double;
 
   begin
 
@@ -27299,9 +27300,9 @@ procedure timberend(size: integer);            //  calc timber ends and equalizi
 //   also enter with frackeq fraction of full equalizing angle required.
 
 var
-  k: extended;
-  sliptimb_inc: extended;
-  yaq3, rawns, rawfs, rawtblen, tblen6, tblen6int, tblen: extended;
+  k: double;
+  sliptimb_inc: double;
+  yaq3, rawns, rawfs, rawtblen, tblen6, tblen6int, tblen: double;
   extended_for_slip: boolean;
 
 begin
@@ -28010,7 +28011,7 @@ var
   exact_flag: boolean;
   custom_flag: boolean;
   n: integer;
-  y_offset: extended;
+  y_offset: double;
 
 begin
 
@@ -28295,7 +28296,7 @@ begin
     gaunt := gaunt_flag;                       // 0.93.a ex 0.81
     gaunt_offset_in := gaunt_offset_inches;    // 0.93.a ex 0.81
 
-    startx := start_draw_x;               //  {spare_float3:extended;}  turnout startx  3-11-99
+    startx := start_draw_x;               //  {spare_float3:double;}  turnout startx  3-11-99
 
     with plain_track_info do
     begin
@@ -28581,7 +28582,7 @@ begin
 end;
 //______________________________________________________________________________
 
-function create_id_number_str(idnum, hand: integer; startx, turnoutx, ipx, fpx: extended;
+function create_id_number_str(idnum, hand: integer; startx, turnoutx, ipx, fpx: double;
   plain_track, half_diamond, any_omitted: boolean): string;    // 208a
 
 var
@@ -28627,7 +28628,7 @@ procedure fill_kd(var keep_info: Ttemplate_info);  // copy control template data
 
 var
   n: integer;
-  rand_label_factor: extended;
+  rand_label_factor: double;
 
 begin
   if keep_info.keep_shove_list = nil then
@@ -28742,7 +28743,7 @@ begin
     // 211b mods...
 
     if (control_room_form.previous_labels_menu_entry.Checked = True)   // 211b option
-      or ((GetAsyncKeyState(VK_CONTROL) and -2) <> 0)                    // or CTRL-Key down
+      or ((GetKeyState(VK_CONTROL) and -2) <> 0)                       // or CTRL-Key down
     then
     begin
       mod_text_x := label_modx;    // 211b put label back where it was
@@ -28802,9 +28803,9 @@ begin
       // also save the peg position in file as notch data..
 
       notch_info := get_peg_for_notch;
-      //Tnotch = {spare_float1:extended;}    11-4-00 version 0.53
-      {spare_float2:extended;}
-      {spare_float3:extended;}
+      //Tnotch = {spare_float1:double;}    11-4-00 version 0.53
+      {spare_float2:double;}
+      {spare_float3:double;}
     end;//with
 
     with platform_trackbed_info do
@@ -29013,7 +29014,7 @@ begin
     gaunt_offset_inches := gaunt_offset_in;   // 0.93.a ex 081
 
     start_draw_x := startx;
-    //  {spare_float3:extended;}  turnout startx  3-11-99.
+    //  {spare_float3:double;}  turnout startx  3-11-99.
 
     smallest_radius_stored := smallest_radius;
     // 208a needed for box data -- not loaded to the control
@@ -29155,12 +29156,12 @@ procedure pad_view_fit_bgnd(group_only: boolean);  // zoom to fit background tem
 
 var
   n: integer;
-  max_long, max_wide: extended;
-  min_long, min_wide: extended;
-  wl_factor: extended;
-  margin_factor: extended;
+  max_long, max_wide: double;
+  min_long, min_wide: double;
+  wl_factor: double;
+  margin_factor: double;
 
-  reduced_screeny: extended;   // 217a
+  reduced_screeny: double;   // 217a
 
 begin
   cancel_adjusts(False);
@@ -29264,11 +29265,11 @@ begin
 end;
 //____________________________________________________________________________________
 
-procedure explode_shrink(new_screenx: extended; loop, wheel: boolean);
+procedure explode_shrink(new_screenx: double; loop, wheel: boolean);
 // mouse wheel mode added 0.97.d
 
 var
-  screen_factor, zoom_factor: extended;
+  screen_factor, zoom_factor: double;
   mps: TPoint;
   border_width, mouse_left, mouse_top: integer;
 
@@ -29359,9 +29360,9 @@ procedure shift_group_into_positive_quadrant(warn: boolean);
 
 var
   i, n: integer;
-  min_long, min_wide: extended;
+  min_long, min_wide: double;
 
-  xshapes, yshapes: extended;
+  xshapes, yshapes: double;
 
 begin
   mouse_shift_sync_wanted := False;    // not mouse action here
@@ -29463,12 +29464,12 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure init_rotate(x, y: extended; rad_centre: boolean);
+procedure init_rotate(x, y: double; rad_centre: boolean);
 // set up transform constants for rotates.
 // rotation centre at x,y.
 var
   pc, pf: Tpex;
-  dummy1, dummy2: extended;
+  dummy1, dummy2: double;
 
 begin
   if rad_centre = False then
@@ -29490,7 +29491,7 @@ begin
 end;
 //___________________________________________________________________________________________
 
-procedure rotate_turnout(k: extended; draw: boolean);     // rotate turnout k radians around peg.
+procedure rotate_turnout(k: double; draw: boolean);     // rotate turnout k radians around peg.
 
 begin
   init_rotate(pegx, pegy, False);
@@ -29572,7 +29573,7 @@ begin
 end;
 //____________________________________________________________________________________________
 
-function get_new_rad_org(rad_str: string; var orgx, orgy: extended): boolean;
+function get_new_rad_org(rad_str: string; var orgx, orgy: double): boolean;
   // get new radial centres.
 
 const
@@ -29614,7 +29615,7 @@ end;
 procedure shift_radial_centre(to_notch: boolean);
 
 var
-  orgx, orgy: extended;
+  orgx, orgy: double;
   first_rad: boolean;
   i: integer;
 
@@ -29762,7 +29763,7 @@ end;
 function get_peg_for_notch: Tnotch;
 
 var
-  temp, dummy1, dummy2: extended;
+  temp, dummy1, dummy2: double;
   notch_data: Tnotch;
 
 begin
@@ -29856,9 +29857,9 @@ procedure shift_onto_notch(click, min_rot: boolean);
 // if min_rot=True, use minimum amount of rotation even if not clicked.
 
 var
-  padpegx, padpegy, dummy1, dummy2: extended;
-  angle_diff: extended;
-  new_padpegx, new_padpegy: extended;
+  padpegx, padpegy, dummy1, dummy2: double;
+  angle_diff: double;
+  new_padpegx, new_padpegy: double;
 
 begin
   pad_form.notch_unlinked_from_current_menu_entry.Click;
@@ -29912,7 +29913,7 @@ end;
 procedure retain_on_make;     // 213a
 
 var
-  dummy: extended;
+  dummy: double;
 
 begin
 
@@ -29976,14 +29977,14 @@ end;
 procedure make_double_track_calcs(side: integer);
 
 var
-  old_rad, rad_mod: extended;
+  old_rad, rad_mod: double;
 
-  dummy1, dummy2, dummy3, dummy4, dummy5: extended;
+  dummy1, dummy2, dummy3, dummy4, dummy5: double;
 
-  old_apartl: extended;
+  old_apartl: double;
 
-  old_rad2_orgx, old_rad2_orgy: extended;
-  old_rad1_orgx, old_rad1_orgy: extended;
+  old_rad2_orgx, old_rad2_orgy: double;
+  old_rad1_orgx, old_rad1_orgy: double;
 
 
   //////////////////////////////////////////////////////////////
@@ -30229,7 +30230,7 @@ var
   i: integer;
   s_curve_str: string;
 
-  sp, way_ft, way_ins: extended;
+  sp, way_ft, way_ins: double;
   ft_str, ins_str, way_str, sp_str: string;
 
 begin
@@ -30437,7 +30438,7 @@ procedure make_pt_geo_rad(int_ext: integer; click: boolean);
 // click always True 0.93.a
 
 var
-  geor, geox, geok: extended;
+  geor, geox, geok: double;
 
 begin
   if plain_track = True then
@@ -30680,12 +30681,12 @@ const
     '||It is helpful to zoom in on these marks while making the adjustments, and to check the rail alignments while doing so. On sharp curves the best rail alignment with the adjacent track' + ' may require one or both of the transition marks to be displaced slightly from these positions.' + '||A slight discrepancy in the radial centres may remain, because it is not mathematically possible to have two perfectly "parallel" transition curves.' + '||The adjustments detailed above will produce satisfactory crossovers on transition curves in the majority of situations found in practice.' + ' Use the SPACING-RING tool to check the track spacings for adequate clearance.' + '||-----------------' + '|Maths notes:' + '||The TOOLS > MAKE DOUBLE-TRACK TS function uses slightly different maths, and can produce exactly concentric transition radii if the AUTO-ADJUST option is selected.' + ' If the crossover mid-point is not within the transition zone, an alternative method of making a crossover is to use this function first to create an adjacent track.' + ' The crossover is then created using the TEMPLATE > INSERT TURNOUT IN PLAIN TRACK menu item and the SNAKE THROUGH PEG (CTRL-F6) mouse action.' + '||If the crossover mid-point is within the transition zone, this method is not suitable.' + '||The alternative approach of applying the transition maths to the double-track centre-line is not used because this would introduce unacceptable distortion when the tracks are widely spaced,' + ' and also disrupt the alignment of the original turnout.';
 
 var
-  dummy: extended;
+  dummy: double;
   i: integer;
   temp_str: string;
   save_current: Ttemplate_info;
 
-  sp, way_ft, way_ins: extended;
+  sp, way_ft, way_ins: double;
   ft_str, ins_str, way_str, sp_str: string;
 
 begin
@@ -31077,13 +31078,13 @@ const
 
 var
   temp1: integer;
-  temp2: extended;
-  cos_new_hdk: extended;
-  cos_new_k3: extended;
+  temp2: double;
+  cos_new_hdk: double;
+  cos_new_k3: double;
   i: integer;
 
-  new_k3, new_hdk: extended;
-  new_k3n, new_hdkn: extended;
+  new_k3, new_hdk: double;
+  new_k3n, new_hdkn: double;
 
 begin
   Result := False;     // default init.
@@ -31266,15 +31267,15 @@ end;
 function make_curviform_ladder: boolean;
 
 var
-  cos_new_hdk_inner, cos_new_k3: extended;
-  dummy: extended;
+  cos_new_hdk_inner, cos_new_k3: double;
+  dummy: double;
   i: integer;
   save_current: Ttemplate_info;
   saved_notch: Tnotch;
 
-  old_trans_end, old_slew_end, old_rad_at_txp, new_rad_at_txp: extended;  // 0.97.a
+  old_trans_end, old_slew_end, old_rad_at_txp, new_rad_at_txp: double;  // 0.97.a
 
-  sp, way_ft, way_ins: extended;
+  sp, way_ft, way_ins: double;
   ft_str, ins_str, way_str, sp_str: string;
 
 begin
@@ -31592,7 +31593,7 @@ begin
 end;
 //____________________________________________________________________________________________
 
-function mouse_x(X: integer): extended;   // return x mm at this pad X pixels.
+function mouse_x(X: integer): double;   // return x mm at this pad X pixels.
 
 begin
   if ABS(fx) < minfp then
@@ -31611,7 +31612,7 @@ begin
 end;
 //______________________________________________________________________________________
 
-function mouse_y(X, Y: integer): extended;   // return y mm at this pad Y pixels.
+function mouse_y(X, Y: integer): double;   // return y mm at this pad Y pixels.
 
 begin
   if ABS(fy) < minfp then
@@ -31632,14 +31633,14 @@ begin
 end;
 //__________________________________________________________________________________________
 
-function pad_X(x: extended): integer;   // return pad X pixels at this x mm.
+function pad_X(x: double): integer;   // return pad X pixels at this x mm.
 
 begin
   Result := Round(x * fx - gx + ex);
 end;
 //______________________________________________________________________________________
 
-function pad_Y(y: extended): integer;   // return pad Y pixels at this y mm.
+function pad_Y(y: double): integer;   // return pad Y pixels at this y mm.
 
 begin
   Result := Round(y * fy - gy + by);
@@ -31776,7 +31777,7 @@ var
   now_kd: Tkeep_dims;
   n: integer;
 
-  x, y, hand: extended;
+  x, y, hand: double;
 
   pin, pout: Tpex;
 
@@ -31942,7 +31943,7 @@ begin
 end;
 //_______________________________________________________________________________________
 
-procedure shift_rotate_group(x_move, y_move, k_rot: extended; egg_timer: boolean);
+procedure shift_rotate_group(x_move, y_move, k_rot: double; egg_timer: boolean);
 
 begin
   xshift_keeps := x_move;
@@ -31985,7 +31986,7 @@ end;
 procedure enable_slewing(mode: integer; do_peg_calcs_first: boolean);
 
 var
-  dummy: extended;
+  dummy: double;
 
 begin
   if do_peg_calcs_first = True then
@@ -32064,7 +32065,7 @@ procedure pad_mouse_up(mouse_button: TMouseButton; shift_state: TShiftState; X, 
 
 var
   draw_mouse_up_X, draw_mouse_up_Y: integer;
-  mouse_up_x, mouse_up_y: extended;
+  mouse_up_x, mouse_up_y: double;
 
   new_shape: Tbgnd_shape;
   i, n: integer;
@@ -32080,8 +32081,8 @@ var
 
   time_str: string;
 
-  x1, y1, x2, y2: extended;
-  wl_factor: extended;
+  x1, y1, x2, y2: double;
+  wl_factor: double;
 
 begin
   if (allow_left_button_pan = True) or (mouse_button = mbMiddle) then
@@ -32654,10 +32655,10 @@ begin
 end;
 //__________________________________________________________________________________________
 
-procedure fix_approach_length(snap: boolean; lmod: extended);
+procedure fix_approach_length(snap: boolean; lmod: double);
 
 var
-  xorg_old, t_only, dummy1: extended;
+  xorg_old, t_only, dummy1: double;
 
 begin
   startx := 0;                                 // cancel any blanking.
@@ -32716,10 +32717,10 @@ begin
 end;
 //_____________________________________________________________________________________________
 
-procedure fix_exit_length(lmod: extended);
+procedure fix_exit_length(lmod: double);
 
 var
-  dummy1: extended;
+  dummy1: double;
 
 begin
   pad_form.snap_exit_to_nearest_menu_entry.Click;   // first snap to nearest sleeper.
@@ -32755,7 +32756,7 @@ procedure normalize_keep_transforms(t_data: Ttransform_info);
 // update keep shifts so that x1_shift, y1_shift can be zero,
 // i.e. any subsequent rotation is about the template origin,
 var
-  x, y: extended;
+  x, y: double;
 
 begin
   with t_data do
@@ -32998,7 +32999,7 @@ procedure swap_end_for_end;
 
 var
   saved_notch: Tnotch;
-  saved_pegx, saved_pegy: extended;
+  saved_pegx, saved_pegy: double;
   saved_peg_code: integer;
   saved_peg_rail: integer;
 
@@ -33076,10 +33077,10 @@ begin
 end;
 //________________________________________________________________________________________
 
-procedure set_trans_position_from_ctrl_0(os_offset, zone_len: extended);
+procedure set_trans_position_from_ctrl_0(os_offset, zone_len: double);
 
 var
-  dummy: extended;
+  dummy: double;
 
 begin
   if zone_len < 0 then
@@ -33097,10 +33098,10 @@ begin
 end;
 //____________________________________________________________________________________________
 
-procedure set_slew_position_from_ctrl_0(start_offset, zone_len: extended);
+procedure set_slew_position_from_ctrl_0(start_offset, zone_len: double);
 
 var
-  dummy: extended;
+  dummy: double;
 
 begin
   if zone_len < ABS(slew) then
@@ -33123,8 +33124,8 @@ end;
 function normalize_transition: boolean; // normalize to template extents if zone outside them.
 
 var
-  dummy: extended;
-  new_tst, new_os, new_r1, new_r2, rad_diff, temp_ktrans: extended;
+  dummy: double;
+  new_tst, new_os, new_r1, new_r2, rad_diff, temp_ktrans: double;
 
 begin
   Result := False;              // default init.
@@ -34695,7 +34696,7 @@ var
   ptr_1st: ^Tmark;         // pointer to a Tmark record..
   markmax: integer;
   num_str, tbnum_str: string;
-  num_x, num_y: extended;
+  num_x, num_y: double;
   int_num_X, int_num_Y: integer;
   half_width, half_height: integer;
   move_to: TPoint;
@@ -34935,7 +34936,7 @@ var
   ptr_1st: ^Tmark;         // pointer to a Tmark record..
   markmax: integer;
   num_str, tbnum_str: string;
-  num_x, num_y: extended;
+  num_x, num_y: double;
   int_num_X, int_num_Y: integer;
   half_width, half_height: integer;
   move_to: TPoint;
@@ -35384,7 +35385,7 @@ procedure show_switch_info(full_size_mm, already_showing: boolean);
 var
   info_str, swnum_str, front_str: string;
   fs_unit_str: string;   // 208a
-  fs_factor: extended;   // 208a
+  fs_factor: double;   // 208a
   i: integer;
   sw_info: Tswitch_info;
 
@@ -35393,7 +35394,7 @@ var
 
   /////////////////////////////////////////
 
-  function val_str(d: extended): string;   // mods 208a
+  function val_str(d: double): string;   // mods 208a
 
     // d is in full-size inches
 
@@ -35618,8 +35619,8 @@ procedure convert_to_regular_half_diamond;
 // change turnout or IRREGULAR half-diamond to a REGULAR half-diamond
 
 var
-  dummy: extended;
-  new_len: extended;
+  dummy: double;
+  new_len: double;
 
 begin
   if plain_track = True then
@@ -35694,8 +35695,8 @@ end;
 procedure convert_to_turnout;
 
 var
-  dummy: extended;
-  new_len: extended;
+  dummy: double;
+  new_len: double;
 
 begin
   if (half_diamond = False) or (plain_track = True) then
@@ -35759,7 +35760,7 @@ end;
 procedure obtain_switch(n: integer);   // obtain control template switch from template in list.
 
 var
-  dummy: extended;
+  dummy: double;
 
 begin
 
@@ -35866,13 +35867,13 @@ function calc_snap_peg_data(code: integer): Tnotch;      // 0.79.a  27-05-06
 
 var
   dummy_str: string;
-  x, y, k: extended;
-  temp_y: extended;
+  x, y, k: double;
+  temp_y: double;
   notch_data: Tnotch;
-  turn_k, angle: extended;
-  curving_rad: extended;
-  tanx, shrink_factor: extended;
-  modk: extended;
+  turn_k, angle: double;
+  curving_rad: double;
+  tanx, shrink_factor: double;
+  modk: double;
 
 begin
 
@@ -35952,7 +35953,7 @@ procedure snap_onto_bgnd_pegs;   // 0.79.a   27-05-06
 var
   n, nc, nb: integer;
   cur_pegs, bgnd_pegs: array[0..4] of Tnotch;
-  x1, y1, x2, y2, proximity: extended;
+  x1, y1, x2, y2, proximity: double;
   readout_str: string;
 
 begin
@@ -36134,7 +36135,7 @@ procedure match_rolled_lengths(ctrl: integer);
 // control template boundary must be Ctrl-1.
 
 var
-  bgnd_template_len_mm, bgnd_rail_len_in, bgnd_rail_len_mm, rolled_out_mm, match_percent, bgnd_roll_percent: extended;
+  bgnd_template_len_mm, bgnd_rail_len_in, bgnd_rail_len_mm, rolled_out_mm, match_percent, bgnd_roll_percent: double;
 
 begin
   try
@@ -36249,7 +36250,7 @@ function check_limit(bunch, shear: boolean; var p: TPoint): boolean;
 var
   bunch_end, bunch_length, X: integer;       // in pixels for paper bunching calcs 13-11-99.
   n: integer;
-  m: extended;
+  m: double;
 
 begin
   Result := False;                            // init default.
@@ -36332,7 +36333,7 @@ var
   bunch_end, X: integer;       // for paper bunching calcs 13-11-99.
   bunch_length: integer;       // pixels.
   n: integer;
-  m: extended;
+  m: double;
 
 begin
   Result := False;                            // init default.
@@ -36497,7 +36498,7 @@ begin
 end;
 //______________________________________________________________________________
 
-function SGN(x: extended): extended;
+function SGN(x: double): double;
 
   //  return sign of x. (+1,  -1,  0)
 begin
@@ -36511,7 +36512,7 @@ begin
 end;
 //_________________________________________________________________________________________
 
-function SGZ(x: extended): extended;
+function SGZ(x: double): double;
 
   //  return sign of x. (+1,  -1)   (Zero returns +1)
 begin
@@ -36521,7 +36522,7 @@ begin
 end;
 //_________________________________________________________________________________________
 
-function round_str(x: extended; n: integer): string;
+function round_str(x: double; n: integer): string;
 
   //  round x to n decimal places and return as a string.
 begin
@@ -36560,11 +36561,11 @@ begin
 end;
 //______________________________________________________________________________
 
-function round_float(x: extended; n: integer): extended;
+function round_float(x: double; n: integer): double;
 
   //  round x to n decimal places and return as a float.
 var
-  mul, mulx: extended;
+  mul, mulx: double;
 
 begin
   if n < 0 then
@@ -36580,7 +36581,7 @@ begin
 end;
 //_________________________________________________________________________________________
 
-function limits(min, max, d: extended; var return_code: integer): extended;
+function limits(min, max, d: double; var return_code: integer): double;
   // return d within limits min and max
 
 begin
@@ -36629,7 +36630,7 @@ begin
 end;
 //_______________________________________________________________________________________
 
-function max(a, b: extended): extended;              // return greatest of 2 floats.
+function max(a, b: double): double;              // return greatest of 2 floats.
 
 begin
   Result := a;                 // init.
@@ -36638,7 +36639,7 @@ begin
 end;
 //________________________________________________________________________________________
 
-function min(a, b: extended): extended;              // return smallest of 2 floats.
+function min(a, b: double): double;              // return smallest of 2 floats.
 
 begin
   Result := a;                 // init.
@@ -36703,7 +36704,7 @@ begin
 end;
 //____________________________________________________________________________________
 
-function captext(d: extended): string;
+function captext(d: double): string;
 
 begin
   if ABS(d) >= max_rad_test then
@@ -36865,11 +36866,11 @@ end;
 // 1-3-98
 //____________________________________________________
 
-function fact(a: integer): extended;        // return (a! = a factorial)
+function fact(a: integer): double;        // return (a! = a factorial)
 
 var
   n: integer;
-  acc: extended;
+  acc: double;
 
 begin
   if a < 1 then
@@ -36888,7 +36889,7 @@ begin
 end;
 //__________________________________________________________________________________________
 
-procedure normalize_angle(var k: extended);
+procedure normalize_angle(var k: double);
 
 begin
 
@@ -36900,10 +36901,10 @@ begin
 end;
 //_________________________________________________________________________________________
 
-function k_ram_str(k: extended): string;     // get k angle as 1:n RAM string (up to 1:1)
+function k_ram_str(k: double): string;     // get k angle as 1:n RAM string (up to 1:1)
 
 var
-  kn: extended;
+  kn: double;
 
 begin
   Result := '';   // init default
@@ -36925,22 +36926,22 @@ begin
 end;
 //__________________________________________________________________________________________
 
-function calc_transition(rad1, rad2, zonel: extended;
-  var cen1x, cen1y, cen2x, cen2y, apartl, kval: extended): boolean;
+function calc_transition(rad1, rad2, zonel: double;
+  var cen1x, cen1y, cen2x, cen2y, apartl, kval: double): boolean;
 
   // calc transition constant and rad centres for transition from rad1 to rad2 in length zonel.
   // return True if calc OK, False otherwise.
   // all dimensions from TRANSITION origin.
 var
-  rad_diff: extended;
-  len1, len2: extended;  // lengths along curve to r1, r2 points.
-  t1, t2: extended;      // angle turned trhrough at ditto.
-  xat1, xat2: extended;  // x dims at ditto (from TRANSITION origin).
-  yat1, yat2: extended;  // y ditto.
+  rad_diff: double;
+  len1, len2: double;  // lengths along curve to r1, r2 points.
+  t1, t2: double;      // angle turned trhrough at ditto.
+  xat1, xat2: double;  // x dims at ditto (from TRANSITION origin).
+  yat1, yat2: double;  // y ditto.
 
-  apartx, aparty: extended;  // distance centres apart.
+  apartx, aparty: double;  // distance centres apart.
 
-  dummy1, dummy2: extended;
+  dummy1, dummy2: double;
 
 begin
   Result := False;            // init.
@@ -36981,7 +36982,7 @@ begin
 end;
 //___________________________________________________________________________________________
 
-function transcalcs(draw_in_progress, auto_terms: boolean; k, tsn: extended; var xn, yn, tn, rn: extended): boolean;
+function transcalcs(draw_in_progress, auto_terms: boolean; k, tsn: double; var xn, yn, tn, rn: double): boolean;
   //  Transition equations.
 
   //  return xn,yn,tn,rn at tsn for transition constant k.
@@ -37002,12 +37003,12 @@ var
   nt: integer;                   // power for numerators.
   nb: integer;                   // power for denominators.
 
-  sign_of_xn: extended;           // + or -1 sign of next term in expansion
-  sign_of_yn: extended;
+  sign_of_xn: double;           // + or -1 sign of next term in expansion
+  sign_of_yn: double;
 
-  acc_limit: extended;
+  acc_limit: double;
 
-  k_trans, s_trans, x_trans, y_trans, x_term, y_term: extended;
+  k_trans, s_trans, x_trans, y_trans, x_term, y_term: double;
 
   i, n: integer;
 
@@ -37166,9 +37167,9 @@ function xy_to_dwg100(pin: Tpex): TPex;     // this function and next prepare x,
   //  doing transitions to the straight.)
 
 var
-  xscaled, yscaled: extended;
-  xconed, yconed: extended;
-  xskewed, yskewed: extended;
+  xscaled, yscaled: double;
+  xconed, yconed: double;
+  xskewed, yskewed: double;
   dummy: integer;
 
 begin
@@ -37199,7 +37200,7 @@ begin
 end;
 //_________________________________________________________________________________________
 
-function blank_start(x: extended): extended;   // 17-10-02 0,76.a  blanking mods.
+function blank_start(x: double): double;   // 17-10-02 0,76.a  blanking mods.
 
 begin
   if x < startx then
@@ -37261,7 +37262,7 @@ function time_now_modified(def: integer): integer;
   // return default def if conversion problem, or if new code is same as last one generated.
   // (def is intended to be supplied as a random integer).
 var
-  now_float: extended;
+  now_float: double;
   code: integer;
 
 begin
@@ -37320,7 +37321,7 @@ begin
 end;
 //___________________________________________________________________________________________
 
-function rad_str(r: extended; dp: integer): string; // get radius as a string.
+function rad_str(r: double; dp: integer): string; // get radius as a string.
 
 begin
   if ABS(r) < (max_rad_test - 2) then
@@ -37330,7 +37331,7 @@ begin
 end;
 //__________________________________________________________________________________________
 
-procedure dotransform(krot, xrot, yrot: extended; pin: Tpex; var pout: Tpex);
+procedure dotransform(krot, xrot, yrot: double; pin: Tpex; var pout: Tpex);
 
 //  perform any rotations/transformations.
 //  enter with rotation angle and centre point krot, xrot, yrot.
@@ -37338,7 +37339,7 @@ procedure dotransform(krot, xrot, yrot: extended; pin: Tpex; var pout: Tpex);
 
 //  result point pout returned.
 var
-  x, y: extended;
+  x, y: double;
 
 begin
   x := pin.x - xrot;                             // shift to origin.
@@ -37351,7 +37352,7 @@ end;
 
 // new geometry routines  15-9-99...
 
-function rad_tanp1_p2(p1, p2: Tpex; tn: extended; var rad, swing: extended): boolean;    // 15-9-99.
+function rad_tanp1_p2(p1, p2: Tpex; tn: double; var rad, swing: double): boolean;    // 15-9-99.
 
   // return radius through 2 given points p1,p2 given the tangent swing angle tn at p1...
   // also return the swing angle for the length of curve.
@@ -37359,7 +37360,7 @@ function rad_tanp1_p2(p1, p2: Tpex; tn: extended; var rad, swing: extended): boo
   // otherwise return True.
 
 var
-  x, y, h, cosk: extended;
+  x, y, h, cosk: double;
 
 begin
   Result := False;    // default init.
@@ -37396,7 +37397,7 @@ end;
 
 //  8th May 2001 v:0.71.a
 
-function calc_geo_radius(rout, xp, yp, kp: extended; var rin, kin, krin, gpx: extended): boolean;
+function calc_geo_radius(rout, xp, yp, kp: double; var rin, kin, krin, gpx: double): boolean;
 
   // for geometrical radius calcs.
   // enter with rout radius in main road centre-line,
@@ -37411,7 +37412,7 @@ function calc_geo_radius(rout, xp, yp, kp: extended; var rin, kin, krin, gpx: ex
   // see diagram.
 
 var
-  a, b, c, d, e, k, q, z: extended;
+  a, b, c, d, e, k, q, z: double;
 
 begin
   Result := False;     // default init
@@ -37747,8 +37748,8 @@ end;
 procedure convert_to_or_from_gaunt(to_gaunt: boolean); // 0.93.a ex 081
 
 var
-  dummy: extended;
-  old_dp, new_dp: extended;
+  dummy: double;
+  old_dp, new_dp: double;
 
 begin
   if (half_diamond = True) or (plain_track = True) then
@@ -37843,7 +37844,7 @@ end;
 function get_arc_centre(p1, p2, p3: Tpex; var arc_centre: Tpex): boolean;
 
 var
-  x, y, len1, len2: extended;
+  x, y, len1, len2: double;
 
   ////////////////////////////////////////////////////////////////////
 
@@ -37916,7 +37917,7 @@ begin
 end;
 //______________________________________________________________________________
 
-function calculate_turnout_radius(curving_rad: extended; var heel_notch, mid_notch, xing_notch: Tnotch): extended;
+function calculate_turnout_radius(curving_rad: double; var heel_notch, mid_notch, xing_notch: Tnotch): double;
   // 218a
 
   // using a Tnotch for convenience, no effect on the pegging notch
@@ -37928,13 +37929,13 @@ function calculate_turnout_radius(curving_rad: extended; var heel_notch, mid_not
   // if curving_rad=0, return positive rad anyway
 
 var
-  xx1, yy1: extended;
-  xx2, yy2: extended;
-  xxmid, yymid: extended;
+  xx1, yy1: double;
+  xx2, yy2: double;
+  xxmid, yymid: double;
 
-  turn_rad: extended;
-  hsum: extended;
-  a, b, c: extended;
+  turn_rad: double;
+  hsum: double;
+  a, b, c: double;
 
 begin
   Result := max_rad;   // init straight
@@ -37983,8 +37984,8 @@ begin
 end;
 //______________________________________________________________________________
 
-function calculate_turnout_radius_beyond(curving_rad: extended;
-  var xing_notch, mid_notch, end_notch: Tnotch): extended;  // 218b
+function calculate_turnout_radius_beyond(curving_rad: double;
+  var xing_notch, mid_notch, end_notch: Tnotch): double;  // 218b
 
   // USE FOR CURVIFORM ONLY
 
@@ -37997,13 +37998,13 @@ function calculate_turnout_radius_beyond(curving_rad: extended;
   // if curving_rad=0, return positive rad anyway
 
 var
-  xx1, yy1: extended;
-  xx2, yy2: extended;
-  xxmid, yymid: extended;
+  xx1, yy1: double;
+  xx2, yy2: double;
+  xxmid, yymid: double;
 
-  turn_rad: extended;
-  hsum: extended;
-  a, b, c: extended;
+  turn_rad: double;
+  hsum: double;
+  a, b, c: double;
 
 begin
   Result := max_rad;   // init straight
@@ -38047,7 +38048,7 @@ begin
 end;
 //______________________________________________________________________________
 
-function calculate_return_curve_radius(var exit_notch, mid_notch, trp_notch: Tnotch): extended;
+function calculate_return_curve_radius(var exit_notch, mid_notch, trp_notch: Tnotch): double;
   // 218d
 
   // using Tnotch for convenience, no effect on the pegging notch
@@ -38055,13 +38056,13 @@ function calculate_return_curve_radius(var exit_notch, mid_notch, trp_notch: Tno
   // calculate radius through 3 points on return curve -- at TVJP exit, TRP curve end, and mid-way between them (track centre-line, tradius-g/2)
 
 var
-  xx1, yy1: extended;
-  xx2, yy2: extended;
-  xxmid, yymid: extended;
+  xx1, yy1: double;
+  xx2, yy2: double;
+  xxmid, yymid: double;
 
-  turn_rad: extended;
-  hsum: extended;
-  a, b, c: extended;
+  turn_rad: double;
+  hsum: double;
+  a, b, c: double;
 
 begin
   Result := max_rad;   // init straight
@@ -38116,7 +38117,7 @@ function get_nearer_pex(p0, p1, p2: Tpex): Tpex;
   // return nearer of p1 or p2 to p0
 
 var
-  a, b: extended;
+  a, b: double;
 
 begin
   a := SQRT(SQR(p1.x - p0.x) + SQR(p1.y - p0.y));
@@ -38129,7 +38130,7 @@ begin
 end;
 //______________________________________________________________________________
 
-function get_notch_distance(n1, n2: Tnotch): extended;
+function get_notch_distance(n1, n2: Tnotch): double;
 
   // return distance between notches
 
@@ -38144,8 +38145,8 @@ function get_snap_peg_xy_data(code: integer): Tnotch;
 
 var
   dummy_str: string;
-  x, y, k: extended;
-  temp_y, dummy2, temp_k: extended;
+  x, y, k: double;
+  temp_y, dummy2, temp_k: double;
 
 begin
   with Result do
@@ -38171,15 +38172,15 @@ begin
 end;
 //______________________________________________________________________________
 
-function draw_xing_label(k, xlabel, yms, yts, ymid, xnote, ynote: extended): Tpex;
+function draw_xing_label(k, xlabel, yms, yts, ymid, xnote, ynote: double): Tpex;
   // 211b mark the crossing labels
 
 var
   p1, p2, p3, p4, pk1, pk2, pk3, pk4, ponpad, pp1, pp2, pp3, pp4: Tpex;
 
-  dummy: extended;
+  dummy: double;
 
-  x_curmod, x_curlabel, y_curmod, y_curlabel, k_curlabel: extended;
+  x_curmod, x_curlabel, y_curmod, y_curlabel, k_curlabel: double;
 
 begin
 

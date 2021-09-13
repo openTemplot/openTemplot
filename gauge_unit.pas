@@ -30,9 +30,8 @@ unit gauge_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls
-  , LCLtype;     // OT-FIRST
+  LCLType, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, ComCtrls;
 
 type
   Tgauge_form = class(TForm)
@@ -186,7 +185,7 @@ type
   Tdiff_flags = record
     flags: array[0..6] of boolean;
     // flag False if current value differs from list
-    cur_vals: array[0..6] of extended;    // current value in use.
+    cur_vals: array[0..6] of double;    // current value in use.
   end;//record
 
 var
@@ -199,7 +198,7 @@ procedure show_gauge_info; forward;
 procedure chat_click; forward;
 procedure custom_click(custom: integer); forward;
 procedure init_gauge_defaults(index: integer); forward;
-procedure g_defaults(scale, inscale: extended; var gs: Tgauge_scale); forward;
+procedure g_defaults(scale, inscale: double; var gs: Tgauge_scale); forward;
 // set all g-defaults
 
 //______________________________________________________________________________
@@ -219,7 +218,7 @@ var
   n, Count: integer;
   bgnd: integer;
   save_bgnd_option: boolean;
-  mod_ratio: extended;
+  mod_ratio: double;
   save_name: string;
   index: integer;
 
@@ -342,7 +341,7 @@ end;
 procedure ok_click(change_group: boolean);
 
 var
-  mod_ratio: extended;
+  mod_ratio: double;
   custom_gauge, not_mint: boolean;
 
 begin
@@ -603,7 +602,7 @@ const
 
 var
   n, i: integer;
-  sc, ins: extended;
+  sc, ins: double;
   od: Toutdim;
   dummy_i: integer;
 
@@ -734,7 +733,7 @@ begin
 end;
 //__________________________________________________________________________________________
 
-procedure g_defaults(scale, inscale: extended; var gs: Tgauge_scale);    // set all glist-defaults
+procedure g_defaults(scale, inscale: double; var gs: Tgauge_scale);    // set all glist-defaults
 
 begin
   with gs do begin
@@ -784,7 +783,7 @@ procedure init_gauge_list;                     //  fill all gauge list data
 
 var
   i, j: integer;
-  sc, ins: extended;
+  sc, ins: double;
   listbox_str: string;
   temp_str: string;
 
@@ -1923,12 +1922,12 @@ const
 
 var
   i, n, index: integer;
-  sc, ins: extended;
+  sc, ins: double;
   od: Toutdim;
   help_str: string;
   dummy_i: integer;
-  old_list_scale: extended;
-  old_scale, new_scale: extended;
+  old_list_scale: double;
+  old_scale, new_scale: double;
 
   name_str, list_str, dummy_str, listbox_str: string;
 

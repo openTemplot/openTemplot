@@ -30,7 +30,7 @@ unit web_map_help_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Htmlview, StdCtrls, ExtCtrls, HtmlGlobals;
 
 type

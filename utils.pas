@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils;
 
-function check_float(input: String; min, max: Extended; var target: Extended): Boolean;
+function check_float(input: String; min, max: double; var target: double): Boolean;
 function check_int(input: String; min, max: Integer; var target: Integer): Boolean;
 
 implementation
@@ -54,11 +54,11 @@ begin
   EXIT(True);
 end;
 
-function check_float(input: String; min, max: Extended; var target: Extended): Boolean;
+function check_float(input: String; min, max: double; var target: double): Boolean;
 
 var
   ix, dot_ix, int_end_ix: Integer;
-  Value: Extended = 0;
+  Value: double = 0;
   start: Integer;
   intval: Integer;
   negative: Boolean;
@@ -159,10 +159,10 @@ begin
   EXIT(True);
 end;
 
-function check_float(input: String; min, max: Extended; var target: Extended): Boolean;
+function check_float(input: String; min, max: double; var target: double): Boolean;
 var
   ix: Integer;
-  val: Extended = 0;
+  val: double = 0;
   start: Integer;
   negative: Boolean;
 begin

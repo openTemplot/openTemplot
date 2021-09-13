@@ -30,7 +30,7 @@ unit metric_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  LCLType, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, Spin, ComCtrls { OT-FIRST , ReadHTML, framview};
 
 type
@@ -107,7 +107,7 @@ type
 var
   metric_form: Tmetric_form;
 
-  metric_form_mm_now: extended = 0;
+  metric_form_mm_now: double = 0;
 
 procedure metric_form_do_update;
 procedure restore_metric_formsize_as_previous(previous_position: integer);
@@ -137,7 +137,7 @@ procedure metric_form_do_update;
 var
   feet_now, whole_inch_now, sixt_now: integer;
   thou_now, thou_inches_now, sixteenths_now: integer;
-  dec_inches_now: extended;
+  dec_inches_now: double;
   mm_format_str, inch_format_str: string;
 
 begin
@@ -236,7 +236,7 @@ begin
 end;
 //_____________________________________________________________________________________
 
-function docalc(nowtext: string): extended;
+function docalc(nowtext: string): double;
 
 begin
   nowtext := remove_space_str(nowtext);  // strip all spaces.
@@ -413,7 +413,7 @@ end;
 procedure Tmetric_form.scale_buttonClick(Sender: TObject);
 
 var
-  ratio: extended;
+  ratio: double;
 
 begin
   ratio := 304.8 / scale;
@@ -426,7 +426,7 @@ end;
 procedure Tmetric_form.size_buttonClick(Sender: TObject);
 
 var
-  ratio: extended;
+  ratio: double;
 
 begin
   ratio := 304.8 / scale;

@@ -31,7 +31,7 @@ unit mecbox_unit;          // 290a  file transfers via MECBOX text-based format
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs;
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs;
 
 type
   Tmecbox_form = class(TForm)
@@ -84,7 +84,7 @@ var
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    function force_dot_decimal(x: extended): string;
+    function force_dot_decimal(x: double): string;
 
     var
       s: string;

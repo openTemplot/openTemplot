@@ -30,7 +30,7 @@ unit trackbed_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ComCtrls, ExtCtrls;
 
 type
@@ -142,7 +142,7 @@ const
 var
   n: integer;
   od: Toutdim;
-  ms, ts: extended;
+  ms, ts: double;
 
 begin
   ms := trackbed_ms_width_ins * inscale;  // stored as inches full-size.

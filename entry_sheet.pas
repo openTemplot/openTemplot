@@ -30,7 +30,7 @@ unit entry_sheet;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  LCLType, LCLIntf, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls, Spin, Menus;
 
 type
@@ -166,10 +166,10 @@ const
   dims_i_c = 7;                  // max 8 lines on form.
 
 type
-  Toutdim = array[0..dims_i_c] of extended;
+  Toutdim = array[0..dims_i_c] of double;
 
 function putdim(h_str: string; units: integer; p_str: string;
-  m: extended; no_neg, no_ps, no_zero, zero_terminate: boolean): integer;
+  m: double; no_neg, no_ps, no_zero, zero_terminate: boolean): integer;
 function getdims(head_str, help_str: string; calling_form: TForm; n_max: integer;
   var outdims: Toutdim): boolean;
 
@@ -193,8 +193,8 @@ type
     help_str: string;         // help string.
     prompt_str: string;         // prompt string.
     units_str: string;         // units string.
-    orgdim: extended;       // original value.
-    newdim: extended;       // new value.
+    orgdim: double;       // original value.
+    newdim: double;       // new value.
     noneg: boolean;        // True=negative entry not allowed.
     nops: boolean;        // True=no preset possible.
     nozero: boolean;        // True=zero entry not allowed.
@@ -284,10 +284,10 @@ var
 
   save_info: boolean = False;
 
-  custom_input_factor1: extended = 1.0;
-  custom_input_factor2: extended = 1.0;
-  custom_input_factor3: extended = 1.0;
-  custom_input_factor4: extended = 1.0;
+  custom_input_factor1: double = 1.0;
+  custom_input_factor2: double = 1.0;
+  custom_input_factor3: double = 1.0;
+  custom_input_factor4: double = 1.0;
 
   current_line: integer = 0;
   bottom_line: integer = 0;
@@ -639,7 +639,7 @@ end;
 //______________________________________________________________________________
 
 function putdim(h_str: string; units: integer; p_str: string;
-  m: extended; no_neg, no_ps, no_zero, zero_terminate: boolean): integer;
+  m: double; no_neg, no_ps, no_zero, zero_terminate: boolean): integer;
 
   //  prepare for a call to getdims - build the dims list.
   //  return the index used.
@@ -879,7 +879,7 @@ begin
     Close;
   end;
 
-  if ((Key = Word(VkKeyScan('J'))) or (Key = Word(VkKeyScan('j')))) and (Shift = [ssCtrl])   // CTRL-J.
+  if ((Key = VK_J) or (Key = VK_j)) and (Shift = [ssCtrl])   // CTRL-J.
   then begin
     if jotter_form.Showing = True  // toggle
     then
@@ -1009,7 +1009,7 @@ const
 
 var
   n: integer;
-  od: Toutdim;    // [0..7] array of extended;
+  od: Toutdim;    // [0..7] array of double;
 
 begin
   putdim(a_str, 0, 'custom  input  conversion  factor  A  or  a', custom_input_factor1,
@@ -1056,7 +1056,7 @@ procedure input_box_exit(n: integer; input_panel: TPanel; input_prompt_label: TL
 var
   intxt: string;
 
-  conv_factor: extended;
+  conv_factor: double;
 
   make_neg: boolean;
   conversions_done: boolean;
@@ -1070,7 +1070,7 @@ var
   good_value: boolean;
   in_char1: Char;
 
-  invalue: extended;
+  invalue: double;
   ok_flag: boolean;
 
   brackpos: integer;

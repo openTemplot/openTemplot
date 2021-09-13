@@ -30,7 +30,7 @@ unit mint_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  LCLType, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls, Htmlview, Grids, Outline{, DirOutln}, HtmlGlobals;
 
 type
@@ -94,7 +94,7 @@ var
 
 //------------------------
 
-function quick_set_radius(var radius: extended): boolean;
+function quick_set_radius(var radius: double): boolean;
 
 //____________________________________________________________________________________________
 
@@ -215,11 +215,11 @@ begin
 end;
 //_____________________________________________________________________________________
 
-function quick_set_radius(var radius: extended): boolean;
+function quick_set_radius(var radius: double): boolean;
 
 var
   rad_index: integer;
-  rad_sgn: extended;
+  rad_sgn: double;
 
 begin
   Result := False;     // defaults init..

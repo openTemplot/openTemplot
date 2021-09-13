@@ -32,7 +32,7 @@ unit pad_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, LCLType, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Menus, StdCtrls, ExtCtrls, ComCtrls, Buttons,
   ExtDlgs, ImgList, PrintersDlgs,
   point_ex,
@@ -3333,9 +3333,9 @@ type
 
 
   Tnotch = record      //  a notch position.
-    notch_x: extended;
-    notch_y: extended;
-    notch_k: extended;
+    notch_x: double;
+    notch_y: double;
+    notch_k: double;
   end;
 
 
@@ -3350,14 +3350,14 @@ type
     loc_261: Tnotch;   // MEXITP    // 217a
     loc_600: Tnotch;   // TOLP
 
-    boundary_diag: extended; // diagonal length between boundaries
+    boundary_diag: double; // diagonal length between boundaries
   end;
 
 
   Tpad_view_data = record                 // 0.91.c  a zoom/pan setting.
-    offset_x: extended;
-    offset_y: extended;
-    width_x: extended;
+    offset_x: double;
+    offset_y: double;
+    width_x: double;
   end;
 
   Tpad_view = class(TPersistent)          // 0.91.c    object in pad_view_list.
@@ -3392,10 +3392,10 @@ type
 
     knuckle_code_ri: integer;
     // 214a spare_int2:integer;     0=normal, -1=sharp, 1=use custom knuckle_radius_ri
-    knuckle_radius_ri: extended;
-    // 214a spare_float1:extended;  custom setting - inches full-size
+    knuckle_radius_ri: double;
+    // 214a spare_float1:double;  custom setting - inches full-size
 
-    spare_float2: extended;
+    spare_float2: double;
 
     spare_bool1: boolean;
     spare_bool2: boolean;
@@ -3473,9 +3473,9 @@ type
     spare_flag3: boolean;
     spare_flag4: boolean;
 
-    spare_float1: extended;
-    spare_float2: extended;
-    spare_float3: extended;
+    spare_float1: double;
+    spare_float2: double;
+    spare_float3: double;
 
     spare_str: string[250];
 
@@ -3492,16 +3492,16 @@ type
     name_str_glist: string;           // 215a gauge designation.
 
 
-    scale_glist: extended;       // mm per ft.
-    gauge_glist: extended;       // mm.
-    fw_glist: extended;       // mm flangeway.
-    fwe_glist: extended;       // mm flangeway end gap (flangeway+flare).
+    scale_glist: double;       // mm per ft.
+    gauge_glist: double;       // mm.
+    fw_glist: double;       // mm flangeway.
+    fwe_glist: double;       // mm flangeway end gap (flangeway+flare).
 
-    old_fwe_glist: extended;       // old pre-215a flangeway end gap.
+    old_fwe_glist: double;       // old pre-215a flangeway end gap.
 
-    trtscent_glist: extended;       // mm track centres, turnout side.
-    trmscent_glist: extended;       // mm ditto, main side.
-    min_radius_glist: extended;       // mm minimum radius for check.
+    trtscent_glist: double;       // mm track centres, turnout side.
+    trmscent_glist: double;       // mm ditto, main side.
+    min_radius_glist: double;       // mm minimum radius for check.
   end;
 
   Tproto_info = record              // was Tgauge_info.
@@ -3510,46 +3510,46 @@ type
 
     spare_str_pi: string[75];      // now spares 215a   was  list_str_pi
 
-    scale_pi: extended;       // mm per ft.
-    gauge_pi: extended;       // mm.
-    fw_pi: extended;       // mm flangeway.
-    fwe_pi: extended;       // mm flangeway end (flangeway+flare).
-    xing_fl_pi: extended;       // mm length of flares (not h-d).
-    railtop_pi: extended;       // mm width of rail top (and bottom if bullhead).
-    trtscent_pi: extended;       // mm track centres, turnout side.
-    trmscent_pi: extended;       // mm ditto, main side.
-    retcent_pi: extended;       // mm ditto, return curve.
-    min_radius_pi: extended;       // mm minimum radius for check.
+    scale_pi: double;       // mm per ft.
+    gauge_pi: double;       // mm.
+    fw_pi: double;       // mm flangeway.
+    fwe_pi: double;       // mm flangeway end (flangeway+flare).
+    xing_fl_pi: double;       // mm length of flares (not h-d).
+    railtop_pi: double;       // mm width of rail top (and bottom if bullhead).
+    trtscent_pi: double;       // mm track centres, turnout side.
+    trmscent_pi: double;       // mm ditto, main side.
+    retcent_pi: double;       // mm ditto, return curve.
+    min_radius_pi: double;       // mm minimum radius for check.
 
 
     // these 6 wing/check rail lengths used only in pre 0.71.a versions...
 
-    old_winglongs_pi: extended;
+    old_winglongs_pi: double;
     // inches full-size length of short wing rail from centre of timber A.
-    old_winglongl_pi: extended;
+    old_winglongl_pi: double;
     // inches full-size length of long wing rail from centre of timber A.
 
-    old_cklongs_pi: extended;
+    old_cklongs_pi: double;
     // inches full-size length of short check rails.
-    old_cklongm_pi: extended;
+    old_cklongm_pi: double;
     // inches full-size length of medium check rails.
-    old_cklongl_pi: extended;
+    old_cklongl_pi: double;
     // inches full-size length of long check rails.
-    old_cklongxl_pi: extended;
+    old_cklongxl_pi: double;
     // inches full_size length of extra long check rails.
 
-    tbwide_pi: extended;       // inches full-size width of turnout timbers.
-    slwide_pi: extended;
+    tbwide_pi: double;       // inches full-size width of turnout timbers.
+    slwide_pi: double;
     // inches full-size width of plain sleepers (not at rail joints 212a).
 
-    xtimbsp_pi: extended;
+    xtimbsp_pi: double;
     // !!! disused in 0.75.a 14-10-01. inches full-size timber-spacing at crossing.
     // retained in files when loaded by versions prior to 0.75.a
 
-    ftimbspmax_pi: extended;
+    ftimbspmax_pi: double;
     // inches full-size max timber-spacing for closure space.
 
-    tb_pi: extended;       // plain sleeper length mm.
+    tb_pi: double;       // plain sleeper length mm.
 
     // added in version 0.71.a 11-5-01...
 
@@ -3567,62 +3567,62 @@ type
 
     alignment_byte_1: byte;   // D5 0.81 12-06-05
 
-    random_end_pi: extended;    //  amount of timber-end randomising.
-    timber_thick_pi: extended;    //  timber thickness (for DXF 3D).
-    random_angle_pi: extended;    //  amount of timber_angle randomising.
+    random_end_pi: double;    //  amount of timber-end randomising.
+    timber_thick_pi: double;    //  timber thickness (for DXF 3D).
+    random_angle_pi: double;    //  amount of timber_angle randomising.
 
     // new check and wing dimensioning : v:0.71.a 24-5-01...
 
-    ck_ms_working1_pi: extended;
+    ck_ms_working1_pi: double;
     // full-size inches - size 1 MS check rail working length (back from "A").
-    ck_ms_working2_pi: extended;
+    ck_ms_working2_pi: double;
     // full-size inches - size 2 MS check rail working length (back from "A").
-    ck_ms_working3_pi: extended;
+    ck_ms_working3_pi: double;
     // full-size inches - size 3 MS check rail working length (back from "A").
 
-    ck_ts_working_mod_pi: extended;
+    ck_ts_working_mod_pi: double;
     // full-size inches - TS check rail working length modifier.
     // out of use 0.94.a but loaded in old files.
 
-    ck_ms_ext1_pi: extended;
+    ck_ms_ext1_pi: double;
     // full-size inches - size 1 MS check rail extension length (forward from "A").
-    ck_ms_ext2_pi: extended;
+    ck_ms_ext2_pi: double;
     // full-size inches - size 2 MS check rail extension length (forward from "A").
 
-    ck_ts_ext_mod_pi: extended;
+    ck_ts_ext_mod_pi: double;
     // full-size inches - TS check rail extension length modifier.
     // out of use 0.94.a but loaded in old files.
 
-    wing_ms_reach1_pi: extended;
+    wing_ms_reach1_pi: double;
     // full-size inches - size 1 MS wing rail reach length (forward from "A").
-    wing_ms_reach2_pi: extended;
+    wing_ms_reach2_pi: double;
     // full-size inches - size 2 MS wing rail reach length (forward from "A").
 
-    wing_ts_reach_mod_pi: extended;
+    wing_ts_reach_mod_pi: double;
     // full-size inches - TS wing rail reach length modifier.
     // out of use 0.94.a but loaded in old files.
 
     // new rail section dims 0.71.a...
 
-    railbottom_pi: extended;
-    // mm width of railfoot (FB).                                   // spare_float4:extended;
+    railbottom_pi: double;
+    // mm width of railfoot (FB).                                   // spare_float4:double;
 
     // these are for 3-D in DXF...
 
-    rail_height_pi: extended;
+    rail_height_pi: double;
     // full-size inches rail height (for 3D in DXF).
-    seat_thick_pi: extended;
+    seat_thick_pi: double;
     // full-size inches chair seating thickness (for 3D in DXF).
 
-    old_tb_pi: extended;
+    old_tb_pi: double;
     // inches full-size (unlike tb_pi which is mm). used internally for gauge changes (no meaning in file).
 
-    rail_inclination_pi: extended;    // radians.
-    foot_height_pi: extended;    // inches full-size  edge thickness.
-    chair_outlen_pi: extended;    // inches full-size  from rail gauge-face
-    chair_inlen_pi: extended;    // inches full-size
-    chair_width_pi: extended;    // inches full-size
-    chair_corner_pi: extended;    // inches full-size  corner rad.
+    rail_inclination_pi: double;    // radians.
+    foot_height_pi: double;    // inches full-size  edge thickness.
+    chair_outlen_pi: double;    // inches full-size  from rail gauge-face
+    chair_inlen_pi: double;    // inches full-size
+    chair_width_pi: double;    // inches full-size
+    chair_corner_pi: double;    // inches full-size  corner rad.
 
     spare_byte1: byte;   //  !!! don't replace these an integer !!!
     spare_byte2: byte;
@@ -3638,20 +3638,20 @@ type
   Ttransform_info = record             //  datums, shifts and rotations ...
     //  (yes I know the plural of datum is data !)
 
-    datum_y: extended;  // y_datum, y datum point (green dot).
+    datum_y: double;  // y_datum, y datum point (green dot).
 
-    x_go_limit: extended;  // (nyi) print cropping limits (paper inches)...
-    x_stop_limit: extended;
+    x_go_limit: double;  // (nyi) print cropping limits (paper inches)...
+    x_stop_limit: double;
 
     transforms_apply: boolean; // !!! no longer used.  // False = ignore transform data.
 
     alignment_byte_1: byte;   // D5 0.81 12-06-05
 
-    x1_shift: extended;  //  mm    shift info...
-    y1_shift: extended;  //  mm
-    k_shift: extended;  //  radians.
-    x2_shift: extended;  //  mm
-    y2_shift: extended;  //  mm
+    x1_shift: double;  //  mm    shift info...
+    y1_shift: double;  //  mm
+    k_shift: double;  //  radians.
+    x2_shift: double;  //  mm
+    y2_shift: double;  //  mm
 
     peg_pos: Tpex;      //  mm  peg position.
 
@@ -3675,9 +3675,9 @@ type
     spare_flag3: boolean;
     spare_flag4: boolean;
 
-    notch_info: Tnotch;      {spare_float1:extended;}    // 11-4-00 version 0.53
-    {spare_float2:extended;}
-    {spare_float3:extended;}
+    notch_info: Tnotch;      {spare_float1:double;}    // 11-4-00 version 0.53
+    {spare_float2:double;}
+    {spare_float3:double;}
 
     spare_str: string[10];
 
@@ -3697,7 +3697,7 @@ type
 
     spare_bool1: boolean;
 
-    OUT_OF_USE_trackbed_width_ins_keep: extended;
+    OUT_OF_USE_trackbed_width_ins_keep: double;
     // 180 inches full-size 15ft.  // not used 215a  TS and MS separated, see below
 
     draw_ts_platform_keep: boolean;
@@ -3705,13 +3705,13 @@ type
     draw_ts_platform_end_edge_keep: boolean;
     draw_ts_platform_rear_edge_keep: boolean;
 
-    platform_ts_front_edge_ins_keep: extended;
+    platform_ts_front_edge_ins_keep: double;
     // centre-line to platform front edge 57 inches   4ft-9in  215a
-    platform_ts_start_width_ins_keep: extended;
-    platform_ts_end_width_ins_keep: extended;
+    platform_ts_start_width_ins_keep: double;
+    platform_ts_end_width_ins_keep: double;
 
-    platform_ts_start_mm_keep: extended;
-    platform_ts_length_mm_keep: extended;
+    platform_ts_start_mm_keep: double;
+    platform_ts_length_mm_keep: double;
 
 
     draw_ms_platform_keep: boolean;
@@ -3719,26 +3719,26 @@ type
     draw_ms_platform_end_edge_keep: boolean;
     draw_ms_platform_rear_edge_keep: boolean;
 
-    platform_ms_front_edge_ins_keep: extended;
+    platform_ms_front_edge_ins_keep: double;
     // centre-line to platform front edge 57 inches   4ft-9in  215a
-    platform_ms_start_width_ins_keep: extended;
-    platform_ms_end_width_ins_keep: extended;
+    platform_ms_start_width_ins_keep: double;
+    platform_ms_end_width_ins_keep: double;
 
-    platform_ms_start_mm_keep: extended;
-    platform_ms_length_mm_keep: extended;
+    platform_ms_start_mm_keep: double;
+    platform_ms_length_mm_keep: double;
 
-    OUT_OF_USE_cess_width_ins_keep: extended;
+    OUT_OF_USE_cess_width_ins_keep: double;
     // 206a     // not used 215a  TS and MS separated, see below
     OUT_OF_USE_draw_trackbed_cess_edge_keep: boolean;
     // 206a     // not used 215a  TS and MS separated, see below
 
     // platform skews added 207a...
 
-    platform_ms_start_skew_mm_keep: extended;      // 207a
-    platform_ms_end_skew_mm_keep: extended;        // 207a
+    platform_ms_start_skew_mm_keep: double;      // 207a
+    platform_ms_end_skew_mm_keep: double;        // 207a
 
-    platform_ts_start_skew_mm_keep: extended;      // 207a
-    platform_ts_end_skew_mm_keep: extended;        // 207a
+    platform_ts_start_skew_mm_keep: double;      // 207a
+    platform_ts_end_skew_mm_keep: double;        // 207a
 
 
     spare_bool2: boolean;
@@ -3763,14 +3763,14 @@ type
 
     spare1: boolean;
     spare2: boolean;
-    // 215a spare_extended1:extended; spare_extended2:extended;
+    // 215a spare_extended1:double; spare_extended2:double;
 
-    trackbed_ms_start_mm_keep: extended;
-    // 215a spare_extended3:extended;    // need to be extendeds for def_req
-    trackbed_ms_length_mm_keep: extended;   // 215a spare_extended4:extended;
+    trackbed_ms_start_mm_keep: double;
+    // 215a spare_extended3:double;    // need to be extendeds for def_req
+    trackbed_ms_length_mm_keep: double;   // 215a spare_extended4:double;
 
-    trackbed_ts_start_mm_keep: extended;    // 215a spare_extended5:extended;
-    trackbed_ts_length_mm_keep: extended;   // 215a spare_extended6:extended;
+    trackbed_ts_start_mm_keep: double;    // 215a spare_extended5:double;
+    trackbed_ts_length_mm_keep: double;   // 215a spare_extended6:double;
 
   end;
 
@@ -3784,12 +3784,12 @@ type
 
     trans_flag: boolean;    // True=transition, False=fixed radius curving.
 
-    fixed_rad: extended;   // fixed radius mm.
-    trans_rad1: extended;   // first transition radius mm.
-    trans_rad2: extended;   // second transition radius mm.
-    trans_length: extended;   // length of transition mm.
-    trans_start: extended;   // start of transition mm.
-    rad_offset: extended;   // curving line offset mm. no longer used
+    fixed_rad: double;   // fixed radius mm.
+    trans_rad1: double;   // first transition radius mm.
+    trans_rad2: double;   // second transition radius mm.
+    trans_length: double;   // length of transition mm.
+    trans_start: double;   // start of transition mm.
+    rad_offset: double;   // curving line offset mm. no longer used
 
     alignment_byte_1: byte;   // D5 0.81 12-06-05
     alignment_byte_2: byte;   // D5 0.81 12-06-05
@@ -3807,13 +3807,13 @@ type
 
     dummy_template_flag: boolean;  // 212a       //spare_flag4:boolean;
 
-    slew_start: extended;  {spare_float1:extended;}  // slewing zone start mm.
-    slew_length: extended;  {spare_float2:extended;}  // slewing zone length mm.
-    slew_amount: extended;  {spare_float3:extended;}  // amount of slew mm.
+    slew_start: double;  {spare_float1:double;}  // slewing zone start mm.
+    slew_length: double;  {spare_float2:double;}  // slewing zone length mm.
+    slew_amount: double;  {spare_float3:double;}  // amount of slew mm.
 
 
     cl_options_code_int: integer;            // 206a
-    cl_options_custom_offset_ext: extended;  // 206a
+    cl_options_custom_offset_ext: double;  // 206a
 
     // 216a ...
 
@@ -3823,9 +3823,9 @@ type
     reminder_str: string[200];
 
 
-    spare_float1: extended;
-    spare_float2: extended;
-    spare_float3: extended;
+    spare_float1: double;
+    spare_float2: double;
+    spare_float3: double;
 
     spare_int: integer;
 
@@ -3843,13 +3843,13 @@ type
     alignment_byte_3: byte;   // D5 0.81 12-06-05
 
     list_index: integer;
-    rail_length: extended;         // rail length in inches.
+    rail_length: double;         // rail length in inches.
 
     alignment_byte_4: byte;   // D5 0.81 12-06-05
     alignment_byte_5: byte;   // D5 0.81 12-06-05
 
     sleepers_per_length: integer;                     // number of sleepers per length.
-    sleeper_centres: array[0..psleep_c] of extended;  // spacings in inches for custom.
+    sleeper_centres: array[0..psleep_c] of double;  // spacings in inches for custom.
 
     rail_joints_code: integer;   // 0=normal, 1=staggered, -1=none (cwr).
 
@@ -3861,21 +3861,21 @@ type
 
     user_peg_data_valid: boolean;    // was pt_spare_flag4:boolean;  13-3-01
 
-    user_pegx: extended;          // was pt_spare_float1:extended;  13-3-01
-    user_pegy: extended;          // was pt_spare_float2:extended;  13-3-01
-    user_pegk: extended;          // was pt_spare_float3:extended;  13-3-01
+    user_pegx: double;          // was pt_spare_float1:double;  13-3-01
+    user_pegy: double;          // was pt_spare_float2:double;  13-3-01
+    user_pegk: double;          // was pt_spare_float3:double;  13-3-01
 
     pt_spacing_name_str: string[200];     // was spare_str:string[250];   17-1-01.
 
     alignment_byte_6: byte;   // D5 0.81 12-06-05
 
-    pt_tb_rolling_percent: extended;      // 0.76.a  17-5-02.
+    pt_tb_rolling_percent: double;      // 0.76.a  17-5-02.
 
-    gaunt_sleeper_mod_inches: extended;       // 0.93.a ex 0.81 pt_spare_ext4:extended;
+    gaunt_sleeper_mod_inches: double;       // 0.93.a ex 0.81 pt_spare_ext4:double;
 
-    pt_spare_ext3: extended;
-    pt_spare_ext2: extended;
-    pt_spare_ext1: extended;
+    pt_spare_ext3: double;
+    pt_spare_ext2: double;
+    pt_spare_ext1: double;
 
     alignment_byte_7: byte;   // D5 0.81 12-06-05
     alignment_byte_8: byte;   // D5 0.81 12-06-05
@@ -3896,29 +3896,29 @@ type
     alignment_byte_3: byte;   // D5 0.81 12-06-05
 
     sw_pattern: integer;    // type of switch.
-    planing: extended;   // (B) planing length (inches).
-    planing_angle: extended;   // unit planing angle.
-    switch_radius_inchormax: extended;
+    planing: double;   // (B) planing length (inches).
+    planing_angle: double;   // unit planing angle.
+    switch_radius_inchormax: double;
     // switch radius (inches!) (or max_rad (in mm) for straight switch).
-    switch_rail: extended;   // (C) length of switch rail (inches).
-    stock_rail: extended;   // (S) length of stock rail (inches).
-    heel_lead_inches: extended;   // (L) lead to heel (incl. planing) (inches).
-    heel_offset_inches: extended;   // (H) heel-offset (inches).
-    switch_front_inches: extended;   // stock-rail-end to toe (inches).
-    planing_radius: extended;   // planing radius for double-curved switch.
-    sleeper_j1: extended;
+    switch_rail: double;   // (C) length of switch rail (inches).
+    stock_rail: double;   // (S) length of stock rail (inches).
+    heel_lead_inches: double;   // (L) lead to heel (incl. planing) (inches).
+    heel_offset_inches: double;   // (H) heel-offset (inches).
+    switch_front_inches: double;   // stock-rail-end to toe (inches).
+    planing_radius: double;   // planing radius for double-curved switch.
+    sleeper_j1: double;
     // first switch-front sleeper spacing back from TOE (NEGATIVE inches).
-    sleeper_j2: extended;
+    sleeper_j2: double;
     // second switch-front sleeper spacing back from the first (NEGATIVE inches).
 
-    timber_centres: array[0..swtimbco_c] of extended;
+    timber_centres: array[0..swtimbco_c] of double;
     // list of timber centres (in inches).
 
     group_code: integer;    //  which group of switches.        0.77.a  7-6-02.
     size_code: integer;    //  size within group (1=shortest). 0.77.a  7-6-02.
 
-    joggle_depth: extended;   //  depth of joggle. 0.71.a 13-4-01.
-    joggle_length: extended;   //  length of joggle in front of toe (+ve). 0.71.a 13-4-01.
+    joggle_depth: double;   //  depth of joggle. 0.71.a 13-4-01.
+    joggle_length: double;   //  length of joggle in front of toe (+ve). 0.71.a 13-4-01.
 
     group_count: integer;
     // number of switches in this group (max size_code in this group, min size is always 1).
@@ -3940,20 +3940,20 @@ type
     num_bridge_chairs_turnout_rail: byte;
     // not used in experimental chairing   // 214a              spare_byte
 
-    fb_tip_offset: extended;
+    fb_tip_offset: double;
     // 0.76.a  2-1-02. fbtip dimension (FB foot from gauge-face at tip).
 
-    sleeper_j3: extended;
+    sleeper_j3: double;
     //  third switch-front sleeper spacing back from the second (NEGATIVE inches).
-    sleeper_j4: extended;
+    sleeper_j4: double;
     //  fourth switch-front sleeper spacing back from the third (NEGATIVE inches).
-    sleeper_j5: extended;
+    sleeper_j5: double;
     //  fifth switch-front sleeper spacing back from the fourth (NEGATIVE inches).
 
-    spare_float4: extended;
-    spare_float3: extended;
-    spare_float2: extended;
-    spare_float1: extended;
+    spare_float4: double;
+    spare_float3: double;
+    spare_float2: double;
+    spare_float1: double;
 
     spare_str: string[200];
 
@@ -3968,31 +3968,31 @@ type
 
     // 0.81 new flare lengths.  04-08-03.
 
-    check_flare_ext_ms: extended;
+    check_flare_ext_ms: double;
     // flare length (inches), MS check rail extension end.
-    check_flare_ext_ts: extended;
+    check_flare_ext_ts: double;
     // flare length (inches), TS check rail extension end.
-    check_flare_work_ms: extended;
+    check_flare_work_ms: double;
     // flare length (inches), MS check rail working end.
-    check_flare_work_ts: extended;
+    check_flare_work_ts: double;
     // flare length (inches), TS check rail working end.
-    wing_flare_ms: extended;           // flare length (inches), MS wing rail.
-    wing_flare_ts: extended;           // flare length (inches), TS wing rail.
-    check_flare_k_ms: extended;        // flare length (inches), MS K-crossing check rail.
-    check_flare_k_ds: extended;        // flare length (inches), DS K-crossing check rail.
+    wing_flare_ms: double;           // flare length (inches), MS wing rail.
+    wing_flare_ts: double;           // flare length (inches), TS wing rail.
+    check_flare_k_ms: double;        // flare length (inches), MS K-crossing check rail.
+    check_flare_k_ds: double;        // flare length (inches), DS K-crossing check rail.
 
     // 0.81 new flare offsets (flangeway end gap).  04-08-03.
 
-    check_fwe_ext_ms: extended;
+    check_fwe_ext_ms: double;
     // flangeway end gap (mm), MS check rail extension end.
-    check_fwe_ext_ts: extended;
+    check_fwe_ext_ts: double;
     // flangeway end gap (mm), TS check rail extension end.
-    check_fwe_work_ms: extended;     // flangeway end gap (mm), MS check rail working end.
-    check_fwe_work_ts: extended;     // flangeway end gap (mm), TS check rail working end.
-    wing_fwe_ms: extended;           // flangeway end gap (mm), MS wing rail.
-    wing_fwe_ts: extended;           // flangeway end gap (mm), TS wing rail.
-    check_fwe_k_ms: extended;        // flangeway end gap (mm), MS K-crossing check rail.
-    check_fwe_k_ds: extended;        // flangeway end gap (mm), DS K-crossing check rail.
+    check_fwe_work_ms: double;     // flangeway end gap (mm), MS check rail working end.
+    check_fwe_work_ts: double;     // flangeway end gap (mm), TS check rail working end.
+    wing_fwe_ms: double;           // flangeway end gap (mm), MS wing rail.
+    wing_fwe_ts: double;           // flangeway end gap (mm), TS wing rail.
+    check_fwe_k_ms: double;        // flangeway end gap (mm), MS K-crossing check rail.
+    check_fwe_k_ds: double;        // flangeway end gap (mm), DS K-crossing check rail.
 
   end;//record
 
@@ -4003,8 +4003,8 @@ type
     sl_mode: integer;     // 0=auto_fit, 1=use fixed_sl.
     retcent_mode: integer;
     // 0=return centres as adjacent track, 1=use custom centres.
-    k3n_unit_angle: extended;    // k3n angle in units.
-    fixed_st: extended;    // length of knuckle straight. mm.
+    k3n_unit_angle: double;    // k3n angle in units.
+    fixed_st: double;    // length of knuckle straight. mm.
 
     spare_int3: integer;
 
@@ -4012,11 +4012,11 @@ type
     hd_vchecks_code: integer;
     // shortening code for half-diamond v-crossing check rails.
 
-    k_check_length_1: extended;    // length of size 1 k-crossing check rail (inches).
-    k_check_length_2: extended;    // length of size 2 k-crossing check rail (inches).
-    k_check_mod_ms: extended;    // main side modifer.
-    k_check_mod_ds: extended;    // diamond side modifer.
-    k_check_flare: extended;    // length of flare on k-crossing check rails.
+    k_check_length_1: double;    // length of size 1 k-crossing check rail (inches).
+    k_check_length_2: double;    // length of size 2 k-crossing check rail (inches).
+    k_check_mod_ms: double;    // main side modifer.
+    k_check_mod_ds: double;    // diamond side modifer.
+    k_check_flare: double;    // length of flare on k-crossing check rails.
 
     curviform_timbering_keep: boolean;
     // 215a                           alignment_byte_1:byte;   // D5 0.81 12-06-05
@@ -4030,17 +4030,17 @@ type
 
     // 0.75.a  9-10-01...
 
-    blunt_nose_width: extended;    // full-size inches.
-    blunt_nose_to_timb: extended;    // full-size inches - to "A" timber centre.
+    blunt_nose_width: double;    // full-size inches.
+    blunt_nose_to_timb: double;    // full-size inches - to "A" timber centre.
 
-    vee_joint_half_spacing: extended;
+    vee_joint_half_spacing: double;
     // full-size inches - rail overlap at vee point rail joint.
-    wing_joint_spacing: extended;
+    wing_joint_spacing: double;
     // full-size inches - timber spacing at wing rail joint.
 
-    wing_timber_spacing: extended;
+    wing_timber_spacing: double;
     // full-size inches - timber spacing for wing rail front part of crossing (up to "A").
-    vee_timber_spacing: extended;
+    vee_timber_spacing: double;
     // full-size inches - timber spacing for vee point rail part of crossing (on from "A").
 
     // number of timbers spanned by vee rail incl. "A" timber.
@@ -4064,14 +4064,14 @@ type
     spare_flag1: boolean;
     spare_flag2: boolean;
 
-    main_road_endx_infile: extended;  // 217a
+    main_road_endx_infile: double;  // 217a
 
-    hdkn_unit_angle: extended;    // half-diamond hdkn angle in units.
+    hdkn_unit_angle: double;    // half-diamond hdkn angle in units.
 
     check_flare_info_081: Tcheck_flare_info_081;   // not used 0.93.a
 
-    k_custom_wing_long_keep: extended;   // 0.95.a inches full-size k-crossing wing rails
-    k_custom_point_long_keep: extended;
+    k_custom_wing_long_keep: double;   // 0.95.a inches full-size k-crossing wing rails
+    k_custom_point_long_keep: double;
     // 0.95.a inches full-size k-crossing point rails   NYI
 
     use_k_custom_wing_rails_keep: boolean;   // 0.95.a
@@ -4109,9 +4109,9 @@ type
     exit_timbering: integer;      //  exit timbering style.
     turnout_road_code: integer;      //  length of turnout exit road.
 
-    turnout_length: extended;     //  turnoutx.
-    origin_to_toe: extended;     //  xorg.
-    step_size: extended;
+    turnout_length: double;     //  turnoutx.
+    origin_to_toe: double;     //  xorg.
+    step_size: double;
     //  incx. (use saved step-size on reloading - not default).
 
     turnout_road_is_adjustable: boolean;
@@ -4124,58 +4124,58 @@ type
 
   Thdk_check_rail_info = record         // K-crossing check and wing rail lengths. 0.79.a
 
-    k_check_ms_1: extended;
+    k_check_ms_1: double;
     // full-size inches - size 1 MS k-crossing check rail length.
-    k_check_ms_2: extended;
+    k_check_ms_2: double;
     // full-size inches - size 2 MS k-crossing check rail length.
 
-    k_check_ds_1: extended;
+    k_check_ds_1: double;
     // full-size inches - size 1 DS k-crossing check rail length.
-    k_check_ds_2: extended;
+    k_check_ds_2: double;
     // full-size inches - size 2 DS k-crossing check rail length.
   end;
 
   Tvee_check_rail_info = record         // V-crossing check and wing rail lengths. 0.79.a
 
-    v_check_ms_working1: extended;
+    v_check_ms_working1: double;
     // full-size inches - size 1 MS check rail working length (back from "A").
-    v_check_ms_working2: extended;
+    v_check_ms_working2: double;
     // full-size inches - size 2 MS check rail working length (back from "A").
-    v_check_ms_working3: extended;
+    v_check_ms_working3: double;
     // full-size inches - size 3 MS check rail working length (back from "A").
 
-    v_check_ts_working1: extended;
+    v_check_ts_working1: double;
     // full-size inches - size 1 TS check rail working length (back from "A").
-    v_check_ts_working2: extended;
+    v_check_ts_working2: double;
     // full-size inches - size 2 TS check rail working length (back from "A").
-    v_check_ts_working3: extended;
+    v_check_ts_working3: double;
     // full-size inches - size 3 TS check rail working length (back from "A").
 
-    v_check_ms_ext1: extended;
+    v_check_ms_ext1: double;
     // full-size inches - size 1 MS check rail extension length (forward from "A").
-    v_check_ms_ext2: extended;
+    v_check_ms_ext2: double;
     // full-size inches - size 2 MS check rail extension length (forward from "A").
 
-    v_check_ts_ext1: extended;
+    v_check_ts_ext1: double;
     // full-size inches - size 1 TS check rail extension length (forward from "A").
-    v_check_ts_ext2: extended;
+    v_check_ts_ext2: double;
     // full-size inches - size 2 TS check rail extension length (forward from "A").
 
-    v_wing_ms_reach1: extended;
+    v_wing_ms_reach1: double;
     // full-size inches - size 1 MS wing rail reach length (forward from "A").
-    v_wing_ms_reach2: extended;
+    v_wing_ms_reach2: double;
     // full-size inches - size 2 MS wing rail reach length (forward from "A").
 
-    v_wing_ts_reach1: extended;
+    v_wing_ts_reach1: double;
     // full-size inches - size 1 TS wing rail reach length (forward from "A").
-    v_wing_ts_reach2: extended;
+    v_wing_ts_reach2: double;
     // full-size inches - size 2 TS wing rail reach length (forward from "A").
   end;
 
   Tcheck_end_diff = record    // 0.94.a
-    len_diff: extended;   // length differ  inches f-s
-    flr_diff: extended;   // flare length   inches f-s
-    gap_diff: extended;   // end gap        model mm
+    len_diff: double;   // length differ  inches f-s
+    flr_diff: double;   // flare length   inches f-s
+    gap_diff: double;   // end gap        model mm
 
     type_diff: byte;
     // 0=no diff   1=change to bent flare    2=change to machined flare   3= change to no flare
@@ -4214,12 +4214,12 @@ type
 
     chairing_flag: boolean;          // 214a    //spare_flag2:boolean;
 
-    start_draw_x: extended;          {spare_float3:extended;}   // startx.
+    start_draw_x: double;          {spare_float3:double;}   // startx.
 
-    timber_length_inc: extended;     // timbinc timber length step size.
+    timber_length_inc: double;     // timbinc timber length step size.
 
     //------
-    omit_switch_front_joints: boolean;  // 0.79.a spare_float1:extended;...
+    omit_switch_front_joints: boolean;  // 0.79.a spare_float1:double;...
     omit_switch_rail_joints: boolean;
     omit_stock_rail_joints: boolean;
     omit_wing_rail_joints: boolean;
@@ -4247,26 +4247,26 @@ type
 
     vee_check_rail_info: Tvee_check_rail_info;
 
-    turnout_road_endx_infile: extended;
-    // 209a length of turnout road from CTRL-1   //spare_float:extended;
+    turnout_road_endx_infile: double;
+    // 209a length of turnout road from CTRL-1   //spare_float:double;
 
     // 208c added to aid debugging of box files in text editor (never read):
 
     template_type_str: string[6];
     // 208c was spare_str[16]        208a was spare_str:string[56]
 
-    smallest_radius_stored: extended;
+    smallest_radius_stored: double;
     // 208a needed for box data -- not loaded to the control
 
-    dpx_stored: extended;
+    dpx_stored: double;
     // 208a needed for ID number creation -- not loaded to the control
-    ipx_stored: extended;
+    ipx_stored: double;
     // 208a needed for ID number creation -- not loaded to the control
-    fpx_stored: extended;
+    fpx_stored: double;
     // 208a needed for ID number creation -- not loaded to the control
 
 
-    gaunt_offset_inches: extended;  // 0.81
+    gaunt_offset_inches: double;  // 0.81
 
     // 219a  include connectors for XTrackCAD in export DXF file  -- not loaded to the control  ...
 
@@ -4332,10 +4332,10 @@ type
     proto_info: Tproto_info;
     // !!! modified for 0.71.a 11-5-01. was Tgauge_info.
 
-    railtop_inches: extended;
-    // full-size inches railtop width - was spare_float1:extended;
-    railbottom_inches: extended;
-    // full-size inches railbottom width - was spare_float2:extended;
+    railtop_inches: double;
+    // full-size inches railtop width - was spare_float1:double;
+    railbottom_inches: double;
+    // full-size inches railbottom width - was spare_float2:double;
 
     alignment_byte_4: byte;   // D5 0.81 12-06-05
     alignment_byte_5: byte;   // D5 0.81 12-06-05
@@ -4363,10 +4363,10 @@ type
 
     grid_units_code: integer;
 
-    x_grid_spacing: extended;
-    y_grid_spacing: extended;
+    x_grid_spacing: double;
+    y_grid_spacing: double;
 
-    total_length_of_timbering: extended;  // 0.96.a
+    total_length_of_timbering: double;  // 0.96.a
 
 
     id_number: integer;         // 208a
@@ -4399,13 +4399,13 @@ type
 
     spare_bool4: boolean;
 
-    mod_text_x: extended;
-    // (mm) label position modifiers..   //spare_float1:extended;
-    mod_text_y: extended;
-    //spare_float2:extended;
+    mod_text_x: double;
+    // (mm) label position modifiers..   //spare_float1:double;
+    mod_text_y: double;
+    //spare_float2:double;
 
-    flatbottom_width: extended;
-    // width of flatbottom rail base (mm).    //spare_float3:extended;
+    flatbottom_width: double;
+    // width of flatbottom rail base (mm).    //spare_float3:double;
 
     check_diffs: Tcheck_diffs;      // 0.94.a check rail end modifiers - 248 bytes
 
@@ -4514,7 +4514,7 @@ type
 
     bgnd_xing_type: integer;
     bgnd_spiral: boolean;
-    bgnd_turnout_radius: extended;
+    bgnd_turnout_radius: double;
 
     bgnd_gaunt: boolean;               // 218a
 
@@ -4528,8 +4528,8 @@ type
 
     // 211b position of name label...
 
-    bgnd_label_x: extended;   // mm
-    bgnd_label_y: extended;   // mm
+    bgnd_label_x: double;   // mm
+    bgnd_label_y: double;   // mm
 
     bgnd_blanked: boolean;        // 215a
     bgnd_no_xing: boolean;        // 215a
@@ -4586,8 +4586,8 @@ var
   gauge: array[0..gauge_indexmax_c] of Tgauge_scale;
 
   sleeper_count: array[0..railen_c] of integer;         // number of sleepers per rail length.
-  psleep: array[0..railen_c, 0..psleep_c] of extended;  // plain track sleeper spacings.
-  railen: array[0..railen_c] of extended;               // plain track rail lengths.
+  psleep: array[0..railen_c, 0..psleep_c] of double;  // plain track sleeper spacings.
+  railen: array[0..railen_c] of double;               // plain track rail lengths.
 
   aq_str: array[0..aq_max_c] of string;                //  names of rail-edges.
 
@@ -4618,9 +4618,9 @@ var
   nldim_array: array[0..aq_max_c] of integer;
   //  ( aq_i )    array length (max index) for each aq.
 
-  rings: array[0..ring_count_c, 0..3] of extended;        // for spacing ring copies.
+  rings: array[0..ring_count_c, 0..3] of double;        // for spacing ring copies.
   ring_index: integer = 0;
-  ring_dia: extended = 0;
+  ring_dia: double = 0;
   ring_has_been_shown: boolean = False;  // 0.98.a
 
 
@@ -4629,12 +4629,12 @@ var
   rings_checkpoints: array[0..ring_count_c, 0..3] of integer;
   // for spacing ring infringement checks
   // 0=x, 1=y, 2=aq, 3=infringed closer than 2ft scale to ring 0/1.
-  min_ring_distance: extended = 0;   // v:0.76.a 1-5-02.
+  min_ring_distance: double = 0;   // v:0.76.a 1-5-02.
   ring_warn: boolean = True;
   ring_copies_warn: boolean = False;
   ring_infringed: boolean = False;
   ring_copies_infringed: boolean = False;
-  incx125: extended = 875;
+  incx125: double = 875;
   // 1.25*incx in 1/100ths mm , for ring infringement testing.
   warn_centrelines: boolean = False;
 
@@ -4670,52 +4670,52 @@ var
   overscale_joggles: boolean = False;
   switch_drive_markx: boolean = True;
 
-  scale: extended = 5.5;         // default 5.5 mm/ft
-  inscale: extended = 5.5 / 12;
-  incx: extended = 7.0;
+  scale: double = 5.5;         // default 5.5 mm/ft
+  inscale: double = 5.5 / 12;
+  incx: double = 7.0;
 
-  mvjpx: extended = 200;
+  mvjpx: double = 200;
 
-  nomrad: extended = 3630;
-  nomrad1: extended = 1.0E8 - 5000;   // max_rad
-  nomrad2: extended = 3630;
+  nomrad: double = 3630;
+  nomrad1: double = 1.0E8 - 5000;   // max_rad
+  nomrad2: double = 3630;
 
-  max_spiral_constant: extended = 500.0E6;  // 0.72  23-7-01.
+  max_spiral_constant: double = 500.0E6;  // 0.72  23-7-01.
 
-  egeo_rad: extended = 2000;   // geometrical rads, arbitrary start.
-  igeo_rad: extended = 1815;
-  egeo_k: extended = 0;
-  igeo_k: extended = 0;
+  egeo_rad: double = 2000;   // geometrical rads, arbitrary start.
+  igeo_rad: double = 1815;
+  egeo_k: double = 0;
+  igeo_k: double = 0;
 
-  egeo_swing: extended = 0;
-  egpx: extended = 0;
-  igeo_swing: extended = 0;
-  igpx: extended = 0;
+  egeo_swing: double = 0;
+  egpx: double = 0;
+  igeo_swing: double = 0;
+  igpx: double = 0;
 
-  egeo_orgx: extended = 0;
-  egeo_orgy: extended = 2000;
+  egeo_orgx: double = 0;
+  egeo_orgy: double = 2000;
 
-  igeo_orgx: extended = 0;
-  igeo_orgy: extended = 2000;
+  igeo_orgx: double = 0;
+  igeo_orgy: double = 2000;
 
-  railtop: extended = 2.75 * 5.5 / 12;        // 2.75" startup
-  railbottom: extended = 5.5 * 5.5 / 12;      // 5.5" startup (flatbottom base).
+  railtop: double = 2.75 * 5.5 / 12;        // 2.75" startup
+  railbottom: double = 5.5 * 5.5 / 12;      // 5.5" startup (flatbottom base).
 
   // these are for 3-D in DXF...
 
-  rail_height: extended = 5.71875;
+  rail_height: double = 5.71875;
   // 5.23/32" inches full-size BS95R bullhead. - also for foot position/inclination calcs.
-  seat_thick: extended = 1.75;      // 1.750 inches full-size chair seating thickness.
+  seat_thick: double = 1.75;      // 1.750 inches full-size chair seating thickness.
 
-  rail_inclination: extended = 0.0499584;    // radians (1:20).
-  foot_height: extended = 7 / 16;              // 7/16" inches full-size  edge thickness.
+  rail_inclination: double = 0.0499584;    // radians (1:20).
+  foot_height: double = 7 / 16;              // 7/16" inches full-size  edge thickness.
 
-  chair_outlen: extended = 9.25;    // 9.25 inches full-size  from rail gauge-face
-  chair_inlen: extended = 5.25;     // 5.25 inches full-size
-  chair_width: extended = 8.0;      // 8 inches full-size
-  chair_corner: extended = 1;       // 1 inch full-size  corner rad.
+  chair_outlen: double = 9.25;    // 9.25 inches full-size  from rail gauge-face
+  chair_inlen: double = 5.25;     // 5.25 inches full-size
+  chair_width: double = 8.0;      // 8 inches full-size
+  chair_corner: double = 1;       // 1 inch full-size  corner rad.
 
-  timber_thick: extended = 5.0;    // 5 inches full-size timber thickness.
+  timber_thick: double = 5.0;    // 5 inches full-size timber thickness.
 
 
   rail_section: integer = 1;
@@ -4742,21 +4742,21 @@ var
   k_diagonal_side_check_rail_flag: boolean = True;
   k_main_side_check_rail_flag: boolean = True;
 
-  turnoutx, xorg: extended;
-  turnoutx_max: extended;
-  default_turnoutx: extended;
+  turnoutx, xorg: double;
+  turnoutx_max: double;
+  default_turnoutx: double;
 
-  turnout_road_endx: extended = 0;      // 209a
-  min_turnout_road_endx: extended = 0;  // 209a
+  turnout_road_endx: double = 0;      // 209a
+  min_turnout_road_endx: double = 0;  // 209a
 
-  main_road_endx: extended = 0;      // 217a
-  min_main_road_endx: extended = 0;  // 217a
+  main_road_endx: double = 0;      // 217a
+  min_main_road_endx: double = 0;  // 217a
 
-  startx: extended = 0;     // 1-11-99
+  startx: double = 0;     // 1-11-99
 
 
-  notchx: extended = 0;
-  notchy: extended = 0;
+  notchx: double = 0;
+  notchy: double = 0;
 
   pad_peg_point: Tpex;                 // peg position on pad in mm.
 
@@ -4802,40 +4802,40 @@ var
 
   grid_labels_code_i: integer = 6;   // mm
 
-  fixed_sl: extended = 12;   // 1mm flangeway 1:6 default.
+  fixed_sl: double = 12;   // 1mm flangeway 1:6 default.
 
   plain_track: boolean;    // true = plain track only  (was called tpl).
 
-  grid_spacex: extended = 150;      // grid spacing mm
-  grid_spacey: extended = 150;
+  grid_spacex: double = 150;      // grid spacing mm
+  grid_spacey: double = 150;
 
   paper_bunching: boolean = False;
 
-  y_datum: extended;
+  y_datum: double;
 
-  xform: extended = 0;
-  yform: extended = 0;
-  xshift: extended = 0;
-  yshift: extended = 0;
-  kform: extended = 0;
-  kform_start: extended = 0;
+  xform: double = 0;
+  yform: double = 0;
+  xshift: double = 0;
+  yshift: double = 0;
+  kform: double = 0;
+  kform_start: double = 0;
 
-  label_modx: extended = 0;
+  label_modx: double = 0;
   // 211b labels not used for control template, but retained for when stored again
-  label_mody: extended = 0;    // 211b ditto
+  label_mody: double = 0;    // 211b ditto
 
-  xshift_keeps: extended = 0;
-  yshift_keeps: extended = 0;
-  kform_keeps: extended = 0;
+  xshift_keeps: double = 0;
+  yshift_keeps: double = 0;
+  kform_keeps: double = 0;
 
-  xshift_labels: extended = 0;    // 0.82.d
-  yshift_labels: extended = 0;    // 0.82.d
+  xshift_labels: double = 0;    // 0.82.d
+  yshift_labels: double = 0;    // 0.82.d
 
-  xshift_labels_old: extended = 0;    // 0.82.d
-  yshift_labels_old: extended = 0;    // 0.82.d
+  xshift_labels_old: double = 0;    // 0.82.d
+  yshift_labels_old: double = 0;    // 0.82.d
 
-  xshift_quickset: extended = 0;  // 0.93.a
-  yshift_quickset: extended = 0;  // 0.93.a
+  xshift_quickset: double = 0;  // 0.93.a
+  yshift_quickset: double = 0;  // 0.93.a
 
   shift_keeps_mod: integer = 0;
   twist_keeps_mod: integer = 0;
@@ -4874,11 +4874,11 @@ var
 
   info_show_i: integer;
   // ruler tool - arbitrary starts...
-  ruler_startx: extended = 50.0;           // mm..
-  ruler_endx: extended = 300.0;
-  ruler_starty: extended = 100.0;
-  ruler_endy: extended = 200.0;
-  ruler_div: extended = 50.0;              // 50 mm divisions.
+  ruler_startx: double = 50.0;           // mm..
+  ruler_endx: double = 300.0;
+  ruler_starty: double = 100.0;
+  ruler_endy: double = 200.0;
+  ruler_div: double = 50.0;              // 50 mm divisions.
   ruler_units: integer = 0;                // ruler units as grid.
 
   scale_bar_i: integer = 0;                // hide scalebar  0.79.a     23-05-06
@@ -4926,44 +4926,44 @@ var
 
   pad_cols_set: boolean = False;
 
-  tb: extended;
-  tbwide: extended;
+  tb: double;
+  tbwide: double;
 
-  zoom_offsetx: extended = 0 - 11;         // start with 11 mm offset  ( 2ft scale at 5.5 mm ft.)
-  zoom_offsety: extended = 0 - 11;
-  zoom_offsetx_now, zoom_offsety_now: extended;
+  zoom_offsetx: double = 0 - 11;         // start with 11 mm offset  ( 2ft scale at 5.5 mm ft.)
+  zoom_offsety: double = 0 - 11;
+  zoom_offsetx_now, zoom_offsety_now: double;
 
-  print_pages_top_origin_now, print_pages_left_origin_now: extended;
+  print_pages_top_origin_now, print_pages_left_origin_now: double;
 
-  bunching_jump: extended = 250;           // for paper bunching mm. 250 mm default.
-  bunching_jump_now: extended = 250;
+  bunching_jump: double = 250;           // for paper bunching mm. 250 mm default.
+  bunching_jump_now: double = 250;
   bunch_jump_i: integer = 0;               // ditto in pixels.
   bunch_now: integer = 0;
 
-  bunching_shear: extended = 0;            // for paper bunching.
-  bunching_shear_now: extended = 0;
+  bunching_shear: double = 0;            // for paper bunching.
+  bunching_shear_now: double = 0;
   bunch_shear_i: integer = 0;              // ditto in pixels.
   shear_now: integer = 0;
 
   bunch_start: integer = 300;              // (default for 640 res).
   bunch_gap: integer = 40;
 
-  screenx, screeny: extended;
+  screenx, screeny: double;
   full_draw: boolean = False;              // default skeleton mouse draw.
 
-  shove_mouse_factor: extended = 2.0;      //  mouse response for timber shoving (along/across)
+  shove_mouse_factor: double = 2.0;      //  mouse response for timber shoving (along/across)
 
-  mouse_gaunt_offset_factor: extended = 0.05;  // 0.05 arbitrary.  0.93.a
+  mouse_gaunt_offset_factor: double = 0.05;  // 0.05 arbitrary.  0.93.a
 
-  mouse_gaunt_radius_factor: extended = 100;  // arbitrary.  217b
+  mouse_gaunt_radius_factor: double = 100;  // arbitrary.  217b
 
-  mouse_xing_factor: extended = 100;       //  100 arbitrary.  F5  size.
-  mouse_curv_factor: extended = 100;       //  100 arbitrary.  F6 curving.
-  mouse_rot_factor: extended = 100;        //  F8 rotate.
-  mouse_orbit_factor: extended = 100;      //  CTRL-F5 orbit.
-  fine_adjust: extended = 1;               //  factor modifier.
+  mouse_xing_factor: double = 100;       //  100 arbitrary.  F5  size.
+  mouse_curv_factor: double = 100;       //  100 arbitrary.  F6 curving.
+  mouse_rot_factor: double = 100;        //  F8 rotate.
+  mouse_orbit_factor: double = 100;      //  CTRL-F5 orbit.
+  fine_adjust: double = 1;               //  factor modifier.
 
-  peg_arm_length: extended = 16.5;         // 16.5 mm default (3ft in 5.5mm scale).
+  peg_arm_length: double = 16.5;         // 16.5 mm default (3ft in 5.5mm scale).
 
   do_rollback: boolean = True;
   save_hide: boolean = False;
@@ -4972,7 +4972,7 @@ var
   dummy_template: boolean = False;  // 211c draw centre-line as a background shape thickness/colour
 
   cl_options_code: integer = 0;            // which centre-line? 0=main road  206a
-  cl_options_custom_offset: extended = 0;  // custom offset
+  cl_options_custom_offset: double = 0;  // custom offset
 
   hover_keep_index: integer = -1;     // mouse hovering over this one...
 
@@ -4990,21 +4990,21 @@ var
   bgnd_form_closed: boolean = False;
   // if true bgnd form was closed for a mouse action to take place
 
-  save_sx, save_sy, save_ex, save_by, save_gx, save_gy: extended;
+  save_sx, save_sy, save_ex, save_by, save_gx, save_gy: double;
 
-  screenx_max: extended = 550000;
+  screenx_max: double = 550000;
   // maximum screen width mm (zoom-out) (550m = 100000ft scale at 5.5 mm/ft startup)        215a  was 55m  (to allow for large tiled maps)
-  screenx_min: extended = 10;          // 0.93.a was 15mm. minimum screen width mm (zoom in) (10mm)
+  screenx_min: double = 10;          // 0.93.a was 15mm. minimum screen width mm (zoom in) (10mm)
 
   current_shove_str: string = '';        // number string for currently selected shove timber.
-  shovetimbx: extended = 0;              // x to selected shove timber.
-  shovetimbx_zero: extended = 0;         // zero datum for read-out on shove timber form.   13-1-01.
+  shovetimbx: double = 0;              // x to selected shove timber.
+  shovetimbx_zero: double = 0;         // zero datum for read-out on shove timber form.   13-1-01.
 
-  shovetimb_len: extended = 0;           // length of timber selected for shoving.   13-1-01.
-  shovetimb_keq: extended = 0;           // angle of timber selected for shoving.    13-1-01.
-  shovetimb_throw: extended = 0;         // shove throw ditto. 14-1-01. (was across.)
-  shovetimb_wide: extended = 0;          // timber width ditto   16-5-01.
-  shovetimb_crab: extended = 0;          // timber shove crabwise.  0.78.c 01-02-03.
+  shovetimb_len: double = 0;           // length of timber selected for shoving.   13-1-01.
+  shovetimb_keq: double = 0;           // angle of timber selected for shoving.    13-1-01.
+  shovetimb_throw: double = 0;         // shove throw ditto. 14-1-01. (was across.)
+  shovetimb_wide: double = 0;          // timber width ditto   16-5-01.
+  shovetimb_crab: double = 0;          // timber shove crabwise.  0.78.c 01-02-03.
 
   bontimb: integer = 0;          // number of bonus timbers 0.76.a 23-10-01.
   rjcode: integer = 0;           // plain track rail joints code, 0=normal, 1=staggered, -1=none (cwr).
@@ -5013,8 +5013,8 @@ var
   eight_foot_six: boolean = True;  // 0.93.a 8ft-6in timbering default
 
   gaunt: boolean = False;                //^^^ 0.93.a
-  gaunt_offset_in: extended = 12.0;      //^^^ 0.93.a default gaunt offset 1ft.
-  gaunt_curvature: extended = 0;         // 217b  mm^-1  0=straight
+  gaunt_offset_in: double = 12.0;      //^^^ 0.93.a default gaunt offset 1ft.
+  gaunt_curvature: double = 0;         // 217b  mm^-1  0=straight
 
   half_diamond: boolean = False;     // 0.77.a 19-8-02..
   fixed_diamond: boolean = True;
@@ -5031,15 +5031,15 @@ var
 
   tradius_is_straight: boolean = False;  //^^^ 0.93.a
 
-  timbinc: extended = 6.0;   // timber length increments.
+  timbinc: double = 6.0;   // timber length increments.
 
-  mouse_now_x: extended = 0;
-  mouse_now_y: extended = 0;
+  mouse_now_x: double = 0;
+  mouse_now_y: double = 0;
 
   mouse_label_string: string = '';
 
-  measure_org_x: extended = 0;
-  measure_org_y: extended = 0;
+  measure_org_x: double = 0;
+  measure_org_y: double = 0;
 
   prev_pad_click_X: integer = -1;      // saved mouse_down pad positions...
   prev_pad_click_Y: integer = -1;      // 0.93.a init -1 invalid for check
@@ -5060,10 +5060,10 @@ var
 
   outline_extensions: boolean = True;  // outline extensions. (needed here for DXF 3-D).
 
-  notch_angle: extended = 0;
-  tb_roll_percent: extended = 0;       // 0.76.a 13-5-02 timber rolling offset (%).
+  notch_angle: double = 0;
+  tb_roll_percent: double = 0;       // 0.76.a 13-5-02 timber rolling offset (%).
 
-  gaunt_sleeper_mod_in: extended = 12.0;
+  gaunt_sleeper_mod_in: double = 12.0;
   // 0.93.a ex 0.81  extend gaunt sleepers to match default offset.
 
   omit_swfj_marks: boolean = False;    // 0.79.a  25-02-03
@@ -5088,7 +5088,7 @@ var
 
   create_image_width_dots: integer = 2600;    // 0.93.a
   create_image_height_dots: integer = 1800;   // 0.93.a
-  create_image_dpi: extended = 600;           // 0.93.a
+  create_image_dpi: double = 600;           // 0.93.a
 
   classic_templot: boolean = True;            // 0.93.a   default was False
 
@@ -5244,8 +5244,8 @@ var
 
   ignore_key: boolean = False;
 
-  normal_explode_jump: extended = 2;     // spot explode factors.
-  slow_explode_jump: extended = 1.1;
+  normal_explode_jump: double = 2;     // spot explode factors.
+  slow_explode_jump: double = 1.1;
 
 //___________________________________________________________________________________________
 
@@ -6190,7 +6190,7 @@ procedure Tpad_form.lock_scaling_at_menu_entryClick(Sender: TObject);
 
 var
   n: integer;
-  od: Toutdim;    // [0..7] array of extended;
+  od: Toutdim;    // [0..7] array of double;
 
 begin
   if screenx < minfp then
@@ -6716,7 +6716,7 @@ procedure Tpad_form.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftSta
 
 var
   mps, mpp: TPoint;      // mouse position (screen, pad co-ords).
-  scroll: extended;
+  scroll: double;
 
 begin
 
@@ -7032,14 +7032,14 @@ begin
   end;
   //--------------------
 
-  if ((Key = VK_ADD) and (Shift = [])) or ((key = Word(VkKeyScan('='))) and (Shift = [ssShift, ssCtrl]))
+  if ((Key = VK_ADD) and (Shift = [])) or ((key = VK_LCL_EQUAL) and (Shift = [ssShift, ssCtrl]))
   // numpad + key  or Shift+Ctrl+=
   then begin
     explode_normal_menu_entry.Click;
     Key := 0;
   end;
 
-  if ((Key = VK_SUBTRACT) and (Shift = [])) or ((key = Word(VkKeyScan('-'))) and
+  if ((Key = VK_SUBTRACT) and (Shift = [])) or ((key = VK_LCL_MINUS) and
     (Shift = [ssShift, ssCtrl]))  // numpad - key  or Shift+Ctrl+-
   then begin
     shrink_normal_menu_entry.Click;
@@ -7058,7 +7058,7 @@ begin
 
   //----------------------
 
-  if (Key = VK_MULTIPLY) or ((Key = Word(VkKeyScan(''''))) and (Shift = [ssShift, ssCtrl]))
+  if (Key = VK_MULTIPLY) or ((Key = VK_LCL_QUOTE) and (Shift = [ssShift, ssCtrl]))
   // numpad * key  or Shift+Ctrl+'
   then begin
     hide_current_flag := False;
@@ -7066,7 +7066,7 @@ begin
     Key := 0;
   end;
 
-  if (Key = VK_DIVIDE) or ((Key = Word(VkKeyScan('/'))) and (Shift = [ssShift, ssCtrl]))
+  if (Key = VK_DIVIDE) or ((Key = VK_OEM_2) and (Shift = [ssShift, ssCtrl]))
   // numpad / key  or Shift+Ctrl+/ (slash)
   then begin
     hide_current_flag := False;
@@ -7225,7 +7225,7 @@ begin
     Key := 0;
   end;
 
-  if (Key = Word(VkKeyScan('v'))) and (Shift = [ssCtrl])
+  if (Key = VK_V) and (Shift = [ssCtrl])
   // 0.93.a CTRL+V is STORE & BACKGROUND (same as INSERT)
   then begin
     // undocumented for long-time users..   206c
@@ -7238,13 +7238,13 @@ begin
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('.'))) and (Shift = [ssCtrl])        // full-stop key virtual code.
+  if (key = VK_OEM_PERIOD) and (Shift = [ssCtrl])        // full-stop key virtual code.
   then begin
     cross_hairs_pointer_menu_entry.Click;
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('/')){key=$BF}) and (Shift = [ssCtrl])
+  if (key = VK_OEM_2){key=$BF} and (Shift = [ssCtrl])
   // forward slash key virtual code.
   then begin
     if show_reminders_menu_entry.Checked = True
@@ -7256,41 +7256,41 @@ begin
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('\')){key=$DC}) and (Shift = [ssCtrl])        // backslash key virtual code.
+  if (key = VK_OEM_5{key=$DC}) and (Shift = [ssCtrl])        // backslash key virtual code.
   then begin
     reset_notch_menu_entry.Click;     // 0.93.a change CTRL+BACKSLASH
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('-'))) and (Shift = [ssCtrl])        // minus key virtual code.
+  if (key = VK_LCL_MINUS) and (Shift = [ssCtrl])        // minus key virtual code.
   then begin
     hide_current_flag := False;
     shorten_approach_one_menu_entry.Click;
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('='))) and (Shift = [ssCtrl])        // equal key virtual code.
+  if (key = VK_LCL_EQUAL) and (Shift = [ssCtrl])        // equal key virtual code.
   then begin
     hide_current_flag := False;
     extend_approach_one_menu_entry.Click;
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('['))) and (Shift = [ssCtrl])        // left bracket key virtual code.
+  if (key = VK_OEM_4) and (Shift = [ssCtrl])        // left bracket key virtual code.
   then begin
     hide_current_flag := False;
     shorten_exit_one_menu_entry.Click;
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan(']'))) and (Shift = [ssCtrl])        // right bracket key virtual code.
+  if (key = VK_OEM_6) and (Shift = [ssCtrl])        // right bracket key virtual code.
   then begin
     hide_current_flag := False;
     extend_exit_one_menu_entry.Click;
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('`'))) and (Shift = [ssCtrl])
+  if (key = VK_OEM_3) and (Shift = [ssCtrl])
   //  ` (top-left) key virtual code.
   then begin
     hide_current_flag := False;
@@ -7298,7 +7298,7 @@ begin
     Key := 0;
   end;
 
-  if (key = Word(VkKeyScan('`'))) and (Shift = [ssShift, ssCtrl])
+  if (key = VK_OEM_3) and (Shift = [ssShift, ssCtrl])
   //  ` (top-left) key virtual code.
   then begin
     hide_current_flag := False;
@@ -8336,7 +8336,7 @@ var
   n, n1, n2, n3: integer;
   od: Toutdim;
   ok: boolean;
-  dummy: extended;
+  dummy: double;
 
 begin
   if plain_track = True then begin
@@ -8576,11 +8576,11 @@ const
     '||For more information, please click the button below and refer to the general transition help notes.';
 
 var
-  //nr,clr,ssr,yoff:extended;
+  //nr,clr,ssr,yoff:double;
   n: integer;
   od: Toutdim;
-  temp: extended;
-  dummy: extended;
+  temp: double;
+  dummy: double;
 
 begin
   kform_now := kform;
@@ -8731,9 +8731,9 @@ const
 var
   n: integer;
   od: Toutdim;
-  temp: extended;
-  dummy: extended;
-  slew_factor_value: extended;
+  temp: double;
+  dummy: double;
+  slew_factor_value: double;
 
 begin
   kform_now := kform;
@@ -9264,7 +9264,7 @@ const
 var
   n: integer;
   od: Toutdim;
-  dummy: extended;
+  dummy: double;
 
 begin
   putdim(help_cent_str, 2, 'adjacent  track  centres  TS  ( turnout side )',
@@ -9344,10 +9344,10 @@ const
     ' inches per rail.||To change the current rail length, click the REAL > PLAIN TRACK OPTIONS > RAIL LENGTHS AND SLEEPER SPACINGS... menu item.' + '||The template length can also be entered in model mm or (if a curved template) as an angular swing in degrees.' + ' To do so cancel this and click the GEOMETRY > TEMPLATE LENGTHS (IN MM)... or GEOMETRY > SWING ANGLES (IN DEGREES)... menu items instead.';
 
 var
-  rail_len_mm: extended;
+  rail_len_mm: double;
   n: integer;
   od: Toutdim;
-  old_xorg, dummy: extended;
+  old_xorg, dummy: double;
 
 begin
   if plain_track = False then
@@ -10134,7 +10134,7 @@ end;
 procedure Tpad_form.straight_template_menu_entryClick(Sender: TObject);
 
 var
-  dummy1: extended;
+  dummy1: double;
 
 begin
   kform_now := kform;
@@ -13167,7 +13167,7 @@ end;
 procedure Tpad_form.snap_to_catch_points_menu_entryClick(Sender: TObject);
 
 var
-  len: extended;
+  len: double;
   // snap length to switch only...
 begin
   len := csi.switch_front_inches + csi.switch_rail;    // end of switch rail.
@@ -13344,7 +13344,7 @@ end;
 procedure normalize_show_output_rectangle;
 
 var
-  x1, y1, x2, y2: extended;
+  x1, y1, x2, y2: double;
 
 begin
 
@@ -13560,11 +13560,11 @@ procedure Tpad_form.fit_shapes_menu_entryClick(Sender: TObject);
 
 var
   n: integer;
-  xmax, xmin, ymax, ymin: extended;
-  wl_factor: extended;
-  margin_factor: extended;
+  xmax, xmin, ymax, ymin: double;
+  wl_factor: double;
+  margin_factor: double;
 
-  reduced_screeny: extended;   // 216c
+  reduced_screeny: double;   // 216c
 
 begin
   cancel_adjusts(False);
@@ -13662,10 +13662,10 @@ procedure Tpad_form.fit_org_extents_current_menu_entryClick(Sender: TObject);
 // zoom to fit control template in view.
 // if shift is negative, return it to datum.
 var
-  max_long, max_wide: extended;
-  wl_factor: extended;
+  max_long, max_wide: double;
+  wl_factor: double;
 
-  reduced_screeny: extended;   // 216c
+  reduced_screeny: double;   // 216c
 
 begin
   cancel_adjusts(False);
@@ -13724,11 +13724,11 @@ procedure Tpad_form.fit_current_only_menu_entryClick(Sender: TObject);
 
 // zoom to show just the control template. (this is now Shift-F11 1-12-99).
 var
-  max_long, max_wide, min_long, min_wide: extended;
-  wl_factor: extended;
-  margin_factor: extended;
+  max_long, max_wide, min_long, min_wide: double;
+  wl_factor: double;
+  margin_factor: double;
 
-  reduced_screeny: extended;   // 216c
+  reduced_screeny: double;   // 216c
 
 begin
   cancel_adjusts(False);
@@ -13786,11 +13786,11 @@ procedure Tpad_form.zoom_fit_ruler_menu_entryClick(Sender: TObject);
 
 // zoom to fit ruler tool.
 var
-  max_long, max_wide, min_long, min_wide: extended;
-  wl_factor: extended;
-  margin_factor: extended;
+  max_long, max_wide, min_long, min_wide: double;
+  wl_factor: double;
+  margin_factor: double;
 
-  reduced_screeny: extended;   // 216c
+  reduced_screeny: double;   // 216c
 
 begin
   cancel_adjusts(False);
@@ -13898,7 +13898,7 @@ end;
 procedure Tpad_form.view_reset_max_menu_entryClick(Sender: TObject);
 
 var
-  screen_factor: extended;
+  screen_factor: double;
 
 begin
   cancel_adjusts(False);
@@ -14639,7 +14639,7 @@ procedure Tpad_form.notch_on_shape_menu_entryClick(Sender: TObject);
 
 var
   new_notch_data: Tnotch;
-  x, y: extended;
+  x, y: double;
   n: integer;
 
 begin
@@ -15051,7 +15051,7 @@ var
   n: integer;
   od: Toutdim;
 
-  xshapes, yshapes: extended;
+  xshapes, yshapes: double;
 
 begin
   mouse_shift_sync_wanted := False;    // not mouse action here
@@ -15126,7 +15126,7 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure sync_shapes(degs90: boolean; ksync: extended);
+procedure sync_shapes(degs90: boolean; ksync: double);
 
 var
   trans_str: string;
@@ -15950,7 +15950,7 @@ end;
 procedure Tpad_form.pad_on_peg_menu_entryClick(Sender: TObject);
 
 var
-  padpegx, padpegy, dummy1, dummy2: extended;
+  padpegx, padpegy, dummy1, dummy2: double;
 
 begin
   if draw_mode <> 2 then
@@ -16321,7 +16321,7 @@ procedure Tpad_form.make_split_at_peg_menu_entryClick(Sender: TObject);
 
 var
   cur_tem: Ttemplate_info;
-  new_len: extended;
+  new_len: double;
 
 begin
   if plain_track = False then begin
@@ -16519,16 +16519,16 @@ procedure Tpad_form.make_return_curve_menu_entryClick(Sender: TObject);
 var
   i: integer;
 
-  rcurve, rlen, chord, turn_angle: extended;
+  rcurve, rlen, chord, turn_angle: double;
 
   exit_notch, mid_notch, trp_notch, match_notch: Tnotch;
 
-  sp, way_ft, way_ins: extended;
+  sp, way_ft, way_ins: double;
   ft_str, ins_str, way_str, sp_str: string;
 
-  dir, mis_match, prev_mis_match, curvature: extended;
+  dir, mis_match, prev_mis_match, curvature: double;
 
-  temp1, temp2, temp3, trans_trp_rad: extended;
+  temp1, temp2, temp3, trans_trp_rad: double;
 
 begin
   if check_control_template_is_valid('return  curve') = False then
@@ -17095,7 +17095,7 @@ end;
 procedure Tpad_form.convert_vcrossing_RAM_to_CLM_menu_entryClick(Sender: TObject);
 
 var
-  k, k3n_old: extended;
+  k, k3n_old: double;
 
 begin
   if k3n < minfp then
@@ -17117,7 +17117,7 @@ end;
 procedure Tpad_form.convert_kcrossing_ram_to_clm_menu_entryClick(Sender: TObject);
 
 var
-  k, hdkn_old: extended;
+  k, hdkn_old: double;
 
 begin
   if hdkn < minfp then
@@ -17610,7 +17610,7 @@ end;
 procedure Tpad_form.disable_slewing_menu_entryClick(Sender: TObject);
 
 var
-  dummy: extended;
+  dummy: double;
 
 begin
   disable_slewing_menu_entry.Checked := True;     // radio item.
@@ -17803,7 +17803,7 @@ end;
 procedure Tpad_form.snap_approach_to_nearest_menu_entryClick(Sender: TObject);
 
 var
-  t_only, dummy1: extended;
+  t_only, dummy1: double;
 
 begin
   if (xorg < minfp) or (cl_only = True) or (no_timbering = True) then
@@ -17873,7 +17873,7 @@ end;
 procedure Tpad_form.extend_approach_one_menu_entryClick(Sender: TObject);
 
 var
-  avspace: extended;
+  avspace: double;
 
 begin
   if (cl_only = True) or (no_timbering = True) then
@@ -17911,7 +17911,7 @@ end;
 procedure Tpad_form.snap_exit_to_nearest_menu_entryClick(Sender: TObject);
 
 var
-  dummy1: extended;
+  dummy1: double;
 
 begin
   if (cl_only = True) or (no_timbering = True) then
@@ -17958,7 +17958,7 @@ end;
 procedure Tpad_form.extend_exit_one_menu_entryClick(Sender: TObject);
 
 var
-  avspace: extended;
+  avspace: double;
 
 begin
   if (cl_only = True) or (no_timbering = True) then
@@ -18539,7 +18539,7 @@ end;
 procedure Tpad_form.start_trans_from_peg_menu_entryClick(Sender: TObject);
 
 var
-  new_len: extended;
+  new_len: double;
 
 begin
   new_len := os + tst - pegx;
@@ -18550,7 +18550,7 @@ end;
 procedure Tpad_form.end_trans_at_peg_menu_entryClick(Sender: TObject);
 
 var
-  new_len: extended;
+  new_len: double;
 
 begin
   new_len := pegx - os;
@@ -18561,7 +18561,7 @@ end;
 procedure Tpad_form.match_trans_start_to_template_menu_entryClick(Sender: TObject);
 
 var
-  new_len: extended;
+  new_len: double;
 
 begin
   new_len := os + tst;
@@ -18572,7 +18572,7 @@ end;
 procedure Tpad_form.match_trans_end_to_template_menu_entryClick(Sender: TObject);
 
 var
-  new_len: extended;
+  new_len: double;
 
 begin
   new_len := turnoutx - os;
@@ -18652,7 +18652,7 @@ end;
 procedure Tpad_form.start_slew_from_peg_menu_entryClick(Sender: TObject);
 
 var
-  new_len: extended;
+  new_len: double;
 
 begin
   new_len := slew_s + slew_l - pegx;
@@ -18663,7 +18663,7 @@ end;
 procedure Tpad_form.end_slew_at_peg_menu_entryClick(Sender: TObject);
 
 var
-  new_len: extended;
+  new_len: double;
 
 begin
   new_len := pegx - slew_s;
@@ -18674,7 +18674,7 @@ end;
 procedure Tpad_form.match_slew_start_to_template_menu_entryClick(Sender: TObject);
 
 var
-  new_len: extended;
+  new_len: double;
 
 begin
   new_len := slew_s + slew_l;
@@ -18685,7 +18685,7 @@ end;
 procedure Tpad_form.match_slew_end_to_template_menu_entryClick(Sender: TObject);
 
 var
-  new_len: extended;
+  new_len: double;
 
 begin
   new_len := turnoutx - slew_s;
@@ -18723,7 +18723,7 @@ end;
 procedure Tpad_form.swap_transition_rads_menu_entryClick(Sender: TObject);
 
 var
-  dummy: extended;
+  dummy: double;
 
 begin
   kform_now := kform;
@@ -18795,7 +18795,7 @@ end;
 procedure Tpad_form.snap_approach_to_railjoint_menu_entryClick(Sender: TObject);
 
 var
-  new_xorg, roll_outmm, roll_inmm, new_roll_outmm: extended;
+  new_xorg, roll_outmm, roll_inmm, new_roll_outmm: double;
 
 begin
   if (railen[pt_i] * inscale) < minfp then
@@ -18830,7 +18830,7 @@ end;
 procedure Tpad_form.snap_exit_to_railjoint_menu_entryClick(Sender: TObject);
 
 var
-  new_exit: extended;
+  new_exit: double;
 
 begin
   if (railen[pt_i] * inscale) < minfp then
@@ -18858,7 +18858,7 @@ end;
 procedure Tpad_form.snap_exit_back_menu_entryClick(Sender: TObject);
 
 var
-  save_xorg: extended;
+  save_xorg: double;
 
 begin
   if plain_track = True then
@@ -18928,7 +18928,7 @@ end;
 procedure Tpad_form.blank_to_v_crossing_menu_entryClick(Sender: TObject);
 
 var
-  xblank: extended;
+  xblank: double;
 
 begin
   if ckx_ms < cuckx then
@@ -19709,12 +19709,12 @@ end;
 procedure zoom_to_fit_template(index: integer);      // 216a mods
 
 var
-  max_long, max_wide: extended;
-  min_long, min_wide: extended;
-  wl_factor: extended;
-  margin_factor: extended;
+  max_long, max_wide: double;
+  min_long, min_wide: double;
+  wl_factor: double;
+  margin_factor: double;
 
-  reduced_screeny: extended;   // 216c
+  reduced_screeny: double;   // 216c
 
 begin
   cancel_adjusts(False);
@@ -20194,8 +20194,8 @@ const
 var
   i, n: integer;
   od: Toutdim;
-  max_trim_length, max_trim_width: extended;
-  trim_length, trim_width: extended;
+  max_trim_length, max_trim_width: double;
+  trim_length, trim_width: double;
   warn: boolean;
 
 begin
@@ -20519,7 +20519,7 @@ end;
 procedure Tpad_form.quick_set_menu_entryClick(Sender: TObject);
 
 var
-  radius: extended;
+  radius: double;
   sx_index, sz: integer;
   on_datum: boolean;
   form_left_max: integer;
@@ -22286,7 +22286,7 @@ end;
 procedure Tpad_form.swap_ruler_ends_menu_entryClick(Sender: TObject);
 
 var
-  tempx, tempy: extended;
+  tempx, tempy: double;
 
 begin
   tempx := ruler_startx;
@@ -23620,7 +23620,7 @@ procedure Tpad_form.FormMouseWheelDown(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 
 var
-  scroll: extended;
+  scroll: double;
 
 begin
   Handled := True;
@@ -23691,7 +23691,7 @@ procedure Tpad_form.FormMouseWheelUp(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 
 var
-  scroll: extended;
+  scroll: double;
 
 begin
   Handled := True;
@@ -24763,8 +24763,8 @@ var
   n: integer;
   od: Toutdim;
 
-  dummy: extended;
-  old_dp, new_dp: extended;
+  dummy: double;
+  old_dp, new_dp: double;
 
 begin
 
@@ -24832,9 +24832,9 @@ var
   n: integer;
   od: Toutdim;
 
-  dummy, gaunt_rad: extended;
-  old_dp, new_dp: extended;
-  new_gaunt_offset: extended;
+  dummy, gaunt_rad: double;
+  old_dp, new_dp: double;
+  new_gaunt_offset: double;
 
 begin
   if plain_track = True then begin
@@ -25046,7 +25046,7 @@ const
 var
   n: integer;
   od: Toutdim;
-  dummy: extended;
+  dummy: double;
 
 begin
   if plain_track = True then begin
@@ -25102,7 +25102,7 @@ const
 var
   n: integer;
   od: Toutdim;
-  dummy: extended;
+  dummy: double;
 
 begin
   if plain_track = True then begin
@@ -25169,9 +25169,9 @@ const
 var
   i, n: integer;
   od: Toutdim;
-  dummy: extended;
+  dummy: double;
 
-  new_krad: extended;
+  new_krad: double;
 
 begin
   if plain_track = True then begin
@@ -25294,7 +25294,7 @@ end;
 procedure Tpad_form.regular_crossing_menu_entryClick(Sender: TObject);
 
 var
-  dummy: extended;
+  dummy: double;
 
 begin
   if retpar_i = 1 then
@@ -25327,7 +25327,7 @@ end;
 procedure Tpad_form.curviform_crossing_menu_entryClick(Sender: TObject);
 
 var
-  dummy: extended;
+  dummy: double;
 
 begin
   if retpar_i = 1 then
@@ -25361,7 +25361,7 @@ end;
 procedure Tpad_form.generic_crossing_menu_entryClick(Sender: TObject);
 
 var
-  dummy: extended;
+  dummy: double;
 
 begin
   if retpar_i = 1 then
@@ -25395,7 +25395,7 @@ end;
 procedure Tpad_form.parallel_crossing_menu_entryClick(Sender: TObject);
 
 var
-  dummy: extended;
+  dummy: double;
 
 begin
   xing_type_i := 0;
@@ -26078,12 +26078,12 @@ end;
 procedure Tpad_form.obtain_gaunt_from_turnout_radius_popup_entryClick(Sender: TObject);     // 217a
 
 var
-  bgnd_ts_rad: extended;
-  equiv_rad: extended;
-  gaunt_offset: extended;
-  old_dp, new_dp: extended;
+  bgnd_ts_rad: double;
+  equiv_rad: double;
+  gaunt_offset: double;
+  old_dp, new_dp: double;
 
-  dummy1, dummy2: extended;
+  dummy1, dummy2: double;
   pc, pf: Tpex;
 
 begin
@@ -26212,7 +26212,7 @@ procedure Tpad_form.obtain_diagonal_from_turnout_radius_popup_entryClick(Sender:
 var
   dummy_notch1, dummy_notch2, dummy_notch3: Tnotch;
 
-  equivalent_rad, bgnd_ts_rad: extended;
+  equivalent_rad, bgnd_ts_rad: double;
 
 begin
 
@@ -27274,7 +27274,7 @@ end;
 
 // 211b  baseboards...
 
-procedure add_baseboard_shape(factor, x2, y2: extended; name_str: string);
+procedure add_baseboard_shape(factor, x2, y2: double; name_str: string);
 // add a rectangle background shape
 
 var
@@ -27443,7 +27443,7 @@ var
   n: integer;
   od: Toutdim;
 
-  x2, y2: extended;
+  x2, y2: double;
   x_str, y_str: string;
 
 begin
@@ -27482,7 +27482,7 @@ var
   n: integer;
   od: Toutdim;
 
-  x2, y2: extended;
+  x2, y2: double;
   x_str, y_str: string;
 
 begin
@@ -27520,7 +27520,7 @@ var
   n: integer;
   od: Toutdim;
 
-  x2, y2: extended;
+  x2, y2: double;
   x_str, y_str: string;
 
 begin
@@ -28889,7 +28889,7 @@ end;
 procedure Tpad_form.reset_tandem_turnout_menu_entryClick(Sender: TObject);   // 218a
 
 var
-  dummy: extended;
+  dummy: double;
 
 begin
   rail_options_form.restore_all_button.Click;
@@ -29048,7 +29048,7 @@ procedure widen_centres_18in(which: integer);      // 218e
 // which  1=TS, 2=MS, 3=both
 
 var
-  dummy: extended;
+  dummy: double;
 
 begin
 
@@ -29096,7 +29096,7 @@ procedure reduce_centres_18in(which: integer);         // 218e
 // which  1=TS, 2=MS, 3=both
 
 var
-  dummy: extended;
+  dummy: double;
 
 begin
 

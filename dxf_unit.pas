@@ -30,7 +30,7 @@ unit dxf_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls;
 
 type
@@ -161,10 +161,10 @@ var
 
   user_save_file_name: string = '';
 
-  xmax: extended = 1000;     // default drawing limits.
-  ymax: extended = 1000;
-  xmin: extended = -25;
-  ymin: extended = -25;
+  xmax: double = 1000;     // default drawing limits.
+  ymax: double = 1000;
+  xmin: double = -25;
+  ymin: double = -25;
 
   _3d: boolean = False;         // 2-D init.
   wire_frame: boolean = False;
@@ -175,10 +175,10 @@ var
   chair_3d_colour: integer = 54;       // olive      (128,128,0)
   timber_3d_colour: integer = 8;       // grey       (128,128,128)
 
-  rail_foot_z: extended = 0 - 2.75;
+  rail_foot_z: double = 0 - 2.75;
   // mm default rail base 6" at 5.5 mm scale bleow zero datum (rail top).
-  timb_top_z: extended = 0 - 3.5;     // mm default timbertop 7.6" at 5.5 mm scale below rail top.
-  timb_bot_z: extended = 0 - 6.0;     // mm default timber bottom 13.1" at 5.5 mm scale below rail top.
+  timb_top_z: double = 0 - 3.5;     // mm default timbertop 7.6" at 5.5 mm scale below rail top.
+  timb_bot_z: double = 0 - 6.0;     // mm default timber bottom 13.1" at 5.5 mm scale below rail top.
 
 procedure dxf_background_keeps(var dxf_file: TextFile); forward;  // do the background keeps.
 procedure dxf_shapes(var dxf_file: TextFile); forward;            // do any background shapes.
@@ -192,10 +192,10 @@ begin
 end;
 //________________________________________________________________________________________
 
-function make_dim(d: extended): string;    // generate floating point string.
+function make_dim(d: double): string;    // generate floating point string.
   // input d in mm.
 var
-  pz: extended;
+  pz: double;
   out_str: string; // 0.94.a
 
 begin
@@ -216,7 +216,7 @@ begin
 end;
 //___________________________________________________________________________________________
 
-function dxf_3dface(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4: extended; layer: integer): string;
+function dxf_3dface(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4: double; layer: integer): string;
   // make up a four-cornered 3-D face.
 
 var
@@ -290,7 +290,7 @@ DXF: X value; APP: 3D point
 end;
 //________________________________________________________________________________________
 
-function dxf_line(x1, y1, z1, x2, y2, z2: extended; layer: integer): string;    // make up a line group
+function dxf_line(x1, y1, z1, x2, y2, z2: double; layer: integer): string;    // make up a line group
 
 var
   s: string;
@@ -638,7 +638,7 @@ var
   code: integer;
 
   move_to, line_to: TPoint;
-  x1, y1, x2, y2, x3, y3, x4, y4: extended;
+  x1, y1, x2, y2, x3, y3, x4, y4: double;
 
   layer: integer;
 
@@ -650,8 +650,8 @@ var
 
   now_keep: Tbgnd_keep;
 
-  mod_name_x, mod_name_y: extended;
-  text_height: extended;
+  mod_name_x, mod_name_y: double;
+  text_height: double;
   tbnum_str, text_str: string;
 
   fixed_diamond_ends: boolean;
@@ -787,7 +787,7 @@ var
 
     nko, array_max_outer, nk_3d_start: integer;
     move_to_outer, line_to_outer: TPoint;
-    x_outer1, y_outer1, x_outer2, y_outer2: extended;
+    x_outer1, y_outer1, x_outer2, y_outer2: double;
 
   begin
     with now_keep do begin
@@ -1165,12 +1165,12 @@ procedure dxf_shapes(var dxf_file: TextFile);     // do any background shapes.
 var
   i, maxbg: integer;
   now_shape: Tbgnd_shape;
-  x1, y1, x2, y2: extended;
-  p, q, rad: extended;
+  x1, y1, x2, y2: double;
+  p, q, rad: double;
   layer: integer;
-  font_height: extended;
+  font_height: double;
   s: string;
-  arm, diamond: extended;
+  arm, diamond: double;
 
 begin
   maxbg := bgnd_form.bgnd_shapes_listbox.Items.Count;

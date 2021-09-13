@@ -36,18 +36,19 @@ uses
   StdCtrls;
 
 type
+
+  { Tmake_slip_form }
+
   Tmake_slip_form = class(TForm)
     datestamp_label: TLabel;
     Button1: TButton;
     Button2: TButton;
     Label1: TLabel;
+    procedure FormChangeBounds(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
   private
-
-    procedure move_message(var Msg: TWMMove); message WM_MOVE;
-
     { Private declarations }
   public
     { Public declarations }
@@ -83,7 +84,7 @@ function make_slip(sides: integer; making_crossover: boolean): boolean;        /
   // sides   double-slip = 0,    single-slip same side = 1,    single-slip opposite side = -1.
 
 var
-  dummy1, dummy2: extended;
+  dummy1, dummy2: double;
   i, n: integer;
   saved_current: Ttemplate_info;
 
@@ -97,24 +98,24 @@ var
 
   sw_index: integer;
 
-  switch_length: extended;
+  switch_length: double;
 
-  nom_sw_len: extended;
+  nom_sw_len: double;
 
-  nom_heel_pegx_on_pad, nom_heel_pegy_on_pad: extended;
+  nom_heel_pegx_on_pad, nom_heel_pegy_on_pad: double;
 
-  sw_heel_pegx_on_pad, sw_heel_pegy_on_pad: extended;
+  sw_heel_pegx_on_pad, sw_heel_pegy_on_pad: double;
 
-  fp_pegx_on_pad, fp_pegy_on_pad: extended;
+  fp_pegx_on_pad, fp_pegy_on_pad: double;
 
   first_hd_index, second_hd_index: integer;
   first_sw_index, second_sw_index: integer;
 
   first_bgnd_template: integer;
 
-  rot_move, rot_k: extended;
+  rot_move, rot_k: double;
 
-  x1, y1, x2, y2, x3, y3: extended;
+  x1, y1, x2, y2, x3, y3: double;
 
   id_str: string;
 
@@ -123,27 +124,27 @@ var
   slip_road_pos3: Tnotch;
   slip_road_pos4: Tnotch;
 
-  slip_chord, slip_angle, slip_rad: extended;
+  slip_chord, slip_angle, slip_rad: double;
 
-  slip_arc_len: extended;
+  slip_arc_len: double;
 
-  slip_offset, slip_turn: extended;
+  slip_offset, slip_turn: double;
 
-  offset_pos_sq, offset_neg_sq: extended;
+  offset_pos_sq, offset_neg_sq: double;
 
   doing_2nd_side: boolean;
 
   max_index: integer;
 
-  switch_mid_inches, switch_mid_mm: extended;
+  switch_mid_inches, switch_mid_mm: double;
 
-  switch_mid_rad1, switch_mid_rad2: extended;
+  switch_mid_rad1, switch_mid_rad2: double;
 
   org_was_spiral: boolean;
   spiral_safe: boolean;
   spiral_ok: boolean;
 
-  temp, temp1, temp2: extended;
+  temp, temp1, temp2: double;
 
   slip_rad1_str, slip_rad2_str: string;
 
@@ -1072,12 +1073,9 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure Tmake_slip_form.move_message(var Msg: TWMMove);
-
+procedure Tmake_slip_form.FormChangeBounds(Sender: TObject);
 begin
-  if Msg.Result = 0 then begin
-    do_toolbars;
-  end;
+  do_toolbars;
 end;
 //______________________________________________________________________________
 

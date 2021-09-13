@@ -160,7 +160,7 @@ const
     '||The spacing-ring is used as a design aid to check the spacing and clearances between adjacent tracks, model structures and baseboard constraints.' + '||It can also be used to make reference marks on the trackpad, as a general measuring tool, and as a drawing pen.' + '||It can be positioned anywhere on the trackpad by mouse action (click the MOUSE ACTIONS > MOVE RING button) or by entering X,Y co-ordinates directly.' + ' Its diameter can be adjusted by mouse action (click the MOUSE ACTIONS > RING SIZE button) or by entering the diameter directly.' + '||Multiple copies of the ring can be created and left in position on the trackpad as fixed markers.' + '||Any infringement of the ring (and optionally any copies) by the control template causes a warning lamp to flash on the trackpad INFORMATION panel.' + ' This is useful when adjusting the template to remain clear of obstructions, and when using the ring to measure clearances.' + '||    1.  Checking  Track  Spacings  and  Clearances' + '||To set the size of the ring, click the SET RING > SIZE... button and enter the required inner diameter of the spacing-ring in mm, or click the MOUSE ACTIONS > RING SIZE button to set the diameter by mouse action.' + ' The outer diameter of the ring is always automatically set to correspond to a ring-width equal to the current rail-width.' + '||This then means that you normally use the INNER diameter of the ring to check against the OUTER-EDGE of the rail, and the OUTER diameter of the ring' + ' to check against the INNER or GAUGE-FACE edge of the rail.' + '||While using the mouse actions to adjust the template (with SKELETON DRAW - the normal setting), only the gauge-face rail edges are shown,' + ' which means that only the outer ring diameter is then relevant.' + '||If you select the pre-set dimension by clicking the SET RING > P-S button (or enter a slash "/") the ring size will be set to give a track centre-to-centre dimension of 11ft 2in scale for your current gauge and scale.' + ' This dimension corresponds to the standard minimum 6ft way between running lines for standard-gauge track.' + '||You should use the spacing-ring to check that no two tracks come closer than this pre-set dimension to maintain the proper clearance for passing trains, and if there is a curving radius' + '  of less than about 750ft scale (3000 mm or 10ft radius in 4mm scale), the clearance should be increased.' + '||The pre-set dimension represents the MINIMUM spacing for running lines - there is no harm in using wider spacings if conditions permit. Also, railway regulations require increased spacing (9ft or 10ft way)' + ' for loops and sidings alongside running lines for the safety of staff on the ground, and to give room for signal posts, etc.' + '||( If you are designing for a track gauge other than standard-gauge the pre-set should not be used - enter the ring dimension as required. For Irish 5ft 3in gauge, for example, enter the 6ft way' + ' dimension directly, e.g. enter 24mm for 6ft way with exact scale Irish 21mm gauge in 4mm/ft scale.)' + '||    2.  Marking  and  Measuring' + '||You can leave a copy of the ring in position as a reference point. Click the RING COPIES > MAKE button. This is useful when you need to mark several clearance points while making adjustments.' + ' You can have up to 32 such copies if you wish, and each one can be a different size. While you are moving the ring its current position on the trackpad is shown in title bar at the top of the screen.' + '||If the inner ring size is set to a small dimension or zero (click the MAKE TARGET button to make it 6" scale diameter), the spacing-ring and any copies of it become small target marks which are useful as general markers.' + ' The cross-hair lines are each 18" scale long.' + '||The spacing-ring can also be used as a gauge to check any other dimensions on the drawing as required - just remember that the size you set is the inner diameter of the ring.' + ' For example, if you need to fit a locomotive which is 200mm long into an engine spur, set the ring to 200mm and check the clear length of the spur.' + ' This method is sometimes easier than using the ruler tool (UTILS > RULER menu item) to check dimensions. A fixed diameter can be set and the ring can then be positioned with a single mouse action,' + ' whereas the ruler needs to have each end positioned independently.' + '||Or you can measure dimensions directly with the ring or the mouse. The readout panel displays the dimensions from the most recent copy of the ring to the current position.' + ' When the ring is being moved the dimensions are to the centre of the ring and the readout panel is yellow; at other times the readout panel is white and dimensions are to the mouse pointer,' + ' which can be changed to the cross-hairs symbol for accuracy by clicking the MOUSE CROSS-HAIRS button.' + '||To measure the distance between two positions on the drawing, simply move the centre of the ring to the first position and click the RING COPIES / MAKE button.' + ' Then move the ring or the mouse to the second position and read off the dimensions from the first one. The DIAGONAL dimension is the straight-line diagonal dimension between the two positions.' + '||    3.  Handy  Hints :' + '||For simple point-to-point measurements it is often easier to use the mouse readout functions on the Jotter. (UTILS > JOTTER ~ X-Y READOUT menu item. Right-click on the jotter for the help notes.)' + '||Moving the ring with the mouse action generates continuous trackpad redraws. When using the ring for marking and measuring you can get a faster response by using the mouse pointer directly. Try this:' + '|Press the F12 key to cancel the mouse action.' + '|Click the MOUSE CROSS-HAIRS button (or press CTRL-full stop key).' + '|Move the cross-hairs mouse pointer to the required ring position. But don''t click the mouse on it otherwise you will cancel the cross-hairs symbol.' + '|Select the JUMP RING TO > MOUSE button (not with the mouse of course, press the U key on the keyboard, shown underlined on the button).' + '|You can now click the RING COPIES > MAKE button (or press the K key) to start measuring from the ring to the mouse pointer.' + '||Make a note of the underlined accelerator keys on the other buttons. Then you can resize the form much smaller to avoid obstructing the drawing and still be able to use the buttons.' + '||The JUMP RING TO > NOTCH button jumps the ring to the current position of the pegging notch. By first using the NOTCH UNDER PEG functions, you can position the ring on the fixing peg of the control template, or any background template.' + '||Likewise the GEOMETRY > NOTCH OPTIONS > NOTCH ON SPACING RING menu item moves the pegging notch to the ring position, and you can then use the SHIFT ONTO NOTCH functions to position the control template at the ring position.' + '||To temporarily hide the ring and any copies, click the RINGS > HIDE option button. They will re-appear when you click the RINGS > SHOW option button, or select the UTILS > DUMMY VEHICLE • SPACING-RING menu item.' + '||You can choose different colours for the ring and any copies by clicking the COLOUR... buttons. But avoid choosing red if possible, otherwise at some zoom settings the ring might be confused with the fixing peg.' + '||When accuracy is needed, always zoom in so that the ring fills a good proportion of the visible pad. At lower zoom settings, rounding effects for the screen may appear to make the two ring diameters non-concentric.' + '||Like the pegging notch, the spacing-ring and its copies "belong" to the trackpad, not the control template, so you can''t save these items in the data files as they stand.' + ' To save a ring for future use, it can be converted to a collection of 4 background shapes (2 rings and 2 cross-hair lines) and included in your background shapes list along with any other shapes which you have defined. Click the' + ' MAKE SHAPES button to do this.' + '||Once in the background shapes list, the shapes forming the ring image can be modified as required in the same way as any other shape. You could delete the outer ring, for example, or change it to a square without changing any dimensions.' + ' (Note that you won''t actually see the underlying shapes until you move the ring, and then only if background shapes have been switched on in the TRACKPAD menu.)' + '||The spacing ring can also be used as a means of drawing other background features. If you click the DRAWING PEN > MOVE TO RING button, an imaginary "drawing pen" is moved to the current position of the spacing ring. After moving' + ' the ring, if you then click the DRAW TO RING button, the "pen" will draw a line to the new position of the ring. By repeatedly moving the ring and clicking DRAW TO RING, an irregular outline can be produced.' + ' Each drawn line becomes a separate shape in the background shapes list, and can be deleted or modified as required.' + '||( An easier way to draw simple free-hand shapes is to use the normal mouse drawing function - select the BACKGROUND > DRAW WITH MOUSE menu item.)' + '||Ring copies can also be used to define the dimensions of other background shapes as pre-sets. This is useful if you need a shape which is a specified distance from the rails, or from another shape.' + ' Click the help buttons in the background shapes list for more information (BACKGROUND > SHAPES menu item).' + '||Remember to save the shapes before quitting Templot0 (they are not included in the storage box data files).';
 
 var
-  ex, by, sx, sy, fx, fy, ffx, ffy, gx, gy: extended;
+  ex, by, sx, sy, fx, fy, ffx, ffy, gx, gy: double;
   xmax, ymax: integer;
 
   rc_ok: boolean = False;          // global release code. Here to fox hackers!
@@ -187,7 +187,7 @@ procedure draw_rings(canv: TCanvas; copies, dummy_vehicle: boolean);
 
 procedure draw_dummy_vehicle_copies(on_canvas: TCanvas);    // 0.98.a
 
-function hover_mousedown(click_x, click_y, limit: extended): integer;
+function hover_mousedown(click_x, click_y, limit: double): integer;
 // highlight a bgnd keep if any at this clicked location.
 
 function get_show_margins_info(calc_for_none: boolean): boolean;  // 0.93.a  
@@ -261,7 +261,7 @@ procedure draw_dummy_vehicle_outline_envelope_as_polygon(on_canvas: TCanvas); fo
 function get_show_margins_info(calc_for_none: boolean): boolean;  // 0.93.a
 
 var
-  temp: extended;
+  temp: double;
 
 begin
 
@@ -324,9 +324,9 @@ end;
 procedure draw_page_outlines(canv: TCanvas);
 
 var
-  n, m, pl, pw, ml: extended;
+  n, m, pl, pw, ml: double;
   staggered: boolean;
-  top_offset, left_offset: extended;
+  top_offset, left_offset: double;
   page_count_long: integer;
   page_count_wide: integer;
 
@@ -582,7 +582,7 @@ begin
 end;
 //___________________________________________________________________________________
 
-function keep_transform(krot: extended; pin: TPoint): TPoint;
+function keep_transform(krot: double; pin: TPoint): TPoint;
 
   //  perform rotations/transformations about notch using on screen co-ords for twist keeps.
   //  enter with rotation angle krot.
@@ -590,8 +590,8 @@ function keep_transform(krot: extended; pin: TPoint): TPoint;
   //  result point returned.
 
 var
-  x, y: extended;
-  notch_centre_x, notch_centre_y: extended;
+  x, y: double;
+  notch_centre_x, notch_centre_y: double;
 
 begin
   notch_centre_x := notchx * fx + ex - gx;      // notch centre in screen co-ords.
@@ -714,7 +714,7 @@ procedure draw_zooming_ring(canv: TCanvas);
 var
   target_x, target_y, target_rad: integer;
 
-  oct_w, oct_l: extended;           // 205a
+  oct_w, oct_l: double;           // 205a
   target_w, target_l: integer;      // 205a
 
 begin
@@ -788,7 +788,7 @@ end;
 procedure draw_export_rectangle(canv: TCanvas);   // 0.93.a
 
 var
-  x1, y1, x2, y2: extended;
+  x1, y1, x2, y2: double;
 
 begin
   if draw_export_rectangle_flag = False then
@@ -826,10 +826,10 @@ end;
 procedure draw_bg_shapes(canv: TCanvas; index, colour: integer);     // draw any background shapes.
 // if index=-1 then draw all.
 var
-  font_height, font_size: extended;
+  font_height, font_size: double;
   i, first_index, max_index: integer;
-  x1, y1, x2, y2: extended;
-  arm, diamond: extended;
+  x1, y1, x2, y2: double;
+  arm, diamond: double;
   dummy_i: integer;
   raster_rect: TRect;
 
@@ -1172,14 +1172,14 @@ end;
 procedure draw_screengrid(canv: TCanvas);      // draw a screen grid if it's wanted.
 
 var
-  gridx, gridy: extended;
-  m, grid_now: extended;
+  gridx, gridy: double;
+  m, grid_now: double;
   gridco: integer;
-  green_dot_x, green_dot_y, green_dot_r: extended;
+  green_dot_x, green_dot_y, green_dot_r: double;
   grid_str: string;
   scrub: integer;
-  max_x: extended;
-  line_endx: extended;
+  max_x: double;
+  line_endx: double;
 
 begin
   if screengrid_flag = True then begin
@@ -1422,7 +1422,7 @@ var
   n: integer;
   memo_count: integer;
 
-  midx, midy: extended;
+  midx, midy: double;
 
 begin
   memo_count := 0;                      // init
@@ -1564,7 +1564,7 @@ var
   pad_ringX1, pad_ringY1, pad_ringX2, pad_ringY2: integer;
   pad_ring_outerX1, pad_ring_outerY1, pad_ring_outerX2, pad_ring_outerY2: integer;
 
-  sp_ring_x, sp_ring_y, sp_ring_dia, sp_ring_outer: extended;
+  sp_ring_x, sp_ring_y, sp_ring_dia, sp_ring_outer: double;
 
   ring_dim, ringx, ringy: integer;
 
@@ -1757,13 +1757,13 @@ var
   no_name, number_yes, name_yes: boolean;
   id_yes: boolean; // 208a
 
-  mod_name_x, mod_name_y: extended;
+  mod_name_x, mod_name_y: double;
   max_label_height: integer;
 
   space_pos: integer;
 
-  check_int1x, check_int1y, check_int2x, check_int2y: extended;
-  check_int3x, check_int3y, check_int4x, check_int4y: extended;
+  check_int1x, check_int1y, check_int2x, check_int2y: double;
+  check_int3x, check_int3y, check_int4x, check_int4y: double;
 
   infill_points: array [0..3] of TPoint;
 
@@ -3074,12 +3074,12 @@ procedure draw_dtp_items_on_pad(on_canvas: TCanvas);    // 0.93.a  add sketchboa
 
 var
   dtp_rect: TRect;
-  dtp_left, dtp_top, dtp_width, dtp_height: extended;
+  dtp_left, dtp_top, dtp_width, dtp_height: double;
 
   low_res_bitmap: TBitmap;
   low_res_bitmap_width, low_res_bitmap_height: integer;
 
-  low_resolution: extended;
+  low_resolution: double;
 
   this_graphic: TGraphic;
 
@@ -3284,7 +3284,7 @@ var
   sb_colour1, sb_colour2: integer;
 
   y, scony, incb: integer;
-  scx, sbex, black, Inc: extended;
+  scx, sbex, black, Inc: double;
   sb_str: string;
 
   move_to, line_to: TPoint;
@@ -3502,24 +3502,24 @@ procedure draw_ruler(canv: TCanvas);
 var
   sb_colour1, sb_colour2: integer;
   move_to, line_to: TPoint;
-  scx, scy: extended;
-  ruler_xlength, ruler_ylength, ruler_len, ruler_k: extended;
-  end_start_len, first_len: extended;
-  xbar, ybar, ruler_halfbar_width: extended;
-  xx1, xx2, yy1, yy2, x1, y1, x2, y2, x3, y3, x4, y4, len_done: extended;
-  rule_factor: extended;
+  scx, scy: double;
+  ruler_xlength, ruler_ylength, ruler_len, ruler_k: double;
+  end_start_len, first_len: double;
+  xbar, ybar, ruler_halfbar_width: double;
+  xx1, xx2, yy1, yy2, x1, y1, x2, y2, x3, y3, x4, y4, len_done: double;
+  rule_factor: double;
   rule_str: string;
 
   ////////////////////////////////////
 
-  function screen_x(x: extended): integer;
+  function screen_x(x: double): integer;
 
   begin
     Result := Round(x * scx + ex - gx);
   end;
   /////////////////////////////////////
 
-  function screen_y(y: extended): integer;
+  function screen_y(y: double): integer;
 
   begin
     Result := Round(y * scy + by - gy);
@@ -3940,7 +3940,7 @@ begin
 end;
 //______________________________________________________________________________
 
-function hover_mousedown(click_x, click_y, limit: extended): integer;
+function hover_mousedown(click_x, click_y, limit: double): integer;
   // to highlight a bgnd keep if any at this clicked location.
   // return the index to it, or -1 if none.
 var
@@ -4870,8 +4870,8 @@ end;
 procedure Tgrid_form.vehicle_envelope_buttonClick(Sender: TObject);    // 215c
 
 var
-  end_pos: extended;       // full-size inches
-  save_start: extended;
+  end_pos: double;       // full-size inches
+  save_start: double;
 
   n: integer;
 

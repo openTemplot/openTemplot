@@ -457,21 +457,21 @@ var
 
   // 214a for drawn shapes...
 
-  shape_rectangle_x1: extended = 0;     // export image rectangle mm...
-  shape_rectangle_y1: extended = 0;
+  shape_rectangle_x1: double = 0;     // export image rectangle mm...
+  shape_rectangle_y1: double = 0;
 
-  shape_rectangle_x2: extended = 600;   // arbitrary default 600mm x 300mm (2ft x 1ft)
-  shape_rectangle_y2: extended = 300;
+  shape_rectangle_x2: double = 600;   // arbitrary default 600mm x 300mm (2ft x 1ft)
+  shape_rectangle_y2: double = 300;
 
   rotate_centre_code: integer = 3;       // 1:notch  2:spacing-ring  3:grid     219a rotate all
 
 procedure do_bgnd(modify: boolean);
-procedure scale_all_shapes(xfactor, yfactor: extended);
-procedure shift_all_shapes(xshift, yshift: extended);
-procedure rotate_all_shapes(sync, pictures: boolean; rot_k: extended);
+procedure scale_all_shapes(xfactor, yfactor: double);
+procedure shift_all_shapes(xshift, yshift: double);
+procedure rotate_all_shapes(sync, pictures: boolean; rot_k: double);
 
-procedure scale_this_shape(xfactor, yfactor: extended);
-procedure shift_this_shape(xshift, yshift: extended; corners: integer);
+procedure scale_this_shape(xfactor, yfactor: double);
+procedure shift_this_shape(xshift, yshift: double; corners: integer);
 procedure shapes_current_state;
 procedure load_shapes(file_str: string; append, mru, dropped: boolean);
 procedure bgnd_move_up_button_click;           // 205a
@@ -617,10 +617,10 @@ var
   user_save_img_path: string = '';
   user_load_img_path: string = '';
 
-  target_arm: extended = 10.0;      // default arm length on the target marks (10mm each way).
-  circle_dia: extended = 250;       // default circle diameter 250mm.
+  target_arm: double = 10.0;      // default arm length on the target marks (10mm each way).
+  circle_dia: double = 250;       // default circle diameter 250mm.
 
-  input_factor: extended = 1.0;
+  input_factor: double = 1.0;
   dxf_file: TextFile;
   code_str: string = '';
   value_str: string = '';
@@ -631,17 +631,17 @@ var
 
   his_dxf_file_name: string = '';
 
-  input_scale_factor: extended = 1.0;
-  input_shift_x: extended = 0;
-  input_shift_y: extended = 0;
+  input_scale_factor: double = 1.0;
+  input_shift_x: double = 0;
+  input_shift_y: double = 0;
 
-  xmax: extended = 1000;     // default drawing limits.
-  ymax: extended = 1000;
-  xmin: extended = -25;
-  ymin: extended = -25;
+  xmax: double = 1000;     // default drawing limits.
+  ymax: double = 1000;
+  xmin: double = -25;
+  ymin: double = -25;
 
-  marker_angle_fixed: extended = 0;
-  marker_angle_twist: extended = 0;
+  marker_angle_fixed: double = 0;
+  marker_angle_twist: double = 0;
 
   marker_angle_twist_is_defined: boolean = False;
 
@@ -655,7 +655,7 @@ procedure import_dxf; forward;
 function reload_picture_image(scanning, pasting, meta, dropped, adjust_aspect: boolean): boolean;
   forward;
 
-procedure twist_picture(i: integer; krot: extended; do_container, all, sync: boolean); forward;
+procedure twist_picture(i: integer; krot: double; do_container, all, sync: boolean); forward;
 // rotate bitmap supplied krot clockwise.
 
 //______________________________________________________________________________
@@ -876,7 +876,7 @@ procedure normalize_line(var p1, p2: Tpex);  //214a
 // adjust line ends p1,p2, so that p1.x is left of p2.x
 
 var
-  temp: extended;
+  temp: double;
 
 begin
   if p2.x < p1.x          // make sure p2 end is on right.
@@ -2619,16 +2619,16 @@ var
   i, n, j: integer;
   valid: boolean;
 
-  width_mm_per_dot, height_mm_per_dot: extended;
+  width_mm_per_dot, height_mm_per_dot: double;
 
-  dpi_width, dpi_height: extended;
-  map_scale, model_scale: extended;
+  dpi_width, dpi_height: double;
+  map_scale, model_scale: double;
 
   picture_option: integer;
 
   scaling_wanted: boolean;
 
-  x1, y1, x2, y2: extended;
+  x1, y1, x2, y2: double;
 
   scanned_bmp: TBitmap;
 
@@ -2807,7 +2807,7 @@ var
   new_shape: Tbgnd_shape;
   i, n: integer;
   valid: boolean;
-  x1, y1, x2, y2: extended;
+  x1, y1, x2, y2: double;
   drawn_str: string;
 
   //pad_was_maximized:boolean;
@@ -3613,7 +3613,7 @@ end;
 procedure rectangle_to_lines(index: integer);
 
 var
-  x1, y1, x2, y2: extended;
+  x1, y1, x2, y2: double;
   new_shape: Tbgnd_shape;
   name_str: string;
   n: integer;
@@ -4750,12 +4750,12 @@ begin
 end;
 //____________________________________________________________________________________________
 
-procedure scale_this_shape(xfactor, yfactor: extended);
+procedure scale_this_shape(xfactor, yfactor: double);
 
 var
   n: integer;
   now_shape: Tbgnd_shape;
-  shape_width, shape_height: extended;
+  shape_width, shape_height: double;
 
 begin
   with bgnd_form.bgnd_shapes_listbox do begin
@@ -4808,12 +4808,12 @@ begin
 end;
 //_________________________________________________________________________________________
 
-procedure scale_all_shapes(xfactor, yfactor: extended);
+procedure scale_all_shapes(xfactor, yfactor: double);
 
 var
   n: integer;
   now_shape: Tbgnd_shape;
-  shape_width, shape_height: extended;
+  shape_width, shape_height: double;
 
 begin
   with bgnd_form.bgnd_shapes_listbox do begin
@@ -4870,7 +4870,7 @@ begin
 end;
 //_______________________________________________________________________________________
 
-procedure shift_all_shapes(xshift, yshift: extended);
+procedure shift_all_shapes(xshift, yshift: double);
 
 var
   n: integer;
@@ -4905,7 +4905,7 @@ begin
 end;
 //_______________________________________________________________________________________
 
-procedure shift_this_shape(xshift, yshift: extended; corners: integer);
+procedure shift_this_shape(xshift, yshift: double; corners: integer);
 
 // corners  to shift : 0=both , 1=p1,  2=p2.
 
@@ -4944,15 +4944,15 @@ begin
 end;
 //________________________________________________________________________________________
 
-procedure rotate_this_shape(n: integer; rot_k: extended);
+procedure rotate_this_shape(n: integer; rot_k: double);
 
 // rotate this shape by rot_k around xrot,yrot
 // picture shape not done here
 var
   recp: Tpex;
-  xway, yway: extended;
+  xway, yway: double;
 
-  xrot, yrot: extended;
+  xrot, yrot: double;
 
 begin
   with bgnd_form.bgnd_shapes_listbox.Items do begin
@@ -5014,13 +5014,13 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure rotate_all_shapes(sync, pictures: boolean; rot_k: extended);
+procedure rotate_all_shapes(sync, pictures: boolean; rot_k: double);
 
 var
   n: integer;
   rectangles_exist: boolean;
 
-  twist_angle: extended;
+  twist_angle: double;
 
 begin
   with bgnd_form.bgnd_shapes_listbox.Items do begin
@@ -5096,7 +5096,7 @@ var
 
   xshift_to_str, yshift_to_str, type_str: string;
 
-  shape_width, shape_height: extended;
+  shape_width, shape_height: double;
 
 begin
   type_str := '';
@@ -5206,7 +5206,7 @@ var
 
   scale_to_str, type_str: string;
 
-  shape_width, scale_factor: extended;
+  shape_width, scale_factor: double;
 
 begin
   type_str := '';
@@ -5345,7 +5345,7 @@ var
 
   cen_str, rot_cen_str: string;
 
-  rotshap_k: extended;
+  rotshap_k: double;
 
   // shape_code: 0=line, 1=rectangle, 2=circle, 3=label, 4=target, -1=picture
 
@@ -5642,7 +5642,7 @@ var
   n, i: integer;
   od: Toutdim;
 
-  rotshap_k: extended;
+  rotshap_k: double;
 
   cen_str, rot_cen_str: string;
 
@@ -5891,7 +5891,7 @@ function add_a_line_shape(x1_str, y1_str, x2_str, y2_str: string): boolean;
 
   // return True unless not added beacuse reached count limit.
 var
-  x1, y1, x2, y2: extended;
+  x1, y1, x2, y2: double;
   new_shape: Tbgnd_shape;
 
   x1_s, y1_s, x2_s, y2_s: string;   // 0.94.a
@@ -5945,7 +5945,7 @@ end;
 function add_a_circle_shape(x1_str, y1_str, rad_str: string): boolean;
 
 var
-  x1, y1, rad: extended;
+  x1, y1, rad: double;
   new_shape: Tbgnd_shape;
 
   x1_s, y1_s, rad_s: string;  // 0.94.a
@@ -6003,7 +6003,7 @@ end;
 function add_an_arc_shape(x1_str, y1_str, rad_str, k1_str, k2_str: string): boolean;
 
 var
-  x1, y1, rad, k1, k2, k, inc_k: extended;
+  x1, y1, rad, k1, k2, k, inc_k: double;
   new_shape: Tbgnd_shape;
 
   x1_s, y1_s, rad_s, k1_s, k2_s: string;  // 0.94.a
@@ -6092,7 +6092,7 @@ end;
 function add_a_target_shape(x1_str, y1_str: string): boolean;
 
 var
-  x1, y1: extended;
+  x1, y1: double;
   new_shape: Tbgnd_shape;
 
   x1_s, y1_s: string;  // 0.94.a
@@ -6144,7 +6144,7 @@ end;
 function add_a_label_shape(x1_str, y1_str, label_str: string): boolean;
 
 var
-  x1, y1: extended;
+  x1, y1: double;
   new_shape: Tbgnd_shape;
 
   x1_s, y1_s: string;  // 0.94.a
@@ -6706,7 +6706,7 @@ begin
 end;
 //___________________________________________________________________________________________
 
-procedure twist_picture(i: integer; krot: extended; do_container, all, sync: boolean);
+procedure twist_picture(i: integer; krot: double; do_container, all, sync: boolean);
 // rotate bitmap supplied krot clockwise.
 
 // krot limits +/- 90degs
@@ -6719,13 +6719,13 @@ var
   pixel_colour: TColor;
   saved_screen_cursor: TCursor;
 
-  diagonal: extended;
-  inwidth, inheight, inaspectk: extended;
-  outwidth, outheight: extended;
+  diagonal: double;
+  inwidth, inheight, inaspectk: double;
+  outwidth, outheight: double;
   pin, pout, shape_cen: Tpex;
 
-  old_shapewidth, old_shapeheight: extended;
-  new_shapewidth, new_shapeheight: extended;
+  old_shapewidth, old_shapeheight: double;
+  new_shapewidth, new_shapeheight: double;
 
   meta_str: string;
 
@@ -6978,7 +6978,7 @@ const
 var
   n: integer;
   od: Toutdim;
-  twist_angle: extended;
+  twist_angle: double;
   twist_cen_str: string;
 
 begin
@@ -7030,10 +7030,10 @@ begin
 end;
 //______________________________________________________________________________________
 
-procedure minimize_angle(var k: extended);
+procedure minimize_angle(var k: double);
 
 var
-  deg90: extended;
+  deg90: double;
 
 begin
   deg90 := Pi / 2;
@@ -7049,7 +7049,7 @@ procedure Tbgnd_form.twist_picture_buttonClick(Sender: TObject);
 
 var
   i, n: integer;
-  twist_angle: extended;
+  twist_angle: double;
   tw_str: string;
 
 begin
@@ -7378,7 +7378,7 @@ procedure Tbgnd_form.marker_line_fixed_buttonClick(Sender: TObject);
 
 var
   n: integer;
-  hyp: extended;
+  hyp: double;
 
 begin
   with bgnd_shapes_listbox do begin
@@ -7422,7 +7422,7 @@ procedure Tbgnd_form.marker_line_twist_buttonClick(Sender: TObject);
 
 var
   n: integer;
-  hyp: extended;
+  hyp: double;
 
 begin
   with bgnd_shapes_listbox do begin
@@ -7648,36 +7648,36 @@ var
   inwidth_dots, inheight_dots: integer;
   outwidth_dots, outheight_dots: integer;
 
-  old_shapewidth_mm, old_shapeheight_mm: extended;    //mm
-  new_shapewidth_mm, new_shapeheight_mm: extended;    //mm
+  old_shapewidth_mm, old_shapeheight_mm: double;    //mm
+  new_shapewidth_mm, new_shapeheight_mm: double;    //mm
 
-  old_diagonal_mm: extended;
+  old_diagonal_mm: double;
 
   this_shape: Tbgnd_shape;
 
-  picture_scale_width, picture_scale_height: extended;
+  picture_scale_width, picture_scale_height: double;
 
-  x_on_pad, y_on_pad, dummy_k, dummy_r: extended;
+  x_on_pad, y_on_pad, dummy_k, dummy_r: double;
 
-  xs_on_control, xs_step: extended;
-  ys_on_control, ys_step: extended;
+  xs_on_control, xs_step: double;
+  ys_on_control, ys_step: double;
 
-  x1, y1, x2, y2: extended;
+  x1, y1, x2, y2: double;
 
-  max_y, min_y: extended;
+  max_y, min_y: double;
 
-  x_org_mm, y_org_mm, x_end_mm: extended;
+  x_org_mm, y_org_mm, x_end_mm: double;
 
-  ycurved: extended;
+  ycurved: double;
 
-  ms_limit_mm, ts_limit_mm: extended;
+  ms_limit_mm, ts_limit_mm: double;
 
   destination_bitmap: TBitmap;
 
 
   //////////////////////////////////////////////////////////
 
-  function get_col_row(x, y: extended; var col, row: integer): boolean;
+  function get_col_row(x, y: double; var col, row: integer): boolean;
 
     // return image column and row for this x,y on pad
     // return False if x,y not inside image
@@ -8092,7 +8092,7 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure wrap_picture(datum_offset_mm, x_factor, y_factor: extended);
+procedure wrap_picture(datum_offset_mm, x_factor, y_factor: double);
 // curve bitmap along datum line to align with the control template.
 
 // datum line offset up from bottom edge.
@@ -8109,21 +8109,21 @@ var
   pixel_colour: TColor;
   saved_screen_cursor: TCursor;
 
-  inwidth, inheight: extended;
-  outwidth, outheight: extended;
+  inwidth, inheight: double;
+  outwidth, outheight: double;
 
-  old_shapewidth, old_shapeheight: extended;    //mm
-  new_shapewidth, new_shapeheight: extended;    //mm
+  old_shapewidth, old_shapeheight: double;    //mm
+  new_shapewidth, new_shapeheight: double;    //mm
 
   this_shape: Tbgnd_shape;
 
-  xc, yc, tn, rn: extended;
+  xc, yc, tn, rn: double;
 
-  yc_on_pad: extended;
+  yc_on_pad: double;
 
-  picture_scale_width, picture_scale_height: extended;
+  picture_scale_width, picture_scale_height: double;
 
-  max_extent_x, max_extent_y, min_extent_x, min_extent_y: extended;
+  max_extent_x, max_extent_y, min_extent_x, min_extent_y: double;
 
   destination_bitmap_height: integer;
 
@@ -8379,7 +8379,7 @@ const
     + '||While the image is being wrapped along the control template it can be shrunk or stretched width-wise (i.e. in image height). Enter the % change required.' + ' For example entering 80 will reduce the image width (height) to 80% of its unwrapped width (height).' + '||This can be useful in fitting prototype track plans in a restricted model space.' + '||Enter 100 to leave the image at its original size (100%).' + '||rp.gif If any width-wise shrinking or stretching is done, after wrapping the offset in mm to the reference line will have been modified accordingly. Bear this in mind when checking the finished dimensions.';
 
 var
-  datum_offset_mm, x_factor, y_factor: extended;
+  datum_offset_mm, x_factor, y_factor: double;
 
   n, i: integer;
   od: Toutdim;
@@ -8744,11 +8744,11 @@ procedure Tbgnd_form.zoom_fit_shape_menu_entryClick(Sender: TObject);
 
 var
   n: integer;
-  xmax, xmin, ymax, ymin: extended;
-  wl_factor: extended;
-  margin_factor: extended;
+  xmax, xmin, ymax, ymin: double;
+  wl_factor: double;
+  margin_factor: double;
 
-  reduced_screeny: extended;   // 216c
+  reduced_screeny: double;   // 216c
 
 begin
   cancel_adjusts(False);
@@ -8860,7 +8860,7 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure draw_picture_shapes(canv: TCanvas; xorg, yorg, dpmm: extended; yheight: integer);
+procedure draw_picture_shapes(canv: TCanvas; xorg, yorg, dpmm: double; yheight: integer);
 
 // draw any background picture shapes -- for crop/combine
 
@@ -8868,7 +8868,7 @@ procedure draw_picture_shapes(canv: TCanvas; xorg, yorg, dpmm: extended; yheight
 
 var
   i: integer;
-  x1, y1, x2, y2: extended;
+  x1, y1, x2, y2: double;
   raster_rect: TRect;
   move_to, line_to: TPoint;
 
@@ -8947,17 +8947,17 @@ procedure Tbgnd_form.combine_pictures_menu_entryClick(Sender: TObject);
 
 var
   j, n: integer;
-  xmax, xmin, ymax, ymin: extended;
+  xmax, xmin, ymax, ymin: double;
 
   new_bitmap: TBitmap;
 
-  xdots_per_mm: extended;
-  max_xdots_per_mm: extended;
+  xdots_per_mm: double;
+  max_xdots_per_mm: double;
 
-  ydots_per_mm: extended;
-  max_ydots_per_mm: extended;
+  ydots_per_mm: double;
+  max_ydots_per_mm: double;
 
-  new_dpmm: extended;
+  new_dpmm: double;
 
   pic_found: boolean;
   pic_count: integer;
@@ -9768,8 +9768,8 @@ var
   n: integer;
   od: Toutdim;
   map_pixels, zoom_level: integer;
-  lat_degs: extended;
-  map_width_mm: extended;
+  lat_degs: double;
+  map_width_mm: double;
 
 begin
   help(0, map_str, '');

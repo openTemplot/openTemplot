@@ -110,8 +110,8 @@ var
   //________________________
   // All set inside Texport_form.create_pdf_buttonClick
 
-  pdf_width_mm: extended = 180.0;    // same defaults as sketchboard
-  pdf_height_mm: extended = 260.0;
+  pdf_width_mm: double = 180.0;    // same defaults as sketchboard
+  pdf_height_mm: double = 260.0;
 
   pdf_width_dots: integer = 4252;    // 180mm at 600dpi
   pdf_height_dots: integer = 6142;   // 260mm at 600dpi
@@ -239,12 +239,12 @@ var
   lsBlanking: Tpdf_LineStyle;
   lsEdge: Tpdf_LineStyle;
 
-procedure pdf_bgnd(grid_left, grid_top: extended; pdf_page: TPDF_page); forward;
+procedure pdf_bgnd(grid_left, grid_top: double; pdf_page: TPDF_page); forward;
 // print background items.
-procedure pdf_bgnd_shapes(grid_left, grid_top: extended); forward; // print all background shapes.
+procedure pdf_bgnd_shapes(grid_left, grid_top: double); forward; // print all background shapes.
 procedure pdf_rotate_bitmap(i: integer); forward;     // rotate bitmap for picture shape.
 
-// T3-OUT  procedure pdf_sketchboard_items(on_canvas:TCanvas; grid_left,grid_top:extended);forward;   // 206e
+// T3-OUT  procedure pdf_sketchboard_items(on_canvas:TCanvas; grid_left,grid_top:double);forward;   // 206e
 // T3-OUT  procedure pdf_rotate_metafile(i:integer);forward;   // rotate metafile supplied 90degs clockwise.   213b
 
 //_______________________________________________________________________________________
@@ -404,15 +404,15 @@ end;
 procedure print_line_thickness_setup;
 
 var
-  av_dpi: extended;
+  av_dpi: double;
 
   ///////////////////////////////////////////////
 
-  function calc_thick(mm_thick: extended; adjust: boolean): integer;
+  function calc_thick(mm_thick: double; adjust: boolean): integer;
     // calc line thickness in dots.
 
   var
-    line_dots: extended;
+    line_dots: double;
 
   begin
     line_dots := mm_thick * av_dpi / 25.4;
@@ -459,7 +459,7 @@ end;
 { Take a point in 'pad' space coordinates (with an optional x/y adjustment)
   and relocate to an equivalent point in page space coordinates.
   This absracts a computation wihich occurs in MANY palces}
-function page_locate(point: Tpoint; grid_left, grid_top: extended; adj: array of extended): Tpoint; overload;
+function page_locate(point: Tpoint; grid_left, grid_top: double; adj: array of double): Tpoint; overload;
 var
   loc: Tpoint;
 begin
@@ -468,7 +468,7 @@ begin
   RESULT := loc;
 end;
 
-function page_locate(point: Tpoint; grid_left, grid_top: extended): Tpoint; overload;
+function page_locate(point: Tpoint; grid_left, grid_top: double): Tpoint; overload;
 begin
   RESULT := page_locate(point, grid_left, grid_top, [0, 0]);
 end;
@@ -658,11 +658,11 @@ procedure pdf_draw;     // draw control template or entire pad on the output.  /
 var
   infill_points: array[0..3] of TPoint;   // array of corners for infilled timbers.
 
-  gridx, gridy, now_gridx, now_gridy: extended;
-  grid_label: extended;
+  gridx, gridy, now_gridx, now_gridy: double;
+  grid_label: double;
 
-  down: extended;                  // temp x and y from list.
-  across: extended;
+  down: double;                  // temp x and y from list.
+  across: double;
 
   sheet_down: integer;             // current sheet index.
   sheet_across: integer;           // ditto
@@ -690,7 +690,7 @@ var
   stry: integer;
 
   p1, p2, p3, p4: Tpoint;
-  radcen_arm: extended;
+  radcen_arm: double;
 
   move_to, line_to: TPoint;
 
@@ -707,7 +707,7 @@ var
   ptr_1st, ptr_2nd: ^Tmark;          // pointers to a Tmark record.   ###
   markmax: integer;
 
-  fontsize: extended;
+  fontsize: double;
   num_str, tbnum_str: string;
 
   grid_str: string;
@@ -913,7 +913,7 @@ var
   end;
   /////////////////////////////
 
-  procedure draw_grid(grid_left, grid_top: extended; page: TPDF_page);
+  procedure draw_grid(grid_left, grid_top: double; page: TPDF_page);
 
   begin
   //          Font.Assign(print_labels_font);
@@ -1054,7 +1054,7 @@ var
   end;
   /////////////////////////////
 
-  procedure draw_marks(grid_left, grid_top: extended; rail_joints: boolean);
+  procedure draw_marks(grid_left, grid_top: double; rail_joints: boolean);
 
   // if rail_joints=True draw only the rail joints, otherwise omit them.
   var
@@ -1940,7 +1940,7 @@ var
   end;
   ///////////////////////////////////////////////////////////////////
 
-  procedure pdf_shapes_and_sketchboard_items(grid_left, grid_top: extended);    // 206e
+  procedure pdf_shapes_and_sketchboard_items(grid_left, grid_top: double);    // 206e
 
   begin
 
@@ -2663,10 +2663,10 @@ begin
             // mods 208g  20-04-2014  show page origin dims on templates...
 
                     {Tsheet=record
-                             grid_top:extended;          // 100th mm - grid means trim margin lines inside the sheet edges.
-                             grid_bottom:extended;
-                             grid_left:extended;
-                             grid_right:extended;}
+                             grid_top:double;          // 100th mm - grid means trim margin lines inside the sheet edges.
+                             grid_bottom:double;
+                             grid_left:double;
+                             grid_right:double;}
 
             if print_entire_pad_flag
             // 214a  for Gordon, see message ref: 19595   // background templates
@@ -3046,11 +3046,11 @@ end;
 //________________________________________________________________________________________
 (* T3-OUT
 
-procedure pdf_sketchboard_items(on_canvas:TCanvas; grid_left,grid_top:extended);   // 206e
+procedure pdf_sketchboard_items(on_canvas:TCanvas; grid_left,grid_top:double);   // 206e
 
 var
   dtp_rect:TRect;
-  dtp_width,dtp_height:extended;
+  dtp_width,dtp_height:double;
   p1,p2:Tpex;
 
   move_to,line_to:TPoint;   // 208a
@@ -3199,13 +3199,13 @@ end;
 //______________________________________________________________________________
 *)
 
-procedure pdf_bgnd_shapes(grid_left, grid_top: extended);  // print all background shapes.
+procedure pdf_bgnd_shapes(grid_left, grid_top: double);  // print all background shapes.
 
 var
   i, maxbg_index: integer;
   font_size: integer;
 
-  arm, diamond: extended;
+  arm, diamond: double;
 
   now_shape: Tbgnd_shape;
   move_to, line_to: TPoint;
@@ -3572,7 +3572,7 @@ begin
 end;
 //_______________________________________________________________________________________
 
-procedure pdf_bgnd_marks(grid_left, grid_top: extended; maxbg_index: integer;
+procedure pdf_bgnd_marks(grid_left, grid_top: double; maxbg_index: integer;
   rail_joints: boolean; pdf_page: TPDF_page);  // print all the background timbering and marks.
 
 // if rail_joints=True print only the rail joints, otherwise omit them.
@@ -3588,11 +3588,11 @@ var
   array_max: integer;
   code: integer;
 
-  radcen_arm: extended;
+  radcen_arm: double;
 
   infill_points: array [0..3] of TPoint;
 
-  fontsize: extended;
+  fontsize: double;
   num_str: string;
   tbnum_str: string;
 
@@ -3946,7 +3946,7 @@ begin
 end;
 //__________________________________________________________________________________________
 
-procedure pdf_bgnd(grid_left, grid_top: extended; pdf_page: TPDF_Page);
+procedure pdf_bgnd(grid_left, grid_top: double; pdf_page: TPDF_Page);
 // print background templates.
 
 var

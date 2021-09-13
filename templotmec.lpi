@@ -40,19 +40,16 @@
         <Mode0 Name="default"/>
       </Modes>
     </RunParams>
-    <RequiredPackages Count="4">
+    <RequiredPackages Count="3">
       <Item1>
-        <PackageName Value="pack_powerpdf"/>
+        <PackageName Value="FrameViewer09"/>
       </Item1>
       <Item2>
-        <PackageName Value="FrameViewer09"/>
+        <PackageName Value="Printer4Lazarus"/>
       </Item2>
       <Item3>
-        <PackageName Value="Printer4Lazarus"/>
-      </Item3>
-      <Item4>
         <PackageName Value="LCL"/>
-      </Item4>
+      </Item3>
     </RequiredPackages>
     <Units Count="61">
       <Unit0>

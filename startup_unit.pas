@@ -55,7 +55,7 @@ type
 var
   old_startup_form: Told_startup_form;
 
-  global_factor: extended = 1.0;
+  global_factor: double = 1.0;
 
 //--------------------------
 
@@ -68,8 +68,6 @@ var
   procedure set_menu_style(win7:boolean);    // 0.95.a
   }
 
-
-procedure minimize_consolehost_window;      // 291a
 
 procedure do_dpi_aware_scaling(scaling_size: integer);   // 211b
 
@@ -262,7 +260,7 @@ var
   sz_list: TStringList;
 
   fracmul, fracdiv: integer;
-  factor: extended;
+  factor: double;
 
   rem_width: integer;
 
@@ -621,32 +619,6 @@ begin
   end;//with
 
   do_toolbars;  // 217a
-
-end;
-//______________________________________________________________________________
-
-procedure minimize_consolehost_window;      // 291a
-
-var
-  //window_handle:HWND;
-  title1_str, title2_str: string;      // Pchar needs a unique local string
-
-  titlet3_str: string;
-  titlemec_str: string;
-
-begin
-
-  Application.ProcessMessages;
-
-  titlet3_str := 'Templot3';
-  titlemec_str := 'TemplotMEC';
-  title1_str := Application.Title;
-  title2_str := Application.ExeName;
-
-  ShowWindow(FindWindow(nil, PChar(titlet3_str)), SW_MINIMIZE);
-  ShowWindow(FindWindow(nil, PChar(titlemec_str)), SW_MINIMIZE);
-  ShowWindow(FindWindow(nil, PChar(title1_str)), SW_MINIMIZE);
-  ShowWindow(FindWindow(nil, PChar(title2_str)), SW_MINIMIZE);
 
 end;
 //______________________________________________________________________________
