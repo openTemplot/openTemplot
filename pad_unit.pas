@@ -32,7 +32,7 @@ unit pad_unit;
 interface
 
 uses
-  Windows, LCLType, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Menus, StdCtrls, ExtCtrls, ComCtrls, Buttons,
   ExtDlgs, ImgList, PrintersDlgs,
   point_ex,
@@ -5136,7 +5136,7 @@ implementation
 {$R *.lfm}
 
 uses
-  ShellAPI, Math, Printers, FileCtrl, {ExtDlgs,}
+  LCLType, LCLIntf, Math, Printers, FileCtrl, {ExtDlgs,}
 
   { OT-FIRST dtpRasterFormats,}// dtpResource,
 
@@ -21967,7 +21967,7 @@ const
   url_str: string = 'http://templot.com/martweb/gs_mouse_notes.htm';    // 0.82.a
 
 begin
-  if ShellExecute(0, 'open', PChar(url_str), nil, nil, SW_SHOWNORMAL) <= 32   // 0.79.a
+  if not OpenURL(url_str)    // 0.79.a
   then begin
     alert(2, '    connection  failed',
       ' |Sorry, unable to open your browser window and connect to the Templot web site.',
@@ -25634,8 +25634,7 @@ begin
         if i = 3 then begin
           folder_str := file_str;
 
-          if ShellExecute(0, 'open', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <=
-            32 then
+          if not OpenDocument(folder_str) then
             ShowMessage('Sorry, unable to display the image.')
           else
             external_window_showing := True;
@@ -25644,8 +25643,7 @@ begin
         if i = 4 then begin
           folder_str := ExtractFilePath(file_str);
 
-          if ShellExecute(0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <= 32
-          then
+          if not OpenDocument(folder_str) then
             ShowMessage('Sorry, unable to open the folder.')
           else
             external_window_showing := True;
@@ -27052,7 +27050,7 @@ const
   url_str: string = 'http://www.radioparadise.com/rp_2s.php';
 
 begin
-  if ShellExecute(0, 'open', PChar(url_str), nil, nil, 0) <= 32 then begin
+  if not OpenURL(url_str) then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to internet radio.',
       '', '', '', '', '', 'continue', 0);
@@ -27067,7 +27065,7 @@ const
   url_str: string = 'http://www.radionz.co.nz/audio/live/concert';
 
 begin
-  if ShellExecute(0, 'open', PChar(url_str), nil, nil, 0) <= 32 then begin
+  if not OpenURL(url_str) then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to internet radio.',
       '', '', '', '', '', 'continue', 0);
@@ -27082,7 +27080,7 @@ const
   url_str: string = 'http://www.bbc.co.uk/radio/player/bbc_radio_five_live_sports_extra';
 
 begin
-  if ShellExecute(0, 'open', PChar(url_str), nil, nil, 0) <= 32 then begin
+  if not OpenURL(url_str) then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to internet radio.',
       '', '', '', '', '', 'continue', 0);
@@ -27996,7 +27994,7 @@ var
 begin
   folder_str := exe_str + 'PRINT-PREVIEW-FILES\';
 
-  if ShellExecute(0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <= 32 then
+  if not OpenDocument(folder_str) then
     ShowMessage('Sorry, unable to open the folder.')
   else
     external_window_showing := True;
@@ -28011,7 +28009,7 @@ var
 begin
   folder_str := exe_str + 'PDF-PREVIEW-FILES\';
 
-  if ShellExecute(0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <= 32 then
+  if not OpenDocument(folder_str) then
     ShowMessage('Sorry, unable to open the folder.')
   else
     external_window_showing := True;

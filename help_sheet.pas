@@ -205,7 +205,7 @@ implementation
 {$R *.lfm}
 
 uses
-  math_unit, alert_unit, control_room, colour_unit, preview_unit, print_unit, calibration_unit,
+  LCLIntf, math_unit, alert_unit, control_room, colour_unit, preview_unit, print_unit, calibration_unit,
   stay_visible_unit, grid_unit, jotter_unit, pad_unit, keep_select, chat_unit,
   entry_sheet, prefs_unit,
   mint_unit { OT-FIRST , file_viewer} {, docs_unit};
@@ -1323,8 +1323,7 @@ var
 begin
   url_str := 'http://templot.com/companion/info.php?ref=' + ref_number_str;
 
-
-  if ShellExecute(0, 'open', PChar(url_str), nil, nil, SW_SHOWNORMAL) <= 32 then
+  if not OpenURL(url_str) then
     show_modal_message('Sorry, unable to open your browser window and connect to the Templot web site.'
       + #13 + #13 + 'Please check your internet connection.');
 

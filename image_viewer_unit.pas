@@ -121,6 +121,7 @@ implementation
 {$R *.lfm}
 
 uses
+  LCLIntf,
   control_room, alert_unit, math_unit;
 
 var
@@ -247,7 +248,7 @@ var
 begin
   folder_str := ExtractFilePath(image_file_str);
 
-  if ShellExecute(0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <= 32 then
+  if not OpenDocument(folder_str) then
     show_modal_message('Sorry, unable to open the folder.')
   else
     external_window_showing := True;
@@ -321,7 +322,7 @@ end;
 procedure Timage_viewer_form.use_your_viewer_menu_entryClick(Sender: TObject);
 
 begin
-  if ShellExecute(0, 'open', PChar(image_file_str), nil, nil, SW_SHOWNORMAL) <= 32 then
+  if not OpenDocument(image_file_str) then
     show_modal_message('Sorry, unable to display the image in your viewer.')
   else begin
     external_window_showing := True;

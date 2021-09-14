@@ -135,7 +135,7 @@ implementation
 {$R *.lfm}
 
 uses
-  ShellAPI, control_room, pad_unit, grid_unit, math_unit, panning_unit,
+  LCLIntf, control_room, pad_unit, grid_unit, math_unit, panning_unit,
   shove_timber, rail_options_unit, platform_unit, check_diffs_unit,
   data_memo_unit, stay_visible_unit, info_unit, keep_select, help_sheet, alert_unit;
 
@@ -1086,7 +1086,7 @@ begin
 
   dir_str := folder_view.Path;
 
-  if ShellExecute(0, 'explore', PChar(dir_str), nil, nil, SW_SHOWNORMAL) <= 32 then
+  if not OpenDocument(dir_str) then
     show_modal_message('Sorry, unable to open the folder.')
   else
     external_window_showing := True;

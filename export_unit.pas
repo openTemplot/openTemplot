@@ -178,7 +178,9 @@ function do_metafile(file_str: string; met_width_dots, met_height_dots: integer)
 
 implementation
 
-uses ShellAPI, control_room, point_ex, pad_unit, keep_select, math_unit, preview_unit, entry_sheet, help_sheet,
+uses
+  LCLIntf,
+  control_room, point_ex, pad_unit, keep_select, math_unit, preview_unit, entry_sheet, help_sheet,
      { OT-FIRST dtp_unit, dtp_settings_unit,} alert_unit, grid_unit, pdf_unit, print_settings_unit,colour_unit,
   bgnd_unit, dxf_unit, image_viewer_unit,
   export_draw_unit;  // 291a
@@ -751,8 +753,9 @@ begin
 
           folder_str := file_str;
 
-          if ShellExecute(0, 'open', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <=
-            32 then
+          //if ShellExecute(0, 'open', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <=
+          //  32 then
+          if not OpenDocument(folder_str) then
             ShowMessage('Sorry, unable to display the EMF image.')
           else
             external_window_showing := True;
@@ -761,8 +764,7 @@ begin
         if i = 4 then begin
           folder_str := ExtractFilePath(file_str);
 
-          if ShellExecute(0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <=
-            32 then
+          if not OpenDocument(folder_str) then
             ShowMessage('Sorry, unable to open the folder.')
           else
             external_window_showing := True;
@@ -1149,8 +1151,7 @@ begin
         if i = 3 then begin
           folder_str := file_str;
 
-          if ShellExecute(0, 'open', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <=
-            32 then
+          if not OpenDocument(folder_str) then
             ShowMessage('Sorry, unable to display the image.')
           else
             external_window_showing := True;
@@ -1159,8 +1160,7 @@ begin
         if i = 4 then begin
           folder_str := ExtractFilePath(file_str);
 
-          if ShellExecute(0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <= 32
-          then
+          if not OpenDocument(folder_str) then
             ShowMessage('Sorry, unable to open the folder.')
           else
             external_window_showing := True;

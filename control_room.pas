@@ -656,7 +656,8 @@ implementation
 {$BOOLEVAL ON}
 
 uses
-  ShellAPI, Math, Clipbrd, {FileCtrl,} {@demo Clipbrd,} Printers, alert_unit,
+  LCLIntf, Math, Clipbrd, {FileCtrl,} {@demo Clipbrd,} Printers,
+  alert_unit,
   help_sheet, math_unit,
   pad_unit, info_unit,
   gauge_unit, chat_unit, entry_sheet, print_unit, keep_select,
@@ -4095,7 +4096,7 @@ const
   url_str: string = 'http://templot.com/';    // 0.79.a
 
 begin
-  if ShellExecute(0, 'open', PChar(url_str), nil, nil, SW_SHOWNORMAL) <= 32   // 0.79.a
+  if not OpenURL(url_str)
   then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to the Templot web site.',
@@ -4111,7 +4112,7 @@ const
   url_str: string = 'http://85a.co.uk/forum/';      //%%%%
 
 begin
-  if ShellExecute(0, 'open', PChar(url_str), nil, nil, SW_SHOWNORMAL) <= 32 then begin
+  if not OpenURL(url_str) then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to the Templot Club web site.',
       '', '', '', '', '', 'continue', 0);
@@ -4125,7 +4126,7 @@ const
   url_str: string = 'http://templot.com/companion/';    // 0.93.a
 
 begin
-  if ShellExecute(0, 'open', PChar(url_str), nil, nil, SW_SHOWNORMAL) <= 32   // 0.79.a
+  if not OpenURL(url_str)
   then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to the Templot web site.',
@@ -4142,7 +4143,7 @@ var
 begin
   url_str := 'http://templot.com/companion/' + dest_page_str;  // needs to be local
 
-  if ShellExecute(0, 'open', PChar(url_str), nil, nil, SW_SHOWNORMAL) <= 32 then begin
+  if not OpenURL(url_str) then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to the Templot web site.',
       '', '', '', '', '', 'continue', 0);
@@ -4156,7 +4157,7 @@ const
   url_str: string = 'http://templot.com/martweb/templot_donate.htm';
 
 begin
-  if ShellExecute(0, 'open', PChar(url_str), nil, nil, SW_SHOWNORMAL) <= 32 then begin
+   if not OpenURL(url_str)  then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to the Templot web site.',
       '', '', '', '', '', 'continue', 0);
@@ -4170,7 +4171,7 @@ const
   url_str: string = 'http://templot.com/martweb/templot_upgrade.htm';
 
 begin
-  if ShellExecute(0, 'open', PChar(url_str), nil, nil, SW_SHOWNORMAL) <= 32 then begin
+   if not OpenURL(url_str)  then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to the Templot web site.',
       '', '', '', '', '', 'continue', 0);
@@ -4184,7 +4185,7 @@ const
   url_str: string = 'http://templot.com/martweb/video_list.htm';
 
 begin
-  if ShellExecute(0, 'open', PChar(url_str), nil, nil, SW_SHOWNORMAL) <= 32 then begin
+   if not OpenURL(url_str)  then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to the Templot web site.',
       '', '', '', '', '', 'continue', 0);
@@ -4200,7 +4201,7 @@ var
 begin
   url_str := url;  // needs to be local
 
-  if ShellExecute(0, 'open', PChar(url_str), nil, nil, SW_SHOWNORMAL) <= 32 then begin
+   if not OpenURL(url_str)  then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to the web site.',
       '', '', '', '', '', 'continue', 0);
@@ -4713,7 +4714,7 @@ begin
 
   folder_str := folder_str + '\';
 
-  if ShellExecute(0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <= 32 then
+  if not OpenDocument(folder_str) then
     ShowMessage('Sorry, unable to open the folder.')
   else
     external_window_showing := True;
@@ -4735,7 +4736,7 @@ begin
 
   folder_str := folder_str + '\';
 
-  if ShellExecute(0, 'explore', PChar(folder_str), nil, nil, SW_SHOWNORMAL) <= 32 then
+  if not OpenDocument(folder_str) then
     ShowMessage('Sorry, unable to open the folder.')
   else
     external_window_showing := True;
