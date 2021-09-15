@@ -671,8 +671,7 @@ uses
   data_memo_unit, { OT-FIRST sketchboard_unit,} check_diffs_unit, rail_options_unit,
   export_unit, file_viewer, wait_message, { OT-FIRST companion_load_unit,}
 
-  ActiveX,                 // IMalloc
-  ShlObj, trackbed_unit,   // Needed for the CSIDL constants
+  trackbed_unit,
 
   {IcsMD5,} make_slip_unit, create_tandem;     // 217a
 
@@ -4676,26 +4675,8 @@ end;
 //______________________________________________________________________________
 
 function get_path_to_Windows_folder(folder_id: integer): string;   // 214a
-
-var
-  PIDL: PItemIDList;
-  Path: LPSTR;
-  AMalloc: IMalloc;
-
 begin
-  Path := StrAlloc(MAX_PATH);
-
-  SHGetSpecialFolderLocation(0, folder_id, PIDL);
-
-  if SHGetPathFromIDList(PIDL, Path) then
-    Result := Path
-  else
-    Result := '';
-
-  SHGetMalloc(AMalloc);
-  AMalloc.Free(PIDL);
-
-  StrDispose(Path);
+  Result := GetUserDir();
 end;
 //______________________________________________________________________________
 
@@ -4727,7 +4708,7 @@ var
   folder_str: string;
 
 begin
-  folder_str := get_path_to_Windows_folder(CSIDL_PERSONAL);
+  folder_str := GetUserDir();
 
   if folder_str = '' then begin
     ShowMessage('Sorry, unable to find the folder.');

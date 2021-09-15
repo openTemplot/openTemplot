@@ -32,7 +32,7 @@ unit pad_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Menus, StdCtrls, ExtCtrls, ComCtrls, Buttons,
   ExtDlgs, ImgList, PrintersDlgs,
   point_ex,
