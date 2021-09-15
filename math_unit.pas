@@ -1294,7 +1294,6 @@ implementation
 {$R *.lfm}
 
 uses
-  ShellAPI,
   Math,
   Printers,
   alert_unit,

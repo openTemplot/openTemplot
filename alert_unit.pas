@@ -30,7 +30,7 @@ unit alert_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, Clipbrd,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, Clipbrd,
   ExtCtrls, StdCtrls, ComCtrls, Spin, Htmlview, Menus, Buttons, HtmlGlobals;
 
 type
@@ -174,7 +174,7 @@ implementation
 //  6 buttons: 6 is always default accept.
 //             5 is always cancel (on ESC key or close form).
 uses
-  LCLIntf, math_unit, control_room, help_sheet, colour_unit, chat_unit,
+  LCLType, LCLIntf, math_unit, control_room, help_sheet, colour_unit, chat_unit,
   pad_unit, panning_unit;
 
 var

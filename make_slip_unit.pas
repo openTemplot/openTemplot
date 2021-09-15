@@ -32,7 +32,7 @@ interface
 // form is used for the toolbars dragging
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, Math,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, Math,
   StdCtrls;
 
 type

@@ -32,7 +32,7 @@ unit keep_select;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Menus, ExtCtrls, Printers, Buttons, ComCtrls,
   LCLtype,     // OT-FIRST   needed for (odSelected in State) for owner-draw stuff
 
@@ -717,7 +717,7 @@ implementation
 
 {$R *.lfm}
 
-uses  ShellAPI, Math, control_room, {pad_unit,} switch_select, help_sheet,
+uses  LCLIntf, Math, control_room, {pad_unit,} switch_select, help_sheet,
   alert_unit, math_unit,     // moved up 290a
   xing_select, entry_sheet, gauge_unit, colour_unit, info_unit, chat_unit, print_unit,
   dxf_unit, bgkeeps_unit, grid_unit, Clipbrd, edit_memo_unit, wait_message, shove_timber,
