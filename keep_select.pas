@@ -5890,7 +5890,7 @@ var
   i: integer;
   pdf_box_list: boolean;
 
-  metafile_printer: TMetafilePrinter;
+  { metafile_printer: TMetafilePrinter; }
 
   page: integer;
   folder_str: string;
@@ -8166,7 +8166,7 @@ var
 
   pdf_box_info: boolean;
 
-  metafile_printer: TMetafilePrinter;
+  { metafile_printer: TMetafilePrinter; }
 
   page: integer;
   folder_str: string;

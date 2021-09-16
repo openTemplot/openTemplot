@@ -32,7 +32,7 @@ unit control_room;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Buttons, Menus, ExtCtrls, ComCtrls, FileCtrl, { OT-FIRST, Psock, NMHttp}
   shoved_timber;
 
@@ -661,7 +661,7 @@ implementation
 {$BOOLEVAL ON}
 
 uses
-  LCLIntf, Math, Clipbrd, {FileCtrl,} {@demo Clipbrd,} Printers,
+  LCLType, LCLIntf, Math, Clipbrd, FileUtil, {FileCtrl,} {@demo Clipbrd,} Printers,
   alert_unit,
   help_sheet, math_unit,
   pad_unit, info_unit,
@@ -1586,7 +1586,7 @@ var
 
   default_file_str: string;  // 206b ...
 
-  window_handle: HWND;
+  { window_handle: HWND; }
 
   title_str: string;
 

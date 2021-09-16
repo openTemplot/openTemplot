@@ -34,7 +34,7 @@ unit map_loader_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, HTTPSend;
 
 type
@@ -2244,11 +2244,11 @@ begin
     capture_exe_str := '"' + exe_str + 'ot_screenshot_capture.exe"';
     capture_url_str := '"' + web_str + '"';
 
-    if ShellExecute(0, 'open', PChar(capture_exe_str), PChar(capture_url_str),
-      nil, SW_SHOWNORMAL) <= 32 then begin
-      ShowMessage('error: Unable to show map.');
-      EXIT;
-    end;
+    //if ShellExecute(0, 'open', PChar(capture_exe_str), PChar(capture_url_str),
+    //  nil, SW_SHOWNORMAL) <= 32 then begin
+    //  ShowMessage('error: Unable to show map.');
+    //  EXIT;
+    //end;
 
     Application.ProcessMessages;
 
