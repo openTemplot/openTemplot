@@ -31,7 +31,7 @@ interface
 
 uses
   Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, Buttons, ShellAPI, Math,
+  StdCtrls, ExtCtrls, ComCtrls, Buttons, Math,
   Menus, // 0.95.a
 
   TypInfo,  // 214c   for GetObjectProp

@@ -30,7 +30,7 @@ unit grid_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls;
 
 type
@@ -200,6 +200,7 @@ implementation
 
 
 uses
+  LCLType, LCLIntf,
   point_ex, control_room, pad_unit,
   background_shapes,
   dummy_vehicle,
@@ -972,19 +973,19 @@ begin
                           // normal for any bitmaps in the metafile
                         end;
 
-                        if PlayEnhMetaFile(Handle,
-                          Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape.image_metafile.emf_HDC,
-                          raster_rect) =
-                          False // draw metafile on canvas
-                        then begin
-                          CopyMode := cmSrcCopy;
-                          // normal for Canvas
-                          Brush.Color := Pen.Color;
-                          // metafile failed - draw hatched rectangle instead
-                          Brush.Style := bsBDiagonal;
-                          Rectangle(
-                            move_to.X, move_to.Y, line_to.X, line_to.Y);
-                        end;
+                        //if PlayEnhMetaFile(Handle,
+                        //  Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape.image_metafile.emf_HDC,
+                        //  raster_rect) =
+                        //  False // draw metafile on canvas
+                        //then begin
+                        //  CopyMode := cmSrcCopy;
+                        //  // normal for Canvas
+                        //  Brush.Color := Pen.Color;
+                        //  // metafile failed - draw hatched rectangle instead
+                        //  Brush.Style := bsBDiagonal;
+                        //  Rectangle(
+                        //    move_to.X, move_to.Y, line_to.X, line_to.Y);
+                        //end;
                       end
                       else begin
                         pad_form.

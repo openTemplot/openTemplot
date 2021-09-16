@@ -30,8 +30,8 @@ unit image_viewer_unit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ShellApi, Clipbrd, ExtCtrls, StdCtrls, Menus;
+  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Clipbrd, ExtCtrls, StdCtrls, Menus;
 
 type
 
@@ -135,108 +135,116 @@ var
 
 procedure show_an_image_file(file_str: string; emf_width, emf_height: integer; show_form: boolean);
 
+  // This unit is only called from bgnd_unit, and it is commented out there
+  // as part of OT-FIRST.  This function is therefore also commented out to allow
+  // compilation on Linux. It will need to be
+  // reworked as part of the EMF fixer uppering.  :-)
+  //                                                    GDT : 15/9/21
+
+
 // emf_width, emf_height ignored for bitmaps       291a
-
-var
-  output_rect: Trect;
-  load_DC: HDC;
-
+//
+//var
+//  output_rect: Trect;
+//  load_DC: HDC;
+//
 begin
-  if FileExists(file_str) = False         // 291a
-  then begin
-    show_modal_message('error: unable to find image file');
-    EXIT;
-  end;
+  //if FileExists(file_str) = False         // 291a
+  //then begin
+  //  show_modal_message('error: unable to find image file');
+  //  EXIT;
+  //end;
+  //
+  //emf_showing := False;
+  //
+  //image_viewer_form.top_label.Caption := '';
+  //
+  //if (LowerCase(ExtractFileExt(file_str)) = '.emf')       // 291a    show metafile
+  //then begin
+  //
+  //  with image_viewer_form do begin
+  //
+  //    copy_image_menu_entry.Caption := 'copy  EMF  metafile  as  bitmap  image';
+  //
+  //    viewer_image.AutoSize := False;
+  //
+  //    viewer_image.Width := ClientWidth;
+  //    viewer_image.Height := Round(ClientWidth * emf_height / emf_width);
+  //
+  //    viewer_image.Picture.Bitmap.Width := viewer_image.Width;
+  //    viewer_image.Picture.Bitmap.Height := viewe r_image.Height;
+  //
+  //    output_rect := Rect(0, 0, viewer_image.Picture.Bitmap.Width,
+  //      viewer_image.Picture.Bitmap.Height);
+  //
+  //    with viewer_image.Picture.Bitmap.Canvas do begin
+  //
+  //      Brush.Color := clWhite;     // blank it first
+  //      Brush.Style := bsSolid;
+  //
+  //      FillRect(output_rect);
+  //
+  //    end;//with
+  //
+  //    try
+  //      load_DC := GetEnhMetaFile(PChar(file_str));  // get metafile handle
+  //
+  //      if PlayEnhMetaFile(viewer_image.Picture.Bitmap.Canvas.Handle, load_DC, output_rect) =
+  //        False    // draw metafile on canvas
+  //      then
+  //        show_modal_message('error: Sorry, unable to show the EMF metafile image.');
+  //
+  //      DeleteEnhMetaFile(load_DC);   // release metafile handle
+  //    except
+  //      show_modal_message('error: Sorry, unable to show EMF image');
+  //    end;
+  //
+  //    top_label.Caption :=
+  //      'The EMF metafile is being displayed to fit. To zoom in and examine detail, view the file on the sketchboard.';
+  //
+  //  end;//with form
+  //
+  //  // retain globals ...
+  //
+  //  emf_showing := True;
+  //  emf_width_showing := emf_width;
+  //  emf_height_showing := emf_height;
+  //
+  //end
+  //else begin
+  //
+  //  with image_viewer_form do begin
+  //
+  //    copy_image_menu_entry.Caption := 'copy  image';
+  //
+  //    viewer_image.AutoSize := True;    // 291a
+  //
+  //    try
+  //      viewer_image.Picture.LoadFromFile(file_str);
+  //    except
+  //      show_modal_message('Sorry, unable to display the image.');
+  //    end;//try
+  //
+  //    top_label.Caption :=
+  //      'The image is being displayed full size. You may need to scroll to see it.';
+  //
+  //  end;//with
+  //
+  //end;
+  //
+  //image_file_str := file_str;
+  //
+  //image_viewer_form.Caption := '    image:  ' + file_str;
+  //
+  //with image_viewer_form do begin
+  //
+  //  cancel_menu.Visible := False;  // used for scanned picture shapes
+  //  options_menu.Visible := True;  // hidden for scanned picture shapes
+  //end;//with
+  //
+  //if show_form = True then
+  //  do_show_modal(image_viewer_form);   // 212a ShowModal
 
-  emf_showing := False;
-
-  image_viewer_form.top_label.Caption := '';
-
-  if (LowerCase(ExtractFileExt(file_str)) = '.emf')       // 291a    show metafile
-  then begin
-
-    with image_viewer_form do begin
-
-      copy_image_menu_entry.Caption := 'copy  EMF  metafile  as  bitmap  image';
-
-      viewer_image.AutoSize := False;
-
-      viewer_image.Width := ClientWidth;
-      viewer_image.Height := Round(ClientWidth * emf_height / emf_width);
-
-      viewer_image.Picture.Bitmap.Width := viewer_image.Width;
-      viewer_image.Picture.Bitmap.Height := viewer_image.Height;
-
-      output_rect := Rect(0, 0, viewer_image.Picture.Bitmap.Width,
-        viewer_image.Picture.Bitmap.Height);
-
-      with viewer_image.Picture.Bitmap.Canvas do begin
-
-        Brush.Color := clWhite;     // blank it first
-        Brush.Style := bsSolid;
-
-        FillRect(output_rect);
-
-      end;//with
-
-      try
-        load_DC := GetEnhMetaFile(PChar(file_str));  // get metafile handle
-
-        if PlayEnhMetaFile(viewer_image.Picture.Bitmap.Canvas.Handle, load_DC, output_rect) =
-          False    // draw metafile on canvas
-        then
-          show_modal_message('error: Sorry, unable to show the EMF metafile image.');
-
-        DeleteEnhMetaFile(load_DC);   // release metafile handle
-      except
-        show_modal_message('error: Sorry, unable to show EMF image');
-      end;
-
-      top_label.Caption :=
-        'The EMF metafile is being displayed to fit. To zoom in and examine detail, view the file on the sketchboard.';
-
-    end;//with form
-
-    // retain globals ...
-
-    emf_showing := True;
-    emf_width_showing := emf_width;
-    emf_height_showing := emf_height;
-
-  end
-  else begin
-
-    with image_viewer_form do begin
-
-      copy_image_menu_entry.Caption := 'copy  image';
-
-      viewer_image.AutoSize := True;    // 291a
-
-      try
-        viewer_image.Picture.LoadFromFile(file_str);
-      except
-        show_modal_message('Sorry, unable to display the image.');
-      end;//try
-
-      top_label.Caption :=
-        'The image is being displayed full size. You may need to scroll to see it.';
-
-    end;//with
-
-  end;
-
-  image_file_str := file_str;
-
-  image_viewer_form.Caption := '    image:  ' + file_str;
-
-  with image_viewer_form do begin
-
-    cancel_menu.Visible := False;  // used for scanned picture shapes
-    options_menu.Visible := True;  // hidden for scanned picture shapes
-  end;//with
-
-  if show_form = True then
-    do_show_modal(image_viewer_form);   // 212a ShowModal
 end;
 //______________________________________________________________________________
 
