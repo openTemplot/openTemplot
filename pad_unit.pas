@@ -5140,6 +5140,7 @@ uses
 
   { OT-FIRST dtpRasterFormats,}// dtpResource,
 
+  config_unit,
   control_room, grid_unit, switch_select, help_sheet, alert_unit, math_unit,
   xing_select, entry_sheet, info_unit, print_unit, gauge_unit, keep_select,
   metric_unit, preview_unit, colour_unit, calibration_unit,
@@ -13077,15 +13078,15 @@ begin
     logo_img_str := 't3_logo.bmp';
 
   logo_str := '<P CLASS="spacer">&nbsp;</P>' + '<TABLE WIDTH="90%" ALIGN="CENTER"><TR>'
-    + '<TD ROWSPAN="2" VALIGN="BOTTOM"><IMG SRC="' + exe_str + 'internal\hlp\' +
-    logo_img_str + '"></TD>' + '<TD ROWSPAN="2">&nbsp; &nbsp; &nbsp;</TD>'
+    + '<TD ROWSPAN="2" VALIGN="BOTTOM"><IMG SRC="' + Config.FilePath(csdiHelp, logo_img_str)
+    + '"></TD>' + '<TD ROWSPAN="2">&nbsp; &nbsp; &nbsp;</TD>'
     + '<TD CLASS="mainheading" ALIGN="CENTER">welcome &nbsp;to &nbsp;' +
     Application.Title + '</TD>' + '</TR><TR>' +
     '<TD CLASS="subheading" ALIGN="CENTER">Getting &nbsp;Started &nbsp;and &nbsp;Finding &nbsp;Help</TD>'
     + '</TR></TABLE>';
 
   sig_str := '<P>Welcome to ' + Application.Title + ' and happy modelling. <img src="' +
-    exe_str + 'internal\hlp\smile.gif"></P>' + '<P CLASS="spacer">&nbsp;</P>'
+    Config.FilePath(csdiHelp, 'smile.gif') + '"></P>' + '<P CLASS="spacer">&nbsp;</P>'
     + '<P>Martin.</P>';
 
   no_new_help_sizes := True;      // don't change the user's default sizes.
@@ -24114,7 +24115,7 @@ begin
 
   (* OT-FIRST
 
-  if FileExists(exe_str+'dpi_yes.txt')=True     // 211b
+  if FileExists(Config.FilePath(cudiData, 'dpi_yes.txt')     // 211b
      then begin
             if alert(2,'php/970    screen  scaling  vitualized',
                        'You have previously changed the screen scaling to the old-style Windows virtualization method.'
@@ -24189,7 +24190,7 @@ begin
   print_now_form.Hide;
 
   help_str := 'php/280    `0Print and  Output  Functions`9' +
-    '||The `0print-now!`3 functions print immediately to your current printer using your current settings. These rapid printing functions are provided for your convenience.' + '||For the normal print preview and setup functions, and the full printing and output options and settings, please click the `0output`1 menu items instead:' + '||<IMG SRC="' + exe_str + 'internal\hlp\output_menu.png">' + '||For more information please click <A HREF="online_ref280.85a">more information online</A>.';
+    '||The `0print-now!`3 functions print immediately to your current printer using your current settings. These rapid printing functions are provided for your convenience.' + '||For the normal print preview and setup functions, and the full printing and output options and settings, please click the `0output`1 menu items instead:' + '||<IMG SRC="' + Config.FilePath(csdiHelp, 'output_menu.png') + '">' + '||For more information please click <A HREF="online_ref280.85a">more information online</A>.';
 
   if help(0, help_str, 'more  about  printing  templates') = 1 then
     print_form.help_button.Click;
@@ -25575,7 +25576,7 @@ begin
     if his_image_file_name <> '' then
       InitialDir := ExtractFilePath(his_image_file_name)
     else
-      InitialDir := exe_str + 'IMAGE-FILES\';
+      InitialDir := Config.GetDir(cudiImages);
 
     DefaultExt := 'png';
     FileName := file_name_str + '.png';
@@ -27155,7 +27156,7 @@ begin
       +
       '||green_panel_begin tree.gif To undo changes to the control template,'
       + '||click the `0do > undo changes`1 menu item,|or click the <img src="' +
-      exe_str + 'internal\hlp\undo_changes.png"> button, or press `0CTRL+U`2.green_panel_end',
+      Config.FilePath(csdiHelp, 'undo_changes.png') + '"> button, or press `0CTRL+U`2.green_panel_end',
       '', '', '', '', '', 'continue', 0);
     EXIT;
   end;
@@ -27164,7 +27165,7 @@ begin
     'You are about to restore the most recently deleted stored template back to the storage box and background drawing.'
     + '||green_panel_begin tree.gif To undo changes to the control template,'
     + '||click the `0do > undo changes`1 menu item,|or click the <img src="' +
-    exe_str + 'internal\hlp\undo_changes.png"> button, or press `0CTRL+U`2.green_panel_end',
+    Config.FilePath(csdiHelp, 'undo_changes.png') + '"> button, or press `0CTRL+U`2.green_panel_end',
     '', '', '', '', 'cancel  undo', 'undo  deleted  template', 0) = 5 then
     EXIT;
 
@@ -27992,7 +27993,7 @@ var
   folder_str: string;
 
 begin
-  folder_str := exe_str + 'PRINT-PREVIEW-FILES\';
+  folder_str := Config.GetDir(cudiPrintPreviews);
 
   if not OpenDocument(folder_str) then
     ShowMessage('Sorry, unable to open the folder.')
@@ -28007,7 +28008,7 @@ var
   folder_str: string;
 
 begin
-  folder_str := exe_str + 'PDF-PREVIEW-FILES\';
+  folder_str := Config.GetDir(cudiPDFPreviews);
 
   if not OpenDocument(folder_str) then
     ShowMessage('Sorry, unable to open the folder.')
@@ -28252,7 +28253,7 @@ begin
     + '||1. start the sketchboard with your current trackplan, if not already.'
     + '||2. add some items.' +
     '||3. tick the `0show items on trackpad`1 box (top left):' + '||<IMG SRC="' +
-    exe_str + 'internal\hlp\sb_show_items.png">' +
+    Config.FilePath(csdiHelp, 'sb_show_items.png') + '">' +
     '||4. click the `0file > hide sketchboard`1 menu item on the sketchboard, or click the usual <SPAN STYLE="COLOR:WHITE; FONT-WEIGHT:BOLD; BACKGROUND-COLOR:RED;">&nbsp;X&nbsp;</SPAN> close button, to hide the sketchboard and return to the trackpad.',
     '', '', '', '', '', 'continue', 0);
 
@@ -28725,7 +28726,7 @@ procedure Tpad_form.sb_reload_from_file_menu_entryClick(Sender: TObject);     //
 begin
   do_open_source_bang('SKETCHBOARD');  // OT-FIRST
   { OT-FIRST
-  if FileExists(exe_str+'dpi_yes.txt')=True
+  if FileExists(Config.FilePath(cudiData, 'dpi_yes.txt'))
      then begin
             if alert(2,'php/970    screen  scaling  vitualized',
                        'You have previously changed the screen scaling to the old-style Windows virtualization method.'
@@ -28760,7 +28761,7 @@ procedure Tpad_form.sb_save_to_file_menu_entryClick(Sender: TObject);    // 217b
 begin
   do_open_source_bang('SKETCHBOARD');  // OT-FIRST
   { OT-FIRST
-  if FileExists(exe_str+'dpi_yes.txt')=True
+  if FileExists(Config.FilePath(cudiData, 'dpi_yes.txt'))
      then begin
             if alert(2,'php/970    screen  scaling  vitualized',
                        'You have previously changed the screen scaling to the old-style Windows virtualization method.'

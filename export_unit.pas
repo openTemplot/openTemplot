@@ -180,7 +180,8 @@ implementation
 
 uses
   LCLType, LCLIntf,
-  control_room, point_ex, pad_unit, keep_select, math_unit, preview_unit, entry_sheet, help_sheet,
+  config_unit, control_room, point_ex,
+  pad_unit, keep_select, math_unit, preview_unit, entry_sheet, help_sheet,
      { OT-FIRST dtp_unit, dtp_settings_unit,} alert_unit, grid_unit, pdf_unit, print_settings_unit,colour_unit,
   bgnd_unit, dxf_unit, image_viewer_unit,
   export_draw_unit;  // 291a
@@ -472,7 +473,7 @@ begin
   //if file_str <> '' then
   //  met_file_str := file_str
   //else
-  //  met_file_str := exe_str + 'internal\temp_emf.emf';
+  //  met_file_str := Config.FilePath(csdiInternal, 'temp_emf.emf');
   //
   //try
   //  met_dc_handle := CreateEnhMetaFile(ref_DC, PChar(met_file_str), @met_rect, nil);
@@ -614,7 +615,7 @@ begin
     if his_emf_file_name <> '' then
       InitialDir := ExtractFilePath(his_emf_file_name)
     else
-      InitialDir := exe_str + 'EMF-FILES\';
+      InitialDir := Config.GetDir(cudiEmfs);
 
     FileName := file_name_str + '.emf';
     DefaultExt := 'emf';
@@ -986,7 +987,7 @@ begin
     if his_image_file_name <> '' then
       InitialDir := ExtractFilePath(his_image_file_name)
     else
-      InitialDir := exe_str + 'IMAGE-FILES\';
+      InitialDir := Config.GetDir(cudiImages);
 
     { T3-FIRST
     if transparent_gif_checkbox.Checked=True

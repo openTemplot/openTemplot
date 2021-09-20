@@ -137,6 +137,7 @@ uses
   // Some not needed at the moment - commented out
   // - reintroduce as/if the need arises ...
   //Printers, calibration_unit,
+  config_unit,
   preview_unit, control_room, pad_unit, alert_unit, keep_select, math_unit,
   //gauge_unit,
 
@@ -507,8 +508,9 @@ var
   file_str: string;       // including path
 
 begin
-  file_str := exe_str + 'PDF-PAGEMAP-RECORD-FILES\pdf_pagemap' + FormatDateTime(
-    '_yyyy_mm_dd_hhmm_ss', Date + Time) + '.png';
+  file_str := Config.FilePath(cudiData,
+           'PDF-PAGEMAP-RECORD-FILES\pdf_pagemap' +
+           FormatDateTime('_yyyy_mm_dd_hhmm_ss', Date + Time) + '.png');
 
   create_png :={TPNGObject}TPortableNetworkGraphic.Create;
   try
@@ -1960,7 +1962,7 @@ begin
     if his_pdf_file_name <> '' then
       InitialDir := ExtractFilePath(his_pdf_file_name)
     else
-      InitialDir := exe_str + 'PDF-FILES\';
+      InitialDir := Config.GetDir(cudiPdfs);
 
     FileName := remove_invalid_str(Copy(Trim(box_project_title_str), 1, 20) +
       '_pages_' + FormatDateTime('yyyy_mm_dd_hhmm_ss', Date + Time)) + '.pdf';

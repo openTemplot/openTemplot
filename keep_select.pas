@@ -717,7 +717,9 @@ implementation
 
 {$R *.lfm}
 
-uses  LCLIntf, Math, control_room, {pad_unit,} switch_select, help_sheet,
+uses  LCLIntf, Math, control_room,
+  config_unit,
+  {pad_unit,} switch_select, help_sheet,
   alert_unit, math_unit,     // moved up 290a
   xing_select, entry_sheet, gauge_unit, colour_unit, info_unit, chat_unit, print_unit,
   dxf_unit, bgkeeps_unit, grid_unit, Clipbrd, edit_memo_unit, wait_message, shove_timber,
@@ -2452,13 +2454,13 @@ begin
           if his_save_file_name <> '' then
             InitialDir := ExtractFilePath(his_save_file_name)   // use his previous folder.
           else
-            InitialDir := exe_str + 'BOX-FILES\';                 // or the default one.
+            InitialDir := Config.GetDir(cudiBoxes);              // or the default one.
 
           Filter := ' storage  box  contents  (*.box3)|*.box3';
 
           case which_ones of
             -1: begin                             // echo one only
-              box_str := exe_str + 'e071.bex';
+              box_str := Config.FilePath(cudiBoxes, 'e071.bex');
               // echo goes in the folder we started in.
             end;
 
@@ -3465,7 +3467,7 @@ begin
         if his_load_file_name <> '' then
           InitialDir := ExtractFilePath(his_load_file_name)
         else
-          InitialDir := exe_str + 'BOX-FILES\';
+          InitialDir := Config.GetDir(cudiBoxes);
 
         Filter := ' storage  box  contents  (*.box3)|*.box3';
         Filename := '*.box3';
@@ -5754,7 +5756,7 @@ var
 
 begin
   if (keeps_list.Count > 0) and (save_for_undo = True) then begin
-    sfu_str := exe_str + 'sfu.ebk';
+    sfu_str := Config.FilePath(csdiBackup, 'sfu.ebk');
     DeleteFile(sfu_str);        // delete any previous undo file.
     save_box(0, 0, 0, sfu_str);    // save existing contents for possible undo later.
   end;
@@ -6050,7 +6052,7 @@ begin
 
   export_list := TStringList.Create;
   export_list.Text := html_str;
-  export_list.SaveToFile(exe_str + 'PDF-FILES\box_list.html');
+  export_list.SaveToFile(Config.FilePath(cudiPdfs, 'box_list.html'));
   export_list.Free;
 
   keep_html_view.DefFontColor := printer_text_font.Color;  // 208b
@@ -6062,7 +6064,7 @@ begin
      then begin
 
             with save_pdf_file_dialog do begin
-              InitialDir:=exe_str+'PDF-FILES\';
+              InitialDir:=Config.GetDir(cudiPdfs);
               FileName:=remove_invalid_str(Copy(Trim(box_project_title_str),1,18)+'_box_list'+FormatDateTime('_yyyy_mm_dd_hhmm_ss',Date+Time))+'.pdf';
               Title:='    save  PDF  file  as ...';
 
@@ -8374,7 +8376,7 @@ begin
      then begin
 
             with keep_form.save_pdf_file_dialog do begin
-              InitialDir:=exe_str+'PDF-FILES\';
+              InitialDir:=Config.GetDir(cudiPdfs);
               FileName:=remove_invalid_str(Copy(Trim(box_project_title_str),1,18)+'_box_list'+FormatDateTime('_yyyy_mm_dd_hhmm_ss',Date+Time))+'.pdf';
               Title:='    save  PDF  file  as ...';
 
@@ -10345,7 +10347,7 @@ var
   clear_str: string;
 
 begin
-  if (FileExists(exe_str + 'sfu.ebk') = True) or (FileExists(exe_str + 'sfz.ebk') = True)
+  if FileExists(Config.FilePath(csdiBackup,'sfu.ebk')) or FileExists(Config.FilePath(csdiBackup, 'sfz.ebk'))
   // original or a preserved copy.
   then begin
     if no_undo_clear_msg_pref = False then begin
@@ -10364,21 +10366,21 @@ begin
         EXIT;
     end;
 
-    if FileExists(exe_str + 'sfu.ebk') = True   // original undo file exists
+    if FileExists(Config.FilePath(csdiBackup, 'sfu.ebk')) // original undo file exists
     then begin
-      DeleteFile(exe_str + 'sfz.ebk');
+      DeleteFile(Config.FilePath(csdiBackup, 'sfz.ebk'));
       // delete any preserved copy of the previous undo file.
-      RenameFile(exe_str + 'sfu.ebk', exe_str + 'sfz.ebk');
+      RenameFile(Config.FilePath(csdiBackup,'sfu.ebk'), Config.FilePath(csdiBackup, 'sfz.ebk'));
       // preserve the undo file by renaming.
     end;
 
-    if FileExists(exe_str + 'sfz.ebk') = True
+    if FileExists(Config.FilePath(csdiBackup, 'sfz.ebk'))
     // preserved copy (a new undo file is created on reload).
     then begin
       append := False;
       // var parameter.
-      if load_storage_box(True, False, exe_str + 'sfz.ebk', False,
-        False, append, hl) = False then
+      if not load_storage_box(True, False, Config.FilePath(csdiBackup, 'sfz.ebk'),
+         False, False, append, hl) then
         EXIT;     // nothing was loaded.
 
       if list_panel.Visible = True then

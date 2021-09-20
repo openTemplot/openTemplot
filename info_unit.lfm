@@ -13,7 +13,6 @@ object info_form: Tinfo_form
   ClientHeight = 430
   ClientWidth = 800
   Color = 15852503
-  DesignTimePPI = 120
   Font.Color = clBlack
   Font.Height = -13
   Font.Name = 'Arial'
@@ -23,7 +22,7 @@ object info_form: Tinfo_form
   OnCreate = FormCreate
   OnPaint = FormPaint
   OnShow = FormShow
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.0.10.0'
   Scaled = False
   object radius_shape: TShape
     Left = 128
@@ -78,7 +77,7 @@ object info_form: Tinfo_form
   end
   object gauge_bang_label: TLabel
     Left = 408
-    Height = 21
+    Height = 19
     Hint = ' current  gauge/scale  -   click  to  change '
     Top = 0
     Width = 37
@@ -102,7 +101,7 @@ object info_form: Tinfo_form
     Top = 24
     Width = 169
     Caption = ' smallest  radius  now :  '
-    ClientHeight = 20
+    ClientHeight = 24
     ClientWidth = 165
     Color = 14221311
     Font.Color = clBlack
@@ -274,7 +273,6 @@ object info_form: Tinfo_form
       ShowHint = True
       TabOrder = 1
       TabStop = True
-      Wrap = False
     end
   end
   object corner_dot_panel: TPanel
@@ -320,7 +318,7 @@ object info_form: Tinfo_form
     Top = 66
     Width = 169
     Caption = ' warn  if  radius  is  under :  '
-    ClientHeight = 20
+    ClientHeight = 24
     ClientWidth = 165
     Color = 14221311
     Font.Color = clBlack
@@ -369,8 +367,8 @@ object info_form: Tinfo_form
     Width = 405
     BevelOuter = bvNone
     BorderStyle = bsSingle
-    ClientHeight = 18
-    ClientWidth = 401
+    ClientHeight = 20
+    ClientWidth = 403
     Color = 16777120
     ParentColor = False
     ParentShowHint = False
@@ -492,8 +490,8 @@ object info_form: Tinfo_form
     Width = 169
     BevelOuter = bvNone
     BorderStyle = bsSingle
-    ClientHeight = 76
-    ClientWidth = 165
+    ClientHeight = 78
+    ClientWidth = 167
     Color = 14221311
     ParentColor = False
     TabOrder = 6
@@ -531,7 +529,7 @@ object info_form: Tinfo_form
     Top = 24
     Width = 308
     Caption = ' trackpad  data :  '
-    ClientHeight = 61
+    ClientHeight = 65
     ClientWidth = 304
     Font.Color = clBlack
     Font.Height = -13
@@ -541,18 +539,18 @@ object info_form: Tinfo_form
     TabOrder = 9
     object pad_data_scrollbox: TScrollBox
       Left = 0
-      Height = 61
+      Height = 65
       Top = 0
       Width = 304
       HorzScrollBar.Page = 1
       HorzScrollBar.Visible = False
       VertScrollBar.Increment = 4
-      VertScrollBar.Page = 61
+      VertScrollBar.Page = 65
       VertScrollBar.Tracking = True
       Align = alClient
       BorderStyle = bsNone
-      ClientHeight = 61
-      ClientWidth = 283
+      ClientHeight = 65
+      ClientWidth = 289
       TabOrder = 0
       object zoom_lock_label: TLabel
         Left = 52
@@ -769,13 +767,13 @@ object info_form: Tinfo_form
     Height = 272
     Top = 158
     Width = 800
-    HorzScrollBar.Page = 779
+    HorzScrollBar.Page = 785
     HorzScrollBar.Tracking = True
-    VertScrollBar.Page = 251
+    VertScrollBar.Page = 257
     VertScrollBar.Tracking = True
     BorderStyle = bsNone
-    ClientHeight = 251
-    ClientWidth = 779
+    ClientHeight = 257
+    ClientWidth = 785
     Color = 14221311
     ParentColor = False
     TabOrder = 19
@@ -838,7 +836,7 @@ object info_form: Tinfo_form
     Top = 24
     Width = 91
     Caption = ' rings :  '
-    ClientHeight = 62
+    ClientHeight = 66
     ClientWidth = 87
     Color = 14221311
     Font.Color = clBlack
@@ -896,10 +894,10 @@ object info_form: Tinfo_form
     end
     object sp_ring_warn_checkbox: TCheckBox
       Left = 4
-      Height = 23
+      Height = 21
       Hint = ' warn  if  spacing-ring  is  infringed '
       Top = 3
-      Width = 46
+      Width = 45
       Caption = 'ring'
       Checked = True
       OnClick = sp_ring_warn_checkboxClick
@@ -910,10 +908,10 @@ object info_form: Tinfo_form
     end
     object ring_copies_warn_checkbox: TCheckBox
       Left = 4
-      Height = 23
+      Height = 21
       Hint = ' warn  if  any  ring  copies  are  infringed '
       Top = 50
-      Width = 62
+      Width = 61
       Caption = 'copies'
       OnClick = ring_copies_warn_checkboxClick
       ParentShowHint = False
@@ -983,7 +981,7 @@ object info_form: Tinfo_form
     Title = '      write  info  and  memo  texts  to  file ...'
     DefaultExt = '.txt'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofShowHelp, ofEnableSizing]
-    left = 111
-    top = 281
+    Left = 111
+    Top = 281
   end
 end

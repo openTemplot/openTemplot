@@ -158,7 +158,7 @@ implementation
 {$BOOLEVAL ON}
 
 
-uses pad_unit, alert_unit, control_room, gauge_unit, print_unit, math_unit, colour_unit,
+uses config_unit, pad_unit, alert_unit, control_room, gauge_unit, print_unit, math_unit, colour_unit,
   Menus, Printers, keep_select, help_sheet, chat_unit, grid_unit,
   shove_timber, edit_memo_unit, jotter_unit, data_memo_unit;
 
@@ -325,8 +325,8 @@ var
   s: string;
 
 begin
-  save_dialog.Filename := exe_str + Copy(Trim(remove_invalid_str(current_name_str)),
-    1, 20){+remove_invalid_str(suffix_str)} + '.txt';
+  save_dialog.Filename := Config.FilePath(cudiData, Copy(Trim(remove_invalid_str(current_name_str)),
+    1, 20){+remove_invalid_str(suffix_str)} + '.txt');
   save_dialog.Filter := 'text files (*.txt)|*.txt';
   if save_dialog.Execute = True then begin
     save_dialog.FileName := ChangeFileExt(save_dialog.FileName, '.txt');   // force extension

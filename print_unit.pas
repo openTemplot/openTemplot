@@ -171,7 +171,8 @@ implementation
 {$R *.lfm}
 
 uses
-  Printers, calibration_unit, preview_unit, control_room,
+  Printers,
+  config_unit, calibration_unit, preview_unit, control_room,
   point_ex,
   pad_unit, alert_unit,
   keep_select, math_unit, gauge_unit,
@@ -466,8 +467,8 @@ var
   file_str: string;       // including path
 
 begin
-  file_str := exe_str + 'PRINT-PREVIEW-FILES\print_preview' + FormatDateTime(
-    '_yyyy_mm_dd_hhmm_ss', Date + Time) + '.png';
+  file_str := Config.FilePath(cudiPrintPreviews,
+    FormatDateTime('_yyyy_mm_dd_hhmm_ss', Date + Time) + '.png');
 
   { OT-FIRST create_png:=TPNGObject.Create;}
   create_png := TPortableNetworkGraphic.Create;     // OT-FIRST
