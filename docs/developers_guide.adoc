@@ -35,9 +35,10 @@ To (slightly mis-)quote the Go-lang community, the format is nobody's favourite,
 but everyone loves the fact that it exists.
 
 In order to configure JEDI the settings file you need is provided in 
-the project's root directory (jcfsettings.cfg). To make use of this file, you need
-to copy it into the appropriate directory. This again varies by platform. You can
-find where it lives on your system by opening Lazarus and using the menu
+the project's root directory (OT-jcfsettings.cfg). To make use of this file, you need
+to copy it into the appropriate directory as jcfsettings.cfg. This directory again
+varies by platform. You can find where it lives on your system by 
+opening Lazarus and using the menu
 
      Source -> JEDI Code Format -> Format Settings
 
