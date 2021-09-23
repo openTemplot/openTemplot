@@ -506,6 +506,7 @@ implementation
 
 uses
   LCLIntf, Math, Clipbrd,
+  config_unit,
   control_room, grid_unit, colour_unit, help_sheet, chat_unit, alert_unit,
   entry_sheet, math_unit, wait_message, image_viewer_unit, xml_unit, map_loader_unit, action_unit;
 
@@ -2206,12 +2207,12 @@ begin
 
       with bgnd_form.picture_load_dialog do begin  // 0.93.a
 
-        if (user_load_img_path = '') or (user_load_img_path = (exe_str + 'EMF-FILES\')) or
-          (user_load_img_path = (exe_str + 'IMAGE-FILES\')) then begin
+        if (user_load_img_path = '') or (user_load_img_path = Config.GetDir(cudiEmfs))
+          or (user_load_img_path = Config.GetDir(cudiImages)) then begin
           if meta = True then
-            InitialDir := exe_str + 'EMF-FILES\'
+            InitialDir := Config.GetDir(cudiEmfs)
           else
-            InitialDir := exe_str + 'IMAGE-FILES\';
+            InitialDir := Config.GetDir(cudiImages);
         end
         else
           InitialDir := user_load_img_path;
@@ -2668,7 +2669,9 @@ begin
     EXIT;
   end;
 
-  dpi_str := 'rp.gif  The width-wise and height-wise DPI settings are entered separately. In the vast majority of cases the setting is the same for both, for example from a scanner.' + '||The settings can sometimes differ, for example for an image received via a fax machine.' + '|||    `0Scanner  DPI`9' + '||Enter the resolution in dots-per-inch (DPI) at which this image was scanned. If you do not know this figure, some trial and error will be needed to get the image to the correct size. A good starting point would be 300 dpi.' + '||Refer to the documentation for your scanner for information about the scanner resolution.' + '||The width-wise and height-wise DPI settings are entered separately. In the vast majority of cases the setting is the same for both, for example from a scanner.' + ' The settings can sometimes differ, for example for an image received via a fax machine.' + '||Many scanners use the popular ScanGear software:' + '||       <img src="' + exe_str + 'internal\hlp\scangear_dpi.png">' + '||To find or set the DPI resolution:' + '||1. click the `0Advanced Mode`z tab.|2. Set or make a note of the `0Output Resolution`z setting.' + '||green_panel_begin tree.gif Do not set very high resolutions as this may severely slow down the screen refresh and zooming in Templot0.' + '||300 DPI (dots per inch) is a good option on most systems. Use a lower setting on older computers.green_panel_end';
+  dpi_str := 'rp.gif  The width-wise and height-wise DPI settings are entered separately. In the vast majority of cases the setting is the same for both, for example from a scanner.' +
+  '||The settings can sometimes differ, for example for an image received via a fax machine.' +
+  '|||    `0Scanner  DPI`9' + '||Enter the resolution in dots-per-inch (DPI) at which this image was scanned. If you do not know this figure, some trial and error will be needed to get the image to the correct size. A good starting point would be 300 dpi.' + '||Refer to the documentation for your scanner for information about the scanner resolution.' + '||The width-wise and height-wise DPI settings are entered separately. In the vast majority of cases the setting is the same for both, for example from a scanner.' + ' The settings can sometimes differ, for example for an image received via a fax machine.' + '||Many scanners use the popular ScanGear software:' + '||       <img src="' + Config.FilePath(csdiHelp, 'scangear_dpi.png') + '">' + '||To find or set the DPI resolution:' + '||1. click the `0Advanced Mode`z tab.|2. Set or make a note of the `0Output Resolution`z setting.' + '||green_panel_begin tree.gif Do not set very high resolutions as this may severely slow down the screen refresh and zooming in Templot0.' + '||300 DPI (dots per inch) is a good option on most systems. Use a lower setting on older computers.green_panel_end';
 
   picture_option := 0; // keep compiler happy
 
@@ -3073,7 +3076,7 @@ begin
               rotated_picture := TPicture.Create;
 
               try
-                image_bitmap.LoadFromFile(exe_str + 'internal\empty_picture.bmp');
+                image_bitmap.LoadFromFile(Config.FilePath(csdiInternal, 'empty_picture.bmp'));
 
                 image_width := image_bitmap.Width;
                 image_height := image_bitmap.Height;
@@ -4061,7 +4064,7 @@ begin
   with filesave_dialog do begin             // set up the save dialog.
 
     if user_save_shapes_path = '' then
-      InitialDir := exe_str + 'SHAPE-FILES\'
+      InitialDir := Config.GetDir(cudiShapes)
     else
       InitialDir := user_save_shapes_path;
 
@@ -4356,7 +4359,7 @@ begin
           with fileload_dialog do begin
 
             if user_load_shapes_path = '' then
-              InitialDir := exe_str + 'SHAPE-FILES\'
+              InitialDir := Config.GetDir(cudiShapes)
             else
               Initialdir := user_load_shapes_path;
 
@@ -6257,7 +6260,7 @@ begin
     if his_dxf_file_name <> '' then
       InitialDir := ExtractFilePath(his_dxf_file_name)   // use his previous folder.
     else
-      InitialDir := exe_str + 'DXF-FILES\';
+      InitialDir := Config.GetDir(cudiDxfs);
 
     FileName := '*.dxf';
     Filter := 'DXF files (*.dxf)|*.dxf';
@@ -6892,12 +6895,12 @@ begin
 
           end;//for
 
-          rotated_bitmap.SaveToFile(exe_str + '_85a_temp.bmp');
+          rotated_bitmap.SaveToFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
           // !!! this way corrects a bug with the display of monochrome bitmaps.
 
-          image_bitmap.LoadFromFile(exe_str + '_85a_temp.bmp');
+          image_bitmap.LoadFromFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
 
-          DeleteFile(exe_str + '_85a_temp.bmp');
+          DeleteFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
 
           rotated_bitmap.Free;             // release memory.
           rotated_bitmap := TBitmap.Create;  // and re-create for next time.
@@ -7221,9 +7224,9 @@ begin
 
           if user_save_img_path = '' then begin
             if bgnd_shape.picture_is_metafile = True then
-              InitialDir := exe_str + 'EMF-FILES\'
+              InitialDir := Config.GetDir(cudiEmfs)
             else
-              InitialDir := exe_str + 'IMAGE-FILES\';
+              InitialDir := Config.GetDir(cudiImages);
           end
           else
             InitialDir := user_save_img_path;
@@ -8034,12 +8037,12 @@ begin
 
           until xs_on_control > turnoutx;
 
-          destination_bitmap.SaveToFile(exe_str + '_85a_temp.bmp');
+          destination_bitmap.SaveToFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
           // !!! this way corrects a bug with the display of monochrome bitmaps.
 
-          image_bitmap.LoadFromFile(exe_str + '_85a_temp.bmp');
+          image_bitmap.LoadFromFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
 
-          DeleteFile(exe_str + '_85a_temp.bmp');
+          DeleteFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
 
 
           // get offsets...
@@ -8303,12 +8306,12 @@ begin
 
           end;//for
 
-          destination_bitmap.SaveToFile(exe_str + '_85a_temp.bmp');
+          destination_bitmap.SaveToFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
           // !!! this way corrects a bug with the display of monochrome bitmaps.
 
-          image_bitmap.LoadFromFile(exe_str + '_85a_temp.bmp');
+          image_bitmap.LoadFromFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
 
-          DeleteFile(exe_str + '_85a_temp.bmp');
+          DeleteFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
 
           with this_shape do begin     // re-size the shape to suit.
 
@@ -9322,7 +9325,7 @@ begin
             rotated_picture := TPicture.Create;
 
             try
-              image_bitmap.LoadFromFile(exe_str + 'internal\empty_picture.bmp');
+              image_bitmap.LoadFromFile(Config.FilePath(csdiInternal, 'empty_picture.bmp'));
 
               image_width := image_bitmap.Width;
               image_height := image_bitmap.Height;
@@ -9467,7 +9470,7 @@ begin
         rotated_picture := TPicture.Create;
 
         try
-          image_bitmap.LoadFromFile(exe_str + 'internal\empty_picture.bmp');
+          image_bitmap.LoadFromFile(Config.FilePath(csdiInternal, 'empty_picture.bmp'));
         except
           image_bitmap.Width := 200;            // arbitrary.
           image_bitmap.Height := 150;           // arbitrary.

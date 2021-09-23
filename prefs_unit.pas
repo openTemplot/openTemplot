@@ -86,6 +86,7 @@ procedure get_custom_gauges;
 implementation
 
 uses
+  config_unit,
   control_room, pad_unit, alert_unit, bgnd_unit, math_unit, print_settings_unit, help_sheet, keep_select,
 
   { OT-FIRST dtpFreehandShape,dtp_settings_unit,dtp_unit,} gauge_unit, colour_unit, preview_unit,
@@ -150,10 +151,10 @@ begin
   end;
 
   file_loc_str := '<SPAN STYLE="FONT-WEIGHT:BOLD; COLOR:#3000D0; FONT-FAMILY:Courier New; FONT-SIZE:17PX;">'
-    + exe_str + '</SPAN>';  // program folder, in keys style.
+    + Config.GetDir(cudiData) + '</SPAN>';  // program folder, in keys style.
 
   help_str := StringReplace(help_str, '~~~2', file_loc_str, [rfIgnoreCase]);
-  help_str := StringReplace(help_str, '~~~3', exe_str + 'internal\hlp\saved_prefs.png', [rfIgnoreCase]);
+  help_str := StringReplace(help_str, '~~~3', Config.FilePath(csdiHelp, 'saved_prefs.png'), [rfIgnoreCase]);
 
   if control_room_form.prefs_include_gen_settings_menu_entry.Checked = True then
     help_str := StringReplace(help_str, '~~~4', '<B><I>included</I></B>', [rfIgnoreCase])
@@ -202,23 +203,23 @@ begin
 
   // get the prefs file name from the pointer file...
 
-  if FileExists(exe_str + prefs_pointer_str) = False     // no pointer file
+  if not FileExists(Config.FilePath(cudiData, prefs_pointer_str))  // no pointer file
   then begin                                      // so create it
     try
-      AssignFile(prefs_txt, exe_str + prefs_pointer_str); // set the file name.
+      AssignFile(prefs_txt, Config.FilePath(cudiData, prefs_pointer_str)); // set the file name.
       Rewrite(prefs_txt);                              // open a new file.
       WriteLn(prefs_txt, prefs_file_str);
       // write the file data -- default prefs file name
       WriteLn(prefs_txt, 'Do not edit or delete this file.');
       CloseFile(prefs_txt);                            // and close the file.
     except
-      DeleteFile(exe_str + prefs_pointer_str);
+      DeleteFile(Config.FilePath(cudiData, prefs_pointer_str));
       show_modal_message('File error. Unable to create preferences files.');
     end;//try
   end
   else begin    // pointer file exists, get the required prefs file
     try
-      AssignFile(prefs_txt, exe_str + prefs_pointer_str);
+      AssignFile(prefs_txt, Config.FilePath(cudiData, prefs_pointer_str));
       Reset(prefs_txt);
       ReadLn(prefs_txt, prefs_file_str);   // Read the first line out of the file
       CloseFile(prefs_txt);
@@ -644,7 +645,7 @@ begin
 
   if user_prefs_list.Count > 0 then begin
     try
-      save_str := exe_str + prefs_file_str + '.sk1';
+      save_str := Config.FilePath(cudiData, prefs_file_str + '.sk1');
       user_prefs_list.SaveToFile(save_str);
       prefs_available := True;
       user_prefs_in_use := True;    // added 207a
@@ -840,7 +841,7 @@ begin
       prefs_file_str := get_prefs_file_name;  // get his existing preferences file...
 
     try
-      user_prefs_list.LoadFromFile(exe_str + prefs_file_str + '.sk1');
+      user_prefs_list.LoadFromFile(Config.FilePath(cudiData, prefs_file_str + '.sk1'));
     except
       user_prefs_list.Clear;
       user_prefs_in_use := False;
@@ -1385,14 +1386,14 @@ var
 
 begin
   try
-    AssignFile(prefs_txt, exe_str + prefs_pointer_str); // set the file name.
+    AssignFile(prefs_txt, Config.FilePath(cudiData, prefs_pointer_str)); // set the file name.
     Rewrite(prefs_txt);                              // reopen file.
     WriteLn(prefs_txt, prefs_file_str);               // write the file data -- new prefs file name
     WriteLn(prefs_txt, 'Do not edit or delete this file.');
     CloseFile(prefs_txt);                            // and close the file.
   except
     on EInOutError do
-      DeleteFile(exe_str + prefs_pointer_str);
+      DeleteFile(Config.FilePath(cudiData, prefs_pointer_str));
   end;//try
 end;
 //______________________________________________________________________________
@@ -1401,8 +1402,8 @@ end;
 procedure abandon_prefs(show_dialog: boolean);
 
 begin
-  if FileExists(exe_str + prefs_pointer_str) then begin
-    DeleteFile(exe_str + prefs_pointer_str);
+  if FileExists(Config.FilePath(cudiData, prefs_pointer_str)) then begin
+    DeleteFile(Config.FilePath(cudiData, prefs_pointer_str));
     show_modal_message('Your saved preferences have been abandoned.');
   end
   else
@@ -1462,7 +1463,7 @@ begin
   else
     prefs_form.Caption := '  select  preferences  file ...';
 
-  prefs_form.file_list_box.Directory := exe_str;
+  prefs_form.file_list_box.Directory := Config.GetDir(cudiData);
   prefs_form.file_list_box.Update;                                // in case previously shown
   prefs_form.file_list_box.FileName := get_prefs_file_name + '.sk1';
   // show existing prefs file selected (otherwise FileName not initialised).
@@ -1560,13 +1561,13 @@ begin
     EXIT;
   end;
 
-  if FileExists(exe_str + str + '.sk1') = True then begin
+  if FileExists(Config.FilePath(cudiData, str + '.sk1')) then begin
     if alert(7, '      delete  program  preferences ?',
       '||You are about to delete your saved program preferences in file: ' +
       str + '||OK?| ', '', '', '', '',
       'no  -  cancel', 'yes  -  delete  preferences  file  ' + str + '  ', 0) = 5 then
       EXIT;
-    DeleteFile(exe_str + str + '.sk1');
+    DeleteFile(Config.FilePath(cudiData, str + '.sk1'));
     prefs_form.file_list_box.Update;
     prefs_form.file_list_box.FileName := get_prefs_file_name + '.sk1';
     // re-select existing prefs file (otherwise FileName returns empty on OK).
@@ -1630,8 +1631,7 @@ begin
 
       end;//next
 
-      SaveToFile(exe_str + 'cgs.cgs');
-
+      SaveToFile(Config.FilePath(cudiData, 'cgs.cgs'));
     end;//with
 
   finally
@@ -1693,7 +1693,7 @@ var
   cgs_list: TStringList;
 
 begin
-  if FileExists(exe_str + 'cgs.cgs') = False then
+  if not FileExists(Config.FilePath(cudiData, 'cgs.cgs')) then
     EXIT;
 
   cgs_list := TStringList.Create;
@@ -1703,7 +1703,7 @@ begin
 
       Clear;  // init
 
-      LoadFromFile(exe_str + 'cgs.cgs');
+      LoadFromFile(Config.FilePath(cudiData, 'cgs.cgs'));
 
       for n := 0 to 3 do begin    // custom A to D ...
 

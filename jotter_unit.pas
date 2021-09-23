@@ -124,6 +124,7 @@ implementation
 {$R *.lfm}
 
 uses
+  config_unit,
   colour_unit, info_unit, pad_unit, control_room, alert_unit, preview_unit,
   print_unit, calibration_unit, Printers,
   help_sheet, math_unit, entry_sheet, print_settings_unit;
@@ -322,8 +323,8 @@ end;
 procedure Tjotter_form.jotter_restore_previous_popup_entryClick(Sender: TObject);
 
 begin
-  if FileExists(exe_str + 'jotbak.txt') then
-    jotter_memo.Lines.LoadFromFile(exe_str + 'jotbak.txt')  // bug fix 0.82.a  22-08-06
+  if FileExists(Config.FilePath(csdiBackup, 'jotbak.txt')) then
+    jotter_memo.Lines.LoadFromFile(Config.FilePath(csdiBackup, 'jotbak.txt'))  // bug fix 0.82.a  22-08-06
   else
     jotter_memo.Lines.Add('!!! No previous text available');
 end;
@@ -338,7 +339,7 @@ begin
       EXIT;
   end;
 
-  jotter_open_dialog.Filename := exe_str + 'jotter.txt';
+  jotter_open_dialog.Filename := Config.FilePath(cudiData, 'jotter.txt');
   jotter_open_dialog.Filter := 'text files (*.txt)|*.txt';
   if jotter_open_dialog.Execute = True then begin
     jotter_memo.Lines.LoadFromFile(jotter_open_dialog.Filename);
@@ -354,7 +355,7 @@ begin
   if jotter_memo.Lines.Count < 1 then
     EXIT;
 
-  jotter_save_dialog.Filename := exe_str + 'jotter.txt';
+  jotter_save_dialog.Filename := Config.FilePath(cudiData, 'jotter.txt');
   jotter_save_dialog.Filter := 'text files (*.txt)|*.txt';
   if jotter_save_dialog.Execute = True then begin
     jotter_save_dialog.FileName := ChangeFileExt(jotter_save_dialog.FileName, '.txt');

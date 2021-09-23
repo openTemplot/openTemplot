@@ -10,7 +10,7 @@ object control_room_form: Tcontrol_room_form
   AutoScroll = True
   BorderIcons = [biSystemMenu]
   Caption = '. . .  welcome'
-  ClientHeight = 308
+  ClientHeight = 307
   ClientWidth = 750
   Color = 11075576
   Enabled = False

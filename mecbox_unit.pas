@@ -54,7 +54,9 @@ function import_mecbox(file_str: string): boolean; // 290a
 
 implementation
 
-uses keep_select, wait_message, pad_unit, info_unit, control_room, alert_unit,
+uses
+  config_unit,
+  keep_select, wait_message, pad_unit, info_unit, control_room, alert_unit,
   math_unit, shove_timber, rail_options_unit,
   shoved_timber;
 
@@ -952,12 +954,12 @@ begin
   if export_str <> '' then
     mecbox_str := export_str
   else begin
-    with mecbox_form.save_mecbox_dialog do begin         // set up the save dialog...
+    with mecbox_form.save_mecbox_dialog do begin    // set up the save dialog...
 
       if his_save_file_name <> '' then
         InitialDir := ExtractFilePath(his_save_file_name)   // use his previous folder.
       else
-        InitialDir := exe_str + 'BOX-FILES\';                 // or the default one.
+        InitialDir := Config.GetDir(cudiBoxes);              // or the default one.
 
       Filter := ' storage  box  contents  in  transfer  format  (*.mecbox)|*.mecbox';
 
@@ -3272,7 +3274,7 @@ begin
       if his_load_file_name <> '' then
         InitialDir := ExtractFilePath(his_load_file_name)
       else
-        InitialDir := exe_str + 'BOX-FILES\';
+        InitialDir := Config.GetDir(cudiBoxes);
 
       Filter := ' storage  box  contents  in  transfer  format  (*.mecbox)|*.mecbox';
       Filename := '*.mecbox';
