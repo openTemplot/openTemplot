@@ -51,7 +51,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="61">
+    <Units Count="62">
       <Unit0>
         <Filename Value="templotmec.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -407,6 +407,10 @@
         <Filename Value="model\path_interface.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit60>
+      <Unit61>
+        <Filename Value="config_unit.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit61>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -444,7 +448,7 @@
     </Other>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="4">
+    <Exceptions Count="5">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -457,6 +461,9 @@
       <Item4>
         <Name Value="EFCreateError"/>
       </Item4>
+      <Item5>
+        <Name Value="Unknown"/>
+      </Item5>
     </Exceptions>
   </Debugging>
 </CONFIG>

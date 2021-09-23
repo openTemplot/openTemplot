@@ -110,7 +110,9 @@ implementation
 {$R *.lfm}
 
 uses
-  Printers, pad_unit, preview_unit, help_sheet, alert_unit, entry_sheet, chat_unit,
+  Printers,
+  config_unit,
+  pad_unit, preview_unit, help_sheet, alert_unit, entry_sheet, chat_unit,
   control_room, math_unit;
 
 const
@@ -1174,9 +1176,9 @@ begin
 
   with calibration_form.open_dialog do begin         // set up the load dialog.
     Title := '    reload  calibration  for  ' + prstr;
-    InitialDir := ExtractFilePath(Filename);           // use his previous folder.
+    InitialDir := ExtractFilePath(Filename);        // use his previous folder.
     if InitialDir = '' then
-      InitialDir := exe_str;       // or the default one.
+      InitialDir := Config.GetDir(cudiData);         // or the default one.
     Filter := ' calibration  file  (*.cal3)|*.cal3';
     Filename := '*.cal3';
   end;//with
@@ -1238,7 +1240,7 @@ begin
     Title := '    save  calibration  for  ' + prstr;
     InitialDir := ExtractFilePath(Filename);           // use his previous folder.
     if InitialDir = '' then
-      InitialDir := exe_str;       // or the default one.
+      InitialDir := Config.GetDir(cudiData);         // or the default one.
     Filter := ' calibration  file  (*.cal3)|*.cal3';
     Filename := remove_invalid_str(Copy(Trim(prstr), 1, 22)) + ' - papertype.cal3';
   end;//with

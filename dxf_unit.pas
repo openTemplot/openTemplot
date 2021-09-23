@@ -150,6 +150,7 @@ implementation
 {$R *.lfm}
 
 uses
+  config_unit,
   control_room, pad_unit, help_sheet, chat_unit, colour_unit, math_unit, alert_unit,
   bgkeeps_unit, keep_select,
   background_shapes,
@@ -454,7 +455,7 @@ begin
       if user_save_file_name <> '' then
         InitialDir := ExtractFilePath(user_save_file_name)   // use his previous folder.
       else
-        InitialDir := exe_str + 'DXF-FILES\';                  // or the default one.
+        InitialDir := Config.GetDir(cudiDxfs);                // or the default one.
 
       Filter := 'DXF files (*.dxf)|*.dxf';
       Filename := remove_invalid_str(Copy(Trim(box_project_title_str), 1, 20) +

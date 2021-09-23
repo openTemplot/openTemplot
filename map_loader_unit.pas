@@ -209,7 +209,8 @@ implementation
 {$R *.lfm}
 
 uses
-  Math, point_ex, control_room,
+  Math, point_ex,
+  config_unit, control_room,
   background_shapes,
   bgnd_unit, pad_unit, grid_unit, math_unit, entry_sheet,
   alert_unit, help_sheet, gauge_unit,
@@ -822,8 +823,8 @@ begin
 
   shot_list := TStringList.Create;
 
-  if FileExists(exe_str + 'internal\map\mapshot.txt') then
-    shot_list.LoadFromFile(exe_str + 'internal\map\mapshot.txt')
+  if FileExists(Config.FilePath(csdiMap, 'mapshot.txt')) then
+    shot_list.LoadFromFile(Config.FilePath(csdiMap, 'mapshot.txt'))
   else begin
     ShowMessage('error: no screenshot found');
     shot_list.Free;
@@ -945,8 +946,8 @@ begin
 
   grab_bmp := TBitmap.Create;
 
-  if FileExists(exe_str + 'internal\map\mapshot.bmp') then
-    grab_bmp.LoadFromFile(exe_str + 'internal\map\mapshot.bmp')
+  if FileExists(Config.FilePath(csdiMap, 'mapshot.bmp')) then
+    grab_bmp.LoadFromFile(Config.FilePath(csdiMap, 'mapshot.bmp'))
   else begin
     grab_bmp.Free;
 
@@ -1485,13 +1486,13 @@ begin
         try
           case map_code of
             0:
-              load_picture.LoadFromFile(exe_str + 'internal\tile\osm_tile.png');        // OpenStreetMap PNG
+              load_picture.LoadFromFile(Config.FilePath(csdiTile, 'osm_tile.png'));        // OpenStreetMap PNG
             1:
-              load_picture.LoadFromFile(exe_str + 'internal\tile\nls_tile.jpg');        // NLS London  JPG
+              load_picture.LoadFromFile(Config.FilePath(csdiTile, 'nls_tile.jpg'));        // NLS London  JPG
             2:
-              load_picture.LoadFromFile(exe_str + 'internal\tile\nls_tile.jpg');        // NLS 6-inch  JPG
+              load_picture.LoadFromFile(Config.FilePath(csdiTile, 'nls_tile.jpg'));        // NLS 6-inch  JPG
             else
-              load_picture.LoadFromFile(exe_str + 'internal\empty_picture.bmp');
+              load_picture.LoadFromFile(Config.FilePath(csdiInternal, 'empty_picture.bmp'));
               // ??? invalid map_code for tiled maps
           end;//case
 
@@ -1569,10 +1570,10 @@ begin
   map_str := '';   // init
 
   if map_code = 0 then begin
-    DeleteFile(exe_str + 'internal\tile\osm_tile.png');
+    DeleteFile(Config.FilePath(csdiTile, 'osm_tile.png'));
     // if it already exists
 
-    file_str := exe_str + 'internal\tile\osm_tile.png';  // OT-FIRST
+    file_str := Config.FilePath(csdiTile, 'osm_tile.png');  // OT-FIRST
 
     map_str := 'http://a.tile.openstreetmap.org/' + zoom_str + '/' + xtile_str +
       '/' + ytile_str + '.png';
@@ -1580,20 +1581,20 @@ begin
   end;
 
   if map_code = 1 then begin
-    DeleteFile(exe_str + 'internal\tile\nls_tile.jpg');
+    DeleteFile(Config.FilePath(csdiTile, 'nls_tile.jpg'));
     // if it already exists
 
-    file_str := exe_str + 'internal\tile\nls_tile.jpg';  // OT-FIRST
+    file_str := Config.FilePath(csdiTile, 'nls_tile.jpg');  // OT-FIRST
 
     map_str := 'http://nls-0.tileserver.com/U1k2BDmGHaow/' + zoom_str + '/' +
       xtile_str + '/' + ytile_str + '.jpg';   // where from
   end;
 
   if map_code = 2 then begin
-    DeleteFile(exe_str + 'internal\tile\nls_tile.jpg');
+    DeleteFile(Config.FilePath(csdiTile, 'nls_tile.jpg'));
     // if it already exists
 
-    file_str := exe_str + 'internal\tile\nls_tile.jpg';  // OT-FIRST
+    file_str := Config.FilePath(csdiTile, 'nls_tile.jpg');  // OT-FIRST
 
     map_str := 'http://nls-0.tileserver.com/U1k2BDr0GorO/' + zoom_str + '/' +
       xtile_str + '/' + ytile_str + '.jpg';   // where from
@@ -2239,9 +2240,9 @@ begin
 
     pad_form.Width := Screen.Width div 4;    // ensure screen capture visible
 
-    DeleteFile(exe_str + 'internal\map\mapshot.txt');      // init
+    DeleteFile(Config.FilePath(csdiMap, 'mapshot.txt'));      // init
 
-    capture_exe_str := '"' + exe_str + 'ot_screenshot_capture.exe"';
+    capture_exe_str := '"' + Config.FilePath(cudiData, 'ot_screenshot_capture.exe') + '"';
     capture_url_str := '"' + web_str + '"';
 
     //if ShellExecute(0, 'open', PChar(capture_exe_str), PChar(capture_url_str),
@@ -2266,7 +2267,7 @@ begin
     repeat                                        // wait for capture
       Application.ProcessMessages;
       Sleep(300);
-    until (FileExists(exe_str + 'internal\map\mapshot.txt')) or (cancel_clicked = True);
+    until FileExists(Config.FilePath(csdiMap, 'mapshot.txt')) or cancel_clicked;
 
     cancel_button.Hide;
     web_map_help_form.Hide;
@@ -2468,13 +2469,13 @@ begin
           try
             case map_code of
               0:
-                load_picture.LoadFromFile(exe_str + 'internal\tile\osm_copyright.png');    // OpenStreetMap
+                load_picture.LoadFromFile(Config.FilePath(csdiTile, 'osm_copyright.png'));    // OpenStreetMap
               1:
-                load_picture.LoadFromFile(exe_str + 'internal\tile\nls_copyright.png');    // NLS London
+                load_picture.LoadFromFile(Config.FilePath(csdiTile, 'nls_copyright.png'));    // NLS London
               2:
-                load_picture.LoadFromFile(exe_str + 'internal\tile\nls_copyright.png');    // NLS 6-inch
+                load_picture.LoadFromFile(Config.FilePath(csdiTile, 'nls_copyright.png'));    // NLS 6-inch
               else
-                load_picture.LoadFromFile(exe_str + 'internal\empty_picture.bmp');
+                load_picture.LoadFromFile(Config.FilePath(csdiInternal, 'empty_picture.bmp'));
                 // ??? invalid map_code  not a tiled map
             end;//case
 

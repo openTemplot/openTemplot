@@ -36,6 +36,8 @@ uses
 
            // Templot3 units:
 
+  config_unit in 'config_unit.pas', // configuration handling
+
   control_room in 'control_room.pas', //control_room_form
 
   pad_unit in 'pad_unit.pas' {pad_form},
@@ -111,7 +113,7 @@ var
 begin
   RequireDerivedFormResource:=True;
 
-    Application.Title:='Templot3';
+  Application.Title:='Templot3';
 
   Application.Scaled:=False;
 
@@ -146,7 +148,9 @@ begin
 
   Application.Initialize;
 
-
+  Config.Init();                                      // Read the configuration
+  { TODO : Check this is the right place to insert the config initialisation.
+    Do we have everything we need? }
 
   { OT-FIRST
   with Told_startup_form.Create(nil) do

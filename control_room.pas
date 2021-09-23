@@ -512,7 +512,9 @@ var
   // not yet ready for on_idle to do saves and redraws. 0.73.a 16-9-01.
 
   box_project_title_str, current_name_str: string;
-  exe_str: string;                                       // execution file path.
+  //exe_str: string;                                       // execution file path.
+  reminder_file_path: string;
+
 
   hi_color: boolean = False;
   start_colours: integer = 0;
@@ -663,6 +665,7 @@ implementation
 uses
   LCLType, LCLIntf, Math, Clipbrd, FileUtil, {FileCtrl,} {@demo Clipbrd,} Printers,
   alert_unit,
+  config_unit,
   help_sheet, math_unit,
   pad_unit, info_unit,
   gauge_unit, chat_unit, entry_sheet, print_unit, keep_select,
@@ -712,7 +715,6 @@ var
   open_button_clicked: boolean = False;     // 205d
 
   md5_str: string = '';  // 217a
-
 
 procedure check_colours; forward;
 procedure create_backup_file(final: boolean); forward;
@@ -1596,7 +1598,7 @@ begin
 
   open_button_clicked := True;
 
-  exe_str := ExtractFilePath(Application.ExeName);    // find folder we started in.
+  reminder_file_path := Config.FilePath(csdiBackup, 'reminder.txt');
 
   BorderIcons := [];  // 205c prevent him clicking X, wanting only to hide splash, not quit.
 
@@ -1623,28 +1625,12 @@ begin
 
   Hide;  // hide the form until ready
 
-  ebk1_str := exe_str + 'ebk1.ebk';    // 1st emergency backup file.
-  ebk2_str := exe_str + 'ebk2.ebk';    // 2nd emergency backup file.
-  pb_str := exe_str + 'pb.ebk';        // copied backup file used for previous contents.
-  pbo_str := exe_str + 'pbo.ebk';      // copied backup file used for prior-previous contents.
+  ebk1_str := Config.FilePath(csdiBackup, 'ebk1.ebk'); // 1st emergency backup file.
+  ebk2_str := Config.FilePath(csdiBackup, 'ebk2.ebk'); // 2nd emergency backup file.
+  pb_str := Config.FilePath(csdiBackup, 'pb.ebk');     // copied backup file
+  pbo_str := Config.FilePath(csdiBackup, 'pbo.ebk');   // copied backup file
 
-  ForceDirectories(exe_str + 'internal\fview');   // for file viewer
-  ForceDirectories(exe_str + 'internal\dpi');     // for program size
-  ForceDirectories(exe_str + 'internal\hlp');     // for help
-  ForceDirectories(exe_str + 'internal\tile');    // for tiled maps
-  ForceDirectories(exe_str + 'internal\upd');     // for downloaded updates
-  ForceDirectories(exe_str + 'internal\map');     // for screenshot maps
-
-  ForceDirectories(exe_str + 'BOX-FILES');        // .box3        OT-FIRST
-  ForceDirectories(exe_str + 'SHAPE-FILES');      // .bgs3        OT-FIRST
-  ForceDirectories(exe_str + 'DXF-FILES');
-  ForceDirectories(exe_str + 'EMF-FILES');
-  ForceDirectories(exe_str + 'PRINT-PREVIEW-FILES');
-  ForceDirectories(exe_str + 'SKETCHBOARD-FILES');        // .sk9
-  ForceDirectories(exe_str + 'SKETCHBOARD-IMAGE-LIB');
-  ForceDirectories(exe_str + 'IMAGE-FILES');
-
-  html_path_str := exe_str + 'internal\hlp\';        // 208d for html viewer / local browser.
+  html_path_str := Config.GetDir(csdiHelp);         // for html viewer / local browser.
 
   // 0.91  ...
 
@@ -2013,14 +1999,14 @@ begin
 
   // 206b if nothing loaded, load the default files...
 
-  default_file_str := exe_str + 'BOX-FILES\start.box3';
+  default_file_str := Config.FilePath(cudiBoxes, 'start.box3');
 
   if (gauge_i = t_T55_i) and (keeps_list.Count < 1) and (FileExists(default_file_str) = True)
   // T-55 startup check in case box is empty after reloading file having control template only.
   then
     reload_specified_file(False, False, default_file_str);
 
-  default_file_str := exe_str + 'SHAPE-FILES\start.bgs3';
+  default_file_str := Config.FilePath(cudiShapes, 'start.bgs3');
 
   if (bgnd_form.bgnd_shapes_listbox.Items.Count < 1) and (FileExists(default_file_str) = True) then
     load_shapes(default_file_str, False, False, False);
@@ -2223,8 +2209,8 @@ begin
   else
     logo_img_str := 't3_logo.bmp';
 
-  about_str := '<P STYLE="text-align:center; margin-top:20px;"><IMG SRC="' + exe_str +
-    'internal\hlp\' + logo_img_str + '"></P>' +
+  about_str := '<P STYLE="text-align:center; margin-top:20px;"><IMG SRC="' +
+    Config.FilePath(csdiHelp, logo_img_str) + '"></P>' +
     '<P STYLE="text-align:center; margin-top:20px; color:blue; font-family:''Trebuchet MS''; font-size:19px; font-weight:bold; font-style:italic;">precision track design for model railways</P>' + '<P STYLE="text-align:center; margin-top:20px; margin-bottom:20px; color:#dd6600; font-size:16px; font-weight:bold;">track &nbsp;plan &nbsp;design&nbsp; &nbsp; • &nbsp; &nbsp;precision &nbsp;construction &nbsp;templates</P>' + '<HR NOSHADE>' + '<P CLASS="mainheading" STYLE="text-align:center; font-size:20px; color:#0077DD;">' + Application.Title + ' &nbsp;Version &nbsp;' + GetVersionString(voFull) + '</P>' + '<P CLASS="centerbold"><A HREF="go_to_templot_com.85a">templot • com</A></P>' + '<P CLASS="center"><SPAN STYLE="font-size:12px; color:#555555;">&copy; 2018 &nbsp;released under open-source licence: GNU/GPLv3+<br>program from: &nbsp;https://sourceforge.net/projects/opentemplot/<br>' + 'licence at: https://www.gnu.org/licenses/<br></SPAN></P>' + '<P STYLE="font-size:12px; color:#555555;">' + licence_str + '</P>';
 
   no_new_help_sizes := True;      // don't change the user's default sizes.
@@ -2285,17 +2271,17 @@ begin
       if CanClose = True then begin
         with jotter_form.jotter_memo.Lines do begin
           if Count > 0 then
-            SaveToFile(exe_str + 'jotbak.txt');     // jotter text for restore.
+            SaveToFile(Config.FilePath(csdiBackup, 'jotbak.txt'));  // jotter text for restore.
         end;//with
 
         with boxmru_list do begin
           if Count > 0 then
-            SaveToFile(exe_str + 'boxmru.txt');     // 0.82.a 22-08-06 mru list for box files restore.
+            SaveToFile(Config.FilePath(csdiBackup, 'boxmru.txt'));   // 0.82.a 22-08-06 mru list for box files restore.
         end;//with
 
         with bgsmru_list do begin
           if Count > 0 then
-            SaveToFile(exe_str + 'bgsmru.txt');     // 0.82.a 22-08-06 mru list for bgs files restore.
+            SaveToFile(Config.FilePath(csdiBackup, 'bgsmru.txt'));   // 0.82.a 22-08-06 mru list for bgs files restore.
         end;//with
 
         save_custom_gauges;
@@ -3819,8 +3805,8 @@ begin
 
   reminder_list := TStringList.Create;
 
-  if FileExists(ExtractFilePath(Application.ExeName) + 'reminder.txt') then begin
-    reminder_list.LoadFromFile(ExtractFilePath(Application.ExeName) + 'reminder.txt');
+  if FileExists(reminder_file_path) then begin
+    reminder_list.LoadFromFile(reminder_file_path);
     reminder_label.Caption := 'Reminder message:' + #13 + #13 + reminder_list.Text;
   end
   else
@@ -3941,7 +3927,7 @@ end;
 procedure Tcontrol_room_form.program_menuClick(Sender: TObject);
 
 begin
-  delete_reminder_menu_entry.Enabled := FileExists(exe_str + 'reminder.txt');
+  delete_reminder_menu_entry.Enabled := FileExists(reminder_file_path);
 end;
 //__________________________________________________________________________________________
 
@@ -4261,12 +4247,7 @@ end;
 
 procedure Tcontrol_room_form.reminder_menu_entryClick(Sender: TObject);
 
-var
-  file_name_str: string;
-
 begin
-  file_name_str := exe_str + 'reminder.txt';
-
   with edit_memo_form do begin
 
     Close;       // in case already showing (we want Modal).
@@ -4275,8 +4256,8 @@ begin
 
     vis_edit_memo.Clear;
 
-    if FileExists(file_name_str) then
-      vis_edit_memo.Lines.LoadFromFile(file_name_str)
+    if FileExists(reminder_file_path) then
+      vis_edit_memo.Lines.LoadFromFile(reminder_file_path)
     else begin
       vis_edit_memo.Lines.Add('Enter here a reminder message.');
       vis_edit_memo.Lines.Add('');
@@ -4288,7 +4269,7 @@ begin
     if do_show_modal(edit_memo_form) = mrOk    // 212a
     then begin
       if vis_edit_memo.Lines.Count > 0 then
-        vis_edit_memo.Lines.SaveToFile(file_name_str);
+        vis_edit_memo.Lines.SaveToFile(reminder_file_path);
     end;
 
   end;//with
@@ -4298,7 +4279,7 @@ end;
 procedure Tcontrol_room_form.delete_reminder_menu_entryClick(Sender: TObject);
 
 begin
-  if DeleteFile(exe_str + 'reminder.txt') = True then
+  if DeleteFile(reminder_file_path) then
     ShowMessage('Your reminder message has been deleted.');
 end;
 //______________________________________________________________________________
