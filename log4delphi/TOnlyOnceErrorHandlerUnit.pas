@@ -28,7 +28,7 @@ unit TOnlyOnceErrorHandlerUnit;
 interface
 
 uses
-   SysUtils, TErrorHandlerUnit;
+  SysUtils, TErrorHandlerUnit;
 
 type
 {*----------------------------------------------------------------------------
@@ -36,15 +36,15 @@ type
    policy which consists of emitting a message for the first error in an
    appender and ignoring all following errors.
   ----------------------------------------------------------------------------}
-   TOnlyOnceErrorHandler = class (TErrorHandler)
-   private
-      FFirstTime : Boolean;
-   public
-      constructor Create;
-      procedure Error(const AMsg : String); Overload;  Override;
-      procedure Error(const AMsg: String; AEx : Exception); Overload; Override;
-      procedure SetAppender(const AAppenderName : String); Override;
-   end;
+  TOnlyOnceErrorHandler = class(TErrorHandler)
+  private
+    FFirstTime: Boolean;
+  public
+    constructor Create;
+    procedure Error(const AMsg: String); overload; override;
+    procedure Error(const AMsg: String; AEx: Exception); overload; override;
+    procedure SetAppender(const AAppenderName: String); override;
+  end;
 
 implementation
 
@@ -55,17 +55,17 @@ uses TLogLogUnit;
   ----------------------------------------------------------------------------}
 constructor TOnlyOnceErrorHandler.Create;
 begin
-   inherited Create;
-   FFirstTime := true;
+  inherited Create;
+  FFirstTime := True;
 end;
 
 {*----------------------------------------------------------------------------
    Print the error message passed as parameter.
    @param AMsg The message to print
   ----------------------------------------------------------------------------}
-procedure TOnlyOnceErrorHandler.Error(const AMsg : String);
+procedure TOnlyOnceErrorHandler.Error(const AMsg: String);
 begin
-   Self.Error(AMsg, Nil);
+  Self.Error(AMsg, nil);
 end;
 
 {*----------------------------------------------------------------------------
@@ -73,24 +73,24 @@ end;
    @param AMsg The message to print
    @param AEx The exception to print
   ----------------------------------------------------------------------------}
-procedure TOnlyOnceErrorHandler.Error(
-   const AMsg: String; AEx : Exception);
+procedure TOnlyOnceErrorHandler.Error(const AMsg: String; AEx: Exception);
 begin
-   if (Self.FFirstTime) then begin
-      if (AEx = Nil) then
-         TLogLog.Error(AMsg)
-      else
-         TLogLog.Error(AMsg + ' : ' + AEx.Message);
-      Self.FFirstTime := false;
-   end;
+  if (Self.FFirstTime) then begin
+    if (AEx = nil) then
+      TLogLog.Error(AMsg)
+    else
+      TLogLog.Error(AMsg + ' : ' + AEx.Message);
+    Self.FFirstTime := False;
+  end;
 end;
 
 {*----------------------------------------------------------------------------
    Does absolutely nothing.
   ----------------------------------------------------------------------------}
-procedure TOnlyOnceErrorHandler.SetAppender(const AAppenderName : String);
+procedure TOnlyOnceErrorHandler.SetAppender(const AAppenderName: String);
 begin
-   
+
+
 end;
 
 end.

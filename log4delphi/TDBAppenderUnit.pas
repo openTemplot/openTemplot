@@ -35,19 +35,19 @@ type
 {*----------------------------------------------------------------------------
    DbAppender appends log events to a database.
   ----------------------------------------------------------------------------}
-   TDbAppender = class (TAppender)
-   protected
-     FDBLogInserter: TDBLogInserter;
-   public
-      constructor Create; Overload;
-      constructor Create(ADBLogInserter:TDBLogInserter); Overload;
-      destructor Destroy; Override;
+  TDbAppender = class(TAppender)
+  protected
+    FDBLogInserter: TDBLogInserter;
+  public
+    constructor Create; overload;
+    constructor Create(ADBLogInserter: TDBLogInserter); overload;
+    destructor Destroy; override;
 
-      procedure Close();
-      procedure Append(AEvent : TLoggingEvent); Override;
-      procedure SetDbLogInserter(ADBLogInserter : TDBLogInserter);
-      function RequiresLayout() : Boolean; Override;
-   end;
+    procedure Close();
+    procedure Append(AEvent: TLoggingEvent); override;
+    procedure SetDbLogInserter(ADBLogInserter: TDBLogInserter);
+    function RequiresLayout(): Boolean; override;
+  end;
 
 implementation
 
@@ -55,11 +55,11 @@ constructor TDbAppender.Create();
 begin
   inherited Create;
   Self.FName := ClassName;
-  Self.FDBLogInserter := Nil;
+  Self.FDBLogInserter := nil;
   TLogLog.debug('TDBAppender#Create');
 end;
 
-constructor TDbAppender.Create(ADBLogInserter:TDBLogInserter);
+constructor TDbAppender.Create(ADBLogInserter: TDBLogInserter);
 begin
   inherited Create;
   Self.FName := ClassName;
@@ -69,42 +69,42 @@ end;
 
 destructor TDbAppender.Destroy;
 begin
-   if not Self.FClosed then
-      Self.Close;
-   FDBLogInserter.Free;
-   TLogLog.debug('TDBAppender#Destroy');
-   inherited Destroy;
+  if not Self.FClosed then
+    Self.Close;
+  FDBLogInserter.Free;
+  TLogLog.debug('TDBAppender#Destroy');
+  inherited Destroy;
 end;
 
 procedure TDbAppender.Close();
 begin
   if not (Self.FClosed) then
-    Self.FClosed := true;
+    Self.FClosed := True;
 end;
 
-procedure TDbAppender.Append(AEvent : TLoggingEvent);
+procedure TDbAppender.Append(AEvent: TLoggingEvent);
 begin
-   if (Self.FClosed) then begin
-      if (Self.FErrorHandler <> Nil) then
-         Self.FErrorHandler.Error(
-            'This appender is closed and cannot be written to.');
-      Exit;
-   end;
+  if (Self.FClosed) then begin
+    if (Self.FErrorHandler <> nil) then
+      Self.FErrorHandler.Error(
+        'This appender is closed and cannot be written to.');
+    Exit;
+  end;
 
-   if Assigned(FDBLogInserter) then
-     FDBLogInserter.doInsert(AEvent);
+  if Assigned(FDBLogInserter) then
+    FDBLogInserter.doInsert(AEvent);
 end;
 
-procedure TDbAppender.SetDbLogInserter(ADBLogInserter : TDBLogInserter);
+procedure TDbAppender.SetDbLogInserter(ADBLogInserter: TDBLogInserter);
 begin
-   if Assigned(FDBLogInserter) then
-     Self.FDBLogInserter.Free;
+  if Assigned(FDBLogInserter) then
+    Self.FDBLogInserter.Free;
   Self.FDBLogInserter := ADBLogInserter;
 end;
 
-function TDbAppender.RequiresLayout() : Boolean;
+function TDbAppender.RequiresLayout(): Boolean;
 begin
-   Result := false;
+  Result := False;
 end;
 
 end.

@@ -14,56 +14,56 @@ type
 {*----------------------------------------------------------------------------
 
   ----------------------------------------------------------------------------}
-   TAbstractConfiguration = class (TObject)
-   private
-   protected
-   public
-     procedure AddProperty(AKey : String; AValue : String); Virtual; Abstract;
-     procedure RemoveProperty(AKey : String); Virtual; Abstract;
-     procedure Clear(); Virtual; Abstract;
+  TAbstractConfiguration = class(TObject)
+  private
+  protected
+  public
+    procedure AddProperty(AKey: String; AValue: String); virtual; abstract;
+    procedure RemoveProperty(AKey: String); virtual; abstract;
+    procedure Clear(); virtual; abstract;
 
-     function ContainsKey(AKey : String) : Boolean; Virtual; Abstract;
-     function GetKeys() : TStrings; Virtual; Abstract;
-     function IsEmpty() : Boolean; Virtual; Abstract;
-     function GetProperty(AKey : String) : String; Virtual; Abstract;
+    function ContainsKey(AKey: String): Boolean; virtual; abstract;
+    function GetKeys(): TStrings; virtual; abstract;
+    function IsEmpty(): Boolean; virtual; abstract;
+    function GetProperty(AKey: String): String; virtual; abstract;
 
-     
-   end;
 
-{*----------------------------------------------------------------------------
-
-  ----------------------------------------------------------------------------}
-   TBaseConfiguration = class (TAbstractConfiguration)
-   private
-   protected
-     FMap : TStrings;
-   public
-     constructor Create; Virtual;
-     destructor Destroy; Override;
-
-     procedure AddProperty(AKey : String; AValue : String); Override;
-     procedure RemoveProperty(AKey : String); Override;
-     procedure Clear(); Override;
-
-     function ContainsKey(AKey : String) : Boolean; Override;
-     function GetKeys() : TStrings; Override;
-     function IsEmpty() : Boolean; Override;
-     function GetProperty(AKey : String) : String; Override;
-   end;
+  end;
 
 {*----------------------------------------------------------------------------
 
   ----------------------------------------------------------------------------}
-   TFileConfiguration = class (TBaseConfiguration)
-   private
-   protected
-   public
-     procedure Load(AFilename : String); Overload; Virtual;
-     procedure Load(AStream : TFileStream); Overload; Virtual;
-     procedure Save(AFilename : String); Overload; Virtual;
-     procedure Save(AStream : TFileStream); Overload; Virtual;
-   end;
-   
+  TBaseConfiguration = class(TAbstractConfiguration)
+  private
+  protected
+    FMap: TStrings;
+  public
+    constructor Create; virtual;
+    destructor Destroy; override;
+
+    procedure AddProperty(AKey: String; AValue: String); override;
+    procedure RemoveProperty(AKey: String); override;
+    procedure Clear(); override;
+
+    function ContainsKey(AKey: String): Boolean; override;
+    function GetKeys(): TStrings; override;
+    function IsEmpty(): Boolean; override;
+    function GetProperty(AKey: String): String; override;
+  end;
+
+{*----------------------------------------------------------------------------
+
+  ----------------------------------------------------------------------------}
+  TFileConfiguration = class(TBaseConfiguration)
+  private
+  protected
+  public
+    procedure Load(AFilename: String); overload; virtual;
+    procedure Load(AStream: TFileStream); overload; virtual;
+    procedure Save(AFilename: String); overload; virtual;
+    procedure Save(AStream: TFileStream); overload; virtual;
+  end;
+
 
 implementation
 
@@ -82,14 +82,14 @@ begin
   inherited Destroy;
 end;
 
-procedure TBaseConfiguration.AddProperty(AKey : String; AValue : String);
+procedure TBaseConfiguration.AddProperty(AKey: String; AValue: String);
 begin
-  FMap.Add(AKey + '=' + AValue)
+  FMap.Add(AKey + '=' + AValue);
 end;
 
-procedure TBaseConfiguration.RemoveProperty(AKey : String);
+procedure TBaseConfiguration.RemoveProperty(AKey: String);
 var
-  index : Integer;
+  index: Integer;
 begin
   index := FMap.IndexOfName(AKey);
   if (index >= 0) then
@@ -101,31 +101,31 @@ begin
   FMap.Clear;
 end;
 
-function TBaseConfiguration.ContainsKey(AKey : String) : Boolean;
+function TBaseConfiguration.ContainsKey(AKey: String): Boolean;
 var
-  index : Integer;
+  index: Integer;
 begin
   index := FMap.IndexOfName(AKey);
   Result := (index >= 0);
 end;
 
-function TBaseConfiguration.GetKeys() : TStrings;
+function TBaseConfiguration.GetKeys(): TStrings;
 var
-  res : TStrings;
-  count : Integer;
+  res: TStrings;
+  Count: Integer;
 begin
   res := TStringList.Create;
-  for count := 0 to FMap.Count-1 do
-    res.Add(FMap.Names[count]);
+  for Count := 0 to FMap.Count - 1 do
+    res.Add(FMap.Names[Count]);
   Result := res;
 end;
 
-function TBaseConfiguration.IsEmpty() : Boolean;
+function TBaseConfiguration.IsEmpty(): Boolean;
 begin
   Result := (FMap.Count <= 0);
 end;
 
-function TBaseConfiguration.GetProperty(AKey : String) : String;
+function TBaseConfiguration.GetProperty(AKey: String): String;
 begin
   Result := '';
   if (Self.ContainsKey(AKey)) then
@@ -136,22 +136,22 @@ end;
 {*----------------------------------------------------------------------------
      TFileConfiguration
   ----------------------------------------------------------------------------}
-procedure TFileConfiguration.Load(AFilename : String);
+procedure TFileConfiguration.Load(AFilename: String);
 begin
   Self.FMap.LoadFromFile(AFilename);
 end;
 
-procedure TFileConfiguration.Load(AStream : TFileStream);
+procedure TFileConfiguration.Load(AStream: TFileStream);
 begin
   Self.FMap.LoadFromStream(AStream);
 end;
 
-procedure TFileConfiguration.Save(AFilename : String);
+procedure TFileConfiguration.Save(AFilename: String);
 begin
   Self.FMap.SaveToFile(AFilename);
 end;
 
-procedure TFileConfiguration.Save(AStream : TFileStream);
+procedure TFileConfiguration.Save(AStream: TFileStream);
 begin
   Self.FMap.SaveToStream(AStream);
 end;

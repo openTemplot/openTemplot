@@ -28,73 +28,73 @@ unit TAppenderUnit;
 interface
 
 uses
-   Classes, TLevelUnit, TLayoutUnit, TLoggingEventUnit, TErrorHandlerUnit;
+  Classes, TLevelUnit, TLayoutUnit, TLoggingEventUnit, TErrorHandlerUnit;
 
 type
-   IAppender = interface
-      procedure DoAppend(AEvent : TLoggingEvent);
+  IAppender = interface
+    procedure DoAppend(AEvent: TLoggingEvent);
 
-      function GetName() : String;
-      function GetLayout() : TLayout;
+    function GetName(): String;
+    function GetLayout(): TLayout;
 
-      procedure SetName(AName : String);
-      procedure SetLayout(ALayout : TLayout);
+    procedure SetName(AName: String);
+    procedure SetLayout(ALayout: TLayout);
 
-      function RequiresLayout() : Boolean;
-   end;
+    function RequiresLayout(): Boolean;
+  end;
 
 {*----------------------------------------------------------------------------
    Implement this abstract class with specific strategies for outputting
    log statements.
   ----------------------------------------------------------------------------}
-   TAppender = class (TInterfacedObject, IAppender)
-   private
-   protected
-      FLayout : TLayout;
-      FThreshold : TLevel;
-      FErrorHandler : TErrorHandler;
-      FName : String;
-      FClosed : boolean;
-   public
-      constructor Create;
-      destructor Destroy; Override;
-      procedure Append(AEvent : TLoggingEvent); Virtual; Abstract;
+  TAppender = class(TInterfacedObject, IAppender)
+  private
+  protected
+    FLayout: TLayout;
+    FThreshold: TLevel;
+    FErrorHandler: TErrorHandler;
+    FName: String;
+    FClosed: boolean;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Append(AEvent: TLoggingEvent); virtual; abstract;
 
-      procedure DoAppend(AEvent : TLoggingEvent);
-      procedure SetLayout(ALayout : TLayout); Virtual;
-      procedure SetName(AName : String);
-      procedure SetThreshold(AThreshold : TLevel);
-      procedure SetErrorHandler(AHandler : TErrorHandler);
+    procedure DoAppend(AEvent: TLoggingEvent);
+    procedure SetLayout(ALayout: TLayout); virtual;
+    procedure SetName(AName: String);
+    procedure SetThreshold(AThreshold: TLevel);
+    procedure SetErrorHandler(AHandler: TErrorHandler);
 
-      function GetLayout() : TLayout;
-      function GetName() : String;
-      function GetThreshold() : TLevel;
-      function GetErrorHandler() : TErrorHandler;
-      function IsAsSevereAsThreshold(ALevel : Tlevel) : Boolean;
-      function RequiresLayout() : Boolean; Virtual;
-   end;
+    function GetLayout(): TLayout;
+    function GetName(): String;
+    function GetThreshold(): TLevel;
+    function GetErrorHandler(): TErrorHandler;
+    function IsAsSevereAsThreshold(ALevel: Tlevel): Boolean;
+    function RequiresLayout(): Boolean; virtual;
+  end;
 
-   TAppendersCollection = class
-   private
-     FItems: TInterfaceList;
-     function GetCount: Integer;
-     function Get(Index: Integer): IAppender;
-     procedure Put(Index: Integer; const Value: IAppender);
+  TAppendersCollection = class
+  private
+    FItems: TInterfaceList;
+    function GetCount: Integer;
+    function Get(Index: Integer): IAppender;
+    procedure Put(Index: Integer; const Value: IAppender);
 
-     function IndexOf(const AName : String): Integer;
-   public
-     constructor Create;
-     destructor Destroy; override;
+    function IndexOf(const AName: String): Integer;
+  public
+    constructor Create;
+    destructor Destroy; override;
 
-     property Count: Integer read GetCount;
+    property Count: Integer Read GetCount;
 
-     procedure Add(AAppender : IAppender);
-     procedure Delete(const AName: String);
-     procedure Clear;
+    procedure Add(AAppender: IAppender);
+    procedure Delete(const AName: String);
+    procedure Clear;
 
-     function FindByName(const AName : String): IAppender;
-     property Items[Index: Integer]: IAppender read Get write Put; default;
-   end;
+    function FindByName(const AName: String): IAppender;
+    property Items[Index: Integer]: IAppender Read Get Write Put; default;
+  end;
 
 implementation
 
@@ -117,10 +117,10 @@ end;
   ----------------------------------------------------------------------------}
 destructor TAppender.Destroy;
 begin
-   Self.FLayout.Free;
-   Self.FErrorHandler.Free;
-   TLogLog.debug('TAppender#Destroy: Appender destroyed - name=' + Self.FName);
-   inherited Destroy;
+  Self.FLayout.Free;
+  Self.FErrorHandler.Free;
+  TLogLog.debug('TAppender#Destroy: Appender destroyed - name=' + Self.FName);
+  inherited Destroy;
 end;
 
 {*----------------------------------------------------------------------------
@@ -128,21 +128,20 @@ end;
    append method of appender implementations in order to log.
    @param AEvent The logging event to log
   ----------------------------------------------------------------------------}
-procedure TAppender.DoAppend(AEvent : TLoggingEvent);
+procedure TAppender.DoAppend(AEvent: TLoggingEvent);
 begin
-   if ((NOT Self.FClosed)
-         AND (Self.IsAsSevereAsThreshold(AEvent.GetLevel))) then
-      Self.Append(AEvent);
+  if ((not Self.FClosed) and (Self.IsAsSevereAsThreshold(AEvent.GetLevel))) then
+    Self.Append(AEvent);
 end;
 
 {*----------------------------------------------------------------------------
    Set the Layout for this appender to use.
    @param ALayout The layout this appender uses
   ----------------------------------------------------------------------------}
-procedure TAppender.SetLayout(ALayout : TLayout);
+procedure TAppender.SetLayout(ALayout: TLayout);
 begin
-   Self.FLayout := ALayout;
-     TLogLog.debug('TAppender#SetLayout: ' + ALayout.ClassName);
+  Self.FLayout := ALayout;
+  TLogLog.debug('TAppender#SetLayout: ' + ALayout.ClassName);
 end;
 
 {*----------------------------------------------------------------------------
@@ -150,66 +149,66 @@ end;
    identify this appender.
    @param AName The name of this appender
   ----------------------------------------------------------------------------}
-procedure TAppender.SetName(AName : String);
+procedure TAppender.SetName(AName: String);
 begin
-   Self.FName := AName;
-  TLogLog.debug('TAppender#SetName: ' + AName);   
+  Self.FName := AName;
+  TLogLog.debug('TAppender#SetName: ' + AName);
 end;
 
 {*----------------------------------------------------------------------------
    Set the threshold level for this appender to use.
    @param AThreshold The threshold level this appender uses
   ----------------------------------------------------------------------------}
-procedure TAppender.SetThreshold(AThreshold : TLevel);
+procedure TAppender.SetThreshold(AThreshold: TLevel);
 begin
-   Self.FThreshold := AThreshold;
-  TLogLog.debug('TAppender#SetThreshold: ' + AThreshold.ToString);   
+  Self.FThreshold := AThreshold;
+  TLogLog.debug('TAppender#SetThreshold: ' + AThreshold.ToString);
 end;
 
 {*----------------------------------------------------------------------------
    Set the ErrorHandler for this appender to use.
    @param AHandler The error handler for this appender
   ----------------------------------------------------------------------------}
-procedure TAppender.SetErrorHandler(AHandler : TErrorHandler);
+procedure TAppender.SetErrorHandler(AHandler: TErrorHandler);
 begin
-   Self.FErrorHandler := AHandler;
-  TLogLog.debug('TAppender#SetErrorHandler: ' + AHandler.ClassName);   
+  Self.FErrorHandler := AHandler;
+  TLogLog.debug('TAppender#SetErrorHandler: ' + AHandler.ClassName);
 end;
 
 {*----------------------------------------------------------------------------
    Returns this appenders layout.
    @return The layout of this appender
   ----------------------------------------------------------------------------}
-function TAppender.GetLayout() : TLayout;
+function TAppender.GetLayout(): TLayout;
 begin
-   Result := Self.FLayout;
+  Result := Self.FLayout;
 end;
 
 {*----------------------------------------------------------------------------
    Get the name of this appender. The name uniquely identifies the appender.
    @return The name of this appender
   ----------------------------------------------------------------------------}
-function TAppender.GetName() : String;
+function TAppender.GetName(): String;
 begin
-   Result := Self.FName;
+  Result := Self.FName;
 end;
 
 {*----------------------------------------------------------------------------
    Returns this appender's threshold level.
    @return The threshold level of this appender
   ----------------------------------------------------------------------------}
-function TAppender.getThreshold() : TLevel;
+function TAppender.getThreshold(): TLevel;
 begin
-   Result := Self.FThreshold;
+  Result := Self.FThreshold;
 end;
 
 {*----------------------------------------------------------------------------
    Return the currently set ErrorHandler for this appender.
    @return The error handler of this appender
   ----------------------------------------------------------------------------}
-function TAppender.getErrorHandler() : TErrorHandler;
+function TAppender.getErrorHandler(): TErrorHandler;
 begin
-   Result := Self.FErrorHandler;
+  Result := Self.FErrorHandler;
 end;
 
 {*----------------------------------------------------------------------------
@@ -219,10 +218,9 @@ end;
    @return True if this appenders level is greater than or equal to the
       given level, false otherwise
   ----------------------------------------------------------------------------}
-function TAppender.IsAsSevereAsThreshold(ALevel : Tlevel) : Boolean;
+function TAppender.IsAsSevereAsThreshold(ALevel: Tlevel): Boolean;
 begin
-   Result := ((Self.FThreshold = Nil)
-      OR (ALevel.IsGreaterOrEqual(Self.FThreshold)));
+  Result := ((Self.FThreshold = nil) or (ALevel.IsGreaterOrEqual(Self.FThreshold)));
 end;
 
 {*----------------------------------------------------------------------------
@@ -230,93 +228,95 @@ end;
    false, appenders that require a layout will override this method.
    @return True if this appender requires a layout, flase otherwise
   ----------------------------------------------------------------------------}
-function TAppender.RequiresLayout() : Boolean;
+function TAppender.RequiresLayout(): Boolean;
 begin
-   Result := false;
+  Result := False;
 end;
 
 { TAppendersCollection }
 
 procedure TAppendersCollection.Add(AAppender: IAppender);
 begin
-   if FItems.IndexOf(AAppender) >= 0 then
-      Exit;
+  if FItems.IndexOf(AAppender) >= 0 then
+    Exit;
 
-   FItems.Add(AAppender);
+  FItems.Add(AAppender);
 end;
 
 procedure TAppendersCollection.Clear;
 begin
-   FItems.Clear;
+  FItems.Clear;
 end;
 
 constructor TAppendersCollection.Create;
 begin
-   FItems := TInterfaceList.Create;
+  FItems := TInterfaceList.Create;
 end;
 
 procedure TAppendersCollection.Delete(const AName: String);
 var
-   index : Integer;
+  index: Integer;
 begin
-   index := IndexOf(AName);
-   if (index >= 0) then begin
-      FItems.Delete(index);
-   end;
+  index := IndexOf(AName);
+  if (index >= 0) then begin
+    FItems.Delete(index);
+  end;
 end;
 
 destructor TAppendersCollection.Destroy;
 begin
-   FItems.Free;
+  FItems.Free;
 
-   inherited;
+  inherited;
 end;
 
 function TAppendersCollection.FindByName(const AName: String): IAppender;
 var
-   index : Integer;
+  index: Integer;
 begin
-   index := IndexOf(AName);
+  index := IndexOf(AName);
 
-   if index = -1 then
-   begin
-      Result := nil;
-      Exit;
-   end;
+  if index = -1 then begin
+    Result := nil;
+    Exit;
+  end;
 
-   Result := IAppender(FItems[index]);
+  Result := IAppender(FItems[index]);
 end;
 
 function TAppendersCollection.Get(Index: Integer): IAppender;
 begin
-   Result := IAppender(FItems[Index]);
+  Result := IAppender(FItems[Index]);
 end;
 
 function TAppendersCollection.GetCount: Integer;
 begin
-   Result := FItems.Count;
+  Result := FItems.Count;
 end;
 
-function TAppendersCollection.IndexOf(const AName : String): Integer;
+function TAppendersCollection.IndexOf(const AName: String): Integer;
 var
-   i: Integer;
+  i: Integer;
 begin
-   for i := 0 to FItems.Count - 1 do
-   begin
-      if not SameText(IAppender(FItems[i]).GetName, AName) then
-         continue;
+  for i := 0 to FItems.Count - 1 do begin
+    if not SameText(IAppender(FItems[i]).GetName, AName) then
+      continue;
 
-      Result := i;
-      Exit;
-   end;
+    Result := i;
+    Exit;
+  end;
 
-   Result := -1;
+  Result := -1;
 end;
 
-procedure TAppendersCollection.Put(Index: Integer;
-   const Value: IAppender);
+procedure TAppendersCollection.Put(Index: Integer; const Value: IAppender);
 begin
-   FItems[Index] := Value;
+  FItems[Index] := Value;
+
+
+
+
+
 end;
 
 end.

@@ -28,8 +28,8 @@ unit TPropertiesUnit;
 interface
 
 uses
-   Classes, SysUtils,
-   TStringUnit, TPrintWriterUnit;
+  Classes, SysUtils,
+  TStringUnit, TPrintWriterUnit;
 
 type
 {*----------------------------------------------------------------------------
@@ -41,24 +41,23 @@ type
    when loaded from a stream, the same format is expected. Keys can be of the
    form "base.name" thus allowing a subset of all properties with the same
    base to be found.
-  ----------------------------------------------------------------------------} 
-   TProperties = class (TObject)
-   private
-      FValues : TStrings;
-   public
-      constructor Create;
-      destructor Destroy; Override;
-      procedure SetProperty(const AKey, AValue : String);
-      procedure RemoveProperty(const AKey : String);
-      procedure Save(AStream : TStream);
-      procedure Load(AStream : TStream);
-      procedure Clear();
-      function GetProperty(const AKey : String) : String; Overload;
-      function GetProperty(const AKey, ADefaultValue : String)
-        : String; Overload;
-      function GetPropertyNames() : TStrings;
-      function Subset(const APrefix : String) : TProperties;
-   end;
+  ----------------------------------------------------------------------------}
+  TProperties = class(TObject)
+  private
+    FValues: TStrings;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure SetProperty(const AKey, AValue: String);
+    procedure RemoveProperty(const AKey: String);
+    procedure Save(AStream: TStream);
+    procedure Load(AStream: TStream);
+    procedure Clear();
+    function GetProperty(const AKey: String): String; overload;
+    function GetProperty(const AKey, ADefaultValue: String): String; overload;
+    function GetPropertyNames(): TStrings;
+    function Subset(const APrefix: String): TProperties;
+  end;
 
 implementation
 
@@ -67,8 +66,8 @@ implementation
   ----------------------------------------------------------------------------}
 constructor TProperties.Create;
 begin
-   inherited Create;
-   FValues := TStringList.Create;
+  inherited Create;
+  FValues := TStringList.Create;
 end;
 
 {*----------------------------------------------------------------------------
@@ -76,9 +75,9 @@ end;
   ----------------------------------------------------------------------------}
 destructor TProperties.Destroy;
 begin
-   clear();
-   FValues.Free;
-   inherited Destroy;
+  Clear();
+  FValues.Free;
+  inherited Destroy;
 end;
 
 {*----------------------------------------------------------------------------
@@ -86,16 +85,17 @@ end;
    @param AKey The key to set
    @param AValue The value that maps to that key
   ----------------------------------------------------------------------------}
-procedure TProperties.SetProperty(const AKey, AValue : String);
+procedure TProperties.SetProperty(const AKey, AValue: String);
 var
-   index : Integer;
+  index: Integer;
 begin
-   index := FValues.IndexOf(AKey);
-   if (index < 0) then begin
-      FValues.AddObject(AKey, TString.Create(AValue));
-   end else begin
-      TString(FValues.Objects[index]).setString(AValue);
-   end;
+  index := FValues.IndexOf(AKey);
+  if (index < 0) then begin
+    FValues.AddObject(AKey, TString.Create(AValue));
+  end
+  else begin
+    TString(FValues.Objects[index]).setString(AValue);
+  end;
 end;
 
 {*----------------------------------------------------------------------------
@@ -103,15 +103,15 @@ end;
    non-existent, no such key in the set.
    @param AKey The key whose value to delete
   ----------------------------------------------------------------------------}
-procedure TProperties.RemoveProperty(const AKey : String);
+procedure TProperties.RemoveProperty(const AKey: String);
 var
-   index : Integer;
+  index: Integer;
 begin
-   index := FValues.IndexOf(AKey);
-   if (index >= 0) then begin
-      FValues.Objects[index].Free;
-      FValues.Delete(index);
-   end;
+  index := FValues.IndexOf(AKey);
+  if (index >= 0) then begin
+    FValues.Objects[index].Free;
+    FValues.Delete(index);
+  end;
 end;
 
 {*----------------------------------------------------------------------------
@@ -119,18 +119,18 @@ end;
    subclasses TStream.
    @param AStream The TStream to save to
   ----------------------------------------------------------------------------}
-procedure TProperties.Save(AStream : TStream);
+procedure TProperties.Save(AStream: TStream);
 var
-   writer : TPrintWriter;
-   index : Integer;
+  writer: TPrintWriter;
+  index: Integer;
 begin
-   writer := TPrintWRiter.Create(AStream);
-   for index := 0 to FValues.Count-1 do begin
-      writer.print(FValues[index]);
-      writer.print('=');
-      writer.println(TString(FValues.Objects[index]).ToString);
-   end;
-   writer.Free;
+  writer := TPrintWRiter.Create(AStream);
+  for index := 0 to FValues.Count - 1 do begin
+    writer.print(FValues[index]);
+    writer.print('=');
+    writer.println(TString(FValues.Objects[index]).ToString);
+  end;
+  writer.Free;
 end;
 
 {*----------------------------------------------------------------------------
@@ -138,27 +138,27 @@ end;
    TStream.
    @param AStream The stream to load from
   ----------------------------------------------------------------------------}
-procedure TProperties.Load(AStream : TStream);
+procedure TProperties.Load(AStream: TStream);
 var
-   strings : TStrings;
-   count : Integer;
-   index : Integer;
+  strings: TStrings;
+  Count: Integer;
+  index: Integer;
 begin
-   clear();
-   strings := TStringList.Create;
-   strings.LoadFromStream(AStream);
-   for count := 0 to strings.Count-1 do begin
-      if (Length(strings[count]) > 0) then
-         if (strings[count][1] <> '#') then begin
-            index := Pos('=', strings[count]);
-            if (index >= 0) then begin
-               FValues.AddObject(trim(copy(strings[count],0,index-1)),
-                  TString.Create(trim(copy(strings[count],index+1,
-                  Length(strings[count])-index))));
-            end;
-         end;
-   end;
-   strings.Free;
+  Clear();
+  strings := TStringList.Create;
+  strings.LoadFromStream(AStream);
+  for Count := 0 to strings.Count - 1 do begin
+    if (Length(strings[Count]) > 0) then
+      if (strings[Count][1] <> '#') then begin
+        index := Pos('=', strings[Count]);
+        if (index >= 0) then begin
+          FValues.AddObject(trim(copy(strings[Count], 0, index - 1)),
+            TString.Create(trim(copy(strings[Count], index + 1,
+            Length(strings[Count]) - index))));
+        end;
+      end;
+  end;
+  strings.Free;
 end;
 
 {*----------------------------------------------------------------------------
@@ -166,11 +166,11 @@ end;
   ----------------------------------------------------------------------------}
 procedure TProperties.Clear();
 var
-   count : Integer;
+  Count: Integer;
 begin
-   for count := 0 to FValues.Count-1 do
-      FValues.Objects[count].Free;
-   FValues.Clear;
+  for Count := 0 to FValues.Count - 1 do
+    FValues.Objects[Count].Free;
+  FValues.Clear;
 end;
 
 {*----------------------------------------------------------------------------
@@ -180,9 +180,9 @@ end;
    @return The value matching the given key or an emprty string if no such
      key exists
   ----------------------------------------------------------------------------}
-function TProperties.GetProperty(const AKey : String) : String;
+function TProperties.GetProperty(const AKey: String): String;
 begin
-   result := getProperty(Akey, '');
+  Result := getProperty(Akey, '');
 end;
 
 {*----------------------------------------------------------------------------
@@ -193,15 +193,15 @@ end;
    @return The value matching the given key or default value if no such
      key exists
   ----------------------------------------------------------------------------}
-function TProperties.GetProperty(const AKey, ADefaultValue : String) : String;
+function TProperties.GetProperty(const AKey, ADefaultValue: String): String;
 var
-   index : Integer;
+  index: Integer;
 begin
-   index := FValues.IndexOf(AKey);
-   if (index >= 0) then
-      result := TString(FValues.Objects[index]).toString
-   else
-      result := ADefaultValue;
+  index := FValues.IndexOf(AKey);
+  if (index >= 0) then
+    Result := TString(FValues.Objects[index]).toString
+  else
+    Result := ADefaultValue;
 end;
 
 {*----------------------------------------------------------------------------
@@ -209,13 +209,13 @@ end;
    iterating through all the properties in the set.
    @return TStringList with all the keys 
   ----------------------------------------------------------------------------}
-function TProperties.GetPropertyNames() : TStrings;
+function TProperties.GetPropertyNames(): TStrings;
 var
-   tmp : TStrings;
+  tmp: TStrings;
 begin
-   tmp := TStringList.Create;
-   tmp.Text := FValues.Text;
-   result := tmp;
+  tmp := TStringList.Create;
+  tmp.Text := FValues.Text;
+  Result := tmp;
 end;
 
 {*----------------------------------------------------------------------------
@@ -226,17 +226,17 @@ end;
    @param APrefix The base prefix of the subset
    @return A new TProperteis instance containing the subset of properties
   ----------------------------------------------------------------------------}
-function TProperties.Subset(const APrefix : String) : TProperties;
+function TProperties.Subset(const APrefix: String): TProperties;
 var
-   tmp : TProperties;
-   i : Integer;
+  tmp: TProperties;
+  i: Integer;
 begin
-   tmp := TProperties.Create;
-   for i := 0 to FValues.Count-1 do
-      if (TStringUnit.StartsWith(FValues[i], APrefix, 0)) then
-         tmp.FValues.AddObject(FValues[i],
-           TString.Create(TString(FValues.Objects[i])));
-   result := tmp;
+  tmp := TProperties.Create;
+  for i := 0 to FValues.Count - 1 do
+    if (TStringUnit.StartsWith(FValues[i], APrefix, 0)) then
+      tmp.FValues.AddObject(FValues[i],
+        TString.Create(TString(FValues.Objects[i])));
+  Result := tmp;
 end;
 
 end.

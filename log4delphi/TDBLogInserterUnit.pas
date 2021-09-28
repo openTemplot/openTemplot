@@ -30,24 +30,24 @@ unit TDBLogInserterUnit;
 interface
 
 uses
- TLoggingEventUnit;
+  TLoggingEventUnit;
 
 type
 {*----------------------------------------------------------------------------
    Database abstraction - implement this abstract class with
    support for specific databases for outputting log statements.
   ----------------------------------------------------------------------------}
-  TDbLogInserter = class (TObject)
-    protected
-      procedure Insert(AEvent : TLoggingEvent); virtual; abstract;
-    public
-      procedure DoInsert(AEvent : TLoggingEvent);
+  TDbLogInserter = class(TObject)
+  protected
+    procedure Insert(AEvent: TLoggingEvent); virtual; abstract;
+  public
+    procedure DoInsert(AEvent: TLoggingEvent);
   end;
 
 
 implementation
 
-procedure TDbLogInserter.DoInsert(AEvent : TLoggingEvent);
+procedure TDbLogInserter.DoInsert(AEvent: TLoggingEvent);
 begin
   Self.Insert(AEvent);
 end;

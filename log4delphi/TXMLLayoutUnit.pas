@@ -28,19 +28,19 @@ unit TXMLLayoutUnit;
 interface
 
 uses
-   TLayoutUnit, TLoggingEventUnit;
+  TLayoutUnit, TLoggingEventUnit;
 
 type
 {*----------------------------------------------------------------------------
    Format logging events as XML.
   ----------------------------------------------------------------------------}
-   TXMLLayout = class (TLayout)
-   private
-   public
-      function Format(AEvent : TLoggingEvent) : String; Override;
-      function GetContentType() : String; Override;
-      function IgnoresException() : Boolean; Override;
-   end;
+  TXMLLayout = class(TLayout)
+  private
+  public
+    function Format(AEvent: TLoggingEvent): String; override;
+    function GetContentType(): String; override;
+    function IgnoresException(): Boolean; override;
+  end;
 
 implementation
 
@@ -52,31 +52,30 @@ uses
    @param AEvent the event to format
    @return The event formatted as an XML string  
   ----------------------------------------------------------------------------}
-function TXMLLayout.Format(AEvent : TLoggingEvent) : String;
+function TXMLLayout.Format(AEvent: TLoggingEvent): String;
 var
-   tmp : String;
+  tmp: String;
 begin
-   tmp := '<log4delphi:event timestamp="'
-      + IntToStr(DateTimeToFileDate(AEvent.getStartTime))
-      + '" level="' + AEvent.GetLevel.toString + '">' + LINE_SEP
-      + '    <log4delphi:message><![CDATA[' + AEvent.GetMessage
-      + ']]></log4delphi:message>' + LINE_SEP;
-   if (AEvent.GetException <> Nil) then begin
-      tmp := tmp + '    <log4delphi:exception class="'
-         + AEvent.GetException.ClassName + '"><![CDATA['
-         + AEvent.GetException.Message + ']]></log4delphi:exception>' + LINE_SEP;
-   end;
-   tmp := tmp + '</log4delphi:event>' + LINE_SEP;
-   format := tmp;
+  tmp := '<log4delphi:event timestamp="' +
+    IntToStr(DateTimeToFileDate(AEvent.getStartTime)) + '" level="' +
+    AEvent.GetLevel.toString + '">' + LINE_SEP + '    <log4delphi:message><![CDATA[' +
+    AEvent.GetMessage + ']]></log4delphi:message>' + LINE_SEP;
+  if (AEvent.GetException <> nil) then begin
+    tmp := tmp + '    <log4delphi:exception class="' +
+      AEvent.GetException.ClassName + '"><![CDATA[' + AEvent.GetException.Message +
+      ']]></log4delphi:exception>' + LINE_SEP;
+  end;
+  tmp := tmp + '</log4delphi:event>' + LINE_SEP;
+  format := tmp;
 end;
 
 {*----------------------------------------------------------------------------
    Returns the content type output by this layout, "text/xml".
    @return Content type
   ----------------------------------------------------------------------------}
-function TXMLLayout.GetContentType() : String;
+function TXMLLayout.GetContentType(): String;
 begin
-   Result := 'text/xml';
+  Result := 'text/xml';
 end;
 
 {*----------------------------------------------------------------------------
@@ -86,9 +85,10 @@ end;
    ignore exceptions.
    @return Whether the exception is handled or not
   ----------------------------------------------------------------------------}
-function TXMLLayout.IgnoresException() : Boolean;
+function TXMLLayout.IgnoresException(): Boolean;
 begin
-   Result := false;
+  Result := False;
+
 end;
 
 end.
