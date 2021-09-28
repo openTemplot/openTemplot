@@ -32,3 +32,9 @@ lib/
 # Application output folders
 output/
 
+# Asciidoc temp files
+docs/.asciidoctor/
+docs/*.png
+docs/*.html
+
+
