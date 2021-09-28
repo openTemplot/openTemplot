@@ -28,9 +28,9 @@ unit TWriterAppenderUnit;
 interface
 
 uses
-   Classes,
-   TAppenderUnit, TLayoutUnit, TLoggingEventUnit,
-   TLevelUnit, TPrintWriterUnit;
+  Classes,
+  TAppenderUnit, TLayoutUnit, TLoggingEventUnit,
+  TLevelUnit, TPrintWriterUnit;
 
 type
 {*----------------------------------------------------------------------------
@@ -38,29 +38,29 @@ type
    combination with streams thus allowing logging to file streams, network
    streams or other stream based resources.
   ----------------------------------------------------------------------------}
-   TWriterAppender = class (TAppender)
-   private
-   protected
-      FWriter : TPrintWriter;
-      FImmediateFlush : Boolean;
-      procedure WriteFooter();
-      procedure WriteHeader();
-   public
-      constructor Create(); Overload;
-      constructor Create(ALayout : TLayout; AStream : TStream); Overload;
-      destructor Destroy; Override;
-      procedure Close();
-      procedure Append(AEvent : TLoggingEvent); Override;
-      procedure SetImmediateFlush(AFlush : Boolean);
-      procedure SetStream(AStream : TStream);
-      function GetImmediateFlush() : Boolean;
-      function RequiresLayout() : Boolean; Override;
-   end;
+  TWriterAppender = class(TAppender)
+  private
+  protected
+    FWriter: TPrintWriter;
+    FImmediateFlush: Boolean;
+    procedure WriteFooter();
+    procedure WriteHeader();
+  public
+    constructor Create(); overload;
+    constructor Create(ALayout: TLayout; AStream: TStream); overload;
+    destructor Destroy; override;
+    procedure Close();
+    procedure Append(AEvent: TLoggingEvent); override;
+    procedure SetImmediateFlush(AFlush: Boolean);
+    procedure SetStream(AStream: TStream);
+    function GetImmediateFlush(): Boolean;
+    function RequiresLayout(): Boolean; override;
+  end;
 
 implementation
 
 uses
-   TLogLogUnit;
+  TLogLogUnit;
 
 {*----------------------------------------------------------------------------
    Write a footer as produced by the embedded layout's Layout.getFooter
@@ -86,9 +86,9 @@ end;
   ----------------------------------------------------------------------------}
 constructor TWriterAppender.Create();
 begin
-   inherited Create;
-   Self.FWriter := Nil;
-   Self.FImmediateFlush := true;
+  inherited Create;
+  Self.FWriter := nil;
+  Self.FImmediateFlush := True;
 end;
 
 {*----------------------------------------------------------------------------
@@ -98,16 +98,16 @@ end;
    @param ALayout The layout to use
    @param AStream The stream to use
   ----------------------------------------------------------------------------}
-constructor TWriterAppender.Create(ALayout : TLayout; AStream : TStream);
+constructor TWriterAppender.Create(ALayout: TLayout; AStream: TStream);
 begin
-   inherited Create;
-   TLogLog.debug('TWriterAppender.Create');
-   Self.FLayout := ALayout;
-   Self.FThreshold := TLevelUnit.DEBUG;
-   Self.FName := ClassName;
-   Self.SetStream(AStream);
-   Self.FImmediateFlush := true;
-   Self.WriteHeader;
+  inherited Create;
+  TLogLog.debug('TWriterAppender.Create');
+  Self.FLayout := ALayout;
+  Self.FThreshold := TLevelUnit.DEBUG;
+  Self.FName := ClassName;
+  Self.SetStream(AStream);
+  Self.FImmediateFlush := True;
+  Self.WriteHeader;
 end;
 
 {*----------------------------------------------------------------------------
@@ -115,11 +115,11 @@ end;
   ----------------------------------------------------------------------------}
 destructor TWriterAppender.Destroy;
 begin
-   if not Self.FClosed then
-      Self.Close;
-   Self.FWriter.Free;
-   TLogLog.debug('TWriterAppender#Destroy');
-   inherited Destroy;
+  if not Self.FClosed then
+    Self.Close;
+  Self.FWriter.Free;
+  TLogLog.debug('TWriterAppender#Destroy');
+  inherited Destroy;
 end;
 
 {*----------------------------------------------------------------------------
@@ -127,11 +127,11 @@ end;
   ----------------------------------------------------------------------------}
 procedure TWriterAppender.Close();
 begin
-   if (Self.FClosed) then
-      exit;
-   if (self.FLayout <> Nil) then
-      Self.WriteFooter;
-  Self.FClosed := true;
+  if (Self.FClosed) then
+    exit;
+  if (self.FLayout <> nil) then
+    Self.WriteFooter;
+  Self.FClosed := True;
 end;
 
 {*----------------------------------------------------------------------------
@@ -139,18 +139,18 @@ end;
    writer.
    @param AEvent The event to log
   ----------------------------------------------------------------------------}
-procedure TWriterAppender.Append(AEvent : TLoggingEvent);
+procedure TWriterAppender.Append(AEvent: TLoggingEvent);
 begin
-   if (Self.FClosed) then begin
-      if (Self.FErrorHandler <> Nil) then
-         Self.FErrorHandler.Error(
-            'This appender is closed and cannot be written to.');
-      Exit;
-   end;
-   Self.FWriter.Println(Self.Flayout.Format(AEvent));
-   if not (Self.Flayout.IgnoresException) then
-      if (AEvent.getException <> Nil) then
-         Self.FWriter.Println('Exception: ' + AEvent.GetException.Message);
+  if (Self.FClosed) then begin
+    if (Self.FErrorHandler <> nil) then
+      Self.FErrorHandler.Error(
+        'This appender is closed and cannot be written to.');
+    Exit;
+  end;
+  Self.FWriter.Println(Self.Flayout.Format(AEvent));
+  if not (Self.Flayout.IgnoresException) then
+    if (AEvent.getException <> nil) then
+      Self.FWriter.Println('Exception: ' + AEvent.GetException.Message);
 end;
 
 {*----------------------------------------------------------------------------
@@ -158,28 +158,28 @@ end;
    end of each write. This is the default behavior.
    @param AFlush Whether to flush or not
   ----------------------------------------------------------------------------}
-procedure TWriterAppender.SetImmediateFlush(AFlush : Boolean);
+procedure TWriterAppender.SetImmediateFlush(AFlush: Boolean);
 begin
-   Self.FImmediateFlush := AFlush;
+  Self.FImmediateFlush := AFlush;
 end;
 
 {*----------------------------------------------------------------------------
    Setup the writer to use the given stream.
    @param AStream The stream to write to
   ----------------------------------------------------------------------------}
-procedure TWriterAppender.SetStream(AStream : TStream);
+procedure TWriterAppender.SetStream(AStream: TStream);
 begin
-   Self.FWriter.Free;
-   Self.FWriter := TPrintWriter.Create(AStream);
+  Self.FWriter.Free;
+  Self.FWriter := TPrintWriter.Create(AStream);
 end;
 
 {*----------------------------------------------------------------------------
    Returns value of the ImmediateFlush option.
    @return True if immediate flush is set, false otherwise
   ----------------------------------------------------------------------------}
-function TWriterAppender.GetImmediateFlush() : Boolean;
+function TWriterAppender.GetImmediateFlush(): Boolean;
 begin
-   Result := Self.FImmediateFlush;
+  Result := Self.FImmediateFlush;
 end;
 
 {*----------------------------------------------------------------------------
@@ -187,9 +187,9 @@ end;
    a layout.
    @return True since this appender requires a layout
   ----------------------------------------------------------------------------}
-function TWriterAppender.RequiresLayout() : Boolean;
+function TWriterAppender.RequiresLayout(): Boolean;
 begin
-   Result := true;
+  Result := True;
 end;
 
 end.

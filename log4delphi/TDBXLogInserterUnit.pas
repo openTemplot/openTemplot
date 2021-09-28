@@ -27,14 +27,14 @@ uses
   SqlExpr, TDBLogInserterUnit, TLoggingEventUnit;
 
 type
-  TDBXLogInserter = class (TDBLogInserter)
+  TDBXLogInserter = class(TDBLogInserter)
   protected
-    FSQLConn : TSQLConnection;
-    FSQLQuery : TSQLQuery;
+    FSQLConn: TSQLConnection;
+    FSQLQuery: TSQLQuery;
   public
-    constructor Create(ASqlConnection: TSQLConnection; ASQL : String);
-    destructor Destroy; Override;
-    procedure Insert(AEvent : TLoggingEvent); Override;
+    constructor Create(ASqlConnection: TSQLConnection; ASQL: String);
+    destructor Destroy; override;
+    procedure Insert(AEvent: TLoggingEvent); override;
   end;
 
 implementation
@@ -42,13 +42,13 @@ implementation
 uses
   SysUtils, SqlTimSt, TLogLogUnit;
 
-constructor TDBXLogInserter.Create(ASqlConnection: TSQLConnection; ASQL : String);
+constructor TDBXLogInserter.Create(ASqlConnection: TSQLConnection; ASQL: String);
 begin
   inherited Create;
   FSqlConn := ASqlConnection;
-  FSQLQuery := TSQLQuery.Create(Nil);
-  FSQLQuery.SQLConnection:=self.FsqlConn;
-  FSQLQuery.ParamCheck:=true;
+  FSQLQuery := TSQLQuery.Create(nil);
+  FSQLQuery.SQLConnection := self.FsqlConn;
+  FSQLQuery.ParamCheck := True;
   FSQLQuery.SQL.Add(ASQL);
 end;
 
@@ -58,37 +58,33 @@ begin
   inherited Destroy;
 end;
 
-procedure TDBXLogInserter.Insert(AEvent : TLoggingEvent);
+procedure TDBXLogInserter.Insert(AEvent: TLoggingEvent);
 begin
-  if not Assigned(FSqlConn) then
-  begin
-     TLogLog.debug('TDBXLogInserter#Insert: SqlConnection not Assigned');
-     exit;
+  if not Assigned(FSqlConn) then begin
+    TLogLog.debug('TDBXLogInserter#Insert: SqlConnection not Assigned');
+    exit;
   end;
 
   try
     FSqlConn.Open;
   except
-    on e : Exception do
-    begin
-      TLogLog.fatal('TDBXLogInserter#Insert: SqlConnection.Open raised an expeption: '
-        + e.message);
+    on e: Exception do begin
+      TLogLog.fatal('TDBXLogInserter#Insert: SqlConnection.Open raised an expeption: ' +
+        e.message);
       exit;
     end;
   end;
 
-  if Assigned(FSQLQuery.Params.FindParam('_msg')) then
-  begin
-     FSQLQuery.ParamByName('_msg').AsString:=AEvent.getMessage;
+  if Assigned(FSQLQuery.Params.FindParam('_msg')) then begin
+    FSQLQuery.ParamByName('_msg').AsString := AEvent.getMessage;
   end;
 
-  if (AEvent.getException<>nil) then
-  begin
-   if Assigned(FSQLQuery.Params.FindParam('_exception')) then
-       FSQLQuery.ParamByName('_exception').AsString:=AEvent.getException.Message;
-   if Assigned(FSQLQuery.Params.FindParam('_exceptionclass')) then
-     FSQLQuery.ParamByName('_exceptionclass').AsString :=
-       AEvent.getException.ClassType.ClassName;
+  if (AEvent.getException <> nil) then begin
+    if Assigned(FSQLQuery.Params.FindParam('_exception')) then
+      FSQLQuery.ParamByName('_exception').AsString := AEvent.getException.Message;
+    if Assigned(FSQLQuery.Params.FindParam('_exceptionclass')) then
+      FSQLQuery.ParamByName('_exceptionclass').AsString :=
+        AEvent.getException.ClassType.ClassName;
   end;
 
   if Assigned(FSQLQuery.Params.FindParam('_startTime')) then
@@ -96,18 +92,22 @@ begin
       DateTimeToSQLTimeStamp(AEvent.getStartTime);
 
   if Assigned(FSQLQuery.Params.FindParam('_level')) then
-    FSQLQuery.ParamByName('_level').AsString:=AEvent.getLevel.toString;
+    FSQLQuery.ParamByName('_level').AsString := AEvent.getLevel.toString;
 
   if Assigned(FSQLQuery.Params.FindParam('_levelCode')) then
-    FSQLQuery.ParamByName('_levelCode').AsInteger:=AEvent.getLevel.intValue;
+    FSQLQuery.ParamByName('_levelCode').AsInteger := AEvent.getLevel.intValue;
 
   try
     FSQLQuery.ExecSQL();
   except
-    on e : Exception do
-    begin
-      TLogLog.fatal('TDbXLogInserter#insert: FSQLQuery.ExecSql raised an expeption: '
-        + e.message);
+    on e: Exception do begin
+      TLogLog.fatal('TDbXLogInserter#insert: FSQLQuery.ExecSql raised an expeption: ' +
+        e.message);
+
+
+
+
+
     end;
   end;
 

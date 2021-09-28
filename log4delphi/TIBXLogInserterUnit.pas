@@ -18,18 +18,18 @@ unit TIBXLogInserterUnit;
 interface
 
 uses
-  IBDataBase, IBQUERY, TDBLogInserterUnit, TLoggingEventUnit;
+  IBDatabase, IBQuery, TDBLogInserterUnit, TLoggingEventUnit;
 
 type
-  TIBXLogInserter = class (TDBLogInserter)
+  TIBXLogInserter = class(TDBLogInserter)
   protected
-    FIBDataBase : TIBDataBase;
-    FIBTransaction : TIBTransaction;
-    FIBQuery : TIBQuery;
+    FIBDataBase: TIBDataBase;
+    FIBTransaction: TIBTransaction;
+    FIBQuery: TIBQuery;
   public
-    constructor Create(AIBDataBase : TIBDataBase; ASQL : String);
-    destructor Destroy; Override;
-    procedure Insert(AEvent : TLoggingEvent); Override;
+    constructor Create(AIBDataBase: TIBDataBase; ASQL: String);
+    destructor Destroy; override;
+    procedure Insert(AEvent: TLoggingEvent); override;
   end;
 
 implementation
@@ -37,16 +37,16 @@ implementation
 uses
   SysUtils, TLogLogUnit;
 
-constructor TIBXLogInserter.Create(AIBDataBase : TIBDataBase; ASQL : String);
+constructor TIBXLogInserter.Create(AIBDataBase: TIBDataBase; ASQL: String);
 begin
   inherited Create;
   Self.FIBDataBase := AIBDataBase;
-  Self.FIBTransaction := TIBTransaction.Create(Nil);
+  Self.FIBTransaction := TIBTransaction.Create(nil);
   Self.FIBTransaction.DefaultDatabase := Self.FIBDataBase;
-  Self.FIBQuery := TIBQuery.Create(Nil);
+  Self.FIBQuery := TIBQuery.Create(nil);
   Self.FIBQuery.Transaction := Self.FIBTransaction;
   Self.FIBQuery.Database := Self.FIBDataBase;
-  Self.FIBQuery.ParamCheck:=true;
+  Self.FIBQuery.ParamCheck := True;
   Self.FIBQuery.SQL.Add(ASQL);
 end;
 
@@ -57,42 +57,42 @@ begin
   inherited Destroy;
 end;
 
-procedure TIBXLogInserter.Insert(AEvent : TLoggingEvent);
+procedure TIBXLogInserter.Insert(AEvent: TLoggingEvent);
 begin
   if (FIBTransaction.Active) then
     FIBTransaction.Commit;
   FIBTransaction.StartTransaction;
 
-  if Assigned(FIBQuery.Params.FindParam('_msg')) then
-  begin
-     FIBQuery.ParamByName('_msg').AsString:=AEvent.getMessage;
+  if Assigned(FIBQuery.Params.FindParam('_msg')) then begin
+    FIBQuery.ParamByName('_msg').AsString := AEvent.getMessage;
   end;
 
-  if (AEvent.getException<>nil) then
-  begin
-   if Assigned(FIBQuery.Params.FindParam('_exception')) then
-       FIBQuery.ParamByName('_exception').AsString:=AEvent.getException.Message;
-   if Assigned(FIBQuery.Params.FindParam('_exceptionclass')) then
-     FIBQuery.ParamByName('_exceptionclass').AsString :=
-       AEvent.getException.ClassType.ClassName;
+  if (AEvent.getException <> nil) then begin
+    if Assigned(FIBQuery.Params.FindParam('_exception')) then
+      FIBQuery.ParamByName('_exception').AsString := AEvent.getException.Message;
+    if Assigned(FIBQuery.Params.FindParam('_exceptionclass')) then
+      FIBQuery.ParamByName('_exceptionclass').AsString :=
+        AEvent.getException.ClassType.ClassName;
   end;
 
   if Assigned(FIBQuery.Params.FindParam('_startTime')) then
     FIBQuery.ParamByName('_startTime').AsDateTime := AEvent.getStartTime;
 
   if Assigned(FIBQuery.Params.FindParam('_level')) then
-    FIBQuery.ParamByName('_level').AsString:=AEvent.getLevel.toString;
+    FIBQuery.ParamByName('_level').AsString := AEvent.getLevel.toString;
 
   if Assigned(FIBQuery.Params.FindParam('_levelCode')) then
-    FIBQuery.ParamByName('_levelCode').AsInteger:=AEvent.getLevel.intValue;
+    FIBQuery.ParamByName('_levelCode').AsInteger := AEvent.getLevel.intValue;
 
   try
     FIBQuery.ExecSQL();
   except
-    on e : Exception do
-    begin
-      TLogLog.fatal('TDbXLogInserter#insert: FIBQuery.ExecSql raised an expeption: '
-        + e.message);
+    on e: Exception do begin
+      TLogLog.fatal('TDbXLogInserter#insert: FIBQuery.ExecSql raised an expeption: ' +
+        e.message);
+
+
+
     end;
   end;
 

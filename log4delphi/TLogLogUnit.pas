@@ -16,106 +16,120 @@
    @author <a href="mailto:tcmiller@users.sourceforge.net">Trevor Miller</a>
   ----------------------------------------------------------------------------}
 unit TLogLogUnit;
+
 {$IFDEF fpc}
 {$MODE objfpc}
 {$H+}
 {$ENDIF}
 interface
+
 type
    {*----------------------------------------------------------------------------
       This class is used internally to perfrom logging within the Log4Delphi
       package. It is not meant to be used outside the Log4Delphi package.
       Typically statements are logged to a file named 'log4delphi.log'.
      ----------------------------------------------------------------------------}
-   TLogLog = class
-   public
-      class procedure Debug(const AMsg: string);
-      class procedure Error(const AMsg: string);
-      class procedure Warn(const AMsg: string);
-      class procedure Info(const AMsg: string);
-      class procedure Fatal(const AMsg: string);
-      class procedure SetQuietMode(const AMode: Boolean);
-   end;
-procedure initialize(const fileName: string);
+  TLogLog = class
+  public
+    class procedure Debug(const AMsg: string);
+    class procedure Error(const AMsg: string);
+    class procedure Warn(const AMsg: string);
+    class procedure Info(const AMsg: string);
+    class procedure Fatal(const AMsg: string);
+    class procedure SetQuietMode(const AMode: Boolean);
+  end;
+
+procedure Initialize(const fileName: string);
 procedure finalize();
+
 var
-   isInit: Boolean = false;
+  isInit: Boolean = False;
+
 implementation
+
 var
-   outFile: TextFile;
-   quietMode: Boolean = false;
+  outFile: TextFile;
+  quietMode: Boolean = False;
+
    {*----------------------------------------------------------------------------
       Initialize the internal logging of Log4Delphi. This method should not be
       called by application developers.
       @param fileName The name of the file to send output to
      ----------------------------------------------------------------------------}
-procedure initialize(const fileName: string);
+procedure Initialize(const fileName: string);
 begin
-   if isInit then finalize;
+  if isInit then
+    finalize;
 
-   if (not quietMode) then
-   begin
-      AssignFile(outFile, fileName);
-      Rewrite(outFile);
-   end;
+  if (not quietMode) then begin
+    AssignFile(outFile, fileName);
+    Rewrite(outFile);
+  end;
 
-   isInit := true;
+  isInit := True;
 end;
+
 {*----------------------------------------------------------------------------
    Finalize the internal logging by releasing resources. This method should
    not be called by application developers.
   ----------------------------------------------------------------------------}
 procedure finalize();
 begin
-   if ((isInit) and not (quietMode)) then
-      CloseFile(outFile);
-   isInit := false;
+  if ((isInit) and not (quietMode)) then
+    CloseFile(outFile);
+  isInit := False;
 end;
+
 {*----------------------------------------------------------------------------
    Send a debug message.
    @param AMsg The message to log
   ----------------------------------------------------------------------------}
 class procedure TLogLog.Debug(const AMsg: string);
 begin
-   if ((isInit) and not (quietMode)) then
-      writeln(outFile, 'DEBUG: ' + AMsg);
+  if ((isInit) and not (quietMode)) then
+    writeln(outFile, 'DEBUG: ' + AMsg);
 end;
+
 {*----------------------------------------------------------------------------
    Send an error message.
    @param AMsg The message to log
   ----------------------------------------------------------------------------}
 class procedure TLogLog.Error(const AMsg: string);
 begin
-   if ((isInit) and not (quietMode)) then
-      writeln(outFile, 'ERROR: ' + AMsg);
+  if ((isInit) and not (quietMode)) then
+    writeln(outFile, 'ERROR: ' + AMsg);
 end;
+
 {*----------------------------------------------------------------------------
    Send a warn message.
    @param AMsg The message to log
   ----------------------------------------------------------------------------}
 class procedure TLogLog.Warn(const AMsg: string);
 begin
-   if ((isInit) and not (quietMode)) then
-      writeln(outFile, 'WARN: ' + AMsg);
+  if ((isInit) and not (quietMode)) then
+    writeln(outFile, 'WARN: ' + AMsg);
 end;
+
 {*----------------------------------------------------------------------------
    Send an info message.
    @param AMsg The message to log
   ----------------------------------------------------------------------------}
 class procedure TLogLog.Info(const AMsg: string);
 begin
-   if ((isInit) and not (quietMode)) then
-      writeln(outFile, 'INFO: ' + AMsg);
+  if ((isInit) and not (quietMode)) then
+    writeln(outFile, 'INFO: ' + AMsg);
 end;
+
 {*----------------------------------------------------------------------------
    Send a fatal message.
    @param AMsg The message to log
   ----------------------------------------------------------------------------}
 class procedure TLogLog.Fatal(const AMsg: string);
 begin
-   if ((isInit) and not (quietMode)) then
-      writeln(outFile, 'FATAL: ' + AMsg);
+  if ((isInit) and not (quietMode)) then
+    writeln(outFile, 'FATAL: ' + AMsg);
 end;
+
 {*----------------------------------------------------------------------------
    This method is used to turn internal logging off. It may be used later in
    a configuration setting to prevent internal logging in shipped code.
@@ -123,9 +137,8 @@ end;
   ----------------------------------------------------------------------------}
 class procedure TLogLog.SetQuietMode(const AMode: Boolean);
 begin
-   quietMode := AMode;
+  quietMode := AMode;
 end;
 
 end.
-
  

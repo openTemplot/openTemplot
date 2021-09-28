@@ -28,19 +28,19 @@ unit TErrorHandlerUnit;
 interface
 
 uses
-   SysUtils;
+  SysUtils;
 
 type
 {*----------------------------------------------------------------------------
    Appenders may delegate their error handling to ErrorHandlers.
   ----------------------------------------------------------------------------}
-   TErrorHandler = class (TObject)
-   public
-      procedure Error(const AMsg : String); Overload; Virtual; Abstract;
-      procedure Error(const AMsg: String; AEx : Exception); Overload;
-        Virtual; Abstract;
-      procedure SetAppender(const AAppenderName : String); Virtual; Abstract;
-   end;
+  TErrorHandler = class(TObject)
+  public
+    procedure Error(const AMsg: String); overload; virtual; abstract;
+    procedure Error(const AMsg: String; AEx: Exception); overload;
+      virtual; abstract;
+    procedure SetAppender(const AAppenderName: String); virtual; abstract;
+  end;
 
 implementation
 

@@ -35,16 +35,16 @@ type
    The goal of this class is to format a LoggingEvent and return the results
    as a String. The results depend on the conversion pattern. See the
    Log4Delphi User Guide for more information on using this class.  
-  ----------------------------------------------------------------------------} 
-  TPatternLayout = class (TLayout)
+  ----------------------------------------------------------------------------}
+  TPatternLayout = class(TLayout)
   private
-    FFormatString : String;
-    FDateFormatString : String;
+    FFormatString: String;
+    FDateFormatString: String;
   public
-    constructor Create(); Overload;
-    constructor Create(const APattern : String); Overload;
-    function Format(AEvent : TLoggingEvent) : String; Override;
-    function IgnoresException() : Boolean; Override;
+    constructor Create(); overload;
+    constructor Create(const APattern: String); overload;
+    function Format(AEvent: TLoggingEvent): String; override;
+    function IgnoresException(): Boolean; override;
   end;
 
 implementation
@@ -58,14 +58,15 @@ uses
    @param str The string to search
    @param index The offset to search from
   ----------------------------------------------------------------------------}
-function FirstAlphaCharacter(str : String; index : Integer) : Integer;
+function FirstAlphaCharacter(str: String; index: Integer): Integer;
 var
-  i : Integer;
-  var tmp : STring;
+  i: Integer;
+var
+  tmp: STring;
 begin
-  tmp := Copy(Str, Index+1, (System.Length(str) - Index + 1));
+  tmp := Copy(Str, Index + 1, (System.Length(str) - Index + 1));
   for i := 1 to Length(tmp) do
-    if (tmp[i] in ['a'..'z','A'..'Z']) then begin
+    if (tmp[i] in ['a'..'z', 'A'..'Z']) then begin
       Result := i + index;
       exit;
     end;
@@ -84,12 +85,12 @@ end;
    Instantiate a Pattern Layout using the given pattern string.
    @param APattern The pattern to use
   ----------------------------------------------------------------------------}
-constructor TPatternLayout.Create(const APattern : String);
+constructor TPatternLayout.Create(const APattern: String);
 var
-  index : Integer;
-  charIndex : Integer;
-  pIndex : Integer;
-  oldtok, newtok : String;
+  index: Integer;
+  charIndex: Integer;
+  pIndex: Integer;
+  oldtok, newtok: String;
 begin
   inherited Create;
   if (APattern <> '') then
@@ -100,55 +101,55 @@ begin
   // loop through all conversion specifiers
   index := TStringUnit.IndexOf(FFormatString, '%', 0);
   while (index >= 0) do begin
-     // find end of specifier
-     charIndex := FirstAlphaCharacter(FFormatString, index);
-     case FFormatString[charIndex] of
-        'n' : begin
-           FFormatString :=
-             StringReplace(FFormatString,'%n',#13, [rfReplaceAll]);
+    // find end of specifier
+    charIndex := FirstAlphaCharacter(FFormatString, index);
+    case FFormatString[charIndex] of
+      'n': begin
+        FFormatString :=
+          StringReplace(FFormatString, '%n', #13, [rfReplaceAll]);
+      end;
+      'm': begin
+        oldtok := Copy(FFormatString, index + 1, charindex - index + 1);
+        newtok := StringReplace(oldtok, 'm', 's', [rfReplaceAll]);
+        insert('0:', newtok, 2);
+        FFormatString :=
+          StringReplace(FFormatString, oldtok, newtok, [rfReplaceAll]);
+      end;
+      'p': begin
+        oldtok := Copy(FFormatString, index + 1, charindex - index + 1);
+        newtok := StringReplace(oldtok, 'p', 's', [rfReplaceAll]);
+        insert('1:', newtok, 2);
+        FFormatString :=
+          StringReplace(FFormatString, oldtok, newtok, [rfReplaceAll]);
+      end;
+      'e': begin
+        oldtok := Copy(FFormatString, index + 1, charindex - index + 1);
+        newtok := StringReplace(oldtok, 'e', 's', [rfReplaceAll]);
+        insert('2:', newtok, 2);
+        FFormatString :=
+          StringReplace(FFormatString, oldtok, newtok, [rfReplaceAll]);
+      end;
+      'L': begin
+        oldtok := Copy(FFormatString, index + 1, charindex - index + 1);
+        newtok := StringReplace(oldtok, 'L', 's', [rfReplaceAll]);
+        insert('3:', newtok, 2);
+        FFormatString :=
+          StringReplace(FFormatString, oldtok, newtok, [rfReplaceAll]);
+      end;
+      'd': begin
+        FDateFormatString := '';
+        if (FFormatString[charIndex + 1] = '{') then begin
+          pIndex := IndexOf(FFormatString, '}', charIndex + 1);
+          if (pIndex >= 0) then begin
+            FDateFormatString :=
+              Copy(FFormatString, charIndex + 2, pIndex - charIndex - 1);
+            FFormatString := StringReplace(FFormatString, '%d{' +
+              FDateFormatString + '}', '%d', [rfReplaceAll]);
+          end;
         end;
-        'm' : begin
-           oldtok := Copy(FFormatString, index+1, charindex-index+1);
-           newtok := StringReplace(oldtok,'m','s',[rfReplaceAll]);
-           insert('0:',newtok,2);
-           FFormatString :=
-             StringReplace(FFormatString, oldtok, newtok, [rfReplaceAll]);
-        end;
-        'p' : begin
-           oldtok := Copy(FFormatString, index+1, charindex-index+1);
-           newtok := StringReplace(oldtok,'p','s',[rfReplaceAll]);
-           insert('1:',newtok,2);
-           FFormatString :=
-             StringReplace(FFormatString, oldtok, newtok, [rfReplaceAll]);
-        end;
-        'e' : begin
-           oldtok := Copy(FFormatString, index+1, charindex-index+1);
-           newtok := StringReplace(oldtok,'e','s',[rfReplaceAll]);
-           insert('2:',newtok,2);
-           FFormatString :=
-             StringReplace(FFormatString, oldtok, newtok, [rfReplaceAll]);
-        end;
-        'L' : begin
-           oldtok := Copy(FFormatString, index+1, charindex-index+1);
-           newtok := StringReplace(oldtok,'L','s',[rfReplaceAll]);
-           insert('3:',newtok,2);
-           FFormatString :=
-             StringReplace(FFormatString, oldtok, newtok, [rfReplaceAll]);
-        end;
-        'd' : begin
-           FDateFormatString := '';
-           if (FFormatString[charIndex+1] = '{') then begin
-             pIndex := IndexOf(FFormatString,'}',charIndex+1);
-             if (pIndex >= 0) then begin
-                FDateFormatString :=
-                  Copy(FFormatString,charIndex+2,pIndex-charIndex-1);
-                FFormatString := StringReplace(FFormatString, '%d{'
-                  + FDateFormatString+'}', '%d', [rfReplaceAll]);
-             end;
-           end;
-        end;
-     end;
-     index := IndexOf(FFormatString, '%', index+1);
+      end;
+    end;
+    index := IndexOf(FFormatString, '%', index + 1);
   end;
   TLogLog.debug('TPatternLayout#Create');
 end;
@@ -158,18 +159,18 @@ end;
    @param AEvent The event to format
    @return The event formatted using the pattern
   ----------------------------------------------------------------------------}
-function TPatternLayout.Format(AEvent : TLoggingEvent) : String;
+function TPatternLayout.Format(AEvent: TLoggingEvent): String;
 var
-  ex : String;
+  ex: String;
 begin
-  if (AEvent.GetException <> Nil) then
+  if (AEvent.GetException <> nil) then
     ex := AEVEnt.GetException.ClassName + ': ' + AEvent.GetException.Message
   else
     ex := '';
-  Result := StringReplace(FFormatString, '%d',
-    FormatDateTime(FDateFormatString, AEvent.GetStartTime), [rfReplaceAll]);
-  Result := SysUtils.Format(Result, [AEvent.GetMessage,
-    AEvent.GetLevel.ToString, ex, AEvent.GetLogger]);
+  Result := StringReplace(FFormatString, '%d', FormatDateTime(FDateFormatString,
+    AEvent.GetStartTime), [rfReplaceAll]);
+  Result := SysUtils.Format(Result, [AEvent.GetMessage, AEvent.GetLevel.ToString,
+    ex, AEvent.GetLogger]);
 end;
 
 {*----------------------------------------------------------------------------
@@ -177,9 +178,9 @@ end;
    ignore exceptions.
    @return False
   ----------------------------------------------------------------------------}
-function TPatternLayout.IgnoresException() : Boolean;
+function TPatternLayout.IgnoresException(): Boolean;
 begin
-  Result := false;
+  Result := False;
 end;
 
 end.

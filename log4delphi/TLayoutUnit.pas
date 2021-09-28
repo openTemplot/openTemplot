@@ -28,7 +28,7 @@ unit TLayoutUnit;
 interface
 
 uses
-   TLoggingEventUnit;
+  TLoggingEventUnit;
 
 {*-------------------------------------------------------------------------
    A line separator consisting of ASCII characters 13 and 10.
@@ -41,16 +41,16 @@ type
    This abstract class should be extended to create specific log layout
    formats.
   ----------------------------------------------------------------------------}
-   TLayout = class (TObject)
-   private
-   protected
-   public
-      function Format(AEvent : TLoggingEvent) : String; Virtual; Abstract;
-      function GetContentType() : String; Virtual;
-      function GetHeader() : String; Virtual;
-      function GetFooter() : String; Virtual;
-      function IgnoresException() : Boolean; Virtual;
-   end;
+  TLayout = class(TObject)
+  private
+  protected
+  public
+    function Format(AEvent: TLoggingEvent): String; virtual; abstract;
+    function GetContentType(): String; virtual;
+    function GetHeader(): String; virtual;
+    function GetFooter(): String; virtual;
+    function IgnoresException(): Boolean; virtual;
+  end;
 
 implementation
 
@@ -59,9 +59,9 @@ implementation
    returns "text/plain".
    @return Content type
   ----------------------------------------------------------------------------}
-function TLayout.GetContentType() : String;
+function TLayout.GetContentType(): String;
 begin
-   Result := 'text/plain';
+  Result := 'text/plain';
 end;
 
 {*----------------------------------------------------------------------------
@@ -69,9 +69,9 @@ end;
    returns the empty string ''.
    @return Header
   ----------------------------------------------------------------------------}
-function TLayout.GetHeader() : String;
+function TLayout.GetHeader(): String;
 begin
-   Result := '';
+  Result := '';
 end;
 
 {*----------------------------------------------------------------------------
@@ -79,9 +79,9 @@ end;
    returns the empty string ''.
    @return Footer
   ----------------------------------------------------------------------------}
-function TLayout.GetFooter() : String;
+function TLayout.GetFooter(): String;
 begin
-   Result := '';
+  Result := '';
 end;
 
 {*----------------------------------------------------------------------------
@@ -90,9 +90,9 @@ end;
    Exception object, then the layout should return true.
    @return Whether the exception is handled or not
   ----------------------------------------------------------------------------}
-function TLayout.ignoresException() : Boolean;
+function TLayout.ignoresException(): Boolean;
 begin
-   IgnoresException := true;
+  IgnoresException := True;
 end;
 
 end.

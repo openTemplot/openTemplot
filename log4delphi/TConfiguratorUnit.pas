@@ -29,45 +29,45 @@ unit TConfiguratorUnit;
 interface
 
 uses
-   SysUtils, Forms,
-   TLogLogUnit, TlevelUnit, TLoggerUnit,
-   TPropertyConfiguratorUnit,
-   TIniConfiguratorUnit;
+  SysUtils, Forms,
+  TLogLogUnit, TlevelUnit, TLoggerUnit,
+  TPropertyConfiguratorUnit,
+  TIniConfiguratorUnit;
 
-   procedure doBasicConfiguration;
-   procedure doPropertiesConfiguration(const fileName : String);
-   procedure doIniConfiguration(const fileName, sectionName : String);
+procedure doBasicConfiguration;
+procedure doPropertiesConfiguration(const fileName: String);
+procedure doIniConfiguration(const fileName, sectionName: String);
 
 implementation
 
 {*----------------------------------------------------------------------------
    Use this method to quickly configure the logging suite.
-  ----------------------------------------------------------------------------} 
+  ----------------------------------------------------------------------------}
 procedure doBasicConfiguration;
 begin
-   TlogLogUnit.initialize(ExtractFileDir(Application.ExeName)
-     + '\log4delphi.log');
-   TLoggerUnit.initialize();
+  TlogLogUnit.Initialize(ExtractFileDir(Application.ExeName) + '\log4delphi.log');
+  TLoggerUnit.Initialize();
 end;
 
 {*----------------------------------------------------------------------------
    This method performs a basic configuration and then configures the
    package based on the properties specified in the properties file.
   ----------------------------------------------------------------------------}
-procedure doPropertiesConfiguration(const fileName : String);
+procedure doPropertiesConfiguration(const fileName: String);
 begin
-   TLoggerUnit.initialize();
-   TPropertyConfiguratorUnit.DoConfigure(fileName);
+  TLoggerUnit.Initialize();
+  TPropertyConfiguratorUnit.DoConfigure(fileName);
 end;
 
 {*----------------------------------------------------------------------------
    This method performs a basic configuration and then configures the
    package based on the properties specified in the ini file section.
   ----------------------------------------------------------------------------}
-procedure doIniConfiguration(const fileName, sectionName : String);
+procedure doIniConfiguration(const fileName, sectionName: String);
 begin
-   TLoggerUnit.initialize();
-   TIniConfiguratorUnit.DoConfigure(fileName, sectionName);
+  TLoggerUnit.Initialize();
+  TIniConfiguratorUnit.DoConfigure(fileName, sectionName);
+
 end;
 
 end.

@@ -28,18 +28,18 @@ unit TSimpleLayoutUnit;
 interface
 
 uses
-   TLayoutUnit, TLoggingEventUnit;
+  TLayoutUnit, TLoggingEventUnit;
 
 type
 {*----------------------------------------------------------------------------
    SimpleLayout consists of the level of the log statement, followed by
    " - " and then the log message itself
   ----------------------------------------------------------------------------}
-   TSimpleLayout = class (TLayout)
-   private
-   public
-      function Format(AEvent : TLoggingEvent) : String; Override;
-   end;
+  TSimpleLayout = class(TLayout)
+  private
+  public
+    function Format(AEvent: TLoggingEvent): String; override;
+  end;
 
 implementation
 
@@ -48,9 +48,9 @@ implementation
    " - " and then the message.
    @return The event formatted as a string  
   ----------------------------------------------------------------------------}
-function TSimpleLayout.Format(AEvent : TLoggingEvent) : String;
+function TSimpleLayout.Format(AEvent: TLoggingEvent): String;
 begin
-   Result := AEvent.GetLevel.ToString + ' - ' + AEvent.GetMessage;
+  Result := AEvent.GetLevel.ToString + ' - ' + AEvent.GetMessage;
 end;
 
 end.

@@ -34,9 +34,9 @@ type
 {*----------------------------------------------------------------------------
    This appender does not do anything making it usefull for testing purposes.
   ----------------------------------------------------------------------------}
-  TNullAppender = class (TAppender)
+  TNullAppender = class(TAppender)
   public
-    procedure Append(AEvent : TLoggingEvent); Override;
+    procedure Append(AEvent: TLoggingEvent); override;
   end;
 
 implementation
@@ -44,7 +44,7 @@ implementation
 {*----------------------------------------------------------------------------
    Does absolutely nothing.
   ----------------------------------------------------------------------------}
-procedure TNullAppender.Append(AEvent : TLoggingEvent);
+procedure TNullAppender.Append(AEvent: TLoggingEvent);
 begin
 
 end;

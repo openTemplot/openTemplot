@@ -24,7 +24,7 @@ interface
 
 uses
   SysUtils, Classes, Controls, Forms,
-  {$ifdef fpc}LResources,{$endif} 
+  {$ifdef fpc}LResources,{$endif}
   Dialogs, StdCtrls;
 
 type
@@ -35,7 +35,7 @@ type
   public
     { Public declarations }
     procedure Clear();
-    procedure append(const msg : String);
+    procedure append(const msg: String);
   end;
 
 var
@@ -45,16 +45,17 @@ implementation
 
 {$ifndef fpc}
   {$R *.dfm}
+
 {$endif}
 
 procedure TTConsole.Clear();
 begin
-   Memo1.Lines.Clear;
+  Memo1.Lines.Clear;
 end;
 
-procedure TTConsole.append(const msg : String);
+procedure TTConsole.append(const msg: String);
 begin
-   Memo1.Lines.Add(msg);
+  Memo1.Lines.Add(msg);
 end;
 
 initialization

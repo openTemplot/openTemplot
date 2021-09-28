@@ -24,47 +24,47 @@ unit TIniConfiguratorUnit;
 interface
 
 uses
-   Classes, SysUtils, IniFiles,
-   TPropertiesUnit, TPropertyConfiguratorUnit, TLogLogUnit;
+  Classes, SysUtils, IniFiles,
+  TPropertiesUnit, TPropertyConfiguratorUnit, TLogLogUnit;
 
-procedure DoConfigure(const AFilename, ASectionName : String);
+procedure DoConfigure(const AFilename, ASectionName: String);
 
 implementation
 
-procedure DoConfigure(const AFilename, ASectionName : String);
+procedure DoConfigure(const AFilename, ASectionName: String);
 var
-   props : TProperties;
-   fin : TIniFile;
-   sl: TStringList;
-   i: Integer;
-   value: String;
+  props: TProperties;
+  fin: TIniFile;
+  sl: TStringList;
+  i: Integer;
+  Value: String;
 begin
-   props := TProperties.Create;
-   fin := TIniFile.Create(AFilename);
-   sl := TStringList.Create();
-   try
-      try
-         fin.ReadSection(ASectionName, sl);
+  props := TProperties.Create;
+  fin := TIniFile.Create(AFilename);
+  sl := TStringList.Create();
+  try
+    try
+      fin.ReadSection(ASectionName, sl);
 
-         for i := 0 to sl.Count - 1 do
-         begin
-            value := fin.ReadString(ASectionName, sl[i], '');
-            props.SetProperty(sl[i], value);
-         end;
-
-         TPropertyConfiguratorUnit.DoConfigure(props);
-      except
-         on E: Exception do begin
-            TLogLog.error('Could not read configuration file ['
-               + AFileName + '] ' + e.Message);
-            TLogLog.error('Ignoring configuration file [' + AFilename + ']');
-         end;
+      for i := 0 to sl.Count - 1 do begin
+        Value := fin.ReadString(ASectionName, sl[i], '');
+        props.SetProperty(sl[i], Value);
       end;
-   finally
-      props.Free;
-      fin.Free;
-      sl.Free;
-   end;
+
+      TPropertyConfiguratorUnit.DoConfigure(props);
+    except
+      on E: Exception do begin
+        TLogLog.error('Could not read configuration file [' +
+          AFileName + '] ' + e.Message);
+        TLogLog.error('Ignoring configuration file [' + AFilename + ']');
+      end;
+    end;
+  finally
+    props.Free;
+    fin.Free;
+    sl.Free;
+  end;
+
 end;
 
 end.

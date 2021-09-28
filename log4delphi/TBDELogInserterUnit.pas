@@ -21,14 +21,14 @@ uses
   DBTables, TDBLogInserterUnit, TLoggingEventUnit;
 
 type
-  TBDELogInserter = class (TDBLogInserter)
+  TBDELogInserter = class(TDBLogInserter)
   protected
-    FDatabase : TDatabase;
-    FQuery : TQuery;
+    FDatabase: TDatabase;
+    FQuery: TQuery;
   public
-    constructor Create(ADatabase: TDatabase; ASQL : String);
-    destructor Destroy; Override;
-    procedure Insert(AEvent : TLoggingEvent); Override;
+    constructor Create(ADatabase: TDatabase; ASQL: String);
+    destructor Destroy; override;
+    procedure Insert(AEvent: TLoggingEvent); override;
   end;
 
 implementation
@@ -36,13 +36,13 @@ implementation
 uses
   SysUtils, TLogLogUnit;
 
-constructor TBDELogInserter.Create(ADatabase: TDatabase; ASQL : String);
+constructor TBDELogInserter.Create(ADatabase: TDatabase; ASQL: String);
 begin
   inherited Create;
   FDatabase := ADatabase;
-  FQuery := TQuery.Create(Nil);
+  FQuery := TQuery.Create(nil);
   FQuery.DatabaseName := FDatabase.DatabaseName;
-  FQuery.ParamCheck:=true;
+  FQuery.ParamCheck := True;
   FQuery.SQL.Add(ASQL);
 end;
 
@@ -52,55 +52,55 @@ begin
   inherited Destroy;
 end;
 
-procedure TBDELogInserter.Insert(AEvent : TLoggingEvent);
+procedure TBDELogInserter.Insert(AEvent: TLoggingEvent);
 begin
-  if not Assigned(FDatabase) then
-  begin
-     TLogLog.debug('TBDELogInserter#Insert: Database not Assigned');
-     exit;
+  if not Assigned(FDatabase) then begin
+    TLogLog.debug('TBDELogInserter#Insert: Database not Assigned');
+    exit;
   end;
 
   try
     FDatabase.Open;
   except
-    on e : Exception do
-    begin
-      TLogLog.fatal('TDBXLogInserter#Insert: SqlConnection.Open raised an expeption: '
-        + e.message);
+    on e: Exception do begin
+      TLogLog.fatal('TDBXLogInserter#Insert: SqlConnection.Open raised an expeption: ' +
+        e.message);
       exit;
     end;
   end;
 
-  if Assigned(FQuery.Params.FindParam('_msg')) then
-  begin
-     FQuery.ParamByName('_msg').AsString:=AEvent.getMessage;
+  if Assigned(FQuery.Params.FindParam('_msg')) then begin
+    FQuery.ParamByName('_msg').AsString := AEvent.getMessage;
   end;
 
-  if (AEvent.getException<>nil) then
-  begin
-   if Assigned(FQuery.Params.FindParam('_exception')) then
-       FQuery.ParamByName('_exception').AsString:=AEvent.getException.Message;
-   if Assigned(FQuery.Params.FindParam('_exceptionclass')) then
-     FQuery.ParamByName('_exceptionclass').AsString :=
-       AEvent.getException.ClassType.ClassName;
+  if (AEvent.getException <> nil) then begin
+    if Assigned(FQuery.Params.FindParam('_exception')) then
+      FQuery.ParamByName('_exception').AsString := AEvent.getException.Message;
+    if Assigned(FQuery.Params.FindParam('_exceptionclass')) then
+      FQuery.ParamByName('_exceptionclass').AsString :=
+        AEvent.getException.ClassType.ClassName;
   end;
 
   if Assigned(FQuery.Params.FindParam('_startTime')) then
     FQuery.ParamByName('_startTime').AsDateTime := AEvent.getStartTime;
 
   if Assigned(FQuery.Params.FindParam('_level')) then
-    FQuery.ParamByName('_level').AsString:=AEvent.getLevel.toString;
+    FQuery.ParamByName('_level').AsString := AEvent.getLevel.toString;
 
   if Assigned(FQuery.Params.FindParam('_levelCode')) then
-    FQuery.ParamByName('_levelCode').AsInteger:=AEvent.getLevel.intValue;
+    FQuery.ParamByName('_levelCode').AsInteger := AEvent.getLevel.intValue;
 
   try
     FQuery.ExecSQL();
   except
-    on e : Exception do
-    begin
-      TLogLog.fatal('TDbXLogInserter#insert: FQuery.ExecSql raised an expeption: '
-        + e.message);
+    on e: Exception do begin
+      TLogLog.fatal('TDbXLogInserter#insert: FQuery.ExecSql raised an expeption: ' +
+        e.message);
+
+
+
+
+
     end;
   end;
 
