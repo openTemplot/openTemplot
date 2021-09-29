@@ -25,7 +25,7 @@
       <MajorVersionNr Value="2"/>
       <MinorVersionNr Value="92"/>
       <RevisionNr Value="1"/>
-      <BuildNr Value="168"/>
+      <BuildNr Value="170"/>
       <StringTable InternalName="Templot3" LegalCopyright="(c) Martin Wynne 2019" ProductName="Templot3/TemplotMEC" ProductVersion="2.92.a"/>
     </VersionInfo>
     <BuildModes Count="1">
@@ -51,7 +51,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="92">
+    <Units Count="87">
       <Unit0>
         <Filename Value="templotmec.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -416,122 +416,102 @@
         <IsPartOfProject Value="True"/>
       </Unit62>
       <Unit63>
-        <Filename Value="log4delphi\TBDELogInserterUnit.pas"/>
+        <Filename Value="log4delphi\TConfiguratorUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit63>
       <Unit64>
-        <Filename Value="log4delphi\TConfiguratorUnit.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit64>
-      <Unit65>
         <Filename Value="log4delphi\TConsoleUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <HasResources Value="True"/>
+      </Unit64>
+      <Unit65>
+        <Filename Value="log4delphi\TErrorHandlerUnit.pas"/>
+        <IsPartOfProject Value="True"/>
       </Unit65>
       <Unit66>
-        <Filename Value="log4delphi\TDBAppenderUnit.pas"/>
+        <Filename Value="log4delphi\TFileAppenderUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit66>
       <Unit67>
-        <Filename Value="log4delphi\TDBLogInserterUnit.pas"/>
+        <Filename Value="log4delphi\THTMLLayoutUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit67>
       <Unit68>
-        <Filename Value="log4delphi\TDBXLogInserterUnit.pas"/>
+        <Filename Value="log4delphi\TIniConfiguratorUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit68>
       <Unit69>
-        <Filename Value="log4delphi\TErrorHandlerUnit.pas"/>
+        <Filename Value="log4delphi\TLayoutUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit69>
       <Unit70>
-        <Filename Value="log4delphi\TFileAppenderUnit.pas"/>
+        <Filename Value="log4delphi\TLevelUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit70>
       <Unit71>
-        <Filename Value="log4delphi\THTMLLayoutUnit.pas"/>
+        <Filename Value="log4delphi\TLoggerUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit71>
       <Unit72>
-        <Filename Value="log4delphi\TIBXLogInserterUnit.pas"/>
+        <Filename Value="log4delphi\TLoggingEventUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit72>
       <Unit73>
-        <Filename Value="log4delphi\TIniConfiguratorUnit.pas"/>
+        <Filename Value="log4delphi\TLogLogUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit73>
       <Unit74>
-        <Filename Value="log4delphi\TLayoutUnit.pas"/>
+        <Filename Value="log4delphi\TNullAppenderUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit74>
       <Unit75>
-        <Filename Value="log4delphi\TLevelUnit.pas"/>
+        <Filename Value="log4delphi\TOnlyOnceErrorHandlerUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit75>
       <Unit76>
-        <Filename Value="log4delphi\TLoggerUnit.pas"/>
+        <Filename Value="log4delphi\TOptionConverterUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit76>
       <Unit77>
-        <Filename Value="log4delphi\TLoggingEventUnit.pas"/>
+        <Filename Value="log4delphi\TPatternLayoutUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit77>
       <Unit78>
-        <Filename Value="log4delphi\TLogLogUnit.pas"/>
+        <Filename Value="log4delphi\TPropertyConfiguratorUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit78>
       <Unit79>
-        <Filename Value="log4delphi\TNullAppenderUnit.pas"/>
+        <Filename Value="log4delphi\TRollingFileAppenderUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit79>
       <Unit80>
-        <Filename Value="log4delphi\TOnlyOnceErrorHandlerUnit.pas"/>
+        <Filename Value="log4delphi\TSimpleLayoutUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit80>
       <Unit81>
-        <Filename Value="log4delphi\TOptionConverterUnit.pas"/>
+        <Filename Value="log4delphi\TWriterAppenderUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit81>
       <Unit82>
-        <Filename Value="log4delphi\TPatternLayoutUnit.pas"/>
+        <Filename Value="log4delphi\TXMLLayoutUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit82>
       <Unit83>
-        <Filename Value="log4delphi\TPropertyConfiguratorUnit.pas"/>
+        <Filename Value="log4delphi\util\DCConfiguration.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit83>
       <Unit84>
-        <Filename Value="log4delphi\TRollingFileAppenderUnit.pas"/>
+        <Filename Value="log4delphi\util\TPrintWriterUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit84>
       <Unit85>
-        <Filename Value="log4delphi\TSimpleLayoutUnit.pas"/>
+        <Filename Value="log4delphi\util\TPropertiesUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit85>
       <Unit86>
-        <Filename Value="log4delphi\TWriterAppenderUnit.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit86>
-      <Unit87>
-        <Filename Value="log4delphi\TXMLLayoutUnit.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit87>
-      <Unit88>
-        <Filename Value="log4delphi\util\DCConfiguration.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit88>
-      <Unit89>
-        <Filename Value="log4delphi\util\TPrintWriterUnit.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit89>
-      <Unit90>
-        <Filename Value="log4delphi\util\TPropertiesUnit.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit90>
-      <Unit91>
         <Filename Value="log4delphi\util\TStringUnit.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit91>
+      </Unit86>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
