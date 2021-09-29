@@ -1,4 +1,4 @@
-object old_startup_form: Told_startup_form
+object startup_form: Tstartup_form
   Cursor = crHourGlass
   Left = 466
   Height = 150

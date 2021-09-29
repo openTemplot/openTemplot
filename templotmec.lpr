@@ -60,7 +60,7 @@ uses
   colour_unit in 'colour_unit.pas' {colour_form},
   calibration_unit in 'calibration_unit.pas' {calibration_form},
   plain_track_unit in 'plain_track_unit.pas' {plain_track_form},
-  startup_unit in 'startup_unit.pas' {old_startup_form},
+  startup_unit in 'startup_unit.pas' {startup_form},
   dxf_unit in 'dxf_unit.pas' {dxf_form},
   bgnd_unit in 'bgnd_unit.pas' {bgnd_form},
   bgkeeps_unit in 'bgkeeps_unit.pas' {bgkeeps_form},
@@ -147,8 +147,8 @@ begin
   force_printer_to_init;              // 0.93.a in the startup unit.
   }
 
-  //old_startup_form:=Told_startup_form.Create(nil);  // splash startup  24-2-99
-  //old_startup_form.Show;                            // splash startup  24-2-99
+  //startup_form:=Tstartup_form.Create(nil);  // splash startup  24-2-99
+  //startup_form.Show;                            // splash startup  24-2-99
 
   Application.Initialize;
 
@@ -162,7 +162,7 @@ begin
     Do we have everything we need? }
 
   { OT-FIRST
-  with Told_startup_form.Create(nil) do
+  with Tstartup_form.Create(nil) do
   try
     Show;   // show splash screen
     Update; // force display of form
