@@ -710,7 +710,7 @@ var
 
   closing_flag: boolean;
 
-  // OT-FIRST wait_internet_form:Told_startup_form;  // 205c
+  // OT-FIRST wait_internet_form:Tstartup_form;  // 205c
 
   open_button_clicked: boolean = False;     // 205d
 

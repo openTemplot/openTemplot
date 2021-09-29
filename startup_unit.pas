@@ -40,9 +40,9 @@ uses
 
 type
 
-  { Told_startup_form }
+  { Tstartup_form }
 
-  Told_startup_form = class(TForm)
+  Tstartup_form = class(TForm)
     starting_text_static: TStaticText;
     version_label: TLabel;
     procedure FormCreate(Sender: TObject);
@@ -53,7 +53,7 @@ type
   end;
 
 var
-  old_startup_form: Told_startup_form;
+  startup_form: Tstartup_form;
 
   global_factor: double = 1.0;
 
@@ -187,11 +187,11 @@ end;
 }
 //______________________________________________________________________________
 
-procedure Told_startup_form.FormCreate(Sender: TObject);
+procedure Tstartup_form.FormCreate(Sender: TObject);
 
 begin
-  // OT-FIRST ClientWidth:=616;
-  // OT-FIRST ClientHeight:=150;
+  ClientWidth:=616;
+  ClientHeight:=150;
 
   version_label.Caption := GetVersionString(voFull);
 
