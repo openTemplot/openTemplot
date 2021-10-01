@@ -171,7 +171,7 @@
       <Unit19>
         <Filename Value="startup_unit.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="old_startup_form"/>
+        <ComponentName Value="startup_form"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit19>
