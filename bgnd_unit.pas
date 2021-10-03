@@ -2672,7 +2672,7 @@ begin
 
   dpi_str := 'rp.gif  The width-wise and height-wise DPI settings are entered separately. In the vast majority of cases the setting is the same for both, for example from a scanner.' +
   '||The settings can sometimes differ, for example for an image received via a fax machine.' +
-  '|||    `0Scanner  DPI`9' + '||Enter the resolution in dots-per-inch (DPI) at which this image was scanned. If you do not know this figure, some trial and error will be needed to get the image to the correct size. A good starting point would be 300 dpi.' + '||Refer to the documentation for your scanner for information about the scanner resolution.' + '||The width-wise and height-wise DPI settings are entered separately. In the vast majority of cases the setting is the same for both, for example from a scanner.' + ' The settings can sometimes differ, for example for an image received via a fax machine.' + '||Many scanners use the popular ScanGear software:' + '||       <img src="' + Config.FilePath(csdiHelp, 'scangear_dpi.png') + '">' + '||To find or set the DPI resolution:' + '||1. click the `0Advanced Mode`z tab.|2. Set or make a note of the `0Output Resolution`z setting.' + '||green_panel_begin tree.gif Do not set very high resolutions as this may severely slow down the screen refresh and zooming in Templot0.' + '||300 DPI (dots per inch) is a good option on most systems. Use a lower setting on older computers.green_panel_end';
+  '|||    `0Scanner  DPI`9' + '||Enter the resolution in dots-per-inch (DPI) at which this image was scanned. If you do not know this figure, some trial and error will be needed to get the image to the correct size. A good starting point would be 300 dpi.' + '||Refer to the documentation for your scanner for information about the scanner resolution.' + '||The width-wise and height-wise DPI settings are entered separately. In the vast majority of cases the setting is the same for both, for example from a scanner.' + ' The settings can sometimes differ, for example for an image received via a fax machine.' + '||Many scanners use the popular ScanGear software:' + '||       <img src="' + Config.GetFilePath(csfiScangearDPI) + '">' + '||To find or set the DPI resolution:' + '||1. click the `0Advanced Mode`z tab.|2. Set or make a note of the `0Output Resolution`z setting.' + '||green_panel_begin tree.gif Do not set very high resolutions as this may severely slow down the screen refresh and zooming in Templot0.' + '||300 DPI (dots per inch) is a good option on most systems. Use a lower setting on older computers.green_panel_end';
 
   picture_option := 0; // keep compiler happy
 
@@ -3077,7 +3077,7 @@ begin
               rotated_picture := TPicture.Create;
 
               try
-                image_bitmap.LoadFromFile(Config.FilePath(csdiInternal, 'empty_picture.bmp'));
+                image_bitmap.LoadFromFile(Config.GetFilePath(csfiEmptyPic));
 
                 image_width := image_bitmap.Width;
                 image_height := image_bitmap.Height;
@@ -4640,8 +4640,8 @@ begin
 
   // 208d bug fix - can't use exe_str because not yet initialised
 
-  if FileExists(ExtractFilePath(Application.ExeName) + 'bgsmru.txt') then
-    bgsmru_list.LoadFromFile(ExtractFilePath(Application.ExeName) + 'bgsmru.txt')
+  if FileExists(Config.GetFilePath(csfiBgndMRU)) then
+    bgsmru_list.LoadFromFile(Config.GetFilePath(csfiBgndMRU))
   else
     empty_bgsmru;
 
@@ -6896,12 +6896,12 @@ begin
 
           end;//for
 
-          rotated_bitmap.SaveToFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
+          rotated_bitmap.SaveToFile(Config.GetFilePath(csfi_85a_temp));
           // !!! this way corrects a bug with the display of monochrome bitmaps.
 
-          image_bitmap.LoadFromFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
+          image_bitmap.LoadFromFile(Config.GetFilePath(csfi_85a_temp));
 
-          DeleteFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
+          DeleteFile(Config.GetFilePath(csfi_85a_temp));
 
           rotated_bitmap.Free;             // release memory.
           rotated_bitmap := TBitmap.Create;  // and re-create for next time.
@@ -8038,12 +8038,12 @@ begin
 
           until xs_on_control > turnoutx;
 
-          destination_bitmap.SaveToFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
+          destination_bitmap.SaveToFile(Config.GetFilePath(csfi_85a_temp));
           // !!! this way corrects a bug with the display of monochrome bitmaps.
 
-          image_bitmap.LoadFromFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
+          image_bitmap.LoadFromFile(Config.GetFilePath(csfi_85a_temp));
 
-          DeleteFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
+          DeleteFile(Config.GetFilePath(csfi_85a_temp));
 
 
           // get offsets...
@@ -8307,12 +8307,12 @@ begin
 
           end;//for
 
-          destination_bitmap.SaveToFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
+          destination_bitmap.SaveToFile(Config.GetFilePath(csfi_85a_temp));
           // !!! this way corrects a bug with the display of monochrome bitmaps.
 
-          image_bitmap.LoadFromFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
+          image_bitmap.LoadFromFile(Config.GetFilePath(csfi_85a_temp));
 
-          DeleteFile(Config.FilePath(cudiData, '_85a_temp.bmp'));
+          DeleteFile(Config.GetFilePath(csfi_85a_temp));
 
           with this_shape do begin     // re-size the shape to suit.
 
@@ -9326,7 +9326,7 @@ begin
             rotated_picture := TPicture.Create;
 
             try
-              image_bitmap.LoadFromFile(Config.FilePath(csdiInternal, 'empty_picture.bmp'));
+              image_bitmap.LoadFromFile(Config.GetFilePath(csfiEmptyPic));
 
               image_width := image_bitmap.Width;
               image_height := image_bitmap.Height;
@@ -9471,7 +9471,7 @@ begin
         rotated_picture := TPicture.Create;
 
         try
-          image_bitmap.LoadFromFile(Config.FilePath(csdiInternal, 'empty_picture.bmp'));
+          image_bitmap.LoadFromFile(Config.GetFilePath(csfiEmptyPic));
         except
           image_bitmap.Width := 200;            // arbitrary.
           image_bitmap.Height := 150;           // arbitrary.

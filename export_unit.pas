@@ -474,7 +474,7 @@ begin
   //if file_str <> '' then
   //  met_file_str := file_str
   //else
-  //  met_file_str := Config.FilePath(csdiInternal, 'temp_emf.emf');
+  //  met_file_str := Config.MakeFilePath(csdiInternal, 'temp_emf.emf');
   //
   //try
   //  met_dc_handle := CreateEnhMetaFile(ref_DC, PChar(met_file_str), @met_rect, nil);

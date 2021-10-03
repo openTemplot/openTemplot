@@ -512,9 +512,8 @@ var
   file_str: string;       // including path
 
 begin
-  file_str := Config.FilePath(cudiData,
-           'PDF-PAGEMAP-RECORD-FILES\pdf_pagemap' +
-           FormatDateTime('_yyyy_mm_dd_hhmm_ss', Date + Time) + '.png');
+  file_str := Config.MakeFilePath(cudiPDFPagemaps,
+           'pdf_pagemap' + FormatDateTime('_yyyy_mm_dd_hhmm_ss', Date + Time) + '.png');
 
   create_png :={TPNGObject}TPortableNetworkGraphic.Create;
   try

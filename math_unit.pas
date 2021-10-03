@@ -37698,7 +37698,7 @@ begin
     '||After storing a copy of it, the control template remains unchanged and is ready for you to use again in building up your track plan of background templates.'
     +
     ' The control template is always shown in front of any background templates. It is not itself part of your track plan.'
-    + '||If you want the control template to be temporarily hidden when you store a copy of it on the background, there are some option settings on the `0options`1 menu on the `0storage box`3:' + '||<IMG SRC="' + Config.FilePath(csdiHelp, 'store_bgnd_options.png') + '">' + '||To see the storage box, click the `0main > storage box`1 menu item, or press `0CTRL+B`2.';
+    + '||If you want the control template to be temporarily hidden when you store a copy of it on the background, there are some option settings on the `0options`1 menu on the `0storage box`3:' + '||<IMG SRC="' + Config.GetFilePath(csfiStoreBgnd) + '">' + '||To see the storage box, click the `0main > storage box`1 menu item, or press `0CTRL+B`2.';
 end;
 //______________________________________________________________________________
 
