@@ -336,7 +336,7 @@ begin
                    +'<TR><TD COLSPAN="3" ALIGN="RIGHT"><HR NOSHADE STYLE="COLOR:GRAY; HEIGHT:6PX;"></TD></TR>';
 
       if box_file_list.Count>0
-         then html_str:='<TR><TD COLSPAN="3" ALIGN="CENTER"><IMG SRC="'+Config.FilePath(csdiHelp, 'wait_signal_trans.gif') + '"> &nbsp; please wait while the images are generated'
+         then html_str:='<TR><TD COLSPAN="3" ALIGN="CENTER"><IMG SRC="'+Config.GetFilePath(csfiWaitSignalTrans) + '"> &nbsp; please wait while the images are generated'
                        +'<BR><BR>&nbsp; &nbsp; you can stop the process by pressing the <SPAN STYLE="COLOR:BLUE; FONT-FAMILY:''COURIER NEW''; FONT-SIZE:17PX;"><B>ESC</B></SPAN> key</TD></TR>'
          else html_str:='';
 
@@ -368,7 +368,7 @@ begin
 
                 old_save_done:=save_done;      // save flag in case a confirm is needed on a reload
 
-                oldbox_str:=Config.FilePath(csdiBackup, 'fv.ebk');  // save existing box
+                oldbox_str:=Config.MakeFilePath(csdiBackup, 'fv.ebk');  // save existing box
                 DeleteFile(oldbox_str);        // delete any previous file.
                 save_box(0,0,0,oldbox_str);    // save existing contents for restore later.
 
@@ -386,9 +386,9 @@ begin
 
                       // delete all previous PNG files in the fview folder...
 
-                while FindFirst(Config.FilePath('fview', '*.png'),0,search_record_png)=0
+                while FindFirst(Config.MakeFilePath('fview', '*.png'),0,search_record_png)=0
                       do
-                      DeleteFile(Config.FilePath('fview', search_record_png.Name));
+                      DeleteFile(Config.MakeFilePath('fview', search_record_png.Name));
 
                 FindClose(search_record_png);
 
@@ -441,7 +441,7 @@ begin
                   fv_tag_list.Add(tag_str);
 
                   img_file_name_str:=StringReplace(box_file_list.Strings[n],'.box3','_box3',[rfReplaceAll, rfIgnoreCase]);
-                  img_file_str:=Config.FilePath('fview', img_file_name_str+'.png');
+                  img_file_str:=Config.MakeFilePath('fview', img_file_name_str+'.png');
 
                   img_name_list.Add(img_file_str);
 
@@ -635,14 +635,13 @@ begin
   // !!! Items not available if Visible=False
   // FileListBox not used directly because not owner-draw
 
-
-  folder_str := ExtractFilePath(Application.ExeName) + 'BOX-FILES';    // exe_str not yet set
+  folder_str := Config.GetDir(cudiBoxes);
 
   if DirectoryExists(folder_str) = True then
     folder_view.Path := folder_str;
 
-  html_create_str := '<P ALIGN="CENTER"><BR><BR><BR><IMG SRC="' + ExtractFilePath(
-    Application.ExeName) + 'internal\hlp\wait_signal_trans.gif"></P>' +
+  html_create_str := '<P ALIGN="CENTER"><BR><BR><BR><IMG SRC="' +
+    Config.GetFilePath(csfiWaitSignalTrans) + '></P>' +
     '<P ALIGN="CENTER" STYLE="FONT-SIZE:15PX; FONT-WEIGHT:BOLD;"><BR><BR>to see all the .box files in the selected disk drive and folder</P>' + '<P ALIGN="CENTER" STYLE="FONT-SIZE:15PX; FONT-WEIGHT:BOLD;">click the [show files] button</P>' + '<P ALIGN="CENTER" STYLE="FONT-SIZE:15PX; FONT-WEIGHT:BOLD;"><BR><BR><BR>to scroll quickly through the list press repeatedly<BR>or hold down the <SPAN STYLE="COLOR:BLUE; FONT-SIZE:17PX; FONT-FAMILY:''Courier New'';">SPACEBAR</SPAN> on the keyboard</P>' + '<P ALIGN="CENTER" STYLE="FONT-SIZE:15PX; FONT-WEIGHT:BOLD;"><BR><BR>for more information click the [ <A HREF="fv_help.85a">? help</A> ] button</P>' + '<P ALIGN="CENTER" STYLE="FONT-SIZE:12PX;"><BR><BR><BR><BR>to avoid seeing this message every time tick the [ <A HREF="fv_instant.85a">instant show files</A> ] tickbox</P>';
 
   use_bmp_image_streams := False;  // normal load images from file
@@ -902,7 +901,7 @@ begin
 
   if fv_has_been_active = False    // first time only
   then begin
-    dir_str := folder_view.Path + '\';   // add trailing slash
+    dir_str := folder_view.Path + PathDelim;   // add trailing slash
 
     file_count := 0; // init
 
@@ -1216,7 +1215,7 @@ begin
 
   if box_file_list.Count > 0 then
     html_str := '<TR><TD COLSPAN="3" ALIGN="CENTER"><IMG SRC="'
-    + Config.FilePath(csdiHelp, 'wait_signal_trans.gif') + '"> &nbsp; please wait while the images are generated'
+    + Config.GetFilePath(csfiWaitSignalTrans) + '"> &nbsp; please wait while the images are generated'
     + '<BR><BR>&nbsp; &nbsp; you can stop the process by pressing the <SPAN STYLE="COLOR:BLUE; FONT-FAMILY:''COURIER NEW''; FONT-SIZE:17PX;"><B>ESC</B></SPAN> key</TD></TR>'
   else
     html_str := '';
@@ -1247,7 +1246,7 @@ begin
 
     old_save_done := save_done;      // save flag in case a confirm is needed on a reload
 
-    oldbox_str := Config.FilePath(csdiBackup, 'fv.ebk');  // save existing box
+    oldbox_str := Config.GetFilePath(csfiFileViewBkp);  // save existing box
     DeleteFile(oldbox_str);        // delete any previous file.
     save_box(0, 0, 0, oldbox_str);    // save existing contents for restore later.
 
