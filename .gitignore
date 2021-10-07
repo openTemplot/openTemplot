@@ -32,3 +32,5 @@ lib/
 # Application output folders
 output/
 
+# Generated documentation
+docs/autodocs
