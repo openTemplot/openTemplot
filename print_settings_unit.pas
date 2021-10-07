@@ -1,4 +1,5 @@
 
+{ }
 unit print_settings_unit;
 
 {$MODE Delphi}

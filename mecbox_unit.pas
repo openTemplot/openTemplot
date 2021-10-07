@@ -22,6 +22,7 @@
 ====================================================================================
 *)
 
+{ }
 unit mecbox_unit;          // 290a  file transfers via MECBOX text-based format
 
 {$MODE Delphi}
