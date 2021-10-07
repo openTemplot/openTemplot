@@ -26,6 +26,7 @@ This file is intended to be compiled in Delphi5 or other early versions of Delph
 
 *)
 
+{ }
 unit web_capture_unit;
 
 interface
