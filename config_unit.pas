@@ -111,7 +111,7 @@ type
   public
     // Checks for existing configuration and creates it if none exists.
     //
-    // This functino must be called only once er execution.
+    // This function must be called only once per execution.
     class procedure Init();
 
     // Return the path to a user data directory
