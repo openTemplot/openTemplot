@@ -244,8 +244,6 @@ begin
   end;
 }
 
-  { OT-FIRST set_menu_style(False);    // modify all menus to XP style  // 0.95.a  in startup unit}
-
   detect_wine;   // 205a in startup unit
 
          // 205c in case Enter button is held down, don't enable these until ready...

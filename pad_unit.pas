@@ -12223,7 +12223,6 @@ begin
   shapes_label_font.Color := shapes_colour;
 
   info_form.Color := $00F1E3D7;
-  //Win7 child border       // $00B0FFFF;                 // primrose.
   bgkeep_timber_colour := $00B06060;            // blue-grey.
   bgkeep_timberfill_colour := $00604000;
 
@@ -14152,15 +14151,7 @@ begin                        // this handler is called by all the menus.
       new_entry := TMenuItem.Create(Self);
       new_entry.Caption := '-';            // separator line
 
-      // set menu style for separator (sets style for whole menu)..
-
-      if win7_menu_style = True then
-        new_entry.Bitmap := nil
-      else
-        new_entry.Bitmap := control_room_form.menu_kludge_image.Picture.Bitmap;
-
       select_by_tag_menu_entry.Add(new_entry);
-
 
       new_entry := TMenuItem.Create(Self);
       new_entry.Caption := '? group  by  prefix  tag  -  &help';
@@ -14193,15 +14184,7 @@ begin                        // this handler is called by all the menus.
       new_entry := TMenuItem.Create(Self);
       new_entry.Caption := '-';            // separator line
 
-      // set menu style for separator (sets style for whole menu)..
-
-      if win7_menu_style = True then
-        new_entry.Bitmap := nil
-      else
-        new_entry.Bitmap := control_room_form.menu_kludge_image.Picture.Bitmap;
-
       remove_prefix_tag_menu_entry.Add(new_entry);
-
 
       new_entry := TMenuItem.Create(Self);
       new_entry.Caption := '? remove  prefix  tag  -  &help';
@@ -26713,15 +26696,7 @@ begin
       new_entry := TMenuItem.Create(Self);
       new_entry.Caption := '-';            // separator line
 
-      // set menu style for separator (sets style for whole menu)..
-
-      if win7_menu_style = True then
-        new_entry.Bitmap := nil
-      else
-        new_entry.Bitmap := control_room_form.menu_kludge_image.Picture.Bitmap;
-
       add_existing_prefix_tag_popup_entry.Add(new_entry);
-
 
       new_entry := TMenuItem.Create(Self);
       new_entry.Caption := 'H   ? add  existing  tag  -  &help';
@@ -26762,15 +26737,7 @@ begin
         new_entry := TMenuItem.Create(Self);
         new_entry.Caption := '-';            // separator line
 
-        // set menu style for separator (sets style for whole menu)..
-
-        if win7_menu_style = True then
-          new_entry.Bitmap := nil
-        else
-          new_entry.Bitmap := control_room_form.menu_kludge_image.Picture.Bitmap;
-
         remove_prefix_tag_popup_entry.Add(new_entry);
-
 
         new_entry := TMenuItem.Create(Self);
         new_entry.Caption := 'H   ? remove  tag  -  &help';
