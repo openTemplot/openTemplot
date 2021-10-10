@@ -122,7 +122,7 @@ implementation
 
 uses
   LCLIntf,
-  control_room, alert_unit, math_unit;
+  config_unit, control_room, alert_unit, math_unit;
 
 var
   image_file_str: string = '';
@@ -372,8 +372,17 @@ end;
 
 procedure Timage_viewer_form.FormCreate(Sender: TObject);
 
-var
-  img_path_str: string;
+// ---------------------------------------------------------------
+  procedure store_image(csfi: TconfigSystemFileID; img: Timage);
+  var
+    img_path_str: string;
+  begin
+    img_path_str := Config.GetFilePath(csfi);
+    if not FileExists(img_path_str) then
+      img.Picture.SaveToFile(img_path_str);
+  end;
+// ---------------------------------------------------------------
+
 
 begin
   ClientWidth := 1000;
@@ -381,112 +390,44 @@ begin
 
   AutoScroll := True;
 
-  // these Timage components are not visible on the form. used on first run to create the image files for HtmlViewer and maps    OT-FIRST  ...
+  // these Timage components are not visible on the form. used on first run to create the image files for HtmlViewer and maps
 
-  ForceDirectories(ExtractFilePath(Application.ExeName) + 'internal\hlp');
-  ForceDirectories(ExtractFilePath(Application.ExeName) + 'internal\tile');
-
-  img_path_str := ExtractFilePath(Application.ExeName) + 'internal\hlp\';
-
-  if FileExists(img_path_str + 'ot_logo.bmp') = False then
-    ot_logo_bmp_image.Picture.SaveToFile(img_path_str + 'ot_logo.bmp');
-
-  if FileExists(img_path_str + 'tm_logo.bmp') = False then
-    tm_logo_bmp_image.Picture.SaveToFile(img_path_str + 'tm_logo.bmp');
-
-  if FileExists(img_path_str + 't3_logo.bmp') = False then
-    t3_logo_bmp_image.Picture.SaveToFile(img_path_str + 't3_logo.bmp');   // 291a
-
-  if FileExists(img_path_str + 'adobe_print_dialog.png') = False then
-    adobe_print_dialog_png_image.Picture.SaveToFile(img_path_str + 'adobe_print_dialog.png');
-
-  if FileExists(img_path_str + 'b6_startup.gif') = False then
-    b6_startup_gif_image.Picture.SaveToFile(img_path_str + 'b6_startup.gif');
-
-  if FileExists(img_path_str + 'companion_taskbar.png') = False then
-    companion_taskbar_png_image.Picture.SaveToFile(img_path_str + 'companion_taskbar.png');
-
-  if FileExists(img_path_str + 'full_screen.png') = False then
-    full_screen_png_image.Picture.SaveToFile(img_path_str + 'full_screen.png');
-
-  if FileExists(img_path_str + 'green_helmet.gif') = False then
-    green_helmet_gif_image.Picture.SaveToFile(img_path_str + 'green_helmet.gif');
-
-  if FileExists(img_path_str + 'link_view.png') = False then
-    link_view_png_image.Picture.SaveToFile(img_path_str + 'link_view.png');
-
-  if FileExists(img_path_str + 'output_menu.png') = False then
-    output_menu_png_image.Picture.SaveToFile(img_path_str + 'output_menu.png');
-
-  if FileExists(img_path_str + 'pad_colours.gif') = False then
-    pad_colours_gif_image.Picture.SaveToFile(img_path_str + 'pad_colours.gif');
-
-  if FileExists(img_path_str + 'red_pointer.gif') = False then
-    red_pointer_gif_image.Picture.SaveToFile(img_path_str + 'red_pointer.gif');
-
-  if FileExists(img_path_str + 'redo_changes.png') = False then
-    redo_changes_png_image.Picture.SaveToFile(img_path_str + 'redo_changes.png');
-
-  if FileExists(img_path_str + 'saved_prefs.gif') = False then
-    saved_prefs_gif_image.Picture.SaveToFile(img_path_str + 'saved_prefs.gif');
-
-  if FileExists(img_path_str + 'saved_prefs.png') = False then
-    saved_prefs_png_image.Picture.SaveToFile(img_path_str + 'saved_prefs.png');
-
-  if FileExists(img_path_str + 'sb_show_items.png') = False then
-    sb_show_items_png_image.Picture.SaveToFile(img_path_str + 'sb_show_items.png');
-
-  if FileExists(img_path_str + 'scangear_dpi.png') = False then
-    scangear_dpi_png_image.Picture.SaveToFile(img_path_str + 'scangear_dpi.png');
-
-  if FileExists(img_path_str + 'script_error.png') = False then
-    script_error_png_image.Picture.SaveToFile(img_path_str + 'script_error.png');
-
-  if FileExists(img_path_str + 'sketchboard_sample.gif') = False then
-    sketchboard_sample_gif_image.Picture.SaveToFile(img_path_str + 'sketchboard_sample.gif');
-
-  if FileExists(img_path_str + 'smile.gif') = False then
-    smile_gif_image.Picture.SaveToFile(img_path_str + 'smile.gif');
-
-  if FileExists(img_path_str + 'store_bgnd_options.png') = False then
-    store_bgnd_options_png_image.Picture.SaveToFile(img_path_str + 'store_bgnd_options.png');
-
-  if FileExists(img_path_str + 'tree_symbol.gif') = False then
-    tree_symbol_gif_image.Picture.SaveToFile(img_path_str + 'tree_symbol.gif');
-
-  if FileExists(img_path_str + 'undo_changes.png') = False then
-    undo_changes_png_image.Picture.SaveToFile(img_path_str + 'undo_changes.png');
-
-  if FileExists(img_path_str + 'viewer_loading.png') = False then
-    viewer_loading_png_image.Picture.SaveToFile(img_path_str + 'viewer_loading.png');
-
-  if FileExists(img_path_str + 'wait_signal.png') = False then
-    wait_signal_png_image.Picture.SaveToFile(img_path_str + 'wait_signal.png');
-
-  if FileExists(img_path_str + 'wait_signal_trans.gif') = False then
-    wait_signal_trans_gif_image.Picture.SaveToFile(img_path_str + 'wait_signal_trans.gif');
-
-  if FileExists(img_path_str + 'tickbox_unticked.png') = False then
-    tickbox_unticked_png_image.Picture.SaveToFile(img_path_str + 'tickbox_unticked.png');   // 291a
-
-  if FileExists(img_path_str + 'tickbox_ticked.png') = False then
-    tickbox_ticked_png_image.Picture.SaveToFile(img_path_str + 'tickbox_ticked.png');   // 291a
+  store_image(csfiOTlogo, ot_logo_bmp_image);
+  store_image(csfiTMlogo, tm_logo_bmp_image);
+  store_image(csfiT3logo, t3_logo_bmp_image);
+  store_image(csfiAdobePrint, adobe_print_dialog_png_image);
+  store_image(csfiB6Startup, b6_startup_gif_image);
+  store_image(csfiCompanion, companion_taskbar_png_image);
+  store_image(csfiFullScreen, full_screen_png_image);
+  store_image(csfiGreenHelmet, green_helmet_gif_image);
+  store_image(csfiLinkView, link_view_png_image);
+  store_image(csfiOutputMenu, output_menu_png_image);
+  store_image(csfiPadColours, pad_colours_gif_image);
+  store_image(csfiRedPointer, red_pointer_gif_image);
+  store_image(csfiRedoChanges, redo_changes_png_image);
+  store_image(csfiSavedPrefs, saved_prefs_png_image);
+  store_image(csfiSBshowItems, sb_show_items_png_image);
+  store_image(csfiScangearDPI, scangear_dpi_png_image);
+  store_image(csfiScriptError, script_error_png_image);
+  store_image(csfiSBsample, sketchboard_sample_gif_image);
+  store_image(csfiSmile, smile_gif_image);
+  store_image(csfiStoreBgnd, store_bgnd_options_png_image);
+  store_image(csfiTreeSymbol, tree_symbol_gif_image);
+  store_image(csfiUndoChanges, undo_changes_png_image);
+  store_image(csfiViewerLoading, viewer_loading_png_image);
+  store_image(csfiWaitSignal, wait_signal_png_image);
+  store_image(csfiWaitSignalTrans, wait_signal_trans_gif_image);
+  store_image(csfiUntickedBox, tickbox_unticked_png_image);
+  store_image(csfiTickedBox, tickbox_ticked_png_image);
 
   // for map_loader ...
 
-  img_path_str := ExtractFilePath(Application.ExeName) + 'internal\tile\';
-
-  if FileExists(img_path_str + 'osm_copyright.png') = False then
-    osm_copyright_png_image.Picture.SaveToFile(img_path_str + 'osm_copyright.png');
-  if FileExists(img_path_str + 'nls_copyright.png') = False then
-    nls_copyright_png_image.Picture.SaveToFile(img_path_str + 'nls_copyright.png');
+  store_image(csfiOSMcopyright, osm_copyright_png_image);
+  store_image(csfiNLScopyright, nls_copyright_png_image);
 
   // for picture shapes ...
 
-  img_path_str := ExtractFilePath(Application.ExeName) + 'internal\';
-
-  if FileExists(img_path_str + 'empty_picture.bmp') = False then
-    empty_picture_bmp_image.Picture.SaveToFile(img_path_str + 'empty_picture.bmp');
+  store_image(csfiEmptyPic, empty_picture_bmp_image);
 
 end;
 //______________________________________________________________________________

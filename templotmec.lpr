@@ -99,8 +99,6 @@ uses
 
   file_viewer in 'file_viewer.pas' {file_viewer_form},
 
-
-
   printer4lazarus;
 
 {$R *.res}
@@ -117,11 +115,13 @@ begin
 
   Application.Scaled:=False;
 
+  Config.Init();                                      // Read the configuration
+
   WriteLn(' '+#13+#10+'    DO NOT CLOSE THIS WINDOW        IT CAN BE MINIMIZED');
 
   WriteLn(#13+#10+#13+#10+'    Welcome to '+Application.Title+#13+#10+#13+#10);
 
-  rem_file_str:=ExtractFilePath(Application.ExeName)+'reminder.txt';
+  rem_file_str := Config.GetFilePath(csfiReminder);
 
   if FileExists(rem_file_str)=True
      then begin
@@ -147,10 +147,6 @@ begin
   //startup_form.Show;                            // splash startup  24-2-99
 
   Application.Initialize;
-
-  Config.Init();                                      // Read the configuration
-  { TODO : Check this is the right place to insert the config initialisation.
-    Do we have everything we need? }
 
   { OT-FIRST
   with Tstartup_form.Create(nil) do

@@ -78,7 +78,7 @@ implementation
 
 uses
   Registry, styleun, control_room, pad_unit, alert_unit, help_sheet, panning_unit,
-  mint_unit, info_unit, { OT-FIRST dtp_unit,} entry_sheet,
+  config_unit, mint_unit, info_unit, { OT-FIRST dtp_unit,} entry_sheet,
   { OT-FIRST file_viewer,} gauge_unit, bgnd_unit,
   { OT-FIRST sb_rvf_unit, sb_rvf_outer_unit, edit_outline_unit, dtp_settings_unit,} keep_select,
   { OT-FIRST web_browser_unit,}
@@ -284,7 +284,7 @@ begin
 
     scaling_size := 4;  // init normal medium program size
 
-    sz_str := ExtractFilePath(Application.ExeName) + 'internal\dpi\sz.szx';
+    sz_str := Config.GetFilePath(csfiScaling);
 
     if FileExists(sz_str) then begin
       sz_list := TStringList.Create;
