@@ -189,12 +189,6 @@ type
     N24: TMenuItem;
     wraphelp1: TMenuItem;
     labelshelp1: TMenuItem;
-    menu_kludge_image: TImage;
-    menustyle1: TMenuItem;
-    xp_menus_menu_entry: TMenuItem;
-    win7_menus_menu_entry: TMenuItem;
-    N26: TMenuItem;
-    menu_style_help_menu_entry: TMenuItem;
     make_donation_menu_entry: TMenuItem;
     N25: TMenuItem;
     first_time_here_label: TLabel;
@@ -317,8 +311,6 @@ type
     procedure older_computers_menu_entryClick(Sender: TObject);
     procedure data_panel_font_menu_entryClick(Sender: TObject);
     procedure exports_menu_entryClick(Sender: TObject);
-    procedure xp_menus_menu_entryClick(Sender: TObject);
-    procedure win7_menus_menu_entryClick(Sender: TObject);
     procedure make_donation_menu_entryClick(Sender: TObject);
     procedure classic_templot_mode_menu_entryClick(Sender: TObject);
     procedure make_on_click_mode_menu_entryClick(Sender: TObject);
@@ -610,8 +602,6 @@ var
 
   running_under_wine: boolean = False;  // 205a
   arial_str: string = 'Arial';          // 205a modified for Wine
-
-  win7_menu_style: boolean = False; // 206b
 
   using_native_colours: boolean = False;   // 212a
 
@@ -1601,12 +1591,6 @@ begin
   reminder_file_path := Config.GetFilePath(csfiReminder);
 
   BorderIcons := [];  // 205c prevent him clicking X, wanting only to hide splash, not quit.
-
-  { OT-FIRST
-  if DirectoryExists('C:\Windows\ImmersiveControlPanel')=True      // 212a we are in Windows 8 or later.
-     then win7_menus_menu_entry.Click;                             // default to the latest menu style instead of XP style
-  }
-
 
   // 205c in case Enter key held down ...
 
@@ -4394,32 +4378,6 @@ procedure Tcontrol_room_form.exports_menu_entryClick(Sender: TObject);
 
 begin
   pad_form.export_file_menu_entry.Click;
-end;
-//______________________________________________________________________________
-
-procedure Tcontrol_room_form.xp_menus_menu_entryClick(Sender: TObject);   // 0.95.a
-
-begin
-  do_open_source_bang('MENU OPTIONS');  // OT-FIRST
-  { OT-FIRST
-  xp_menus_menu_entry.Checked:=True;  // radio item
-  set_menu_style(False);              // in startup unit
-
-  win7_menu_style:=False;
-  }
-end;
-//______________________________________________________________________________
-
-procedure Tcontrol_room_form.win7_menus_menu_entryClick(Sender: TObject);   // 0.95.a
-
-begin
-  do_open_source_bang('MENU OPTIONS');  // OT-FIRST
-  { OT-FIRST
-  win7_menus_menu_entry.Checked:=True;  // radio item
-  set_menu_style(True);                 // in startup unit
-
-  win7_menu_style:=True;
-  }
 end;
 //______________________________________________________________________________
 

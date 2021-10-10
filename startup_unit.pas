@@ -64,9 +64,7 @@ var
   procedure abandon_if_existing_instance;
 
   procedure force_printer_to_init;    // 0.93.a
-
-  procedure set_menu_style(win7:boolean);    // 0.95.a
-  }
+}
 
 
 procedure do_dpi_aware_scaling(scaling_size: integer);   // 211b
@@ -201,8 +199,6 @@ end;
 //______________________________________________________________________________
 
 { OT-FIRST
-
-procedure set_menu_style(win7:boolean);    // 0.95.a
 
 var
   i,j:integer;
