@@ -307,11 +307,11 @@ begin
   // 0.93.a ...
 
   full_string := StringReplace(full_string, 'tree.gif', '<img src="' +
-    Config.FilePath(csdiHelp, 'tree_symbol.gif') + '">', [rfReplaceAll, rfIgnoreCase]);
+    Config.GetFilePath(csfiTreeSymbol) + '">', [rfReplaceAll, rfIgnoreCase]);
   full_string := StringReplace(full_string, 'rp.gif', '<img src="' +
-    Config.FilePath(csdiHelp, 'red_pointer.gif') + '">', [rfReplaceAll, rfIgnoreCase]);
+    Config.GetFilePath(csfiRedPointer) + '">', [rfReplaceAll, rfIgnoreCase]);
   full_string := StringReplace(full_string, 'smile.gif', '<img src="' +
-    Config.FilePath(csdiHelp, 'smile.gif') + '">', [rfReplaceAll, rfIgnoreCase]);
+    Config.GetFilePath(csfiSmile) + '">', [rfReplaceAll, rfIgnoreCase]);
 
   full_string := StringReplace(full_string, 'green_bullet',
     '<span style="font-weight:bold; font-family:''Verdana''; color:green;">•</span>',
@@ -1770,7 +1770,7 @@ begin
   do_open_source_bang('CREATE EMF');  // OT-FIRST
 
   (* OT-FIRST
-  file_str:=Config.FilePath('emfs', 'help_notes_metafile.emf');
+  file_str:=Config.MakeFilePath('emfs', 'help_notes_metafile.emf');
 
   help_metafile:=html_view.MakeMetafile(0, html_view.Width, html_view.Width+30, html_view.Height);
 
