@@ -465,11 +465,6 @@ begin
     Values['05-32b'] := IntToStr(integer(control_room_form.allow_full_idle_menu_entry.Checked));
     // allow_idle = True
 
-    Values['05-40b'] := IntToStr(integer(control_room_form.xp_menus_menu_entry.Checked));
-    // XP   style menus
-    Values['05-41b'] := IntToStr(integer(control_room_form.win7_menus_menu_entry.Checked));
-    // Win7 style menus
-
     Values['05-50i'] := IntToStr(action_form.ClientHeight);      // 215b
 
 
@@ -1063,15 +1058,6 @@ begin
       with control_room_form.allow_full_idle_menu_entry do
         Checked := get_pref_bool('05-32b', Checked);
       allow_idle := not control_room_form.fast_100_menu_entry.Checked;
-
-      with control_room_form do begin
-        if get_pref_bool('05-40b', xp_menus_menu_entry.Checked) <>
-          xp_menus_menu_entry.Checked then
-          xp_menus_menu_entry.Click;
-        if get_pref_bool('05-41b', win7_menus_menu_entry.Checked) <>
-          win7_menus_menu_entry.Checked then
-          win7_menus_menu_entry.Click;
-      end;
 
       action_form.ClientHeight := get_pref_int('05-50i', action_form.ClientHeight);
       // 215b

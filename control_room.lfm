@@ -17091,31 +17091,6 @@ object control_room_form: Tcontrol_room_form
         GroupIndex = 90
         OnClick = blank_spaces_in_menus_menu_entryClick
       end
-      object menustyle1: TMenuItem
-        Caption = 'menu  st&yle  ( Windows )'
-        GroupIndex = 90
-        object xp_menus_menu_entry: TMenuItem
-          Caption = '&XP  style'
-          Checked = True
-          GroupIndex = 10
-          RadioItem = True
-          OnClick = xp_menus_menu_entryClick
-        end
-        object win7_menus_menu_entry: TMenuItem
-          Caption = '&7 - 8 - 8.1 - 10  style'
-          GroupIndex = 10
-          RadioItem = True
-          OnClick = win7_menus_menu_entryClick
-        end
-        object N26: TMenuItem
-          Caption = '-'
-          GroupIndex = 20
-        end
-        object menu_style_help_menu_entry: TMenuItem
-          Caption = '?  menu  style  -  &help'
-          GroupIndex = 20
-        end
-      end
       object mouse_action_menu_entry: TMenuItem
         Caption = 'mou&se  action'
         GroupIndex = 90
