@@ -284,19 +284,19 @@ var
   box_value_short: double;
 
 begin
-  if check_int(pdf_dpi_edit.text,50,4800,box_value_dpi)=False          // input limits 50dpi to 4800dpi
+  if not ValidInt(pdf_dpi_edit.text,50,4800,box_value_dpi)    // input limits 50dpi to 4800dpi
      then begin
             ShowMessage('Error: The DPI setting must be a valid whole number in the range 50 to 4800. A decimal point is not allowed.');
             EXIT;
           end;
 
-  if check_float(pdf_long_mm_edit.text,50,25000,box_value_long)=False   // input limits 50mm to 25000mm (25m)
+  if not ValidFloat(pdf_long_mm_edit.text,50,25000,box_value_long)   // input limits 50mm to 25000mm (25m)
      then begin
             ShowMessage('Error: The long-side page dimension must be a valid number in the range 50mm to 25000mm.');
             EXIT;
           end;
 
-  if check_float(pdf_short_mm_edit.text,25,12500,box_value_short)=False  // input limits 25mm to 12500mm (12.5m)
+  if not ValidFloat(pdf_short_mm_edit.text,25,12500,box_value_short)  // input limits 25mm to 12500mm (12.5m)
      then begin
             ShowMessage('Error: The short-side page dimension must be a valid number in the range 25mm to 12500mm.');
             EXIT;
