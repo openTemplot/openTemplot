@@ -199,50 +199,6 @@ begin
 end;
 //______________________________________________________________________________
 
-{ OT-FIRST
-
-var
-  i,j:integer;
-  temp_comp_i,temp_comp_j:TComponent;
-
-begin
-
-      // 0.95.a  add a dummy image to any line menu items. This causes the whole menu to display selected items in XP style inverse video (Windows 7 kludge).
-
-  for j:=Application.ComponentCount-1 downto 0 do begin
-
-    temp_comp_j:=Application.Components[j];
-
-    if (temp_comp_j is TForm)
-
-      then begin
-
-             for i:=temp_comp_j.ComponentCount-1 downto 0 do begin
-
-               temp_comp_i:=temp_comp_j.Components[i];
-
-               if (temp_comp_i is TMenuItem)
-                  then begin
-                         if  (TMenuItem(temp_comp_i).Caption='-')
-                         and (TMenuItem(temp_comp_i).Parent<>pad_form.set_peg_position_menu_entry)   // D5 bug fix, apparently not needed if menu contains a break
-                            then begin
-                                   if win7=True
-                                      then TMenuItem(temp_comp_i).Bitmap:=nil
-                                      else TMenuItem(temp_comp_i).Bitmap:=control_room_form.menu_kludge_image.Picture.Bitmap;
-                                 end;
-                       end;
-
-
-             end;//next i
-
-           end;
-
-  end;//next j
-end;
-
-}
-//______________________________________________________________________________
-
 procedure do_dpi_aware_scaling(scaling_size: integer);   // 211b
 
 // if scaling_size 0, get it from file
