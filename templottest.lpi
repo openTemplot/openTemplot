@@ -26,7 +26,7 @@
         <PackageName Value="FCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="35">
+    <Units Count="36">
       <Unit0>
         <Filename Value="templottest.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -168,6 +168,10 @@
         <Filename Value="model\curve.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit34>
+      <Unit35>
+        <Filename Value="test\utils_test.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit35>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

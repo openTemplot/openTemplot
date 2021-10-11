@@ -1,3 +1,7 @@
+// This unit should not be used to house funxtionality unless it is CERTAIN that
+// there is no other reasonable home for it
+
+{ This unit provides a variety of utility functions that do not fit into other units. }
 unit utils;
 
 {$mode delphi}
@@ -5,237 +9,86 @@ unit utils;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, Math, SysUtils;
 
-function check_float(input: String; min, max: double; var target: double): Boolean;
-function check_int(input: String; min, max: Integer; var target: Integer): Boolean;
+type
+
+  TNumberCheckRslt = (
+    ncValid,
+    ncOutOfRange,
+    ncMalformed );
+
+// Checks a string to ensure it contains the valid representation of
+// a floating point number which lies within specified limits.
+// - If it does, the function returns 'True' and writes the value to a field
+//   provided by the caller.
+// - If it does not, the function returns 'False' and the client's field is untouched.
+// Entry of a null string is equivalent to entering zero, if zero is between the limits,
+// and otherwise is equivalent to entering whichever of the limits is nearer to zero.
+function CheckFloat(input: String; lowerBound, upperBound: double; var target: double): TNumberCheckRslt;
+
+// Checks a string to ensure it contains the valid representation of
+// an integer which lies within specified limits.
+// - If it does, the function returns 'True' and writes the value to a field
+//   provided by the caller.
+// - If it does not, the function returns 'False' and the client's field is untouched.
+// Entry of a null string is equivalent to entering zero, if zero is between the limits,
+// and otherwise equivalent to entering whichever of the limits is nearer to zero.
+function CheckInt(input: String; lowerBound, upperBound: Integer; var target: Integer): TNumberCheckRslt;
 
 implementation
 
-// Checks the first char for '+' or '-' and sets caller's variables appropriately
-procedure pull_sign(input: String; var negative: Boolean; var start: Integer);
-
-begin
-  case input[1] of
-    '-': begin
-      negative := True;
-      start := 2;
-    end;
-    '+': begin
-      negative := False;
-      start := 2;
-    end;
-    else begin
-      negative := False;
-      start := 1;
-    end;
-  end;
-end;
-
-// Pulls decimal digits from part of a string and forms an integer which it
-// pushes to the caller returning True if all is OK, False if a non-digit is found.
-function pull_digits(input: String; start_ix, end_ix: Integer;
-  var target: Integer): Boolean;
-
+function CheckFloat(input: String; lowerBound, upperBound: double; var target: double): TNumberCheckRslt;
 var
-  ix: Integer;
-  Value: Integer = 0;
+value: double;
 
 begin
-  for ix := start_ix to end_ix do begin
-    if input[ix] in ['0' .. '9'] then begin
-      Value := (Value * 10) + StrToInt(input[ix]);
-    end
-    else
-      EXIT(False);
-  end;
 
-  target := Value;
-  EXIT(True);
-end;
-
-function check_float(input: String; min, max: double; var target: double): Boolean;
-
-var
-  ix, dot_ix, int_end_ix: Integer;
-  Value: double = 0;
-  start: Integer;
-  intval: Integer;
-  negative: Boolean;
-
-begin
   if length(input) = 0 then begin
-    target := 0;
-    EXIT(True);  // A zero-length string is fine
+    value := max(lowerBound, 0.0);
+    value := min(value, upperBound);
+    input := FloatToStr(value);
   end;
 
-  pull_sign(input, negative, start);
-
-  dot_ix := pos('.', input);
-
-  if dot_ix = 0 then
-    int_end_ix := length(input)
-  else
-    int_end_ix := dot_ix - 1;
-
-  if pull_digits(input, start, int_end_ix, intval) = False then
-    EXIT(False);
-
-  if dot_ix > 0 then
-    for ix := length(input) downto dot_ix + 1 do begin
-      if input[ix] in ['0' .. '9'] then
-        Value := (Value + Ord(input[ix]) - 48) / 10   // 48 = ord('0')
-      else
-        EXIT(False);
+  try
+    value := StrToFloat(input);
+    if (value < lowerBound) or (value > upperBound) then
+      result := ncOutOfRange
+    else begin
+      result := ncValid;
     end;
-
-  Value := Value + intval;
-
-  if negative then
-    Value := Value * -1;
-
-  if (Value < min) or (Value > max) then
-    EXIT(False);
-
-  target := Value;
-  EXIT(True);
+  except
+    result := ncMalformed
+  end;
+  if result = ncValid then
+    target := value;
 end;
 
-function check_int(input: String; min, max: Integer; var target: Integer): Boolean;
+function CheckInt(input: String; lowerBound, upperBound: Integer; var target: Integer): TNumberCheckRslt;
 
 var
-  i: Integer;
   Value: Integer;
-  start: Integer;
-  negative: Boolean;
 
 begin
+
   if length(input) = 0 then begin
-    target := 0;
-    EXIT(True);  // A zero-length string is fine
+    value := max(lowerBound, 0);
+    value := min(value, upperBound);
+    input := IntToStr(value);
   end;
 
-  pull_sign(input, negative, start);
-
-  if pull_digits(input, start, length(input), Value) = False then // invalid char found
-    EXIT(False);
-
-  if negative then
-    Value := Value * -1;
-
-  if (Value < min) or (Value > max) then
-    EXIT(False);
-
-  target := Value;
-  EXIT(True);
+  try
+    value := StrToInt(input);
+    if (value < lowerBound) or (value > upperBound) then
+      result := ncOutOfRange
+    else
+      result := ncValid;
+  except
+    result := ncMalformed
+  end;
+  if result = ncValid then
+     target := value;
 end;
 
 end.
-unit utils;
-
-{$mode delphi}
-
-interface
-
-uses
-  Classes, SysUtils;
-
-function check_int(input: String; min, max: Integer; var target: Integer): Boolean;
-
-implementation
-
-function pull_digits(input: String; start_ix, end_ix: Integer; target: Integer): Boolean;
-var
-  ix, Value: Integer;
-begin
-  for ix := end_ix downto start_ix do begin
-    if input[ix] in ['0' .. '9'] then
-      Value := Value * 10 + StrToInt(input[ix])
-    else
-      EXIT(False);
-  end;
-
-  target := Value;
-  EXIT(True);
-end;
-
-function check_float(input: String; min, max: double; var target: double): Boolean;
-var
-  ix: Integer;
-  val: double = 0;
-  start: Integer;
-  negative: Boolean;
-begin
-  case input[1] of
-    '-': begin
-      negative := True;
-      start := 2;
-    end;
-    '+': begin
-      negative := False;
-      start := 2;
-    end;
-    else begin
-      negative := False;
-      start := 1;
-    end;
-  end;
-
-  for ix := length(input) downto start do begin
-    if input[ix] in ['0' .. '9'] then
-      val := val * 10 + StrToInt(input[ix])
-    else
-      EXIT(False);
-
-    if val > max then
-      EXIT(False);
-  end;
-
-  if negative then
-    val := val * -1
-
-  if val<min or val>max then
-    EXIT(False);
-
-  target := val;
-  EXIT(True);
-end;
-
-function check_int(input: String; min, max: Integer; var target: Integer): Boolean;
-var
-  i, val = 0: Integer;
-  start: Integer;
-  negative: Boolean;
-begin
-  case input[1] of
-    '-': begin
-      negative := True;
-      start := 2;
-    end;
-    '+': begin
-      negative := False;
-      start := 2;
-    end;
-    else begin
-      negative := False;
-      start := 1;
-    end;
-  end;
-  for i := length(input) downto start do begin
-    if input[i] in ['0' .. '9'] then
-      val := val * 10 + StrToInt(input[i])
-    else
-      EXIT(False);
-  end;
-
-  if val < min or val > max then
-    EXIT(False);
-
-  target := val;
-  EXIT(True);
-end;
-
-end.
-
-
 

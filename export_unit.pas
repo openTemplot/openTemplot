@@ -32,7 +32,8 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, StdCtrls, ComCtrls, ExtDlgs, Utils;
+  ExtCtrls, StdCtrls, ComCtrls, ExtDlgs,
+  Helpers, Utils;
 
 type
 
@@ -284,19 +285,19 @@ var
   box_value_short: double;
 
 begin
-  if check_int(pdf_dpi_edit.text,50,4800,box_value_dpi)=False          // input limits 50dpi to 4800dpi
+  if not pdf_dpi_edit.ValidInteger(50, 4800, box_value_dpi)  // input limits 50dpi to 4800dpi
      then begin
             ShowMessage('Error: The DPI setting must be a valid whole number in the range 50 to 4800. A decimal point is not allowed.');
             EXIT;
           end;
 
-  if check_float(pdf_long_mm_edit.text,50,25000,box_value_long)=False   // input limits 50mm to 25000mm (25m)
+  if not pdf_long_mm_edit.ValidFloat(50, 25000, box_value_long)   // input limits 50mm to 25000mm (25m)
      then begin
             ShowMessage('Error: The long-side page dimension must be a valid number in the range 50mm to 25000mm.');
             EXIT;
           end;
 
-  if check_float(pdf_short_mm_edit.text,25,12500,box_value_short)=False  // input limits 25mm to 12500mm (12.5m)
+  if not pdf_short_mm_edit.ValidFloat(25, 12500, box_value_short) // input limits 25mm to 12500mm (12.5m)
      then begin
             ShowMessage('Error: The short-side page dimension must be a valid number in the range 25mm to 12500mm.');
             EXIT;
@@ -309,7 +310,7 @@ begin
     pdf_height_mm:=box_value_long;
     pdf_width_mm:=box_value_short;
   except
-    EXIT;    // ??? should have been found in sb_check_valid
+    EXIT;    // ??? should have been found in Tedit.Valid...(...)
   end;//try
 
   if pdf_height_mm<pdf_width_mm
@@ -383,51 +384,6 @@ begin
             print_entire_pad(True);        // True=PDF
           end;
 
-end;
-//______________________________________________________________________________
-
-function sb_check_valid_float(edit_box: TEdit; limit_low, limit_high: double;
-  var float_val: double): boolean;
-
-  // check valid float dimension entered in sketchboard TEdit boxes...
-
-var
-  str: string;
-
-begin
-  Result := False;  // init
-
-  if edit_box.Text = ''   // allow empty box
-  then begin
-    if limit_low < 0 then
-      edit_box.Text := '0'
-    else
-      edit_box.Text := round_str(limit_low, 1);
-  end;
-
-  str := edit_box.Text;
-  str := StringReplace(str, '[', ' ', [rfReplaceAll, rfIgnoreCase]); // negative brackets to spaces
-  str := StringReplace(str, ']', ' ', [rfReplaceAll, rfIgnoreCase]); // negative brackets to spaces
-  str := Trim(str);
-
-  try
-    float_val := StrToFloat(str);  // return as var
-  except
-    edit_box.Color := $00CCAAFF;   // pale red
-    if edit_box.Visible = True then
-      edit_box.SetFocus;
-    EXIT;
-  end;//try
-
-  if (float_val < limit_low) or (float_val > limit_high) then begin
-    edit_box.Color := $0055FFFF;   // pale yellow caution
-    if edit_box.Visible = True then
-      edit_box.SetFocus;
-    EXIT;
-  end;
-
-  edit_box.Color := clWhite;
-  Result := True;
 end;
 //______________________________________________________________________________
 
@@ -589,22 +545,12 @@ begin
     end;
   end;
 
-  if sb_check_valid_float(metafile_dpi_edit, 50, 1200, box_value) = False
+  if not metafile_dpi_edit.ValidFloat(50, 1200, box_value)
   // input limits 50dpi to 1200dpi
   then begin
     ShowMessage('Error: The DPI setting must be a valid number in the range 50 to 1200.');
     EXIT;
   end;
-
-  try
-    metafile_dpi := box_value;
-  except
-    ShowMessage('Invalid data for metafile DPI');
-    // ??? should have been found in sb_check_valid_ earlier
-    EXIT;
-  end;//try
-
-  // 291a ...
 
   file_str := '';   // init
 
@@ -914,28 +860,11 @@ begin
     end;
   end;
 
-  { OT-FIRST
-
-  if sb_check_valid_int(image_width_edit,60,12000,box_value)=False  // input limits 60 dots to 12000 dots (20" @ 600dpi)
+  if not image_width_edit.ValidInteger(60, 12000, box_value)  // input limits 60 dots to 12000 dots (20" @ 600dpi)
      then begin
             ShowMessage('Error: The image width setting must be a valid whole number in the range 60 dots to 12000 dots.');
             EXIT;
           end;
-  }
-  // OT-FIRST ...
-
-  try
-    box_value := StrToInt(image_width_edit.Text);
-  except
-    ShowMessage('Error: The image width setting must be a valid whole number in the range 60 dots to 12000 dots.');
-    EXIT;
-  end;
-
-  if (box_value < 60) or (box_value > 12000) then begin
-    ShowMessage(
-      'Error: The image width setting must be a valid whole number in the range 60 dots to 12000 dots.');
-    EXIT;
-  end;
 
   if (output_diagram_mode = False) and (confirm_detail_mode_1_msg_pref = False) then begin
 
@@ -974,7 +903,7 @@ begin
     create_image_width_dots := box_value;
   except
     ShowMessage('Invalid data for image width.');
-    // ??? should have been found in sb_check_valid_ earlier
+    // ??? should have been found in Tedit.Valid...(...) earlier
     EXIT;
   end;//try
 
