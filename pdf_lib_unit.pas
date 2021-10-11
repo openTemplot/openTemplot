@@ -7,6 +7,7 @@
 //    - take colors in BGR and turn them into RGB
 //    - etc
 
+{ }
 unit pdf_lib_unit;
 
 {$MODE Delphi}

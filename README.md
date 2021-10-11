@@ -31,6 +31,7 @@ Tools used in this project are:
 * AsciiDoctor, plus extensions:
   * AsciiDoctor Diagram
   * AsciiDoctor PDF
+* PasDoc
   
 ## Git Conventions
 
