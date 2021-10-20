@@ -306,7 +306,6 @@ begin
   LoadFile(csfiSavedPrefs, [configGlobalDirName, 'help', 'saved_prefs.png']);
   LoadFile(csfiSBsample, [configGlobalDirName, 'help', 'sketchboard_sample.gif']);
   LoadFile(csfiSBshowItems, [configGlobalDirName, 'help', 'sb_show_items.png']);
-  LoadFile(csfiScaling, [configGlobalDirName, 'dpi', 'sz.szx']);       // Scaling data
   LoadFile(csfiScangearDPI, [configGlobalDirName, 'help', 'scangear_dpi.png']);
   LoadFile(csfiScriptError, [configGlobalDirName, 'help', 'script_error.png']);
   LoadFile(csfiSmile, [configGlobalDirName, 'help', 'smile.gif']);
@@ -343,6 +342,7 @@ begin
   LoadFile(csfiSaveForUndoZ, [configLocalDirName, 'backup', 'sfz.ebk']);
   LoadFile(csfiStartBgnd, [configLocalDirName, 'default', 'start.bgs3']);
   LoadFile(csfiStartBox, [configLocalDirName, 'default', 'start.box3']);
+  LoadFile(csfiScaling, [configLocalDirName, 'dpi', 'sz.szx']);       // Scaling data
   LoadFile(csfiZoomTestH, [dataDirName, 'test', 'zoom_test_page.html']);
 
   // Validate the table ...
