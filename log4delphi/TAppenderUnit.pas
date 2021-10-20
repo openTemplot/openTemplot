@@ -51,7 +51,7 @@ type
   private
   protected
     FLayout: TLayout;
-    FThreshold: TLevel;
+    FThreshold: ILevel;
     FErrorHandler: TErrorHandler;
     FName: String;
     FClosed: boolean;
@@ -63,14 +63,14 @@ type
     procedure DoAppend(AEvent: TLoggingEvent);
     procedure SetLayout(ALayout: TLayout); virtual;
     procedure SetName(AName: String);
-    procedure SetThreshold(AThreshold: TLevel);
+    procedure SetThreshold(AThreshold: ILevel);
     procedure SetErrorHandler(AHandler: TErrorHandler);
 
     function GetLayout(): TLayout;
     function GetName(): String;
-    function GetThreshold(): TLevel;
+    function GetThreshold(): ILevel;
     function GetErrorHandler(): TErrorHandler;
-    function IsAsSevereAsThreshold(ALevel: Tlevel): Boolean;
+    function IsAsSevereAsThreshold(ALevel: ILevel): Boolean;
     function RequiresLayout(): Boolean; virtual;
   end;
 
@@ -159,7 +159,7 @@ end;
    Set the threshold level for this appender to use.
    @param AThreshold The threshold level this appender uses
   ----------------------------------------------------------------------------}
-procedure TAppender.SetThreshold(AThreshold: TLevel);
+procedure TAppender.SetThreshold(AThreshold: ILevel);
 begin
   Self.FThreshold := AThreshold;
   TLogLog.debug('TAppender#SetThreshold: ' + AThreshold.ToString);
@@ -197,7 +197,7 @@ end;
    Returns this appender's threshold level.
    @return The threshold level of this appender
   ----------------------------------------------------------------------------}
-function TAppender.getThreshold(): TLevel;
+function TAppender.getThreshold(): ILevel;
 begin
   Result := Self.FThreshold;
 end;
@@ -218,7 +218,7 @@ end;
    @return True if this appenders level is greater than or equal to the
       given level, false otherwise
   ----------------------------------------------------------------------------}
-function TAppender.IsAsSevereAsThreshold(ALevel: Tlevel): Boolean;
+function TAppender.IsAsSevereAsThreshold(ALevel: ILevel): Boolean;
 begin
   Result := ((Self.FThreshold = nil) or (ALevel.IsGreaterOrEqual(Self.FThreshold)));
 end;

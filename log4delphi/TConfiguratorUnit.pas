@@ -34,28 +34,32 @@ uses
   TPropertyConfiguratorUnit,
   TIniConfiguratorUnit;
 
-procedure doBasicConfiguration;
-procedure doPropertiesConfiguration(const fileName: String);
-procedure doIniConfiguration(const fileName, sectionName: String);
+type
+  LoggerConfigurator = class
+  public
+    class procedure doBasicConfiguration;
+    class procedure doPropertiesConfiguration(const fileName: String);
+    class procedure doIniConfiguration(const fileName, sectionName: String);
+  end;
 
 implementation
 
 {*----------------------------------------------------------------------------
    Use this method to quickly configure the logging suite.
   ----------------------------------------------------------------------------}
-procedure doBasicConfiguration;
+class procedure LoggerConfigurator.doBasicConfiguration;
 begin
   TlogLogUnit.Initialize(ExtractFileDir(Application.ExeName) + '\log4delphi.log');
-  TLoggerUnit.Initialize();
+  Logger.Initialize();
 end;
 
 {*----------------------------------------------------------------------------
    This method performs a basic configuration and then configures the
    package based on the properties specified in the properties file.
   ----------------------------------------------------------------------------}
-procedure doPropertiesConfiguration(const fileName: String);
+class procedure LoggerConfigurator.doPropertiesConfiguration(const fileName: String);
 begin
-  TLoggerUnit.Initialize();
+  Logger.Initialize();
   TPropertyConfiguratorUnit.DoConfigure(fileName);
 end;
 
@@ -63,11 +67,10 @@ end;
    This method performs a basic configuration and then configures the
    package based on the properties specified in the ini file section.
   ----------------------------------------------------------------------------}
-procedure doIniConfiguration(const fileName, sectionName: String);
+class procedure LoggerConfigurator.doIniConfiguration(const fileName, sectionName: String);
 begin
-  TLoggerUnit.Initialize();
+  Logger.Initialize();
   TIniConfiguratorUnit.DoConfigure(fileName, sectionName);
-
 end;
 
 end.

@@ -31,7 +31,9 @@ type
                         { TODO Get rid of this setting and rehouse its contents }
     csdiMap,            // screenshot maps
     csdiTile,           // tiled maps
-    csdiUpdate);        // downloaded updates
+    csdiUpdate,         // downloaded updates
+    csdiLogs            // log files and log properties
+    );
 
 
   Config = class
@@ -44,6 +46,8 @@ type
 
     class function FilePath(cudi: TconfigUserDirId; Fname: string): string; overload;
     class function FilePath(csdi: TconfigSystemDirId; Fname: string): string; overload;
+
+    class function IniFileName: string;
 
   private
     class var configDirName: string;
@@ -162,7 +166,7 @@ begin
   LoadDir(csdiMap, 'map', [ConfigDirName, 'internal', 'map']);       // screenshot maps
   LoadDir(csdiTile, 'tile', [ConfigDirName, 'internal', 'tile']);    // tiled maps
   LoadDir(csdiUpdate, 'upd', [ConfigDirName, 'internal', 'upd']);       // downloaded updates
-
+  LoadDir(csdiLogs, 'logs', [ConfigDirName, 'internal', 'logs']);
 end;
 
 class function Config.GetDir(cudi: TconfigUserDirId): string;
@@ -217,6 +221,11 @@ end;
 class procedure Config.WriteDir(cfgKey: string; Value: string);
 begin
   configFile.WriteString('directories', cfgKey, Value);
+end;
+
+class function Config.IniFileName: string;
+begin
+  Result := configFileName;
 end;
 
 end.

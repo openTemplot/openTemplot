@@ -31,6 +31,21 @@ procedure DoConfigure(const AFilename, ASectionName: String);
 
 implementation
 
+
+procedure LoadDefaultProperties(var props: TProperties);
+begin
+  props.SetProperty('debug', 'false');
+  props.SetProperty('rootlogger', 'INFO, defaultAppender');
+  props.SetProperty('appender.defaultAppender', 'TRollingFileAppender');
+  props.SetProperty('appender.defaultAppender.File', 'openTemplot.log');
+  props.SetProperty('appender.defaultAppender.MaxBackupIndex', '2');
+  props.SetProperty('appender.defaultAppender.MaxFileSize', '1M');
+  props.SetProperty('appender.defaultAppender.Append', 'true');
+  props.SetProperty('appender.defaultAppender.Appdir', 'true');
+  props.SetProperty('appender.defaultAppender.layout', 'TPatternLayout');
+  props.SetProperty('appender.defaultAppender.layout.Pattern', '%d [%5p] <%L>%m');
+end;
+
 procedure DoConfigure(const AFilename, ASectionName: String);
 var
   props: TProperties;
@@ -46,6 +61,8 @@ begin
     try
       fin.ReadSection(ASectionName, sl);
 
+      LoadDefaultProperties(props);
+
       for i := 0 to sl.Count - 1 do begin
         Value := fin.ReadString(ASectionName, sl[i], '');
         props.SetProperty(sl[i], Value);
@@ -54,8 +71,8 @@ begin
       TPropertyConfiguratorUnit.DoConfigure(props);
     except
       on E: Exception do begin
-        TLogLog.error('Could not read configuration file [' +
-          AFileName + '] ' + e.Message);
+        TLogLog.error('Could not read configuration file [' + AFileName +
+          '] ' + e.Message);
         TLogLog.error('Ignoring configuration file [' + AFilename + ']');
       end;
     end;

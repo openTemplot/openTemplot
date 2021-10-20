@@ -58,7 +58,7 @@ type
     function Concat(const str: String): TString;
     function EndsWith(const ASuffix: String): Boolean; overload;
     function EndsWith(const ASuffix: String; AOffset: Integer): Boolean; overload;
-    function Equals(const AString: String): Boolean;
+    function Equals(const AString: String): Boolean; overload;
     function EqualsIgnoreCase(const AString: String): Boolean;
     function IndexOf(const AChar: Char): Integer; overload;
     function IndexOf(const ACHar: Char; const AIndex: Integer): Integer; overload;
@@ -77,7 +77,7 @@ type
     function Substring(const AStartIndex: Integer): TString; overload;
     function Substring(const AStartIndex: Integer; const AEndIndex: Integer): TString;
       overload;
-    function ToString(): String;
+    function ToString(): String; override;
   end;
 
   TStringTokenizer = class(TObject)

@@ -21,7 +21,7 @@
 unit TLoggerUnit;
 
 {$ifdef fpc}
-  {$mode objfpc}
+  {$mode delphi}
   {$h+}
 {$endif}
 
@@ -32,35 +32,22 @@ uses
   TLogLogUnit, TLevelUnit, TAppenderUnit, TLoggingEventUnit;
 
 type
-{*----------------------------------------------------------------------------
-   This is the central class in the log4delphi suite. Most logging operations,
-   except configuration, are done through this class.
-  ----------------------------------------------------------------------------}
-  TLogger = class(TObject)
-  private
-    FAppenders: TAppendersCollection;
-    FLevel: TLevel;
-    FName: String;
-  protected
-    constructor Create(const AName: String);
-    destructor Destroy; reintroduce;
-  public
-    class procedure FreeInstances();
-    class function GetInstance(): TLogger; overload;
-    class function GetInstance(const AName: String): TLogger; overload;
 
-    procedure SetLevel(ALevel: TLevel);
+  {$interfaces corba}
+  ILogger = interface
+    ['ILogger']
+    procedure SetLevel(ALevel: ILevel);
     procedure AddAppender(AAppender: IAppender);
     procedure RemoveAppender(const AName: String);
     procedure RemoveAllAppenders();
     function GetAppender(const AName: String): IAppender;
     function GetAllAppenders(): TAppendersCollection;
-    function GetLevel(): TLevel;
+    function GetLevel(): ILevel;
     function GetName(): String;
 
     procedure Log(AEvent: TLoggingEvent); overload;
-    procedure Log(ALevel: TLevel; const AMsg: String); overload;
-    procedure Log(ALevel: TLevel; const AMsg: String; AException: Exception); overload;
+    procedure Log(ALevel: ILevel; const AMsg: String); overload;
+    procedure Log(ALevel: ILevel; const AMsg: String; AException: Exception); overload;
     procedure Fatal(const AMsg: String);
     procedure Error(const AMsg: String);
     procedure Warn(const AMsg: String);
@@ -69,34 +56,121 @@ type
     procedure Trace(const AMsg: String);
   end;
 
-procedure Initialize();
-procedure setDefaultThreshold(ALevel: TLevel);
+  Logger = class
+  public
+    class procedure Initialize();
+    class procedure setDefaultThreshold(ALevel: ILevel);
+
+    class procedure FreeInstances();
+    class function GetInstance(): ILogger; overload;
+    class function GetInstance(const AName: String): ILogger; overload;
+  end;
+
+
 
 implementation
 
+uses
+  Generics.Collections;
+
+type
+  {*----------------------------------------------------------------------------
+   This is the central class in the log4delphi suite. Most logging operations,
+   except configuration, are done through this class.
+  ----------------------------------------------------------------------------}
+  TLogger = class(TObject, ILogger)
+  private
+    FAppenders: TAppendersCollection;
+    FLevel: ILevel;
+    FName: String;
+  public
+    constructor Create(const AName: String);
+    destructor Destroy; override;
+
+    procedure SetLevel(ALevel: ILevel);
+    procedure AddAppender(AAppender: IAppender);
+    procedure RemoveAppender(const AName: String);
+    procedure RemoveAllAppenders();
+    function GetAppender(const AName: String): IAppender;
+    function GetAllAppenders(): TAppendersCollection;
+    function GetLevel(): ILevel;
+    function GetName(): String;
+
+    procedure Log(AEvent: TLoggingEvent); overload;
+    procedure Log(ALevel: ILevel; const AMsg: String); overload;
+    procedure Log(ALevel: ILevel; const AMsg: String; AException: Exception); overload;
+    procedure Fatal(const AMsg: String);
+    procedure Error(const AMsg: String);
+    procedure Warn(const AMsg: String);
+    procedure Info(const AMsg: String);
+    procedure Debug(const AMsg: String);
+    procedure Trace(const AMsg: String);
+  end;
+
+
 var
-  instances: TStrings;
-  defaultThreshold: TLevel;
+  instances: TObjectDictionary<String, TLogger>;
+  defaultThreshold: ILevel;
 
 {*----------------------------------------------------------------------------
    Initailize the loggers.
   ----------------------------------------------------------------------------}
-procedure Initialize();
+class procedure Logger.Initialize();
 begin
-  defaultThreshold := TLevelUnit.ALL;
+  defaultThreshold := TLevelUnit.INFO;
   if not assigned(instances) then
-    instances := TStringList.Create;
-  if instances.IndexOf('ROOT') = -1 then
-    instances.AddObject('ROOT', TLogger.Create('ROOT'));
+    instances := TObjectDictionary<String, TLogger>.Create;
+  if not instances.ContainsKey('ROOT') then
+    instances.Add('ROOT', TLogger.Create('ROOT'));
 end;
 
 {*----------------------------------------------------------------------------
-   Set the default threshold to all.
+   Set the default threshold.
   ----------------------------------------------------------------------------}
-procedure SetDefaultThreshold(ALevel: TLevel);
+class procedure Logger.SetDefaultThreshold(ALevel: ILevel);
 begin
   if (ALevel <> nil) then
     defaultThreshold := ALevel;
+end;
+
+{*----------------------------------------------------------------------------
+   Destroy all instances.
+  ----------------------------------------------------------------------------}
+class procedure Logger.FreeInstances();
+var
+  i: Integer;
+begin
+  instances.Clear;
+  instances.Free;
+  instances := nil;
+  TLogLogUnit.finalize;
+end;
+
+{*----------------------------------------------------------------------------
+   Return a reference to the ROOT logger.
+   @return Root Logger instance
+  ----------------------------------------------------------------------------}
+class function Logger.GetInstance(): ILogger;
+begin
+  Result := instances['ROOT'];
+end;
+
+{*----------------------------------------------------------------------------
+   Return a reference to the named logger.
+   @param AName The name of the logger
+   @return Named Logger instance
+  ----------------------------------------------------------------------------}
+class function Logger.GetInstance(const AName: String): ILogger;
+var
+  index: Integer;
+  logger: TLogger;
+begin
+  if not instances.TryGetValue(AName, logger) then begin
+    logger := TLogger.Create(AName);
+    instances.Add(AName, logger);
+  end;
+
+  Result := logger;
 end;
 
 {*----------------------------------------------------------------------------
@@ -125,54 +199,10 @@ begin
 end;
 
 {*----------------------------------------------------------------------------
-   Destroy the all instances.
-  ----------------------------------------------------------------------------}
-class procedure TLogger.FreeInstances();
-var
-  i: Integer;
-begin
-  for i := 0 to instances.Count - 1 do
-    if instances.Objects[i] <> nil then
-      TLogger(instances.Objects[i]).Destroy;
-  instances.Free;
-  instances := nil;
-  TLogLogUnit.finalize;
-end;
-
-{*----------------------------------------------------------------------------
-   Retrun a reference to the ROOT logger.
-   @return Root Logger instance
-  ----------------------------------------------------------------------------}
-class function TLogger.GetInstance(): TLogger;
-begin
-  Result := TLogger(instances.Objects[0]);
-end;
-
-{*----------------------------------------------------------------------------
-   Retrun a reference to the named logger.
-   @param AName The name of the logger
-   @return Named Logger instance
-  ----------------------------------------------------------------------------}
-class function TLogger.GetInstance(const AName: String): TLogger;
-var
-  index: Integer;
-  logger: TLogger;
-begin
-  index := Instances.IndexOf(AName);
-  if (index < 0) then begin
-    logger := TLogger.Create(AName);
-    instances.AddObject(AName, logger);
-    Result := logger;
-  end
-  else
-    Result := TLogger(instances.Objects[index]);
-end;
-
-{*----------------------------------------------------------------------------
    Set the level of this Logger.
    @param ALevel The level to set
   ----------------------------------------------------------------------------}
-procedure TLogger.SetLevel(ALevel: TLevel);
+procedure TLogger.SetLevel(ALevel: ILevel);
 begin
   Self.FLevel := ALevel;
   TLogLog.Debug('TLogger.SetLevel: ' + ALevel.ToString);
@@ -224,14 +254,14 @@ end;
   ----------------------------------------------------------------------------}
 function TLogger.GetAllAppenders(): TAppendersCollection;
 begin
-  getAllAppenders := self.FAppenders;
+  Result := self.FAppenders;
 end;
 
 {*----------------------------------------------------------------------------
    Returns the assigned Level, if any, for this Logger.
    @return The level of this Logger
   ----------------------------------------------------------------------------}
-function TLogger.GetLevel(): TLevel;
+function TLogger.GetLevel(): ILevel;
 begin
   Result := Self.FLevel;
 end;
@@ -265,13 +295,13 @@ end;
    @param ALevel The level of the message to log
    @param AMsg The message to log
   ----------------------------------------------------------------------------}
-procedure TLogger.Log(ALevel: TLevel; const AMsg: String);
+procedure TLogger.Log(ALevel: ILevel; const AMsg: String);
 var
   event: TLoggingEvent;
 begin
   event := TLoggingEvent.Create(ALevel, AMsg, FName);
   log(event);
-  event.Destroy;
+  event.Free;
 end;
 
 {*----------------------------------------------------------------------------
@@ -281,13 +311,13 @@ end;
    @param AMsg The message to log
    @param AException The Exception
   ----------------------------------------------------------------------------}
-procedure TLogger.Log(ALevel: TLevel; const AMsg: String; AException: Exception);
+procedure TLogger.Log(ALevel: ILevel; const AMsg: String; AException: Exception);
 var
   event: TLoggingEvent;
 begin
   event := TLoggingEvent.Create(ALevel, AMsg, FName, AException);
   log(event);
-  event.Destroy;
+  event.Free;
 end;
 
 {*----------------------------------------------------------------------------
@@ -336,7 +366,6 @@ end;
 procedure TLogger.Trace(const AMsg: String);
 begin
   log(TLevelUnit.TRACE, AMsg);
-
 end;
 
 end.
