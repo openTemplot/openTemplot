@@ -32,19 +32,19 @@ uses
   TPropertiesUnit;
 
 const
-  LOGGER_PREFIX = 'log4delphi.logger.';
+  LOGGER_PREFIX = 'logger.';
 
 const
-  ROOT_LOGGER_PREFIX = 'log4delphi.rootLogger';
+  ROOT_LOGGER_PREFIX = 'rootLogger';
 
 const
-  APPENDER_PREFIX = 'log4delphi.appender.';
+  APPENDER_PREFIX = 'appender.';
 
 const
-  THRESHOLD_PREFIX = 'log4delphi.threshold';
+  THRESHOLD_PREFIX = 'threshold';
 
 const
-  DEBUG_KEY = 'log4delphi.debug';
+  DEBUG_KEY = 'debug';
 
 procedure DoConfigure(const AFilename: String); overload;
 procedure DoConfigure(const AProps: TProperties); overload;
@@ -53,6 +53,7 @@ implementation
 
 uses
   SysUtils, Classes, Forms,
+  config_unit,
   TLogLogUnit, TLoggerUnit, TLevelUnit, TStringUnit, TOptionConverterUnit,
   TAppenderUnit, TFileAppenderUnit, TLayoutUnit, TSimpleLayoutUnit,
   THTMLLayoutUnit, TXMLLayoutUnit, TPatternLayoutUnit, TRollingFileAppenderUnit;
@@ -106,10 +107,8 @@ begin
     tmp := AProps.GetProperty(APrefix + '.File');
     if (tmp <> '') then
       if (appdir) then begin
-        TFileAppender(appender).setFile(ExtractFileDir(Application.ExeName) +
-          '\' + tmp);
-        TLogLog.debug(AName + ' - ' + ExtractFileDir(Application.ExeName) +
-          '\' + tmp);
+        TFileAppender(appender).setFile(Config.FilePath(csdiLogs, tmp));
+        TLogLog.debug(AName + ' - ' + Config.FilePath(csdiLogs, tmp));
       end
       else begin
         TFileAppender(appender).setFile(tmp);
@@ -180,8 +179,8 @@ begin
   Result := appender;
 end;
 
-procedure ParseLogger(const AProps: TProperties; ALogger: TLogger;
-  const AKey: String; const ALoggerName: String; const AValue: String);
+procedure ParseLogger(const AProps: TProperties; ALogger: ILogger; const AKey: String;
+  const ALoggerName: String; const AValue: String);
 var
   tokenizer: TStringTokenizer;
   appender: IAppender;
@@ -227,7 +226,7 @@ begin
     if (key.startsWith(LOGGER_PREFIX)) then begin
       loggerName := key.substring(Length(LOGGER_PREFIX) + 1);
       Value := TOptionConverter.FindAndSubst(key.ToString, AProps);
-      ParseLogger(AProps, TLogger.getInstance(loggerName.toString),
+      ParseLogger(AProps, Logger.GetInstance(loggerName.toString),
         key.toString, loggerName.toString, Value);
       loggerName.Free;
     end;
@@ -245,7 +244,7 @@ begin
   if (Value = '') then
     TLogLog.debug('Could not find root logger information.')
   else begin
-    ParseLogger(AProps, TLogger.getInstance, ROOT_LOGGER_PREFIX, 'ROOT', Value);
+    ParseLogger(AProps, Logger.GetInstance, ROOT_LOGGER_PREFIX, 'ROOT', Value);
   end;
 end;
 
@@ -258,7 +257,7 @@ begin
   if (CompareText(Value, 'true') = 0) then
     TlogLogUnit.Initialize(GetCurrentDir + '\log4delphi.log');
   Value := AProps.GetProperty(THRESHOLD_PREFIX);
-  TLoggerUnit.setDefaultThreshold(TLevelUnit.toLevel(Value));
+  Logger.setDefaultThreshold(TLevelUnit.toLevel(Value));
   ConfigureRootLogger(AProps);
   ParseLoggers(AProps);
   registry.Free;
@@ -278,8 +277,9 @@ begin
     DoConfigure(props);
   except
     on E: Exception do begin
-      TLogLog.error('Could not read configuration file [' +
-        AFileName + '] ' + e.Message);
+      TLogLog.error('Could not read configuration file [' + AFileName + '] ' + e.Message);
+
+
       TLogLog.error('Ignoring configuration file [' + AFilename + ']');
     end;
   end;

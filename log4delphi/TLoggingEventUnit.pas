@@ -39,18 +39,18 @@ type
   ----------------------------------------------------------------------------}
   TLoggingEvent = class(TObject)
   private
-    FLevel: TLevel;
+    FLevel: ILevel;
     FMsg: String;
     FStartTime: TDateTime;
     FException: Exception;
     FLoggerName: String;
   public
-    constructor Create(ALevel: TLevel; const AMsg: String; const ALoggerName: String);
+    constructor Create(ALevel: ILevel; const AMsg: String; const ALoggerName: String);
       overload;
-    constructor Create(ALevel: TLevel; const AMsg: String; const ALoggerName: String;
+    constructor Create(ALevel: ILevel; const AMsg: String; const ALoggerName: String;
       const AEx: Exception); overload;
     destructor Destroy; override;
-    function GetLevel(): TLevel;
+    function GetLevel(): ILevel;
     function GetMessage(): String;
     function GetStartTime(): TDateTime;
     function GetException(): Exception;
@@ -64,7 +64,7 @@ implementation
    @param ALevel The level of this event
    @param AMsg The logging message
   ----------------------------------------------------------------------------}
-constructor TLoggingEvent.Create(ALevel: TLevel; const AMsg: String; const ALoggerName: String);
+constructor TLoggingEvent.Create(ALevel: ILevel; const AMsg: String; const ALoggerName: String);
 
 begin
   inherited Create;
@@ -77,7 +77,7 @@ end;
    @param AMsg The logging message
    @param AEx The exception to use
   ----------------------------------------------------------------------------}
-constructor TLoggingEvent.Create(ALevel: TLevel; const AMsg: String;
+constructor TLoggingEvent.Create(ALevel: ILevel; const AMsg: String;
   const ALoggerName: String; const AEx: Exception);
 begin
   inherited Create;
@@ -100,7 +100,7 @@ end;
     Return the level of this event.
     @return The level
   ----------------------------------------------------------------------------}
-function TLoggingEvent.GetLevel(): TLevel;
+function TLoggingEvent.GetLevel() : ILevel;
 begin
   Result := Self.FLevel;
 end;

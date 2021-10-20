@@ -97,75 +97,95 @@ type
   <code>INFO</code>, <code>DEBUG</code> and <code>ALL</code>.
   The <code>Level</code> class may be subclassed to define a larger level set.
   ----------------------------------------------------------------------------}
-  TLevel = class(TObject)
-  private
-    FLevelValue: Integer;
-    FName: String;
-    constructor Create(const ALevel: Integer; const AName: String);
-  protected
-  public
-    function Equals(ALevel: TLevel): Boolean;
-    function IsGreaterOrEqual(ALevel: TLevel): Boolean;
-    function ToString(): String;
+
+  {$interfaces corba}
+  ILevel = interface
+    ['ILevel']
+    function Equals(ALevel: ILevel): Boolean;
+    function IsGreaterOrEqual(ALevel: ILevel): Boolean;
+    function ToString(): String; override;
     function IntValue(): Integer;
   end;
 
-function toLevel(AString: String): TLevel;
+function toLevel(AString: String): ILevel;
 
 var
    {*-------------------------------------------------------------------------
       OFF has the highest possible rank and is intended to turn off logging.
      -------------------------------------------------------------------------}
-  OFF: TLevel;
+  OFF: ILevel;
 
    {*-------------------------------------------------------------------------
       FATAL designates very severe error events that will presumably lead
       the application to abort.
      -------------------------------------------------------------------------}
-  FATAL: TLevel;
+  FATAL: ILevel;
 
    {*-------------------------------------------------------------------------
       ERROR designates error events that usually still allow the application
       to continue running normally.
      -------------------------------------------------------------------------}
-  ERROR: TLevel;
+  ERROR: ILevel;
 
    {*-------------------------------------------------------------------------
       WARN designates potentially harmful situations.
      -------------------------------------------------------------------------}
-  WARN: TLevel;
+  WARN: ILevel;
 
    {*-------------------------------------------------------------------------
       INFO designates informational messages that highlight the progress of
       the application at coarse-grained level.
      -------------------------------------------------------------------------}
-  INFO: TLevel;
+  INFO: ILevel;
 
    {*-------------------------------------------------------------------------
       DEBUG designates fine-grained informational events that are most useful
       to debug an application.
      -------------------------------------------------------------------------}
-  DEBUG: TLevel;
+  DEBUG: ILevel;
 
    {*-------------------------------------------------------------------------
       TRACE designates fine-grained informational events that are most useful
       to debug an application.
      -------------------------------------------------------------------------}
-  TRACE: TLevel;
+  TRACE: ILevel;
 
    {*-------------------------------------------------------------------------
       ALL has the lowest possible rank and is intended to turn on all logging.
      -------------------------------------------------------------------------}
-  ALL: TLevel;
+  ALL: ILevel;
 
 implementation
+
+type
+  TLevel = class(TObject, ILevel)
+  private
+    FLevelValue: Integer;
+    FName: String;
+  public
+    constructor Create(const ALevel: Integer; const AName: String);
+    function Equals(ALevel: ILevel): Boolean; overload;
+    function IsGreaterOrEqual(ALevel: ILevel): Boolean;
+    function ToString(): String; override;
+    function IntValue(): Integer;
+  end;
+
+var
+  OffInstance: TLevel;
+  FatalInstance: TLevel;
+  ErrorInstance: TLevel;
+  WarnInstance: TLevel;
+  InfoInstance: TLevel;
+  DebugInstance: TLevel;
+  TraceInstance: TLevel;
+  AllInstance: TLevel;
 
 {*----------------------------------------------------------------------------
    Returns the level instance whose name matches the given string.
    @param AString The name of the level to look for
    @return The level matching the given name, Nil if not found
   ----------------------------------------------------------------------------}
-function ToLevel(AString: String): TLevel;
+function ToLevel(AString: String): ILevel;
 begin
   Result := nil;
   if (CompareText(AString, 'OFF') = 0) then
@@ -203,9 +223,9 @@ end;
    @param ALevel The level to compare with
    @return True if the given level is equal to this one, false otherwise
   ----------------------------------------------------------------------------}
-function TLevel.Equals(ALevel: TLevel): Boolean;
+function TLevel.Equals(ALevel: ILevel): Boolean;
 begin
-  Result := (Self.FLevelValue = ALevel.FLevelValue);
+  Result := (Self.FLevelValue = ALevel.IntValue);
 end;
 
 {*----------------------------------------------------------------------------
@@ -215,11 +235,11 @@ end;
    @return True if given level is greater than or equal to this one, false
      otherwise
   ----------------------------------------------------------------------------}
-function TLevel.IsGreaterOrEqual(ALevel: TLevel): Boolean;
+function TLevel.IsGreaterOrEqual(ALevel: ILevel): Boolean;
 begin
   if (ALevel = nil) then
     raise Exception.Create('Level is Nil');
-  Result := (Self.FLevelValue >= ALevel.FLevelValue);
+  Result := (Self.FLevelValue >= ALevel.IntValue);
 end;
 
 {*----------------------------------------------------------------------------
@@ -244,30 +264,35 @@ end;
    Initialize the default level set.
   ----------------------------------------------------------------------------}
 initialization
-  begin
-    OFF := TLevel.Create(OFF_INT, 'OFF');
-    FATAL := TLevel.Create(FATAL_INT, 'FATAL');
-    ERROR := TLevel.Create(ERROR_INT, 'ERROR');
-    WARN := TLevel.Create(WARN_INT, 'WARN');
-    INFO := TLevel.Create(INFO_INT, 'INFO');
-    DEBUG := TLevel.Create(DEBUG_INT, 'DEBUG');
-    TRACE := TLevel.Create(TRACE_INT, 'TRACE');
-    ALL := TLevel.Create(ALL_INT, 'ALL');
-  end;
+  OffInstance := TLevel.Create(OFF_INT, 'OFF');
+  FatalInstance := TLevel.Create(FATAL_INT, 'FATAL');
+  ErrorInstance := TLevel.Create(ERROR_INT, 'ERROR');
+  WarnInstance := TLevel.Create(WARN_INT, 'WARN');
+  InfoInstance := TLevel.Create(INFO_INT, 'INFO');
+  DebugInstance := TLevel.Create(DEBUG_INT, 'DEBUG');
+  TraceInstance := TLevel.Create(TRACE_INT, 'TRACE');
+  AllInstance := TLevel.Create(ALL_INT, 'ALL');
+
+  OFF := OffInstance;
+  FATAL := FatalInstance;
+  ERROR := ErrorInstance;
+  WARN := WarnInstance;
+  INFO := InfoInstance;
+  DEBUG := DebugInstance;
+  TRACE := TraceInstance;
+  ALL := AllInstance;
 
 {*----------------------------------------------------------------------------
    Free the default level set.
   ----------------------------------------------------------------------------}
 finalization
-  begin
-    OFF.Free;
-    FATAL.Free;
-    ERROR.Free;
-    WARN.Free;
-    INFO.Free;
-    DEBUG.Free;
-    TRACE.Free;
-    ALL.Free;
-  end;
+  OffInstance.Free;
+  FatalInstance.Free;
+  ErrorInstance.Free;
+  WarnInstance.Free;
+  InfoInstance.Free;
+  DebugInstance.Free;
+  TraceInstance.Free;
+  AllInstance.Free;
 
 end.
