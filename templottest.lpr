@@ -4,7 +4,7 @@ program templottest;
 
 uses
   Classes, consoletestrunner, dummy_vehicle_test, path_interface, matrix_2d,
-  matrix_2d_test, point_ex_test;
+  matrix_2d_test, point_ex_test, utils_test;
 
 type
 

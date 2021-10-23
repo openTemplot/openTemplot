@@ -22,7 +22,7 @@ object export_form: Texport_form
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   Position = poScreenCenter
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.10.0'
   Scaled = False
   object Label9: TLabel
     Left = 28
@@ -103,7 +103,7 @@ object export_form: Texport_form
     Top = 226
     Width = 307
     Caption = ' templates  for  export :  '
-    ClientHeight = 79
+    ClientHeight = 82
     ClientWidth = 303
     Color = 16777198
     Font.Color = clGreen
@@ -130,9 +130,9 @@ object export_form: Texport_form
     end
     object export_all_radiobutton: TRadioButton
       Left = 18
-      Height = 20
+      Height = 21
       Top = 12
-      Width = 254
+      Width = 253
       Caption = 'all background templates (track plan)'
       Checked = True
       Font.Color = clGreen
@@ -145,9 +145,9 @@ object export_form: Texport_form
     end
     object export_group_only_radiobutton: TRadioButton
       Left = 18
-      Height = 20
+      Height = 21
       Top = 35
-      Width = 152
+      Width = 155
       Caption = 'group templates only'
       Font.Color = clGreen
       Font.Height = -13
@@ -158,9 +158,9 @@ object export_form: Texport_form
     end
     object export_control_template_radiobutton: TRadioButton
       Left = 18
-      Height = 20
+      Height = 21
       Top = 58
-      Width = 146
+      Width = 147
       Caption = 'the control template'
       Font.Color = clGreen
       Font.Height = -13
@@ -176,7 +176,7 @@ object export_form: Texport_form
     Top = 336
     Width = 307
     Caption = ' export  a  document  ( PDF ) :  '
-    ClientHeight = 143
+    ClientHeight = 146
     ClientWidth = 303
     Color = 13693183
     Font.Color = clMaroon
@@ -360,9 +360,9 @@ object export_form: Texport_form
     end
     object pdf_end_run_radiobutton: TRadioButton
       Left = 14
-      Height = 20
+      Height = 21
       Top = 96
-      Width = 109
+      Width = 112
       Caption = 'end-run pages'
       Checked = True
       Font.Color = clMaroon
@@ -375,9 +375,9 @@ object export_form: Texport_form
     end
     object pdf_side_run_button: TRadioButton
       Left = 14
-      Height = 20
+      Height = 21
       Top = 118
-      Width = 111
+      Width = 115
       Caption = 'side-run pages'
       Font.Color = clMaroon
       Font.Height = -13
@@ -388,10 +388,10 @@ object export_form: Texport_form
     end
     object pdf_size_inside_trim_margins_checkbox: TCheckBox
       Left = 10
-      Height = 20
+      Height = 21
       Hint = ' untick to set document size '
       Top = 62
-      Width = 186
+      Width = 187
       Caption = 'size between trim margins'
       Checked = True
       Font.Color = clMaroon
@@ -411,7 +411,7 @@ object export_form: Texport_form
     Top = 100
     Width = 355
     Caption = ' export  an  image  file :  '
-    ClientHeight = 459
+    ClientHeight = 462
     ClientWidth = 351
     Color = 15794175
     Font.Color = clMaroon
@@ -427,7 +427,7 @@ object export_form: Texport_form
       Top = 362
       Width = 327
       Caption = ' export  metafile  ( EMF ) :  '
-      ClientHeight = 70
+      ClientHeight = 73
       ClientWidth = 323
       Color = 13693183
       Font.Color = clMaroon
@@ -519,7 +519,7 @@ object export_form: Texport_form
       Top = 236
       Width = 327
       Caption = ' export  image  ( PNG,  JPG,  BMP ) :  '
-      ClientHeight = 97
+      ClientHeight = 100
       ClientWidth = 323
       Color = 16772829
       Font.Color = clNavy
@@ -661,7 +661,7 @@ object export_form: Texport_form
       Top = 96
       Width = 327
       Caption = ' image  boundary :  '
-      ClientHeight = 114
+      ClientHeight = 118
       ClientWidth = 323
       Color = 16777198
       Font.Color = clGreen
@@ -673,9 +673,9 @@ object export_form: Texport_form
       TabOrder = 5
       object fit_all_radiobutton: TRadioButton
         Left = 14
-        Height = 20
+        Height = 21
         Top = 8
-        Width = 96
+        Width = 99
         Caption = 'fit templates'
         Checked = True
         TabOrder = 0
@@ -687,7 +687,7 @@ object export_form: Texport_form
         Top = 54
         Width = 293
         Caption = ' '
-        ClientHeight = 34
+        ClientHeight = 38
         ClientWidth = 289
         Font.Color = clBlack
         Font.Height = -13
@@ -735,26 +735,26 @@ object export_form: Texport_form
       end
       object fit_shapes_radiobutton: TRadioButton
         Left = 14
-        Height = 20
+        Height = 21
         Top = 30
-        Width = 177
+        Width = 180
         Caption = 'fit all background shapes'
         TabOrder = 1
       end
       object use_current_rectangle_radiobutton: TRadioButton
         Left = 14
-        Height = 20
+        Height = 21
         Top = 52
-        Width = 154
+        Width = 155
         Caption = 'boundary  rectangle :'
         TabOrder = 2
       end
     end
     object export_include_grid_checkbox: TCheckBox
       Left = 18
-      Height = 20
+      Height = 21
       Top = 36
-      Width = 128
+      Width = 132
       Caption = 'include grid lines'
       Font.Color = clBlack
       Font.Height = -13
@@ -766,9 +766,9 @@ object export_form: Texport_form
     end
     object export_include_grid_labels_checkbox: TCheckBox
       Left = 158
-      Height = 20
+      Height = 21
       Top = 44
-      Width = 116
+      Width = 119
       Caption = 'with grid labels'
       Checked = True
       Enabled = False
@@ -782,9 +782,9 @@ object export_form: Texport_form
     end
     object export_include_picture_shapes_checkbox: TCheckBox
       Left = 18
-      Height = 20
+      Height = 21
       Top = 10
-      Width = 205
+      Width = 206
       Caption = 'include picture shape images'
       Checked = True
       Font.Color = clBlack
@@ -798,9 +798,9 @@ object export_form: Texport_form
     end
     object export_include_picture_borders_checkbox: TCheckBox
       Left = 234
-      Height = 20
+      Height = 21
       Top = 18
-      Width = 97
+      Width = 101
       Caption = 'with borders'
       Font.Color = clBlack
       Font.Height = -13
@@ -811,9 +811,9 @@ object export_form: Texport_form
     end
     object export_track_background_checkbox: TCheckBox
       Left = 18
-      Height = 20
+      Height = 21
       Top = 68
-      Width = 269
+      Width = 268
       Caption = 'add track background in diagram mode'
       Font.Color = clBlack
       Font.Height = -13
@@ -852,7 +852,7 @@ object export_form: Texport_form
     Top = 510
     Width = 307
     Caption = ' export  a  CAD  file  ( DXF ) :  '
-    ClientHeight = 49
+    ClientHeight = 52
     ClientWidth = 303
     Color = 12648447
     Font.Color = clWindowText
@@ -913,7 +913,7 @@ object export_form: Texport_form
     Top = 100
     Width = 307
     Caption = ' colours  and  styles :  '
-    ClientHeight = 95
+    ClientHeight = 98
     ClientWidth = 303
     Color = 16767192
     Font.Color = clNavy
@@ -953,9 +953,9 @@ object export_form: Texport_form
     end
     object export_colour_radiobutton: TRadioButton
       Left = 10
-      Height = 20
+      Height = 21
       Top = 26
-      Width = 58
+      Width = 63
       Caption = 'colour'
       Checked = True
       Font.Color = clNavy
@@ -968,9 +968,9 @@ object export_form: Texport_form
     end
     object export_grey_radiobutton: TRadioButton
       Left = 82
-      Height = 20
+      Height = 21
       Top = 26
-      Width = 94
+      Width = 98
       Caption = 'grey shades'
       Font.Color = clNavy
       Font.Height = -13
@@ -981,9 +981,9 @@ object export_form: Texport_form
     end
     object export_black_radiobutton: TRadioButton
       Left = 190
-      Height = 20
+      Height = 21
       Top = 26
-      Width = 104
+      Width = 106
       Caption = 'black && white'
       Font.Color = clNavy
       Font.Height = -13
@@ -1078,15 +1078,15 @@ object export_form: Texport_form
     FileName = 'metafile.emf'
     Filter = 'EMF metafile ( .emf)|*.emf'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofExtensionDifferent, ofPathMustExist, ofEnableSizing]
-    left = 396
-    top = 20
+    Left = 396
+    Top = 20
   end
   object save_imagefile_dialog: TSavePictureDialog
     Title = '    create  image  file ...'
     FileName = 'imagefile.png'
     Filter = 'PNG image ( .png)|*.png|GIF image ( .gif)|*.gif|JPEG image ( .jpg  .jp  .jpeg)|*.jpg;*.jp;*.jpeg|BMP image (  .bmp)|*.bmp'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofExtensionDifferent, ofPathMustExist, ofEnableSizing]
-    left = 132
-    top = 20
+    Left = 132
+    Top = 20
   end
 end
