@@ -270,6 +270,8 @@ begin
 
   log.Info('*************** Program Exit ******************');
 
+  LoggerConfigurator.FinalCleanup;
+
 (*
 
 GNU GENERAL PUBLIC LICENSE

@@ -20,15 +20,13 @@
   ----------------------------------------------------------------------------}
 unit TLoggerUnit;
 
-{$ifdef fpc}
-  {$mode delphi}
-  {$h+}
-{$endif}
+{$mode delphi}
+{$h+}
 
 interface
 
 uses
-  SysUtils, Classes,
+  SysUtils, Classes, Generics.Collections,
   TLogLogUnit, TLevelUnit, TAppenderUnit, TLoggingEventUnit;
 
 type
@@ -41,7 +39,7 @@ type
     procedure RemoveAppender(const AName: String);
     procedure RemoveAllAppenders();
     function GetAppender(const AName: String): IAppender;
-    function GetAllAppenders(): TAppendersCollection;
+    function GetAllAppenders(): TAppendersList;
     function GetLevel(): ILevel;
     function GetName(): String;
 
@@ -59,7 +57,8 @@ type
   Logger = class
   public
     class procedure Initialize();
-    class procedure setDefaultThreshold(ALevel: ILevel);
+    class procedure SetDefaultThreshold(ALevel: ILevel);
+    class procedure SetDefaultAppender(AAppender: IAppender);
 
     class procedure FreeInstances();
     class function GetInstance(): ILogger; overload;
@@ -70,9 +69,6 @@ type
 
 implementation
 
-uses
-  Generics.Collections;
-
 type
   {*----------------------------------------------------------------------------
    This is the central class in the log4delphi suite. Most logging operations,
@@ -80,7 +76,7 @@ type
   ----------------------------------------------------------------------------}
   TLogger = class(TObject, ILogger)
   private
-    FAppenders: TAppendersCollection;
+    FAppenders: TAppendersList;
     FLevel: ILevel;
     FName: String;
   public
@@ -92,7 +88,7 @@ type
     procedure RemoveAppender(const AName: String);
     procedure RemoveAllAppenders();
     function GetAppender(const AName: String): IAppender;
-    function GetAllAppenders(): TAppendersCollection;
+    function GetAllAppenders(): TAppendersList;
     function GetLevel(): ILevel;
     function GetName(): String;
 
@@ -111,6 +107,7 @@ type
 var
   instances: TObjectDictionary<String, TLogger>;
   defaultThreshold: ILevel;
+  defaultAppender: IAppender;
 
 {*----------------------------------------------------------------------------
    Initailize the loggers.
@@ -134,6 +131,15 @@ begin
 end;
 
 {*----------------------------------------------------------------------------
+   Set the default appender.
+  ----------------------------------------------------------------------------}
+class procedure Logger.SetDefaultAppender(AAppender: IAppender);
+begin
+  if (AAppender <> nil) then
+    defaultAppender := AAppender;
+end;
+
+{*----------------------------------------------------------------------------
    Destroy all instances.
   ----------------------------------------------------------------------------}
 class procedure Logger.FreeInstances();
@@ -141,8 +147,7 @@ var
   i: Integer;
 begin
   instances.Clear;
-  instances.Free;
-  instances := nil;
+  FreeAndNil(instances);
   TLogLogUnit.finalize;
 end;
 
@@ -163,14 +168,16 @@ end;
 class function Logger.GetInstance(const AName: String): ILogger;
 var
   index: Integer;
-  logger: TLogger;
+  log: TLogger;
 begin
-  if not instances.TryGetValue(AName, logger) then begin
-    logger := TLogger.Create(AName);
-    instances.Add(AName, logger);
+  if not instances.TryGetValue(AName, log) then begin
+    log := TLogger.Create(AName);
+    if Assigned(defaultAppender) then
+       log.AddAppender(defaultAppender);
+    instances.Add(AName, log);
   end;
 
-  Result := logger;
+  Result := log;
 end;
 
 {*----------------------------------------------------------------------------
@@ -180,7 +187,7 @@ end;
 constructor TLogger.Create(const AName: String);
 begin
   inherited Create;
-  FAppenders := TAppendersCollection.Create;
+  FAppenders := TAppendersList.Create;
   FLevel := defaultThreshold;
   FName := AName;
   TLogLog.debug('Logger created - name=' + FName + ', level=' + FLevel.toString);
@@ -252,7 +259,7 @@ end;
    caller should not destroy the TStrings instance.
    @return All appenders in a TStrings instance
   ----------------------------------------------------------------------------}
-function TLogger.GetAllAppenders(): TAppendersCollection;
+function TLogger.GetAllAppenders(): TAppendersList;
 begin
   Result := self.FAppenders;
 end;
