@@ -27,14 +27,19 @@ uses
   Classes, SysUtils, IniFiles,
   TPropertiesUnit, TPropertyConfiguratorUnit, TLogLogUnit;
 
-procedure DoConfigure(const AFilename, ASectionName: String);
+type
+  IniConfigurator = class
+  public
+    class procedure DoConfigure(const AFilename, ASectionName: String);
+  end;
 
 implementation
-
 
 procedure LoadDefaultProperties(var props: TProperties);
 begin
   props.SetProperty('debug', 'false');
+  props.SetProperty('threshold', 'INFO');
+  props.SetProperty('defaultAppender', 'defaultAppender');
   props.SetProperty('rootlogger', 'INFO, defaultAppender');
   props.SetProperty('appender.defaultAppender', 'TRollingFileAppender');
   props.SetProperty('appender.defaultAppender.File', 'openTemplot.log');
@@ -46,7 +51,7 @@ begin
   props.SetProperty('appender.defaultAppender.layout.Pattern', '%d [%5p] <%L>%m');
 end;
 
-procedure DoConfigure(const AFilename, ASectionName: String);
+class procedure IniConfigurator.DoConfigure(const AFilename, ASectionName: String);
 var
   props: TProperties;
   fin: TIniFile;
@@ -68,7 +73,7 @@ begin
         props.SetProperty(sl[i], Value);
       end;
 
-      TPropertyConfiguratorUnit.DoConfigure(props);
+      PropertyConfigurator.DoConfigure(props);
     except
       on E: Exception do begin
         TLogLog.error('Could not read configuration file [' + AFileName +

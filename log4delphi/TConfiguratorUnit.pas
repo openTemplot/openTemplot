@@ -21,10 +21,8 @@
   ----------------------------------------------------------------------------}
 unit TConfiguratorUnit;
 
-{$ifdef fpc}
-  {$mode objfpc}
-  {$h+}
-{$endif}
+{$mode delphi}
+{$h+}
 
 interface
 
@@ -40,6 +38,8 @@ type
     class procedure doBasicConfiguration;
     class procedure doPropertiesConfiguration(const fileName: String);
     class procedure doIniConfiguration(const fileName, sectionName: String);
+
+    class procedure FinalCleanup;
   end;
 
 implementation
@@ -60,7 +60,7 @@ end;
 class procedure LoggerConfigurator.doPropertiesConfiguration(const fileName: String);
 begin
   Logger.Initialize();
-  TPropertyConfiguratorUnit.DoConfigure(fileName);
+  PropertyConfigurator.DoConfigure(fileName);
 end;
 
 {*----------------------------------------------------------------------------
@@ -70,7 +70,13 @@ end;
 class procedure LoggerConfigurator.doIniConfiguration(const fileName, sectionName: String);
 begin
   Logger.Initialize();
-  TIniConfiguratorUnit.DoConfigure(fileName, sectionName);
+  IniConfigurator.DoConfigure(fileName, sectionName);
+end;
+
+class procedure LoggerConfigurator.FinalCleanup;
+begin
+  Logger.FreeInstances;
+  PropertyConfigurator.FreeAppenders;
 end;
 
 end.

@@ -381,12 +381,7 @@ const
 
   coning_help_str: string = '      Coning  Distortions' +
     '||Coning distortion is an attempt to correct for a worn printer in which the paper roller has become slightly tapered.'
-    + '||A correction shift forwards or backwards is applied to one dimension which is proportional to the product of both dimensions.'
-    + '||Coning takes place after any scaling distortions, so for X-coning for example, the basic equation is:-'
-    + '||x-coned = x-scaled + ( x-coning-factor * x-scaled * y-scaled )' +
-    '||and setting a coning-factor of zero cancels any effect.' +
-    '||It will be necessary to establish the coning factor by trial and error for the individual printer being used.'
-    + ' This is best done by printing a short length of straight plain track which has very long sleepers (say 500 inches) so that the effect of the distortions' + ' can be more easily seen and measured (GEOMETRY > STRAIGHT and REAL > TIMBERING > TIMBERING DATA... menu items). If printing direct from Templot, remember that the printed' + ' grid lines remain undistorted, and thus aid comparison between the distorted and undistorted pages.' + '||The coning factor is always extremely small. For convenience it is internally scaled so that the figures to be entered are' + ' positive or negative and in the range from 0 to perhaps 100. Factors greater than this will produce significant distortion' + ' which is unlikely to print correctly on any printer. A typical setting might be, say, +16.7 or -9.4 which will produce a measurable effect on' + ' a full printed page but not be very evident on the screen.' + '||( It can be amusing to enter a figure such as -5000 and then experiment with' + ' the mouse actions. This will give you an appreciation of the effect of coning distortion, but it won''t progress your railway very much.)' + '||Coning distortion applies only to the template drawing, so the grid lines will be inaccurate and should be turned off.' + '||Coning is cancelled on a B-6 TURNOUT RESET, but otherwise remains in force until you come back here and change it.' + '||Coning distortions apply globally for as long as they remain in force, so all templates drawn on the trackpad or in the storage box will be' + ' distorted but will return to normal when the distortion is cancelled. The distortion data is not included in the template files' + ' when they are saved from the box, and must be re-entered as required for each working session.' + '||Please read the F1 general help notes below and the help notes for the other distortions before using coning for the first time.';
+    + '||A correction shift forwards or backwards is applied to one dimension which is proportional to the product of both dimensions.' + '||Coning takes place after any scaling distortions, so for X-coning for example, the basic equation is:-' + '||x-coned = x-scaled + ( x-coning-factor * x-scaled * y-scaled )' + '||and setting a coning-factor of zero cancels any effect.' + '||It will be necessary to establish the coning factor by trial and error for the individual printer being used.' + ' This is best done by printing a short length of straight plain track which has very long sleepers (say 500 inches) so that the effect of the distortions' + ' can be more easily seen and measured (GEOMETRY > STRAIGHT and REAL > TIMBERING > TIMBERING DATA... menu items). If printing direct from Templot, remember that the printed' + ' grid lines remain undistorted, and thus aid comparison between the distorted and undistorted pages.' + '||The coning factor is always extremely small. For convenience it is internally scaled so that the figures to be entered are' + ' positive or negative and in the range from 0 to perhaps 100. Factors greater than this will produce significant distortion' + ' which is unlikely to print correctly on any printer. A typical setting might be, say, +16.7 or -9.4 which will produce a measurable effect on' + ' a full printed page but not be very evident on the screen.' + '||( It can be amusing to enter a figure such as -5000 and then experiment with' + ' the mouse actions. This will give you an appreciation of the effect of coning distortion, but it won''t progress your railway very much.)' + '||Coning distortion applies only to the template drawing, so the grid lines will be inaccurate and should be turned off.' + '||Coning is cancelled on a B-6 TURNOUT RESET, but otherwise remains in force until you come back here and change it.' + '||Coning distortions apply globally for as long as they remain in force, so all templates drawn on the trackpad or in the storage box will be' + ' distorted but will return to normal when the distortion is cancelled. The distortion data is not included in the template files' + ' when they are saved from the box, and must be re-entered as required for each working session.' + '||Please read the F1 general help notes below and the help notes for the other distortions before using coning for the first time.';
 
   skewing_help_str: string = '      Skewing  Distortions' +
     '||Skewing distortion is an attempt to correct for a worn printer in which movement of the print head is not exactly square across the direction of paper feed.' + '||A correction shift forwards or backwards is applied to one dimension which is proportional to the other dimension.' + '||Skewing takes place after any coning distortions, so for Y-skewing for example, the basic equation is:-' + '||y-skewed = y-coned + ( y-skewing-factor * x-coned )' + '||and setting a skewing-factor of zero cancels any effect.' + '||It will be necessary to establish the skewing factor by trial and error for the individual printer being used.' + ' This is best done by printing a short length of straight plain track which has very long sleepers (say 500 inches) so that the effect of the distortions' + ' can be more easily seen and measured (GEOMETRY > STRAIGHT and REAL > TIMBERING > TIMBERING DATA... menu items). If printing direct from Templot, remember that the printed' + ' grid lines remain undistorted, and thus aid comparison between the distorted and undistorted pages.' + '||The skewing factor is always very small. For convenience it is internally scaled so that the figures to be entered are' + ' positive or negative and in the range from 0 to perhaps 100. Factors greater than this will produce very significant distortion' + ' which is unlikely to print correctly on any printer. A typical setting might be, say, +16.7 or -9.4 which will produce a measurable effect on' + ' a full printed page but not be very evident on the screen.' + '||( It can be amusing to enter a figure such as -5000 and then experiment with' + ' the mouse actions. This will give you an appreciation of the effect of skewing distortion, but it won''t progress your railway very much.)' + '||Skewing distortion applies only to the template drawing, so the grid lines will be inaccurate and should be turned off.' + '||Skewing is cancelled on a B-6 TURNOUT RESET, but otherwise remains in force until you come back here and change it.' + '||Skewing distortions apply globally for as long as they remain in force, so all templates drawn on the trackpad or in the storage box will be' + ' skewed but will return to normal when the distortion is cancelled. The distortion data is not included in the template files' + ' when they are saved from the box, and must be re-entered as required for each working session.' + '||Please read the F1 general help notes below and the help notes for the other distortions before using skewing for the first time.';
@@ -659,6 +654,7 @@ implementation
 
 uses
   LCLType, LCLIntf, Math, Clipbrd, FileUtil, {FileCtrl,} {@demo Clipbrd,} Printers,
+  TLoggerUnit,
   alert_unit,
   config_unit,
   help_sheet, math_unit,
@@ -684,18 +680,19 @@ uses
 
 var
   // OT-FIRST ...
+  log: ILogger;
 
-  licence_str: string = 'Copyright &copy; 2018  Martin Wynne.  email: martin@templot.com .'
-    + ' This program is free software: you may redistribute it and/or modify'
-    + ' it under the terms of the GNU General Public Licence as published by'
-    + ' the Free Software Foundation, either version 3 of the Licence, or' +
+  licence_str: string = 'Copyright &copy; 2018  Martin Wynne.  email: martin@templot.com .' +
+    ' This program is free software: you may redistribute it and/or modify' +
+    ' it under the terms of the GNU General Public Licence as published by' +
+    ' the Free Software Foundation, either version 3 of the Licence, or' +
     ' (at your option) any later version.' +
-    ' This program is distributed in the hope that it will be useful,'
-    + ' but WITHOUT ANY WARRANTY; without even the implied warranty of' +
+    ' This program is distributed in the hope that it will be useful,' +
+    ' but WITHOUT ANY WARRANTY; without even the implied warranty of' +
     ' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.' +
     ' See the GNU General Public Licence for more details.<br>' +
-    'You should have received a copy of the GNU General Public Licence with this program.<br>'
-    + 'If not, refer to the web site: https://www.gnu.org/licenses/';
+    'You should have received a copy of the GNU General Public Licence with this program.<br>' +
+    'If not, refer to the web site: https://www.gnu.org/licenses/';
 
   w_len: integer = 0;
   legal_agree: boolean = False;
@@ -764,8 +761,8 @@ procedure wine_modal_warning(str: string);
 
 begin
   if alert(1, 'php/990    running  under  Linux / Wine / CrossOver',
-    'You are running Templot0 under Linux/Wine/CrossOver.' +
-    '||The ' + str + ' dialog is required to be modal, which means that it must be completed before Templot0 can continue.' + '||Modal dialogs are not fully supported under Wine, so while the dialog window is showing you must click on the dialog window ONLY.' + '||If you click elsewhere on the screen the dialog may become hidden behind other windows, after which Templot0 will not be able to continue until you find the dialog again and complete it.' + '||If you cannot do that, you can press the `0ESC`2 key (top-left) on the keyboard to cancel the operation and try again.' + '||The same applies to this message dialog, while it is showing you must not click anywhere else.' + '||This is a feature of Wine beyond Templot0''s control.' + '||If you have problems with this, please post a message on the <A HREF="go_to_templot_club.85a"><SPAN STYLE="color:#0000FF;"><U>Templot&nbsp;Club</U></SPAN></A> user forum.', '', '', '', 'more  information', '', 'continue', 0) = 4 then
+    'You are running Templot0 under Linux/Wine/CrossOver.' + '||The ' +
+    str + ' dialog is required to be modal, which means that it must be completed before Templot0 can continue.' + '||Modal dialogs are not fully supported under Wine, so while the dialog window is showing you must click on the dialog window ONLY.' + '||If you click elsewhere on the screen the dialog may become hidden behind other windows, after which Templot0 will not be able to continue until you find the dialog again and complete it.' + '||If you cannot do that, you can press the `0ESC`2 key (top-left) on the keyboard to cancel the operation and try again.' + '||The same applies to this message dialog, while it is showing you must not click anywhere else.' + '||This is a feature of Wine beyond Templot0''s control.' + '||If you have problems with this, please post a message on the <A HREF="go_to_templot_club.85a"><SPAN STYLE="color:#0000FF;"><U>Templot&nbsp;Club</U></SPAN></A> user forum.', '', '', '', 'more  information', '', 'continue', 0) = 4 then
     startup_modal_warning(True); // true=over-ride msg prefs
 end;
 //______________________________________________________________________________
@@ -777,8 +774,8 @@ begin
   wipe_pad;                         // blank it all.
 
   alert(5, '    fatal  error',
-    '||Sorry, Templot0 has suffered a fatal internal error and cannot continue.'
-    + '||Please report fail code  ' + IntToStr(code) +
+    '||Sorry, Templot0 has suffered a fatal internal error and cannot continue.' +
+    '||Please report fail code  ' + IntToStr(code) +
     '||If you save your work on quitting, please use a fresh file name as a precaution against corrupting your existing file.'
     + '||Please quit and restart Templot0.' +
     '||If the problem recurs, please post a message at 85a.co.uk/forum/ quoting the above fail code.',
@@ -828,13 +825,11 @@ begin
         repeat
           i :=
             alert(1, '   session  must  finish   -   save  templates ?',
-            '|An error has occurred and Templot0 is about to quit.'
-            +
+            '|An error has occurred and Templot0 is about to quit.' +
             '||To avoid corrupted data, the storage box contents will not be restored next time.'
             +
             '||Your storage box contains one or more templates which you wanted to keep, but which have not yet been saved.'
-            + '||Do you want to save your work ?',
-            '', '', '?  help',
+            + '||Do you want to save your work ?', '', '', '?  help',
             'no  -  abandon  templates  and  quit    ', '',
             'yes  -  save  all  templates  and  quit    ', 3);
           if i = 3 then
@@ -849,11 +844,10 @@ begin
 
       if shapes_saved = False then begin
         i := alert(7, '      session  must  finish   -   save  shapes ?',
-          '||Templot0 is about to quit.'
-          +
-          '||You have one or more background shapes which have not been saved.'
-          + '||Do you want to save your background shapes ?',
-          '', '', '', 'no  -  abandon  shapes  and  quit    ', '',
+          '||Templot0 is about to quit.' +
+          '||You have one or more background shapes which have not been saved.' +
+          '||Do you want to save your background shapes ?', '', '', '',
+          'no  -  abandon  shapes  and  quit    ', '',
           'yes  -  save  all  shapes  and  quit    ', 0);
 
         case i of
@@ -869,12 +863,10 @@ begin
 
       if shapes_saved = False then begin
         i := alert(7, '      session  finished ?   -   save  shapes ?',
-          '||Templot0 is about to quit.'
-          +
-          '||You have one or more background shapes which have not been saved.'
-          + '||Do you want to save your background shapes ?',
-          '', '', '', 'no  -  abandon  shapes  and  quit    ',
-          'cancel  quit   -   continue  running      ',
+          '||Templot0 is about to quit.' +
+          '||You have one or more background shapes which have not been saved.' +
+          '||Do you want to save your background shapes ?', '', '', '',
+          'no  -  abandon  shapes  and  quit    ', 'cancel  quit   -   continue  running      ',
           'yes  -  save  all  shapes  and  quit    ', 0);
 
         case i of
@@ -902,8 +894,7 @@ begin
         no_save_str := '';
         backup_str := '';
 
-        if (keeps_list.Count > 0) and (save_done = False)
-        then begin
+        if (keeps_list.Count > 0) and (save_done = False) then begin
           save_str :=
             'save  all  templates  in  a  named  file  and  QUIT            ';
           no_save_str := 'QUIT        ';
@@ -911,10 +902,8 @@ begin
 
           backup_str :=
             '||Your storage box contains one or more templates which have not yet been saved in a named data file.'
-            +
-            '||These and your background track plan can be restored when you next run Templot,'
-            +
-            ' but you may also want to save them in a named data file before quitting.';
+            + '||These and your background track plan can be restored when you next run Templot,'
+            + ' but you may also want to save them in a named data file before quitting.';
         end;
 
 
@@ -934,15 +923,14 @@ begin
           repeat
             i :=
               alert(7, '      session  finished ?',
-              '|                Templot0  is  about  to  QUIT.' +
-              backup_str, '', '',
-              'important  information  ', no_save_str, 'cancel  quit   -   continue  running    ', save_str, 3);
+              '|                Templot0  is  about  to  QUIT.' + backup_str,
+              '', '', 'important  information  ', no_save_str,
+              'cancel  quit   -   continue  running    ', save_str, 3);
             if i = 3 then
               alert_help(0, quit_help, '');
           until i <> 3;
 
-          if no_save_str = ''
-          then begin
+          if no_save_str = '' then begin
             quit_confirm_msg_pref :=
               alert_box.preferences_checkbox.Checked;    //%%%%
             alert_box.preferences_checkbox.Hide;
@@ -1059,7 +1047,8 @@ begin
 
         if (info_form.Left < (slewing_panel.Left + slewing_panel.Width + 4)) and
           (info_form.Top < (slewing_panel.Top + slewing_panel.Height + 4)) then
-          info_form.Top := slewing_panel.Top + slewing_panel.Height + 4;  // ensure warning not obscured by info.
+          info_form.Top := slewing_panel.Top + slewing_panel.Height + 4;
+        // ensure warning not obscured by info.
       end
       else begin
         with info_form do begin
@@ -1075,9 +1064,9 @@ begin
         distortion_warning_panel.Hide
       else begin
         distortion_warning_panel.Show;
-        if (info_form.Left < (distortion_warning_panel.Left + distortion_warning_panel.Width))
-          and (info_form.Top < (distortion_warning_panel.Top + distortion_warning_panel.Height))
-        then
+        if (info_form.Left < (distortion_warning_panel.Left +
+          distortion_warning_panel.Width)) and (info_form.Top <
+          (distortion_warning_panel.Top + distortion_warning_panel.Height)) then
           info_form.Top := distortion_warning_panel.Top + distortion_warning_panel.Height * 2;
         // ensure warning not obscured by info.
       end;
@@ -1086,9 +1075,8 @@ begin
         reorg_warning_panel.Hide
       else begin
         reorg_warning_panel.Show;
-        if (info_form.Left < (reorg_warning_panel.Left + reorg_warning_panel.Width))
-          and (info_form.Top < (reorg_warning_panel.Top + reorg_warning_panel.Height))
-        then
+        if (info_form.Left < (reorg_warning_panel.Left + reorg_warning_panel.Width)) and
+          (info_form.Top < (reorg_warning_panel.Top + reorg_warning_panel.Height)) then
           info_form.Top := reorg_warning_panel.Top + reorg_warning_panel.Height * 2;
         // ensure warning not obscured by info.
       end;
@@ -1123,7 +1111,8 @@ begin
       notch_on_1st_radial_centre_menu_entry.Enabled := (ABS(nomrad1) < max_rad_test) and spiral;
       notch_on_2nd_radial_centre_menu_entry.Enabled := (ABS(nomrad2) < max_rad_test) and spiral;
 
-      make_turnout_road_menu_entry.Enabled := not (plain_track or spiral or slewing or half_diamond);
+      make_turnout_road_menu_entry.Enabled :=
+        not (plain_track or spiral or slewing or half_diamond);
 
       if keeps_list.Count < 1 then begin
         toggle_bgnd_menu_entry.Enabled := False;
@@ -1201,10 +1190,13 @@ begin
 
       switch_drive_menu_entry.Checked :=
         (switch_drive_flag = True) and (plain_track = False) and (half_diamond = False);  // 0.82.a
-      switch_drive_menu_entry.Enabled := (plain_track = False) and (half_diamond = False);    // 0.82.a
+      switch_drive_menu_entry.Enabled := (plain_track = False) and (half_diamond = False);
+      // 0.82.a
 
-      isolate_crossing_menu_entry.Checked := (isolated_crossing = True) and (plain_track = False);  // 217a
-      isolate_crossing_menu_entry.Enabled := (plain_track = False);                               // 217a
+      isolate_crossing_menu_entry.Checked := (isolated_crossing = True) and (plain_track = False);
+      // 217a
+      isolate_crossing_menu_entry.Enabled := (plain_track = False);
+      // 217a
 
       swings_in_degs_menu_entry.Enabled := ((ABS(nomrad) < max_rad_test) or spiral or slewing);
 
@@ -1319,8 +1311,7 @@ begin
 
       if trackbed_form.Showing = True then begin
         trackbed_buttons;   // 215a update the trackbed form
-        if (draw_ts_trackbed_edge = True) or (draw_ms_trackbed_edge = True) then
-        begin
+        if (draw_ts_trackbed_edge = True) or (draw_ms_trackbed_edge = True) then begin
           adjacent_trackbed_platforms_menu_entry.Checked := True;  // radio item
           adjacent_edges := True;
           do_railedges;
@@ -1388,8 +1379,8 @@ begin
             +
             '||( The laws of mathematics prevent a viable turnout being generated for every'
             +
-            ' possible combination of the various settings.)||You now have 3 options ...'
-            , '', '', '', 're-calculate  and  show  diagnostic  information',
+            ' possible combination of the various settings.)||You now have 3 options ...'  ,
+            '', '', '', 're-calculate  and  show  diagnostic  information',
             'cancel  -  restart  with  new  B-6  turnout', 'try  nearest  turnout  to  fit', 0)
           of
           4: begin
@@ -1545,8 +1536,8 @@ begin
     backdrop_bmp.Free;
 
     ShowMessage('Sorry, your computer does not have enough free memory to run ' +
-      Application.Title + '.' + #13 + #13 + 'Try restarting ' +
-      Application.Title + ' with no other programs running.');  // 0.93.a
+      Application.Title + '.' + #13 + #13 + 'Try restarting ' + Application.Title +
+      ' with no other programs running.');  // 0.93.a
 
     Application.ProcessMessages;
 
@@ -1635,8 +1626,8 @@ begin
     with html_back[index] do begin
       src_code := -100;                      // -100 this code means an empty slot.
 
-      src_str := '<FONT COLOR="RED">Sorry, this page slot is empty.</FONT>'
-        + '||Please click the &nbsp;`0&lt;`1 &nbsp;or &nbsp;`0&gt;`1 &nbsp;buttons (back or forward) repeatedly until you find your previous pages.' + '||There are 8 cyclic page slots (&nbsp;labelled a&nbsp;-&nbsp;h&nbsp;) in the roll-back register for this Help viewer.' + '||For more help information visit the full indexed web help pages at: <A HREF="go_to_templot_companion.85a">Templot Companion</A>.' + '||To return to the program, click the `0continue`1 or `0hide`1 button below.';
+      src_str := '<FONT COLOR="RED">Sorry, this page slot is empty.</FONT>' +
+        '||Please click the &nbsp;`0&lt;`1 &nbsp;or &nbsp;`0&gt;`1 &nbsp;buttons (back or forward) repeatedly until you find your previous pages.' + '||There are 8 cyclic page slots (&nbsp;labelled a&nbsp;-&nbsp;h&nbsp;) in the roll-back register for this Help viewer.' + '||For more help information visit the full indexed web help pages at: <A HREF="go_to_templot_companion.85a">Templot Companion</A>.' + '||To return to the program, click the `0continue`1 or `0hide`1 button below.';
       src_position := 0;
     end;//with
   end;//next
@@ -1776,11 +1767,22 @@ begin
         alert_box.preferences_checkbox.Show;
 
       if alert(7, '   Templot0   -   Multiple  Monitors',
-        'Your computer is currently set to use multiple monitors.'
-        +
+        'Your computer is currently set to use multiple monitors.' +
         '||Do you want the Templot0 trackpad to allow use of the full screen area across all monitors?'
-        + '||A small margin will be allowed initially at the right and bottom borders for easier resizing to a smaller area.' + '||Be aware that if you answer yes, Templot0 will use more memory and the screen response may be slower on older systems.' + ' For the fastest screen response, arrange the primary monitor to be on the left.' + '||If you answer no, the maximum usable size of the Templot0 trackpad will be restricted to match your primary monitor only.' + ' If you then extend the trackpad beyond that, part of the trackpad area will be unusable.| ', '', '', '', 'no  -  match  primary  monitor  only', '', 'yes  -  use  all  available  monitors', 0) = 6 then
+        + '||A small margin will be allowed initially at the right and bottom borders for easier resizing to a smaller area.'
+        + '||Be aware that if you answer yes, Templot0 will use more memory and the screen response may be slower on older systems.'
+        + ' For the fastest screen response, arrange the primary monitor to be on the left.' +
+        '||If you answer no, the maximum usable size of the Templot0 trackpad will be restricted to match your primary monitor only.'
+        +
+        ' If you then extend the trackpad beyond that, part of the trackpad area will be unusable.| ',
+        '', '', '', 'no  -  match  primary  monitor  only', '', 'yes  -  use  all  available  monitors',
+        0) = 6 then begin
         he_wants_multiple_monitors := True;
+        log.Info('Selected multiple monitors');
+      end
+      else begin
+        log.Info('Selected primary monitor only');
+      end;
 
       multi_monitors_msg_pref := alert_box.preferences_checkbox.Checked;    //%%%%
       alert_box.preferences_checkbox.Hide;
@@ -1789,8 +1791,12 @@ begin
     if (GetKeyState(VK_CAPITAL) and 1) <> 0    // caps lock on at startup...
     then begin
       alert(3, '   Templot0   -   Caps Lock  ON',
-        'Your computer currently has the CapsLock ON (keyboard indicator light showing).'
-        + '||While the Caps Lock is on Templot0 will highlight any background templates on the drawing as the mouse pointer' + ' passes over their name labels.' + '||If you have just started Templot0 for the first time you may find this confusing.' + '||You can prevent this by switching the Caps Lock OFF. To do this press the  `0CAPS LOCK`2  key once so that the indicator light is no longer showing.' + '||Please click the green OK bar to continue.',
+        'Your computer currently has the CapsLock ON (keyboard indicator light showing).' +
+        '||While the Caps Lock is on Templot0 will highlight any background templates on the drawing as the mouse pointer'
+        +
+        ' passes over their name labels.' +
+        '||If you have just started Templot0 for the first time you may find this confusing.' +
+        '||You can prevent this by switching the Caps Lock OFF. To do this press the  `0CAPS LOCK`2  key once so that the indicator light is no longer showing.' + '||Please click the green OK bar to continue.',
         '', '', '', '', '', 'O K', 0);
     end;
 
@@ -1835,7 +1841,8 @@ begin
       Application.ProcessMessages;
 
     panning_form.Left := pad_form.ClientWidth - panning_form.Width - 10;  // 0.95.a
-    panning_form.Show;                                              //13-12-99   (now a child form).
+    panning_form.Show;
+    //13-12-99   (now a child form).
 
     if Screen.Width <= (make_slip_form.Width + pad_form.top_toolbar_panel.Width) then
       make_slip_form.Hide;  // see do_toolbars
@@ -1918,8 +1925,7 @@ begin
             load_shapes(param_str, False, False, False);
         end
         else begin
-          if ExtractFileExt(param_str) = '.sk9'
-          then begin
+          if ExtractFileExt(param_str) = '.sk9' then begin
             { OT-FIRST if FileExists(param_str)=True then load_sketchboard_file(param_str);}
           end;
         end;
@@ -1944,8 +1950,7 @@ begin
         alert_box.preferences_checkbox.Show;
 
         if alert(3, '   Templot0  started  using  saved  program  preferences',
-          ' |Templot0 started using saved program preferences.'
-          +
+          ' |Templot0 started using saved program preferences.' +
           '||If you are a new or infrequent user of Templot0 please be aware that running Templot0 using saved program preferences may mean that you won''t see important help messages and hints.' + '||If you experience difficulty you may prefer to quit Templot0 and restart without using saved preferences (by clicking the initial GO button).| ', '', '', '', 'more  information', '', 'O K', 4) = 4 then
           saved_preferences_setup_menu_entry.Click;
 
@@ -2079,42 +2084,36 @@ begin
 
 
         if (temp_comp_i is TGroupBox) then begin
-          if TGroupBox(temp_comp_i).Font.Name = 'Arial'
-          then
+          if TGroupBox(temp_comp_i).Font.Name = 'Arial' then
             TGroupBox(temp_comp_i).Font.Name := 'Liberation Sans';
         end;
 
         if (temp_comp_i is TRadioGroup) then begin
-          if TRadioGroup(temp_comp_i).Font.Name = 'Arial'
-          then
+          if TRadioGroup(temp_comp_i).Font.Name = 'Arial' then
             TRadioGroup(temp_comp_i).Font.Name := 'Liberation Sans';
         end;
 
 
         if (temp_comp_i is TCheckBox) then begin
-          if TCheckBox(temp_comp_i).Font.Name = 'Arial'
-          then
+          if TCheckBox(temp_comp_i).Font.Name = 'Arial' then
             TCheckBox(temp_comp_i).Font.Name := 'Liberation Sans';
         end;
 
 
         if (temp_comp_i is TRadioButton) then begin
-          if TRadioButton(temp_comp_i).Font.Name = 'Arial'
-          then
+          if TRadioButton(temp_comp_i).Font.Name = 'Arial' then
             TRadioButton(temp_comp_i).Font.Name := 'Liberation Sans';
         end;
 
 
         if (temp_comp_i is TTabSheet) then begin
-          if TTabSheet(temp_comp_i).Font.Name = 'Arial'
-          then
+          if TTabSheet(temp_comp_i).Font.Name = 'Arial' then
             TTabSheet(temp_comp_i).Font.Name := 'Liberation Sans';
         end;
 
 
         if (temp_comp_i is TPageControl) then begin
-          if TPageControl(temp_comp_i).Font.Name = 'Arial'
-          then
+          if TPageControl(temp_comp_i).Font.Name = 'Arial' then
             TPageControl(temp_comp_i).Font.Name := 'Liberation Sans';
         end;
 
@@ -2138,8 +2137,7 @@ begin
 
 
         if (temp_comp_i is TComboBox) then begin
-          if TComboBox(temp_comp_i).Font.Name = 'Arial'
-          then
+          if TComboBox(temp_comp_i).Font.Name = 'Arial' then
             TComboBox(temp_comp_i).Font.Name := 'Liberation Sans';
         end;
 
@@ -2271,12 +2269,14 @@ begin
 
         with boxmru_list do begin
           if Count > 0 then
-            SaveToFile(Config.FilePath(csdiBackup, 'boxmru.txt'));   // 0.82.a 22-08-06 mru list for box files restore.
+            SaveToFile(Config.FilePath(csdiBackup, 'boxmru.txt'));
+          // 0.82.a 22-08-06 mru list for box files restore.
         end;//with
 
         with bgsmru_list do begin
           if Count > 0 then
-            SaveToFile(Config.FilePath(csdiBackup, 'bgsmru.txt'));   // 0.82.a 22-08-06 mru list for bgs files restore.
+            SaveToFile(Config.FilePath(csdiBackup, 'bgsmru.txt'));
+          // 0.82.a 22-08-06 mru list for bgs files restore.
         end;//with
 
         save_custom_gauges;
@@ -2331,8 +2331,8 @@ procedure Tcontrol_room_form.chat_panelClick(Sender: TObject);
 
 const
   chat_str: string = '      Program  Panel  Chat' +
-    '||Clicking the green  " = "  buttons in Templot0 brings up this "chat box",'
-    + ' containing some words from me, invariably of no great consequence!' + '||Martin.';
+    '||Clicking the green  " = "  buttons in Templot0 brings up this "chat box",' +
+    ' containing some words from me, invariably of no great consequence!' + '||Martin.';
 
 begin
   chat(chat_str);
@@ -2342,8 +2342,9 @@ end;
 procedure Tcontrol_room_form.how_panelClick(Sender: TObject);
 
 const
-  help_str: string = '            Program  Panel.' + '||This window is called the `0program panel`3.'
-    + '||If you have just started TEMPLOT for the first time, click the `0trackpad`1 button to get going, and then click the `0help`1 menu items on the trackpad.' + ' Later on, you will probably start by clicking the `0RECENT FILES`1 or `0FILE...`1 buttons which load or reload your template storage box with the templates from a previously saved data file.' + '||The `0SESSION`1 menu items are functions which you normally need to access only once per working session. You can set the track gauge and modelling scale' + ' which you wish to use, and choose a title for the project.' + '||You can return to the program panel at any time by clicking the `0MAIN > PROGRAM PANEL`1 menu item on the trackpad.' + ' The program panel can be kept in view by resizing the trackpad window. Closing the program panel will quit Templot0.' + '||The `0PROGRAM`1 menu includes various options for experienced users to customise the way Templot0 works.' + '||green_panel_begin tree.gif Until you become an experienced user of Templot0 you will probably have little use for the program panel, as most of the menu items are repeated elsewhere in Templot0.green_panel_end';
+  help_str: string = '            Program  Panel.' +
+    '||This window is called the `0program panel`3.' +
+    '||If you have just started TEMPLOT for the first time, click the `0trackpad`1 button to get going, and then click the `0help`1 menu items on the trackpad.' + ' Later on, you will probably start by clicking the `0RECENT FILES`1 or `0FILE...`1 buttons which load or reload your template storage box with the templates from a previously saved data file.' + '||The `0SESSION`1 menu items are functions which you normally need to access only once per working session. You can set the track gauge and modelling scale' + ' which you wish to use, and choose a title for the project.' + '||You can return to the program panel at any time by clicking the `0MAIN > PROGRAM PANEL`1 menu item on the trackpad.' + ' The program panel can be kept in view by resizing the trackpad window. Closing the program panel will quit Templot0.' + '||The `0PROGRAM`1 menu includes various options for experienced users to customise the way Templot0 works.' + '||green_panel_begin tree.gif Until you become an experienced user of Templot0 you will probably have little use for the program panel, as most of the menu items are repeated elsewhere in Templot0.green_panel_end';
 
 begin
   help(-1, help_str, '');
@@ -2368,16 +2369,11 @@ procedure Tcontrol_room_form.project_title_menu_entryClick(Sender: TObject);
 begin
   with math_form do begin
     Caption := '    project  title ...';
-    big_label.Caption := insert_crlf_str('|      Project  Title'
-      + '||Enter below a title for your track plan project.'
-      + '||This will appear on each printed template page.'
-      + '||This name will also be shown in the title bar of your storage box.'
-      +
-      '||When reloading the box from a file, the title will be changed to the name under which the box contents were saved in the file.'
-      +
-      ' If you want to use a different name, change it after reloading, not before.'
-      +
-      '||If you leave the box blank, the name "untitled project" will be used.');
+    big_label.Caption := insert_crlf_str('|      Project  Title' +
+      '||Enter below a title for your track plan project.' +
+      '||This will appear on each printed template page.' +
+      '||This name will also be shown in the title bar of your storage box.' +
+      '||When reloading the box from a file, the title will be changed to the name under which the box contents were saved in the file.' + ' If you want to use a different name, change it after reloading, not before.' + '||If you leave the box blank, the name "untitled project" will be used.');
     math_editbox.Text := box_project_title_str;
 
     do_show_modal(math_form);    // 212a
@@ -2447,18 +2443,21 @@ end;
 procedure Tcontrol_room_form.custom_terms_menu_entryClick(Sender: TObject);
 
 const
-  help_str: string = '      Expert  Help  -  Transition Maths' + '||      Custom  Number  of  Terms'
-    + '||If the normal AUTO TERMS setting is not producing the desired results,'
-    + ' use this form to set a custom number of terms which Templot0 will use in expanding the Ideal Transition Spiral.'
+  help_str: string = '      Expert  Help  -  Transition Maths' +
+    '||      Custom  Number  of  Terms' +
+    '||If the normal AUTO TERMS setting is not producing the desired results,' +
+    ' use this form to set a custom number of terms which Templot0 will use in expanding the Ideal Transition Spiral.'
     + ' Using more terms will produce a more accurate transition curve, but may significantly slow down the screen'
-    + ' redraw process, especially for older processors.' + '||The recommendations are as follows:' +
+    + ' redraw process, especially for older processors.' +
+    '||The recommendations are as follows:' +
     '||For a swing of 30 degrees or less: use at least 3 terms.' +
     '|For a swing of 30 degrees to 60 degrees: use at least 4 terms.' +
     '|For a swing of 60 degrees to 90 degrees: use at least 6 terms.' +
     '|For a swing of 90 degrees to 180 degrees: use at least 8 terms.' +
     '|For a swing exceeding 180 degrees: use at least 20 terms.' +
     '||Where the "swing" is the angle turned through along the length of the transition section.'
-    + '||To draw several turns of an ever-decreasing spiral, use at least 40 terms, and be prepared to wait several'
+    +
+    '||To draw several turns of an ever-decreasing spiral, use at least 40 terms, and be prepared to wait several'
     + ' seconds for each re-draw.' +
     '||( The normal AUTO TERMS setting is restored on a B-6 TURNOUT RESET.)' +
     '||Please note that the above recommendations are a very rough guide only but have proved useful in practice.'
@@ -2487,12 +2486,12 @@ begin
 
   repeat
     i := alert(4, '      transition - custom  terms ...',
-      'Select the custom number of terms to be used in expanding the transition spiral.'
-      + ' The current custom setting is ' + IntToStr(trans_terms) +
-      ' terms. You should have a good reason for not using the normal' + ' AUTO TERMS setting.', 'important  information  -  please  read',
+      'Select the custom number of terms to be used in expanding the transition spiral.' +
+      ' The current custom setting is ' + IntToStr(trans_terms) +
+      ' terms. You should have a good reason for not using the normal' +
+      ' AUTO TERMS setting.', 'important  information  -  please  read',
       'enter  some  other  setting', '3  terms  -  30  degree  swing',
-      '4  terms  -  60  degree  swing',
-      'cancel  -  use  AUTO  TERMS  instead',
+      '4  terms  -  60  degree  swing', 'cancel  -  use  AUTO  TERMS  instead',
       '6  terms  -  90  degree  swing', 1);
 
     case i of
@@ -2503,13 +2502,13 @@ begin
           auto_terms_menu_entry.Click;
         end;
       2: begin
-        n := putdim(help_str, 0, 'number of transition terms', trans_terms, True, False, True, False);
+        n := putdim(help_str, 0, 'number of transition terms', trans_terms,
+          True, False, True, False);
         // no neg, preset ok, no zero, don't terminate on zero.
         if n <> 0 then
           EXIT;
 
-        if getdims('transition  terms', '', control_room_form, n, od) = True then
-        begin
+        if getdims('transition  terms', '', control_room_form, n, od) = True then begin
           if od[0] = def_req then
             trans_terms := 8                  // default 8 transition terms.
           else
@@ -2536,8 +2535,7 @@ procedure Tcontrol_room_form.run_slow_menu_entryClick(Sender: TObject);
 const
   slow_str: string = '      Slow  Running' +
     '||You can slow down Templot0''s drawing functions by setting a count figure greater than zero.'
-    +
-    '||This is useful if an error has occurred and you need to check each feature as it is drawn.'
+    + '||This is useful if an error has occurred and you need to check each feature as it is drawn.'
     + '||A suitable count for your computer will need to be established by trial and error. Higher counts cause Templot0 to run more slowly.' + ' A count in the range 20-100 would be a starting point.' + '||To properly see the effect of slow running you will need to be using the LOW MEMORY refresh mode, which requires a Templot0 restart.' + '||N.B. ! Remember to come back here and reset the count to zero after use !' + '||The count is reset to zero on a B-6 turnout reset, or when printing.';
 
 var
@@ -2574,8 +2572,8 @@ var
   od: Toutdim;
 
 begin
-  n := putdim(max_spiral_str, 0, 'max  spiral  constant', max_spiral_constant / 1.0E6,
-    True, False, False, False);
+  n := putdim(max_spiral_str, 0, 'max  spiral  constant', max_spiral_constant /
+    1.0E6, True, False, False, False);
   // no neg, preset ok, zero ok, don't terminate on zero.
   if n <> 0 then
     EXIT;
@@ -2602,7 +2600,8 @@ var
 begin
   repeat
     m := incx;
-    n := putdim(help_str, 1, 'calculation step size along rail-lines', m, True, False, True, False);
+    n := putdim(help_str, 1, 'calculation step size along rail-lines', m, True,
+      False, True, False);
     // no neg, preset ok, no zero, don't terminate on zero.
     if n <> 0 then
       EXIT;
@@ -2679,9 +2678,16 @@ procedure Tcontrol_room_form.re_org_menu_entryClick(Sender: TObject);
 // get permanent shift data
 const
   help_str: string = '      Expert  Help  -  Re-origination' +
-    '||Re-origination causes all drawing data to be shifted to a new origin (zero point).'
-    + '||This is similar in effect to a normal shift (e.g. with mouse action F7), except that:'
-    + '||a. Re-origination data entered here remains in force until you come back here and change it or do a B-6 TURNOUT RESET.' + ' It is not affected by mouse shifts and is not cancelled by clicking OMIT or CLEAR for shifts and rotations.' + '||b. Re-origination takes place after any data distortions and is therefore unaffected by them.' + ' Normal shifts take place before any data distortions, and are therefore distorted.' + '||c. Re-origination applies globally for as long as it remains in force, so all templates drawn on the trackpad or in the storage box will be' + ' re-originated, but will return to normal when re-origination is cancelled. The re-origination data is not included in the template files' + ' when they are saved from the box, and must be re-entered as required for each working session.' + '||( Handy hint - make a note of your re-origination settings in your memo text. They can then be quickly copied and pasted back into the data entry form after reloading.)' + '||This re-origination function is intended primarily for use with data distortions when templates' + ' are being output for use elsewhere (e.g. exported in DXF format) - there should normally be no reason to use it when printing directly' + ' from Templot0. For more information select the PROGRAM > EXPERT > DATA DISTORTIONS > ? HELP menu item.' + '||Enter X and Y settings ( + / -  mm ) for the amount of shift required. X dimensions are positive screen left-to-right,' + ' Y dimensions are positive screen bottom-to-top.' + '||Note that re-origination affects only the drawing data. Grid lines and printed trim margins are unaffected (and are not included in DXF files).';
+    '||Re-origination causes all drawing data to be shifted to a new origin (zero point).' +
+    '||This is similar in effect to a normal shift (e.g. with mouse action F7), except that:' +
+    '||a. Re-origination data entered here remains in force until you come back here and change it or do a B-6 TURNOUT RESET.'
+    +
+    ' It is not affected by mouse shifts and is not cancelled by clicking OMIT or CLEAR for shifts and rotations.'
+    +
+    '||b. Re-origination takes place after any data distortions and is therefore unaffected by them.'
+    +
+    ' Normal shifts take place before any data distortions, and are therefore distorted.' +
+    '||c. Re-origination applies globally for as long as it remains in force, so all templates drawn on the trackpad or in the storage box will be' + ' re-originated, but will return to normal when re-origination is cancelled. The re-origination data is not included in the template files' + ' when they are saved from the box, and must be re-entered as required for each working session.' + '||( Handy hint - make a note of your re-origination settings in your memo text. They can then be quickly copied and pasted back into the data entry form after reloading.)' + '||This re-origination function is intended primarily for use with data distortions when templates' + ' are being output for use elsewhere (e.g. exported in DXF format) - there should normally be no reason to use it when printing directly' + ' from Templot0. For more information select the PROGRAM > EXPERT > DATA DISTORTIONS > ? HELP menu item.' + '||Enter X and Y settings ( + / -  mm ) for the amount of shift required. X dimensions are positive screen left-to-right,' + ' Y dimensions are positive screen bottom-to-top.' + '||Note that re-origination affects only the drawing data. Grid lines and printed trim margins are unaffected (and are not included in DXF files).';
 
 var
   n: integer;
@@ -2693,8 +2699,9 @@ begin
 
   putdim(help_str, 1, 're - origination  shift  X   ( from left )  ', re_org_x /
     100, False, False, False, False); // neg ok, preset ok, zero ok, don't terminate on zero.
-  n := putdim(help_str, 1, 're - origination  shift  Y  ( from bottom )', re_org_y /
-    100, False, False, False, False);  // neg ok, preset ok, zero ok, don't terminate on zero.
+  n := putdim(help_str, 1, 're - origination  shift  Y  ( from bottom )',
+    re_org_y / 100, False, False, False, False);
+  // neg ok, preset ok, zero ok, don't terminate on zero.
   if n <> 1 then
     EXIT;
   if getdims('re - origination', '', control_room_form, n, od) = True then begin
@@ -2736,7 +2743,8 @@ begin
   ClientHeight := VertScrollBar.Range;
   // do this twice, as each affects the other.
 
-  size_updown.Tag := size_updown.Position;                           // and save for the next click.
+  size_updown.Tag := size_updown.Position;
+  // and save for the next click.
 
   room_scaling := False;
 end;
@@ -2754,10 +2762,11 @@ var
 begin
   i := alert(4, '   negative  numbers',
     '|Templot0 encloses negative values within square brackets as [ -000.0 ] when displaying them,'
-    + ' and allows data entry in this format also.' +
-    '||Mistakes are less likely if the minus sign is made more conspicuous in this way.'
-    + '||The brackets can be omitted if preferred.',
-    '', '', '', 'omit  brackets  from  negative  numbers', 'cancel  -  no  change',
+    +
+    ' and allows data entry in this format also.' +
+    '||Mistakes are less likely if the minus sign is made more conspicuous in this way.' +
+    '||The brackets can be omitted if preferred.', '', '', '',
+    'omit  brackets  from  negative  numbers', 'cancel  -  no  change',
     'show  negative  numbers  in  brackets', 0);
   case i of
     4:
@@ -2811,7 +2820,8 @@ begin
   i := GetDeviceCaps(control_room_form.Canvas.Handle, PLANES);      //  number of colour planes.
   n := GetDeviceCaps(control_room_form.Canvas.Handle, BITSPIXEL);
   //  number of colour bits per pixel per plane.
-  total_colour_bits := i * n;                                         //  total colour depth per pixel.
+  total_colour_bits := i * n;
+  //  total colour depth per pixel.
 
   if total_colour_bits > 9 then begin
     hi_color := True;
@@ -2865,13 +2875,14 @@ begin
 
     s := s + '||------------------------------';
 
-    s := s + '|| $ ' + IntToHex(FreeSmall, 8) + '    =    ' + FormatFloat('0000000,', FreeSmall) +
-      '    Free in Small Blocks';
+    s := s + '|| $ ' + IntToHex(FreeSmall, 8) + '    =    ' +
+      FormatFloat('0000000,', FreeSmall) + '    Free in Small Blocks';
     s := s + '| $ ' + IntToHex(FreeBig, 8) + '    =    ' + FormatFloat('0000000,', FreeBig) +
       '    Free in Large Blocks';
-    s := s + '| $ ' + IntToHex(Unused, 8) + '    =    ' + FormatFloat('0000000,', Unused) + '    Free Unused';
-    s := s + '| $ ' + IntToHex(TotalFree, 8) + '    =    ' + FormatFloat('0000000,', TotalFree) +
-      '    Total Free';
+    s := s + '| $ ' + IntToHex(Unused, 8) + '    =    ' + FormatFloat('0000000,', Unused) +
+      '    Free Unused';
+    s := s + '| $ ' + IntToHex(TotalFree, 8) + '    =    ' +
+      FormatFloat('0000000,', TotalFree) + '    Total Free';
 
     s := s + '|| $ ' + IntToHex(Overhead, 8) + '    =    ' + FormatFloat('0000000,', Overhead) +
       '    Manager Overhead';
@@ -2983,8 +2994,7 @@ procedure Tcontrol_room_form.x_scaling_menu_entryClick(Sender: TObject);
 const
   help_str: string = '             X - Scaling  Distortion' +
     '||The X-scaling factor is provided to allow corrections to be made to' +
-    ' the accuracy of a template which is being output elsewhere, for example when generating a DXF file for transfer to CAD software.'
-    + '||If your intention is simply to enlarge or reduce a printed template, cancel this and select instead the PRINT > PRINTED OUTPUT SCALING menu item.' + '||If your printer is not producing accurate results, use the PRINT > PRINTER CALIBRATION function to make the necessary' + ' corrections. If the problem with your printer persists, due perhaps to wear and tear, try using the SKEWING' + ' or CONING distortions.' + '||X-dimensions (across the screen from the left) are multiplied by the X-scaling factor.' + '||The result of setting a X-scaling factor of 200%, for example, is that the drawing expands to double its length.' + ' The X-scaling factor has no effect on the width of the drawing. To make small corrections a typical X-scaling factor setting would be' + ' close to 100% and look like 100.71% or 98.35%, for example. If you make large distortions, be aware that the results of the mouse actions and' + ' other settings may be unexpected or become unpredictable.' + '||The effect of setting a negative X-scaling factor is that the drawing is' + ' mirrored 180 degrees about the left margin, and will not be visible without re-origination or a shift.' + ' Also, the mouse actions and other settings will be reversed in direction, causing much confusion.' + '||The X-scaling factor is reset to 100% when you do a B-6 TURNOUT RESET - otherwise it will remain in force until you' + ' come here again and change it. So please remember to reset it to 100% after experimenting. If you forget to do so,' + ' all your subsequently printed templates will be useless!' + ' ||When using X-scaling distortion the printed grid (which is unaffected by distortions) will no' + ' longer be accurate - so please heed the warnings about not using these data distortions when printing directly from Templot0.' + '||When exporting in DXF format the normal printer calibration and output scaling settings are ignored and the DXF file' + ' does not include the grid or page trim lines.' + '||X-scaling distortion applies globally for as long as it remains in force, so all templates drawn on the trackpad or in the storage box will be' + ' distorted but will return to normal when the distortion is cancelled. The X-scaling factor is not included in the template files' + ' when they are saved from the box, and must be re-entered as required for each working session.' + '||( Handy hint - make a note of your scaling settings in your memo text. They can then be quickly copied and pasted back into the data entry form after reloading.)';
+    ' the accuracy of a template which is being output elsewhere, for example when generating a DXF file for transfer to CAD software.' + '||If your intention is simply to enlarge or reduce a printed template, cancel this and select instead the PRINT > PRINTED OUTPUT SCALING menu item.' + '||If your printer is not producing accurate results, use the PRINT > PRINTER CALIBRATION function to make the necessary' + ' corrections. If the problem with your printer persists, due perhaps to wear and tear, try using the SKEWING' + ' or CONING distortions.' + '||X-dimensions (across the screen from the left) are multiplied by the X-scaling factor.' + '||The result of setting a X-scaling factor of 200%, for example, is that the drawing expands to double its length.' + ' The X-scaling factor has no effect on the width of the drawing. To make small corrections a typical X-scaling factor setting would be' + ' close to 100% and look like 100.71% or 98.35%, for example. If you make large distortions, be aware that the results of the mouse actions and' + ' other settings may be unexpected or become unpredictable.' + '||The effect of setting a negative X-scaling factor is that the drawing is' + ' mirrored 180 degrees about the left margin, and will not be visible without re-origination or a shift.' + ' Also, the mouse actions and other settings will be reversed in direction, causing much confusion.' + '||The X-scaling factor is reset to 100% when you do a B-6 TURNOUT RESET - otherwise it will remain in force until you' + ' come here again and change it. So please remember to reset it to 100% after experimenting. If you forget to do so,' + ' all your subsequently printed templates will be useless!' + ' ||When using X-scaling distortion the printed grid (which is unaffected by distortions) will no' + ' longer be accurate - so please heed the warnings about not using these data distortions when printing directly from Templot0.' + '||When exporting in DXF format the normal printer calibration and output scaling settings are ignored and the DXF file' + ' does not include the grid or page trim lines.' + '||X-scaling distortion applies globally for as long as it remains in force, so all templates drawn on the trackpad or in the storage box will be' + ' distorted but will return to normal when the distortion is cancelled. The X-scaling factor is not included in the template files' + ' when they are saved from the box, and must be re-entered as required for each working session.' + '||( Handy hint - make a note of your scaling settings in your memo text. They can then be quickly copied and pasted back into the data entry form after reloading.)';
 
 var
   n, i: integer;
@@ -2997,13 +3007,13 @@ begin
 
   try
     repeat
-      n := putdim(help_str, 4, 'X - scaling  factor', x_distortion_factor * 100, False, False, True, False);
+      n := putdim(help_str, 4, 'X - scaling  factor', x_distortion_factor *
+        100, False, False, True, False);
       // neg ok, preset ok, no zero, don't terminate on zero.
       if n <> 0 then
         EXIT;
       if getdims('X - scaling  factor', distortion_help_str, control_room_form, 0, od) =
-        True then
-      begin
+        True then begin
         if od[0] = def_req then
           x_distortion_factor := 1
         else begin
@@ -3024,17 +3034,14 @@ begin
         temp := x_distortion_factor;
         i :=
           alert(7, '        X - scaling  distortion ?',
-          'Setting the X-scaling factor to any value other than 100% will cause'
-          +
-          ' your template to be unusable when printed. This function is intended as'
-          +
-          ' a means of correction only when the output will be elsewhere.'
-          +
+          'Setting the X-scaling factor to any value other than 100% will cause' +
+          ' your template to be unusable when printed. This function is intended as' +
+          ' a means of correction only when the output will be elsewhere.' +
           '||If your printer is not producing accurate results, do a printer calibration instead.'
-          + '||Are you sure you want to distort your data ?',
-          '', '', 'yes  -  use  ' + round_str(
-          temp * 100, 2) + ' %   X - scaling  distortion', '?  help', 'no  -  cancel  distortion',
-          'no  -  do  printer  calibration  instead', 4);
+          +
+          '||Are you sure you want to distort your data ?', '', '', 'yes  -  use  ' +
+          round_str(temp * 100, 2) + ' %   X - scaling  distortion', '?  help',
+          'no  -  cancel  distortion', 'no  -  do  printer  calibration  instead', 4);
         if i = 3 then
           EXIT
         else begin
@@ -3043,16 +3050,12 @@ begin
           x_scaling_menu_entry.Checked := False;
           case i of
             4: begin
-              if alert_help(
-                0, 'Clicking HELP implies that you are unsure about the X-scaling factor'
-                +
-                ' ( ' + round_str(temp * 100, 2) + '% ) which you have set.'
-                +
+              if alert_help(0,
+                'Clicking HELP implies that you are unsure about the X-scaling factor' +
+                ' ( ' + round_str(temp * 100, 2) + '% ) which you have set.' +
                 '||It has therefore been cancelled. Clicking CONTINUE below will return you to the data entry form,'
-                +
-                ' where you can re-enter the factor if your intentions remain unchanged.'
-                +
-                '|||' + help_str, 'cancel  distortion') = 1 then
+                + ' where you can re-enter the factor if your intentions remain unchanged.'
+                + '|||' + help_str, 'cancel  distortion') = 1 then
                 EXIT;
             end;
             5:
@@ -3082,8 +3085,7 @@ procedure Tcontrol_room_form.y_scaling_menu_entryClick(Sender: TObject);
 const
   help_str: string = '             Y - Scaling  Distortion' +
     '||The Y-scaling factor is provided to allow corrections to be made to' +
-    ' the accuracy of a template which is being output elsewhere, for example when generating a DXF file for transfer to CAD software.'
-    + '||If your intention is simply to enlarge or reduce a printed template, cancel this and select instead the PRINT > PRINTED OUTPUT SCALING menu item.' + '||If your printer is not producing accurate results, use the PRINT > PRINTER CALIBRATION function to make the necessary' + ' corrections. If the problem with your printer persists, due perhaps to wear and tear, try using the SKEWING' + ' or CONING distortions.' + '||Y-dimensions (up the screen from the bottom) are multiplied by the Y-scaling factor.' + '||The result of setting a Y-scaling factor of 200%, for example, is that the drawing expands to double its width.' + ' The Y-scaling factor has no effect on the length of the drawing. To make small corrections a typical Y-scaling factor setting would be' + ' close to 100% and look like 100.71% or 98.35%, for example. If you make large distortions, be aware that the results of the mouse actions and' + ' other settings may be unexpected or become unpredictable.' + '||The effect of setting a negative Y-scaling factor is that the drawing is' + ' mirrored 180 degrees about the bottom margin, and will not be visible without re-origination or a shift.' + ' Also, the mouse actions and other settings will be reversed in direction, causing much confusion.' + '||The Y-scaling factor is reset to 100% when you do a B-6 TURNOUT RESET - otherwise it will remain in force until you' + ' come here again and change it. So please remember to reset it to 100% after experimenting. If you forget to do so,' + ' all your subsequently printed templates will be useless!' + ' ||When using Y-scaling distortion the printed grid (which is unaffected by distortions) will no' + ' longer be accurate - so please heed the warnings about not using these data distortions when printing directly from Templot0.' + '||When exporting in DXF format the normal printer calibration and output scaling settings are ignored and the DXF file' + ' does not include the grid or page trim lines.' + '||Y-scaling distortion applies globally for as long as it remains in force, so all templates drawn on the trackpad or in the storage box will be' + ' distorted but will return to normal when the distortion is cancelled. The Y-scaling factor is not included in the template files' + ' when they are saved from the box, and must be re-entered as required for each working session.' + '||( Handy hint - make a note of your scaling settings in your memo text. They can then be quickly copied and pasted back into the data entry form after reloading.)';
+    ' the accuracy of a template which is being output elsewhere, for example when generating a DXF file for transfer to CAD software.' + '||If your intention is simply to enlarge or reduce a printed template, cancel this and select instead the PRINT > PRINTED OUTPUT SCALING menu item.' + '||If your printer is not producing accurate results, use the PRINT > PRINTER CALIBRATION function to make the necessary' + ' corrections. If the problem with your printer persists, due perhaps to wear and tear, try using the SKEWING' + ' or CONING distortions.' + '||Y-dimensions (up the screen from the bottom) are multiplied by the Y-scaling factor.' + '||The result of setting a Y-scaling factor of 200%, for example, is that the drawing expands to double its width.' + ' The Y-scaling factor has no effect on the length of the drawing. To make small corrections a typical Y-scaling factor setting would be' + ' close to 100% and look like 100.71% or 98.35%, for example. If you make large distortions, be aware that the results of the mouse actions and' + ' other settings may be unexpected or become unpredictable.' + '||The effect of setting a negative Y-scaling factor is that the drawing is' + ' mirrored 180 degrees about the bottom margin, and will not be visible without re-origination or a shift.' + ' Also, the mouse actions and other settings will be reversed in direction, causing much confusion.' + '||The Y-scaling factor is reset to 100% when you do a B-6 TURNOUT RESET - otherwise it will remain in force until you' + ' come here again and change it. So please remember to reset it to 100% after experimenting. If you forget to do so,' + ' all your subsequently printed templates will be useless!' + ' ||When using Y-scaling distortion the printed grid (which is unaffected by distortions) will no' + ' longer be accurate - so please heed the warnings about not using these data distortions when printing directly from Templot0.' + '||When exporting in DXF format the normal printer calibration and output scaling settings are ignored and the DXF file' + ' does not include the grid or page trim lines.' + '||Y-scaling distortion applies globally for as long as it remains in force, so all templates drawn on the trackpad or in the storage box will be' + ' distorted but will return to normal when the distortion is cancelled. The Y-scaling factor is not included in the template files' + ' when they are saved from the box, and must be re-entered as required for each working session.' + '||( Handy hint - make a note of your scaling settings in your memo text. They can then be quickly copied and pasted back into the data entry form after reloading.)';
 
 var
   n, i: integer;
@@ -3096,13 +3098,13 @@ begin
 
   try
     repeat
-      n := putdim(help_str, 4, 'Y - scaling  factor', y_distortion_factor * 100, False, False, True, False);
+      n := putdim(help_str, 4, 'Y - scaling  factor', y_distortion_factor *
+        100, False, False, True, False);
       // neg ok, preset ok, no zero, don't terminate on zero.
       if n <> 0 then
         EXIT;
       if getdims('Y - scaling  factor', distortion_help_str, control_room_form, 0, od) =
-        True then
-      begin
+        True then begin
         if od[0] = def_req then
           y_distortion_factor := 1
         else begin
@@ -3123,17 +3125,14 @@ begin
         temp := y_distortion_factor;
         i :=
           alert(7, '        Y - scaling  distortion ?',
-          'Setting the Y-scaling factor to any value other than 100% will cause'
-          +
-          ' your template to be unusable when printed. This function is intended as'
-          +
-          ' a means of correction only when the output will be elsewhere.'
-          +
+          'Setting the Y-scaling factor to any value other than 100% will cause' +
+          ' your template to be unusable when printed. This function is intended as' +
+          ' a means of correction only when the output will be elsewhere.' +
           '||If your printer is not producing accurate results, do a printer calibration instead.'
-          + '||Are you sure you want to distort your data ?',
-          '', '', 'yes  -  use  ' + round_str(
-          temp * 100, 2) + ' %   Y - scaling  distortion', '?  help', 'no  -  cancel  distortion',
-          'no  -  do  printer  calibration  instead', 4);
+          +
+          '||Are you sure you want to distort your data ?', '', '', 'yes  -  use  ' +
+          round_str(temp * 100, 2) + ' %   Y - scaling  distortion', '?  help',
+          'no  -  cancel  distortion', 'no  -  do  printer  calibration  instead', 4);
         if i = 3 then
           EXIT
         else begin
@@ -3142,16 +3141,12 @@ begin
           y_scaling_menu_entry.Checked := False;
           case i of
             4: begin
-              if alert_help(
-                0, 'Clicking HELP implies that you are unsure about the Y-scaling factor'
-                +
-                ' ( ' + round_str(temp * 100, 2) + '% ) which you have set.'
-                +
+              if alert_help(0,
+                'Clicking HELP implies that you are unsure about the Y-scaling factor' +
+                ' ( ' + round_str(temp * 100, 2) + '% ) which you have set.' +
                 '||It has therefore been cancelled. Clicking CONTINUE below will return you to the data entry form,'
-                +
-                ' where you can re-enter the factor if your intentions remain unchanged.'
-                +
-                '|||' + help_str, 'cancel  distortion') = 1 then
+                + ' where you can re-enter the factor if your intentions remain unchanged.'
+                + '|||' + help_str, 'cancel  distortion') = 1 then
                 EXIT;
             end;
             5:
@@ -3220,17 +3215,14 @@ begin
         temp := aspect_distortion_factor;
         i :=
           alert(7, '        aspect - distortion ?',
-          'Setting the aspect-distortion factor to any value other than 100% will cause'
-          +
-          ' your template to be unusable when printed. This function is intended as'
-          +
-          ' a means of correction only when the output will be elsewhere.'
-          +
+          'Setting the aspect-distortion factor to any value other than 100% will cause' +
+          ' your template to be unusable when printed. This function is intended as' +
+          ' a means of correction only when the output will be elsewhere.' +
           '||If your printer is not producing accurate results, do a printer calibration instead.'
-          + '||Are you sure you want to distort your data ?',
-          '', '', 'yes  -  use  ' + round_str(
-          temp * 100, 2) + ' %   aspect - distortion', '?  help', 'no  -  cancel  distortion',
-          'no  -  do  printer  calibration  instead', 4);
+          +
+          '||Are you sure you want to distort your data ?', '', '', 'yes  -  use  ' +
+          round_str(temp * 100, 2) + ' %   aspect - distortion', '?  help',
+          'no  -  cancel  distortion', 'no  -  do  printer  calibration  instead', 4);
         if i = 3 then
           EXIT
         else begin
@@ -3239,16 +3231,12 @@ begin
           aspect_distortion_menu_entry.Checked := False;
           case i of
             4: begin
-              if alert_help(
-                0, 'Clicking HELP implies that you are unsure about the aspect-distortion factor'
-                +
-                ' ( ' + round_str(temp * 100, 2) + '% ) which you have set.'
-                +
+              if alert_help(0,
+                'Clicking HELP implies that you are unsure about the aspect-distortion factor' +
+                ' ( ' + round_str(temp * 100, 2) + '% ) which you have set.' +
                 '||It has therefore been cancelled. Clicking CONTINUE below will return you to the data entry form,'
-                +
-                ' where you can re-enter the factor if your intentions remain unchanged.'
-                +
-                '|||' + help_str, 'cancel  distortion') = 1 then
+                + ' where you can re-enter the factor if your intentions remain unchanged.'
+                + '|||' + help_str, 'cancel  distortion') = 1 then
                 EXIT;
             end;
             5:
@@ -3493,7 +3481,6 @@ const
   margin_help_str: string = 'Printer  Page  Margins  for  Text`6' +
     '||Enter widths in mm for the left and right page margins when printing the help notes and template information.'
     + '||Text is left-aligned and unjustified, so the right margin dimension will be approximate.'
-
     + '||You can also change the formatting of text by changing the paper size setting in the Print Setup dialog for your printer.'
     + '||green_panel_begin tree.gif Margin settings made here have no effect when printing track templates.'
     + ' To change the trim margin dimensions for track templates, click the `0OUTPUT > TRIM MARGINS > SET TRIM MARGINS...`1 menu item on the `0trackpad`3.green_panel_end';
@@ -3509,8 +3496,9 @@ begin
 
   putdim(margin_help_str, 1, 'width  of  left  page  margin', printer_text_left_margin,
     True, True, False, False);  // no neg, no preset, zero ok, don't terminate on zero.
-  n := putdim(margin_help_str, 1, 'width  of  right  page  margin', printer_text_right_margin,
-    True, True, False, False);  // no neg, no preset, zero ok, don't terminate on zero.
+  n := putdim(margin_help_str, 1, 'width  of  right  page  margin',
+    printer_text_right_margin, True, True, False, False);
+  // no neg, no preset, zero ok, don't terminate on zero.
 
   if n <> 1 then
     EXIT;
@@ -3574,11 +3562,9 @@ begin
       +
       ' while there are background templates shown on the trackpad.' +
       '||All background templates must first be wiped. After making changes to the data-distortion or'
-      +
-      ' re-origination settings, the background templates can be re-drawn as required by copying'
-      +
-      ' from the storage box in the normal way.', '', '', '', '', 'cancel  changes    ',
-      'wipe  all  background  templates      ', 0)
+      + ' re-origination settings, the background templates can be re-drawn as required by copying'
+      + ' from the storage box in the normal way.', '', '', '', '',
+      'cancel  changes    ', 'wipe  all  background  templates      ', 0)
     of
     5:
       EXIT;
@@ -3639,13 +3625,7 @@ procedure Tcontrol_room_form.clm_help_menu_entryClick(Sender: TObject);
 const
   clm_help_str: string = '      `0Expert  Help  -  Unit  Angles`9' +
     '||The present version of Templot0 does all calculations on unit angles using RAM (Right-Angle Measure),'
-    + ' where the angle for a 1:N crossing is ARCTAN( 1 / N ). This is by far the most convenient measure for model trackwork design,'
-    + ' where Cartesian coordinates are the norm on a squared grid.' +
-    '||In full-size practice CLM (Centre-Line Measure) is more usual, as this is better suited to use on the ground.'
-    + ' In CLM the angle for a 1:N crossing is 2 x ARCTAN( 1 / (2 x N) ). The difference between these two angles is very slight,'
-    + ' and decreases with increasing N.' +
-    '||Few modellers will be concerned with this distinction, but if you are one of them you can convert to CLM equivalents'
-    + ' using the `0real > V-crossing options > convert RAM to CLM`z menu item on the trackpad. After setting a crossing unit angle, say 1:7,' + ' this tool will change the crossing angle to 1:7 CLM. The angle will, however, continue to be displayed in RAM units,' + ' showing as, say, B - 6.96 as the turnout size in the information panel heading. The information text always shows the current crossing angle in both' + ' RAM and CLM units.' + '||Be aware that after every change you make to the crossing angle, either by direct entry or by mouse action (F5), it will be' + ' necessary to use the converter tool again if you want to have the new unit angle in CLM units.' + '||Later versions of Templot0 will permit a global change of unit measure (here in this menu), and the converter tool will then' + ' be no longer required. Some railways used other measures, e.g. IM (Isosceles Measure) or SM (Sine Measure), and some non-U.K. railways have other measures (e.g. the grade system),' + ' all of which will also be available later.';
+    + ' where the angle for a 1:N crossing is ARCTAN( 1 / N ). This is by far the most convenient measure for model trackwork design,' + ' where Cartesian coordinates are the norm on a squared grid.' + '||In full-size practice CLM (Centre-Line Measure) is more usual, as this is better suited to use on the ground.' + ' In CLM the angle for a 1:N crossing is 2 x ARCTAN( 1 / (2 x N) ). The difference between these two angles is very slight,' + ' and decreases with increasing N.' + '||Few modellers will be concerned with this distinction, but if you are one of them you can convert to CLM equivalents' + ' using the `0real > V-crossing options > convert RAM to CLM`z menu item on the trackpad. After setting a crossing unit angle, say 1:7,' + ' this tool will change the crossing angle to 1:7 CLM. The angle will, however, continue to be displayed in RAM units,' + ' showing as, say, B - 6.96 as the turnout size in the information panel heading. The information text always shows the current crossing angle in both' + ' RAM and CLM units.' + '||Be aware that after every change you make to the crossing angle, either by direct entry or by mouse action (F5), it will be' + ' necessary to use the converter tool again if you want to have the new unit angle in CLM units.' + '||Later versions of Templot0 will permit a global change of unit measure (here in this menu), and the converter tool will then' + ' be no longer required. Some railways used other measures, e.g. IM (Isosceles Measure) or SM (Sine Measure), and some non-U.K. railways have other measures (e.g. the grade system),' + ' all of which will also be available later.';
 
 begin
   help(0, clm_help_str, '');
@@ -3659,7 +3639,8 @@ const
     '||Enter a dimension in mm which represents the scale width of the trackpad when fully exploded (zoomed all the way in).'
     + '||This is an inverse measure - meaning that reducing this dimension increases the magnification of the drawing.'
     + '||The minimum dimension which Templot0 will accept is 0.5 mm.' +
-    '|The maximum dimension which Templot0 will accept is 1000 mm.' + '|The pre-set dimension is 10 mm.'
+    '|The maximum dimension which Templot0 will accept is 1000 mm.' +
+    '|The pre-set dimension is 10 mm.'
     // 0.93.a was 15mm
     + '||Setting a figure greater than about 150 mm will handicap some of Templot0''s functions to no advantage.'
     + '|------------------' + '|Caution:' +
@@ -3677,7 +3658,8 @@ var
 begin
   m := screenx_min;
 
-  n := putdim(explode_help_str, 1, 'trackpad  width  at  maximum  explode', m, True, False, True, False);
+  n := putdim(explode_help_str, 1, 'trackpad  width  at  maximum  explode',
+    m, True, False, True, False);
   // no neg, preset ok, no zero, don't terminate on zero.
   if n <> 0 then
     EXIT;
@@ -3707,7 +3689,8 @@ var
 begin
   m := peg_arm_length;
 
-  n := putdim(peg_help_str, 1, 'length  of  angled  arms  on  fixing  peg', m, True, False, False, False);
+  n := putdim(peg_help_str, 1, 'length  of  angled  arms  on  fixing  peg',
+    m, True, False, False, False);
   // no neg, preset ok, zero ok, don't terminate on zero.
   if n <> 0 then
     EXIT;
@@ -3727,6 +3710,8 @@ var
   reminder_list: TStringList;
 
 begin
+  log := Logger.GetInstance('ControlRoom');
+
   // OT-FIRST ClientWidth:=750;
   // OT-FIRST ClientHeight:=328;
 
@@ -3852,7 +3837,8 @@ begin
   else
     code := 1;       // normal rolling backup.
 
-  save_box(0, 0, code, '');            // create a new emergency backup file.  Including the control
+  save_box(0, 0, code, '');
+  // create a new emergency backup file.  Including the control
 
   backup_wanted := False;             // backup has been updated.
 end;
@@ -3955,7 +3941,8 @@ procedure Tcontrol_room_form.allow_idle_help_menu_entryClick(Sender: TObject);
 const
   idle_help_str: string = '      Expert  Help  -  CPU  Usage' +
     '||These options allow you to control the amount of cpu processor time allocated to Templot0.'
-    + '||The 100% ALWAYS (FAST) option causes Templot0 to use all of the processor time permitted by the Windows operating system.'
+    +
+    '||The 100% ALWAYS (FAST) option causes Templot0 to use all of the processor time permitted by the Windows operating system.'
     + ' This option will give the fastest response to mouse activity and keyboard keys, but your system cpu processor will be running at near 100% capacity, with consequent power consumption and heat generation.' + ' This option is not recommended for laptops and battery-powered systems.' + '||The ALLOW FULL IDLE (SLOW) option causes Templot0 to relinquish control of the cpu whenever there is no further processing to be done. This option will give a slower response to mouse activity and keyboard keys,' + ' but your system cpu processor will be running at much lower capacity, with consequent savings in power and battery life.' + ' This option is the default setting and recommended for most users.' + '||The 100% FOR MOUSE ACTIONS ONLY option is a half-way compromise setting. While a mouse action is being used the cpu will be switched to 100% usage to give the best response to the mouse movements.' + ' At all other times the cpu will be allowed to idle to conserve power.' + '||The extent to which these options vary the response time on your system will be determined by your hardware configuration and the number of other software applications and background programs which are running.' + ' On many systems there may be little difference in perceived response time between these various options.' + '||n.b. In all versions of Templot0 prior to 0.73.a the only option available was 100% ALWAYS (FAST).';
 
 begin
@@ -3972,7 +3959,8 @@ end;
 procedure Tcontrol_room_form.graphics_16_bit_limits_menu_entryClick(Sender: TObject);
 
 begin
-  max_draw_int := 16000;        //  these are actually less than 15-bit integers for drawing limits...
+  max_draw_int := 16000;
+  //  these are actually less than 15-bit integers for drawing limits...
   min_draw_int := -16000;       //  (divide 16-bit by 2 and a bit as safety margin).
 
   // 0.93.a same defaults for export limits..
@@ -3991,7 +3979,8 @@ end;
 procedure Tcontrol_room_form.graphics_24_bit_limits_menu_entryClick(Sender: TObject);
 
 begin
-  max_draw_int := 4000000;      //  these are actually less than 23-bit integers for drawing limits...
+  max_draw_int := 4000000;
+  //  these are actually less than 23-bit integers for drawing limits...
   min_draw_int := -4000000;     //  (divide 24-bit by 2 and a bit as safety margin).
 
   // 0.93.a same defaults for export limits..
@@ -4039,11 +4028,11 @@ procedure Tcontrol_room_form.graphics_limits_help_menu_entryClick(Sender: TObjec
 
 const
   limits_help_str: string = '      `0Graphics  Limits`9' +
-    '||Use these settings to select the level of graphics parameter limit checking.'
-    + ' This controls the maximum size of object which can be drawn on the screen or printed.'
-    + '||For <B>Windows NT / 2000 / XP / Vista / Windows 7</B> the recommended setting is 32-bit.'
-
-    + '||Change to the 16-bit setting if you are using an older printer and experience printing problems.'
+    '||Use these settings to select the level of graphics parameter limit checking.' +
+    ' This controls the maximum size of object which can be drawn on the screen or printed.' +
+    '||For <B>Windows NT / 2000 / XP / Vista / Windows 7</B> the recommended setting is 32-bit.'
+    +
+    '||Change to the 16-bit setting if you are using an older printer and experience printing problems.'
     + '||Change to the 24-bit setting if you are using Windows NT / 2000 with original printer drivers.'
     + '||Change to the no-limits setting if you are content to leave all parameter checking to the Windows graphics systems. This will give the fastest program response,' + ' but may cause problems and/or graphics hardware malfunctions when working at extreme zoom-in or printing very large picture shape images.' + '|<HR NOSHADE COLOR="#EE7700">' + 'For <B>Windows 95 / 98 / ME</B> the setting is fixed at 16-bit and cannot be changed. This is a limitation in Windows, not Templot0.' + ' When zooming-in on the screen and printing at high resolution you may find that you lose some drawing features (e.g. large background shapes and very long timbers).' + ' Background picture shape images may not print on full-size templates. For more information click the `0PICTURE SHAPES`1 tab on the `0print pages`3 window when it appears.' + '|<HR NOSHADE COLOR="#EE7700">' + 'To change the zoom-in limit, click the `0PROGRAM > MAX EXPLODE (ZOOM-IN)...`1 menu item.';
 
@@ -4081,8 +4070,7 @@ const
   url_str: string = 'http://templot.com/';    // 0.79.a
 
 begin
-  if not OpenURL(url_str)
-  then begin
+  if not OpenURL(url_str) then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to the Templot web site.',
       '', '', '', '', '', 'continue', 0);
@@ -4111,8 +4099,7 @@ const
   url_str: string = 'http://templot.com/companion/';    // 0.93.a
 
 begin
-  if not OpenURL(url_str)
-  then begin
+  if not OpenURL(url_str) then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to the Templot web site.',
       '', '', '', '', '', 'continue', 0);
@@ -4142,7 +4129,7 @@ const
   url_str: string = 'http://templot.com/martweb/templot_donate.htm';
 
 begin
-   if not OpenURL(url_str)  then begin
+  if not OpenURL(url_str) then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to the Templot web site.',
       '', '', '', '', '', 'continue', 0);
@@ -4156,7 +4143,7 @@ const
   url_str: string = 'http://templot.com/martweb/templot_upgrade.htm';
 
 begin
-   if not OpenURL(url_str)  then begin
+  if not OpenURL(url_str) then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to the Templot web site.',
       '', '', '', '', '', 'continue', 0);
@@ -4170,7 +4157,7 @@ const
   url_str: string = 'http://templot.com/martweb/video_list.htm';
 
 begin
-   if not OpenURL(url_str)  then begin
+  if not OpenURL(url_str) then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to the Templot web site.',
       '', '', '', '', '', 'continue', 0);
@@ -4186,7 +4173,7 @@ var
 begin
   url_str := url;  // needs to be local
 
-   if not OpenURL(url_str)  then begin
+  if not OpenURL(url_str) then begin
     alert(2, '    connection  failed',
       'Sorry, unable to open your browser window and connect to the web site.',
       '', '', '', '', '', 'continue', 0);
@@ -4349,8 +4336,8 @@ begin
   else
     res_str := '<SPAN STYLE="COLOR:#990000;"><I>Your computer screen resolution is currently 1024 pixels wide or higher, so the following notes can be disregarded.</I></SPAN>';
 
-  help(0, header_style_str1 + 'Older  Computers  -  Screen  Resolution' + header_style_str2 +
-    res_str + res_help_str, '');
+  help(0, header_style_str1 + 'Older  Computers  -  Screen  Resolution' +
+    header_style_str2 + res_str + res_help_str, '');
 
   if Screen.PixelsPerInch = 96 then
     ppi_str := '<SPAN STYLE="COLOR:#990000;"><I>Your computer screen is currently set to 96 pixels per inch.</I></SPAN>'
@@ -4359,16 +4346,16 @@ begin
       IntToStr(Screen.PixelsPerInch) +
       ' pixels per inch, so the following notes can be disregarded.</I></SPAN>';
 
-  help(0, header_style_str1 + 'Older  Computers  -  Screen  Fonts' + header_style_str2 +
-    ppi_str + ppi_help_str, '');
+  help(0, header_style_str1 + 'Older  Computers  -  Screen  Fonts' +
+    header_style_str2 + ppi_str + ppi_help_str, '');
 
   if hi_color = False then
     cols_str := '<SPAN STYLE="COLOR:#990000;"><I>Your computer screen is currently using 256 colours or fewer.</I></SPAN>'
   else
     cols_str := '<SPAN STYLE="COLOR:#990000;"><I>Your computer screen is currently using more than 256 colours, so the following notes can be disregarded.</I></SPAN>';
 
-  if help(0, header_style_str1 + 'Older  Computers  -  Screen  Colours' + header_style_str2 +
-    cols_str + col_help_str, 'try  a  different  colour  scheme') = 1 then
+  if help(0, header_style_str1 + 'Older  Computers  -  Screen  Colours' +
+    header_style_str2 + cols_str + col_help_str, 'try  a  different  colour  scheme') = 1 then
     pad_form.preset_schemes_menu_entry.Click;
 
 end;
@@ -4380,7 +4367,8 @@ procedure Tcontrol_room_form.data_panel_font_menu_entryClick(Sender: TObject);
 
 begin
   data_child_form.data_memo.Font.Assign(
-    get_font('choose  a  new  text  font  for  the data  panel', data_child_form.data_memo.Font, True));
+    get_font('choose  a  new  text  font  for  the data  panel',
+    data_child_form.data_memo.Font, True));
 end;
 //______________________________________________________________________________
 
@@ -4513,8 +4501,8 @@ procedure Tcontrol_room_form.file_viewer_help_menu_entryClick(Sender: TObject);
 
 const
   fvo_help_str: string = 'php/950      `0file  viewer  options`9' +
-    '||These options control how the screenshot images in the file viewer are generated.'
-    + '||The `0images in memory`1 option is recommended.' +
+    '||These options control how the screenshot images in the file viewer are generated.' +
+    '||The `0images in memory`1 option is recommended.' +
     '||Change to the `0images as files`1 option if your system is low on RAM memory, or you have many hundreds of .box3 files in a single folder, or you have many other programs running concurrently with Templot0.' + '||The screenshot images will then be saved as image files on the disk drive, instead of being stored in memory. Be aware that this option will cause the viewer to work more slowly.';
 
 begin
@@ -4539,9 +4527,11 @@ var
 
 begin
   putdim(popup_help_str, 0, 'template  context  menu  position  X  ( from  left )',
-    user_popup_X, False, True, False, False);   // neg ok, no preset, zero ok, don't terminate on zero.
+    user_popup_X, False, True, False, False);
+  // neg ok, no preset, zero ok, don't terminate on zero.
   n := putdim(popup_help_str, 0, 'template  context  menu  position  Y  ( from  top )',
-    user_popup_Y, False, True, False, False);   // neg ok, no preset, zero ok, don't terminate on zero.
+    user_popup_Y, False, True, False, False);
+  // neg ok, no preset, zero ok, don't terminate on zero.
 
   if n <> 1 then
     EXIT;
@@ -4558,8 +4548,8 @@ procedure Tcontrol_room_form.trackpad_position_menu_entryClick(Sender: TObject);
 
 const
   trackpad_help_str: string =
-    'Enter a screen position for the trackpad window when it is not maximized.'
-    + '||These co-ordinates are in screen dots from the top left corner of the screen: X across from the left, Y down from the top.'
+    'Enter a screen position for the trackpad window when it is not maximized.' +
+    '||These co-ordinates are in screen dots from the top left corner of the screen: X across from the left, Y down from the top.'
     + '||These co-ordinates refer to your full computer display screen for Windows, the current position of Templot0 on the screen is not relevant.' + '||Take care to enter sensible figures, otherwise the trackpad window may not be visible.';
 
 var
@@ -4576,13 +4566,16 @@ begin
 
 
   putdim(trackpad_help_str, 0, 'trackpad  window  position  X  ( from  left )',
-    pad_form.Left, False, True, False, False);   // neg ok, no preset, zero ok, don't terminate on zero.
+    pad_form.Left, False, True, False, False);
+  // neg ok, no preset, zero ok, don't terminate on zero.
   putdim(trackpad_help_str, 0, 'trackpad  window  position  Y  ( from  top )',
-    pad_form.Top, False, True, False, False);     // neg ok, no preset, zero ok, don't terminate on zero.
+    pad_form.Top, False, True, False, False);
+  // neg ok, no preset, zero ok, don't terminate on zero.
 
   putdim(trackpad_help_str, 0, 'trackpad  window  width', pad_form.Width, True, True, True, False);
   // no neg, no preset, no zero, don't terminate on zero.
-  n := putdim(trackpad_help_str, 0, 'trackpad  window  height', pad_form.Height, True, True, True, False);
+  n := putdim(trackpad_help_str, 0, 'trackpad  window  height', pad_form.Height,
+    True, True, True, False);
   // no neg, no preset, no zero, don't terminate on zero.
 
   if n <> 3 then
@@ -4708,11 +4701,12 @@ end;
 procedure Tcontrol_room_form.jpg_menu_entryClick(Sender: TObject);  // 214a
 
 const
-  jpg_help_str: string = '      `0JPG  Image  Quality`9' + '||Enter a setting between 1% and 100%'
-    + '||This setting controls the image quality when saving image files in JPG format from Templot0.'
-
-    + '||Higher settings create a better-quality image but also a larger file size.'
-    + '||The default setting is for 100% best quality.' +
+  jpg_help_str: string = '      `0JPG  Image  Quality`9' +
+    '||Enter a setting between 1% and 100%' +
+    '||This setting controls the image quality when saving image files in JPG format from Templot0.'
+    +
+    '||Higher settings create a better-quality image but also a larger file size.' +
+    '||The default setting is for 100% best quality.' +
     '||You can reduce this if you need to create a smaller file size. A setting below about 80% will cause a noticeable reduction in image quality.' + '||green_panel_begin tree.gif Generally it is better to use PNG format rather than JPG when saving image files from Templot0.' + '||In most cases PNG will create a smaller file size with 100% image quality. The JPG format is intended only for photographic images from a camera or a scanner.green_panel_end';
 
 var
@@ -4738,11 +4732,28 @@ end;
 procedure do_open_source_bang(str: string);  // OT-FIRST
 
 begin
-  ShowMessage('              ' + Application.Title + '   first release November 2019'
-    + #13 + #13 + 'The function you have selected is not available in this first release of ' +
-    Application.Title + ':' + #13 + #13 + '                ' + str + #13 + #13 + 'This release of ' +
-    Application.Title + ' is not intended for practical use.' + #13 + #13 +
-    'A full working version of Templot2 is available (free) from the templot.com web site.');
+  ShowMessage('              ' + Application.Title + '   first release November 2019' +
+    #13 + #13 + 'The function you have selected is not available in this first release of ' +
+    Application.Title + ':' + #13 + #13 + '                ' + str + #13 +
+    #13 + 'This release of ' + Application.Title + ' is not intended for practical use.' +
+    #13 + #13 + 'A full working version of Templot2 is available (free) from the templot.com web site.');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 end;
 //______________________________________________________________________________
 

@@ -20,18 +20,20 @@
   ----------------------------------------------------------------------------}
 unit TAppenderUnit;
 
-{$ifdef fpc}
-  {$mode objfpc}
-  {$h+}
-{$endif}
+{$mode delphi}
+{$h+}
 
 interface
 
 uses
-  Classes, TLevelUnit, TLayoutUnit, TLoggingEventUnit, TErrorHandlerUnit;
+  Classes,
+  Generics.Collections,
+  TLevelUnit, TLayoutUnit, TLoggingEventUnit, TErrorHandlerUnit;
 
 type
+  {$interfaces corba}
   IAppender = interface
+    ['IAppender']
     procedure DoAppend(AEvent: TLoggingEvent);
 
     function GetName(): String;
@@ -47,7 +49,7 @@ type
    Implement this abstract class with specific strategies for outputting
    log statements.
   ----------------------------------------------------------------------------}
-  TAppender = class(TInterfacedObject, IAppender)
+  TAppender = class(IAppender)
   private
   protected
     FLayout: TLayout;
@@ -74,26 +76,16 @@ type
     function RequiresLayout(): Boolean; virtual;
   end;
 
-  TAppendersCollection = class
+  TAppendersRegistry = class(TObjectDictionary<String, TAppender>)
+  end;
+
+  TAppendersList = class(TList<IAppender>)
   private
-    FItems: TInterfaceList;
-    function GetCount: Integer;
-    function Get(Index: Integer): IAppender;
-    procedure Put(Index: Integer; const Value: IAppender);
-
-    function IndexOf(const AName: String): Integer;
+    function IndexOf(const AName: String): Integer; overload;
   public
-    constructor Create;
-    destructor Destroy; override;
-
-    property Count: Integer Read GetCount;
-
-    procedure Add(AAppender: IAppender);
-    procedure Delete(const AName: String);
-    procedure Clear;
-
+    function Add(constref AAppender: IAppender): SizeInt; override;
+    procedure Delete(const AName: String); overload;
     function FindByName(const AName: String): IAppender;
-    property Items[Index: Integer]: IAppender Read Get Write Put; default;
   end;
 
 implementation
@@ -233,73 +225,38 @@ begin
   Result := False;
 end;
 
-{ TAppendersCollection }
+{ TAppendersList }
 
-procedure TAppendersCollection.Add(AAppender: IAppender);
+function TAppendersList.Add(constref AAppender: IAppender): SizeInt;
+var
+  i: Integer;
 begin
-  if FItems.IndexOf(AAppender) >= 0 then
-    Exit;
-
-  FItems.Add(AAppender);
+  i := IndexOf(AAppender);
+  if (i = -1) then
+    Result := inherited Add(AAppender)
+  else
+    Result := i;
 end;
 
-procedure TAppendersCollection.Clear;
-begin
-  FItems.Clear;
-end;
-
-constructor TAppendersCollection.Create;
-begin
-  FItems := TInterfaceList.Create;
-end;
-
-procedure TAppendersCollection.Delete(const AName: String);
+function TAppendersList.FindByName(const AName: String): IAppender;
 var
   index: Integer;
 begin
   index := IndexOf(AName);
-  if (index >= 0) then begin
-    FItems.Delete(index);
-  end;
-end;
-
-destructor TAppendersCollection.Destroy;
-begin
-  FItems.Free;
-
-  inherited;
-end;
-
-function TAppendersCollection.FindByName(const AName: String): IAppender;
-var
-  index: Integer;
-begin
-  index := IndexOf(AName);
-
   if index = -1 then begin
     Result := nil;
     Exit;
   end;
 
-  Result := IAppender(FItems[index]);
+  Result := Items[index];
 end;
 
-function TAppendersCollection.Get(Index: Integer): IAppender;
-begin
-  Result := IAppender(FItems[Index]);
-end;
-
-function TAppendersCollection.GetCount: Integer;
-begin
-  Result := FItems.Count;
-end;
-
-function TAppendersCollection.IndexOf(const AName: String): Integer;
+function TAppendersList.IndexOf(const AName: String): Integer;
 var
   i: Integer;
 begin
-  for i := 0 to FItems.Count - 1 do begin
-    if not SameText(IAppender(FItems[i]).GetName, AName) then
+  for i := 0 to Count - 1 do begin
+    if not SameText(Items[i].GetName, AName) then
       continue;
 
     Result := i;
@@ -309,14 +266,13 @@ begin
   Result := -1;
 end;
 
-procedure TAppendersCollection.Put(Index: Integer; const Value: IAppender);
+procedure TAppendersList.Delete(const AName: String);
+var
+  i: Integer;
 begin
-  FItems[Index] := Value;
-
-
-
-
-
+  i := IndexOf(AName);
+  if i <> -1 then
+    Delete(i);
 end;
 
 end.

@@ -21,10 +21,8 @@
   ----------------------------------------------------------------------------}
 unit TPropertyConfiguratorUnit;
 
-{$ifdef fpc}
-  {$mode objfpc}
-  {$h+}
-{$endif}
+{$mode delphi}
+{$h+}
 
 interface
 
@@ -44,10 +42,19 @@ const
   THRESHOLD_PREFIX = 'threshold';
 
 const
+  DEFAULT_APPENDER_PREFIX = 'defaultAppender';
+
+const
   DEBUG_KEY = 'debug';
 
-procedure DoConfigure(const AFilename: String); overload;
-procedure DoConfigure(const AProps: TProperties); overload;
+type
+  PropertyConfigurator = class
+  public
+    class procedure DoConfigure(const AFilename: String); overload;
+    class procedure DoConfigure(const AProps: TProperties); overload;
+    class procedure FreeAppenders;
+  end;
+
 
 implementation
 
@@ -59,9 +66,9 @@ uses
   THTMLLayoutUnit, TXMLLayoutUnit, TPatternLayoutUnit, TRollingFileAppenderUnit;
 
 var
-  registry: TAppendersCollection;
+  registry: TAppendersRegistry;
 
-function InstantiateAppender(AName: String; AProps: TProperties; APrefix: String): IAppender;
+function InstantiateAppender(AName: String; AProps: TProperties; APrefix: String): TAppender;
 var
   appender: TAppender;
   tmp: String;
@@ -146,13 +153,16 @@ end;
 
 function ParseAppender(AProps: TProperties; AName: String): IAppender;
 var
-  appender: IAppender;
+  appender: TAppender;
   layout: TLayout;
   prefix: String;
   layoutPrefix: String;
 begin
-  appender := registry.FindByName(AName);
-  if (appender <> nil) then begin
+  if (AName = '') then begin
+    Result := nil;
+    exit;
+  end;
+  if registry.TryGetValue(AName, appender) then begin
     Result := appender;
     exit;
   end;
@@ -175,7 +185,7 @@ begin
   end;
 
   TLogLog.debug('Parsed "' + AName + '" options.');
-  registry.Add(appender);
+  registry.Add(AName, appender);
   Result := appender;
 end;
 
@@ -198,8 +208,11 @@ begin
       ALogger.setLevel(TLevelUnit.toLevel(levelStr));
     TLogLog.info('Category ' + ALoggerName + ' set to ' + ALogger.getLevel().toString);
   end;
-  ALogger.removeAllAppenders;
-  while (tokenizer.HasMoreTokens) do begin
+  if tokenizer.HasMoreTokens then begin
+    // if there are any appenders specified, then clear out the default appender
+    ALogger.removeAllAppenders;
+  end;
+  while tokenizer.HasMoreTokens do begin
     appenderName := Trim(tokenizer.NextToken);
     if ((appenderName <> '') and (appenderName <> ',')) then begin
       TLogLog.debug('Parsing appender named "' + appenderName + '".');
@@ -248,23 +261,29 @@ begin
   end;
 end;
 
-procedure DoConfigure(const AProps: TProperties);
+class procedure PropertyConfigurator.DoConfigure(const AProps: TProperties);
 var
   Value: String;
+  appender: IAppender;
 begin
-  registry := TAppendersCollection.Create;
+  registry := TAppendersRegistry.Create;
   Value := AProps.GetProperty(DEBUG_KEY);
   if (CompareText(Value, 'true') = 0) then
     TlogLogUnit.Initialize(GetCurrentDir + '\log4delphi.log');
   Value := AProps.GetProperty(THRESHOLD_PREFIX);
-  Logger.setDefaultThreshold(TLevelUnit.toLevel(Value));
+  Logger.SetDefaultThreshold(TLevelUnit.toLevel(Value));
+  Value := AProps.GetProperty(DEFAULT_APPENDER_PREFIX);
+  appender := parseAppender(AProps, Value);
+  if (appender <> nil) then begin
+    Logger.SetDefaultAppender(appender);
+  end;
+
   ConfigureRootLogger(AProps);
   ParseLoggers(AProps);
-  registry.Free;
   TLogLog.debug('Finished configuring.');
 end;
 
-procedure DoConfigure(const AFilename: String);
+class procedure PropertyConfigurator.DoConfigure(const AFilename: String);
 var
   props: TProperties;
   fin: TFileStream;
@@ -284,6 +303,11 @@ begin
     end;
   end;
   props.Free;
+end;
+
+class procedure PropertyConfigurator.FreeAppenders;
+begin
+  registry.Free;
 end;
 
 end.
