@@ -21,6 +21,8 @@ I have a list of things still to do, including:
  o and lots of etc
 
 }
+
+{ }
 unit pdf_unit;
 
 {$MODE Delphi}
@@ -98,13 +100,14 @@ type
     procedure detail_mode_radiobuttonClick(Sender: TObject);
     procedure diagram_mode_radiobuttonClick(Sender: TObject);
     procedure include_sketchboard_items_checkboxClick(Sender: TObject);
-  private
+  //private
     { Private declarations }
-  public
+  //public
     { Public declarations }
   end;
 
 var
+  { The single instance of Tpdfform }
   pdf_form: Tpdf_form;
 
   //________________________
@@ -122,7 +125,8 @@ var
   pdf_black_white: boolean = False;
   pdf_grey_shade: boolean = False;
 
-procedure pdf_draw;     // draw control template or entire pad on the output
+// Draws control template or entire pad on the output
+procedure pdf_draw;
 
 //___________________________________________________________________________________________
 
@@ -508,9 +512,8 @@ var
   file_str: string;       // including path
 
 begin
-  file_str := Config.FilePath(cudiData,
-           'PDF-PAGEMAP-RECORD-FILES\pdf_pagemap' +
-           FormatDateTime('_yyyy_mm_dd_hhmm_ss', Date + Time) + '.png');
+  file_str := Config.MakeFilePath(cudiPDFPagemaps,
+           'pdf_pagemap' + FormatDateTime('_yyyy_mm_dd_hhmm_ss', Date + Time) + '.png');
 
   create_png :={TPNGObject}TPortableNetworkGraphic.Create;
   try

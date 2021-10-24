@@ -23,6 +23,7 @@
 ====================================================================================
 *)
 
+{ }
 unit info_unit;
 
 {$MODE Delphi}
@@ -325,7 +326,7 @@ var
   s: string;
 
 begin
-  save_dialog.Filename := Config.FilePath(cudiData, Copy(Trim(remove_invalid_str(current_name_str)),
+  save_dialog.Filename := Config.MakeFilePath(cudiData, Copy(Trim(remove_invalid_str(current_name_str)),
     1, 20){+remove_invalid_str(suffix_str)} + '.txt');
   save_dialog.Filter := 'text files (*.txt)|*.txt';
   if save_dialog.Execute = True then begin

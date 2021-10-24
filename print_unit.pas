@@ -23,6 +23,7 @@
 ====================================================================================
 *)
 
+{ }
 unit print_unit;
 
 {$MODE Delphi}
@@ -467,7 +468,7 @@ var
   file_str: string;       // including path
 
 begin
-  file_str := Config.FilePath(cudiPrintPreviews,
+  file_str := Config.MakeFilePath(cudiPrintPreviews,
     FormatDateTime('_yyyy_mm_dd_hhmm_ss', Date + Time) + '.png');
 
   { OT-FIRST create_png:=TPNGObject.Create;}

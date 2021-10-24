@@ -23,7 +23,7 @@
 ====================================================================================
 *)
 
-
+{ }
 unit prefs_unit;
 
 {$MODE Delphi}
@@ -154,7 +154,7 @@ begin
     + Config.GetDir(cudiData) + '</SPAN>';  // program folder, in keys style.
 
   help_str := StringReplace(help_str, '~~~2', file_loc_str, [rfIgnoreCase]);
-  help_str := StringReplace(help_str, '~~~3', Config.FilePath(csdiHelp, 'saved_prefs.png'), [rfIgnoreCase]);
+  help_str := StringReplace(help_str, '~~~3', Config.GetFilePath(csfiSavedPrefs), [rfIgnoreCase]);
 
   if control_room_form.prefs_include_gen_settings_menu_entry.Checked = True then
     help_str := StringReplace(help_str, '~~~4', '<B><I>included</I></B>', [rfIgnoreCase])
@@ -203,23 +203,23 @@ begin
 
   // get the prefs file name from the pointer file...
 
-  if not FileExists(Config.FilePath(cudiData, prefs_pointer_str))  // no pointer file
+  if not FileExists(Config.MakeFilePath(cudiData, prefs_pointer_str))  // no pointer file
   then begin                                      // so create it
     try
-      AssignFile(prefs_txt, Config.FilePath(cudiData, prefs_pointer_str)); // set the file name.
+      AssignFile(prefs_txt, Config.MakeFilePath(cudiData, prefs_pointer_str)); // set the file name.
       Rewrite(prefs_txt);                              // open a new file.
       WriteLn(prefs_txt, prefs_file_str);
       // write the file data -- default prefs file name
       WriteLn(prefs_txt, 'Do not edit or delete this file.');
       CloseFile(prefs_txt);                            // and close the file.
     except
-      DeleteFile(Config.FilePath(cudiData, prefs_pointer_str));
+      DeleteFile(Config.MakeFilePath(cudiData, prefs_pointer_str));
       show_modal_message('File error. Unable to create preferences files.');
     end;//try
   end
   else begin    // pointer file exists, get the required prefs file
     try
-      AssignFile(prefs_txt, Config.FilePath(cudiData, prefs_pointer_str));
+      AssignFile(prefs_txt, Config.MakeFilePath(cudiData, prefs_pointer_str));
       Reset(prefs_txt);
       ReadLn(prefs_txt, prefs_file_str);   // Read the first line out of the file
       CloseFile(prefs_txt);
@@ -465,11 +465,6 @@ begin
     Values['05-32b'] := IntToStr(integer(control_room_form.allow_full_idle_menu_entry.Checked));
     // allow_idle = True
 
-    Values['05-40b'] := IntToStr(integer(control_room_form.xp_menus_menu_entry.Checked));
-    // XP   style menus
-    Values['05-41b'] := IntToStr(integer(control_room_form.win7_menus_menu_entry.Checked));
-    // Win7 style menus
-
     Values['05-50i'] := IntToStr(action_form.ClientHeight);      // 215b
 
 
@@ -645,7 +640,7 @@ begin
 
   if user_prefs_list.Count > 0 then begin
     try
-      save_str := Config.FilePath(cudiData, prefs_file_str + '.sk1');
+      save_str := Config.MakeFilePath(cudiData, prefs_file_str + '.sk1');
       user_prefs_list.SaveToFile(save_str);
       prefs_available := True;
       user_prefs_in_use := True;    // added 207a
@@ -841,7 +836,7 @@ begin
       prefs_file_str := get_prefs_file_name;  // get his existing preferences file...
 
     try
-      user_prefs_list.LoadFromFile(Config.FilePath(cudiData, prefs_file_str + '.sk1'));
+      user_prefs_list.LoadFromFile(Config.MakeFilePath(cudiData, prefs_file_str + '.sk1'));
     except
       user_prefs_list.Clear;
       user_prefs_in_use := False;
@@ -1063,15 +1058,6 @@ begin
       with control_room_form.allow_full_idle_menu_entry do
         Checked := get_pref_bool('05-32b', Checked);
       allow_idle := not control_room_form.fast_100_menu_entry.Checked;
-
-      with control_room_form do begin
-        if get_pref_bool('05-40b', xp_menus_menu_entry.Checked) <>
-          xp_menus_menu_entry.Checked then
-          xp_menus_menu_entry.Click;
-        if get_pref_bool('05-41b', win7_menus_menu_entry.Checked) <>
-          win7_menus_menu_entry.Checked then
-          win7_menus_menu_entry.Click;
-      end;
 
       action_form.ClientHeight := get_pref_int('05-50i', action_form.ClientHeight);
       // 215b
@@ -1386,14 +1372,14 @@ var
 
 begin
   try
-    AssignFile(prefs_txt, Config.FilePath(cudiData, prefs_pointer_str)); // set the file name.
+    AssignFile(prefs_txt, Config.MakeFilePath(cudiData, prefs_pointer_str)); // set the file name.
     Rewrite(prefs_txt);                              // reopen file.
     WriteLn(prefs_txt, prefs_file_str);               // write the file data -- new prefs file name
     WriteLn(prefs_txt, 'Do not edit or delete this file.');
     CloseFile(prefs_txt);                            // and close the file.
   except
     on EInOutError do
-      DeleteFile(Config.FilePath(cudiData, prefs_pointer_str));
+      DeleteFile(Config.MakeFilePath(cudiData, prefs_pointer_str));
   end;//try
 end;
 //______________________________________________________________________________
@@ -1402,8 +1388,8 @@ end;
 procedure abandon_prefs(show_dialog: boolean);
 
 begin
-  if FileExists(Config.FilePath(cudiData, prefs_pointer_str)) then begin
-    DeleteFile(Config.FilePath(cudiData, prefs_pointer_str));
+  if FileExists(Config.MakeFilePath(cudiData, prefs_pointer_str)) then begin
+    DeleteFile(Config.MakeFilePath(cudiData, prefs_pointer_str));
     show_modal_message('Your saved preferences have been abandoned.');
   end
   else
@@ -1561,13 +1547,13 @@ begin
     EXIT;
   end;
 
-  if FileExists(Config.FilePath(cudiData, str + '.sk1')) then begin
+  if FileExists(Config.MakeFilePath(cudiData, str + '.sk1')) then begin
     if alert(7, '      delete  program  preferences ?',
       '||You are about to delete your saved program preferences in file: ' +
       str + '||OK?| ', '', '', '', '',
       'no  -  cancel', 'yes  -  delete  preferences  file  ' + str + '  ', 0) = 5 then
       EXIT;
-    DeleteFile(Config.FilePath(cudiData, str + '.sk1'));
+    DeleteFile(Config.MakeFilePath(cudiData, str + '.sk1'));
     prefs_form.file_list_box.Update;
     prefs_form.file_list_box.FileName := get_prefs_file_name + '.sk1';
     // re-select existing prefs file (otherwise FileName returns empty on OK).
@@ -1631,7 +1617,7 @@ begin
 
       end;//next
 
-      SaveToFile(Config.FilePath(cudiData, 'cgs.cgs'));
+      SaveToFile(Config.GetFilePath(csfiCGS));
     end;//with
 
   finally
@@ -1693,7 +1679,7 @@ var
   cgs_list: TStringList;
 
 begin
-  if not FileExists(Config.FilePath(cudiData, 'cgs.cgs')) then
+  if not FileExists(Config.GetFilePath(csfiCGS)) then
     EXIT;
 
   cgs_list := TStringList.Create;
@@ -1703,7 +1689,7 @@ begin
 
       Clear;  // init
 
-      LoadFromFile(Config.FilePath(cudiData, 'cgs.cgs'));
+      LoadFromFile(Config.GetFilePath(csfiCGS));
 
       for n := 0 to 3 do begin    // custom A to D ...
 

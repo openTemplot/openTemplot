@@ -23,6 +23,7 @@
 ====================================================================================
 *)
 
+{ }
 unit control_room;
 
 {$MODE Delphi}
@@ -189,12 +190,6 @@ type
     N24: TMenuItem;
     wraphelp1: TMenuItem;
     labelshelp1: TMenuItem;
-    menu_kludge_image: TImage;
-    menustyle1: TMenuItem;
-    xp_menus_menu_entry: TMenuItem;
-    win7_menus_menu_entry: TMenuItem;
-    N26: TMenuItem;
-    menu_style_help_menu_entry: TMenuItem;
     make_donation_menu_entry: TMenuItem;
     N25: TMenuItem;
     first_time_here_label: TLabel;
@@ -317,8 +312,6 @@ type
     procedure older_computers_menu_entryClick(Sender: TObject);
     procedure data_panel_font_menu_entryClick(Sender: TObject);
     procedure exports_menu_entryClick(Sender: TObject);
-    procedure xp_menus_menu_entryClick(Sender: TObject);
-    procedure win7_menus_menu_entryClick(Sender: TObject);
     procedure make_donation_menu_entryClick(Sender: TObject);
     procedure classic_templot_mode_menu_entryClick(Sender: TObject);
     procedure make_on_click_mode_menu_entryClick(Sender: TObject);
@@ -606,8 +599,6 @@ var
   running_under_wine: boolean = False;  // 205a
   arial_str: string = 'Arial';          // 205a modified for Wine
 
-  win7_menu_style: boolean = False; // 206b
-
   using_native_colours: boolean = False;   // 212a
 
   current_scaling_position: integer = 4;        // 214c    4=medium
@@ -707,7 +698,7 @@ var
 
   closing_flag: boolean;
 
-  // OT-FIRST wait_internet_form:Told_startup_form;  // 205c
+  // OT-FIRST wait_internet_form:Tstartup_form;  // 205c
 
   open_button_clicked: boolean = False;     // 205d
 
@@ -1589,15 +1580,9 @@ begin
 
   open_button_clicked := True;
 
-  reminder_file_path := Config.FilePath(csdiBackup, 'reminder.txt');
+  reminder_file_path := Config.GetFilePath(csfiReminder);
 
   BorderIcons := [];  // 205c prevent him clicking X, wanting only to hide splash, not quit.
-
-  { OT-FIRST
-  if DirectoryExists('C:\Windows\ImmersiveControlPanel')=True      // 212a we are in Windows 8 or later.
-     then win7_menus_menu_entry.Click;                             // default to the latest menu style instead of XP style
-  }
-
 
   // 205c in case Enter key held down ...
 
@@ -1616,10 +1601,10 @@ begin
 
   Hide;  // hide the form until ready
 
-  ebk1_str := Config.FilePath(csdiBackup, 'ebk1.ebk'); // 1st emergency backup file.
-  ebk2_str := Config.FilePath(csdiBackup, 'ebk2.ebk'); // 2nd emergency backup file.
-  pb_str := Config.FilePath(csdiBackup, 'pb.ebk');     // copied backup file
-  pbo_str := Config.FilePath(csdiBackup, 'pbo.ebk');   // copied backup file
+  ebk1_str := Config.GetFilePath(csfiBackup1); // 1st emergency backup file.
+  ebk2_str := Config.GetFilePath(csfiBackup2); // 2nd emergency backup file.
+  pb_str := Config.GetFilePath(csfiCopy1);     // copied backup file
+  pbo_str := Config.GetFilePath(csfiCopy2);    // copied backup file
 
   html_path_str := Config.GetDir(csdiHelp);         // for html viewer / local browser.
 
@@ -2004,14 +1989,14 @@ begin
 
   // 206b if nothing loaded, load the default files...
 
-  default_file_str := Config.FilePath(cudiBoxes, 'start.box3');
+  default_file_str := Config.GetFilePath(csfiStartBox);
 
   if (gauge_i = t_T55_i) and (keeps_list.Count < 1) and (FileExists(default_file_str) = True)
   // T-55 startup check in case box is empty after reloading file having control template only.
   then
     reload_specified_file(False, False, default_file_str);
 
-  default_file_str := Config.FilePath(cudiShapes, 'start.bgs3');
+  default_file_str := Config.GetFilePath(csfiStartBgnd);
 
   if (bgnd_form.bgnd_shapes_listbox.Items.Count < 1) and (FileExists(default_file_str) = True) then
     load_shapes(default_file_str, False, False, False);
@@ -2194,21 +2179,21 @@ procedure Tcontrol_room_form.about_templot_version_menu_entryClick(Sender: TObje
 
 var
   about_str: string;
-  logo_img_str: string;    // OT-FIRST
+  logo_img_path: string;
 
 begin
 
-  if Application.Title = 'TemplotMEC'       // OT-FIRST
+  if Application.Title = 'TemplotMEC'
   then
-    logo_img_str := 'tm_logo.bmp'
+    logo_img_path := Config.GetFilePath(csfiTMlogo)
   else
   if Application.Title = 'OpenTemplot' then
-    logo_img_str := 'ot_logo.bmp'
+    logo_img_path := Config.GetFilePath(csfiOTlogo)
   else
-    logo_img_str := 't3_logo.bmp';
+    logo_img_path := Config.GetFilePath(csfiT3logo);
 
   about_str := '<P STYLE="text-align:center; margin-top:20px;"><IMG SRC="' +
-    Config.FilePath(csdiHelp, logo_img_str) + '"></P>' +
+    logo_img_path + '"></P>' +
     '<P STYLE="text-align:center; margin-top:20px; color:blue; font-family:''Trebuchet MS''; font-size:19px; font-weight:bold; font-style:italic;">precision track design for model railways</P>' + '<P STYLE="text-align:center; margin-top:20px; margin-bottom:20px; color:#dd6600; font-size:16px; font-weight:bold;">track &nbsp;plan &nbsp;design&nbsp; &nbsp; • &nbsp; &nbsp;precision &nbsp;construction &nbsp;templates</P>' + '<HR NOSHADE>' + '<P CLASS="mainheading" STYLE="text-align:center; font-size:20px; color:#0077DD;">' + Application.Title + ' &nbsp;Version &nbsp;' + GetVersionString(voFull) + '</P>' + '<P CLASS="centerbold"><A HREF="go_to_templot_com.85a">templot • com</A></P>' + '<P CLASS="center"><SPAN STYLE="font-size:12px; color:#555555;">&copy; 2018 &nbsp;released under open-source licence: GNU/GPLv3+<br>program from: &nbsp;https://sourceforge.net/projects/opentemplot/<br>' + 'licence at: https://www.gnu.org/licenses/<br></SPAN></P>' + '<P STYLE="font-size:12px; color:#555555;">' + licence_str + '</P>';
 
   no_new_help_sizes := True;      // don't change the user's default sizes.
@@ -2269,19 +2254,17 @@ begin
       if CanClose = True then begin
         with jotter_form.jotter_memo.Lines do begin
           if Count > 0 then
-            SaveToFile(Config.FilePath(csdiBackup, 'jotbak.txt'));  // jotter text for restore.
+            SaveToFile(Config.GetFilePath(csfiJotterBkp));  // jotter text for restore.
         end;//with
 
         with boxmru_list do begin
           if Count > 0 then
-            SaveToFile(Config.FilePath(csdiBackup, 'boxmru.txt'));
-          // 0.82.a 22-08-06 mru list for box files restore.
+            SaveToFile(Config.GetFilePath(csfiBoxMRU));   // 0.82.a 22-08-06 mru list for box files restore.
         end;//with
 
         with bgsmru_list do begin
           if Count > 0 then
-            SaveToFile(Config.FilePath(csdiBackup, 'bgsmru.txt'));
-          // 0.82.a 22-08-06 mru list for bgs files restore.
+            SaveToFile(Config.GetFilePath(csfiBgndMRU));   // 0.82.a 22-08-06 mru list for bgs files restore.
         end;//with
 
         save_custom_gauges;
@@ -3776,7 +3759,8 @@ begin
 
   // 0.91.d pref_options...
 
-  prefs_existed_on_startup := FileExists(ExtractFilePath(Application.ExeName) + prefs_pointer_str);
+  //prefs_existed_on_startup := FileExists(ExtractFilePath(Application.ExeName) + prefs_pointer_str);
+  prefs_existed_on_startup := FileExists(Config.GetFilePath(csfiPrefsPointer));
   prefs_available := prefs_existed_on_startup;
 
   if prefs_existed_on_startup = True then begin
@@ -4384,32 +4368,6 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure Tcontrol_room_form.xp_menus_menu_entryClick(Sender: TObject);   // 0.95.a
-
-begin
-  do_open_source_bang('MENU OPTIONS');  // OT-FIRST
-  { OT-FIRST
-  xp_menus_menu_entry.Checked:=True;  // radio item
-  set_menu_style(False);              // in startup unit
-
-  win7_menu_style:=False;
-  }
-end;
-//______________________________________________________________________________
-
-procedure Tcontrol_room_form.win7_menus_menu_entryClick(Sender: TObject);   // 0.95.a
-
-begin
-  do_open_source_bang('MENU OPTIONS');  // OT-FIRST
-  { OT-FIRST
-  win7_menus_menu_entry.Checked:=True;  // radio item
-  set_menu_style(True);                 // in startup unit
-
-  win7_menu_style:=True;
-  }
-end;
-//______________________________________________________________________________
-
 procedure Tcontrol_room_form.make_donation_menu_entryClick(Sender: TObject);
 
 begin
@@ -4672,7 +4630,7 @@ begin
     EXIT;
   end;
 
-  folder_str := folder_str + '\';
+  folder_str := folder_str + PathDelim;
 
   if not OpenDocument(folder_str) then
     ShowMessage('Sorry, unable to open the folder.')
@@ -4694,7 +4652,7 @@ begin
     EXIT;
   end;
 
-  folder_str := folder_str + '\';
+  folder_str := folder_str + PathDelim;
 
   if not OpenDocument(folder_str) then
     ShowMessage('Sorry, unable to open the folder.')

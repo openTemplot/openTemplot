@@ -23,6 +23,7 @@
 ====================================================================================
 *)
 
+{ }
 unit keep_select;
 
 {$MODE Delphi}
@@ -2460,7 +2461,7 @@ begin
 
           case which_ones of
             -1: begin                             // echo one only
-              box_str := Config.FilePath(cudiBoxes, 'e071.bex');
+              box_str := Config.GetFilePath(csfiE071Box);
               // echo goes in the folder we started in.
             end;
 
@@ -5756,7 +5757,7 @@ var
 
 begin
   if (keeps_list.Count > 0) and (save_for_undo = True) then begin
-    sfu_str := Config.FilePath(csdiBackup, 'sfu.ebk');
+    sfu_str := Config.GetFilePath(csfiSaveForUndo);
     DeleteFile(sfu_str);        // delete any previous undo file.
     save_box(0, 0, 0, sfu_str);    // save existing contents for possible undo later.
   end;
@@ -6052,7 +6053,7 @@ begin
 
   export_list := TStringList.Create;
   export_list.Text := html_str;
-  export_list.SaveToFile(Config.FilePath(cudiPdfs, 'box_list.html'));
+  export_list.SaveToFile(Config.GetFilePath(csfiBoxListH));
   export_list.Free;
 
   keep_html_view.DefFontColor := printer_text_font.Color;  // 208b
@@ -8626,8 +8627,8 @@ begin
 
   // 208d bug fix - can't use exe_str because not yet initialised
 
-  if FileExists(ExtractFilePath(Application.ExeName) + 'boxmru.txt') then
-    boxmru_list.LoadFromFile(ExtractFilePath(Application.ExeName) + 'boxmru.txt')
+  if FileExists(Config.GetFilePath(csfiBoxMRU)) then
+    boxmru_list.LoadFromFile(Config.GetFilePath(csfiBoxMRU))
   else
     empty_boxmru;
 
@@ -10347,7 +10348,7 @@ var
   clear_str: string;
 
 begin
-  if FileExists(Config.FilePath(csdiBackup,'sfu.ebk')) or FileExists(Config.FilePath(csdiBackup, 'sfz.ebk'))
+  if FileExists(Config.GetFilePath(csfiSaveForUndo)) or FileExists(Config.GetFilePath(csfiSaveForUndoZ))
   // original or a preserved copy.
   then begin
     if no_undo_clear_msg_pref = False then begin
@@ -10366,20 +10367,20 @@ begin
         EXIT;
     end;
 
-    if FileExists(Config.FilePath(csdiBackup, 'sfu.ebk')) // original undo file exists
+    if FileExists(Config.GetFilePath(csfiSaveForUndo)) // original undo file exists
     then begin
-      DeleteFile(Config.FilePath(csdiBackup, 'sfz.ebk'));
+      DeleteFile(Config.GetFilePath(csfiSaveForUndoZ));
       // delete any preserved copy of the previous undo file.
-      RenameFile(Config.FilePath(csdiBackup,'sfu.ebk'), Config.FilePath(csdiBackup, 'sfz.ebk'));
+      RenameFile(Config.GetFilePath(csfiSaveForUndo), Config.GetFilePath(csfiSaveForUndoZ));
       // preserve the undo file by renaming.
     end;
 
-    if FileExists(Config.FilePath(csdiBackup, 'sfz.ebk'))
+    if FileExists(Config.GetFilePath(csfiSaveForUndoZ))
     // preserved copy (a new undo file is created on reload).
     then begin
       append := False;
       // var parameter.
-      if not load_storage_box(True, False, Config.FilePath(csdiBackup, 'sfz.ebk'),
+      if not load_storage_box(True, False, Config.GetFilePath(csfiSaveForUndoZ),
          False, False, append, hl) then
         EXIT;     // nothing was loaded.
 

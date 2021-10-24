@@ -51,7 +51,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="87">
+    <Units Count="88">
       <Unit0>
         <Filename Value="templotmec.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -171,7 +171,7 @@
       <Unit19>
         <Filename Value="startup_unit.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="old_startup_form"/>
+        <ComponentName Value="startup_form"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit19>
@@ -512,6 +512,10 @@
         <Filename Value="log4delphi\util\TStringUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit86>
+      <Unit87>
+        <Filename Value="helpers.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit87>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

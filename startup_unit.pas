@@ -23,6 +23,7 @@
 ====================================================================================
 *)
 
+{ }
 unit startup_unit;
 
 {$MODE Delphi}
@@ -40,9 +41,9 @@ uses
 
 type
 
-  { Told_startup_form }
+  { Tstartup_form }
 
-  Told_startup_form = class(TForm)
+  Tstartup_form = class(TForm)
     starting_text_static: TStaticText;
     version_label: TLabel;
     procedure FormCreate(Sender: TObject);
@@ -53,7 +54,7 @@ type
   end;
 
 var
-  old_startup_form: Told_startup_form;
+  startup_form: Tstartup_form;
 
   global_factor: double = 1.0;
 
@@ -64,9 +65,7 @@ var
   procedure abandon_if_existing_instance;
 
   procedure force_printer_to_init;    // 0.93.a
-
-  procedure set_menu_style(win7:boolean);    // 0.95.a
-  }
+}
 
 
 procedure do_dpi_aware_scaling(scaling_size: integer);   // 211b
@@ -78,7 +77,7 @@ implementation
 
 uses
   Registry, styleun, control_room, pad_unit, alert_unit, help_sheet, panning_unit,
-  mint_unit, info_unit, { OT-FIRST dtp_unit,} entry_sheet,
+  config_unit, mint_unit, info_unit, { OT-FIRST dtp_unit,} entry_sheet,
   { OT-FIRST file_viewer,} gauge_unit, bgnd_unit,
   { OT-FIRST sb_rvf_unit, sb_rvf_outer_unit, edit_outline_unit, dtp_settings_unit,} keep_select,
   { OT-FIRST web_browser_unit,}
@@ -187,63 +186,17 @@ end;
 }
 //______________________________________________________________________________
 
-procedure Told_startup_form.FormCreate(Sender: TObject);
+procedure Tstartup_form.FormCreate(Sender: TObject);
 
 begin
-  // OT-FIRST ClientWidth:=616;
-  // OT-FIRST ClientHeight:=150;
+  ClientWidth:=616;
+  ClientHeight:=150;
 
   version_label.Caption := GetVersionString(voFull);
 
   // OT-FIRST if Screen.PixelsPerInch>120 then ScaleBy(4,3);  // 211b
 
 end;
-//______________________________________________________________________________
-
-{ OT-FIRST
-
-procedure set_menu_style(win7:boolean);    // 0.95.a
-
-var
-  i,j:integer;
-  temp_comp_i,temp_comp_j:TComponent;
-
-begin
-
-      // 0.95.a  add a dummy image to any line menu items. This causes the whole menu to display selected items in XP style inverse video (Windows 7 kludge).
-
-  for j:=Application.ComponentCount-1 downto 0 do begin
-
-    temp_comp_j:=Application.Components[j];
-
-    if (temp_comp_j is TForm)
-
-      then begin
-
-             for i:=temp_comp_j.ComponentCount-1 downto 0 do begin
-
-               temp_comp_i:=temp_comp_j.Components[i];
-
-               if (temp_comp_i is TMenuItem)
-                  then begin
-                         if  (TMenuItem(temp_comp_i).Caption='-')
-                         and (TMenuItem(temp_comp_i).Parent<>pad_form.set_peg_position_menu_entry)   // D5 bug fix, apparently not needed if menu contains a break
-                            then begin
-                                   if win7=True
-                                      then TMenuItem(temp_comp_i).Bitmap:=nil
-                                      else TMenuItem(temp_comp_i).Bitmap:=control_room_form.menu_kludge_image.Picture.Bitmap;
-                                 end;
-                       end;
-
-
-             end;//next i
-
-           end;
-
-  end;//next j
-end;
-
-}
 //______________________________________________________________________________
 
 procedure do_dpi_aware_scaling(scaling_size: integer);   // 211b
@@ -284,7 +237,7 @@ begin
 
     scaling_size := 4;  // init normal medium program size
 
-    sz_str := ExtractFilePath(Application.ExeName) + 'internal\dpi\sz.szx';
+    sz_str := Config.GetFilePath(csfiScaling);
 
     if FileExists(sz_str) then begin
       sz_list := TStringList.Create;

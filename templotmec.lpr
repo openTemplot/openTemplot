@@ -60,7 +60,7 @@ uses
   colour_unit in 'colour_unit.pas' {colour_form},
   calibration_unit in 'calibration_unit.pas' {calibration_form},
   plain_track_unit in 'plain_track_unit.pas' {plain_track_form},
-  startup_unit in 'startup_unit.pas' {old_startup_form},
+  startup_unit in 'startup_unit.pas' {startup_form},
   dxf_unit in 'dxf_unit.pas' {dxf_form},
   bgnd_unit in 'bgnd_unit.pas' {bgnd_form},
   bgkeeps_unit in 'bgkeeps_unit.pas' {bgkeeps_form},
@@ -100,8 +100,6 @@ uses
   file_viewer in 'file_viewer.pas' {file_viewer_form},
   TLoggerUnit in 'TLoggerUnit.pas',
 
-
-
   printer4lazarus,
 
   TConfiguratorUnit in 'TConfiguratorUnit.pas';
@@ -121,11 +119,18 @@ begin
 
   Application.Scaled:=False;
 
+  Config.Init();                                      // Read the configuration
+  LoggerConfigurator.doIniConfiguration(Config.IniFileName, 'Logging');
+
+  log := Logger.GetInstance;
+  log.Info('*************** Program Start ******************');
+
+
   WriteLn(' '+#13+#10+'    DO NOT CLOSE THIS WINDOW        IT CAN BE MINIMIZED');
 
   WriteLn(#13+#10+#13+#10+'    Welcome to '+Application.Title+#13+#10+#13+#10);
 
-  rem_file_str:=ExtractFilePath(Application.ExeName)+'reminder.txt';
+  rem_file_str := Config.GetFilePath(csfiReminder);
 
   if FileExists(rem_file_str)=True
      then begin
@@ -147,22 +152,14 @@ begin
   force_printer_to_init;              // 0.93.a in the startup unit.
   }
 
-  //old_startup_form:=Told_startup_form.Create(nil);  // splash startup  24-2-99
-  //old_startup_form.Show;                            // splash startup  24-2-99
+  //startup_form:=Tstartup_form.Create(nil);  // splash startup  24-2-99
+  //startup_form.Show;                            // splash startup  24-2-99
 
   Application.Initialize;
 
-  Config.Init();                                      // Read the configuration
-  LoggerConfigurator.doIniConfiguration(Config.IniFileName, 'Logging');
-
-  log := Logger.GetInstance;
-  log.Info('*************** Program Start ******************');
-
-  { TODO : Check this is the right place to insert the config initialisation.
-    Do we have everything we need? }
 
   { OT-FIRST
-  with Told_startup_form.Create(nil) do
+  with Tstartup_form.Create(nil) do
   try
     Show;   // show splash screen
     Update; // force display of form
@@ -252,8 +249,6 @@ begin
     Free;
   end;
 }
-
-  { OT-FIRST set_menu_style(False);    // modify all menus to XP style  // 0.95.a  in startup unit}
 
   detect_wine;   // 205a in startup unit
 

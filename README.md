@@ -21,11 +21,17 @@ In no particular order, the goals for this fork are:
 ## Tools
 
 Tools used in this project are:
-* Lazarus, v2.0.10 (either Win32 or Win64), plus required packages:
+* Lazarus, v2.0.10 (either Win32 or Win64)
+* Lazarus packages (through Install/Uninstall Packages):
+  * lazprojectgroups
+* Lazarus packages via Online Package Manager:
   * HTMLViewer
+  * PowerPDF
+  * VirtualTreeView  
 * AsciiDoctor, plus extensions:
   * AsciiDoctor Diagram
   * AsciiDoctor PDF
+* PasDoc
   
 ## Git Conventions
 

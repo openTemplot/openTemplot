@@ -23,6 +23,7 @@
 ====================================================================================
 *)
 
+{ }
 unit mint_unit;
 
 {$MODE Delphi}
@@ -161,7 +162,7 @@ begin
   red_label.Hide;   // only first time
 
   str := StringReplace(mint_str, 'tree.gif', '<img src="'
-      + Config.FilePath(csdiHelp, 'tree_symbol.gif') +'">', [rfReplaceAll, rfIgnoreCase]);
+      + Config.GetFilePath(csfiTreeSymbol) +'">', [rfReplaceAll, rfIgnoreCase]);
 
   help(0, str, '');
 end;
@@ -292,7 +293,7 @@ begin
 
   html_str := '<TABLE STYLE="font-family:''' + arial_str +
     '''"><TR><TD STYLE="padding-left:22px; padding-bottom:16px; font-size:13px; color:#000000; line-height:125%;">'
-    + 'Use the quick controls on the right to set a new mint control template which matches the most common UK-pattern bullhead turnout sizes.' + '<BR><BR>A mint turnout template has no approach track, and 2 sleepers of exit track.</TD></TR>' + '<TR><TD STYLE="border:solid 1px #C0C0C0; padding:2px 0px 6px 6px; color:#800000; font-size:13px; background-color:#FFF0D0;">' + '<img src="' + Config.FilePath(csdiHelp, 'tree_symbol.gif') +'"> &nbsp;Alternatively, for a much wider range of sizes, including GWR and flat-bottom switches, click:' + '<SPAN STYLE="font-size:12px; font-weight:bold;"><BR><BR><A HREF="switch_options.85a">switch options</A>' + '&nbsp; &nbsp;<A HREF="crossing_options.85a">V-crossing options</A>' + '&nbsp; &nbsp;<A HREF="curving_radius.85a">curving radius</A><BR><BR></SPAN>' + 'In addition ' + Application.Title + ' can create turnouts of almost any size or prototype using the custom settings.' + '</TD><TD>&nbsp;</TD></TR></TABLE>';
+    + 'Use the quick controls on the right to set a new mint control template which matches the most common UK-pattern bullhead turnout sizes.' + '<BR><BR>A mint turnout template has no approach track, and 2 sleepers of exit track.</TD></TR>' + '<TR><TD STYLE="border:solid 1px #C0C0C0; padding:2px 0px 6px 6px; color:#800000; font-size:13px; background-color:#FFF0D0;">' + '<img src="' + Config.GetFilePath(csfiTreeSymbol) +'"> &nbsp;Alternatively, for a much wider range of sizes, including GWR and flat-bottom switches, click:' + '<SPAN STYLE="font-size:12px; font-weight:bold;"><BR><BR><A HREF="switch_options.85a">switch options</A>' + '&nbsp; &nbsp;<A HREF="crossing_options.85a">V-crossing options</A>' + '&nbsp; &nbsp;<A HREF="curving_radius.85a">curving radius</A><BR><BR></SPAN>' + 'In addition ' + Application.Title + ' can create turnouts of almost any size or prototype using the custom settings.' + '</TD><TD>&nbsp;</TD></TR></TABLE>';
 
   mint_html_view.LoadFromString(html_str);
 end;
