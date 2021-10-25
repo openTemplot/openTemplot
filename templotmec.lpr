@@ -98,8 +98,11 @@ uses
   mecbox_unit in 'mecbox_unit.pas',
 
   file_viewer in 'file_viewer.pas' {file_viewer_form},
+  TLoggerUnit in 'TLoggerUnit.pas',
 
-  printer4lazarus;
+  printer4lazarus,
+
+  TConfiguratorUnit in 'TConfiguratorUnit.pas';
 
 {$R *.res}
 
@@ -107,6 +110,7 @@ var
   rem_list:TStringList;
   rem_file_str:string;
   n:integer;
+  log: ILogger;
 
 begin
   RequireDerivedFormResource:=True;
@@ -116,6 +120,11 @@ begin
   Application.Scaled:=False;
 
   Config.Init();                                      // Read the configuration
+  LoggerConfigurator.doIniConfiguration(Config.IniFileName, 'Logging');
+
+  log := Logger.GetInstance;
+  log.Info('*************** Program Start ******************');
+
 
   WriteLn(' '+#13+#10+'    DO NOT CLOSE THIS WINDOW        IT CAN BE MINIMIZED');
 
@@ -147,6 +156,7 @@ begin
   //startup_form.Show;                            // splash startup  24-2-99
 
   Application.Initialize;
+
 
   { OT-FIRST
   with Tstartup_form.Create(nil) do
@@ -252,6 +262,10 @@ begin
   do_dpi_aware_scaling(0);   // 211b   in startup unit
 
   Application.Run;
+
+  log.Info('*************** Program Exit ******************');
+
+  LoggerConfigurator.FinalCleanup;
 
 (*
 

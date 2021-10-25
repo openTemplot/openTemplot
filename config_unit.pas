@@ -39,11 +39,10 @@ type
     csdiHelp,           //< help
     csdiMap,            //< screenshot maps
     csdiTile,           //< tiled maps
-    csdiUpdate);        //< downloaded updates
-
-
-type
-  // Specific System File Identifiers
+    csdiUpdate,         // downloaded updates
+    csdiLogs            // log files and log properties
+    );
+    
   TconfigSystemFileID =
     (
     csfi_85a_temp,      //<
@@ -128,6 +127,8 @@ type
 
     // Return a path created from a system data directory and a file name
     class function MakeFilePath(csdi: TconfigSystemDirId; Fname: string): string; overload;
+
+    class function IniFileName: string;
 
   private
     class var configLocalDirName: string;
@@ -284,6 +285,7 @@ begin
   LoadDir(csdiMap, 'map', [configLocalDirName, 'map']);       // screenshot maps
   LoadDir(csdiTile, 'tile', [configLocalDirName, 'tile']);    // tiled maps
   LoadDir(csdiUpdate, 'upd', [configLocalDirName, 'upd']);    // downloaded updates
+  LoadDir(csdiLogs, 'logs', [configLocalDirName, 'logs']);
 
 
   LoadFile(csfiAdobePrint, [configGlobalDirName, 'help', 'adobe_print_dialog.png']);
@@ -353,9 +355,6 @@ begin
       halt(99);
     end;
   end;
-
-
-
 end;
 
 class function Config.GetDir(cudi: TconfigUserDirId): string;
@@ -410,6 +409,11 @@ end;
 class procedure Config.WriteDir(cfgKey: string; Value: string);
 begin
   configFile.WriteString('directories', cfgKey, Value);
+end;
+
+class function Config.IniFileName: string;
+begin
+  Result := configFileName;
 end;
 
 class function Config.GetFilePath(csfi: TconfigSystemFileID): String;
