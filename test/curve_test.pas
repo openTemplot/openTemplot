@@ -13,9 +13,9 @@ uses
   point_ex;
 
 type
-  Ttest_curve = class(TTestCase)
+  TTestCurve = class(TTestCase)
     protected
-      curve: Tcurve;
+      curve: TCurve;
 
       procedure Setup; override;
       procedure TearDown; override;
@@ -48,17 +48,17 @@ type
 
 implementation
 
-procedure Ttest_curve.Setup;
+procedure TTestCurve.Setup;
 begin
-  curve := Tcurve.Create;
+  curve := TCurve.Create;
 end;
 
-procedure Ttest_curve.TearDown;
+procedure TTestCurve.TearDown;
 begin
   curve.Free;
 end;
 
-procedure Ttest_curve.test_straight_line;
+procedure TTestCurve.test_straight_line;
 var
   pt: Tpex;
   direction: Tpex;
@@ -75,14 +75,14 @@ begin
  // Then that point is on a straight line
  //
 
- curve.nominal_radius := max_rad_limit;
+ curve.nominalRadius := max_rad_limit;
  curve.isSpiral := false;
 
  distance := 0;
  offset := 0;
  for i := 0 to 20 do
  begin
-   curve.do_calculation(distance, offset, pt, direction, radius);
+   curve.DoCalculation(distance, offset, pt, direction, radius);
 
    CheckEquals( i, pt.X, 1e-6, format('pt.X at %f', [distance]));
    CheckEquals( offset, pt.Y, 1e-6, format('pt.Y at %f', [distance]));
@@ -96,9 +96,9 @@ begin
 
 end;
 
-procedure Ttest_curve.test_single_radius_positive;
+procedure TTestCurve.test_single_radius_positive;
 const
-  test_radius = 5000;
+  testRadius = 5000;
 var
   i : integer;
   distance: double;
@@ -106,10 +106,10 @@ var
   pt: Tpex;
   direction: Tpex;
   radius: double;
-  circle_origin: Tpex;
-  expected_direction: Tpex;
+  circleOrigin: Tpex;
+  expectedDirection: Tpex;
   angle: double;
-  distance_from_origin: double;
+  distanceFromOrigin: double;
 begin
  // Given a curve that is defined as a single radius
  //    ( radius = 5m, not spiral )
@@ -118,64 +118,104 @@ begin
  //
  // Then that point is a distance of 5m from (0, 5)
  //
-
- curve.nominal_radius := test_radius;
+ curve.nominalRadius := testRadius;
  curve.isSpiral := false;
 
- circle_origin.set_xy(0, test_radius);
+ circleOrigin.set_xy(0, testRadius);
 
  distance := 0;
  offset := 0;
  for i := 0 to 20 do
  begin
-   curve.do_calculation(distance, offset, pt, direction, radius);
+   curve.DoCalculation(distance, offset, pt, direction, radius);
 
-   angle := distance / 5000;
-   expected_direction.set_xy(cos(angle), sin(angle));
+   angle := distance / testRadius;
+   expectedDirection.set_xy(cos(angle), sin(angle));
 
-   distance_from_origin := (circle_origin - pt).magnitude;
+   distanceFromOrigin := (circleOrigin - pt).magnitude;
 
-   CheckEquals( test_radius, distance_from_origin, 1e-6, format('distance from origin at %f', [distance]));
-   CheckEquals( expected_direction.X, direction.X, 1e-6, format('direction.X at %f', [distance]));
-   CheckEquals( expected_direction.Y, direction.y, 1e-6, format('direction.Y at %f', [distance]));
-   CheckEquals( test_radius, radius, 1, format('radius at %f', [distance]));
+   CheckEquals( testRadius, distanceFromOrigin, 1e-6, format('distance from origin at %f', [distance]));
+   CheckEquals( expectedDirection.X, direction.X, 1e-6, format('direction.X at %f', [distance]));
+   CheckEquals( expectedDirection.Y, direction.y, 1e-6, format('direction.Y at %f', [distance]));
+   CheckEquals( testRadius, radius, 1, format('radius at %f', [distance]));
 
    distance := distance + 100;
  end;
-
 end;
 
-procedure Ttest_curve.test_single_radius_negative;
+procedure TTestCurve.test_single_radius_negative;
+const
+  testRadius = -8000;
+var
+  i : integer;
+  distance: double;
+  offset: double;
+  pt: Tpex;
+  direction: Tpex;
+  radius: double;
+  circleOrigin: Tpex;
+  expectedDirection: Tpex;
+  angle: double;
+  distanceFromOrigin: double;
+begin
+ // Given a curve that is defined as a single negative radius, turning to the right
+ //    ( radius = -8m, not spiral )
+ //
+ // When I ask for a point along the "curve"
+ //
+ // Then that point is a distance of 8m from (0, -8)
+ //
+ curve.nominalRadius := testRadius;
+ curve.isSpiral := false;
+
+ circleOrigin.set_xy(0, testRadius);
+
+ distance := 0;
+ offset := 0;
+ for i := 0 to 20 do
+ begin
+   curve.DoCalculation(distance, offset, pt, direction, radius);
+
+   angle := distance / testRadius;
+   expectedDirection.set_xy(cos(angle), sin(angle));
+
+   distanceFromOrigin := (circleOrigin - pt).magnitude;
+
+   CheckEquals( abs(testRadius), distanceFromOrigin, 1e-6, format('distance from origin at %f', [distance]));
+   CheckEquals( expectedDirection.X, direction.X, 1e-6, format('direction.X at %f', [distance]));
+   CheckEquals( expectedDirection.Y, direction.y, 1e-6, format('direction.Y at %f', [distance]));
+   CheckEquals( testRadius, radius, 1, format('radius at %f', [distance]));
+
+   distance := distance + 100;
+ end;
+end;
+
+procedure TTestCurve.test_transition_curve_positive_positive_increasing;
 begin
  Check(false, 'Not implemented');
 end;
 
-procedure Ttest_curve.test_transition_curve_positive_positive_increasing;
+procedure TTestCurve.test_transition_curve_positive_positive_decreasing;
 begin
  Check(false, 'Not implemented');
 end;
 
-procedure Ttest_curve.test_transition_curve_positive_positive_decreasing;
+procedure TTestCurve.test_transition_curve_negative_negative_increasing;
 begin
  Check(false, 'Not implemented');
 end;
 
-procedure Ttest_curve.test_transition_curve_negative_negative_increasing;
+procedure TTestCurve.test_transition_curve_negative_negative_decreasing;
 begin
  Check(false, 'Not implemented');
 end;
 
-procedure Ttest_curve.test_transition_curve_negative_negative_decreasing;
+procedure TTestCurve.test_transition_curve_positive_negative;
 begin
  Check(false, 'Not implemented');
 end;
 
-procedure Ttest_curve.test_transition_curve_positive_negative;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_transition_curve_negative_positive;
+procedure TTestCurve.test_transition_curve_negative_positive;
 begin
  Check(false, 'Not implemented');
 end;
@@ -245,7 +285,7 @@ end;
 
 
 initialization
-  RegisterTest(Ttest_curve);
+  RegisterTest(TTestCurve);
 
 end.
 
