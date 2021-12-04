@@ -22,7 +22,7 @@
 ====================================================================================
 *)
 
-{ }
+
 unit point_ex;
 
 {$mode delphi}
@@ -44,8 +44,14 @@ type
 
     function magnitude: double;
     function normalise: Tpex;
+    function dot(const b: Tpex): double;
+    function angleFromVectorToVector( const toVector: Tpex): double;
+
+    class operator negative(a: Tpex): Tpex;
     class operator +(a, b: Tpex): Tpex;
     class operator -(a, b: Tpex): Tpex;
+    class operator * (a: TPex; b: double): TPex;
+    class operator / (a: TPex; b: double): TPex;
   end;
 
   Textents = record           // 0.93.a
@@ -54,8 +60,10 @@ type
   end;
 
 
-
 implementation
+
+uses
+  Math;
 
 class function Tpex.xy(x, y: double): Tpex;
 begin
@@ -69,6 +77,12 @@ begin
   self.y := y;
 end;
 
+class operator Tpex.negative(a: Tpex): Tpex;
+begin
+  Result.x := -a.x;
+  Result.y := -a.y;
+end;
+
 class operator Tpex. +(a, b: Tpex): Tpex;
 begin
   Result.x := a.x + b.x;
@@ -79,6 +93,18 @@ class operator Tpex. -(a, b: Tpex): Tpex;
 begin
   Result.x := a.x - b.x;
   Result.y := a.y - b.y;
+end;
+
+class operator Tpex. * (a: Tpex; b: double): Tpex;
+begin
+  Result.x := a.x * b;
+  Result.y := a.y * b;
+end;
+
+class operator Tpex. / (a: Tpex; b: double): Tpex;
+begin
+  Result.x := a.x / b;
+  Result.y := a.y / b;
 end;
 
 function Tpex.magnitude: double;
@@ -95,6 +121,24 @@ begin
   Result.y := y / mag;
 end;
 
+function Tpex.dot(const b: Tpex): double;
+begin
+  Result := x*b.x + y*b.y;
+end;
+
+function Tpex.angleFromVectorToVector(const toVector: Tpex): double;
+var
+  xx: double;
+  yy: double;
+  normal: Tpex;
+begin
+  xx := self.dot(toVector);
+  normal.set_xy(-y, x);
+  yy := normal.dot(toVector);
+  Result := arctan2(yy, xx);
+end;
+
 end.
+
 
 
