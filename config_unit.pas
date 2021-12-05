@@ -43,7 +43,6 @@ type
     csdiLogs            // log files and log properties
     );
     
-  // Specific System File Identifiers
   TconfigSystemFileID =
     (
     csfi_85a_temp,      //<
@@ -421,6 +420,5 @@ class function Config.GetFilePath(csfi: TconfigSystemFileID): String;
 begin
   Result := systemFileData[csfi];
 end;
-
 
 end.
