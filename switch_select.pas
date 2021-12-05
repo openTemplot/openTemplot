@@ -117,7 +117,7 @@ implementation
 {$R *.lfm}
 
 uses pad_unit, control_room, entry_sheet, colour_unit, alert_unit, help_sheet, chat_unit,
-  math_unit, data_memo_unit, make_slip_unit;
+  math_unit, data_memo_unit, make_slip_unit, curve;
 
 var
   switch_index: integer = 0;
