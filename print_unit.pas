@@ -184,7 +184,8 @@ uses
   print_settings_unit, print_now_box, { OT-FIRST dtp_settings_unit,} export_unit,
   { OT-FIRST dtp_unit,} rail_options_unit, platform_unit, check_diffs_unit,
   data_memo_unit,
-  trackbed_unit, make_slip_unit;  // 214b
+  trackbed_unit, make_slip_unit,
+  curve;
 
 const
   print_help_str: string = '      Printing  Pages' +

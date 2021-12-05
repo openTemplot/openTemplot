@@ -1335,7 +1335,8 @@ uses
   trackbed_unit,
   create_tandem,
   xtc_unit,
-  shoved_timber;
+  shoved_timber,
+  curve;
 
 const
 

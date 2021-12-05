@@ -5160,7 +5160,8 @@ uses
   data_memo_unit,
   mecbox_unit, export_draw_unit,         // 291a
 
-  Htmlview;
+  Htmlview,
+  curve;
 
 const
 

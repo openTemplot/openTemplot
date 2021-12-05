@@ -187,7 +187,8 @@ implementation
 
 uses
   Clipbrd, Math, control_room, pad_unit, gauge_unit, alert_unit, math_unit, help_sheet, chat_unit,
-  metric_unit, keep_select, stay_visible_unit, jotter_unit, startup_unit;
+  metric_unit, keep_select, stay_visible_unit, jotter_unit, startup_unit,
+  curve;
 
 type
   Tdims = record
