@@ -663,7 +663,8 @@ uses
 
   trackbed_unit,
 
-  {IcsMD5,} make_slip_unit, create_tandem;     // 217a
+  {IcsMD5,} make_slip_unit, create_tandem,     // 217a
+  curve;
 
 {$R *.lfm}
 

@@ -286,7 +286,7 @@ begin
   LoadDir(csdiMap, 'map', [configLocalDirName, 'map']);       // screenshot maps
   LoadDir(csdiTile, 'tile', [configLocalDirName, 'tile']);    // tiled maps
   LoadDir(csdiUpdate, 'upd', [configLocalDirName, 'upd']);    // downloaded updates
-  LoadDir(csdiLogs, 'logs', [ConfigDirName, 'internal', 'logs']);
+  LoadDir(csdiLogs, 'logs', [configLocalDirName, 'logs']);
 
 
   LoadFile(csfiAdobePrint, [configGlobalDirName, 'help', 'adobe_print_dialog.png']);

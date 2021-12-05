@@ -61,7 +61,8 @@ implementation
 uses
   control_room, math_unit, info_unit, keep_select, shove_timber, alert_unit,
   help_sheet, grid_unit, wait_message,
-  shoved_timber;
+  shoved_timber,
+  curve;
 
 var
   dummy: double = 0;

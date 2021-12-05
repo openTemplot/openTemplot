@@ -114,8 +114,8 @@ begin
     tmp := AProps.GetProperty(APrefix + '.File');
     if (tmp <> '') then
       if (appdir) then begin
-        TFileAppender(appender).setFile(Config.FilePath(csdiLogs, tmp));
-        TLogLog.debug(AName + ' - ' + Config.FilePath(csdiLogs, tmp));
+        TFileAppender(appender).setFile(Config.MakeFilePath(csdiLogs, tmp));
+        TLogLog.debug(AName + ' - ' + Config.MakeFilePath(csdiLogs, tmp));
       end
       else begin
         TFileAppender(appender).setFile(tmp);

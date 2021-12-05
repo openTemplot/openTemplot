@@ -76,7 +76,8 @@ implementation
 uses
   pad_unit, math_unit, keep_select, alert_unit, info_unit, control_room, shove_timber,
   switch_select,
-  shoved_timber { OT-FIRST , web_browser_unit};
+  shoved_timber,
+  curve{ OT-FIRST , web_browser_unit};
 
 //______________________________________________________________________________
 
