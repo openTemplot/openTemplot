@@ -120,10 +120,10 @@ begin
   Application.Scaled:=False;
 
   Config.Init();                                      // Read the configuration
-  LoggerConfigurator.doIniConfiguration(Config.IniFileName, 'Logging');
-
+  LoggerConfigurator.doIniConfiguration(Config.GetFilePath(csfiConfig), 'Logging');
   log := Logger.GetInstance;
   log.Info('*************** Program Start ******************');
+  Config.WriteToLog;
 
 
   WriteLn(' '+#13+#10+'    DO NOT CLOSE THIS WINDOW        IT CAN BE MINIMIZED');
