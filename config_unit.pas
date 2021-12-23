@@ -42,9 +42,10 @@ type
     csdiUpdate,         // downloaded updates
     csdiLogs            // log files and log properties
     );
-    
+
   TconfigSystemFileID =
     (
+    csfiConfig,         //< The 'ini' file.
     csfi_85a_temp,      //<
     csfiAdobePrint,     //<
     csfiB6Startup,      //<
@@ -62,7 +63,7 @@ type
     csfiFileViewBkp,    //<
     csfiFullScreen,     //<
     csfiGreenHelmet,    //<
-    csfiJotterBkp,         //<
+    csfiJotterBkp,      //<
     csfiJotter,         //<
     csfiLinkView,       //<
     csfiMapShot,        //<
@@ -128,7 +129,8 @@ type
     // Return a path created from a system data directory and a file name
     class function MakeFilePath(csdi: TconfigSystemDirId; Fname: string): string; overload;
 
-    class function IniFileName: string;
+    // Write the location of each of the "well known" directories/files to the log
+    class procedure WriteToLog;
 
   private
     class var configLocalDirName: string;
@@ -162,7 +164,17 @@ type
   end; //Config
 
 
+{ @bold NOTE
+  We avoid logging here since the log facility may not yet be initialised }
 implementation
+
+uses
+  TLoggerUnit;
+
+var
+  log: ILogger;
+  msg: String;
+
 
 // === First a small utility function ...  ===
 
@@ -237,8 +249,8 @@ begin
     path := MakePath(parts);
   end
   else begin
-    show_modal_message('CONFIG ERROR : Trying to replace ' + path + ' with ' +
-      MakePath(parts));
+    msg := 'CONFIG ERROR : Trying to replace ' + path + ' with ' + MakePath(parts);
+    show_modal_message(msg);
     halt(99);
   end;
 
@@ -254,16 +266,23 @@ var
   csfi: TconfigSystemFileID;
   idName: string;
 begin
+  // --- get the "well-known" filenames
   configLocalDirName := GetAppConfigDir(False);
+  // TODO: The following line should replace the one above once we have
+  // an installer which can put the read-only attributes in a system directory.
   //configGlobalDirName := GetAppConfigDir(True);
   configGlobalDirName := configlocalDirName;
   configFileName := GetAppConfigFile(False);
+
+  // --- create the config file
   configFile := TIniFile.Create(ConfigFileName);
+  // We poke this value directly into the table since 'LoadFile' would write
+  // it into the config file itself.
+  systemFileData[csfiConfig] := configFileName;
 
   dataDirName := GetUserDir() + 'openTemplot';
 
-{ TODO : Log the above names here once the logging facility is decided }
-
+  // --- Load user directory names into cache
   LoadDir(cudiBoxes, 'boxes', [dataDirName, 'box-files']);
   LoadDir(cudiData, 'data', [dataDirName, '']);
   LoadDir(cudiDXFs, 'dxfs', [dataDirName, 'dxf-files']);
@@ -277,7 +296,7 @@ begin
   LoadDir(cudiSketches, 'sketches', [dataDirName, 'sketchboard-files']);
   LoadDir(cudiSketchImages, 'sketch-images', [dataDirName, 'sketchboard-images']);
 
-
+  // --- Load system directory names into cache
   LoadDir(csdiBackup, 'bkp', [configLocalDirName, 'bkp']);    // backups
   LoadDir(csdiDpi, 'dpi', [configLocalDirName, 'dpi']);       // program size
   LoadDir(csdiFileView, 'fview', [configLocalDirName, 'fview']); // file viewer
@@ -287,7 +306,7 @@ begin
   LoadDir(csdiUpdate, 'upd', [configLocalDirName, 'upd']);    // downloaded updates
   LoadDir(csdiLogs, 'logs', [configLocalDirName, 'logs']);
 
-
+  // --- Load system (read-only) file names into cache
   LoadFile(csfiAdobePrint, [configGlobalDirName, 'help', 'adobe_print_dialog.png']);
   LoadFile(csfiB6Startup, [configGlobalDirName, 'help', 'b6_startup.gif']);
   LoadFile(csfiCompanion, [configGlobalDirName, 'help', 'companion_taskbar.png']);
@@ -323,7 +342,7 @@ begin
   LoadFile(csfiWaitSignalTrans, [configGlobalDirName, 'help', 'wait_signal_trans.gif']);
   LoadFile(csfiZoomTest, [configGlobalDirName, 'help', 'zoom_test.bmp']);
 
-
+  // --- Load system (writeable) file names into cache
   LoadFile(csfi_85a_temp, [configLocalDirName, 'state', '_85a_temp.bmp']);
   LoadFile(csfiBackup1, [configLocalDirName, 'backup', 'ebk1.ebk']);
   LoadFile(csfiBackup2, [configLocalDirName, 'backup', 'ebk2.ebk']);
@@ -347,11 +366,12 @@ begin
   LoadFile(csfiScaling, [configLocalDirName, 'dpi', 'sz.szx']);       // Scaling data
   LoadFile(csfiZoomTestH, [dataDirName, 'test', 'zoom_test_page.html']);
 
-  // Validate the table ...
+  // === Validate the table ...
   for  csfi := low(TconfigSystemFileID) to high(TconfigSystemFileID) do begin
     if systemFileData[csfi] = '' then begin
       WriteStr(idname, csfi);
-      show_modal_message('CONFIG ERROR : ' + idname + ' not initialised');
+      msg := 'CONFIG ERROR : ' + idname + ' not initialised';
+      show_modal_message(msg);
       halt(99);
     end;
   end;
@@ -366,7 +386,8 @@ begin
   Result := dirData.cfgPath;
   if Result = '' then begin
     WriteStr(idname, cudi);
-    show_modal_message('CONFIG ERROR : No directory name for cudi ' + idName);
+    msg := 'CONFIG ERROR : No directory name for cudi ' + idName;
+    show_modal_message(msg);
     halt(99);
   end;
 end;
@@ -380,7 +401,8 @@ begin
   Result := dirData.cfgPath;
   if Result = '' then begin
     WriteStr(idname, csdi);
-    show_modal_message('CONFIG ERROR : No directory name for csdi ' + idName);
+    msg := 'CONFIG ERROR : No directory name for csdi ' + idName;
+    show_modal_message(msg);
     halt(99);
   end;
 end;
@@ -411,14 +433,17 @@ begin
   configFile.WriteString('directories', cfgKey, Value);
 end;
 
-class function Config.IniFileName: string;
-begin
-  Result := configFileName;
-end;
-
 class function Config.GetFilePath(csfi: TconfigSystemFileID): String;
 begin
   Result := systemFileData[csfi];
+end;
+
+class procedure Config.WriteToLog();
+begin
+  log := Logger.GetInstance('Config');
+  log.Info('             Config File : ' + configFileName);
+  log.Info('  Local config directory : ' + configLocalDirName);
+  log.Info(' Global config directory : ' + configGlobalDirName);
 end;
 
 end.
