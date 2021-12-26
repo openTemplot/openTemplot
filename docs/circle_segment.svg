@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:se="http://svg-edit.googlecode.com"
+    xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="777" height="480">
+    <title>my vector image</title>
+    <rect id="backgroundrect" width="100%" height="100%" x="0" y="0" fill="#ffffff" stroke="none" />
+    <g class="currentLayer" style="">
+        <title>Layer 1</title>
+        <!-- Horizontal and Vertical Axes -->
+        <path fill="#ffffff" fill-opacity="1" stroke="#b6b6b6" stroke-opacity="1" stroke-width="1"
+            stroke-dasharray="none" stroke-linejoin="round" stroke-linecap="butt" stroke-dashoffset=""
+            fill-rule="nonzero" opacity="1" marker-start="" marker-mid="" marker-end="" d="M 200 50 v 300"
+            id="vertical_axis" />
+        <path fill="#ffffff" fill-opacity="1" stroke="#b6b6b6" stroke-opacity="1" stroke-width="1"
+            stroke-dasharray="none" stroke-linejoin="round" stroke-linecap="butt" stroke-dashoffset=""
+            fill-rule="nonzero" opacity="1" marker-start="" marker-mid="" marker-end="" d="M 50 320 h 300"
+            id="horizontal_axis" />
+        <!-- Main Circle -->
+        <circle cx="200" cy="200" r="120" fill="white" fill-opacity="0" stroke="black" stroke-width="1" />
+        <!-- Initial Point -->
+        <circle cx="200" cy="320" r="4" fill="red" fill-opacity="0" stroke="red" stroke-width="1" />
+        <foreignObject fill="#ffffff" stroke="#222222" font-size="8" font-family="Arial, Helvetica, sans-serif"
+            letter-spacing="0" word-spacing="0" x="204" y="324" width="40" height="20" style="color: rgb(0, 0, 0);"
+            class="">
+            <p xmlns="http://www.w3.org/1999/xhtml"
+                style="border: none;outline: none;font-size: inherit;line-height: 1em;padding:0;margin:0;">initialPoint
+            </p>
+        </foreignObject>
+        <!-- InitialDirection vector -->
+        <path fill="red" fill-opacity="1" stroke="red" stroke-opacity="1" stroke-width="3" stroke-dasharray="none"
+            stroke-linejoin="round" stroke-linecap="butt" stroke-dashoffset="" fill-rule="nonzero" opacity="1"
+            marker-start="" marker-mid="" marker-end="" d="M 200 320 h 50" />
+        <path fill="red" fill-opacity="1" stroke="red" stroke-opacity="1" stroke-width="3" stroke-dasharray="none"
+            stroke-linejoin="round" stroke-linecap="butt" stroke-dashoffset="" fill-rule="nonzero" opacity="1"
+            marker-start="" marker-mid="" marker-end="" d="M 250 320 l -5 5" />
+        <path fill="red" fill-opacity="1" stroke="red" stroke-opacity="1" stroke-width="3" stroke-dasharray="none"
+            stroke-linejoin="round" stroke-linecap="butt" stroke-dashoffset="" fill-rule="nonzero" opacity="1"
+            marker-start="" marker-mid="" marker-end="" d="M 250 320 l -5 -5" />
+        <foreignObject fill="#ffffff" stroke="#222222" font-size="8" font-family="Arial, Helvetica, sans-serif"
+            letter-spacing="0" word-spacing="0" x="254" y="316" width="60" height="20" style="color: rgb(0, 0, 0);"
+            class="">
+            <p xmlns="http://www.w3.org/1999/xhtml"
+                style="border: none;outline: none;font-size: inherit;line-height: 1em;padding:0;margin:0;">
+                initialDirection
+            </p>
+        </foreignObject>
+        <!-- Radius -->
+        <path fill="#ffffff" fill-opacity="1" stroke="#ccc" stroke-opacity="1" stroke-width="1" stroke-dasharray="none"
+            stroke-linejoin="round" stroke-linecap="butt" stroke-dashoffset="" fill-rule="nonzero" opacity="1"
+            marker-start="" marker-mid="" marker-end="" d="M 200 200 h 120" />
+        <foreignObject fill="#ffffff" stroke="#222222" font-size="8" font-family="Arial, Helvetica, sans-serif"
+            letter-spacing="0" word-spacing="0" x="254" y="190" width="60" height="20" style="color: rgb(0, 0, 0);"
+            class="">
+            <p xmlns="http://www.w3.org/1999/xhtml"
+                style="border: none;outline: none;font-size: inherit;line-height: 1em;padding:0;margin:0;">FRadius
+            </p>
+        </foreignObject>
+        <!-- Origin -->
+        <path fill="#ffffff" fill-opacity="1" stroke="black" stroke-opacity="1" stroke-width="1" stroke-dasharray="none"
+            stroke-linejoin="round" stroke-linecap="butt" stroke-dashoffset="" fill-rule="nonzero" opacity="1"
+            marker-start="" marker-mid="" marker-end="" d="M 195 200 h 10" />
+        <path fill="#ffffff" fill-opacity="1" stroke="black" stroke-opacity="1" stroke-width="1" stroke-dasharray="none"
+            stroke-linejoin="round" stroke-linecap="butt" stroke-dashoffset="" fill-rule="nonzero" opacity="1"
+            marker-start="" marker-mid="" marker-end="" d="M 200 195 v 10" />
+        <foreignObject fill="#ffffff" stroke="#222222" font-size="8" font-family="Arial, Helvetica, sans-serif"
+            letter-spacing="0" word-spacing="0" x="202" y="202" width="60" height="20" style="color: rgb(0, 0, 0);"
+            class="">
+            <p xmlns="http://www.w3.org/1999/xhtml"
+                style="border: none;outline: none;font-size: inherit;line-height: 1em;padding:0;margin:0;">FOrigin
+            </p>
+        </foreignObject>
+        <!-- Angle Offset -->
+        <path fill="#ffffff" fill-opacity="0" stroke="#ccc" stroke-opacity="1" stroke-width="1" stroke-dasharray="none"
+            stroke-linejoin="round" stroke-linecap="butt" stroke-dashoffset="" fill-rule="nonzero" opacity="1"
+            marker-start="" marker-mid="" marker-end="" d="M 240 200 A 40 40 0 1 0 200 240" />
+        <path fill="white" fill-opacity="1" stroke="#ccc" stroke-opacity="1" stroke-width="1" stroke-dasharray="none"
+            stroke-linejoin="round" stroke-linecap="butt" stroke-dashoffset="" fill-rule="nonzero" opacity="1"
+            marker-start="" marker-mid="" marker-end="" d="M 200 240 l -5 5" />
+        <path fill="white" fill-opacity="1" stroke="#ccc" stroke-opacity="1" stroke-width="1" stroke-dasharray="none"
+            stroke-linejoin="round" stroke-linecap="butt" stroke-dashoffset="" fill-rule="nonzero" opacity="1"
+            marker-start="" marker-mid="" marker-end="" d="M 200 240 l -5 -5" />
+        <foreignObject fill="#ffffff" stroke="#222222" font-size="8" font-family="Arial, Helvetica, sans-serif"
+            letter-spacing="0" word-spacing="0" x="120" y="188" width="60" height="20" style="color: rgb(0, 0, 0);"
+            class="">
+            <p xmlns="http://www.w3.org/1999/xhtml"
+                style="border: none;outline: none;font-size: inherit;line-height: 1em;padding:0;margin:0;">FAngleOffset
+            </p>
+        </foreignObject>
+    </g>
+</svg>
