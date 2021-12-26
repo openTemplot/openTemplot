@@ -1,0 +1,170 @@
+# TCurve
+:stem: latexmath
+
+This document describes the implementation details of the TCurve class.
+
+A TCurve class holds the user-provided data that defines the centre-line curve used by a Template.
+
+Within a TCurve, there is a list of TCurveSegment objects that actually calculate information about a curve.
+
+
+[plantuml, diagram-classes, png]
+....
+class TCurve
+abstract class TCurveSegment
+class TStraightSegment
+class TCircleSegment
+class TTransitionSegment
+
+TCurve *- "*" TCurveSegment
+TCurveSegment <|-- TStraightSegment
+TCurveSegment <|-- TCircleSegment
+TCurveSegment <|-- TTransitionSegment
+....
+
+The user-defined properties of a Curve are:
+[cols="1,1"]
+|===
+| isSpiral
+| Determines is this is a transition curve. If false, then only the stem:[nominalRadius] property is used
+
+| nominalRadius
+| The initial radius for the curve. A positive radius is a curve to the left (anti-clockwise), and a negative radius curves to the right (clockwise). 
+  If stem:[abs(nominalRadius) \gt max\_rad\_test] then the segment will be straight.
+
+| nominalRadius2
+| The final radius for the curve (only for transition curves). 
+
+| distanceToTransition
+| The distance along the curve before the start of the transition. The curve before this point will be at stem:[nominalRadius]
+
+| transitionLength
+| The length of the transition segment of the curve. The curve beyond stem:[distanceToTransition + transitionLength] will be at stem:[nominalRadius2]
+|===
+
+TCurve provides a public method to calculate curve information:
+[source,pascal]
+....
+    procedure DoCalculation(distance: double; out pt, direction: Tpex; out radius: double);
+....
+
+This method constructs the required TCurveSegment objects, if necessary (ie if any user-defined properties have changed), and then 
+determines which segment to call to calculate the curve information at the requested point.
+
+The outputs of the DoCalculation method are the point at the specified distance along the curve, the direction of the curve at the point, 
+and the radius of the curve at that point.
+
+## CurveSegment Creation
+
+The CurveSegments are created on-demand, whenever any calculated property or the TCurve class is accessed and the TCurve class is marked as being modified.
+
+The Curve is first identified as being either Straight, Circular or Transition. For Straight or Circular a single CurveSegment of the 
+appropriate type is created, with a length of stem:[maximum\_segment\_length]. 
+
+stem:[maximum\_segment\_length] is a large value, that is effectively infinite
+
+For a Transition Curve, either 2 or 3 CurveSegments will be created:
+
+ * if stem:[distanceToTransition \gt 0] then either a TStraightSegment or TCircleSegment will be created, as appropriate based on stem:[nominalRadius], 
+   with a length of stem:[distanceToTransition].
+ * a TTransitionSegment is created, with a length of stem:[transitionLength].
+ * a TStraightSegment or TCircleSegment is created, as appropriate based on stem:[nominalRadius2], with a length of stem:[maximum\_segment\_length].
+
+Each CurveSegment is passed an initial point and direction. For the first CurveSegment, that will be the origin stem:[(0,0)] and the horizontal unit vector stem:[(1,0)]. 
+For subsequent CurveSegments the initial point and direction will be the final point and direction of the preceding CurveSegment.
+
+## TStraightSegment
+
+A Straight Segment is defined by an origin and a direction (a 2D unit vector). Calculating a point on a straight line is a simple evaluation of:
+[stem]
+++++
+pt = FOrigin + \vec{FDirection} * distance
+++++
+
+The returned direction will always be the segment stem:[FDirection] and the returned radius will always be stem:[max\_rad]
+
+## TCircleSegment
+
+A Circle Segment is defined by an origin (centre of the circle), the radius, and an angle offset.
+
+The sign of the radius determines the direction of travel around the circle
+
+To calculate the origin of the circle, we first calculate a normal vector by rotating the initialDirection by 90 degrees anti-clockwise. The origin is 
+then:
+[stem]
+++++
+FOrigin = initialPoint + \vec{normal} * radius
+++++
+
+The angle offset is also calculated using the normal vector (via arctan).
+
+image::circle_segment.svg[]
+
+Calculating a point on the Circle Segment then requires calculating the angle of the desired point about the circle:
+[stem]
+++++
+angle = FAngleOffset + distance/radius
+++++
+
+Once the angle is known, the point on the circle is calculated, and the direction is the tangent to the circle at that point, 
+which is the angle plus 90 degrees.
+
+## TTransitionSegment
+
+A TransitionSegment defines a curve that changes smoothly from an initial radius (stem:[nominalRadius]) to a final radius (stem:[nominalRadius2]). 
+The actual curve used is an Euler Spiral where the curvature changes linearly with the distance along the curve. See https://en.wikipedia.org/wiki/Euler_spiral
+for some basic information on the Euler Spiral.
+
+The steps to set up the calculations for the transition segment are:
+
+. Convert the initial and final radius values to curvatures, using the relationship stem:[curvature = 1/radius]. The curvature when the curve is 
+  straight is zero.
+. Calculate the distance along from curve from where the curve is straight, to the point of maximum curvature. If the curvature is decreasing, then
+  the startDistance will be negative.
+. Calculate a scaling factor, which converts our distance values along the transition to distances along a geometrically equivalent spiral with 
+  the property stem:[2R_cL_S = 1]. This is a special form of the Euler spiral called a Cornu spiral.
+. Calculate the point and direction for the transition curve at the determined startDistance.
+. Calculate a transformation (rotation and translation) that aligns the calculating start point and direction with the given initial point and 
+  direction.
+
+To calculate a point along the transition segment:
+
+. Apply the start offset, and scaling factor to the given distance
+. Solve the Fresnel integral for the Cornu spiral at the scaled distance
+. Apply the scaling factor to determine the point along the curve.
+. Calculate the direction of the curve at that point
+. Apply the transformation to move the calculated point and direction to the final coordinate system.
+
+There is also a calculated stem:[FDirectionSign] property that is either stem:[1] or stem:[-1], depending on whether the curve is 
+turning to the left or the right.
+
+### Example
+
+Given:
+[stem]
+++++
+segLength = 100 \\
+initialPoint = (0,0) \\
+initialDirection = (1,0) \\
+initialRadius = 2000 \\
+finalRadius = 1000
+++++
+
+This is a transition segment that is 100mm long, transitioning from a radius of 2000mm to a radius of 1000mm.
+
+Calculate the curvatures:
+[stem]
+++++
+initialCurvature = 1/initialRadius = 0.0005 \\
+finalCurvature = 1/finalRadius = 0.001
+++++
+
+From these curvatures, we calculate start and end distances:
+[stem]
+++++
+    endDistance = segLength * finalCurvature / (finalCurvature - initialCurvature) = 200 \\
+    startDistance = endDistance - segLength = 100;
+++++
+
+
+

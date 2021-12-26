@@ -216,8 +216,8 @@ end;
 constructor TTransitionSegment.Create(segLength: double; initialPoint, initialDirection: Tpex;
   initialRadius, finalRadius: double);
 var
-  startCurvature: double;
-  endCurvature: double;
+  initialCurvature: double;
+  finalCurvature: double;
   startDistance: double;
   endDistance: double;
   arcLength: double;
@@ -229,22 +229,22 @@ begin
   inherited Create(segLength);
 
   // calculate the start and end "distances" along the curve
-  startCurvature := RadiusToCurvature(initialRadius);
-  endCurvature := RadiusToCurvature(finalRadius);
+  initialCurvature := RadiusToCurvature(initialRadius);
+  finalCurvature := RadiusToCurvature(finalRadius);
 
   if Abs(initialRadius) < Abs(finalRadius) then begin
     radius := Abs(initialRadius);
-    startDistance := -startCurvature * segLength / (startCurvature - endCurvature);
+    startDistance := -initialCurvature * segLength / (initialCurvature - finalCurvature);
     arcLength := Abs(startDistance);
   end
   else begin
     radius := Abs(finalRadius);
-    endDistance := segLength * endCurvature / (endCurvature - startCurvature);
+    endDistance := segLength * finalCurvature / (finalCurvature - initialCurvature);
     startDistance := endDistance - segLength;
     arcLength := Abs(endDistance);
   end;
 
-  if startCurvature < endCurvature then begin
+  if initialCurvature < finalCurvature then begin
     FDirectionSign := 1;
   end
   else begin
@@ -262,13 +262,7 @@ begin
 
 
   // calculate the start point/direction
-  if startDistance = 0 then begin
-    curveStart.set_xy(0,0);
-    curveDirection.set_xy(1,0);
-  end
-  else begin
-    DoCalculation(0, curveStart, curveDirection, dummyRadius);
-  end;
+  DoCalculation(0, curveStart, curveDirection, dummyRadius);
 
   // calculate the transform required
   FTransform.translate_by(-curveStart);
