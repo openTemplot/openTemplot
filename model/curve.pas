@@ -13,7 +13,10 @@ uses
 const
   maximum_segment_length = 1e100;
 
-  // the maximum value for a radius
+  // the maximum value for a radius (approx 62 miles rad)
+  // this dimension is in millimetres, and is independent of any scale settings
+  // in openTemplot
+  //
   // note: this is untyped, so the following typed consts will compile...
   maximum_radius_value = 1e08;
 
@@ -23,7 +26,7 @@ const
   // radius equivalent to "straight", maximum_radius_value - 5000 to allow for offsets without exceeding 1E8 max_rad_limit.
   max_rad: double = maximum_radius_value - 5000;
 
-  // used for testing maximum radius (approx 62 miles rad).
+  // used for testing maximum radius.
   max_rad_test: double = maximum_radius_value - 10000;
 
 
@@ -35,7 +38,7 @@ type
     property segmentLength: double Read FSegmentLength;
 
     constructor Create(segLength: double);
-    procedure DoCalculation(distance: double; out pt, direction: Tpex; out radius: double);
+    procedure CalculateCurveAt(distance: double; out pt, direction: Tpex; out radius: double);
       virtual; abstract;
   end;
 
@@ -55,7 +58,7 @@ type
 
     FSegments: TCurveSegmentList;
 
-    procedure CheckModified;
+    procedure UpdateIfModified;
     procedure CalculateCurveSegments;
     procedure SetNominalRadius(const newRadius: double);
     procedure SetNominalRadius2(const newRadius: double);
@@ -76,7 +79,7 @@ type
     property isStraight: boolean Read GetIsStraight;
     property isSimpleCurve: boolean Read GetIsSimpleCurve;
 
-    procedure DoCalculation(distance: double; out pt, direction: Tpex; out radius: double);
+    procedure CalculateCurveAt(distance: double; out pt, direction: Tpex; out radius: double);
   end;
 
 implementation
@@ -94,7 +97,7 @@ type
 
   public
     constructor Create(segLength: double; origin, direction: Tpex);
-    procedure DoCalculation(distance: double; out pt, direction: Tpex;
+    procedure CalculateCurveAt(distance: double; out pt, direction: Tpex;
       out radius: double); override;
   end;
 
@@ -106,7 +109,7 @@ type
 
   public
     constructor Create(segLength: double; initialPoint, direction: Tpex; radius: double);
-    procedure DoCalculation(distance: double; out pt, direction: Tpex;
+    procedure CalculateCurveAt(distance: double; out pt, direction: Tpex;
       out radius: double); override;
   end;
 
@@ -128,7 +131,7 @@ type
   public
     constructor Create(segLength: double; initialPoint, initialDirection: Tpex;
       initialRadius, finalRadius: double);
-    procedure DoCalculation(distance: double; out pt, direction: Tpex;
+    procedure CalculateCurveAt(distance: double; out pt, direction: Tpex;
       out radius: double); override;
   end;
 
@@ -166,7 +169,7 @@ begin
   FDirection := direction;
 end;
 
-procedure TStraightSegment.DoCalculation(distance: double; out pt, direction: Tpex;
+procedure TStraightSegment.CalculateCurveAt(distance: double; out pt, direction: Tpex;
   out radius: double);
 begin
   direction := FDirection;
@@ -194,7 +197,7 @@ begin
   FAngleOffset := ArcTan2(-normal.y, -normal.x);
 end;
 
-procedure TCircleSegment.DoCalculation(distance: double; out pt, direction: Tpex;
+procedure TCircleSegment.CalculateCurveAt(distance: double; out pt, direction: Tpex;
   out radius: double);
 var
   angle: double;
@@ -262,7 +265,7 @@ begin
 
 
   // calculate the start point/direction
-  DoCalculation(0, curveStart, curveDirection, dummyRadius);
+  CalculateCurveAt(0, curveStart, curveDirection, dummyRadius);
 
   // calculate the transform required
   FTransform.translate_by(-curveStart);
@@ -270,7 +273,7 @@ begin
   FTransform.translate_by(initialPoint);
 end;
 
-procedure TTransitionSegment.DoCalculation(distance: double; out pt, direction: Tpex;
+procedure TTransitionSegment.CalculateCurveAt(distance: double; out pt, direction: Tpex;
   out radius: double);
 var
   distanceFromOrigin: double;
@@ -356,7 +359,7 @@ begin
   end;
 end;
 
-procedure TCurve.CheckModified;
+procedure TCurve.UpdateIfModified;
 begin
   if FModified then begin
     CalculateCurveSegments;
@@ -398,7 +401,7 @@ begin
         FSegments.Add(TCircleSegment.Create(FDistanceToTransition, Tpex.xy(0, 0),
           Tpex.xy(1, 0), FNominalRadius));
       end;
-      FSegments.Items[0].DoCalculation(FDistanceToTransition, transitionStartPoint,
+      FSegments.Items[0].CalculateCurveAt(FDistanceToTransition, transitionStartPoint,
         transitionStartDirection, radius);
     end
     else begin
@@ -409,7 +412,7 @@ begin
     FSegments.Add(TTransitionSegment.Create(FTransitionLength, transitionStartPoint,
       transitionStartDirection, FNominalRadius, FNominalRadius2));
 
-    FSegments.Items[FSegments.Count - 1].DoCalculation(FTransitionLength,
+    FSegments.Items[FSegments.Count - 1].CalculateCurveAt(FTransitionLength,
       transitionEndPoint, transitionEndDirection, radius);
 
     if (Abs(FNominalRadius2) > max_rad_test) then begin
@@ -423,17 +426,17 @@ begin
   end;
 end;
 
-procedure TCurve.DoCalculation(distance: double; out pt, direction: Tpex; out radius: double);
+procedure TCurve.CalculateCurveAt(distance: double; out pt, direction: Tpex; out radius: double);
 var
   i: integer;
   s: TCurveSegment;
 begin
-  CheckModified;
+  UpdateIfModified;
 
   for i := 0 to FSegments.Count - 1 do begin
     s := FSegments[i];
     if (distance < s.segmentLength) then begin
-      s.DoCalculation(distance, pt, direction, radius);
+      s.CalculateCurveAt(distance, pt, direction, radius);
       Exit;
     end;
     distance := distance - s.segmentLength;
@@ -445,13 +448,13 @@ end;
 
 function TCurve.GetIsStraight: boolean;
 begin
-  CheckModified;
+  UpdateIfModified;
   Result := FIsStraight;
 end;
 
 function TCurve.GetIsSimpleCurve: boolean;
 begin
-  CheckModified;
+  UpdateIfModified;
   Result := FIsSimpleCurve;
 end;
 

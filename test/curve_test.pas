@@ -87,7 +87,7 @@ begin
 
   distance := 0;
   for i := 0 to 20 do begin
-    curve.DoCalculation(distance, pt, direction, radius);
+    curve.CalculateCurveAt(distance, pt, direction, radius);
 
     CheckEquals(i, pt.X, 1e-6, format('pt.X at %f', [distance]));
     CheckEquals(0, pt.Y, 1e-6, format('pt.Y at %f', [distance]));
@@ -128,7 +128,7 @@ begin
 
   distance := 0;
   for i := 0 to 20 do begin
-    curve.DoCalculation(distance, pt, direction, radius);
+    curve.CalculateCurveAt(distance, pt, direction, radius);
 
     angle := distance / testRadius;
     expectedDirection.set_xy(cos(angle), sin(angle));
@@ -173,7 +173,7 @@ begin
 
   distance := 0;
   for i := 0 to 20 do begin
-    curve.DoCalculation(distance, pt, direction, radius);
+    curve.CalculateCurveAt(distance, pt, direction, radius);
 
     angle := distance / testRadius;
     expectedDirection.set_xy(cos(angle), sin(angle));
@@ -223,10 +223,10 @@ begin
   else
     curvature2 := 0;
 
-  curve.DoCalculation(0, previousPoint, direction, radius);
+  curve.CalculateCurveAt(0, previousPoint, direction, radius);
   distance := 5;
   while distance < initialLength * 2 + transitionLength do begin
-    curve.DoCalculation(distance, pt, direction, radius);
+    curve.CalculateCurveAt(distance, pt, direction, radius);
 
     // linear interpolation to determine expected curvature
     if distance <= initialLength then begin
