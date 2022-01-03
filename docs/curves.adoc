@@ -5,18 +5,34 @@ This document describes the implementation details of the TCurve class.
 
 A TCurve class holds the user-provided data that defines the centre-line curve used by a Template.
 
-Within a TCurve, there is a list of TCurveSegment objects that actually calculate information about a curve.
+Within a TCurve, there is an instance FCurveCalculator of a TCurveCalculator class that performs the calculations for a curve.
+
+The FCurveCalculator can be either a TSlewCalculator or a TCurveSegmentCalculator. The TSlewCalculator will only be present if slewing has been
+defined for this template, and applies the slew calculations to the underlying curve (This is an example of a Decorator Pattern, 
+see https://en.wikipedia.org/wiki/Decorator_pattern).
+
+The TCurveSegmentCalculator contains a list of TCurveSegment objects that actually calculate information about each section of a curve.
 
 
 [plantuml, diagram-classes, png]
 ....
 class TCurve
+abstract class TCurveCalculator
+class TSlewCalculator
+class TCurveSegmentCalculator
+
 abstract class TCurveSegment
 class TStraightSegment
 class TCircleSegment
 class TTransitionSegment
 
-TCurve *- "*" TCurveSegment
+TCurve *- "1" TCurveCalculator
+TCurveCalculator <|-- TSlewCalculator
+TCurveCalculator <|-- TCurveSegmentCalculator
+
+TSlewCalculator *- "1" TCurveSegmentCalculator
+
+TCurveSegmentCalculator *- "*" TCurveSegment
 TCurveSegment <|-- TStraightSegment
 TCurveSegment <|-- TCircleSegment
 TCurveSegment <|-- TTransitionSegment
@@ -40,19 +56,39 @@ The user-defined properties of a Curve are:
 
 | transitionLength
 | The length of the transition segment of the curve. The curve beyond stem:[distanceToTransition + transitionLength] will be at stem:[nominalRadius2]
+
+| isSlewing
+| Determines whether a _slew_ is applied to this curve
+
+| distanceToStartOfSlew
+| The distance along the curve to the start of the slew zone
+
+| slewLength
+| The length of the slew zone
+
+| slewAmount
+| The horizontal amount of slewing to be applied to the curve (positive if the curve is moved to the left, negative to the right)
+
+| slewMode
+| Mode 1 uses a cosine function to calculate the slew. mode 2 uses a hyperbolic tan function for calculating the slew.
+
+| slewFactor
+| Only used for mode 2 (hyperbolic tan). This modifies the shape of the slewed curve.
 |===
 
 TCurve provides a public method to calculate curve information:
 [source,pascal]
 ....
-    procedure DoCalculation(distance: double; out pt, direction: Tpex; out radius: double);
+  procedure CalculateCurveAt(distance: double; out pt, direction: Tpex; out radius: double);
 ....
 
-This method constructs the required TCurveSegment objects, if necessary (ie if any user-defined properties have changed), and then 
+This method constructs the required TCurveCalculator and TCurveSegment objects, if necessary (ie if any user-defined properties have changed), and then 
 determines which segment to call to calculate the curve information at the requested point.
 
-The outputs of the DoCalculation method are the point at the specified distance along the curve, the direction of the curve at the point, 
+The outputs of the CalculateCurveAt method are the point at the specified distance along the curve, the direction of the curve at the point, 
 and the radius of the curve at that point.
+
+Note that if the curve is slewed, the radius of the underlying curve is not adjusted to reflect the slew.
 
 ## CurveSegment Creation
 
@@ -137,34 +173,4 @@ To calculate a point along the transition segment:
 
 There is also a calculated stem:[FDirectionSign] property that is either stem:[1] or stem:[-1], depending on whether the curve is 
 turning to the left or the right.
-
-### Example
-
-Given:
-[stem]
-++++
-segLength = 100 \\
-initialPoint = (0,0) \\
-initialDirection = (1,0) \\
-initialRadius = 2000 \\
-finalRadius = 1000
-++++
-
-This is a transition segment that is 100mm long, transitioning from a radius of 2000mm to a radius of 1000mm.
-
-Calculate the curvatures:
-[stem]
-++++
-initialCurvature = 1/initialRadius = 0.0005 \\
-finalCurvature = 1/finalRadius = 0.001
-++++
-
-From these curvatures, we calculate start and end distances:
-[stem]
-++++
-    endDistance = segLength * finalCurvature / (finalCurvature - initialCurvature) = 200 \\
-    startDistance = endDistance - segLength = 100;
-++++
-
-
 
