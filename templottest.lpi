@@ -165,31 +165,31 @@
         <IsPartOfProject Value="True"/>
       </Unit33>
       <Unit34>
-        <Filename Value="test\curve_test.pas"/>
+        <Filename Value="model\curve\curve.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit34>
       <Unit35>
-        <Filename Value="model\curve.pas"/>
+        <Filename Value="model\curve\curve_calculator.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit35>
       <Unit36>
-        <Filename Value="model\fresnel_unit.pas"/>
+        <Filename Value="model\curve\curve_segment.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit36>
       <Unit37>
-        <Filename Value="test\fresnel_test.pas"/>
+        <Filename Value="model\curve\fresnel_unit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit37>
       <Unit38>
-        <Filename Value="model\curve_calculator.pas"/>
+        <Filename Value="test\curve\curve_segment_test.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit38>
       <Unit39>
-        <Filename Value="model\curve_segment.pas"/>
+        <Filename Value="test\curve\curve_test.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit39>
       <Unit40>
-        <Filename Value="test\curve_segment_test.pas"/>
+        <Filename Value="test\curve\fresnel_test.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit40>
     </Units>
@@ -202,7 +202,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="model;test;log4delphi\util;log4delphi"/>
+      <OtherUnitFiles Value="model;test;log4delphi\util;log4delphi;model\curve;test\curve"/>
       <UnitOutputDirectory Value="libtest\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
   </CompilerOptions>
