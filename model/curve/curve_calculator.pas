@@ -37,7 +37,10 @@ implementation
 
 uses
   Math,
-  curve;
+  curve,
+  straight_segment,
+  circle_segment,
+  transition_segment;
 
 { TCurveSegmentCalculator }
 

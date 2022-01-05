@@ -15,7 +15,12 @@ uses
   curve_test,
   curve_calculator,
   curve_segment,
-  curve_segment_test;
+  transition_segment_test,
+  straight_segment_test,
+  straight_segment,
+  circle_segment,
+  circle_segment_test,
+  transition_segment;
 
 type
 

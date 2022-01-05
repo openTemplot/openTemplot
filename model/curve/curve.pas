@@ -136,12 +136,6 @@ begin
 end;
 
 procedure TCurve.CreateCurveCalculator;
-var
-  transitionStartPoint: Tpex;
-  transitionStartDirection: Tpex;
-  transitionEndPoint: Tpex;
-  transitionEndDirection: Tpex;
-  radius: double;
 begin
   FIsStraight := (Abs(FNominalRadius) > max_rad_test) and not FIsSpiral;
   FIsSimpleCurve := not FIsStraight and not FIsSpiral;
