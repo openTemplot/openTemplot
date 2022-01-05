@@ -71,7 +71,8 @@ type
 implementation
 
 uses
-  math;
+  math,
+  curve_segment_calculator;
 
 //
 // TCurve
