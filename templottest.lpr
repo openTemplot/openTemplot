@@ -20,7 +20,8 @@ uses
   straight_segment,
   circle_segment,
   circle_segment_test,
-  transition_segment;
+  transition_segment,
+  curve_segment_calculator;
 
 type
 
