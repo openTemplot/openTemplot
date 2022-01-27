@@ -25,7 +25,7 @@
       <MajorVersionNr Value="2"/>
       <MinorVersionNr Value="92"/>
       <RevisionNr Value="1"/>
-      <BuildNr Value="170"/>
+      <BuildNr Value="171"/>
       <StringTable InternalName="Templot3" LegalCopyright="(c) Martin Wynne 2019" ProductName="Templot3/TemplotMEC" ProductVersion="2.92.a"/>
     </VersionInfo>
     <BuildModes Count="1">
@@ -51,7 +51,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="88">
+    <Units Count="98">
       <Unit0>
         <Filename Value="templotmec.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -516,6 +516,46 @@
         <Filename Value="helpers.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit87>
+      <Unit88>
+        <Filename Value="model\curve\curve_segment.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit88>
+      <Unit89>
+        <Filename Value="model\curve\circle_segment.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit89>
+      <Unit90>
+        <Filename Value="model\curve\curve.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit90>
+      <Unit91>
+        <Filename Value="model\curve\curve_calculator.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit91>
+      <Unit92>
+        <Filename Value="model\curve\curve_parameters_interface.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit92>
+      <Unit93>
+        <Filename Value="model\curve\curve_segment_calculator.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit93>
+      <Unit94>
+        <Filename Value="model\curve\fresnel_unit.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit94>
+      <Unit95>
+        <Filename Value="model\curve\slew_calculator.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit95>
+      <Unit96>
+        <Filename Value="model\curve\straight_segment.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit96>
+      <Unit97>
+        <Filename Value="model\curve\transition_segment.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit97>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -525,7 +565,7 @@
       <Filename Value="output\templotmec"/>
     </Target>
     <SearchPaths>
-      <OtherUnitFiles Value="synapse_units;html_viewer_units;xml_units;model;log4delphi;log4delphi\util"/>
+      <OtherUnitFiles Value="synapse_units;html_viewer_units;xml_units;model;log4delphi;log4delphi\util;model\curve"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
