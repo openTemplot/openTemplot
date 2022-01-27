@@ -25,6 +25,7 @@ type
     procedure test_identity;
     procedure test_set_get;
     procedure test_rotate_by;
+    procedure test_rotate_by_vector;
     procedure test_translate_by;
     procedure test_transform_vector;
     procedure test_transform_point;
@@ -168,6 +169,57 @@ begin
 
   AssertEquals('Y.x', 0, y.x);
   AssertEquals('Y.y', -1, y.y);
+
+  AssertEquals('T.x', 0, t.x);
+  AssertEquals('T.y', 0, t.y);
+
+end;
+
+procedure Ttest_matrix_2d.test_rotate_by_vector;
+var
+  x, y, t: Tpex;
+  v: Tpex;
+begin
+  //
+  // Given an identity matrix
+  // When rotate_by(vector @ 45 degrees)
+  // Then expected rotation matrix is formed
+  //
+  // When rotated by(vector @ -45 degrees)
+  // Then identity matrix is formed
+  //
+  m := Tmatrix_2d.CreateIdentity;
+
+  // rotate by 45 degrees
+  v := Tpex.xy(1, 1).normalise;
+  m.rotate_by(v);
+
+  x := m.get_x;
+  y := m.get_y;
+  t := m.get_t;
+
+  AssertEquals('X.x', 0.707, x.x, 1e-3);
+  AssertEquals('X.y', 0.707, x.y, 1e-3);
+
+  AssertEquals('Y.x', -0.707, y.x, 1e-3);
+  AssertEquals('Y.y', 0.707, y.y, 1e-3);
+
+  AssertEquals('T.x', 0, t.x);
+  AssertEquals('T.y', 0, t.y);
+
+  // rotate by -45 degrees
+  v := Tpex.xy(1, -1).normalise;
+  m.rotate_by(v);
+
+  x := m.get_x;
+  y := m.get_y;
+  t := m.get_t;
+
+  AssertEquals('X.x', 1, x.x, 1e-6);
+  AssertEquals('X.y', 0, x.y, 1e-6);
+
+  AssertEquals('Y.x', 0, y.x, 1e-6);
+  AssertEquals('Y.y', 1, y.y, 1e-6);
 
   AssertEquals('T.x', 0, t.x);
   AssertEquals('T.y', 0, t.y);
