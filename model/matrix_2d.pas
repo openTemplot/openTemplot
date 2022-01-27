@@ -20,7 +20,8 @@ type
 
     procedure premultiply_by(t: Tmatrix_2d);
     procedure multiply_by(t: Tmatrix_2d);
-    procedure rotate_by(radians: double);
+    procedure rotate_by(radians: double); overload;
+    procedure rotate_by(v: Tpex); overload;
     procedure translate_by(v: Tpex); overload;
     procedure translate_by(x, y: double); overload;
     function transform_point(pt: Tpex): Tpex;
@@ -102,6 +103,22 @@ begin
     t.Data[0, 0] := cos(radians);
     t.Data[1, 1] := t.Data[0, 0];
     t.Data[0, 1] := sin(radians);
+    t.Data[1, 0] := -t.Data[0, 1];
+    premultiply_by(t);
+  finally
+    t.Free;
+  end;
+end;
+
+procedure Tmatrix_2d.rotate_by(v: Tpex);
+var
+  t: Tmatrix_2d;
+begin
+  t := Tmatrix_2d.Create;
+  try
+    t.Data[0, 0] := v.x;
+    t.Data[1, 1] := t.Data[0, 0];
+    t.Data[0, 1] := v.y;
     t.Data[1, 0] := -t.Data[0, 1];
     premultiply_by(t);
   finally
