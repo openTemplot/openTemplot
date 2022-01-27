@@ -10,19 +10,25 @@ uses
   SysUtils,
   point_ex,
   curve_calculator,
-  curve_segment;
+  curve_segment,
+  curve_parameters_interface;
 
 type
   { TCurveSegmentCalculator }
 
   TCurveSegmentCalculator = class(TCurveCalculator)
-  private
+  protected
+    FIsStraight: boolean;
+    FIsSimpleCurve: boolean;
     FSegments: TCurveSegmentList;
 
-    procedure CalculateCurveSegments(ACurve: TObject);
+    procedure CalculateCurveSegments(ACurveParameters: ICurveParameters);
+
+    // for unit tests...
+    property CurveSegments: TCurveSegmentList read FSegments;
 
   public
-    constructor Create(ACurve: TObject);
+    constructor Create(ACurveParameters: ICurveParameters);
     destructor Destroy; override;
 
     procedure CalculateCurveAt(distance: double; out pt, direction: Tpex; out radius: double);
@@ -40,9 +46,9 @@ uses
 
 { TCurveSegmentCalculator }
 
-constructor TCurveSegmentCalculator.Create(ACurve: TObject);
+constructor TCurveSegmentCalculator.Create(ACurveParameters: ICurveParameters);
 begin
-  CalculateCurveSegments(ACurve);
+  CalculateCurveSegments(ACurveParameters);
 end;
 
 destructor TCurveSegmentCalculator.Destroy;
@@ -51,43 +57,41 @@ begin
   inherited;
 end;
 
-procedure TCurveSegmentCalculator.CalculateCurveSegments(ACurve: TObject);
+procedure TCurveSegmentCalculator.CalculateCurveSegments(ACurveParameters: ICurveParameters);
 var
-  curve: TCurve;
   transitionStartPoint: Tpex;
   transitionStartDirection: Tpex;
   transitionEndPoint: Tpex;
   transitionEndDirection: Tpex;
   radius: double;
 begin
-  curve := ACurve as TCurve;
-  if not Assigned(curve) then
-    raise Exception.Create('Not passed a TCurveClass instance');
+  FIsStraight := (Abs(ACurveParameters.nominalRadius) > max_rad_test) and not ACurveParameters.isSpiral;
+  FIsSimpleCurve := not FIsStraight and not ACurveParameters.isSpiral;
 
   FSegments := TCurveSegmentList.Create;
 
-  if curve.isStraight then begin
+  if FIsStraight then begin
     // nothing special to calculate for a straight line
     FSegments.Add(TStraightSegment.Create(maximum_segment_length, Tpex.xy(0, 0), Tpex.xy(1, 0)));
   end
   else
-  if curve.isSimpleCurve then begin
+  if FIsSimpleCurve then begin
     FSegments.Add(TCircleSegment.Create(maximum_segment_length, Tpex.xy(0, 0),
-      Tpex.xy(1, 0), curve.nominalRadius));
+      Tpex.xy(1, 0), ACurveParameters.nominalRadius));
   end
   else begin
 
-    if curve.distanceToTransition > 0 then begin
+    if ACurveParameters.distanceToTransition > 0 then begin
       // do something about initial radius
-      if (Abs(curve.nominalRadius) > max_rad_test) then begin
-        FSegments.Add(TStraightSegment.Create(curve.distanceToTransition, Tpex.xy(0, 0),
+      if (Abs(ACurveParameters.nominalRadius) > max_rad_test) then begin
+        FSegments.Add(TStraightSegment.Create(ACurveParameters.distanceToTransition, Tpex.xy(0, 0),
           Tpex.xy(1, 0)));
       end
       else begin
-        FSegments.Add(TCircleSegment.Create(curve.distanceToTransition, Tpex.xy(0, 0),
-          Tpex.xy(1, 0), curve.nominalRadius));
+        FSegments.Add(TCircleSegment.Create(ACurveParameters.distanceToTransition, Tpex.xy(0, 0),
+          Tpex.xy(1, 0), ACurveParameters.nominalRadius));
       end;
-      FSegments.Items[0].CalculateCurveAt(curve.distanceToTransition, transitionStartPoint,
+      FSegments.Items[0].CalculateCurveAt(ACurveParameters.distanceToTransition, transitionStartPoint,
         transitionStartDirection, radius);
     end
     else begin
@@ -95,19 +99,19 @@ begin
       transitionStartDirection.set_xy(1, 0);
     end;
 
-    FSegments.Add(TTransitionSegment.Create(curve.transitionLength, transitionStartPoint,
-      transitionStartDirection, curve.nominalRadius, curve.nominalRadius2));
+    FSegments.Add(TTransitionSegment.Create(ACurveParameters.transitionLength, transitionStartPoint,
+      transitionStartDirection, ACurveParameters.nominalRadius, ACurveParameters.nominalRadius2));
 
-    FSegments.Items[FSegments.Count - 1].CalculateCurveAt(curve.transitionLength,
+    FSegments.Items[FSegments.Count - 1].CalculateCurveAt(ACurveParameters.transitionLength,
       transitionEndPoint, transitionEndDirection, radius);
 
-    if (Abs(curve.nominalRadius2) > max_rad_test) then begin
+    if (Abs(ACurveParameters.nominalRadius2) > max_rad_test) then begin
       FSegments.Add(TStraightSegment.Create(maximum_segment_length,
         transitionEndPoint, transitionEndDirection));
     end
     else begin
       FSegments.Add(TCircleSegment.Create(maximum_segment_length,
-        transitionEndPoint, transitionEndDirection, curve.nominalRadius2));
+        transitionEndPoint, transitionEndDirection, ACurveParameters.nominalRadius2));
     end;
   end;
 end;

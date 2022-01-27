@@ -8,7 +8,8 @@ uses
   Classes,
   SysUtils,
   point_ex,
-  curve_calculator;
+  curve_calculator,
+  curve_parameters_interface;
 
 const
   maximum_segment_length = 1e100;
@@ -31,7 +32,10 @@ const
 
 
 type
-  TCurve = class
+
+  { TCurve }
+
+  TCurve = class(ICurveParameters)
   private
     FModified: boolean;
     FNominalRadius: double;
@@ -39,8 +43,13 @@ type
     FDistanceToTransition: double;
     FTransitionLength: double;
     FIsSpiral: boolean;
-    FIsStraight: boolean;
-    FIsSimpleCurve: boolean;
+
+    FIsSlewing: boolean;
+    FDistanceToStartOfSlew: double;
+    FSlewLength: double;
+    FSlewAmount: double;
+    FSlewMode: ESlewMode;
+    FSlewFactor: double;
 
     FCurveCalculator: TCurveCalculator;
 
@@ -51,19 +60,44 @@ type
     procedure SetDistanceToTransition(const newDistance: double);
     procedure SetTransitionLength(const newLength: double);
     procedure SetIsSpiral(const newIsSpiral: boolean);
-    function GetIsStraight: boolean;
-    function GetIsSimpleCurve: boolean;
+    function GetIsSpiral: boolean;
+    function GetNominalRadius: double;
+    function GetNominalRadius2: double;
+    function GetDistanceToTransition: double;
+    function GetTransitionLength: double;
+    function GetIsSlewing: boolean;
+    function GetDistanceToStartOfSlew: double;
+    function GetSlewLength: double;
+    function GetSlewAmount: double;
+    function GetSlewMode: ESlewMode;
+    function GetSlewFactor: double;
+    procedure SetIsSlewing(const newIsSlewing: boolean);
+    procedure SetDistanceToStartOfSlew(const newDistance: double);
+    procedure SetSlewLength(const newLength: double);
+    procedure SetSlewAmount(const newAmount: double);
+    procedure SetSlewMode(const newMode: ESlewMode);
+    procedure SetSlewFactor(const newFactor: double);
+
+  protected
+    property curveCalculator: TCurveCalculator read FCurveCalculator;
 
   public
     constructor Create;
 
-    property nominalRadius: double Read FNominalRadius Write SetNominalRadius;
-    property nominalRadius2: double Read FNominalRadius2 Write SetNominalRadius2;
-    property distanceToTransition: double Read FDistanceToTransition Write SetDistanceToTransition;
-    property transitionLength: double Read FTransitionLength Write SetTransitionLength;
-    property isSpiral: boolean Read FIsSpiral Write SetIsSpiral;
-    property isStraight: boolean Read GetIsStraight;
-    property isSimpleCurve: boolean Read GetIsSimpleCurve;
+    property nominalRadius: double Read GetNominalRadius Write SetNominalRadius;
+    property nominalRadius2: double Read GetNominalRadius2 Write SetNominalRadius2;
+    property distanceToTransition: double Read GetDistanceToTransition
+      Write SetDistanceToTransition;
+    property transitionLength: double Read GetTransitionLength Write SetTransitionLength;
+    property isSpiral: boolean Read GetIsSpiral Write SetIsSpiral;
+
+    property isSlewing: boolean Read GetIsSlewing Write SetIsSlewing;
+    property distanceToStartOfSlew: double Read GetDistanceToStartOfSlew
+      Write SetDistanceToStartOfSlew;
+    property slewLength: double Read GetSlewLength Write SetSlewLength;
+    property slewAmount: double Read GetSlewAmount Write SetSlewAmount;
+    property slewMode: ESlewMode Read GetSlewMode Write SetSlewMode;
+    property slewFactor: double Read GetSlewFactor Write SetSlewFactor;
 
     procedure CalculateCurveAt(distance: double; out pt, direction: Tpex; out radius: double);
   end;
@@ -71,8 +105,9 @@ type
 implementation
 
 uses
-  math,
-  curve_segment_calculator;
+  Math,
+  curve_segment_calculator,
+  slew_calculator;
 
 //
 // TCurve
@@ -138,13 +173,12 @@ end;
 
 procedure TCurve.CreateCurveCalculator;
 begin
-  FIsStraight := (Abs(FNominalRadius) > max_rad_test) and not FIsSpiral;
-  FIsSimpleCurve := not FIsStraight and not FIsSpiral;
-
   FreeAndNil(FCurveCalculator);
-
-
   FCurveCalculator := TCurveSegmentCalculator.Create(self);
+
+  if FIsSlewing then begin
+    FCurveCalculator := TSlewCalculator.Create(self, FCurveCalculator);
+  end;
 end;
 
 procedure TCurve.CalculateCurveAt(distance: double; out pt, direction: Tpex; out radius: double);
@@ -160,16 +194,107 @@ begin
   end;
 end;
 
-function TCurve.GetIsStraight: boolean;
+function TCurve.GetIsSpiral: boolean;
 begin
-  UpdateIfModified;
-  Result := FIsStraight;
+  Result := FIsSpiral;
 end;
 
-function TCurve.GetIsSimpleCurve: boolean;
+function TCurve.GetNominalRadius: double;
 begin
-  UpdateIfModified;
-  Result := FIsSimpleCurve;
+  Result := FNominalRadius;
+end;
+
+function TCurve.GetNominalRadius2: double;
+begin
+  Result := FNominalRadius2;
+end;
+
+function TCurve.GetDistanceToTransition: double;
+begin
+  Result := FDistanceToTransition;
+end;
+
+function TCurve.GetTransitionLength: double;
+begin
+  Result := FTransitionLength;
+end;
+
+function TCurve.GetIsSlewing: boolean;
+begin
+  Result := FIsSlewing;
+end;
+
+function TCurve.GetDistanceToStartOfSlew: double;
+begin
+  Result := FDistanceToStartOfSlew;
+end;
+
+function TCurve.GetSlewLength: double;
+begin
+  Result := FSlewLength;
+end;
+
+function TCurve.GetSlewAmount: double;
+begin
+  Result := FSlewAmount;
+end;
+
+function TCurve.GetSlewMode: ESlewMode;
+begin
+  Result := FSlewMode;
+end;
+
+function TCurve.GetSlewFactor: double;
+begin
+  Result := FSlewFactor;
+end;
+
+procedure TCurve.SetIsSlewing(const newIsSlewing: boolean);
+begin
+  if FIsSlewing <> newIsSlewing then begin
+    FModified := True;
+    FIsSlewing := newIsSlewing;
+  end;
+end;
+
+procedure TCurve.SetDistanceToStartOfSlew(const newDistance: double);
+begin
+  if FDistanceToStartOfSlew <> newDistance then begin
+    FModified := True;
+    FDistanceToStartOfSlew := newDistance;
+  end;
+end;
+
+procedure TCurve.SetSlewLength(const newLength: double);
+begin
+  if FSlewLength <> newLength then begin
+    FModified := True;
+    FSlewLength := newLength;
+  end;
+end;
+
+procedure TCurve.SetSlewAmount(const newAmount: double);
+begin
+  if FSlewAmount <> newAmount then begin
+    FModified := True;
+    FSlewAmount := newAmount;
+  end;
+end;
+
+procedure TCurve.SetSlewMode(const newMode: ESlewMode);
+begin
+  if FSlewMode <> newMode then begin
+    FModified := True;
+    FSlewMode := newMode;
+  end;
+end;
+
+procedure TCurve.SetSlewFactor(const newFactor: double);
+begin
+  if FSlewFactor <> newFactor then begin
+    FModified := True;
+    FSlewFactor := newFactor;
+  end;
 end;
 
 end.

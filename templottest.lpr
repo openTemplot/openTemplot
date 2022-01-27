@@ -21,7 +21,11 @@ uses
   circle_segment,
   circle_segment_test,
   transition_segment,
-  curve_segment_calculator;
+  curve_segment_calculator,
+  slew_calculator,
+  slew_calculator_test,
+  curve_parameters_interface,
+  curve_segment_calculator_test;
 
 type
 

@@ -13,9 +13,20 @@ uses
   point_ex;
 
 type
+
+  { TTestableCurve }
+
+  TTestableCurve = class( TCurve )
+    public
+      // expose property for testing
+      property curveCalculator;
+  end;
+
+  { TTestCurve }
+
   TTestCurve = class(TTestCase)
   protected
-    curve: TCurve;
+    curve: TTestableCurve;
 
     procedure Setup; override;
     procedure TearDown; override;
@@ -38,6 +49,8 @@ type
     procedure test_transition_curve_positive_to_smaller_negative;
     procedure test_transition_curve_negative_to_larger_positive;
     procedure test_transition_curve_negative_to_smaller_positive;
+
+    procedure test_slew_creation;
       (*
       procedure test_straight_line_slewed_left;
       procedure test_straight_line_slewed_right;
@@ -56,9 +69,12 @@ type
 
 implementation
 
+uses
+  slew_calculator;
+
 procedure TTestCurve.Setup;
 begin
-  curve := TCurve.Create;
+  curve := TTestableCurve.Create;
 end;
 
 procedure TTestCurve.TearDown;
@@ -415,6 +431,27 @@ begin
   //  and the radius is the expected  radius
   //
   do_test_transition(-2000, 1000, 100, 150);
+end;
+
+procedure TTestCurve.test_slew_creation;
+var
+ pt: Tpex;
+ direction: Tpex;
+ radius: double;
+begin
+  // Given a curve defined with a slew
+  //
+  // When I ask for a point along the curve
+  //
+  // Then the curveCalculator is a TSlewCalculator
+
+  curve.isSlewing := true;
+  curve.isSpiral := false;
+  curve.nominalRadius := max_rad;
+
+  curve.CalculateCurveAt(0, pt, direction, radius);
+
+  Check(curve.curveCalculator is TSlewCalculator, 'curveCalculator not expected class');
 end;
 
 (*
