@@ -17,6 +17,7 @@ The TCurveSegmentCalculator contains a list of TCurveSegment objects that actual
 [plantuml, diagram-classes, png]
 ....
 class TCurve
+interface ICurveParameters
 abstract class TCurveCalculator
 class TSlewCalculator
 class TCurveSegmentCalculator
@@ -26,7 +27,8 @@ class TStraightSegment
 class TCircleSegment
 class TTransitionSegment
 
-TCurve *- "1" TCurveCalculator
+TCurve *-- "1" TCurveCalculator
+TCurve .|> ICurveParameters
 TCurveCalculator <|-- TSlewCalculator
 TCurveCalculator <|-- TCurveSegmentCalculator
 
@@ -70,7 +72,7 @@ The user-defined properties of a Curve are:
 | The horizontal amount of slewing to be applied to the curve (positive if the curve is moved to the left, negative to the right)
 
 | slewMode
-| Mode 1 uses a cosine function to calculate the slew. mode 2 uses a hyperbolic tan function for calculating the slew.
+| Mode eSM_Cosine uses a cosine function to calculate the slew. Mode eSM_TanH uses a hyperbolic tan function for calculating the slew.
 
 | slewFactor
 | Only used for mode 2 (hyperbolic tan). This modifies the shape of the slewed curve.
@@ -173,4 +175,31 @@ To calculate a point along the transition segment:
 
 There is also a calculated stem:[FDirectionSign] property that is either stem:[1] or stem:[-1], depending on whether the curve is 
 turning to the left or the right.
+
+## TSlewCalculator
+
+If slewing has been specified for a curve, the curve is split into 3 zones: pre-slew, slew and post-slew.
+
+The pre-slew zone follows the underlying curve.
+
+The post-slew zone is offset from the underlying curve by the stem:[slewAmount].
+
+In the slew zone the offset is calculated according to a function based on the stem:[slewMode].
+
+### eSM_Cosine calculations
+
+[stem]
+++++
+offset = 0.5 slewAmount (1 - \cos( x \pi / slewLength))
+++++
+
+The first derivative of this is:
+
+[stem]
+++++
+offset' = \frac{\pi slewAmount \sin(x \pi / slewLength)}{2 slewLength}
+++++
+
+The first derivative is the slope of the offset function, and is used to adjust the curve direction of the underlying curve appropriately.
+
 
