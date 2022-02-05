@@ -79,7 +79,7 @@ begin
     rotation := Tpex.xy(1, yDash).normalise;
 
     FRotationCos := rotation.x;
-    FRotationSin := rotation.y;
+    FRotationSin := -rotation.y;
 
     FYMax := FRotationSin * FSlewFactor + FRotationCos * y;
   end;
