@@ -22,6 +22,12 @@ type
     FDistanceToStartOfSlew: double;
     FSlewLength: double;
     FSlewAmount: double;
+    FSlewMode: ESlewMode;
+    FSlewFactor: double;
+
+    FRotationSin: double;
+    FRotationCos: double;
+    FYMax: double;
 
     procedure CalculateSlewSegment(ACurve: ICurveParameters);
 
@@ -36,6 +42,7 @@ type
 implementation
 
 uses
+  Math,
   matrix_2d;
 
 { TSlewCalculator }
@@ -55,10 +62,28 @@ begin
 end;
 
 procedure TSlewCalculator.CalculateSlewSegment(ACurve: ICurveParameters);
+var
+  y: double;
+  yDash: double;
+  rotation: Tpex;
 begin
   FDistanceToStartOfSlew := ACurve.distanceToStartOfSlew;
   FSlewLength := ACurve.slewLength;
   FSlewAmount := ACurve.slewAmount;
+  FSlewMode := ACurve.slewMode;
+  FSlewFactor := ACurve.slewFactor;
+
+  if FSlewMode = eSM_Tanh then begin
+    y := tanh(FSlewFactor);
+    yDash := 1 - sqr(tanh(FSlewFactor));
+    rotation := Tpex.xy(1, yDash).normalise;
+
+    FRotationCos := rotation.x;
+    FRotationSin := rotation.y;
+
+    FYMax := FRotationSin * FSlewFactor + FRotationCos * y;
+  end;
+
 end;
 
 procedure TSlewCalculator.CalculateCurveAt(distance: double; out pt, direction: Tpex;
@@ -70,6 +95,7 @@ var
   slope: double;
   slopeDirection: Tpex;
   rotation: Tmatrix_2d;
+  angle: double;
 begin
   FSegmentCalculator.CalculateCurveAt(distance, pt, direction, radius);
 
@@ -84,16 +110,23 @@ begin
     Exit;
   end;
 
-  offset := FSlewAmount * (1 - cos(slewDistance * Pi / FSlewLength)) / 2;
-  slope := (Pi * FSlewAmount * sin(slewDistance * Pi/FSlewLength)) / (2 * FSlewLength);
+  if FSlewMode = eSM_Cosine then begin
+    offset := FSlewAmount * (1 - cos(slewDistance * Pi / FSlewLength)) / 2;
+    slope := (Pi * FSlewAmount * sin(slewDistance * Pi / FSlewLength)) / (2 * FSlewLength);
+  end
+  else begin
+    angle := 2 * FSlewFactor * (slewDistance / FSlewLength - 0.5);
+    offset := (FRotationSin * angle + FRotationCos * tanh(angle) + FYMax) * FSlewAmount / (2 * FYMax);
+    slope := (FSlewAmount * FSlewFactor/(FYMax * FSlewLength)) * (FRotationSin + FRotationCos * (1 - sqr(tanh(angle))));
+  end;
 
   pt := pt + curveNormal * offset;
   slopeDirection := Tpex.xy(1, slope).normalise;
 
   rotation := Tmatrix_2d.CreateIdentity;
   try
-     rotation.rotate_by(slopeDirection);
-     direction := rotation.transform_vector(direction);
+    rotation.rotate_by(slopeDirection);
+    direction := rotation.transform_vector(direction);
   finally
     rotation.Free;
   end;

@@ -51,11 +51,15 @@ type
     function GetSlewMode: ESlewMode;
     function GetSlewFactor: double;
 
-    procedure do_test_slew;
+    procedure do_test_slew_cosine;
+    procedure do_test_slew_tanh;
 
   published
     procedure test_straight_line_slewed_left_cosine;
     procedure test_straight_line_slewed_right_cosine;
+
+    procedure test_straight_line_slewed_left_tanh;
+
       (*
       procedure test_single_radius_positive_slewed_left;
       procedure test_single_radius_positive_slewed_right;
@@ -73,6 +77,7 @@ type
 implementation
 
 uses
+  math,
   curve,
   curve_segment_calculator;
 
@@ -140,7 +145,7 @@ begin
   Result := slewFactor;
 end;
 
-procedure TTestSlewCalculator.do_test_slew;
+procedure TTestSlewCalculator.do_test_slew_cosine;
 var
   curveSegmentCalculator: TCurveSegmentCalculator;
   distance: double;
@@ -192,6 +197,70 @@ begin
   end;
 end;
 
+procedure TTestSlewCalculator.do_test_slew_tanh;
+var
+  curveSegmentCalculator: TCurveSegmentCalculator;
+  distance: double;
+  pt: Tpex;
+  direction: Tpex;
+  radius: double;
+  angle: double;
+  expectedOffset: double;
+  expectedSlope: double;
+  expectedDirection: Tpex;
+  yAtSlewFactor: double;
+  yDashAtSlewFactor: double;
+  rotation: Tpex;
+  yMax: double;
+begin
+  curveSegmentCalculator := TCurveSegmentCalculator.Create(self);
+  slew := TSlewCalculator.Create(self, curveSegmentCalculator);
+
+  // initial calculations for Tanh...
+  yAtSlewFactor := tanh(slewFactor);
+  yDashAtSlewFactor := 1 - sqr(tanh(slewFactor));
+  rotation := Tpex.xy(1, yDashAtSlewFactor).normalise;
+  yMax := rotation.y * slewFactor + rotation.x * yAtSlewFactor;
+
+  distance := 0;
+  while distance < distanceToStartOfSlew + slewLength + 100 do begin
+    slew.CalculateCurveAt(distance, pt, direction, radius);
+
+    if distance < distanceToStartOfSlew then begin
+      CheckEquals( 0, pt.y );
+      CheckEquals( distance, pt.x );
+      CheckEquals( max_rad, radius);
+      CheckEquals( 1, direction.x, format('expectedDirection.x at %f', [distance]));
+      CheckEquals( 0, direction.y, format('expectedDirection.y at %f', [distance]));
+    end
+    else
+    if distance < distanceToStartOfSlew + slewLength then begin
+      angle := 2 * slewFactor * ((distance - distanceToStartOfSlew)/slewLength - 0.5);
+
+      expectedOffset := (rotation.y * angle + rotation.x * tanh(angle) + yMax) * slewAmount / (2*yMax);
+      expectedSlope := (slewAmount * slewFactor/(yMax * slewLength)) * (rotation.y + rotation.x*(1 - sqr(tanh(angle))));
+
+      expectedDirection := Tpex.xy( 1, expectedSlope ).normalise();
+
+      CheckEquals(expectedOffset, pt.y);
+      CheckEquals(distance, pt.x);
+      CheckEquals(max_rad, radius);
+      CheckEquals(expectedDirection.x, direction.x, format('expectedDirection.x at %f', [distance]));
+      CheckEquals(expectedDirection.y, direction.y, format('expectedDirection.y at %f', [distance]));
+
+    end
+    else begin
+      CheckEquals( slewAmount, pt.y );
+      CheckEquals( distance, pt.x );
+      CheckEquals( max_rad, radius);
+      CheckEquals( 1, direction.x, format('expectedDirection.x at %f', [distance]));
+      CheckEquals( 0, direction.y, format('expectedDirection.y at %f', [distance]));
+    end;
+
+    distance := distance + 5;
+  end;
+end;
+
 procedure TTestSlewCalculator.test_straight_line_slewed_left_cosine;
 begin
   nominalRadius := max_rad;
@@ -203,7 +272,7 @@ begin
   slewAmount := 10;
   slewMode := eSM_Cosine;
 
-  do_test_slew;
+  do_test_slew_cosine;
 end;
 
 procedure TTestSlewCalculator.test_straight_line_slewed_right_cosine;
@@ -217,8 +286,24 @@ begin
   slewAmount := -20;
   slewMode := eSM_Cosine;
 
-  do_test_slew;
+  do_test_slew_cosine;
 end;
+
+procedure TTestSlewCalculator.test_straight_line_slewed_left_tanh;
+begin
+  nominalRadius := max_rad;
+  isSpiral := False;
+
+  isSlewing := True;
+  distanceToStartOfSlew := 100;
+  slewLength := 100;
+  slewAmount := 10;
+  slewMode := eSM_TanH;
+  slewFactor := 1;
+
+  do_test_slew_tanh;
+end;
+
 
 initialization
   RegisterTest(TTestSlewCalculator);
