@@ -229,15 +229,15 @@ We now need to calculate the sin and cos of the rotation angle, which we can do 
 
 [stem]
 ++++
-(r_{\cos}, r_{\sin}) = \widehat{(1, y')}
+(r_{\cos}, r_{\sin}) = \frac{(1, y')}{\lvert (1, y') \rvert}
 ++++
 
-We then want to rotate the end-point for the slew by the rotation angle, and look at just the y component which will give us the maximum value of the slew function 
+We then want to rotate the end-point for the slew anti-clockwise (-ve) by the rotation angle, and look at just the y component which will give us the maximum value of the slew function 
 which we will use to scale the result to the desired range.
 
 [stem]
 ++++
-y_{max} = r_{\sin}slewFactor + r_{\cos}y
+y_{max} = -r_{\sin}slewFactor + r_{\cos}y
 ++++
 
 To determine the slew offset for an arbitrary point, calculate the angle argument to tanh:
@@ -249,12 +249,12 @@ angle = 2 \cdot slewFactor \cdot (\frac{x}{slewLength} - 1/2)
 Calculate the stem:[\tanh] at that ange, rotate and scale:
 [stem]
 ++++
-offset = (r_{\sin}angle + r_{\cos}\tanh(angle) + y_{max}) \frac{slewAmount}{2 \cdot y_{max}}
+offset = (-r_{\sin}angle + r_{\cos}\tanh(angle) + y_{max}) \frac{slewAmount}{2 \cdot y_{max}}
 ++++
 
 Expand this to be in terms of stem:[x] (by substituting back the definition of angle), and differentiating, we get:
 [stem]
 ++++
-offset' = \frac{slewAmount \cdot slewFactor}{y_{max} \cdot slewLength}(r_{\sin} + r_{\cos}\cdot(1 - \tanh^2(2 \cdot slewFactor \cdot (\frac{x}{slewLength} - 1/2))))
+offset' = \frac{slewAmount \cdot slewFactor}{y_{max} \cdot slewLength}(-r_{\sin} + r_{\cos}\cdot(1 - \tanh^2(2 \cdot slewFactor \cdot (\frac{x}{slewLength} - 1/2))))
 ++++
 

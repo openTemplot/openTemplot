@@ -77,7 +77,7 @@ type
 implementation
 
 uses
-  math,
+  Math,
   curve,
   curve_segment_calculator;
 
@@ -165,32 +165,34 @@ begin
     slew.CalculateCurveAt(distance, pt, direction, radius);
 
     if distance < distanceToStartOfSlew then begin
-      CheckEquals( 0, pt.y );
-      CheckEquals( distance, pt.x );
-      CheckEquals( max_rad, radius);
-      CheckEquals( 1, direction.x, format('expectedDirection.x at %f', [distance]));
-      CheckEquals( 0, direction.y, format('expectedDirection.y at %f', [distance]));
+      CheckEquals(0, pt.y);
+      CheckEquals(distance, pt.x);
+      CheckEquals(max_rad, radius);
+      CheckEquals(1, direction.x, format('expectedDirection.x at %f', [distance]));
+      CheckEquals(0, direction.y, format('expectedDirection.y at %f', [distance]));
     end
     else
     if distance < distanceToStartOfSlew + slewLength then begin
-      angle := (distance - distanceToStartOfSlew) * Pi()/slewLength;
+      angle := (distance - distanceToStartOfSlew) * Pi() / slewLength;
       expectedOffset := slewAmount * (1 - cos(angle)) / 2;
-      expectedSlope := (Pi()*slewAmount * sin(angle)) / (2 * slewLength);
-      expectedDirection := Tpex.xy( 1, expectedSlope ).normalise();
+      expectedSlope := (Pi() * slewAmount * sin(angle)) / (2 * slewLength);
+      expectedDirection := Tpex.xy(1, expectedSlope).normalise();
 
       CheckEquals(expectedOffset, pt.y);
       CheckEquals(distance, pt.x);
       CheckEquals(max_rad, radius);
-      CheckEquals(expectedDirection.x, direction.x, format('expectedDirection.x at %f', [distance]));
-      CheckEquals(expectedDirection.y, direction.y, format('expectedDirection.y at %f', [distance]));
+      CheckEquals(expectedDirection.x, direction.x,
+        format('expectedDirection.x at %f', [distance]));
+      CheckEquals(expectedDirection.y, direction.y,
+        format('expectedDirection.y at %f', [distance]));
 
     end
     else begin
-      CheckEquals( slewAmount, pt.y );
-      CheckEquals( distance, pt.x );
-      CheckEquals( max_rad, radius);
-      CheckEquals( 1, direction.x, format('expectedDirection.x at %f', [distance]));
-      CheckEquals( 0, direction.y, format('expectedDirection.y at %f', [distance]));
+      CheckEquals(slewAmount, pt.y);
+      CheckEquals(distance, pt.x);
+      CheckEquals(max_rad, radius);
+      CheckEquals(1, direction.x, format('expectedDirection.x at %f', [distance]));
+      CheckEquals(0, direction.y, format('expectedDirection.y at %f', [distance]));
     end;
 
     distance := distance + 5;
@@ -220,44 +222,50 @@ begin
   yAtSlewFactor := tanh(slewFactor);
   yDashAtSlewFactor := 1 - sqr(tanh(slewFactor));
   rotation := Tpex.xy(1, yDashAtSlewFactor).normalise;
-  yMax := rotation.y * slewFactor + rotation.x * yAtSlewFactor;
+  yMax := -rotation.y * slewFactor + rotation.x * yAtSlewFactor;
 
   distance := 0;
   while distance < distanceToStartOfSlew + slewLength + 100 do begin
     slew.CalculateCurveAt(distance, pt, direction, radius);
 
     if distance < distanceToStartOfSlew then begin
-      CheckEquals( 0, pt.y );
-      CheckEquals( distance, pt.x );
-      CheckEquals( max_rad, radius);
-      CheckEquals( 1, direction.x, format('expectedDirection.x at %f', [distance]));
-      CheckEquals( 0, direction.y, format('expectedDirection.y at %f', [distance]));
+      CheckEquals(0, pt.y);
+      CheckEquals(distance, pt.x);
+      CheckEquals(max_rad, radius);
+      CheckEquals(1, direction.x, format('expectedDirection.x at %f', [distance]));
+      CheckEquals(0, direction.y, format('expectedDirection.y at %f', [distance]));
     end
     else
-    if distance < distanceToStartOfSlew + slewLength then begin
-      angle := 2 * slewFactor * ((distance - distanceToStartOfSlew)/slewLength - 0.5);
+    if distance <= distanceToStartOfSlew + slewLength then begin
+      angle := 2 * slewFactor * ((distance - distanceToStartOfSlew) / slewLength - 0.5);
 
-      expectedOffset := (rotation.y * angle + rotation.x * tanh(angle) + yMax) * slewAmount / (2*yMax);
-      expectedSlope := (slewAmount * slewFactor/(yMax * slewLength)) * (rotation.y + rotation.x*(1 - sqr(tanh(angle))));
+      expectedOffset := (-rotation.y * angle + rotation.x * tanh(angle) + yMax) *
+        slewAmount / (2 * yMax);
+      expectedSlope := (slewAmount * slewFactor / (yMax * slewLength)) *
+        (-rotation.y + rotation.x * (1 - sqr(tanh(angle))));
 
-      expectedDirection := Tpex.xy( 1, expectedSlope ).normalise();
+      expectedDirection := Tpex.xy(1, expectedSlope).normalise();
 
       CheckEquals(expectedOffset, pt.y);
       CheckEquals(distance, pt.x);
       CheckEquals(max_rad, radius);
-      CheckEquals(expectedDirection.x, direction.x, format('expectedDirection.x at %f', [distance]));
-      CheckEquals(expectedDirection.y, direction.y, format('expectedDirection.y at %f', [distance]));
+      CheckEquals(expectedDirection.x, direction.x, 1e-6,
+        format('expectedDirection.x at %f', [distance]));
+      CheckEquals(expectedDirection.y, direction.y, 1e-6,
+        format('expectedDirection.y at %f', [distance]));
+
+      //writeln(format('%f :  %f,  %f', [distance, expectedOffset, expectedSlope]));
 
     end
     else begin
-      CheckEquals( slewAmount, pt.y );
-      CheckEquals( distance, pt.x );
-      CheckEquals( max_rad, radius);
-      CheckEquals( 1, direction.x, format('expectedDirection.x at %f', [distance]));
-      CheckEquals( 0, direction.y, format('expectedDirection.y at %f', [distance]));
+      CheckEquals(slewAmount, pt.y);
+      CheckEquals(distance, pt.x);
+      CheckEquals(max_rad, radius);
+      CheckEquals(1, direction.x, format('expectedDirection.x at %f', [distance]));
+      CheckEquals(0, direction.y, format('expectedDirection.y at %f', [distance]));
     end;
 
-    distance := distance + 5;
+    distance := distance + 1;
   end;
 end;
 
@@ -309,4 +317,3 @@ initialization
   RegisterTest(TTestSlewCalculator);
 
 end.
-
