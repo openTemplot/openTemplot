@@ -190,16 +190,71 @@ In the slew zone the offset is calculated according to a function based on the s
 
 [stem]
 ++++
-offset = 0.5 slewAmount (1 - \cos( x \pi / slewLength))
+offset = \frac{slewAmount}{2} \cdot (1 - \cos( \frac{x \cdot \pi}{slewLength}))
 ++++
 
 The first derivative of this is:
 
 [stem]
 ++++
-offset' = \frac{\pi slewAmount \sin(x \pi / slewLength)}{2 slewLength}
+offset' = \frac{\pi \cdot slewAmount \sin(\frac{x \cdot \pi}{slewLength})}{2 \cdot slewLength}
 ++++
 
 The first derivative is the slope of the offset function, and is used to adjust the curve direction of the underlying curve appropriately.
 
+### eSM_TanH calculations
+
+This is a more complex calculation as it has an additional stem:[slewFactor] parameter to control the shape of the slew curve.
+
+stem:[slewFactor] specifies the range of the stem:[\tanh] function that will be used for the slew (in radians), from stem:[[-slewFactor,slewFactor]]. 
+
+As we need to have first-order continuity between the underlying curve and the slew curve, we calculate the first derivative of stem:[tanh] at the slewFactor 
+limit, and use this to calculate a rotation that will be applied to the function, such that the slope of the function at stem:[\tanh(slewFactor)] becomes 0.
+
+The y value at this limit is the maximum y value we will get while evaluating the slew, so we scale values from the range stem:[[-y_{max},y_{max}]] to the 
+range stem:[[0,slewAmount]]
+
+As preparation, we need to know the value and first derivative of the tanh function at stem:[slewFactor]:
+[stem]
+++++
+y = \tanh(slewFactor)
+++++
+
+[stem]
+++++
+y' = 1 - \tanh^2(slewFactor)
+++++
+
+We now need to calculate the sin and cos of the rotation angle, which we can do by constructing a vector from the first derivative, and normalising:
+
+[stem]
+++++
+(r_{\cos}, r_{\sin}) = \widehat{(1, y')}
+++++
+
+We then want to rotate the end-point for the slew by the rotation angle, and look at just the y component which will give us the maximum value of the slew function 
+which we will use to scale the result to the desired range.
+
+[stem]
+++++
+y_{max} = r_{\sin}slewFactor + r_{\cos}y
+++++
+
+To determine the slew offset for an arbitrary point, calculate the angle argument to tanh:
+[stem]
+++++
+angle = 2 \cdot slewFactor \cdot (\frac{x}{slewLength} - 1/2)
+++++
+
+Calculate the stem:[\tanh] at that ange, rotate and scale:
+[stem]
+++++
+offset = (r_{\sin}angle + r_{\cos}\tanh(angle) + y_{max}) \frac{slewAmount}{2 \cdot y_{max}}
+++++
+
+Expand this to be in terms of stem:[x] (by substituting back the definition of angle), and differentiating, we get:
+[stem]
+++++
+offset' = \frac{slewAmount \cdot slewFactor}{y_{max} \cdot slewLength}(r_{\sin} + r_{\cos}\cdot(1 - \tanh^2(2 \cdot slewFactor \cdot (\frac{x}{slewLength} - 1/2))))
+++++
 
