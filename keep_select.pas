@@ -23,7 +23,7 @@
 ====================================================================================
 *)
 
-{ }
+
 unit keep_select;
 
 {$MODE Delphi}
@@ -591,7 +591,8 @@ type
 
   end;//record Tkeep_dims2
 
-  Told_keep_data = record    // this matches the old Tkeep_data record pre 071 including the timber shove data.
+  Told_keep_data = record
+    // this matches the old Tkeep_data record pre 071 including the timber shove data.
     // used on loading files.
 
     old_keep_dims1: Tkeep_dims1;
@@ -628,7 +629,8 @@ var
 //function echo_keep:boolean;                                          // save the current keep as an echo.
 function save_box(this_one, which_ones, rolling_backup: integer; save_str: string): boolean;
 function load_storage_box(normal_load, old_templot_folder: boolean; file_str: string;
-  load_backup, make_lib: boolean; var append: boolean; var last_bgnd_loaded_index: integer): boolean;
+  load_backup, make_lib: boolean; var append: boolean;
+  var last_bgnd_loaded_index: integer): boolean;
 // load a file of templates into the keeps box.
 
 
@@ -726,7 +728,8 @@ uses  LCLIntf, Math, control_room,
   dxf_unit, bgkeeps_unit, grid_unit, Clipbrd, edit_memo_unit, wait_message, shove_timber,
   jotter_unit, print_settings_unit, data_memo_unit,
   MetaFilePrinter, { OT-FIRST file_viewer,} panning_unit, mecbox_unit,
-  curve;
+  curve,
+  rail_data_unit;
 
 const
 
@@ -793,8 +796,10 @@ var
   total_bgnd_timbering_length: double = 0;      // 0.96.a
   total_group_timbering_length: double = 0;      // 0.96.a
 
-  smallest_bgnd_radius: double = 1.0E8 - 5000;      // 208a for box data    init=max_rad ="straight"
-  smallest_group_radius: double = 1.0E8 - 5000;     // 208a for box data    init=max_rad ="straight"
+  smallest_bgnd_radius: double = 1.0E8 - 5000;
+  // 208a for box data    init=max_rad ="straight"
+  smallest_group_radius: double = 1.0E8 - 5000;
+  // 208a for box data    init=max_rad ="straight"
 
   smallest_bgnd_radius_index: integer = 0;      // 208a
   smallest_group_radius_index: integer = 0;     // 208a
@@ -880,7 +885,8 @@ end;
 procedure init_ttemplate(n: integer);    // init list flags for a newly created keep.
 
 var
-  i, aq: integer;
+  i: integer;
+  aq: ERailData;
 
 begin
   with Ttemplate(keeps_list.Objects[n]) do begin
@@ -902,7 +908,7 @@ begin
 
     with bgnd_keep do begin
       SetLength(list_bgnd_marks, 0);
-      for aq := 0 to aq_max_c do begin
+      for aq in ERailData do begin
         SetLength(list_bgnd_rails[aq], 0);
       end;//for
     end;//with
@@ -918,7 +924,8 @@ function wipe_it(n: integer): boolean;   // wipe template n from background.
 
   // return True if successfully wiped, or False if was already unused.
 var
-  index, aq: integer;
+  index: integer;
+  aq: ERailData;
 
 begin
   Result := False;        // default init
@@ -941,7 +948,7 @@ begin
     with bgnd_keep do begin
       SetLength(list_bgnd_marks, 0);
 
-      for aq := 0 to aq_max_c do begin
+      for aq in ERailData do begin
         SetLength(list_bgnd_rails[aq], 0);
       end;//for next aq
 
@@ -1160,8 +1167,8 @@ begin
 
   if keeps_list.Count <> memo_list.Count then begin
     alert(5, '      file  wrong',
-      '|The contents of the file:' + '||' + file_name
-      + '||are incorrect. Either there is a hardware problem, or the file has been modified since Templot0 created it.'
+      '|The contents of the file:' + '||' + file_name +
+      '||are incorrect. Either there is a hardware problem, or the file has been modified since Templot0 created it.'
       + '||Reload will have to be abandoned.',
       '', '', '', '', '', 'continue', 0);
     Result := False;                          // file has been tampered with.
@@ -1210,17 +1217,14 @@ begin
 
         // 208b mods..
 
-        i := alert(7, '      delete  this  template ?',
-          '|' + str +
-          '||You are about to delete this template from your storage box' + s
-          + ' The remaining templates will be re-numbered.'
-          +
+        i := alert(7, '      delete  this  template ?', '|' + str +
+          '||You are about to delete this template from your storage box' +
+          s + ' The remaining templates will be re-numbered.' +
           '||It can be restored by clicking the `0EDIT > UNDO DELETE`1 menu item on the storage box'
-          + '||or the `0PROGRAM > UNDO DELETED TEMPLATE`1 menu item on the trackpad'
-          + '||before another template is deleted.'
-          + '||Are you sure you want to delete this template ?',
-          '', '', '', '', 'no  -  cancel  delete',
-          'yes  -  delete  ' + str + '       ', 0);
+          + '||or the `0PROGRAM > UNDO DELETED TEMPLATE`1 menu item on the trackpad' +
+          '||before another template is deleted.' +
+          '||Are you sure you want to delete this template ?', '', '', '', '',
+          'no  -  cancel  delete', 'yes  -  delete  ' + str + '       ', 0);
 
         //%%%%  was "today"
 
@@ -1249,16 +1253,10 @@ begin
         alert_box.preferences_checkbox.Checked := False;       //%%%%
         alert_box.preferences_checkbox.Show;
 
-        i := alert(7, '      cut  this  template ?',
-          '|' + str + ' has been sent as an ECHO.'
-          + ' You are now about to delete this template from your storage box'
-          +
-          s +
-          '||It can be only restored by selecting the DISK > FETCH ECHO menu item before another echo is sent.'
-          + '||The remaining templates will be re-numbered.'
-          + '||Are you sure you want to delete this template ?',
-          '', '', '', '', 'no  -  cancel  delete    ',
-          'yes  -  delete  ' + ti.keep_dims.box_dims1.reference_string + '      ', 0);
+        i := alert(7, '      cut  this  template ?', '|' + str +
+          ' has been sent as an ECHO.' +
+          ' You are now about to delete this template from your storage box' +
+          s + '||It can be only restored by selecting the DISK > FETCH ECHO menu item before another echo is sent.' + '||The remaining templates will be re-numbered.' + '||Are you sure you want to delete this template ?', '', '', '', '', 'no  -  cancel  delete    ', 'yes  -  delete  ' + ti.keep_dims.box_dims1.reference_string + '      ', 0);
 
         //%%%%  was "today"
 
@@ -1275,8 +1273,7 @@ begin
     then begin
       if wipe_it(n) = False then begin
         alert(5, '    program  error',
-          '||Sorry, there is a program error.'
-          +
+          '||Sorry, there is a program error.' +
           '||The background will be cleared and rebuilt.' +
           '||No templates have been deleted.',
           '', '', '', '', '', 'O K', 0);
@@ -1326,14 +1323,12 @@ var
         pt_all :=
           turnout_road_stock_rail_sw and main_road_stock_rail_sw;
 
-        turnout_all := pt_all and
-          turnout_road_check_rail_sw and
-          turnout_road_crossing_rail_sw and
-          crossing_vee_sw and
+        turnout_all := pt_all and turnout_road_check_rail_sw and
+          turnout_road_crossing_rail_sw and crossing_vee_sw and
           main_road_check_rail_sw and main_road_crossing_rail_sw;
 
-        hd_all := turnout_all and
-          k_diagonal_side_check_rail_sw and k_main_side_check_rail_sw;
+        hd_all := turnout_all and k_diagonal_side_check_rail_sw and
+          k_main_side_check_rail_sw;
 
       end;//with
 
@@ -1491,7 +1486,8 @@ begin
               7..12:
                 list_index := get_switch_list_index(2, old_size - 6);  // REA switches A-F (6).
               13..20:
-                list_index := get_switch_list_index(4, old_size - 12); // GWR old_type heel switches. 9ft - 20ft (8).
+                list_index := get_switch_list_index(4, old_size - 12);
+              // GWR old_type heel switches. 9ft - 20ft (8).
               21..24:
                 list_index := get_switch_list_index(3, old_size - 20);
                 // GWR curved switches B-D + 30ft straight switch (4).
@@ -1510,8 +1506,8 @@ begin
               joggled_stock_rail := False;  // no joggle default.
             end
             else begin
-              with Tswitch(
-                  switch_select_form.switch_selector_listbox.Items.Objects[list_index]) do begin
+              with Tswitch(switch_select_form.switch_selector_listbox.
+                  Items.Objects[list_index]) do begin
                 planing_radius := list_switch_info.planing_radius;
                 // planing radius for double-curved switch.
                 joggle_depth := list_switch_info.joggle_depth;
@@ -1669,8 +1665,8 @@ begin
 
           with old_keep_dims2.turnout_info2.switch_info do begin
 
-            if (ABS(switch_radius_inchormax) >
-              (max_rad / 20)) // buggy? in older files. 20 arbitrary.
+            if (ABS(switch_radius_inchormax) > (max_rad /
+              20)) // buggy? in older files. 20 arbitrary.
               and (sw_pattern = 0)
             // straight or curved switch.
             then
@@ -1824,7 +1820,8 @@ begin
             // extend approach sleepers by 12" to match.
 
             with crossing_info do
-              hdkn_unit_angle := k3n_unit_angle;  // only regular half-diamonds in earlier versions.
+              hdkn_unit_angle := k3n_unit_angle;
+            // only regular half-diamonds in earlier versions.
 
           end;//with
 
@@ -1970,17 +1967,12 @@ begin
 
           id_number := highest_id_number + 1;                                  // 208a
           id_number_str :=
-            create_id_number_str(id_number,
-            turnout_info1.hand,
-            old_keep_dims2.turnout_info2.start_draw_x,
-            turnout_info1.turnout_length,
-            old_keep_dims2.
-            turnout_info2.ipx_stored,   // 0
-            old_keep_dims2.
-            turnout_info2.fpx_stored,   // 0
+            create_id_number_str(id_number, turnout_info1.hand,
+            old_keep_dims2.turnout_info2.start_draw_x, turnout_info1.turnout_length,
+            old_keep_dims2.turnout_info2.ipx_stored,   // 0
+            old_keep_dims2.turnout_info2.fpx_stored,   // 0
             turnout_info1.plain_track_flag,
-            old_keep_dims2.
-            turnout_info2.semi_diamond_flag,
+            old_keep_dims2.turnout_info2.semi_diamond_flag,
             any_loaded_rails_omitted);
 
         end;
@@ -2116,8 +2108,10 @@ begin
             if cess_ts_width_ins_keep = 30 then
               cess_ts_width_ins_keep := 27;  // update if still on default
 
-            draw_ms_trackbed_cess_edge_keep := OUT_OF_USE_draw_trackbed_cess_edge_keep;       //boolean;
-            draw_ts_trackbed_cess_edge_keep := OUT_OF_USE_draw_trackbed_cess_edge_keep;       //boolean;
+            draw_ms_trackbed_cess_edge_keep := OUT_OF_USE_draw_trackbed_cess_edge_keep;
+            //boolean;
+            draw_ts_trackbed_cess_edge_keep := OUT_OF_USE_draw_trackbed_cess_edge_keep;
+            //boolean;
 
             trackbed_ms_start_mm_keep := 0;            //extended;
             trackbed_ms_length_mm_keep := def_req;     //extended;
@@ -2470,32 +2464,37 @@ begin
 
             0: begin
               Filename :=
-                remove_invalid_str(Copy(Trim(box_project_title_str), 1, 20) + FormatDateTime(
-                ' yyyy_mm_dd_hhmm_ss', Date + Time)) + '.box3';   // 0.79.a  20 chars was 15
+                remove_invalid_str(Copy(Trim(box_project_title_str), 1, 20) +
+                FormatDateTime(' yyyy_mm_dd_hhmm_ss', Date + Time)) + '.box3';
+              // 0.79.a  20 chars was 15
               Title := '    save  all  templates  as ...';
             end;
 
             1: begin
               Filename :=
-                remove_invalid_str('background' + FormatDateTime(' yyyy_mm_dd_hhmm_ss', Date + Time)) + '.box3';
+                remove_invalid_str('background' +
+                FormatDateTime(' yyyy_mm_dd_hhmm_ss', Date + Time)) + '.box3';
               Title := '    save  background  templates  as ...';
             end;
 
             2: begin
               Filename :=
-                remove_invalid_str('unused' + FormatDateTime(' yyyy_mm_dd_hhmm_ss', Date + Time)) + '.box3';
+                remove_invalid_str('unused' + FormatDateTime(' yyyy_mm_dd_hhmm_ss',
+                Date + Time)) + '.box3';
               Title := '    save  unused  templates  as ...';
             end;
 
             3: begin
               Filename :=
-                remove_invalid_str('group' + FormatDateTime(' yyyy_mm_dd_hhmm_ss', Date + Time)) + '.box3';
+                remove_invalid_str('group' + FormatDateTime(' yyyy_mm_dd_hhmm_ss',
+                Date + Time)) + '.box3';
               Title := '    save  selected  group  of  templates  as ...';
             end;
 
             4: begin
               Filename :=
-                remove_invalid_str('library' + FormatDateTime(' yyyy_mm_dd_hhmm_ss', Date + Time)) + '.box3';
+                remove_invalid_str('library' + FormatDateTime(' yyyy_mm_dd_hhmm_ss',
+                Date + Time)) + '.box3';
               Title := '    save  library  templates  as ...';
             end;
 
@@ -2532,7 +2531,8 @@ begin
       if rolling_backup = 0 then
         Screen.Cursor := crHourGlass;   // 0.93.a test added     // could take a while if big file.
       if Application.Terminated = False then
-        Application.ProcessMessages;       // so let the form repaint (if not called from quit_alert).
+        Application.ProcessMessages;
+      // so let the form repaint (if not called from quit_alert).
 
 
       fsize := 0;         // default init..
@@ -2546,7 +2546,8 @@ begin
 
           for i := 0 to keeps_list.Count - 1 do begin     // first write the template data.
 
-            Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.file_format_code := 1;
+            Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.file_format_code
+            := 1;
             // OT format      // put format in file
 
             // 0.94.a  fb_kludge templates are created on output/printing, and destroyed afterwards. Don't save any remaining..
@@ -2560,16 +2561,19 @@ begin
                 if i <> this_one then
                   CONTINUE;
               1:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077 <> 1 then
+                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                  <> 1 then
                   CONTINUE;  // bgnd only, ignore unused and library.
               2:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077 <> 0 then
+                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                  <> 0 then
                   CONTINUE;  // unused only, ignore others.
               3:
                 if Ttemplate(keeps_list.Objects[i]).group_selected = False then
                   CONTINUE;  // group only, ignore unselected.
               4:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077 <> -1 then
+                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                  <> -1 then
                   CONTINUE;  // library only, ignore others.
             end;//case
 
@@ -2651,16 +2655,19 @@ begin
                 if i <> this_one then
                   CONTINUE;
               1:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077 <> 1 then
+                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                  <> 1 then
                   CONTINUE;   // bgnd only, ignore unused and library.
               2:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077 <> 0 then
+                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                  <> 0 then
                   CONTINUE;   // unused, ignore others
               3:
                 if Ttemplate(keeps_list.Objects[i]).group_selected = False then
                   CONTINUE;   // group only, ignore unselected.
               4:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077 <> -1 then
+                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                  <> -1 then
                   CONTINUE;   // library only, ignore others.
             end;//case
 
@@ -2731,16 +2738,19 @@ begin
                 if i <> this_one then
                   CONTINUE;
               1:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077 <> 1 then
+                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                  <> 1 then
                   CONTINUE;   // bgnd only, ignore unused and library.
               2:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077 <> 0 then
+                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                  <> 0 then
                   CONTINUE;   // unused only.
               3:
                 if Ttemplate(keeps_list.Objects[i]).group_selected = False then
                   CONTINUE;   // group only, ignore unselected.
               4:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077 <> -1 then
+                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                  <> -1 then
                   CONTINUE;   // library only.
             end;//case
 
@@ -2788,8 +2798,7 @@ begin
 
                 BlockWrite(box_file, shove_timber_data, SizeOf(Tshove_for_file),
                   number_written);      // first the count of shoved timbers.
-                if number_written <> SizeOf(Tshove_for_file) then
-                begin
+                if number_written <> SizeOf(Tshove_for_file) then begin
                   file_write_error;
                   Result := False;
                   EXIT;
@@ -2887,7 +2896,8 @@ end;
 //______________________________________________________________________________________
 
 function load_storage_box(normal_load, old_templot_folder: boolean; file_str: string;
-  load_backup, make_lib: boolean; var append: boolean; var last_bgnd_loaded_index: integer): boolean;
+  load_backup, make_lib: boolean; var append: boolean;
+  var last_bgnd_loaded_index: integer): boolean;
   // load a file of templates into the keeps box.
 
   // normal_load True = for use. False = for file viewer.
@@ -2899,7 +2909,11 @@ function load_storage_box(normal_load, old_templot_folder: boolean; file_str: st
 const
   ask_restore_str: string = '      `0Restore On Startup`9' +
     '||Your work in progress can be restored from your previous working session with Templot0.'
-    + '||This means restoring your storage box contents `0(if any)`7, background track plan drawing `0(if any)`7, and control template.' + '||This is done independently of any saving to data files which you may have performed.' + '||If you answer "no thanks" the previous data can be restored later by selecting the `0FILES > RESTORE PREVIOUS`1 menu item on the storage box menus.' + '||tree.gif The restore feature works correctly even if your previous session terminated abnormally as a result of a power failure or system malfunction, so there is no need to perform repeated saves as a precaution against these events.' + '||rp.gif The restore feature does not include your Background Shapes or Sketchboard files, which must be saved and reloaded separately as required.' + '||rp.gif If you run two instances of Templot0 concurrently (not recommended for Windows 95/98/ME) from the same `0\TEMPLOT\`2 folder,' + ' the restore data will be held in common between the two. To prevent this happening, create and run the second instance from a different folder (directory).';
+    +
+    '||This means restoring your storage box contents `0(if any)`7, background track plan drawing `0(if any)`7, and control template.'
+    +
+    '||This is done independently of any saving to data files which you may have performed.' +
+    '||If you answer "no thanks" the previous data can be restored later by selecting the `0FILES > RESTORE PREVIOUS`1 menu item on the storage box menus.' + '||tree.gif The restore feature works correctly even if your previous session terminated abnormally as a result of a power failure or system malfunction, so there is no need to perform repeated saves as a precaution against these events.' + '||rp.gif The restore feature does not include your Background Shapes or Sketchboard files, which must be saved and reloaded separately as required.' + '||rp.gif If you run two instances of Templot0 concurrently (not recommended for Windows 95/98/ME) from the same `0\TEMPLOT\`2 folder,' + ' the restore data will be held in common between the two. To prevent this happening, create and run the second instance from a different folder (directory).';
 
 var
   test_box_file: file;                 // untyped file for testing format.
@@ -2959,8 +2973,8 @@ var
     end;
     /////////////////////////////////
 
-    function load_shove_block(
-      t_index, seg_len: integer): boolean;   // for a single template.
+    function load_shove_block(t_index, seg_len: integer): boolean;
+      // for a single template.
 
     var
       shove_timber_data: Tshove_for_file;
@@ -2979,8 +2993,7 @@ var
       BlockRead(box_file, shove_count,
         SizeOf(integer), number_read);
       total_read := total_read + number_read;
-      if (number_read <> SizeOf(integer)) or
-        (total_read > seg_len) then begin
+      if (number_read <> SizeOf(integer)) or (total_read > seg_len) then begin
         try
           CloseFile(box_file);
         except
@@ -2991,12 +3004,10 @@ var
         EXIT;
       end;
 
-      if seg_len <>
-        (SizeOf(integer) + shove_count * SizeOf(Tshove_for_file)) then
+      if seg_len <> (SizeOf(integer) + shove_count * SizeOf(Tshove_for_file)) then
         EXIT;  // the integer is the shove count just read.
 
-      if (t_index < 0) or
-        (t_index > (keeps_list.Count - 1)) then
+      if (t_index < 0) or (t_index > (keeps_list.Count - 1)) then
         EXIT;
 
       if shove_count > 0
@@ -3004,8 +3015,8 @@ var
       then begin
         st := 0;    // keep compiler happy.
 
-        with Ttemplate(
-            keeps_list.Objects[t_index]).template_info.keep_shove_list do begin
+        with Ttemplate(keeps_list.Objects[t_index]).template_info.keep_shove_list do
+        begin
 
           if Count <> 0 then
             EXIT;   // !!! shove list should be empty (created in init_ttemplate).
@@ -3017,9 +3028,8 @@ var
             BlockRead(box_file,
               shove_timber_data, SizeOf(Tshove_for_file), number_read);
             total_read := total_read + number_read;
-            if
-            (number_read <> SizeOf(Tshove_for_file)) or (total_read > seg_len)
-            then begin
+            if (number_read <> SizeOf(Tshove_for_file)) or
+              (total_read > seg_len) then begin
               try
                 CloseFile(box_file);
               except
@@ -3036,8 +3046,7 @@ var
             except
               EXIT;       // memory problem?
             end;//try
-          until (st = shove_count - 1) or
-            (total_read = seg_len);
+          until (st = shove_count - 1) or (total_read = seg_len);
         end;//with
       end;
       Result := True;
@@ -3064,8 +3073,8 @@ var
           except
             alert(1, '      memory  problem',
               '|||Unable to load templates from the file into your storage box because of memory problems.'
-              + '||(Loading terminated after  ' + IntToStr(
-              n - old_count) + '  templates.)',
+              + '||(Loading terminated after  ' + IntToStr(n - old_count) +
+              '  templates.)',
               '', '', '', '', '', 'cancel  reload', 0);
             try
               CloseFile(box_file);
@@ -3101,7 +3110,8 @@ var
           // !!! version_mismatch must be done first - sets bgnd_code_077...
 
           if make_lib = True then
-            old_next_data.old_keep_dims1.box_dims1.bgnd_code_077 := -1;  // make it a library template.
+            old_next_data.old_keep_dims1.box_dims1.bgnd_code_077 := -1;
+          // make it a library template.
 
           this_ti.keep_shove_list := Tshoved_timber_list.Create;
 
@@ -3112,7 +3122,8 @@ var
 
           if (append = True) and (make_lib = False) and
             (keep_form.add_ignore_group_menu_entry.Checked = False) then
-            Ttemplate(keeps_list.Objects[n]).group_selected := True;   // group select added template.
+            Ttemplate(keeps_list.Objects[n]).group_selected := True;
+          // group select added template.
 
         until Copy(s, 1, 2) = 'NX';      // last template marker.
 
@@ -3289,8 +3300,7 @@ var
         if EOF(box_file) = True then
           EXIT;
         BlockRead(box_file, block_start, SizeOf(Tblock_start), number_read);
-        if number_read <> SizeOf(Tblock_start)
-        then begin
+        if number_read <> SizeOf(Tblock_start) then begin
           try
             CloseFile(box_file);
           except
@@ -3313,8 +3323,7 @@ var
           if EOF(box_file) = True then
             EXIT;
           BlockRead(box_file, block_ident, SizeOf(Tblock_ident), number_read);
-          if number_read <> SizeOf(Tblock_ident)
-          then begin
+          if number_read <> SizeOf(Tblock_ident) then begin
             try
               CloseFile(box_file);
             except
@@ -3338,14 +3347,13 @@ var
 
             else begin    // no other codes defined for version 071. 6-5-01.
 
-              for i := 0 to (block_ident.segment_length - 1) do
-              begin  // so skip this block (later version file?).
+              for i := 0 to (block_ident.segment_length - 1) do begin
+                // so skip this block (later version file?).
 
                 if EOF(box_file) = True then
                   EXIT;
                 BlockRead(box_file, inbyte, 1, number_read);
-                if number_read <> 1
-                then begin
+                if number_read <> 1 then begin
                   try
                     CloseFile(box_file);
                   except
@@ -3376,9 +3384,8 @@ var
       then begin
         n := old_count;
         while n < keeps_list.Count do begin
-          if (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 = 0) and
-            (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.this_was_control_template =
-            False)  // 0.93.a
+          if (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 =
+            0) and (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.this_was_control_template = False)  // 0.93.a
 
           then
             clear_keep(n)
@@ -3401,16 +3408,13 @@ begin
     if save_done = False                 // and not saved...
     then begin
       i := alert(7, '      reload  storage  box  -  save  first ?',
-        'Your storage box contains one or more templates which have not yet been saved.'
-        +
+        'Your storage box contains one or more templates which have not yet been saved.' +
         ' Reloading your storage box will replace all of the existing contents and background drawing.'
-        +
-        '||These templates can be restored by clicking the `0UNDO RELOAD / UNDO CLEAR`1 menu item.'
-        +
-        ' But if any of these templates may be needed again, you should save them in a named data file.'
-        + '||Do you want to save the existing contents before reloading?'
-        + '||Or add the new templates to the existing contents instead?',
-        '', '', 'add  new  templates  to  existing    ',
+        + '||These templates can be restored by clicking the `0UNDO RELOAD / UNDO CLEAR`1 menu item.'
+        + ' But if any of these templates may be needed again, you should save them in a named data file.'
+        + '||Do you want to save the existing contents before reloading?' +
+        '||Or add the new templates to the existing contents instead?', '',
+        '', 'add  new  templates  to  existing    ',
         'replace  existing  contents  without  saving    ', 'cancel  reload    ',
         'save  existing  contents  before  reloading      ', 0);
       case i of
@@ -3425,15 +3429,13 @@ begin
     end
     else begin      //  it has been saved...
       i := alert(7, '      reload  storage  box  -  clear  first ?',
-        'Your storage box contains one or more existing templates.'
-        +
+        'Your storage box contains one or more existing templates.' +
         ' Reloading your storage box will replace all of the existing contents and background drawing.'
-        +
-        ' These templates can be restored by clicking the `0UNDO RELOAD / UNDO CLEAR`1 menu item.'
-        + '||Are you sure you want to replace the existing templates?'
-        + '||Or add the new templates to the existing contents instead?',
-        '', '', '', 'add  new  templates  to  existing  ',
-        'cancel  reload    ', 'reload  and  replace  existing  contents      ', 0);
+        + ' These templates can be restored by clicking the `0UNDO RELOAD / UNDO CLEAR`1 menu item.'
+        + '||Are you sure you want to replace the existing templates?' +
+        '||Or add the new templates to the existing contents instead?', '',
+        '', '', 'add  new  templates  to  existing  ', 'cancel  reload    ',
+        'reload  and  replace  existing  contents      ', 0);
       case i of
         4:
           append := True;
@@ -3490,8 +3492,7 @@ begin
 
     if FileExists(box_str) = False then begin
       alert(5, '    error  -  file  not  found',
-        '||The file :' +
-        '||' + box_str +
+        '||The file :' + '||' + box_str +
         '||is not available. Please check that the file you require exists in the named folder. Then try again.'
         + '||No changes have been made to your storage box.',
         '', '', '', '', 'cancel  reload', '', 0);
@@ -3585,19 +3586,18 @@ begin
             if startup_restore_pref = 1 then
               EXIT;   //%%%%   0=ask, 1=don't restore, 2=restore without asking
 
-            if (auto_restore_on_startup = False) or
-              (ask_restore_on_startup = False)
+            if (auto_restore_on_startup = False) or (ask_restore_on_startup = False)
             // if both True??? - must have been abnormal termination, so reload without asking.
             then begin
 
               if startup_restore_pref = 0
               //%%%%   0=ask, 1=don't restore, 2=restore without asking
               then begin
-                if auto_restore_on_startup =
-                  False           // these two only read from the first keep in the file..
+                if auto_restore_on_startup = False
+                // these two only read from the first keep in the file..
                 then begin
-                  if ask_restore_on_startup =
-                    True   // he wanted to be asked first.
+                  if ask_restore_on_startup = True
+                  // he wanted to be asked first.
                   then begin
 
                     alert_box.
@@ -3608,7 +3608,8 @@ begin
                     repeat
                       i :=
                         alert(4, '    restore  previous  work ?',
-                        ' |Do you want to restore your work in progress from your previous Templot0 session?| ', '', '', '', 'more  information', 'no  thanks', 'yes  please  -  restore  previous  work', 4);
+                        ' |Do you want to restore your work in progress from your previous Templot0 session?| ',
+                        '', '', '', 'more  information', 'no  thanks', 'yes  please  -  restore  previous  work', 4);
                       case i of
                         4:
                           alert_help(0, ask_restore_str, '');
@@ -3618,8 +3619,7 @@ begin
 
                     //%%%%   0=ask, 1=don't restore, 2=restore without asking
 
-                    if
-                    alert_box.preferences_checkbox.Checked   //%%%%
+                    if alert_box.preferences_checkbox.Checked   //%%%%
                     then
                       startup_restore_pref := (i - 4)         // 5 or 6 = 1 or 2
                     else
@@ -3670,7 +3670,8 @@ begin
           loaded_str := 'data file';        // don't confuse him with internal file names.
       end;
 
-      if (ExtractFileExt(loaded_str) = '.box3') and (normal_load = True)   // 208d not for file viewer
+      if (ExtractFileExt(loaded_str) = '.box3') and (normal_load = True)
+      // 208d not for file viewer
       then
         boxmru_update(loaded_str);                              // 0.82.a  update the mru list.
 
@@ -3751,8 +3752,8 @@ begin
           i := old_count;
 
         for n := i to (keeps_list.Count - 1) do begin
-          if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 = 1
-          then begin
+          if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 =
+            1 then begin
             if update_background_menu_entry.Checked = True then begin
               last_bgnd_loaded_index := n;
               // update index to highest loaded bgnd (for minting).
@@ -3797,7 +3798,12 @@ begin
     then begin
       alert(1, 'php/980    later  file   -   ( from  version  ' + FormatFloat(
         '0.00', loaded_version / 100) + ' )',
-        'The file which you just reloaded contained one or more templates from a later version of Templot0 than this one.' + ' Some features may not be available or may be drawn differently.' + '||The earliest loaded template was from version  ' + FormatFloat('0.00', loaded_version / 100) + '|This version of Templot0 is  ' + GetVersionString(voShort) + '||Please refer to the Templot web site at  templot.com  for information about upgrading to the latest version, or click| <A HREF="online_ref980.85a">more information online</A> .',
+        'The file which you just reloaded contained one or more templates from a later version of Templot0 than this one.'
+        +
+        ' Some features may not be available or may be drawn differently.' +
+        '||The earliest loaded template was from version  ' + FormatFloat('0.00', loaded_version / 100) +
+        '|This version of Templot0 is  ' + GetVersionString(voShort) +
+        '||Please refer to the Templot web site at  templot.com  for information about upgrading to the latest version, or click| <A HREF="online_ref980.85a">more information online</A> .',
         '', '', '', '', '', 'continue', 0);
     end;
 
@@ -3852,20 +3858,21 @@ begin
 
   if par = True then begin
     if alert(7, '    load  or  reload  from  file',
-      'Do you want to load your storage box and background drawing from'
-      + '||' + ExtractFilePath(file_str) + '|' + ExtractFileName(file_str) + '   ?',
+      'Do you want to load your storage box and background drawing from' +
+      '||' + ExtractFilePath(file_str) + '|' + ExtractFileName(file_str) + '   ?',
       '', '', '', '', 'no  thanks', 'yes,  load   ' + ExtractFileName(
       file_str) + '     ', 0) = 5 then
       EXIT;
   end;
 
-  if (append = False) and (save_done = False) and (keeps_list.Count > 0)        // check if saved...
+  if (append = False) and (save_done = False) and (keeps_list.Count > 0)
+  // check if saved...
   then begin
     i := alert(7, '    reload  storage  box  -  save  first ?',
-      'Your storage box contains one or more templates which have not yet been saved.'
-      + ' Reloading your storage box will replace all of the existing contents.',
-      '', '', '', 'replace  existing  contents  without  saving',
-      'cancel  reload', 'save  existing  contents  before  reloading', 0);
+      'Your storage box contains one or more templates which have not yet been saved.' +
+      ' Reloading your storage box will replace all of the existing contents.',
+      '', '', '', 'replace  existing  contents  without  saving', 'cancel  reload',
+      'save  existing  contents  before  reloading', 0);
     case i of
       5:
         EXIT;
@@ -3908,7 +3915,8 @@ begin
         if append = True then
           EXIT;
         if (loaded_version < 93) and (hl > -1) and (hl < keeps_list.Count) then
-          mint_final_or_copy_control(hl);   // if something loaded mint from highest bgnd if he so wants.
+          mint_final_or_copy_control(hl);
+        // if something loaded mint from highest bgnd if he so wants.
         if (loaded_version > 92) then
           mint_final_or_copy_control(hl);
         // copy the control template if there is one in the file.
@@ -3935,7 +3943,8 @@ begin
     if append = True then
       EXIT;
     if (loaded_version < 93) and (hl > -1) and (hl < keeps_list.Count) then
-      mint_final_or_copy_control(hl);   // if something loaded mint from highest bgnd if he so wants.
+      mint_final_or_copy_control(hl);
+    // if something loaded mint from highest bgnd if he so wants.
     if (loaded_version > 92) then
       mint_final_or_copy_control(hl);
     // copy the control template if there is one in the file.
@@ -3981,14 +3990,13 @@ begin
       if on_reload = False then begin
         save_hide := False;      // he will want to see it.
 
-        if (bgnd_options = True) and
-          (wipe_to_control_radiobutton.Checked = True) and
+        if (bgnd_options = True) and (wipe_to_control_radiobutton.Checked = True) and
           (Ttemplate(keeps_list.Objects[n]).bg_copied = True) then begin
           if wipe_it(n) = False      // wipe the background and free drawing data.
           then begin
             alert(5, '    program  error',
-              '||Sorry, there is a program error.'
-              + '||The background will be cleared and rebuilt.',
+              '||Sorry, there is a program error.' +
+              '||The background will be cleared and rebuilt.',
               '', '', '', '', '', 'O K', 0);
             rebuild_background(False, True);
           end;
@@ -4059,10 +4067,8 @@ begin
       then begin
         i :=
           alert(4, '     prefix  tag  present',
-          'The template being copied into the control template has a prefix tag:||'
-          + current_name_str
-          + '||Do you want to retain this prefix tag on this template?'
-          +
+          'The template being copied into the control template has a prefix tag:||' +
+          current_name_str + '||Do you want to retain this prefix tag on this template?' +
           '|||If you answer yes, subsequently storing this template will transfer this tag to the stored template(s). The retained tag and the template name can be edited by clicking the `0name...`1 button on the information panel.' + '|||If you answer no, subsequently stored templates will not have this tag and will not therefore be included in a group which is created using this tag.' + '|||If you are not sure, click the green bar.', '', '', '', 'no  -  clear  tag', '', 'yes  -  retain  prefix  tag', 0);
 
       end
@@ -4070,11 +4076,9 @@ begin
 
         i :=
           alert(4, '     prefix  tags  present',
-          'The template being copied into the control template has prefix tags:||'
-          + current_name_str
-          + '||Do you want to retain these prefix tags on this template?'
-          +
-          '|||If you answer yes, subsequently storing this template will transfer these tags to the stored template(s). The retained tags and the template name can be edited by clicking the `0name...`1 button on the information panel.' + '|||If you answer no, subsequently stored templates will not have these tags and will not therefore be included in a group which is created using them.' + '|||If you are not sure, click the green bar.', '', '', '', 'no  -  clear  tags', '', 'yes  -  retain  prefix  tags', 0);
+          'The template being copied into the control template has prefix tags:||' +
+          current_name_str + '||Do you want to retain these prefix tags on this template?'
+          + '|||If you answer yes, subsequently storing this template will transfer these tags to the stored template(s). The retained tags and the template name can be edited by clicking the `0name...`1 button on the information panel.' + '|||If you answer no, subsequently stored templates will not have these tags and will not therefore be included in a group which is created using them.' + '|||If you are not sure, click the green bar.', '', '', '', 'no  -  clear  tags', '', 'yes  -  retain  prefix  tags', 0);
 
       end;
 
@@ -4175,12 +4179,13 @@ begin
 
               if bgnd_code_077 = 1 then begin
                 total_bgnd_template_length :=
-                  total_bgnd_template_length + turnout_info1.turnout_length;    // 0.93.a  mm overall length.
+                  total_bgnd_template_length + turnout_info1.turnout_length;
+                // 0.93.a  mm overall length.
                 total_bgnd_timbering_length :=
                   total_bgnd_timbering_length + total_length_of_timbering;     // 0.96.a
 
-                if smallest_bgnd_radius >
-                  turnout_info2.smallest_radius_stored    // 208a
+                if smallest_bgnd_radius > turnout_info2.smallest_radius_stored
+                // 208a
                 then begin
                   smallest_bgnd_radius :=
                     turnout_info2.smallest_radius_stored;
@@ -4188,8 +4193,7 @@ begin
                 end;
               end;
 
-              if Ttemplate(keeps_list.Objects[n]).group_selected =
-                True then begin
+              if Ttemplate(keeps_list.Objects[n]).group_selected = True then begin
                 total_group_template_length :=
                   total_group_template_length + turnout_info1.turnout_length;    // 0.93.a
                 total_group_timbering_length :=
@@ -4535,13 +4539,10 @@ begin
       memo_text_str := memo_list.Strings[list_position];
 
       info_str :={insert_cr_str( out 0.91.b}'   ' + group_str + '  ' + IntToStr(
-        list_position + 1) + '  ' + bg_str + '   ' + ref_str +
-        '||  ' + gauge_panel.Caption +
-        '||--------------------------------------------------------------'
-        +
-        '||      Information  about  this  template :' +
-        '||( all dimensions in millimetres )' + '||' +
-        keeps_list.Strings[list_position] +
+        list_position + 1) + '  ' + bg_str + '   ' + ref_str + '||  ' +
+        gauge_panel.Caption + '||--------------------------------------------------------------'
+        + '||      Information  about  this  template :' +
+        '||( all dimensions in millimetres )' + '||' + keeps_list.Strings[list_position] +
         '||--------------------------------------------------------------'
         //+'||      Your  memo  notes  for  this  template :'
         + '||Memo:  ' + memo_text_str{) out 0.91.b};
@@ -4550,7 +4551,8 @@ begin
       if (info_clicked = True) and (data_child_form.Visible = True) and (keep_form.Active = True)
       //mods 0.93.a then help(-2,info_str,''); // ignore return  // 0.91 //was help_form.info_label.Caption:=info_str;
       then
-        data_child_form.data_memo.Text := insert_crlf_str(info_str);  //  replace embedded | chars with a CR.
+        data_child_form.data_memo.Text := insert_crlf_str(info_str);
+      //  replace embedded | chars with a CR.
 
       if slider_index(slider_panel.Left) <> n then
         slider_panel.Left := slider_position(n);
@@ -4690,7 +4692,8 @@ procedure keep_form_activate;   // extracted 208a for smallest rad linking
 
 begin
   if paper_bunching = True then
-    pad_form.paper_bunching_off_menu_entry.Click;  // don't want bunching in the keeps box drawings.
+    pad_form.paper_bunching_off_menu_entry.Click;
+  // don't want bunching in the keeps box drawings.
   Screen.Cursor := crHourGlass;
   // could take a while if big file.
   try
@@ -4713,7 +4716,8 @@ begin
     current_state(-1);      // show current box.
 
     if (list_position > -1) and (list_position < keeps_list.Count) and (keeps_list.Count > 0) then
-      highlight_bgkeep(list_position);   // and highlight the peg on the current keep on the background.
+      highlight_bgkeep(list_position);
+    // and highlight the peg on the current keep on the background.
 
     //    if (data_child_form.Visible=True) {and (data_child_form.Parent=pad_form)}  // 290b  Graeme
     //       then keep_form.read_info_button.Click;
@@ -4783,7 +4787,8 @@ var
   sb_str: string;
   grid_str: string;
 
-  aq, now: integer;
+  aq: ERailData;
+  now: integer;
 
   label_now: integer;
   label_str: string;
@@ -4809,7 +4814,7 @@ var
 
   ////////////////////////////////////////////////////////////////////////
 
-  procedure draw_rail(aq: integer);
+  procedure draw_rail(aq: ERailData);
 
   var
     now: integer;
@@ -4823,14 +4828,14 @@ var
 
       Pen.Style := psSolid;
 
-      if (aq = 16) and (adjacent_edges = True) and
+      if (aq = eRD_AdjTrackTurnoutSideNearGaugeFace) and (adjacent_edges = True) and
         (draw_ts_platform_rear_edge = False) then
         Pen.Style := psDot;    // 0.93.a show dotted on screen if hidden on output.
-      if (aq = 20) and (adjacent_edges = True) and
+      if (aq = eRD_AdjTrackMainSideNearGaugeFace) and (adjacent_edges = True) and
         (draw_ms_platform_rear_edge = False) then
         Pen.Style := psDot;
 
-      pt := outoflist(aq,0);
+      pt := outoflist(aq, 0);
       move_to.X := Round((pt.X - xy_min[0]) * sx + x_offset);
       move_to.Y := Round((pt.Y - xy_min[1]) * sy + y_offset);
 
@@ -4851,13 +4856,13 @@ var
   end;
   ////////////////////////////////////////////////////////////////////////
 
-  procedure mark_end(aq1, aq1end, aq2, aq2end: integer; pen_solid: boolean);
+  procedure mark_end(aq1: ERailData; aq1end: integer; aq2: ERailData;
+    aq2end: integer; pen_solid: boolean);
   // make the mark
 
   begin
 
-    if (endmarks_yn[aq1, aq1end] = True) and (endmarks_yn[aq2, aq2end] = True)
-    then begin
+    if (endmarks_yn[aq1, aq1end] = True) and (endmarks_yn[aq2, aq2end] = True) then begin
       p1 := endmarks[aq1, aq1end];
       p2 := endmarks[aq2, aq2end];
 
@@ -4887,8 +4892,8 @@ var
   ////////////////////////////////////////////////////////////
 
 begin
-  if (keep_form.Active = False) or (keeps_list.Count < 1) or (index < 0) or (index > (keeps_list.Count - 1))
-  then
+  if (keep_form.Active = False) or (keeps_list.Count < 1) or (index < 0) or
+    (index > (keeps_list.Count - 1)) then
     EXIT;   // no drawing if the box is closed or the box is empty or the index is out of range.
   // otherwise onActivate code will not have been done.
 
@@ -4916,7 +4921,8 @@ begin
     ypd := y_datum * 100;                    // (y_datum is in mm from left edge of sheet).
 
     try
-      xrange := ABS(xy_max[0] - xy_min[0]);   // use range of relative x values in list for scaling.
+      xrange := ABS(xy_max[0] - xy_min[0]);
+      // use range of relative x values in list for scaling.
       yrange := ABS(xy_max[1] - xy_min[1]);   // ditto y.
     except
       xrange := 50000;             // could be a template with all rails turned off.
@@ -4959,7 +4965,8 @@ begin
           sy := sx; //  to ensure all on screen.
 
         if sx < minfp then
-          sx := 0.025;         //  arbitrary div zero safety - in pixels per 1/100th mm. (2.5 pixels per mm).
+          sx := 0.025;
+        //  arbitrary div zero safety - in pixels per 1/100th mm. (2.5 pixels per mm).
 
         box_width := xmax / sx;
         // (1/100th mm) in case he locks the scaling.
@@ -5054,7 +5061,8 @@ begin
         //  2 pairs of long intervals
         for incb := 1 to 2 do begin
           move_to.X := Round(sbex + black * scx);
-          move_to.Y := bary;                                       // black/white scale 10 mm or 0.5" intervals.
+          move_to.Y := bary;
+          // black/white scale 10 mm or 0.5" intervals.
           Pen.Color := sb_colour1;
           line_to.X := Round(sbex + (black + 10 * incbar) * scx + 1);
           line_to.Y := bary;   // +1 is a bodge to make black/white look equal intervals.
@@ -5182,7 +5190,8 @@ begin
 
               1, 2, 7, 10:
                 if marks_checkbox.Checked = True then
-                  Pen.Color := keep_mark_colour   // guide marks, radial ends, transition marks, plain track start marks.
+                  Pen.Color := keep_mark_colour
+                // guide marks, radial ends, transition marks, plain track start marks.
                 else
                   CONTINUE;
 
@@ -5280,8 +5289,8 @@ begin
               else
                 label_now := xmax - TextWidth(label_str) - 1;
 
-              TextOut(label_now, keep_pegy +
-                (Font.Height div 2), label_str);  // add peg right label.
+              TextOut(label_now, keep_pegy + (Font.Height div 2), label_str);
+              // add peg right label.
 
               // now draw coloured peg...
               peg_dim := xmax div 32;
@@ -5386,9 +5395,10 @@ begin
 
       if bgkeeps_form.centres_checkbox.Checked = True    // track centre-lines first...
       then begin
-        for aq := 24 to 25 do begin
+        for aq := eRD_MainRoadCentreLine to eRD_TurnoutRoadCentreLine do begin
 
-          if (plain_track = False) or (aq = 24)  // main-side only, if plain track
+          if (plain_track = False) or (aq = eRD_MainRoadCentreLine)
+          // main-side only, if plain track
           then
             draw_rail(aq);
         end;//next aq
@@ -5401,32 +5411,36 @@ begin
       then begin
         //                    if draw_ts_platform_rear_edge=True      // TS platform rear edge
         //                       then begin                           // data is always in list so can print infilled
-        aq := 16;
+        aq := eRD_AdjTrackTurnoutSideNearGaugeFace;
         draw_rail(aq);
         //                            end;
 
-        aq := 17;             // TS platform front edge
+        aq := eRD_AdjTrackTurnoutSideNearOuterFace;             // TS platform front edge
         draw_rail(aq);
 
         //                    if draw_ms_platform_rear_edge=True    // MS platform rear edge
         //                       then begin                         // data is always in list so can print infilled
-        aq := 20;
+        aq := eRD_AdjTrackMainSideNearGaugeFace;
         draw_rail(aq);
         //                            end;
 
-        aq := 21;             // MS platform front edge
+        aq := eRD_AdjTrackMainSideNearOuterFace;             // MS platform front edge
         draw_rail(aq);
 
         // 0.93.a platform ends ...
 
         if draw_ts_platform = True then begin
-          mark_end(16, 0, 17, 0, draw_ts_platform_start_edge);
-          mark_end(16, 1, 17, 1, draw_ts_platform_end_edge);
+          mark_end(eRD_AdjTrackTurnoutSideNearGaugeFace, 0, eRD_AdjTrackTurnoutSideNearOuterFace,
+            0, draw_ts_platform_start_edge);
+          mark_end(eRD_AdjTrackTurnoutSideNearGaugeFace, 1, eRD_AdjTrackTurnoutSideNearOuterFace,
+            1, draw_ts_platform_end_edge);
         end;
 
         if draw_ms_platform = True then begin
-          mark_end(20, 0, 21, 0, draw_ms_platform_start_edge);
-          mark_end(20, 1, 21, 1, draw_ms_platform_end_edge);
+          mark_end(eRD_AdjTrackMainSideNearGaugeFace, 0, eRD_AdjTrackMainSideNearOuterFace,
+            0, draw_ms_platform_start_edge);
+          mark_end(eRD_AdjTrackMainSideNearGaugeFace, 1, eRD_AdjTrackMainSideNearOuterFace,
+            1, draw_ms_platform_end_edge);
         end;
       end;
 
@@ -5435,13 +5449,13 @@ begin
       if (adjacent_edges = True) and (bgkeeps_form.trackbed_edges_checkbox.Checked = True)
       // trackbed edges
       then begin
-        aq := 18;
+        aq := eRD_AdjTrackTurnoutSideFarGaugeFace;
         draw_rail(aq);
-        aq := 19;
+        aq := eRD_AdjTrackTurnoutSideFarOuterFace;
         draw_rail(aq);
-        aq := 22;
+        aq := eRD_AdjTrackMainSideFarGaugeFace;
         draw_rail(aq);
-        aq := 23;
+        aq := eRD_AdjTrackMainSideFarOuterFace;
         draw_rail(aq);
       end;
 
@@ -5454,60 +5468,66 @@ begin
         Pen.Color := keep_rail_colour;
 
       if bgkeeps_form.gauge_faces_checkbox.Checked = True then
-        for aq := 0 to 7 do begin                      // main rails gauge faces
-          if (plain_track = False) or (aq = 0) or (aq = 3) // stock rails only, if plain track
+        for aq := eRD_StraightStockGaugeFace to eRD_TurnoutSideCheckGaugeFace do
+        begin                      // main rails gauge faces
+          if (plain_track = False) or (aq = eRD_StraightStockGaugeFace) or
+            (aq = eRD_CurvedStockGaugeFace) // stock rails only, if plain track
           then
             draw_rail(aq);
         end;//next aq
 
       if bgkeeps_form.outer_edges_checkbox.Checked = True then
-        for aq := 8 to 15 do begin                     // main rails outer edges
-          if (plain_track = False) or (aq = 8) or (aq = 11) then
+        for aq := eRD_StraightStockOuterFace to eRD_TurnoutSideCheckOuterFace do
+        begin                     // main rails outer edges
+          if (plain_track = False) or (aq = eRD_StraightStockOuterFace) or
+            (aq = eRD_CurvedStockOuterFace) then
             draw_rail(aq);
         end;//next aq
 
-      if (adjacent_edges = False) and (bgkeeps_form.gauge_faces_checkbox.Checked = True)
-      then begin
-        aq := 16;
-        repeat             // adjacent tracks gauge faces.
+      if (adjacent_edges = False) and (bgkeeps_form.gauge_faces_checkbox.Checked = True) then
+      begin
+        for aq in eRD_AdjacentTracksGaugeFaces do begin
           draw_rail(aq);
-          Inc(aq, 2);
-        until aq > 22;
+        end;
       end;
 
-      if (adjacent_edges = False) and (bgkeeps_form.outer_edges_checkbox.Checked = True)
-      then begin
-        aq := 17;
-        repeat             // adjacent tracks outer edges.
+      if (adjacent_edges = False) and (bgkeeps_form.outer_edges_checkbox.Checked = True) then
+      begin
+        for aq in eRD_AdjacentTracksOuterFaces do begin
           draw_rail(aq);
-          Inc(aq, 2);
-        until aq > 23;
+        end;
       end;
 
       // finally, draw the rail ends...
 
-      if (plain_track = False) and
-        (bgkeeps_form.gauge_faces_checkbox.Checked = True) and
+      if (plain_track = False) and (bgkeeps_form.gauge_faces_checkbox.Checked = True) and
         (bgkeeps_form.outer_edges_checkbox.Checked = True) then begin
-        mark_end(1, 1, 9, 1, True);    // turnout rail wing rail finish.
-        mark_end(2, 1, 10, 1, True);   // main rail wing rail finish.
+        mark_end(eRD_StraightTurnoutWingGaugeFace, 1, eRD_StraightTurnoutWingOuterFace, 1, True);
+        // turnout rail wing rail finish.
+        mark_end(eRD_CurvedTurnoutWingGaugeFace, 1, eRD_CurvedTurnoutWingOuterFace, 1, True);
+        // main rail wing rail finish.
 
-        mark_end(6, 0, 14, 0, True);   // main side check rail start.
-        mark_end(6, 1, 14, 1, True);   // main side check rail finish.
+        mark_end(eRD_MainSideCheckGaugeFace, 0, eRD_MainSideCheckOuterFace, 0, True);
+        // main side check rail start.
+        mark_end(eRD_MainSideCheckGaugeFace, 1, eRD_MainSideCheckOuterFace, 1, True);
+        // main side check rail finish.
 
-        mark_end(7, 0, 15, 0, True);   // turnout side check rail start.
-        mark_end(7, 1, 15, 1, True);   // turnout side check rail finish.
+        mark_end(eRD_TurnoutSideCheckGaugeFace, 0, eRD_TurnoutSideCheckOuterFace, 0, True);
+        // turnout side check rail start.
+        mark_end(eRD_TurnoutSideCheckGaugeFace, 1, eRD_TurnoutSideCheckOuterFace, 1, True);
+        // turnout side check rail finish.
 
-        mark_end(4, 0, 5, 0, True);    // blunt nose.
+        mark_end(eRD_VeePointGaugeFace, 0, eRD_VeeSpliceGaugeFace, 0, True);    // blunt nose.
 
-        if (half_diamond = True) and (fixed_diamond = True) then
-        begin
-          mark_end(1, 0, 9, 0, True);
+        if (half_diamond = True) and (fixed_diamond = True) then begin
+          mark_end(eRD_StraightTurnoutWingGaugeFace, 0, eRD_StraightTurnoutWingOuterFace, 0, True);
           // planed faced of point rails for a fixed-diamond.
-          mark_end(2, 0, 10, 0, True);
+          mark_end(eRD_CurvedTurnoutWingGaugeFace, 0, eRD_CurvedTurnoutWingOuterFace, 0, True);
 
-          mark_end(26, 1, 27, 1, True);     // MS K-crossing check rails.
-          mark_end(28, 1, 29, 1, True);     // DS K-crossing check rails.
+          mark_end(eRD_KCrossingCheckMainSideGaugeFace, 1, eRD_KCrossingCheckMainSideOuterEdge,
+            1, True);     // MS K-crossing check rails.
+          mark_end(eRD_KCrossingCheckTurnoutSideGaugeFace, 1,
+            eRD_KCrossingCheckTurnoutSideOuterEdge, 1, True);     // DS K-crossing check rails.
         end;
       end;
 
@@ -5553,7 +5573,8 @@ begin
   ClientHeight := VertScrollBar.Range;
   // do this twice, as each affects the other.
 
-  size_updown.Tag := size_updown.Position;                           // and save for the next click.
+  size_updown.Tag := size_updown.Position;
+  // and save for the next click.
 
   box_scaling := False;
 
@@ -5639,7 +5660,8 @@ begin
       si := '    blank|'     // ???
     else begin
       for i := 0 to (info_text_list{info_memo.Lines}.Count - 1) do
-        si := si + info_text_list{info_memo.Lines}.Strings[i] + '|'; // info text goes in keeps_list.
+        si := si + info_text_list{info_memo.Lines}.Strings[i] + '|';
+      // info text goes in keeps_list.
       si := si + 'total timbering length on this template = ' + round_str(
         total_template_timber_length, 2);  //0.97.a
     end;
@@ -5655,7 +5677,8 @@ begin
       then
         alert(1, '      memory  problem',
           '|Unable to add this template to your storage box because of memory constraints.'
-          + '||(There are  ' + IntToStr(n) + '  templates in your box already.)'
+          +
+          '||(There are  ' + IntToStr(n) + '  templates in your box already.)'
           // n+1-1 because not added.
           + '||Save the contents of your storage box to a file, then clear the contents to make space for more.'
           + '||Alternatively, delete one or more unwanted existing templates from the box.'
@@ -5932,8 +5955,8 @@ begin
   repeat
 
     i := alert(4, '    box  list  to  printer  or  to  PDF  file ?',
-      'Do you want to print the box list,||or create a PDF file?'
-      + '|||green_panel_begin tree.gif To set the text size and margins click the `0program > printer font + margins...`1 menu item on the program panel, or click the bar below.green_panel_end', '', '', 'set  font  and  margins', 'PDF  file', 'cancel', 'print', 0);
+      'Do you want to print the box list,||or create a PDF file?' +
+      '|||green_panel_begin tree.gif To set the text size and margins click the `0program > printer font + margins...`1 menu item on the program panel, or click the bar below.green_panel_end', '', '', 'set  font  and  margins', 'PDF  file', 'cancel', 'print', 0);
     case i of
       3:
         set_printer_font_margins(keep_form, True);
@@ -5971,13 +5994,14 @@ begin
     '; text-decoration:' + underline_str + '; }' +
     ' td {padding-left:8px; padding-right:8px;} </style>' +
     '</HEAD><BODY><TABLE ALIGN="CENTER" WIDTH="100%">' +
-    '<TR><TD COLSPAN="6" ALIGN="CENTER" STYLE="font-size:' + IntToStr(printer_text_font.Size + 2) +
-    'pt;">' + 'The Templot0 storage box for :</TD></TR>' +
-    '<TR><TD COLSPAN="6" ALIGN="CENTER" STYLE="font-size:' + IntToStr(printer_text_font.Size + 4) +
-    'pt;">' + box_project_title_str + '</TD></TR>' +
-    '<TR><TD COLSPAN="6" ALIGN="CENTER">' + ' &nbsp;at &nbsp;' + TimeToStr(
-    Time) + ' &nbsp;on &nbsp;' + DateToStr(Date) + ' &nbsp; &nbsp;contains the following &nbsp;' +
-    IntToStr(keeps_list.Count) + ' &nbsp;templates :<BR><HR></TD></TR>';
+    '<TR><TD COLSPAN="6" ALIGN="CENTER" STYLE="font-size:' +
+    IntToStr(printer_text_font.Size + 2) + 'pt;">' + 'The Templot0 storage box for :</TD></TR>' +
+    '<TR><TD COLSPAN="6" ALIGN="CENTER" STYLE="font-size:' +
+    IntToStr(printer_text_font.Size + 4) + 'pt;">' + box_project_title_str +
+    '</TD></TR>' + '<TR><TD COLSPAN="6" ALIGN="CENTER">' + ' &nbsp;at &nbsp;' +
+    TimeToStr(Time) + ' &nbsp;on &nbsp;' + DateToStr(Date) +
+    ' &nbsp; &nbsp;contains the following &nbsp;' + IntToStr(keeps_list.Count) +
+    ' &nbsp;templates :<BR><HR></TD></TR>';
 
   for line_now := 0 to keeps_list.Count - 1 do begin
 
@@ -5993,9 +6017,10 @@ begin
     end;//case
 
 
-    html_str := html_str + #13 + '<TR><TD>' + IntToStr(line_now + 1) + '</TD>'
-      + '<TD>' + type_str + '</TD>' + '<TD>' + Ttemplate(
-      keeps_list.Objects[line_now]).template_info.keep_dims.box_dims1.id_number_str + '</TD>' // 208b
+    html_str := html_str + #13 + '<TR><TD>' + IntToStr(line_now + 1) +
+      '</TD>' + '<TD>' + type_str + '</TD>' + '<TD>' + Ttemplate(
+      keeps_list.Objects[line_now]).template_info.keep_dims.box_dims1.id_number_str +
+      '</TD>' // 208b
       + '<TD>' + Trim(keepform_listbox.Items.Strings[line_now]) + '</TD>';
 
     show_str := Trim(Ttemplate(keeps_list.Objects[line_now]).template_info.keep_dims.box_dims1.top_label);
@@ -6128,8 +6153,15 @@ procedure Tkeep_form.lock_at_buttonClick(Sender: TObject);
 const
   help_str: string = '    storage  box  zoom.' +
     '||The zoom options in the storage box are similar to those available on the trackpad.' +
-    '||( Do not confuse these two settings, which are completely independent.)'
-    + '||To lock the zoom size, enter a dimension in mm which corresponds to the required full width of the drawings in the storage box.' + ' All subsequent templates displayed in the storage box will be scaled to match this size. This makes it' + ' easier to see the comparative sizes of different templates. The valid range is from 5 mm to 5000 mm.' + '||The alternative setting is to click the zoom TO FIT option button, which causes each subsequent template' + ' to be displayed at a new scale which nearly fills the storage box drawing space. This makes it easier to see' + ' the detail in shorter templates, and ensures that very long templates are fully visible.' + '||If you click the zoom LOCK option button, the zoom scaling will be locked at whatever is the current size.';
+    '||( Do not confuse these two settings, which are completely independent.)' +
+    '||To lock the zoom size, enter a dimension in mm which corresponds to the required full width of the drawings in the storage box.'
+    +
+    ' All subsequent templates displayed in the storage box will be scaled to match this size. This makes it'
+    + ' easier to see the comparative sizes of different templates. The valid range is from 5 mm to 5000 mm.'
+    + '||The alternative setting is to click the zoom TO FIT option button, which causes each subsequent template'
+    + ' to be displayed at a new scale which nearly fills the storage box drawing space. This makes it easier to see'
+    + ' the detail in shorter templates, and ensures that very long templates are fully visible.' +
+    '||If you click the zoom LOCK option button, the zoom scaling will be locked at whatever is the current size.';
 
 var
   n: integer;
@@ -6172,8 +6204,9 @@ const
   keep_str: string =
     'These help notes are longer than most - you may prefer to print them out. Click the PRINT button above.'
     + '||For additional notes and diagrams please refer to the Templot Companion pages on the Templot web site at  templot.com .'
-    + '|-------------------------------------------------' + '||        Using  the  Storage  Box'
-    + '||This is your STORAGE BOX, the container in which you accumulate templates as you work through a Templot0 session.'
+    + '|-------------------------------------------------' +
+    '||        Using  the  Storage  Box' +
+    '||This is your STORAGE BOX, the container in which you accumulate templates as you work through a Templot0 session.'
     + '||When you have created a control template on the trackpad which you want to keep, you can add a copy of it to your storage box by selecting' + ' STORE AS UNUSED in the MAIN or RIGHT-CLICK menus. You can also add a copy of the control template to the box by clicking the STORE CONTROL button on the box.' + '||In addition, stored templates can be copied to the background drawing, so that they appear behind the control template on the trackpad.' + ' In this way you can build up a complete track plan. Templates appear on the background drawing reflecting the GENERATOR > GENERATOR SETTINGS > menu options which were in effect when' + ' they were copied to the background. They can be updated to correspond to the current GENERATOR SETTINGS by clicking the REBUILD button on the storage box.' + '||Templates can be added to the box and copied to the background in a single move by selecting STORE && BACKGROUND in the MAIN or RIGHT-CLICK menus on the trackpad.' + '||Stored templates which have not been copied to the background, or have been wiped from the background, are called unused templates.' + ' Stored templates can be copied to the background drawing and wiped from it as often as you wish in trying different track configurations.' + '||Stored templates can also be copied back to become the control template on the trackpad for further work,' + ' and you can choose whether this causes the existing stored template to remain unchanged, or be wiped from the background, or be deleted from the box completely.' + '||Unused templates can also be specified as LIBRARY templates, which means that they are intended as a reference resource of pre-designed custom templates for use in your track planning.' + ' Library templates cannot be copied directly to the background drawing, they must first be copied to the control template on the trackpad.' + '||You can quickly sort through your collection of templates using the left-right arrow buttons, or the slider device above them, and view the templates either as individual drawings or in list form.' + '||( When templates are added to the box they are normally placed at the end of the stored template list, and allocated a new template number.' + ' If you select instead the FILES > RESTORE && BACKGROUND menu item, the new template will be inserted in the list at the position from which the last one was copied out to the pad.' + ' In this way you can modify a stored template and restore it to the box without disturbing the numbering.)' + '||Templot0 maintains a continuous copy on file of your storage box contents and background drawing, and can restore them automatically at the start of the next working session.' + '||In addition, all or part of the contents of the storage box can be saved in a named data file and reloaded at any time.' + '||(The automatic restore function works even if the previous session terminated abnormally because of a system malfunction or power failure, so there is no need to repeatedly save your work simply as a precaution against these events.)' + '||Optionally, any saved file can be reloaded as library templates. In this way you can build up a library of custom templates for use in later track designs.' + '||              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' + '||The working of the storage box is as follows:' + '||The SHOW BOX LIST and SHOW DRAWING buttons let you choose to see either a drawing of each template, or a list of all the templates in the box (which can also be printed out).' + '||Each template is numbered in the list for reference, and the number of the selected template is displayed above the left-right arrow buttons.' + '||As you sort through your collection of templates, several things happen:' + '||1. If drawings are being shown, the selected template is drawn in the box.' + '||2. The location of the fixing peg on the selected template is highlighted, and its co-ordinate dimensions are shown on the drawing.' + '||3. If this template is currently a BACKGROUND TEMPLATE i.e. being shown in the trackpad background, the fixing peg will be shown in RED, and its position will also be' + ' highlighted in red on the trackpad (although you may need to move the storage box to see it).' + '||4. If this template is an UNUSED TEMPLATE, i.e. not currently being shown on your background drawing, the fixing peg will be shown in BLUE.' + '||5. If this template is a LIBRARY TEMPLATE, i.e. a reference template which is not itself part of your track plan, the fixing peg will be shown in GREEN.' + '||6. The template number also shows in red, blue or green similarly.' + '||7. If this template is currently a member of a GROUP, a square  symbol is shown alongside the number, in red or blue similarly. Library templates cannot be members of a group.' + '||8. The name of the selected template is shown in the panel above the number.' + '||9. The INFO button shows the information text for the selected template. This text is copied from the trackpad information panel when a template is added to the box or reloaded from a file.' + '||If drawings are being shown, the drawing in the box is made using the GENERATOR SETTINGS which are currently in force.' + ' These may differ from the settings which were in force when this template was last copied to the background. To update the background template to the current settings, click the REBUILD button.' + ' The scale of the drawing can be changed. Click the DRAW ZOOM > LOCK AT button and read the help information for more details.' + '||When the list is being shown, a red > mark appears against templates which are currently background templates, i.e. being shown on the trackpad, and the number also appears in red.' + ' For unused templates the number appears in blue. For library templates the number appears in green, and a bullet mark is added to aid quick identification in the list.' + '||In addition to the left-right arrow buttons and slider, templates can also be selected by clicking the required line in the list.' + '||The order of templates in the list can be changed by clicking the brown up and down arrow buttons alongside the list. The selected template is moved one position up or down accordingly for each click on the button.' + '|-------------------------------' + '||The storage box has its own MENUS and KEYBOARD SHORTCUTS which are independent of the trackpad. Most of the menu entries are self-explanatory. Here are some further notes about some of them:' + '||              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' + '||The BOX menu includes items for deleting and clearing all templates, and for copying them to and wiping them from the background. The BOX > TOGGLE UNUSED/BACKGROUND menu item swaps the state of every stored template,' + ' i.e. all the unused templates are copied to the background, and all the existing background templates are wiped to become unused. This is useful when you want to compare two different designs by swapping between them.' + '||The BOX > SORT LIBRARY TEMPLATES menu item sorts the list of templates, putting all library templates at the end of the list to make finding them easier.' + '||The BOX menu also includes items for printing the details of the box contents. You can print a simple list of all the templates, or have a complete printout of the INFO and MEMO texts for all of them. Bear in mind that' + ' this could use several sheets of paper. The printer font used for these lists can be changed in the PROGRAM menu on the PROGRAM PANEL window. (If you want to print the texts for a single template,' + ' click the INFO button and then click the PRINT button in the text window.)' + '||              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' + '||The FILES menu items concern the saving and reloading of the box contents from data files. When reloading, you can choose to ADD the loaded templates to the existing contents instead of replacing them.' + ' And when saving, you can choose to save all the stored templates, or only a selected group of them.' + '||In this way, by selectively saving templates and adding them from files, you can build up a fresh drawing from previously saved templates.' + '||There is no limit to the number of templates in the box, you can add templates from as many files as you wish in building up your track plan. But you should try not to have more of them copied to the background at any one time' + ' than you actually need to work on, otherwise screen re-draw times will become frustratingly slow.' + '||The difference between the FILES > RELOAD... and FILES > ADD... menu items is that RELOAD additionally gives you the opportunity to clear the existing box contents first.' + '||If the box is cleared or reloaded in error, the FILES > UNDO RELOAD / UNDO CLEAR menu item will restore the previous contents and background drawing.' + '||FILES > SAVE GROUP is only available if a group of templates have first been selected. For more information about using the GROUP SELECT functions, see the notes for the GROUP menu below.' + '||The RELOAD, ADD FILE, SAVE ALL and SAVE GROUP buttons duplicate the commonly used menu entries for convenience.' + '||The FILES > RESTORE PREVIOUS menu item restores the box contents and background drawing to the condition they were in when you quit the previous Templot0 session.' + ' You can do this it any time and as often as you wish, independently of any saving or reloading you may have done since. This function works correctly even if the previous session terminated abnormally as a result of a system malfunction.' + ' Be aware that this function re-instates the box contents as they were when you QUIT the previous session, NOT as they were when you last saved them to a data file.' + '||The FILES > RESTORE PRIOR-PREVIOUS menu item works similarly, but restores the box contents and background drawing to the condition they were in when you quit the Templot0 session prior to the previous one, i.e. the data from two sessions back.' + '||Selecting the FILES > EXPORT DXF... menu item generates a DXF drawing exchange file from the complete background for transfer to other CAD or drawing software. For more details click the help button in the DXF window which appears.' + '||              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' + '||The EDIT > MAKE LIBRARY TEMPLATE menu item converts an unused template to a library template. This function is available only for unused templates. If the required template is a background template, it must first be wiped from the background.' + ' ( An alternative method is to copy it to the control template, and then click the MAIN > STORE AS LIBRARY TEMPLATE menu item on the trackpad. This avoids the need to wipe a template which is in use.)' + '||The EDIT > EDIT MEMO NOTES... and ADD JOTTER TEXT TO MEMO menu items allow you to add notes about each individual template which will be included in the template data files.' + '||The EDIT > DELETE menu item deletes the selected template from the box, and from your background drawing if it is a background template. You can undo this by clicking EDIT > UNDO DELETE,' + ' provided you have made no subsequent deletions. The DELETE and REBUILD buttons duplicate the menu items for convenience.' + '||              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' + '||The GROUP menu items allow you to perform operations on a group of templates instead of on a single template. The group can include background and unused templates.' + ' Templates which are part of the group are indicated in the box with a square  symbol alongside the number, and are drawn in the group colour on the trackpad.' + '||To add or remove the selected template to or from the group, click the SELECT (TOGGLE) menu item. Other menu items permit forming a group comprised of all the stored templates,' + ' or all the background templates, or all the unused templates. To remove all templates from the group click the SELECT NONE menu item.' + '||The INVERT SELECTIONS menu item removes all the existing templates from the group and forms a new group comprising all the others.' + ' When you want to select a group containing all the templates except for a few, it is usually quicker to select just those few and then click INVERT SELECTIONS.' + '||This is also a useful way to split your drawing into two files, using the SAVE GROUP menu item, which creates a data file containing only the group templates.' + '||The GROUP SELECT buttons on the storage box duplicate some of the menu items for convenience.' + '||In adition to the save and copy functions in the GROUP menu, there are several shift and rotate functions in the trackpad menus which apply to the templates in the selected group.' + ' In this way the templates comprising a complex track formation can be re-positioned on the drawing as a single unit.' + '||Many of the group select functions are duplicated in the GROUP > GROUP SELECT menu items on the trackpad, but in this case apply only to background templates.' + ' To include unused templates in a group the storage box group functions must be used.' + '||Templates can also be added to a group as they are added to the box from a data file. This is useful if you know they will all need to be re-positioned, or simply to identify them in a different colour on the pad.' + ' For more information see the notes for the ON ADD ONLY option below.' + '||The GROUP > TOGGLE GROUP UNUSED/BACKGROUND menu item works in the same way as the item in the BOX menu (see above), but in this case applies only to the selected group of templates.' + ' By using this function in conjunction with INVERT SELECTIONS, or by forming a group as templates are added from a file, you can compare different possible designs by superimposing groups of templates.' + '||              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' + '||The OPTIONS menu items provide several options to let you customise the way your storage box works. The various settings are:' + '||ON STORE FROM PAD: The SHOW BOX setting shows the storage box whenever a template is added from the trackpad.' + '||ON STORE && COPY FROM PAD: These settings apply when a template is stored and copied immediately to the background from the trackpad.' + ' The HIDE CONTROL TEMPLATE setting causes the control template on the trackpad to be hidden, so that the background template newly created from it can be seen. If you select' + ' COPY BEHIND CONTROL, the new background template won''t be visible until you shift the control template from its position covering it.' + '||              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' + '||ON MAKE CONTROL: These settings apply when you click the green CONTROL TEMPLATE button to make the control template on the trackpad a copy of the currently selected template in the box:' + '||1. WIPE FROM BACKGROUND causes this template to be removed from the background drawing. It remains in the box, but becomes an unused template. Use this setting when you want to modify a template which is on the background.' + ' Store it again when you have modified it, and copy it again to the background.' + '||2. COPY OVER BACKGROUND. Use this setting when you intend to use the copied template elsewhere, and do not want to disturb the existing background.' + '||3. The COPY ONTO NOTCH and COPY ONTO DATUM settings cause the copied template to be shifted to these locations, saving the need to move them after copying.' + '||4. The NAME settings let you choose whether the template''s existing name should follow it to the pad, or a new name be used for the control template.' + '||5. If HIDE BOX AND REDRAW is selected, the storage box will be hidden after the template is copied to the pad, otherwise it remains showing.' + '||              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' + '||MODIFY ON REBUILD: These settings apply when you click the REBUILD, REBUILD GROUP or REBUILD ALL menu items and buttons.' + '||Normally when a background template is rebuilt,' + ' the stored settings for timbering and rail lengths remain unchanged, and are used for the new background drawing. But if the TIMBERING+LENGTHS AS CONTROL option is selected, the background templates being rebuilt' + ' will have these stored settings changed to match the control template:' + '||Plain track sleepers length and width.' + '|Plain track rail lengths and sleeper spacings.' + '|Turnout timbers length and width.' + '|Turnout timbers length increments setting.' + '|Turnout timber spacing, equalizing and centralizing settings.' + '|Timber randomizing settings.' + '|Rail joint settings.' + '||This option is useful when you want to update all or part of the background drawing to correspond with the control template, for example if a custom setting has been entered for the rail lengths.' + ' It also makes it easy to produce different versions of your drawing, for example one version with equalized turnout timbering and one with square-on timbering.' + '||Remember to reset the TIMBERING+LENGTHS AS STORED menu option afterwards, otherwise subsequent rebuilds may modify your background templates unintentionally.' + '||N.B. Only background templates can be modified on rebuild. To modify unused templates, temporarily copy them to the background and rebuild them as a group.' + ' In the GROUP menu, click the SELECT ALL UNUSED, COPY GROUP TO BGND, REBUILD GROUP, WIPE GROUP menu items in sequence.' + '||              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' + '||ON RELOAD OR ADD: When templates are saved a record is made in the data file of whether they are currently background templates, or currently unused templates.' + ' On reloading them, you can choose whether unused templates in the file should be loaded, and whether background templates in the file should be immediately copied to the background or loaded as unused.' + '||To have them copied immediately to the background select the UPDATE BACKGROUND menu item.' + ' If IGNORE BACKGROUND is chosen, they will be loaded as unused and not go on the background until you copy them to it. These settings have no effect on templates which were originally unused when saved.' + '||If the LOAD ALL TEMPLATES option is selected, all templates in the file will be loaded into the box. If IGNORE UNUSED TEMPLATES is selected, only background templates will be loaded into the box.' + ' Any unused templates in the file will be ignored.' + '||              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' + '||ON ADD ONLY: Templates added to the box from a file can be formed into a new selected group or added to an existing group.' + '||If the FORM NEW GROUP menu option is selected, any existing group selections will be cleared and the templates added will form a new group.' + ' If ADD TO EXISTING GROUP is selected, no changes will be made to any existing group selections, and the templates added will be selected in addition.' + ' If IGNORE GROUP is selected, no changes will be made to any existing group.' + '||              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' + '||ON RELOAD ONLY: These settings apply after reloading the storage box (but not for ADD). If MINT CONTROL FROM FINAL TEMPLATE is selected, a mint control template will be created from the final template loaded.' + ' This is useful at the start of a session as it automatically sets your previous gauge and scale ready for further work. For more information about mint templates,' + ' select the TEMPLATE > QUICK SET... menu item and click the ? HELP button on the quick set window.' + '||              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' + '||RESTORE ON STARTUP: These options permit you to customise the way the automatic restore on startup function works. Changes you make here will take effect the next time you start a Templot0 session, they have no effect on the current session.' + '||If AUTO RESTORE PREVIOUS DATA is selected, the next time you start a Templot0 session your storage box and background drawing will be automatically re-instated to the condition in which you leave it when you quit this session.' + ' If ASK is selected, you will first be asked whether you want this to happen. These option settings will persist for subsequent startups until you change them.' + '||If START WITH CLEAR BOX AND TRACKPAD is selected, the automatic restore function will be ignored for the next startup. This option setting will apply for one startup only,' + ' and will revert to ASK for subsequent startups unless you change it each time.' + '||Regardless of which option you choose, the previous box contents can be restored at any time by selecting the FILES > RESTORE PREVIOUS menu item. For more information see the notes for the FILES menu above.' + '||              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' + '||N.B.|The storage box contains the template specification for each template, not an actual drawing of it.' + '||When a template is selected it is only then redrawn in the box using the current settings from the trackpad GENERATOR > GENERATOR SETTINGS > menu options.' + ' This means that if, say, you have switched off the timber outlines since the currently selected template was added to the box, it will now' + ' appear without any timber outlines. If you then copy the drawing to the background these settings will be locked in, so that it will appear in the background without timber outlines, and remain so even after you switch them back on.' + '||But the template specification itself has not changed. You can restore the timber outlines to the storage box drawings simply by switching them back on in the GENERATOR SETTINGS. And you can also restore them to the' + ' background drawings by clicking the REBUILD button.' + '||Templot0 occasionally needs to use the control template itself in some storage box operations, so you may see some unexplained changes take place on the trackpad behind the storage box.' + ' But your control template is always restored when these operations are complete.' + '||              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' + '||Handy Hints :' + '||If you want to copy a background template back to the control template for further work, you can do so directly from the trackpad without hunting for it in the storage box. Just click on the template and select the desired' + ' copy option on the pop-up menu.' + '||Likewise, there is no need to use the storage box to select a group of background templates for shifting or rotation, or for export.' + ' On the trackpad click the GROUP > GROUP SELECT > CLICK TEMPLATES TO GROUP menu item. Then you can click on the name labels of the required background templates to select or de-select them to or from a group.' + ' Or click instead the GROUP SELECT (TOGGLE) item on the pop-up menu for each template, or use the group selection FENCE functions.' + ' Also, many of the other box GROUP menu functions are duplicated in the trackpad GROUP menu for convenience.' + '||If you are using Windows NT or 2000 or XP, it can be useful to run two instances of Templot0 concurrently.' + ' It is important to run the second instance as a separate copy of Templot0 from a different folder, otherwise the automatic restore functions will not work as intended.' + ' Choose different screen colours for each instance so that you don''t get confused. Use one to build up the complete background drawing,' + ' with its storage box containing only the finished templates needed for this. Use the other as a scratch trackpad for trial designs, with its storage box as a resource of assorted designs,' + ' oddments and templates reloaded from previous schemes.'
     //  +' You can quickly transfer templates between the two storage boxes using the ECHO functions in the FILES menu.'
     + ' Templot0 can be quickly minimized when swapping instances by pressing the Pause key on the keyboard.';
@@ -6224,8 +6257,7 @@ begin
       if wipe_it(n) = False      // wipe background
       then begin
         alert(5, '    program  error',
-          '||Sorry, there is a program error.'
-          +
+          '||Sorry, there is a program error.' +
           '||The background will be cleared and rebuilt.',
           '', '', '', '', '', 'O K', 0);
         rebuild_background(False, True);
@@ -6260,7 +6292,8 @@ procedure copy_keep_to_background(list_index: integer; update_info, reloading: b
 // add this keep to the background keeps list.
 var
   p: Pointer;
-  i, aq, now: integer;
+  i, now: integer;
+  aq: ERailData;
   new_bgk: Tbgnd_keep;
   ti: Ttemplate_info;
   si, name_str: string;
@@ -6278,12 +6311,12 @@ var
   procedure abort_new_bgk;   // clear ALL requested memory if ANY requests fail.
 
   var
-    n: integer;
+    n: ERailData;
 
   begin
     with new_bgk do begin
       SetLength(list_bgnd_marks, 0);
-      for n := 0 to aq_max_c do begin
+      for n in ERailData do begin
         SetLength(list_bgnd_rails[n], 0);
       end;//for
     end;//with
@@ -6294,7 +6327,7 @@ begin
 
   with new_bgk do begin
     SetLength(list_bgnd_marks, 0);
-    for aq := 0 to aq_max_c do begin
+    for aq in ERailData do begin
       SetLength(list_bgnd_rails[aq], 0);
     end;//for
   end;//with
@@ -6307,7 +6340,8 @@ begin
 
       if Ttemplate(keeps_list.Objects[list_index]).bg_copied = True then
         EXIT;                            // already on background.
-      if Ttemplate(keeps_list.Objects[list_index]).template_info.keep_dims.box_dims1.bgnd_code_077 = -1 then
+      if Ttemplate(keeps_list.Objects[list_index]).template_info.keep_dims.box_dims1.bgnd_code_077
+        = -1 then
         EXIT;  // ??? library template.
 
       ti.keep_shove_list := Tshoved_timber_list.Create;
@@ -6394,7 +6428,7 @@ begin
           end;//for
           // copy rail end marks from lists ...
 
-          for aq := 0 to aq_max_c do begin
+          for aq in ERailData do begin
             for i := 0 to 1 do begin
               bgnd_endmarks[aq, i] := endmarks[aq, i];
               // rail end mark points. 1/100th mm.
@@ -6404,12 +6438,12 @@ begin
             end;//for
           end;//for
           // copy rail data from list...
-          for aq := 0 to aq_max_c do begin
+          for aq in ERailData do begin
 
-            SetLength(list_bgnd_rails[aq], nlmax_array[aq]+1);
+            SetLength(list_bgnd_rails[aq], nlmax_array[aq] + 1);
 
-            if ((plain_track = False) or (aq = 0) or (aq = 8) or (aq = 3) or
-              (aq = 11) or ((aq > 15) and (aq < 25))) and (aqyn[aq] = True)
+            if ((plain_track = False) or (aq in eRD_StockRails) or (aq in eRD_AdjacentTracks)) and
+              (aqyn[aq] = True)
 
             // stock rails, adjacent rails, centre-lines only if plain track, and data available ?
             then begin
@@ -6534,12 +6568,13 @@ begin
     if update_info = True then begin
       si := '';
       //with info_form do begin
-      if info_text_list{info_memo.Lines}.Count > 0 then
-      begin
+      if info_text_list{info_memo.Lines}.Count > 0 then begin
         for i := 0 to (info_text_list{info_memo.Lines}.Count - 1) do
-          si := si + info_text_list{info_memo.Lines}.Strings[i] + '|'; // info text goes in keeps_list.
+          si := si + info_text_list{info_memo.Lines}.Strings[i] + '|';
+        // info text goes in keeps_list.
         si :=
-          si + 'total timbering length on this template = ' + round_str(total_template_timber_length, 2);
+          si + 'total timbering length on this template = ' +
+          round_str(total_template_timber_length, 2);
         //0.97.a
       end;
       //end;//with
@@ -6633,7 +6668,8 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure Tkeep_form.centre_line_offset_options_as_stored_menu_entryClick(Sender: TObject);  // 214a
+procedure Tkeep_form.centre_line_offset_options_as_stored_menu_entryClick(Sender: TObject);
+// 214a
 
 begin
   centre_line_offset_options_as_stored_menu_entry.Checked := True;  // radio item
@@ -6699,11 +6735,9 @@ begin
   with math_form do begin
     Caption := '   name  or  rename  this  template ...';
     big_label.Caption := insert_crlf_str('|             Name or rename template :  ' +
-      idnum_str + '|||' + keep_name_str
-      + '|||Name or rename this template by entering a new name below.'
-      +
-      '|||If the existing name includes any prefix tags in square brackets,|take care not to delete or modify them unintentionally.'
-      + '|Enter the new name after the square brackets.');
+      idnum_str + '|||' + keep_name_str +
+      '|||Name or rename this template by entering a new name below.' +
+      '|||If the existing name includes any prefix tags in square brackets,|take care not to delete or modify them unintentionally.' + '|Enter the new name after the square brackets.');
 
     math_editbox.Text := keep_name_str;
 
@@ -6717,7 +6751,8 @@ begin
         keep_name_str := s;
 
         Ttemplate(
-          keeps_list.Objects[n]).template_info.keep_dims.box_dims1.reference_string := keep_name_str;
+          keeps_list.Objects[n]).template_info.keep_dims.box_dims1.reference_string :=
+          keep_name_str;
         save_done := False;
         backup_wanted := True;
       end;
@@ -6820,8 +6855,7 @@ var
 begin
   if keeps_list.Count < 1 then begin
     alert(6, '    no  stored  templates',
-      'Your storage box is currently empty, so there is nothing to clear.'
-      +
+      'Your storage box is currently empty, so there is nothing to clear.' +
       '||For more information about storing background templates click the ? HELP button.',
       '', '', '', '', '', 'O K  -  continue', 0);
     EXIT;
@@ -6834,8 +6868,7 @@ begin
       + '||These templates can be restored by clicking the UNDO CLEAR / RELOAD menu item.'
       + ' But if any of these templates may be needed again, you should save them in a named data file.'
       + ' Click the the green bar below to save your existing background drawing and storage box contents.'
-      + '||Are you sure you want to clear your drawing and delete the contents of your storage box?',
-      '', '', '', 'yes  -  clear  all  templates  without  saving',
+      + '||Are you sure you want to clear your drawing and delete the contents of your storage box?', '', '', '', 'yes  -  clear  all  templates  without  saving',
       'no  -  cancel', 'yes  -  but  save  first  before  clearing', 0);
     case i of
       5:
@@ -6849,7 +6882,9 @@ begin
     if alert(7, '      clear  all  templates ?',
       'You are about to delete all the templates from your storage box, and from your background drawing.'
       + '||These templates can be restored by clicking the UNDO CLEAR / RELOAD menu item.'
-      + '||( There have been no changes or additions to your storage box since you last saved or reloaded the contents. )' + '||Are you sure you want to clear your drawing and delete the contents of your storage box?', '', '', '', '', 'no  -  cancel', 'yes  -  clear  all  templates', 0) = 5 then
+      + '||( There have been no changes or additions to your storage box since you last saved or reloaded the contents. )'
+      + '||Are you sure you want to clear your drawing and delete the contents of your storage box?',
+      '', '', '', '', 'no  -  cancel', 'yes  -  clear  all  templates', 0) = 5 then
       EXIT;
   end;
 
@@ -6927,7 +6962,8 @@ begin
   else begin      // 0.93.a copy the control template if there is one, otherwise mint as before
 
     n := keeps_list.Count - 1;
-    if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.this_was_control_template = True then begin
+    if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.this_was_control_template
+      = True then begin
       //ShowMessage('debug 1  '+IntToStr(loaded_version));
 
       list_position := n;
@@ -7315,8 +7351,14 @@ begin
     alert_box.preferences_checkbox.Show;
 
     i := alert(7, '      delete  unused  templates ?',
-      '|You are about to delete all unused templates from your storage box.'
-      + ' ( All the templates which are not currently being shown on the background and are not library templates.)' + ' It is not possible to restore the templates which are deleted.' + '||If any of these templates may be needed again, you should save them first.' + ' Click the SAVE ALL button to save the entire contents of your storage box.' + '||Are you sure you want to delete all unused templates ?', '', '', '', '', 'no   -   cancel', 'yes   -   delete  all  unused  templates', 0);
+      '|You are about to delete all unused templates from your storage box.' +
+      ' ( All the templates which are not currently being shown on the background and are not library templates.)'
+      +
+      ' It is not possible to restore the templates which are deleted.' +
+      '||If any of these templates may be needed again, you should save them first.' +
+      ' Click the SAVE ALL button to save the entire contents of your storage box.' +
+      '||Are you sure you want to delete all unused templates ?', '', '', '', '',
+      'no   -   cancel', 'yes   -   delete  all  unused  templates', 0);
 
 
     no_unused_msg_pref := alert_box.preferences_checkbox.Checked;
@@ -7390,9 +7432,9 @@ begin
     alert_box.preferences_checkbox.Show;
 
     i := alert(7, '      delete  library  templates ?',
-      'You are about to delete all library templates from your storage box.'
-      + '||Are you sure you want to delete all library templates ?',
-      '', '', '', '', 'no   -   cancel', 'yes   -   delete  all  library  templates', 0);
+      'You are about to delete all library templates from your storage box.' +
+      '||Are you sure you want to delete all library templates ?', '', '',
+      '', '', 'no   -   cancel', 'yes   -   delete  all  library  templates', 0);
 
 
     no_library_msg_pref := alert_box.preferences_checkbox.Checked;
@@ -7462,11 +7504,11 @@ begin
     EXIT;
   end;
 
-  if alert(7, 'php/320    delete  all  T - 55  templates ?',
-    'There are ' + IntToStr(t55) + ' T-55 templates currently in your storage box.'
-    + '||These are templates which are still set to the fictional T-55 startup gauge.'
-    + '||You are about to delete all these templates from your storage box.'
-    + '||It is not possible to restore the templates which are deleted. If you think you may need them again you should first save a data file before deleting them.' + '||Are you sure you want to delete all T-55 templates ?', '', '', '', '', 'no   -   cancel', 'yes   -   delete  all  T-55  templates', 0) = 5 then
+  if alert(7, 'php/320    delete  all  T - 55  templates ?', 'There are ' +
+    IntToStr(t55) + ' T-55 templates currently in your storage box.' +
+    '||These are templates which are still set to the fictional T-55 startup gauge.' +
+    '||You are about to delete all these templates from your storage box.' +
+    '||It is not possible to restore the templates which are deleted. If you think you may need them again you should first save a data file before deleting them.' + '||Are you sure you want to delete all T-55 templates ?', '', '', '', '', 'no   -   cancel', 'yes   -   delete  all  T-55  templates', 0) = 5 then
     EXIT;
 
   if keeps_list.Count <> memo_list.Count then
@@ -7479,9 +7521,9 @@ begin
 
     with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do begin
 
-      if not ((proto_info.scale_pi = 5.5) and
-        (proto_info.gauge_pi = 25.4) and (proto_info.fw_pi = 1.0) and
-        (this_was_control_template = False)  // and not the control template
+      if not ((proto_info.scale_pi = 5.5) and (proto_info.gauge_pi = 25.4) and
+        (proto_info.fw_pi = 1.0) and (this_was_control_template =
+        False)  // and not the control template
 
         ) then begin
         Inc(n);
@@ -7663,12 +7705,9 @@ begin
 
   with math_form do begin
     Caption := '    find  template ...';
-    big_label.Caption := insert_crlf_str('                   Find  Template  or  Templates'
-      +
-      '|||Enter below the name of the template to search for, or part of the name.'
-      +
-      '||Do not use quotation marks unless you want to search for them in the name.'
-      +
+    big_label.Caption := insert_crlf_str('                   Find  Template  or  Templates' +
+      '|||Enter below the name of the template to search for, or part of the name.' +
+      '||Do not use quotation marks unless you want to search for them in the name.' +
       '|||You can also search for prefix tags or template ID numbers, or part of them.');
     math_editbox.Text := search_str;  // re-use previous
 
@@ -7751,13 +7790,11 @@ begin
 
   with math_form do begin
     Caption := '    find  and  group  templates ...';
-    big_label.Caption := insert_crlf_str('                   Find  and  Group  Templates'
-      +
+    big_label.Caption := insert_crlf_str('                   Find  and  Group  Templates' +
       '||||Enter below the name of the template to search for, or part of the name or ID number.'
       +
       '||Any existing group will be cancelled and all templates which match your search will be selected as a new group.'
-      +
-      '||(Do not use quotation marks unless you want to search for them in the name.)');
+      + '||(Do not use quotation marks unless you want to search for them in the name.)');
 
     math_editbox.Text := search_str;  // re-use previous
 
@@ -7781,7 +7818,8 @@ begin
     with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do
       s := reference_string + ' ' + id_number_str;
 
-    Ttemplate(keeps_list.Objects[n]).group_selected := Pos(LowerCase(search_str), LowerCase(s)) <> 0;
+    Ttemplate(keeps_list.Objects[n]).group_selected :=
+      Pos(LowerCase(search_str), LowerCase(s)) <> 0;
 
   end;//next
 
@@ -7825,7 +7863,8 @@ procedure rebuild_background(use_modify_options, egg_timer: boolean);
 // rebuild all the background keeps.
 
 var
-  n, i, aq: integer;
+  n, i: integer;
+  aq: ERailData;
   save_current: Ttemplate_info;
 
 begin
@@ -7855,7 +7894,7 @@ begin
         then begin
           with bgnd_keep do begin
             SetLength(list_bgnd_marks, 0);
-            for aq := 0 to aq_max_c do begin
+            for aq in ERailData do begin
               SetLength(list_bgnd_rails[aq], 0);
             end;//for next aq
 
@@ -7868,14 +7907,14 @@ begin
 
         // does he want it modified?...
 
-        if (use_modify_options = True) and (keep_form.timbering_as_control_menu_entry.Checked = True)
-        then begin
+        if (use_modify_options = True) and (keep_form.timbering_as_control_menu_entry.Checked =
+          True) then begin
           update_timbering(template_info.keep_dims);
           new_stamp_wanted := True;
         end;
 
-        if (use_modify_options = True) and (keep_form.plain_track_as_control_menu_entry.Checked = True)
-        then begin
+        if (use_modify_options = True) and (keep_form.plain_track_as_control_menu_entry.Checked =
+          True) then begin
           update_lengths(template_info.keep_dims);
           new_stamp_wanted := True;
         end;
@@ -8004,8 +8043,7 @@ var
 
           Font.Height := text_font_height;
 
-          if pad_form.boxed_over_names_menu_entry.Checked =
-            True then begin
+          if pad_form.boxed_over_names_menu_entry.Checked = True then begin
             Pen.Color := Font.Color;
             Pen.Style := psSolid;     // 215b
             Rectangle(text_begin_X - 2,
@@ -8024,13 +8062,13 @@ var
         else begin                 // change to normal selection style.
 
           draw_background_templates(pad_form.Canvas,
-            0, n, True, selection_colour);  //  draw directly on pad and highlight this one. 26-10-99.
+            0, n, True, selection_colour);
+          //  draw directly on pad and highlight this one. 26-10-99.
 
           Font.Assign(pad_form.bgnd_keeps_font_label.Font);
           Brush.Style := bsSolid;
 
-          if paper_colour = clBlack
-          then begin
+          if paper_colour = clBlack then begin
             Brush.Color := clWhite;
             Font.Color := clBlack;
           end
@@ -8040,8 +8078,7 @@ var
           end;
           Font.Height := text_font_height;
 
-          if pad_form.boxed_over_names_menu_entry.Checked =
-            True then begin
+          if pad_form.boxed_over_names_menu_entry.Checked = True then begin
             Pen.Color := Font.Color;
             Pen.Style := psSolid;     // 215b
             Rectangle(text_begin_X - 2,
@@ -8135,8 +8172,7 @@ begin
           text_end_X := text_begin_X + TextWidth(showing_label_string);
           text_end_Y := text_begin_Y + TextHeight(showing_label_string);
 
-          if pad_form.boxed_over_names_menu_entry.Checked = True then
-          begin
+          if pad_form.boxed_over_names_menu_entry.Checked = True then begin
             Pen.Color := Font.Color;
             Pen.Style := psSolid;     // 215b
             Rectangle(text_begin_X - 2, text_begin_Y - 2, text_end_X + 2, text_end_Y + 2);
@@ -8151,7 +8187,8 @@ begin
         end
         else begin
           if n = name_highlighted then
-            de_highlight;  // mouse moved off this one - must de-highlight it unless it's now been selected by clicking.
+            de_highlight;
+          // mouse moved off this one - must de-highlight it unless it's now been selected by clicking.
         end;
 
       end;//with bgkeep
@@ -8206,8 +8243,7 @@ begin
   repeat
 
     i := alert(4, '    template  info  to  printer  or  to  PDF  file ?',
-      'Do you want to print the template information,||or create a PDF file?'
-      +
+      'Do you want to print the template information,||or create a PDF file?' +
       '||<I>This function may take a few minutes to finish.</I>' +
       '|||green_panel_begin tree.gif To set the text size and margins click the `0program > printer font + margins...`1 menu item on the program panel, or click the bar below.green_panel_end', '', '', 'set  font  and  margins', 'PDF  file', 'cancel', 'print', 0);
     case i of
@@ -8242,18 +8278,20 @@ begin
 
 
   html_str := '<HTML><HEAD>' + '<style> body, p, table { font-size:' + IntToStr(
-    printer_text_font.Size) + 'pt; font-family:"' + printer_text_font.Name + '"; ' +
-    'font-weight:' + bold_str + '; font-style:' + italic_str + '; text-decoration:' +
-    underline_str + '; }' + ' td {padding-left:8px; padding-right:8px;} </style>'
-    + '</HEAD><BODY><TABLE ALIGN="CENTER" WIDTH="100%">' + '<TR><TD COLSPAN="5" STYLE="font-size:' +
+    printer_text_font.Size) + 'pt; font-family:"' + printer_text_font.Name +
+    '"; ' + 'font-weight:' + bold_str + '; font-style:' + italic_str +
+    '; text-decoration:' + underline_str + '; }' +
+    ' td {padding-left:8px; padding-right:8px;} </style>' +
+    '</HEAD><BODY><TABLE ALIGN="CENTER" WIDTH="100%">' + '<TR><TD COLSPAN="5" STYLE="font-size:' +
     IntToStr(printer_text_font.Size + 4) + 'pt;">' +
-    'TEMPLATE INFORMATION</TD><TD>created in Templot0 software from templot.com</TD></TR>'
-    + '<TR><TD COLSPAN="6">&nbsp;</TD></TR>' + '<TR><TD COLSPAN="6" STYLE="font-size:' +
+    'TEMPLATE INFORMATION</TD><TD>created in Templot0 software from templot.com</TD></TR>' +
+    '<TR><TD COLSPAN="6">&nbsp;</TD></TR>' + '<TR><TD COLSPAN="6" STYLE="font-size:' +
     IntToStr(printer_text_font.Size + 3) + 'pt;">' +
-    'The Templot0 storage box for: <SPAN STYLE="font-weight:bold;">' + box_project_title_str +
-    '</SPAN></TD></TR>' + '<TR><TD COLSPAN="6">' + ' &nbsp;at &nbsp;' + TimeToStr(
-    Time) + ' &nbsp;on &nbsp;' + DateToStr(Date) + ' &nbsp; &nbsp;contains the following &nbsp;' +
-    IntToStr(keeps_list.Count) + ' &nbsp;templates :<BR><HR></TD></TR>';
+    'The Templot0 storage box for: <SPAN STYLE="font-weight:bold;">' +
+    box_project_title_str + '</SPAN></TD></TR>' + '<TR><TD COLSPAN="6">' +
+    ' &nbsp;at &nbsp;' + TimeToStr(Time) + ' &nbsp;on &nbsp;' + DateToStr(Date) +
+    ' &nbsp; &nbsp;contains the following &nbsp;' + IntToStr(keeps_list.Count) +
+    ' &nbsp;templates :<BR><HR></TD></TR>';
 
   for n := 0 to keeps_list.Count - 1 do begin
 
@@ -8269,8 +8307,9 @@ begin
     end;//case
 
     html_str := html_str + '<TR STYLE="font-weight:bold;">' + '<TD>' +
-      IntToStr(n + 1) + '</TD>' + '<TD>' + type_str + '</TD>' + '<TD>' + Ttemplate(
-      keeps_list.Objects[n]).template_info.keep_dims.box_dims1.id_number_str + '</TD>' // 208b
+      IntToStr(n + 1) + '</TD>' + '<TD>' + type_str + '</TD>' + '<TD>' +
+      Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.id_number_str +
+      '</TD>' // 208b
       + '<TD>' + Trim(keep_form.keepform_listbox.Items.Strings[n]) + '</TD>';
 
     show_str := Trim(Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.top_label);
@@ -8326,9 +8365,8 @@ begin
       // repeat - allow multiple spaces.
 
       html_str := html_str +
-        '<TR><TD COLSPAN="6" STYLE="padding-left:24px;"><BR><I>template information:</I><BR><BR>' + full_string
-        +
-        '</TD></TR>';
+        '<TR><TD COLSPAN="6" STYLE="padding-left:24px;"><BR><I>template information:</I><BR><BR>' +
+        full_string + '</TD></TR>';
     end;
 
 
@@ -8356,8 +8394,7 @@ begin
     repeat
       all_done_full := parse_text_for_newline(full_string, next_string);
 
-      html_str := html_str + '<TR><TD COLSPAN="6">' +
-        next_string + '</TD></TR>';
+      html_str := html_str + '<TR><TD COLSPAN="6">' + next_string + '</TD></TR>';
 
     until all_done_full = True;
 
@@ -8493,8 +8530,8 @@ begin
     fill_kd(save_current);                  // fill with the control template data.
 
     for n := 0 to (keeps_list.Count - 1) do begin
-      if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 = 0
-      then begin
+      if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 =
+        0 then begin
         list_position := n;                       // put this unused keep on background.
         copy_keep_to_background(n, True, False);
         // (updates the info in case unused have previously been modified on mirror-group etc.)
@@ -8519,7 +8556,9 @@ procedure Tkeep_form.wipe_all_menu_entryClick(Sender: TObject);
 begin
   if any_bgnd = 0 then begin
     alert(6, '    no  templates  currently  on  background',
-      '||There are no stored templates currently copied to the background drawing, and therefore none to be wiped from it.' + '||To copy a template to the background, select it and then click the `0COPY TO BACKGROUND`1 button.',
+      '||There are no stored templates currently copied to the background drawing, and therefore none to be wiped from it.'
+      +
+      '||To copy a template to the background, select it and then click the `0COPY TO BACKGROUND`1 button.',
       '', '', '', '', '', 'O K', 0);
     EXIT;
   end;
@@ -8572,8 +8611,7 @@ begin
           if wipe_it(n) = False      // wipe background data.
           then begin
             alert(5, '    program  error',
-              '||Sorry, there is a program error.'
-              +
+              '||Sorry, there is a program error.' +
               '||The background will be cleared and rebuilt.',
               '', '', '', '', '', 'O K', 0);
             rebuild_background(False, True);
@@ -8654,8 +8692,7 @@ begin     // menu is not enabled until there is something there.
     n := keeps_list.Add(deleted_keep_string);        // add line to info.
   except
     alert(5, '    undo  delete  error',
-      '|||There is an internal problem with undo.' +
-      '||Please quote fail code 901.',
+      '|||There is an internal problem with undo.' + '||Please quote fail code 901.',
       '', '', '', '', 'cancel  undo', '', 0);
     EXIT;
   end;//try
@@ -8664,8 +8701,7 @@ begin     // menu is not enabled until there is something there.
     m := memo_list.Add(deleted_memo_string);         // add line to memo.
   except
     alert(5, '    undo  delete  error',
-      '|||There is an internal problem with undo.' +
-      '||Please quote fail code 902.',
+      '|||There is an internal problem with undo.' + '||Please quote fail code 902.',
       '', '', '', '', 'cancel  undo', '', 0);
     if n > -1 then
       keeps_list.Delete(n);
@@ -8674,8 +8710,7 @@ begin     // menu is not enabled until there is something there.
 
   if (m <> n) or (m < 0) or (m > (keeps_list.Count - 1)) then begin
     alert(5, '    undo  delete  error',
-      '|||There is an internal problem with undo.'
-      + '||Please quote fail code 903.',
+      '|||There is an internal problem with undo.' + '||Please quote fail code 903.',
       '', '', '', '', 'cancel  undo', '', 0);
     if n > -1 then
       keeps_list.Delete(n);
@@ -8689,8 +8724,7 @@ begin     // menu is not enabled until there is something there.
     keeps_list.Objects[n] := Ttemplate.Create;
   except
     alert(1, '      memory  problem',
-      '||Unable to undo because of memory problems.' +
-      '||Please quote fail code 904.',
+      '||Unable to undo because of memory problems.' + '||Please quote fail code 904.',
       '', '', '', '', '', 'cancel  undo', 0);
 
     if n > -1 then
@@ -8723,8 +8757,7 @@ begin     // menu is not enabled until there is something there.
       copy_keep_to_background(n, False, False)
     // put it in background.
     else begin
-      with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do
-      begin
+      with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do begin
         bgnd_code_077 := 0;             // set it unused instead.
         pre077_bgnd_flag := False;
         // in case reloaded in older version than 0.77.a
@@ -8795,8 +8828,8 @@ begin
 
   for n := 0 to (keeps_list.Count - 1) do begin
     if (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 = 0) and
-      (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.this_was_control_template =
-      False)   // added 208d for file viewer
+      (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.this_was_control_template
+      = False)   // added 208d for file viewer
     then
       Result := Result + 1;   // return count.
   end;//next keep
@@ -8837,7 +8870,8 @@ begin
     with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do begin
 
       if (proto_info.scale_pi = 5.5) and (proto_info.gauge_pi = 25.4) and
-        (proto_info.fw_pi = 1.0) and (this_was_control_template = False)  // and not the control template
+        (proto_info.fw_pi = 1.0) and (this_was_control_template = False)
+      // and not the control template
 
       then
         Result := Result + 1;       // return count.
@@ -8876,8 +8910,8 @@ begin
     EXIT;
 
   for n := (keeps_list.Count - 1) downto 0 do begin
-    if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 <> -1
-    then begin
+    if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 <>
+      -1 then begin
       Result := n;   // return index.
       EXIT;
     end;
@@ -8897,8 +8931,7 @@ begin
 
   for n := 0 to (keeps_list.Count - 1) do begin
     if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 =
-      -1 then
-    begin
+      -1 then begin
       Result := n;   // return index.
       EXIT;
     end;
@@ -8964,7 +8997,8 @@ begin
 end;
 //______________________________________________________________________________
 
-function highest_non_group_template: integer;  // 213b return highest index of a non-group template.
+function highest_non_group_template: integer;
+  // 213b return highest index of a non-group template.
   // return -1 if none.
 var
   n: integer;
@@ -9063,7 +9097,8 @@ begin
     Result := Round(index * (keep_form.updown_panel.Width - keep_form.slider_panel.Width) /
       (keeps_list.Count - 1));
     if Result < 0 then
-      Result := 0;                                                                                                                      // left limit.
+      Result := 0;
+    // left limit.
     if Result > (keep_form.updown_panel.Width - keep_form.slider_panel.Width) then
       Result := keep_form.updown_panel.Width - keep_form.slider_panel.Width;    // right limit.
   end
@@ -9103,14 +9138,12 @@ begin
       mpsy := updown_panel.ClientToScreen(sp).Y;
 
       if (n >= 0) and (n < keeps_list.Count) then begin
-        if Ttemplate(keeps_list.Objects[n]).group_selected =
-          True then
+        if Ttemplate(keeps_list.Objects[n]).group_selected = True then
           slider_shape.Show
         else
           slider_shape.Hide;
 
-        with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do
-        begin
+        with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do begin
 
           case bgnd_code_077 of
             -1:
@@ -9165,14 +9198,12 @@ begin
       n := slider_index(Left);
 
       if (n >= 0) and (n < keeps_list.Count) then begin
-        if Ttemplate(keeps_list.Objects[n]).group_selected =
-          True then
+        if Ttemplate(keeps_list.Objects[n]).group_selected = True then
           slider_shape.Show
         else
           slider_shape.Hide;
 
-        with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do
-        begin
+        with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do begin
 
           case bgnd_code_077 of
             -1:
@@ -9542,7 +9573,8 @@ begin
           0:
             used_colour := clAqua;
           1:
-            used_colour := $000077FF; //clRed;   //clFuchsia;       // show brighter against black..
+            used_colour := $000077FF;
+          //clRed;   //clFuchsia;       // show brighter against black..
         end;//case
 
         text_colour := clWhite;
@@ -9570,7 +9602,8 @@ begin
           0:
             used_colour := clAqua;
           1:
-            used_colour := $000077FF; //clRed;   //clFuchsia;       // show brighter against black..
+            used_colour := $000077FF;
+          //clRed;   //clFuchsia;       // show brighter against black..
         end;//case
 
         text_colour := clWhite;
@@ -9601,7 +9634,8 @@ begin
           TextOut(Rect.Left + 2, Rect.Top, '>');
       end;//case
 
-      TextOut(Rect.Left + tw2 - TextWidth(IntToStr(Index + 1) + '  '), Rect.Top, IntToStr(Index + 1));
+      TextOut(Rect.Left + tw2 - TextWidth(IntToStr(Index + 1) + '  '), Rect.Top,
+        IntToStr(Index + 1));
 
       Font.Color := text_colour;
       TextOut(Rect.Left + tw2, Rect.Top, Items.Strings[Index]);
@@ -9622,8 +9656,9 @@ begin
       then begin
         Brush.Color := used_colour;
         Pen.Color := used_colour;
-        Rectangle(Rect.Left + tw1, Rect.Top + (ItemHeight div 4), Rect.Left + tw1 +
-          (Itemheight div 2), Rect.Top + (ItemHeight * 3 div 4));     // square bullet indicates group member.
+        Rectangle(Rect.Left + tw1, Rect.Top + (ItemHeight div 4), Rect.Left +
+          tw1 + (Itemheight div 2), Rect.Top + (ItemHeight * 3 div 4));
+        // square bullet indicates group member.
 
         if (odSelected in State) = True then
           Brush.Color := clBlack                 // restore brush and pen for focusing..
@@ -9642,8 +9677,8 @@ begin
         Pen.Color := keepform_listbox.Color;
         // in case marker colour matches list selection colour
 
-        Rectangle(Rect.Right - marcol_rect_left, Rect.Top +
-          (ItemHeight div 4), Rect.Right - marcol_rect_right, Rect.Top + (ItemHeight * 3 div 4));
+        Rectangle(Rect.Right - marcol_rect_left, Rect.Top + (ItemHeight div 4),
+          Rect.Right - marcol_rect_right, Rect.Top + (ItemHeight * 3 div 4));
 
         if (odSelected in State) = True then
           Brush.Color := clBlack                 // restore brush and pen for focusing..
@@ -9690,8 +9725,7 @@ begin
       prior_str := '';
 
     if alert(2, '    no  data  available',
-      'Sorry, there is no previous box contents data available.'
-      +
+      'Sorry, there is no previous box contents data available.' +
       '||The most likely reason is that your storage box was empty when you last quit Templot0.',
       '', '', '', prior_str, '', 'O K', 0) = 4 then
       restore_prior_previous_menu_entry.Click;
@@ -9712,10 +9746,10 @@ begin
     end;
 
     append := False;
-    if load_storage_box(True, False, pb_str, False, False, append, hl) = True then
-    begin
+    if load_storage_box(True, False, pb_str, False, False, append, hl) = True then begin
       if keeps_list.Count > 0 then begin
-        with Ttemplate(keeps_list.Objects[0]).template_info.keep_dims.box_dims1 do begin   // read only from first keep.
+        with Ttemplate(keeps_list.Objects[0]).template_info.keep_dims.box_dims1 do
+        begin   // read only from first keep.
           if version_as_loaded > 62 then
             save_done := box_save_done      // mods 23-6-00 for version 0.63
           else
@@ -9725,7 +9759,8 @@ begin
         if append = True then
           EXIT;
         if (loaded_version < 93) and (hl > -1) and (hl < keeps_list.Count) then
-          mint_final_or_copy_control(hl);   // if something loaded mint from highest bgnd if he so wants.
+          mint_final_or_copy_control(hl);
+        // if something loaded mint from highest bgnd if he so wants.
         if (loaded_version > 92) then
           mint_final_or_copy_control(hl);
         // copy the control template if there is one in the file.
@@ -9744,8 +9779,7 @@ var
 begin
   if FileExists(pbo_str) = False then begin
     alert(2, '    no  data  available',
-      'Sorry, there is no prior-previous box contents data available.'
-      +
+      'Sorry, there is no prior-previous box contents data available.' +
       '||The most likely reason is that your storage box was empty when you quit the Templot0 session prior to the last one.',
       '', '', '', '', '', 'O K', 0);
     EXIT;
@@ -9764,10 +9798,10 @@ begin
     end;
 
     append := False;
-    if load_storage_box(True, False, pbo_str, False, False, append, hl) = True then
-    begin
+    if load_storage_box(True, False, pbo_str, False, False, append, hl) = True then begin
       if keeps_list.Count > 0 then begin
-        with Ttemplate(keeps_list.Objects[0]).template_info.keep_dims.box_dims1 do begin   // read only from first keep.
+        with Ttemplate(keeps_list.Objects[0]).template_info.keep_dims.box_dims1 do
+        begin   // read only from first keep.
           if version_as_loaded > 62 then
             save_done := box_save_done      // mods 23-6-00 for version 0.63
           else
@@ -9777,7 +9811,8 @@ begin
         if append = True then
           EXIT;
         if (loaded_version < 93) and (hl > -1) and (hl < keeps_list.Count) then
-          mint_final_or_copy_control(hl);   // if something loaded mint from highest bgnd if he so wants.
+          mint_final_or_copy_control(hl);
+        // if something loaded mint from highest bgnd if he so wants.
         if (loaded_version > 92) then
           mint_final_or_copy_control(hl);
         // copy the control template if there is one in the file.
@@ -9914,13 +9949,13 @@ begin
 
     with Ttemplate(keeps_list.Objects[n]) do begin
 
-      if (group_selected = True) and (bg_copied = True)     // selected and currently on background?
+      if (group_selected = True) and (bg_copied = True)
+      // selected and currently on background?
       then begin
         if wipe_it(n) = False      // wipe the background.
         then begin
           alert(5, '    program  error',
-            '||Sorry, there is a program error.'
-            +
+            '||Sorry, there is a program error.' +
             '||The background will be cleared and rebuilt.',
             '', '', '', '', '', 'O K', 0);
           rebuild_background(False, True);
@@ -10032,8 +10067,8 @@ begin
 
         // does he want it modified?...
 
-        if (use_modify_options = True) and (keep_form.timbering_as_control_menu_entry.Checked = True)
-        then begin
+        if (use_modify_options = True) and (keep_form.timbering_as_control_menu_entry.Checked =
+          True) then begin
           update_timbering(template_info.keep_dims);
           new_stamp_wanted := True;
         end;
@@ -10147,8 +10182,8 @@ begin
 
   if all_except = True then begin
     if alert(7, '    delete  all  except  selected  group ?',
-      'You are about to delete all templates which are not part of the selected group.'
-      + '||It is not possible to undo this delete.' +
+      'You are about to delete all templates which are not part of the selected group.' +
+      '||It is not possible to undo this delete.' +
       '||The remaining templates will be re-numbered.' +
       '||Are you sure you want to delete all templates except the selected group ?',
       '', '', '', '', 'no  -  cancel  delete', 'yes  -  delete  all  except  group', 0) = 5 then
@@ -10156,12 +10191,11 @@ begin
   end
   else begin
     if alert(7, '      delete  selected  group ?',
-      'You are about to delete the selected group of templates.'
-      +
+      'You are about to delete the selected group of templates.' +
       '||It is not possible to undo a group delete.' +
       '||The remaining templates will be re-numbered.' +
-      '||Are you sure you want to delete this group ?', '', '',
-      '', '', 'no  -  cancel  delete', 'yes  -  delete  selected  group  of  templates', 0) = 5 then
+      '||Are you sure you want to delete this group ?', '', '', '', '',
+      'no  -  cancel  delete', 'yes  -  delete  selected  group  of  templates', 0) = 5 then
       EXIT;
   end;
 
@@ -10349,7 +10383,8 @@ var
   clear_str: string;
 
 begin
-  if FileExists(Config.GetFilePath(csfiSaveForUndo)) or FileExists(Config.GetFilePath(csfiSaveForUndoZ))
+  if FileExists(Config.GetFilePath(csfiSaveForUndo)) or
+    FileExists(Config.GetFilePath(csfiSaveForUndoZ))
   // original or a preserved copy.
   then begin
     if no_undo_clear_msg_pref = False then begin
@@ -10382,7 +10417,7 @@ begin
       append := False;
       // var parameter.
       if not load_storage_box(True, False, Config.GetFilePath(csfiSaveForUndoZ),
-         False, False, append, hl) then
+        False, False, append, hl) then
         EXIT;     // nothing was loaded.
 
       if list_panel.Visible = True then
@@ -10391,7 +10426,8 @@ begin
       if append = True then
         EXIT;
       if (loaded_version < 93) and (hl > -1) and (hl < keeps_list.Count) then
-        mint_final_or_copy_control(hl);   // if something loaded mint from highest bgnd if he so wants.
+        mint_final_or_copy_control(hl);
+      // if something loaded mint from highest bgnd if he so wants.
       if (loaded_version > 92) then
         mint_final_or_copy_control(hl);
       // copy the control template if there is one in the file.
@@ -10404,7 +10440,8 @@ begin
       clear_str := '';
 
     if alert(2, '    nothing  to  undo',
-      'No templates have previously been cleared or replaced by reloading, so there is nothing to undo and no data to restore.', '', '', '', clear_str, '', 'O K  -  continue', 0) = 4 then
+      'No templates have previously been cleared or replaced by reloading, so there is nothing to undo and no data to restore.',
+      '', '', '', clear_str, '', 'O K  -  continue', 0) = 4 then
       clear_menu_entry.Click;
   end;
 end;
@@ -10416,7 +10453,8 @@ begin
   if (keeps_list.Count < 1) or (list_position < 0) or (list_position > (keeps_list.Count - 1)) then
     EXIT;
 
-  if Ttemplate(keeps_list.Objects[list_position]).template_info.keep_dims.box_dims1.bgnd_code_077 <> 1 then
+  if Ttemplate(keeps_list.Objects[list_position]).template_info.keep_dims.box_dims1.bgnd_code_077
+    <> 1 then
     EXIT;
 
   Screen.Cursor := crHourGlass;     // might take a while.
@@ -10433,7 +10471,9 @@ procedure Tkeep_form.rebuild_all_menu_entryClick(Sender: TObject);
 begin
   if any_bgnd = 0 then begin
     alert(6, '    no  templates  currently  on  background',
-      '||There are no stored templates currently copied to the background drawing, and therefore none to be rebuilt.' + '||To copy a template to the background, select it and then click the `0COPY TO BACKGROUND`1 button.',
+      '||There are no stored templates currently copied to the background drawing, and therefore none to be rebuilt.'
+      +
+      '||To copy a template to the background, select it and then click the `0COPY TO BACKGROUND`1 button.',
       '', '', '', '', '', 'O K', 0);
     EXIT;
   end;
@@ -10564,7 +10604,8 @@ var
 
       if Strings[n] <> '' then begin
         popup_item.Caption :=
-          num_str + '      ' + ExtractFileName(Strings[n]) + '      •      ' + ExtractFilePath(Strings[n]);
+          num_str + '      ' + ExtractFileName(Strings[n]) + '      •      ' +
+          ExtractFilePath(Strings[n]);
         popup_item.Enabled := True;
         keep_form.clear_mru_list_popup_entry.Enabled := True;
       end
@@ -10703,8 +10744,8 @@ begin
 
   123:
 
-    msg_str := msg_str + '<P ALIGN="CENTER" STYLE="COLOR:BLUE;">Storage Box Data:</P><HR>'
-    + '<P><TABLE STYLE="FONT-SIZE:15px; FONT-WEIGHT:BOLD;"><TR><TD WIDTH="66%">TOTAL LENGTH: The total length of all background templates is currently:</TD>' + '<TD>&nbsp; &nbsp;</TD><TD>' + round_str(total_bgnd_template_length, 2) + ' mm<BR>(approx ' + round_str(total_bgnd_template_length / 304.8, 0) + ' ft)</TD></TR>';
+    msg_str := msg_str + '<P ALIGN="CENTER" STYLE="COLOR:BLUE;">Storage Box Data:</P><HR>' +
+      '<P><TABLE STYLE="FONT-SIZE:15px; FONT-WEIGHT:BOLD;"><TR><TD WIDTH="66%">TOTAL LENGTH: The total length of all background templates is currently:</TD>' + '<TD>&nbsp; &nbsp;</TD><TD>' + round_str(total_bgnd_template_length, 2) + ' mm<BR>(approx ' + round_str(total_bgnd_template_length / 304.8, 0) + ' ft)</TD></TR>';
 
   msg_str := msg_str + '<TR><TD COLSPAN="3" ALIGN="CENTER">&nbsp;</TD></TR>';
 
@@ -10712,7 +10753,8 @@ begin
     msg_str := msg_str +
       '<TR><TD>Including the current control template, the total length is:</TD>'
       + '<TD>&nbsp; &nbsp;</TD><TD>' + round_str(total_bgnd_template_length + turnoutx, 2) +
-      ' mm<BR>(approx ' + round_str((total_bgnd_template_length + turnoutx) / 304.8, 0) + ' ft)</TD></TR>';
+      ' mm<BR>(approx ' + round_str((total_bgnd_template_length + turnoutx) / 304.8, 0) +
+      ' ft)</TD></TR>';
 
     msg_str := msg_str + '<TR><TD COLSPAN="3" ALIGN="CENTER">&nbsp;</TD></TR>';
   end;
@@ -10728,8 +10770,8 @@ begin
 
   if classic_templot = False then begin
     msg_str := msg_str +
-      '<TR><TD>Including the current control template, the total timbering length is:</TD>'
-      + '<TD>&nbsp; &nbsp;</TD><TD>' + round_str(total_bgnd_timbering_length +
+      '<TR><TD>Including the current control template, the total timbering length is:</TD>' +
+      '<TD>&nbsp; &nbsp;</TD><TD>' + round_str(total_bgnd_timbering_length +
       total_template_timber_length, 2) + ' mm<BR>(approx ' + round_str(
       (total_bgnd_timbering_length + total_template_timber_length) / 304.8, 0) + ' ft)</TD></TR>';
 
@@ -10745,8 +10787,8 @@ begin
   msg_str := msg_str + '<TR><TD>SMALLEST RADIUS: The smallest radius on any background template is currently:</TD><TD>&nbsp; &nbsp;</TD>';
 
   if smallest_bgnd_radius < max_rad_test then
-    msg_str := msg_str + '<TD>' + round_str(smallest_bgnd_radius, 2) + ' mm<BR>(approx ' +
-      round_str(smallest_bgnd_radius / 25.4, 1) +
+    msg_str := msg_str + '<TD>' + round_str(smallest_bgnd_radius, 2) +
+      ' mm<BR>(approx ' + round_str(smallest_bgnd_radius / 25.4, 1) +
       ' in)<BR><A HREF="smallest_bgnd_rad.85a">show template</A></TD></TR>'
   else
     msg_str := msg_str + '<TD>straight</TD></TR>';
@@ -10756,8 +10798,8 @@ begin
   msg_str := msg_str + '<TR><TD>SMALLEST RADIUS IN GROUP: The smallest radius on any group-selected template is currently:</TD><TD>&nbsp; &nbsp;</TD>';
 
   if smallest_group_radius < max_rad_test then
-    msg_str := msg_str + '<TD>' + round_str(smallest_group_radius, 2) + ' mm<BR>(approx ' +
-      round_str(smallest_group_radius / 25.4, 1) +
+    msg_str := msg_str + '<TD>' + round_str(smallest_group_radius, 2) +
+      ' mm<BR>(approx ' + round_str(smallest_group_radius / 25.4, 1) +
       ' in)<BR><A HREF="smallest_group_rad.85a">show template</A></TD></TR>'
   else
     msg_str := msg_str + '<TD>straight</TD></TR>';
@@ -10908,7 +10950,8 @@ var
 begin
   tag_count := build_tag_list(False);
 
-  ShowMessage('There are ' + IntToStr(tag_count) + ' prefix tags in use:' + #13 + #13 + tag_list.Text);
+  ShowMessage('There are ' + IntToStr(tag_count) + ' prefix tags in use:' +
+    #13 + #13 + tag_list.Text);
 end;
 //______________________________________________________________________________
 
@@ -10929,13 +10972,11 @@ begin
   else begin
     if any_selected > 0 then begin
       i := alert(4, 'php/330    add  templates  to  existing  group ?',
-        '`0Select all templates tagged  ' + tag_str +
-        '  as a group.`9' +
-        '||There is an existing group of one or more selected templates.'
-        +
+        '`0Select all templates tagged  ' + tag_str + '  as a group.`9' +
+        '||There is an existing group of one or more selected templates.' +
         '||Do you want to create a new group, or add the tagged templates to the existing group?',
-        '', '', '', 'add  to  existing  group', 'cancel',
-        'create  new  group', 0);
+
+        '', '', '', 'add  to  existing  group', 'cancel', 'create  new  group', 0);
 
       if i = 5 then
         EXIT;
@@ -10951,7 +10992,8 @@ begin
 
   for n := 0 to keeps_list.Count - 1 do begin
 
-    if (add_to_existing_group = True) and (Ttemplate(keeps_list.Objects[n]).group_selected = True) then
+    if (add_to_existing_group = True) and
+      (Ttemplate(keeps_list.Objects[n]).group_selected = True) then
       CONTINUE;
 
     with Ttemplate(keeps_list.Objects[n]) do
@@ -11019,10 +11061,12 @@ begin
     case code of
 
       1:
-        keeps_list.Strings[n] := LowerCase(Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.reference_string);
+        keeps_list.Strings[n] :=
+          LowerCase(Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.reference_string);
 
       2:
-        keeps_list.Strings[n] := FormatFloat('000000', Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.id_number);
+        keeps_list.Strings[n] :=
+          FormatFloat('000000', Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.id_number);
 
       3:
         keeps_list.Strings[n] := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.id_number_str;
@@ -11095,11 +11139,10 @@ begin
       pt_all := turnout_road_stock_rail_sw and main_road_stock_rail_sw;
 
       turnout_all := pt_all and turnout_road_check_rail_sw and
-        turnout_road_crossing_rail_sw and crossing_vee_sw and
-        main_road_check_rail_sw and main_road_crossing_rail_sw;
+        turnout_road_crossing_rail_sw and crossing_vee_sw and main_road_check_rail_sw and
+        main_road_crossing_rail_sw;
 
-      hd_all := turnout_all and k_diagonal_side_check_rail_sw and
-        k_main_side_check_rail_sw;
+      hd_all := turnout_all and k_diagonal_side_check_rail_sw and k_main_side_check_rail_sw;
 
     end;//with
 
@@ -11132,11 +11175,10 @@ begin
       pt_all := turnout_road_stock_rail_sw and main_road_stock_rail_sw;
 
       turnout_all := pt_all and turnout_road_check_rail_sw and
-        turnout_road_crossing_rail_sw and crossing_vee_sw and
-        main_road_check_rail_sw and main_road_crossing_rail_sw;
+        turnout_road_crossing_rail_sw and crossing_vee_sw and main_road_check_rail_sw and
+        main_road_crossing_rail_sw;
 
-      hd_all := turnout_all and k_diagonal_side_check_rail_sw and
-        k_main_side_check_rail_sw;
+      hd_all := turnout_all and k_diagonal_side_check_rail_sw and k_main_side_check_rail_sw;
 
     end;//with
 
@@ -11175,17 +11217,11 @@ begin
 
 
         box_dims1.id_number_str :=
-          create_id_number_str(box_dims1.id_number,
-          box_dims1.turnout_info1.hand,
-          turnout_info2.start_draw_x,
-          box_dims1.
-          turnout_info1.turnout_length,
-          turnout_info2.ipx_stored,
-          turnout_info2.fpx_stored,
-          box_dims1.
-          turnout_info1.plain_track_flag,
-          turnout_info2.semi_diamond_flag,
-          any_stored_rails_omitted(n));
+          create_id_number_str(box_dims1.id_number, box_dims1.turnout_info1.hand,
+          turnout_info2.start_draw_x, box_dims1.turnout_info1.turnout_length,
+          turnout_info2.ipx_stored, turnout_info2.fpx_stored,
+          box_dims1.turnout_info1.plain_track_flag,
+          turnout_info2.semi_diamond_flag, any_stored_rails_omitted(n));
 
       end;//with
 
@@ -11204,15 +11240,10 @@ begin
       box_dims1.id_number := keeps_list.Count + 1;   // next ID
 
       box_dims1.id_number_str :=
-        create_id_number_str(box_dims1.id_number,
-        box_dims1.turnout_info1.hand,
-        turnout_info2.start_draw_x,
-        box_dims1.turnout_info1.turnout_length,
-        turnout_info2.ipx_stored,
-        turnout_info2.fpx_stored,
-        box_dims1.
-        turnout_info1.plain_track_flag,
-        turnout_info2.semi_diamond_flag,
+        create_id_number_str(box_dims1.id_number, box_dims1.turnout_info1.hand,
+        turnout_info2.start_draw_x, box_dims1.turnout_info1.turnout_length,
+        turnout_info2.ipx_stored, turnout_info2.fpx_stored,
+        box_dims1.turnout_info1.plain_track_flag, turnout_info2.semi_diamond_flag,
         any_deleted_keep_rails_omitted);
 
     end;//with
@@ -11292,7 +11323,8 @@ begin
 end;
 //___________________________________________________________________________________________
 
-function highest_hd_template: integer;      // 215a return highest index of a half-diamond template.
+function highest_hd_template: integer;
+  // 215a return highest index of a half-diamond template.
   // return -1 if none.
 var
   n: integer;

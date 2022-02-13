@@ -22,7 +22,7 @@ I have a list of things still to do, including:
 
 }
 
-{ }
+
 unit pdf_unit;
 
 {$MODE Delphi}
@@ -100,9 +100,9 @@ type
     procedure detail_mode_radiobuttonClick(Sender: TObject);
     procedure diagram_mode_radiobuttonClick(Sender: TObject);
     procedure include_sketchboard_items_checkboxClick(Sender: TObject);
-  //private
+    //private
     { Private declarations }
-  //public
+    //public
     { Public declarations }
   end;
 
@@ -157,7 +157,8 @@ uses
   background_shapes,
   rail_options_unit, platform_unit, check_diffs_unit, data_memo_unit,
   trackbed_unit, make_slip_unit,
-  curve;
+  curve,
+  rail_data_unit;
 
 const
   pdf_help_str: string = '      Printing  Pages' +
@@ -190,7 +191,7 @@ var
 
   form_scaling: boolean = False;
 
-      // all line thicknesses are in mm
+  // all line thicknesses are in mm
   printgrid_wide: TPDF_PenWidth;      // default.
   printpicborder_wide: TPDF_PenWidth;
   printmargin_wide: TPDF_PenWidth;
@@ -203,7 +204,7 @@ var
 
   his_pdf_file_name: string = '';
 
-// all standard pdf fonts - useage preferred to reduce file size
+  // all standard pdf fonts - useage preferred to reduce file size
   pdf_font_times: Integer;
   pdf_font_times_B: Integer;
   //pdf_font_times_I: Integer;
@@ -228,10 +229,10 @@ var
   lsMark_Guide: Tpdf_LineStyle;
   lsMark_CurvingRadCentre: Tpdf_LineStyle;
   lsMark_RadialEnd: Tpdf_LineStyle;
-  lsMark_TimberOutline:     Tpdf_LineStyle;
-  lsMark_TimberCentreline:  Tpdf_LineStyle;
-  lsMark_TimberRivetCentreline:  Tpdf_LineStyle;
-  lsMark_TimberReducedEnd:  Tpdf_LineStyle;
+  lsMark_TimberOutline: Tpdf_LineStyle;
+  lsMark_TimberCentreline: Tpdf_LineStyle;
+  lsMark_TimberRivetCentreline: Tpdf_LineStyle;
+  lsMark_TimberReducedEnd: Tpdf_LineStyle;
   lsMark_RailJoint: Tpdf_LineStyle;
   lsMark_Slewing: Tpdf_LineStyle;
   lsMark_PegArm: Tpdf_LineStyle;
@@ -458,25 +459,25 @@ begin
   printcl_wide := scale_thickness(printcl_thick);    // 0.79.a
   printmark_wide := scale_thickness(printmark_thick);
 
-
 end;
 //__________________________________________________________________________________________
 
 { Take a point in 'pad' space coordinates (with an optional x/y adjustment)
   and relocate to an equivalent point in page space coordinates.
   This absracts a computation wihich occurs in MANY palces}
-function page_locate(point: Tpoint; grid_left, grid_top: double; adj: array of double): Tpoint; overload;
+function page_locate(point: Tpoint; grid_left, grid_top: double;
+  adj: array of double): Tpoint; overload;
 var
   loc: Tpoint;
 begin
   loc.X := Round((point.Y + adj[0] - grid_left) * scaw_out) + page_left_dots;
-  loc.Y := Round((point.X + adj[1] - grid_top)  * scal_out) + page_top_dots;
-  RESULT := loc;
+  loc.Y := Round((point.X + adj[1] - grid_top) * scal_out) + page_top_dots;
+  Result := loc;
 end;
 
 function page_locate(point: Tpoint; grid_left, grid_top: double): Tpoint; overload;
 begin
-  RESULT := page_locate(point, grid_left, grid_top, [0, 0]);
+  Result := page_locate(point, grid_left, grid_top, [0, 0]);
 end;
 //__________________________________________________________________________________________
 
@@ -484,23 +485,23 @@ function switch_label_text(code: Integer): String;
 begin
   case code of
     601:
-      RESULT := 'tips';
+      Result := 'tips';
     602:
-      RESULT := 'set (bend)';
+      Result := 'set (bend)';
     603:
-      RESULT := 'planing';
+      Result := 'planing';
     604:
-      RESULT := 'stock gauge';
+      Result := 'stock gauge';
     605:
-      RESULT := 'joggles';
+      Result := 'joggles';
     701:
-      RESULT := 'intersection FP';
+      Result := 'intersection FP';
     702:
-      RESULT := 'blunt nose';
+      Result := 'blunt nose';
     703:
-      RESULT := 'blunt tips';
+      Result := 'blunt tips';
     else
-      RESULT := 'code ' + inttostr(code) + ' mark';
+      Result := 'code ' + IntToStr(code) + ' mark';
   end;//case
 end;
 //__________________________________________________________________________________________
@@ -513,8 +514,8 @@ var
   file_str: string;       // including path
 
 begin
-  file_str := Config.MakeFilePath(cudiPDFPagemaps,
-           'pdf_pagemap' + FormatDateTime('_yyyy_mm_dd_hhmm_ss', Date + Time) + '.png');
+  file_str := Config.MakeFilePath(cudiPDFPagemaps, 'pdf_pagemap' +
+    FormatDateTime('_yyyy_mm_dd_hhmm_ss', Date + Time) + '.png');
 
   create_png :={TPNGObject}TPortableNetworkGraphic.Create;
   try
@@ -522,8 +523,8 @@ begin
       create_png.Assign(offdraw_bmp);
       create_png.SaveToFile(file_str);
     except
-      ShowMessage('Sorry, an error occurred in creating the page-map record file.'
-        + #13 + #13 + 'This doesn''t prevent a PDF file being created.');
+      ShowMessage('Sorry, an error occurred in creating the page-map record file.' +
+        #13 + #13 + 'This doesn''t prevent a PDF file being created.');
     end;//try
 
   finally
@@ -534,57 +535,58 @@ end;
 
 function wanted_mark(code: Integer): Boolean;     // decide if a particular mark is wanted
 
-// This function determines whether a particular mark (indicated by it's code)
-// is required on the output as determined by the corresponding user settings
+  // This function determines whether a particular mark (indicated by it's code)
+  // is required on the output as determined by the corresponding user settings
 
   // NOTE: it is used for both control template output and background output
 
 begin
-  RESULT := true;
+  Result := True;
 
-  with print_settings_form do begin;
+  with print_settings_form do begin
+    ;
     case code of
       -5 .. 0: // no name label, timber selector, curve rad or peg centre, blank
-        RESULT := False;
+        Result := False;
       1:
-        RESULT := output_guide_marks_checkbox.Checked;
+        Result := output_guide_marks_checkbox.Checked;
       2:
-        RESULT := output_radial_ends_checkbox.Checked;
+        Result := output_radial_ends_checkbox.Checked;
       3:
-        RESULT := output_timbering_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked;
       4:
-        RESULT := output_timbering_checkbox.Checked and
-                  output_timber_centres_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked and
+          output_timber_centres_checkbox.Checked;
       5:
-        RESULT := output_timbering_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked;
       6:
-        RESULT := output_rail_joints_checkbox.Checked;
+        Result := output_rail_joints_checkbox.Checked;
       7:
-        RESULT := output_radial_ends_checkbox.Checked;
+        Result := output_radial_ends_checkbox.Checked;
       8, 9, 10: // no peg arms, plain-track end marks
-        RESULT := False;
+        Result := False;
       14:
-        RESULT := output_timbering_checkbox.Checked and
-                  output_timber_centres_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked and
+          output_timber_centres_checkbox.Checked;
       33:
-        RESULT := output_timbering_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked;
       44, 54:
-        RESULT := output_timbering_checkbox.Checked and
-                  output_timber_centres_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked and
+          output_timber_centres_checkbox.Checked;
       55, 93, 95, 99:
-        RESULT := output_timbering_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked;
       101:
-        RESULT := output_switch_drive_checkbox.Checked;
+        Result := output_switch_drive_checkbox.Checked;
       203, 233, 293:
-        RESULT := output_timbering_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked;
       480..499:
-        RESULT := output_chairs_checkbox.Checked;
+        Result := output_chairs_checkbox.Checked;
       501..508: // no check-rail labels
-        RESULT := False;
+        Result := False;
       600, 601..605:
-        RESULT := output_switch_labels_checkbox.Checked;
+        Result := output_switch_labels_checkbox.Checked;
       700..703:
-        RESULT := output_xing_labels_checkbox.Checked;
+        Result := output_xing_labels_checkbox.Checked;
       else
         show_modal_message('Unhandled code ' + IntToStr(code) + 'in pdf_unit.wanted_mark().');
     end;
@@ -593,8 +595,9 @@ begin
 end;
 //______________________________________________________________________________
 
-function choose_mark_linestyle(pdf_page: TPDF_page; code: Integer; control: boolean): Tpdf_LineStyle; overload;
-// return the line style for a particular mark code
+function choose_mark_linestyle(pdf_page: TPDF_page; code: Integer;
+  control: boolean): Tpdf_LineStyle; overload;
+  // return the line style for a particular mark code
 
 begin
   case code of
@@ -606,9 +609,9 @@ begin
       Result := lsMark_RadialEnd;
     3, 33, 93:                // timber outlines
       Result := lsMark_TimberOutline;
-    4,44:                     // timber centre-lines
+    4, 44:                     // timber centre-lines
       Result := lsMark_TimberCentreline;
-    5,55,95:                  // timber reduced ends.
+    5, 55, 95:                  // timber reduced ends.
       Result := lsMark_TimberReducedEnd;
     6:                        // rail joint marks.
       Result := lsMArk_RailJoint;
@@ -627,24 +630,24 @@ begin
 
   // do fill colours
   with pdf_page do begin
-      case code of
-        99: begin                             // timber numbering
-          set_fill_colour(clBlack);
-          if not control and (mapping_colours_print < 0) then
-              set_pen_colour(printbg_single_colour);
-          end;
-        203, 233, 293: begin                  // timber infill
-          set_pen_colour(clwhite);             // so don't overdraw timber outlines.
-          if pdf_black_white then
-            set_fill_colour(clBlack)
-          else
-            set_fill_colour(printtimber_infill_colour);
-          end;
-        600..605, 700..703:                   // timber numbers
-          set_fill_colour(printguide_colour);
-        else                                  // -- DEFAULT --
-          set_fill_colour(clRed);       // Let's make it obvious when we mess up!
+    case code of
+      99: begin                             // timber numbering
+        set_fill_colour(clBlack);
+        if not control and (mapping_colours_print < 0) then
+          set_pen_colour(printbg_single_colour);
       end;
+      203, 233, 293: begin                  // timber infill
+        set_pen_colour(clwhite);             // so don't overdraw timber outlines.
+        if pdf_black_white then
+          set_fill_colour(clBlack)
+        else
+          set_fill_colour(printtimber_infill_colour);
+      end;
+      600..605, 700..703:                   // timber numbers
+        set_fill_colour(printguide_colour);
+      else                                  // -- DEFAULT --
+        set_fill_colour(clRed);       // Let's make it obvious when we mess up!
+    end;
   end; // with pdf_page
 
 end;
@@ -678,7 +681,9 @@ var
   gridco: integer;
   grid_now_dots: integer;
 
-  i, aq, rail, now, now_max, dots_index, mark_code: integer;
+  aq, rail: ERailData;
+
+  i, now, now_max, dots_index, mark_code: integer;
 
   w_dots, l_dots, w_dots1, l_dots1, w_dots2, l_dots2: integer;
 
@@ -762,9 +767,9 @@ var
   procedure create_styles;
 
   var
-    width:  TPDF_PenWidth;  // Pen width
+    Width: TPDF_PenWidth;  // Pen width
     colour: Tcolor;         // Pen colour
-    style:  TFPPenStyle;    // Pen style
+    style: TFPPenStyle;    // Pen style
 
     //+++++++++++++++++++++++++//
     function colour_using(colour: Integer): Integer;
@@ -795,21 +800,25 @@ var
       lsMark_Default := create_LineStyle(1, clBlack, psSolid);
       lsMark_CurvingRadCentre := create_LineStyle(printmark_wide, clBlack, psSolid);
       lsMark_Guide := create_LineStyle(printmark_wide, colour_using(printguide_colour), psSolid);
-      lsMark_RadialEnd := create_LineStyle(printmark_wide, colour_using(printalign_colour), psSolid);
-      lsMark_TimberOutline := create_LineStyle(printtimber_wide, colour_using(printtimber_colour), psSolid);
+      lsMark_RadialEnd := create_LineStyle(printmark_wide,
+        colour_using(printalign_colour), psSolid);
+      lsMark_TimberOutline := create_LineStyle(printtimber_wide,
+        colour_using(printtimber_colour), psSolid);
       lsMark_TimberCentreline := create_LineStyle(min_penwidth, clBlack, psDash);
       lsMark_TimberRivetCentreline := create_LineStyle(1, clBlack, psSolid);
       lsMark_TimberReducedEnd := create_LineStyle(1, clBlack, psDot);
-      lsMark_RailJoint := create_LineStyle(printmark_wide, colour_using(printjoint_colour), psSolid);
+      lsMark_RailJoint := create_LineStyle(printmark_wide,
+        colour_using(printjoint_colour), psSolid);
       lsMark_Slewing := lsMark_RadialEnd;
       lsMark_PegArm := lsMark_Default;
       lsMark_PlainTrackStart := lsMark_Default;
       lsMark_ShovingCentreline := create_LineStyle(printrail_wide, clBlack, psSolid);
-      lsMark_TimberLongmarks := create_LineStyle(round(printrail_wide * 1.5), colour_using(printguide_colour), psSolid);
+      lsMark_TimberLongmarks := create_LineStyle(round(printrail_wide * 1.5),
+        colour_using(printguide_colour), psSolid);
 
       // Rails
-      lsCentreline_normal  := create_LineStyle(printcl_wide, printbgrail_colour, psDash);
-      lsCentreline_dummy  := create_LineStyle(printshape_wide, printshape_colour, psSolid);
+      lsCentreline_normal := create_LineStyle(printcl_wide, printbgrail_colour, psDash);
+      lsCentreline_dummy := create_LineStyle(printshape_wide, printshape_colour, psSolid);
       // Note that the colours of these styles may be changed on a per template basis
       lsRail := create_LineStyle(printrail_wide, clBlack, psSolid);
       lsPlatform := create_LineStyle(printrail_wide, clBlack, psSolid);
@@ -871,25 +880,24 @@ var
         try
           pdf_file := TFileStream.Create(pdf_filename_str, fmCreate);
           pdf_form.pdf_doc.SaveToStream(pdf_file);
-          show_modal_message('Document saved using ' +
-            IntToStr(pdf_form.pdf_doc.ObjectCount) + ' PDF objects/commands');
+          show_modal_message('Document saved using ' + IntToStr(
+            pdf_form.pdf_doc.ObjectCount) + ' PDF objects/commands');
         finally
           pdf_form.pdf_doc.Free;
         end;
       end;
       if (pdf_height_mm > 3000) or (pdf_width_mm > 3000) then
-        pdf_size_str := '|||<TABLE><TR><TD VALIGN="TOP">rp.gif&nbsp;</TD><TD>green_panel_begintree.gif   Large PDF page sizes:'
-          +
-          '||If the PDF file does not display properly in Adobe Reader the most likely reason is that the page size exceeds the limit for Adobe Reader.' + '||Other free PDF reader programs are available which will display and print much larger page sizes.' + ' For more information and download links, click <A HREF="alert_online.85a">more information online</A> .' + 'green_panel_end</TD></TR></TABLE>'
+        pdf_size_str :=
+          '|||<TABLE><TR><TD VALIGN="TOP">rp.gif&nbsp;</TD><TD>green_panel_begintree.gif   Large PDF page sizes:'
+          + '||If the PDF file does not display properly in Adobe Reader the most likely reason is that the page size exceeds the limit for Adobe Reader.' + '||Other free PDF reader programs are available which will display and print much larger page sizes.' + ' For more information and download links, click <A HREF="alert_online.85a">more information online</A> .' + 'green_panel_end</TD></TR></TABLE>'
       else
         pdf_size_str := '';
 
-      i := alert(2, 'php/260   PDF  file  created',
-        'The PDF file was created successfully:'
+      i := alert(2, 'php/260   PDF  file  created', 'The PDF file was created successfully:'
         // T3-OUT                   +'||`0'+pdf_form.pdf_printer.Filename+'`f'
         + '||Click <A HREF="alert_3.85a">open PDF file</A> to open the file in your PDF reader.'
-        + pdf_size_str, '', '',
-        'open  PDF  file', 'open  the  containing  folder', '', 'continue', 0);
+        + pdf_size_str, '', '', 'open  PDF  file', 'open  the  containing  folder',
+        '', 'continue', 0);
 
       if i = 3 then begin
         // T3-OUT                   folder_str:=pdf_form.pdf_printer.Filename;
@@ -922,7 +930,7 @@ var
   procedure draw_grid(grid_left, grid_top: double; page: TPDF_page);
 
   begin
-  //          Font.Assign(print_labels_font);
+    //          Font.Assign(print_labels_font);
     with page do begin
       write_comment(' ----==== Grid Start ====----');
       save_graphics_state();
@@ -949,11 +957,11 @@ var
 
         //  draw horizontal grid lines (across width)...
 
-        if banner_paper or (print_pages_top_origin <> 0)
-        then
+        if banner_paper or (print_pages_top_origin <> 0) then
           now_gridx := 0 - gridx
         else
-          now_gridx := 0;        //  init grid lines. no need for first line (gets overwritten by trim margins).
+          now_gridx := 0;
+        //  init grid lines. no need for first line (gets overwritten by trim margins).
 
         repeat
           now_gridx := now_gridx + gridx;
@@ -961,9 +969,9 @@ var
           if grid_now_dots < 0 then
             CONTINUE;
 
-          if (now_gridx = 0) and (current_pen_style() = psSolid)
-          then
-            set_pen_width(pen_width*1.5);    // thicker datum line (only appears if page origin is negative).
+          if (now_gridx = 0) and (current_pen_style() = psSolid) then
+            set_pen_width(pen_width * 1.5);
+          // thicker datum line (only appears if page origin is negative).
 
           set_linestyle(lsGrid);
 
@@ -1002,7 +1010,8 @@ var
         if print_pages_left_origin <> 0 then
           now_gridy := 0 - gridy
         else
-          now_gridy := 0;        //  init grid lines. no need for first line (gets overwritten by trim margin).
+          now_gridy := 0;
+        //  init grid lines. no need for first line (gets overwritten by trim margin).
 
         repeat
           now_gridy := now_gridy + gridy;
@@ -1011,7 +1020,8 @@ var
             CONTINUE;
 
           if (now_gridy = 0) and (current_pen_style = psSolid) then
-            set_pen_width(pen_width * 1.5)    // thicker datum line (only appears if page origin is negative).
+            set_pen_width(pen_width * 1.5)
+          // thicker datum line (only appears if page origin is negative).
           else
             set_pen_width(pen_width);
 
@@ -1090,7 +1100,7 @@ var
         mark_code := ptr_1st^.code;              // check this mark wanted.
 
         if not wanted_mark(mark_code) then
-        CONTINUE;     // skip this mark.
+          CONTINUE;     // skip this mark.
 
         // do only the rail joints if rail_joints=True and ignore them otherwise.
         if rail_joints = (mark_code <> 6) then
@@ -1113,14 +1123,12 @@ var
 
           end;
 
-        99: begin                         // Timber numbering...
+          99: begin                         // Timber numbering...
             p1 := ptr_1st^.p1;              // x1,y1 in  1/100ths mm
 
-            if
-            (pad_form.print_timber_numbering_menu_entry.Checked or
+            if (pad_form.print_timber_numbering_menu_entry.Checked or
               ((out_factor > 0.99) and pad_form.numbering_fullsize_only_menu_entry.Checked))
-             and
-              print_settings_form.output_timber_numbers_checkbox.Checked   // 223d
+              and print_settings_form.output_timber_numbers_checkbox.Checked   // 223d
 
             then begin
 
@@ -1132,14 +1140,13 @@ var
                 CONTINUE;              // no string available??
 
               if (not pad_form.timber_numbering_on_plain_track_menu_entry.Checked)   // 208a
-                and (num_str <> 'A1')
-              then begin
+                and (num_str <> 'A1') then begin
                 s := LeftStr(num_str, 1);
-                if Pos(s, 'AERN') > 0 then CONTINUE;    // not wanted on plain track
+                if Pos(s, 'AERN') > 0 then
+                  CONTINUE;    // not wanted on plain track
               end;
 
-              if check_limit(False, False, move_to)
-                then begin
+              if check_limit(False, False, move_to) then begin
                 //Font.Assign(print_timber_numbers_font);
 
                 //if pad_form.scale_timber_numbering_menu_entry.Checked=True
@@ -1166,8 +1173,7 @@ var
               end;
             end;
           end;
-
-        -2, -3: begin                        // curving rad centres...
+          -2, -3: begin                        // curving rad centres...
 
             p1 := ptr_1st^.p1;        // x1,y1 in  1/100ths mm
             radcen_arm := 400 * scale;
@@ -1179,17 +1185,18 @@ var
             if check_limits(move_to, line_to) then
               draw_line_style(move_to, line_to, linestyle);
 
-            move_to := page_locate(p1, grid_left, grid_top, [ypd, radcen_arm]);// mark centre lengthwise
+            move_to := page_locate(p1, grid_left, grid_top, [ypd, radcen_arm]);
+            // mark centre lengthwise
             line_to := page_locate(p1, grid_left, grid_top, [ypd, -radcen_arm]);
 
             if check_limits(move_to, line_to) then
               draw_line_style(move_to, line_to, linestyle);
           end;
 
-        203, 233, 293: begin                 // timber infill
+          203, 233, 293: begin                 // timber infill
             if i >= (mark_index - 1) then
               BREAK; // Is this really needed???
-            ptr_2nd := @marks_list_ptr[i+1];
+            ptr_2nd := @marks_list_ptr[i + 1];
             // pointer to the second infill Tmark record.
             if ptr_2nd = nil then
               BREAK;
@@ -1247,23 +1254,22 @@ var
           end;
 
 
-            601..605, 701..703: begin
+          601..605, 701..703: begin
 
-              if out_factor <> 1.0 then
-                CONTINUE;     // on full size prints only
+            if out_factor <> 1.0 then
+              CONTINUE;     // on full size prints only
 
-              p1 := ptr_1st^.p1;              // x1,y1 in  1/100ths mm
+            p1 := ptr_1st^.p1;              // x1,y1 in  1/100ths mm
 
-              move_to := page_locate(p1, grid_left, grid_top, [ypd, 0]);
+            move_to := page_locate(p1, grid_left, grid_top, [ypd, 0]);
 
-              if check_limit(False, False, move_to)
-                then begin
-                //Font.Assign(print_timber_numbers_font);
-                //
-                //Font.Style:=[fsBold,fsItalic];
-                //Font.Color:=printguide_colour;
-                //
-                //if scale>3 then Font.Size:=Font.Size+1; // a bit bigger above 3mm/ft
+            if check_limit(False, False, move_to) then begin
+              //Font.Assign(print_timber_numbers_font);
+              //
+              //Font.Style:=[fsBold,fsItalic];
+              //Font.Color:=printguide_colour;
+              //
+              //if scale>3 then Font.Size:=Font.Size+1; // a bit bigger above 3mm/ft
 
                                                       {
                                                       if pad_form.scale_timber_numbering_menu_entry.Checked=True
@@ -1274,30 +1280,31 @@ var
                                                               end;
                                                       }
 
-                //Brush.Style:=bsSolid;
-                //Brush.Color:=clWhite;
+              //Brush.Style:=bsSolid;
+              //Brush.Color:=clWhite;
 
-                switch_label_str := switch_label_text(mark_code);
+              switch_label_str := switch_label_text(mark_code);
               //set_fill_color(printguide_colour);
 
-                write_text(
-                  move_to.X,//-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
-                  move_to.Y
-                  ,//-(TextHeight(switch_label_str) div 2),
-                  ' ' + switch_label_str + ' ',
-                  tpMiddleCentre, True);
+              write_text(
+                move_to.X,
+                //-(TextWidth(switch_label_str) div 2),  // div 2 allows for rotation of template
+                move_to.Y
+                ,//-(TextHeight(switch_label_str) div 2),
+                ' ' + switch_label_str + ' ',
+                tpMiddleCentre, True);
 
-                //Font.Assign(print_labels_font);      // reset for grid labels
-              end;
-
+              //Font.Assign(print_labels_font);      // reset for grid labels
             end;
+
+          end;
         end;//case
       end;//next mark i
     end;//with pdf_page
   end;
   ///////////////////////////////
 
-  function get_w_dots(q, n: integer): integer;
+  function get_w_dots(q: ERailData; n: integer): integer;
 
   begin
     with sheet[sheet_down, sheet_across] do begin // (grid_left)
@@ -1307,7 +1314,7 @@ var
   end;
   ////////////////////////////
 
-  function get_l_dots(q, n: integer): integer;
+  function get_l_dots(q: ERailData; n: integer): integer;
 
   begin
     with sheet[sheet_down, sheet_across] do begin // (grid_top)
@@ -1317,14 +1324,14 @@ var
   end;
   ////////////////////////////
 
-  procedure draw_outline_railedge(aq, pencol: integer);
+  procedure draw_outline_railedge(aq: ERailData; pencol: integer);
 
   var
     now: integer;
 
   begin
-    if ((not plain_track) or (aq = 0) or (aq = 8) or (aq = 3) or
-      (aq = 11) or ((aq > 15) and (aq < 24))) and aqyn[aq] then begin
+    if ((not plain_track) or (aq in eRD_StockRails) or (aq in eRD_AdjacentTracks)) and
+      aqyn[aq] then begin
       with pdf_page do begin
 
         set_pen_colour(pencol);
@@ -1344,7 +1351,7 @@ var
   end;
   ////////////////////////////
 
-  procedure draw_fill_rail(outer_add: integer);    // draw a complete filled rail.
+  procedure draw_fill_rail();    // draw a complete filled rail.
 
   const
     dots_max_c = xy_pts_c * 2;
@@ -1372,16 +1379,15 @@ var
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    procedure modify_rail_end(
-      start_index, stop_index, edge, blank: integer);
+    procedure modify_rail_end(start_index, stop_index, edge, blank: integer);
 
     var
       saved_pen_width: TPDF_PenWidth;    // 206b
 
     begin
 
-      if (start_index >= 0) and (start_index <= dots_index) and
-        (stop_index >= 0) and (stop_index <= dots_index) then begin
+      if (start_index >= 0) and (start_index <= dots_index) and (stop_index >= 0) and
+        (stop_index <= dots_index) then begin
         move_to := dots[start_index];
         line_to := dots[stop_index];
 
@@ -1410,7 +1416,8 @@ var
   begin
     with pdf_page do begin
 
-      if rail in [16, 20]             // 0.93.a platforms
+      if rail in [eRD_AdjTrackTurnoutSideNearGaugeFace, eRD_AdjTrackMainSideNearGaugeFace]
+      // 0.93.a platforms
       then
         set_pen_colour(printplat_edge_colour)
       else
@@ -1421,18 +1428,18 @@ var
 
       aq := rail;  // gauge-faces.
 
-      if ((not plain_track) or (aq = 0) or (aq = 3) or ((aq > 15) and (aq < 24)))
+      if ((not plain_track) or (aq in eRD_StockRailGaugeFaces) or (aq in eRD_AdjacentTracks))
 
       // if plain track, stock rails and adjacent tracks only.
 
       then begin
-        if not (aqyn[aq] and aqyn[aq + outer_add])
+        if not (aqyn[aq] and aqyn[aq_oppositeFace[aq]])
         // data not for both edges?
         then begin
           if aqyn[aq] then
             draw_outline_railedge(aq, current_fill_colour);
-          if aqyn[aq + outer_add] then
-            draw_outline_railedge(aq + outer_add, current_fill_colour);
+          if aqyn[aq_oppositeFace[aq]] then
+            draw_outline_railedge(aq_oppositeFace[aq], current_fill_colour);
           EXIT;
         end;
 
@@ -1442,7 +1449,7 @@ var
         then begin
 
           case aq of
-            1: begin
+            eRD_StraightTurnoutWingGaugeFace: begin
               start := list_planing_mark_aq1;
               // start from end of planing - no infill in planing.
 
@@ -1453,7 +1460,7 @@ var
 
             end;
 
-            2: begin                         // ditto
+            eRD_CurvedTurnoutWingGaugeFace: begin                         // ditto
               start := list_planing_mark_aq2;
 
               if (start < 0) or (start > now_max) then
@@ -1478,8 +1485,7 @@ var
         for now := start to now_max do begin
           x_dots := get_w_dots(aq, now);
           y_dots := get_l_dots(aq, now);
-          if w_dims_valid and l_dims_valid
-          then begin
+          if w_dims_valid and l_dims_valid then begin
             edge_started := True;
 
             Inc(dots_index);
@@ -1496,7 +1502,7 @@ var
 
         mid_dots_index := dots_index;
 
-        aq := rail + outer_add;             // outer-edges.
+        aq := aq_oppositeFAce[rail];             // outer-edges.
 
         now_max := nlmax_array[aq];
 
@@ -1505,8 +1511,7 @@ var
         for now := now_max downto 0 do begin
           x_dots := get_w_dots(aq, now);
           y_dots := get_l_dots(aq, now);
-          if w_dims_valid and l_dims_valid
-          then begin
+          if w_dims_valid and l_dims_valid then begin
             edge_started := True;
 
             Inc(dots_index);
@@ -1526,7 +1531,8 @@ var
           //Brush.Color:=clWhite;
         end
         else begin
-          if rail in [16, 20]   // 0.93.a platforms
+          if rail in [eRD_AdjTrackTurnoutSideNearGaugeFace, eRD_AdjTrackMainSideNearGaugeFace]
+          // 0.93.a platforms
           then begin
             set_pen_colour(printplat_infill_colour);
 
@@ -1547,8 +1553,8 @@ var
             //end;//case
           end
           else begin
-            if (draw_ts_trackbed_cess_edge and (rail = 18)) or
-              (draw_ms_trackbed_cess_edge and (rail = 22))   // 215a
+            if (draw_ts_trackbed_cess_edge and (rail = eRD_AdjTrackTurnoutSideFarGaugeFace)) or
+              (draw_ms_trackbed_cess_edge and (rail = eRD_AdjTrackMainSideFarGaugeFace))   // 215a
             then begin
               set_pen_colour(sb_track_bgnd_colour);
               // cess use same colour as track background
@@ -1604,13 +1610,14 @@ var
           // (for gaunt template this removes the polygon line across the rail end)
 
           if (not (half_diamond and fixed_diamond)) and
-            (rail in [1, 2]) then
+            (rail in [eRD_StraightTurnoutWingGaugeFace, eRD_CurvedTurnoutWingGaugeFace]) then
             modify_rail_end(0, dots_index, edge_colour, blanking_colour);
 
           // remove polygon lines across stock rail ends...
           // and trackbed ends  206b
 
-          if rail in [0, 3, 18, 22]   // 18,22 added 206b
+          if rail in eRD_StockRailGaugeFaces + [eRD_AdjTrackTurnoutSideFarGaugeFace,
+            eRD_AdjTrackMainSideFarGaugeFace]   // 18,22 added 206b
           then begin
             modify_rail_end(
               0, dots_index, edge_colour, blanking_colour);  // toe or approach end.
@@ -1624,34 +1631,36 @@ var
 
             // 0.93.a blank platform rear edges ...
 
-            if (rail = 16) and draw_ts_platform and
+            if (rail = eRD_AdjTrackTurnoutSideNearGaugeFace) and draw_ts_platform and
               (not draw_ts_platform_rear_edge)   // 0.93.a TS platform start
             then
-              draw_outline_railedge(16, blanking_colour);    // blank rear edge
+              draw_outline_railedge(eRD_AdjTrackTurnoutSideNearGaugeFace, blanking_colour);
+            // blank rear edge
 
-            if (rail = 20) and draw_ms_platform and
+            if (rail = eRD_AdjTrackMainSideNearGaugeFace) and draw_ms_platform and
               (not draw_ms_platform_rear_edge)   // 0.93.a TS platform start
             then
-              draw_outline_railedge(20, blanking_colour);    // blank rear edge
+              draw_outline_railedge(eRD_AdjTrackMainSideNearGaugeFace, blanking_colour);
+            // blank rear edge
 
             // 0.93.a blank platform ends ...
 
-            if (rail = 16) and draw_ts_platform and
+            if (rail = eRD_AdjTrackTurnoutSideNearGaugeFace) and draw_ts_platform and
               (not draw_ts_platform_start_edge)   // 0.93.a TS platform start
             then
               modify_rail_end(0, dots_index, edge_colour, blanking_colour);
 
-            if (rail = 16) and draw_ts_platform and
+            if (rail = eRD_AdjTrackTurnoutSideNearGaugeFace) and draw_ts_platform and
               (not draw_ts_platform_end_edge)     // 0.93.a TS platform end
             then
               modify_rail_end(mid_dots_index, mid_dots_index + 1, edge_colour, blanking_colour);
 
-            if (rail = 20) and draw_ms_platform and
+            if (rail = eRD_AdjTrackMainSideNearGaugeFace) and draw_ms_platform and
               (not draw_ms_platform_start_edge)   // 0.93.a MS platform start
             then
               modify_rail_end(0, dots_index, edge_colour, blanking_colour);
 
-            if (rail = 20) and draw_ms_platform and
+            if (rail = eRD_AdjTrackMainSideNearGaugeFace) and draw_ms_platform and
               (not draw_ms_platform_end_edge)     // 0.93.a MS platform end
             then
               modify_rail_end(mid_dots_index, mid_dots_index + 1, edge_colour, blanking_colour);
@@ -1659,7 +1668,7 @@ var
           end;
 
 
-          if rail in [26, 28]
+          if rail in [eRD_KCrossingCheckMainSideGaugeFace, eRD_KCrossingCheckTurnoutSideGaugeFace]
           then begin
             modify_rail_end(
               0, dots_index, edge_colour, blanking_colour);  // centre of K-crossing check rails.
@@ -1695,7 +1704,7 @@ var
     edge_started: boolean;
     dots_index: integer;
     x_dots, y_dots: integer;
-    aq: integer;
+    aq: ERailData;
     point_mid_dots_index, splice_mid_dots_index: integer;
     edge_colour, blanking_colour: integer;
 
@@ -1705,13 +1714,12 @@ var
 
     begin
 
-      if (start_index >= 0) and (start_index <= dots_index) and
-        (stop_index >= 0) and (stop_index <= dots_index) then begin
+      if (start_index >= 0) and (start_index <= dots_index) and (stop_index >= 0) and
+        (stop_index <= dots_index) then begin
         move_to := dots[start_index];
         line_to := dots[stop_index];
 
-        if check_limits(move_to, line_to)
-          then begin
+        if check_limits(move_to, line_to) then begin
           with pdf_page do begin
 
             set_pen_colour(blank);
@@ -1733,30 +1741,32 @@ var
     if plain_track then
       EXIT;   // not if plain track.
 
-    if (not (aqyn[4] and aqyn[5] and aqyn[12]and aqyn[13])) // not enough data for filled vee.
-      or (nlmax_array[4] = 0) or (nlmax_array[5] = 0) or (nlmax_array[12] = 0) or
-      (nlmax_array[13] = 0) then begin
-      if aqyn[4] then
-        draw_outline_railedge(4, printcurail_colour);       // draw outline vee...
-      if aqyn[5] then
-        draw_outline_railedge(5, printcurail_colour);
-      if aqyn[12] then
-        draw_outline_railedge(12, printcurail_colour);
-      if aqyn[13] then
-        draw_outline_railedge(13, printcurail_colour);
+    if (not (aqyn[eRD_VeePointGaugeFace] and aqyn[eRD_VeeSpliceGaugeFace] and
+      aqyn[eRD_VeePointOuterFace] and aqyn[eRD_VeeSpliceOuterFace]))
+      // not enough data for filled vee.
+      or (nlmax_array[eRD_VeePointGaugeFace] = 0) or (nlmax_array[eRD_VeeSpliceGaugeFace] = 0) or
+      (nlmax_array[eRD_VeePointOuterFace] = 0) or (nlmax_array[eRD_VeeSpliceOuterFace] = 0) then
+    begin
+      if aqyn[eRD_VeePointGaugeFace] then
+        draw_outline_railedge(eRD_VeePointGaugeFace, printcurail_colour);
+      // draw outline vee...
+      if aqyn[eRD_VeeSpliceGaugeFace] then
+        draw_outline_railedge(eRD_VeeSpliceGaugeFace, printcurail_colour);
+      if aqyn[eRD_VeePointOuterFace] then
+        draw_outline_railedge(eRD_VeePointOuterFace, printcurail_colour);
+      if aqyn[eRD_VeeSpliceOuterFace] then
+        draw_outline_railedge(eRD_VeeSpliceOuterFace, printcurail_colour);
     end
     else begin
       dots_index := 0 - 1;   // first increment is to zero.
 
-      aq := 4;
+      aq := eRD_VeePointGaugeFace;
       edge_started := False;
-      for now := 0 to nlmax_array[aq] do
-        // vee main-side, gauge_face, start from the tip.
+      for now := 0 to nlmax_array[aq] do // vee main-side, gauge_face, start from the tip.
       begin
         x_dots := get_w_dots(aq, now);
         y_dots := get_l_dots(aq, now);
-        if w_dims_valid and l_dims_valid
-        then begin
+        if w_dims_valid and l_dims_valid then begin
           edge_started := True;
 
           Inc(dots_index);
@@ -1773,14 +1783,13 @@ var
 
       point_mid_dots_index := dots_index;
 
-      aq := 12;
+      aq := eRD_VeePointOuterFace;
       edge_started := False;
       for now := nlmax_array[aq] downto 0 do  // back along outer-edge.
       begin
         x_dots := get_w_dots(aq, now);
         y_dots := get_l_dots(aq, now);
-        if w_dims_valid and l_dims_valid
-        then begin
+        if w_dims_valid and l_dims_valid then begin
           edge_started := True;
 
           Inc(dots_index);
@@ -1795,14 +1804,13 @@ var
           BREAK;   // don't resume adding dots to this edge once started and then gone out of limits.
       end;//next now
 
-      aq := 13;
+      aq := eRD_VeeSpliceOuterFace;
       edge_started := False;
       for now := 0 to nlmax_array[aq] do    // and then turnout side outer edge.
       begin
         x_dots := get_w_dots(aq, now);
         y_dots := get_l_dots(aq, now);
-        if w_dims_valid and l_dims_valid
-        then begin
+        if w_dims_valid and l_dims_valid then begin
           edge_started := True;
 
           Inc(dots_index);
@@ -1819,15 +1827,13 @@ var
 
       splice_mid_dots_index := dots_index;
 
-      aq := 5;
+      aq := eRD_VeeSpliceGaugeFace;
       edge_started := False;
-      for now := nlmax_array[aq] downto 0 do
-        // and back along the gauge face to the tip.
+      for now := nlmax_array[aq] downto 0 do // and back along the gauge face to the tip.
       begin
         x_dots := get_w_dots(aq, now);
         y_dots := get_l_dots(aq, now);
-        if w_dims_valid and l_dims_valid
-        then begin
+        if w_dims_valid and l_dims_valid then begin
           edge_started := True;
 
           Inc(dots_index);
@@ -1850,8 +1856,7 @@ var
         set_pen_style(psSolid);
         set_fill_colour(printrail_infill_colour_cu);
 
-        if {(}pdf_black_white  {) or (impact>0)}
-        then begin
+        if {(}pdf_black_white  {) or (impact>0)} then begin
           set_fill_colour(clWhite);
         end;
         //else case rail_infill_i of
@@ -1888,11 +1893,11 @@ var
   end;
   ////////////////////////////////////////////////////////////////////////
 
-  procedure mark_end(aq1, aq1end, aq2, aq2end: integer);      // make a rail end mark
+  procedure mark_end(aq1: ERailData; aq1end: integer; aq2: ERailData; aq2end: integer);
+  // make a rail end mark
 
   begin
-    if endmarks_yn[aq1, aq1end] and endmarks_yn[aq2, aq2end]
-    then begin
+    if endmarks_yn[aq1, aq1end] and endmarks_yn[aq2, aq2end] then begin
       p1 := endmarks[aq1, aq1end];
       p2 := endmarks[aq2, aq2end];
 
@@ -1919,28 +1924,35 @@ var
   procedure outline_railends;       // draw the rail ends in outline mode.
 
   begin
-    if not plain_track then
-    begin                                       // mark rail-ends...
+    if not plain_track then begin                                       // mark rail-ends...
 
-      mark_end(1, 1, 9, 1);    // turnout rail wing rail finish.
-      mark_end(2, 1, 10, 1);   // main rail wing rail finish.
+      mark_end(eRD_StraightTurnoutWingGaugeFace, 1, eRD_StraightTurnoutWingOuterFace, 1);
+      // turnout rail wing rail finish.
+      mark_end(eRD_CurvedTurnoutWingGaugeFace, 1, eRD_CurvedTurnoutWingOuterFace, 1);
+      // main rail wing rail finish.
 
-      mark_end(6, 0, 14, 0);   // main side check rail start.
-      mark_end(6, 1, 14, 1);   // main side check rail finish.
+      mark_end(eRD_MainSideCheckGaugeFace, 0, eRD_MainSideCheckOuterFace, 0);
+      // main side check rail start.
+      mark_end(eRD_MainSideCheckGaugeFace, 1, eRD_MainSideCheckOuterFace, 1);
+      // main side check rail finish.
 
-      mark_end(7, 0, 15, 0);   // turnout side check rail start.
-      mark_end(7, 1, 15, 1);   // turnout side check rail finish.
+      mark_end(eRD_TurnoutSideCheckGaugeFace, 0, eRD_TurnoutSideCheckOuterFace, 0);
+      // turnout side check rail start.
+      mark_end(eRD_TurnoutSideCheckGaugeFace, 1, eRD_TurnoutSideCheckOuterFace, 1);
+      // turnout side check rail finish.
 
-      mark_end(4, 0, 5, 0);    // blunt nose.
+      mark_end(eRD_VeePointGaugeFace, 0, eRD_VeeSpliceGaugeFace, 0);    // blunt nose.
 
       if half_diamond and fixed_diamond
       // planed faced of point rails for a fixed-diamond.
       then begin
-        mark_end(1, 0, 9, 0);
-        mark_end(2, 0, 10, 0);
+        mark_end(eRD_StraightTurnoutWingGaugeFace, 0, eRD_StraightTurnoutWingOuterFace, 0);
+        mark_end(eRD_CurvedTurnoutWingGaugeFace, 0, eRD_CurvedTurnoutWingOuterFace, 0);
 
-        mark_end(26, 1, 27, 1);     // MS K-crossing check rails.
-        mark_end(28, 1, 29, 1);     // DS K-crossing check rails.
+        mark_end(eRD_KCrossingCheckMainSideGaugeFace, 1, eRD_KCrossingCheckMainSideOuterEdge, 1);
+        // MS K-crossing check rails.
+        mark_end(eRD_KCrossingCheckTurnoutSideGaugeFace, 1,
+          eRD_KCrossingCheckTurnoutSideOuterEdge, 1);     // DS K-crossing check rails.
       end;
     end;
   end;
@@ -1986,11 +1998,11 @@ begin
     then begin
       if not DeleteFile(file_str) then begin
         ShowMessage('Error:' + #13 + #13 + 'The PDF file "' +
-          ExtractFileName(file_str) + '" cannot be created ' +
-          #13 + 'because a file having the same name is currently in use '
-          + #13 + 'by another program, possibly your PDF reader program. '
-          + #13 + #13 + 'Please close that program and then try again. '
-          + #13 + #13 + 'Or use a different file name (recommended). ');
+          ExtractFileName(file_str) + '" cannot be created ' + #13 +
+          'because a file having the same name is currently in use ' + #13 +
+          'by another program, possibly your PDF reader program. ' + #13 +
+          #13 + 'Please close that program and then try again. ' + #13 + #13 +
+          'Or use a different file name (recommended). ');
         EXIT;
       end;
     end;
@@ -2102,15 +2114,15 @@ begin
 
       if print_entire_pad_flag then begin
         if print_group_only_flag then
-          header_label.Caption := 'export group templates only     scaled at : ' + round_str(
-            out_factor * 100, 2) + ' %'
+          header_label.Caption := 'export group templates only     scaled at : ' +
+            round_str(out_factor * 100, 2) + ' %'
         else
-          header_label.Caption := 'export background templates     scaled at : ' + round_str(
-            out_factor * 100, 2) + ' %';
+          header_label.Caption := 'export background templates     scaled at : ' +
+            round_str(out_factor * 100, 2) + ' %';
       end
       else
-        header_label.Caption := Trim(gauge_str) + '  ' + round_str(scale, 2) + ' mm/ft     scaled at : ' +
-          round_str(out_factor * 100, 2) + ' %';
+        header_label.Caption := Trim(gauge_str) + '  ' + round_str(scale, 2) +
+          ' mm/ft     scaled at : ' + round_str(out_factor * 100, 2) + ' %';
 
       page_label.Caption := pgco_str;
       printer_info_label.Caption := insert_crlf_str(info_str);
@@ -2173,7 +2185,8 @@ begin
 
           bottom_str := bottom_str + '    ' + DateToStr(Date) + '  ' + TimeToStr(Time);
 
-          top_str := ' TEMPLOT  v:' + round_str(program_version / 100, 2) + version_build +
+          top_str := ' TEMPLOT  v:' + round_str(program_version / 100, 2) +
+            version_build +
             '  templot.com  This drawing contains design elements and data © Martin Wynne.';
           if box_project_title_str <> '' then
             top_str := top_str + '   Project : ' + box_project_title_str;
@@ -2316,8 +2329,7 @@ begin
             write_comment(' ----==== Start Page ' + page_num_str + ' ====----');
 
             //        Print watermark Page number if many pages
-            if pdf_form.page_ident_checkbox.Checked and (page_count > 3)
-            then begin
+            if pdf_form.page_ident_checkbox.Checked and (page_count > 3) then begin
               Set_Font(pdf_font_helv, round(min(pdf_width_mm, pdf_height_mm) * 1.25));
 
               //if pdf_black_white = True then begin
@@ -2341,16 +2353,14 @@ begin
             end;
 
             // --- Background shapes and grid ---
-            if bgnd_form.output_grid_in_front_checkbox.Checked then
-              begin
-                pdf_shapes_and_sketchboard_items(grid_left, grid_top);
-                draw_grid(grid_left, grid_top, pdf_page);
-              end
-            else
-              begin
-                draw_grid(grid_left, grid_top, pdf_page);
-                pdf_shapes_and_sketchboard_items(grid_left, grid_top);
-              end;
+            if bgnd_form.output_grid_in_front_checkbox.Checked then begin
+              pdf_shapes_and_sketchboard_items(grid_left, grid_top);
+              draw_grid(grid_left, grid_top, pdf_page);
+            end
+            else begin
+              draw_grid(grid_left, grid_top, pdf_page);
+              pdf_shapes_and_sketchboard_items(grid_left, grid_top);
+            end;
 
             if print_entire_pad_flag // control template
             then
@@ -2391,8 +2401,8 @@ begin
                   set_pen_width(max(printcl_wide, min_penwidth));
                 end;
 
-                for aq := 24 to 25 do begin
-                  if ((not plain_track) or (aq = 24)) and aqyn[aq]
+                for aq := eRD_MainRoadCentreLine to eRD_TurnoutRoadCentreLine do begin
+                  if ((not plain_track) or (aq = eRD_MainRoadCentreLine)) and aqyn[aq]
                   // main side only only if plain track, and data available ?
                   then begin
                     move_to.X := get_w_dots(aq, 0);
@@ -2409,8 +2419,7 @@ begin
               end;//if track centre-lines.
 
               if {pad_form.print_rails_menu_entry.Checked=True}  // 0.82.b
-              print_settings_form.output_rails_checkbox.Checked
-                then begin
+              print_settings_form.output_rails_checkbox.Checked then begin
                 //  draw turnout rails...
                 set_pen_width(max(printrail_wide, min_penwidth));
 
@@ -2419,16 +2428,18 @@ begin
                 then begin           //  outline (pen) mode ...
                   //  n.b. this mode does not automatically close the rail-ends.
 
-                  for aq := 0 to 23 do begin
+                  for aq := eRD_StraightStockGaugeFace to eRD_AdjTrackMainSideFarOuterFace do begin
                     // 24, 25 centre-lines already done.
-                    if (not adjacent_edges) and (aq > 15) then
+                    if (not adjacent_edges) and (aq in eRD_AdjacentTracks) then
                       CONTINUE;  // no adjacent tracks in output  // 206b
 
                     case aq of     // 223d
-                      16, 17, 20, 21:
+                      eRD_AdjTrackTurnoutSideNearGaugeFace, eRD_AdjTrackTurnoutSideNearOuterFace,
+                      eRD_AdjTrackMainSideNearGaugeFace, eRD_AdjTrackMainSideNearOuterFace:
                         if not print_settings_form.output_platforms_checkbox.Checked then
                           CONTINUE;         // platforms not wanted
-                      18, 19, 22, 23:
+                      eRD_AdjTrackTurnoutSideFarGaugeFace, eRD_AdjTrackTurnoutSideFarOuterFace,
+                      eRD_AdjTrackMainSideFarGaugeFace, eRD_AdjTrackMainSideFarOuterFace:
                         if not print_settings_form.output_trackbed_edges_checkbox.Checked then
                           CONTINUE;    // trackbed edges not wanted
                     end;//case
@@ -2436,7 +2447,7 @@ begin
                     draw_outline_railedge(aq, printcurail_colour);
                   end;//next aq
 
-                  for aq := 26 to aq_max_c do
+                  for aq := eRD_KCrossingCheckMainSideGaugeFace to eRD_Unused do
                     draw_outline_railedge(aq, printcurail_colour);  // K-crossing check rails.
 
                   outline_railends;
@@ -2445,50 +2456,49 @@ begin
                 else begin      // infill (polygon) mode ...
 
                   // do blades first - neater result.
-                  for rail := 1 to 3 do
-                    draw_fill_rail(8);  // closure rails and curved stock rail.
+                  for rail := eRD_StraightTurnoutWingGaugeFace to eRD_CurvedStockGaugeFace do
+                    draw_fill_rail;  // closure rails and curved stock rail.
 
-                  rail := 0;
+                  rail := eRD_StraightStockGaugeFace;
                   // straight stock rail.
-                  draw_fill_rail(8);
+                  draw_fill_rail;
 
-                  for rail := 6 to 7 do
-                    draw_fill_rail(8);  // check rails
+                  for rail := eRD_MainSideCheckGaugeFace to eRD_TurnoutSideCheckGaugeFace do
+                    draw_fill_rail;  // check rails
 
                   if adjacent_edges    // 206b
                   then begin
-                    rail := 16;
-                    repeat
+                    for rail in [eRD_AdjTrackTurnoutSideNearGaugeFace,
+                        eRD_AdjTrackTurnoutSideFarGaugeFace, eRD_AdjTrackMainSideNearGaugeFace,
+                        eRD_AdjTrackMainSideFarGaugeFace] do begin
                       case rail of     // 223d
-                        16, 20:
+                        eRD_AdjTrackTurnoutSideNearGaugeFace, eRD_AdjTrackMainSideNearGaugeFace:
                           if print_settings_form.output_platforms_checkbox.Checked then
-                            draw_fill_rail(1);        // platforms
-                        18, 22:
+                            draw_fill_rail;        // platforms
+                        eRD_AdjTrackTurnoutSideFarGaugeFace, eRD_AdjTrackMainSideFarGaugeFace:
                           if print_settings_form.output_trackbed_edges_checkbox.Checked then
-                            draw_fill_rail(1);   // trackbed edges
+                            draw_fill_rail;   // trackbed edges
                       end;//case
-                      rail := rail + 2;
-                    until rail > 22;
+                    end;
                   end;
 
-                  rail := 26;
-                  repeat
-                    draw_fill_rail(1);      // K-crossing MS check rails.
-                    rail := rail + 2;
-                  until rail > 28;
+                  for rail in [eRD_KCrossingCheckMainSideGaugeFace,
+                      eRD_KCrossingCheckTurnoutSideGaugeFace] do begin
+                    draw_fill_rail;      // K-crossing MS check rails.
+                  end;
 
                   draw_fill_vee;   // now do the vee.
 
                   // finally draw in or overdraw the planing gauge-faces - (no infill) ...
-                  aq := 1;
-                  if (not plain_track) and
-                    (not gaunt) and aqyn[1] and (list_planing_mark_aq1 > 0)
+                  aq := eRD_StraightTurnoutWingGaugeFace;
+                  if (not plain_track) and (not gaunt) and aqyn[aq] and
+                    (list_planing_mark_aq1 > 0)
                   {and (drawn_full_aq1=False)}// not if already drawn.
                   then begin
                     move_to.X := get_w_dots(aq, 0);
                     move_to.Y := get_l_dots(aq, 0);
-                    for now := 1 to list_planing_mark_aq1{+1} do
-                    begin                    // +1 to overdraw
+                    for now := 1 to list_planing_mark_aq1{+1} do begin
+                      // +1 to overdraw
                       line_to.X := get_w_dots(aq, now);
                       line_to.Y := get_l_dots(aq, now);
                       if check_limits(move_to, line_to) then
@@ -2497,15 +2507,15 @@ begin
                     end;//for
                   end;
 
-                  aq := 2;
-                  if (not plain_track) and
-                    (not gaunt) and aqyn[2] and (list_planing_mark_aq2 > 0)
+                  aq := eRD_CurvedTurnoutWingGaugeFace;
+                  if (not plain_track) and (not gaunt) and aqyn[aq] and
+                    (list_planing_mark_aq2 > 0)
                   {and (drawn_full_aq2=False)}// not if already drawn.
                   then begin
                     move_to.X := get_w_dots(aq, 0);
                     move_to.Y := get_l_dots(aq, 0);
-                    for now := 1 to list_planing_mark_aq2{+1} do
-                    begin                      // +1 to overdraw
+                    for now := 1 to list_planing_mark_aq2{+1} do begin
+                      // +1 to overdraw
                       line_to.X := get_w_dots(aq, now);
                       line_to.Y := get_l_dots(aq, now);
                       if check_limits(move_to, line_to) then
@@ -2577,8 +2587,7 @@ begin
             //  don't show bottom trim line on the last sheet down, otherwise he might trim off the info line,
             //  and no bottom trim lines on any sheet for banners, unless for multiple print runs.
 
-            if {(banner_paper=False) and (} sheet_down < sheet_co_long {)} then
-            begin
+            if {(banner_paper=False) and (} sheet_down < sheet_co_long {)} then begin
               if not sheet[sheet_down + 1, sheet_across].empty
               // something on next page down ?
               then begin
@@ -2678,24 +2687,26 @@ begin
             // 214a  for Gordon, see message ref: 19595   // background templates
             then begin
               if keep_form.box_file_label.Caption <> '' then
-                last_file_str := '  printing from: ' + ExtractFileName(keep_form.box_file_label.Caption)
+                last_file_str := '  printing from: ' +
+                  ExtractFileName(keep_form.box_file_label.Caption)
               else
                 last_file_str := '  printing background templates';
             end
             else
               last_file_str := '  printing the control template';
 
-            if pad_form.show_margin_coordinates_menu_entry.Checked then
-            begin
+            if pad_form.show_margin_coordinates_menu_entry.Checked then begin
               all_pages_origin_str :=
                 'all pages origin (a/1): top(X)=' + round_str(print_pages_top_origin, 2) +
                 'mm, left(Y)=' + round_str(print_pages_left_origin, 2) + 'mm      ';     // 208g
               this_page_begin_str :=
-                'this page begins: top(X)=' + round_str(grid_top / 100, 2) + 'mm, left(Y)=' + round_str(
-                grid_left / 100, 2) + 'mm' + last_file_str;                        // 208g
+                'this page begins: top(X)=' + round_str(grid_top / 100, 2) +
+                'mm, left(Y)=' + round_str(grid_left / 100, 2) + 'mm' + last_file_str;
+              // 208g
               this_page_end_str :=
-                'this page ends: bottom(X)=' + round_str(grid_bottom / 100, 2) + 'mm, right(Y)=' +
-                round_str(grid_right / 100, 2) + 'mm';                                  // 208g
+                'this page ends: bottom(X)=' + round_str(grid_bottom / 100, 2) +
+                'mm, right(Y)=' + round_str(grid_right / 100, 2) + 'mm';
+              // 208g
             end
             else begin
               all_pages_origin_str := '';
@@ -2715,10 +2726,11 @@ begin
               tpTopLeft);           // top left corner
             write_text(page_left_dots + mm_to_dots(printmargin_wide) + 3,
               page_bottom_dots{+Font.Height} - mm_to_dots(printmargin_wide) - 4,
-              page_num_str + '   ' + box_project_title_str +
-              '   ' + DateToStr(Date) + ' ' + TimeToStr(Time));  // bottom left corner
+              page_num_str + '   ' + box_project_title_str + '   ' +
+              DateToStr(Date) + ' ' + TimeToStr(Time));  // bottom left corner
             write_text(
-              page_right_dots - mm_to_dots(printmargin_wide){-TextWidth(all_pages_origin_str+page_num_str)} - 200,
+              page_right_dots - mm_to_dots(
+              printmargin_wide){-TextWidth(all_pages_origin_str+page_num_str)} - 200,
               page_top_dots + mm_to_dots(printmargin_wide) + 2,
               all_pages_origin_str + page_num_str,
               tpTopRight);         // top right corner
@@ -2730,12 +2742,10 @@ begin
             //        end;
 
 
-            if (distortions <> 0) and pdf_form.warnings_checkbox.Checked
-            then
-            begin
+            if (distortions <> 0) and pdf_form.warnings_checkbox.Checked then begin
               //                        Font.Assign(set_font('Arial',7,[],printmargin_colour));
-              write_text(page_left_dots + mm_to_dots(printmargin_wide), page_top_dots +
-                mm_to_dots(printmargin_wide){-(Font.Height*5)},
+              write_text(page_left_dots + mm_to_dots(printmargin_wide),
+                page_top_dots + mm_to_dots(printmargin_wide){-(Font.Height*5)},
                 '  Warning :  Data distortions are in force.  This template may not be dimensionally accurate.');
             end;
 
@@ -2942,7 +2952,8 @@ begin
   ClientHeight := VertScrollBar.Range;
   // do this twice, as each affects the other.
 
-  size_updown.Tag := size_updown.Position;                           // and save for the next click.
+  size_updown.Tag := size_updown.Position;
+  // and save for the next click.
 
   form_scaling := False;
 end;
@@ -3336,17 +3347,14 @@ begin
             case shape_code of
               -1: begin     // picture = bitmap image.  !!! needs 90 deg rotate. 9-2-01.
 
-                if pdf_form.include_pictures_checkbox.Checked
-                then begin
+                if pdf_form.include_pictures_checkbox.Checked then begin
                   raster_rect.Left := move_to.X;
                   raster_rect.Top := move_to.Y;
 
                   raster_rect.Right := line_to.X;
                   raster_rect.Bottom := line_to.Y;
 
-                  if Tbgshape(
-                    bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgnd_shape.picture_is_metafile
-                    then begin
+                  if Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgnd_shape.picture_is_metafile then begin
                     // metafile...     214a
 
                     // wPDF pdf_printer Canvas bug - stretchdrawing rotated metafiles gives angle error
@@ -3379,7 +3387,8 @@ begin
                       // empty Graphic
                       then begin
                         // T3-OUT                                                                 pdf_rotate_metafile(i);
-                        Application.ProcessMessages;   // this seems to be necessary for StretchDraw to work first time.
+                        Application.ProcessMessages;
+                        // this seems to be necessary for StretchDraw to work first time.
                       end;
 
                       dummy_bitmap.Canvas.StretchDraw(
@@ -3405,23 +3414,23 @@ begin
                   else begin   // bitmap...
                     try
                       if Tbgshape(
-                        bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape.rotated_bitmap.Empty
-                      then begin
+                        bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape.rotated_bitmap.Empty then begin
                         pdf_rotate_bitmap(i);
-                        Application.ProcessMessages;   // this seems to be necessary for StretchDraw to work first time.
+                        Application.ProcessMessages;
+                        // this seems to be necessary for StretchDraw to work first time.
                       end;
 
                       if Tbgshape(
                         bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgnd_shape.show_transparent
-                         // 0.93.a moved into file
+                      // 0.93.a moved into file
                       then
-                        CopyMode := cmSrcAnd        // (destination Canvas) transparent if on white background.
+                        CopyMode :=
+                          cmSrcAnd        // (destination Canvas) transparent if on white background.
                       else
                         CopyMode := cmSrcCopy;  // reset normal for destination Canvas.
 
                       if Tbgshape(
-                        bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape.rotated_bitmap.Monochrome
-                        then begin
+                        bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape.rotated_bitmap.Monochrome then begin
                         Brush.Style := bsSolid;
                         //!!! these are all needed to get StretchDraw to work with monochrome bitmaps
                         Brush.Color := clWhite;
@@ -3459,9 +3468,9 @@ begin
                 // or (pdf_form.picture_outlines_radio.Checked=True)
                 then begin
                   if pdf_form.include_pictures_checkbox.Checked
-                    {pdf_form.picture_outlines_radio.Checked=False}
-                  then
-                    Pen.Width := mm_to_dots(printpicborder_wide);    // picture borders thinner unless an outline only.
+                  {pdf_form.picture_outlines_radio.Checked=False} then
+                    Pen.Width := mm_to_dots(printpicborder_wide);
+                  // picture borders thinner unless an outline only.
                   Pen.Color := printshape_colour;
                   Brush.Color := clWhite;
                   Brush.Style := bsClear;
@@ -3470,10 +3479,11 @@ begin
                 end;
 
                 if not pdf_form.include_pictures_checkbox.Checked
-                          // pdf_form.picture_outlines_radio.Checked=True
+                // pdf_form.picture_outlines_radio.Checked=True
                 then begin
                   MoveTo(move_to.X, move_to.Y);
-                  LineTo(line_to.X, line_to.Y);  // printing picture outlines only - draw diagonal line.
+                  LineTo(line_to.X, line_to.Y);
+                  // printing picture outlines only - draw diagonal line.
                   MoveTo(move_to.X, line_to.Y);
                   LineTo(line_to.X, move_to.Y);  // and other diagonal line.
                 end;
@@ -3505,21 +3515,25 @@ begin
 
           move_to.X := Round((p1.y * 100 + re_org_y - grid_left) * scaw_out) + page_left_dots;
           // lengthwise arms...
-          move_to.Y := Round(((p1.x - arm) * 100 + re_org_x - grid_top) * scal_out) + page_top_dots;
+          move_to.Y := Round(((p1.x - arm) * 100 + re_org_x - grid_top) * scal_out) +
+            page_top_dots;
 
           line_to.X := move_to.X;
-          line_to.Y := Round(((p1.x + arm) * 100 + re_org_x - grid_top) * scal_out) + page_top_dots;
+          line_to.Y := Round(((p1.x + arm) * 100 + re_org_x - grid_top) * scal_out) +
+            page_top_dots;
 
           if check_limits(move_to, line_to) then begin
             MoveTo(move_to.X, move_to.Y);
             LineTo(line_to.X, line_to.Y);   // draw lengthwise arms.
           end;
 
-          move_to.X := Round(((p1.y - arm) * 100 + re_org_y - grid_left) * scaw_out) + page_left_dots;
+          move_to.X := Round(((p1.y - arm) * 100 + re_org_y - grid_left) * scaw_out) +
+            page_left_dots;
           // widthwise arms...
           move_to.Y := Round((p1.x * 100 + re_org_x - grid_top) * scal_out) + page_top_dots;
 
-          line_to.X := Round(((p1.y + arm) * 100 + re_org_y - grid_left) * scaw_out) + page_left_dots;
+          line_to.X := Round(((p1.y + arm) * 100 + re_org_y - grid_left) * scaw_out) +
+            page_left_dots;
           line_to.Y := move_to.Y;
 
           if check_limits(move_to, line_to) then begin
@@ -3532,7 +3546,8 @@ begin
           // NW line...
 
           move_to.X := Round((p1.y * 100 + re_org_y - grid_left) * scaw_out) + page_left_dots;
-          move_to.Y := Round(((p1.x - diamond) * 100 + re_org_x - grid_top) * scal_out) + page_top_dots;
+          move_to.Y := Round(((p1.x - diamond) * 100 + re_org_x - grid_top) * scal_out) +
+            page_top_dots;
 
           line_to.X := Round(((p1.y + diamond) * 100 + re_org_y - grid_left) * scaw_out) +
             page_left_dots;
@@ -3545,7 +3560,8 @@ begin
 
           move_to := line_to;      // NE line...
           line_to.X := Round((p1.y * 100 + re_org_y - grid_left) * scaw_out) + page_left_dots;
-          line_to.Y := Round(((p1.x + diamond) * 100 + re_org_x - grid_top) * scal_out) + page_top_dots;
+          line_to.Y := Round(((p1.x + diamond) * 100 + re_org_x - grid_top) * scal_out) +
+            page_top_dots;
 
           if check_limits(move_to, line_to) then begin
             MoveTo(move_to.X, move_to.Y);
@@ -3564,7 +3580,8 @@ begin
 
           move_to := line_to;      // SW line...
           line_to.X := Round((p1.y * 100 + re_org_y - grid_left) * scaw_out) + page_left_dots;
-          line_to.Y := Round(((p1.x - diamond) * 100 + re_org_x - grid_top) * scal_out) + page_top_dots;
+          line_to.Y := Round(((p1.x - diamond) * 100 + re_org_x - grid_top) * scal_out) +
+            page_top_dots;
 
           if check_limits(move_to, line_to) then begin
             MoveTo(move_to.X, move_to.Y);
@@ -3629,7 +3646,8 @@ begin
         print_group_only_flag then
         CONTINUE;  // not in group. 0.78.b 10-12-02.
 
-      if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.fb_kludge_template_code > 0 then
+      if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.fb_kludge_template_code
+        > 0 then
         CONTINUE;  // 209c no marks for fb_kludge templates
 
       now_keep := Ttemplate(keeps_list.Objects[n]).bgnd_keep;    // next background keep.
@@ -3645,18 +3663,16 @@ begin
 
           idnum_str := id_number_str;  // 208a
 
-          if use_print_mapping_colour and
-            ((mapping_colours_print = 2) or (mapping_colours_print = 3)) and
-            (not pdf_black_white) and (not pdf_grey_shade) then begin
+          if use_print_mapping_colour and ((mapping_colours_print = 2) or
+            (mapping_colours_print = 3)) and (not pdf_black_white) and (not pdf_grey_shade) then
+          begin
             mapping_colour := calc_intensity(print_mapping_colour);
             using_mapping_colour := True;
           end;
 
-          if use_pad_marker_colour and
-            (mapping_colours_print = 4)   // use pad settings instead
-            and (not pdf_black_white) and (not pdf_grey_shade)
-          then
-          begin
+          if use_pad_marker_colour and (mapping_colours_print =
+            4)   // use pad settings instead
+            and (not pdf_black_white) and (not pdf_grey_shade) then begin
             mapping_colour := calc_intensity(pad_marker_colour);
             using_mapping_colour := True;
           end;
@@ -3681,39 +3697,39 @@ begin
 
           if ((code = 5) or (code = 55) or (code = 95) or (code = 600) or (code = 700)) and
             (out_factor <> 1.0) then
-            CONTINUE;   // reduced ends are meaningless if not full-size.   206b 600 added. 211b 700 added
+            CONTINUE;
+          // reduced ends are meaningless if not full-size.   206b 600 added. 211b 700 added
 
           line_style := choose_mark_linestyle(pdf_page, code, False);
 
-          case code  of
-          1..98, 100.. 199, 600, 700: begin
-          write_comment('Mark ' + inttostr(code) + ' using ' + line_style.str());
-            p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
-            p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
+          case code of
+            1..98, 100.. 199, 600, 700: begin
+              write_comment('Mark ' + IntToStr(code) + ' using ' + line_style.str());
+              p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
+              p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
 
-            if pdf_black_white then
-              set_pen_colour(clBlack)
-            else begin
-              if using_mapping_colour then
-                set_pen_colour(mapping_colour)
-              else
+              if pdf_black_white then
+                set_pen_colour(clBlack)
+              else begin
+                if using_mapping_colour then
+                  set_pen_colour(mapping_colour)
+                else
                 if mapping_colours_print < 0
                 // 0=normal, 1=rails only, 2=timbers only, 3=rails and timber outlines, 4:=use the PAD colour instead, -1=single colour.
                 then
-                  set_pen_colour(printbg_single_colour)
+                  set_pen_colour(printbg_single_colour);
                 // single colour for all of background templates.
+              end;
+
+              //Pen.Mode:=pmCopy;
+
+              move_to := page_locate(p1, grid_left, grid_top);
+              line_to := page_locate(p2, grid_left, grid_top);
+
+              if check_limits(move_to, line_to) then
+                draw_line_style(move_to, line_to, line_style);
             end;
-
-            //Pen.Mode:=pmCopy;
-
-            move_to := page_locate(p1, grid_left, grid_top);
-            line_to := page_locate(p2, grid_left, grid_top);
-
-            if check_limits(move_to, line_to) then
-              draw_line_style(move_to, line_to, line_style);
-          end;
-
-        -2, -3: begin
+            -2, -3: begin
               //if pdf_black_white=True
               //   then Pen.Color:=clBlack  // overide.
               //   else begin
@@ -3726,12 +3742,12 @@ begin
               if pdf_black_white then
                 set_pen_colour(clBlack)  // overide.
               else
-                //if single_colour_flag=False then set_pen_color:=clBlack;
-                //if mapping_colours_print <> -1 then
-                //  set_pen_color(calc_intensity(clBlack))
-                //else
-                if mapping_colours_print = -1 then
-                  set_pen_colour(printbg_single_colour);
+              //if single_colour_flag=False then set_pen_color:=clBlack;
+              //if mapping_colours_print <> -1 then
+              //  set_pen_color(calc_intensity(clBlack))
+              //else
+              if mapping_colours_print = -1 then
+                set_pen_colour(printbg_single_colour);
 
               p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
 
@@ -3754,10 +3770,9 @@ begin
 
             //if (code = 203) or (code = 233) or (code = 293)       // timber infill...
             //then begin
-          203, 233, 293: begin              // timber infill...
+            203, 233, 293: begin              // timber infill...
 
-              if i < array_max
-              then begin
+              if i < array_max then begin
                 p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
                 p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
 
@@ -3784,7 +3799,7 @@ begin
               infill_points[3] := page_locate(p4, grid_left, grid_top);
 
               if check_limits(infill_points[0], infill_points[1]) and
-                 check_limits(infill_points[2], infill_points[3]) then begin
+                check_limits(infill_points[2], infill_points[3]) then begin
 
                 if pdf_black_white then
                   set_pen_colour(clBlack)
@@ -3831,117 +3846,111 @@ begin
               end;
             end;
 
-          99: begin                           // Timber Labels
-            if (pad_form.print_timber_numbering_menu_entry.Checked
-              or  ((out_factor > 0.99)
-                and pad_form.numbering_fullsize_only_menu_entry.Checked))
-              and print_settings_form.output_timber_numbers_checkbox.Checked
+            99: begin                           // Timber Labels
+              if (pad_form.print_timber_numbering_menu_entry.Checked or
+                ((out_factor > 0.99) and pad_form.numbering_fullsize_only_menu_entry.Checked))
+                and print_settings_form.output_timber_numbers_checkbox.Checked then begin
+                p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
+                p2 := list_bgnd_marks[i].p2;
 
-            then begin
-              p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
-              p2 := list_bgnd_marks[i].p2;
+                if print_settings_form.output_timb_id_prefix_checkbox.Checked then
+                  move_to := page_locate(p2, grid_left, grid_top)
+                else
+                  // 223d  ID prefix not wanted, use p1 *screen* positions (as for control template)
+                  move_to := page_locate(p1, grid_left, grid_top);
 
-              if print_settings_form.output_timb_id_prefix_checkbox.Checked
-              then
-                move_to := page_locate(p2, grid_left, grid_top)
-              else
-                // 223d  ID prefix not wanted, use p1 *screen* positions (as for control template)
-                move_to := page_locate(p1, grid_left, grid_top);
+                num_str := extract_tbnumber_str(tbnum_str);
+                // get next timber numbering string from the acummulated string.
+                if num_str = '' then
+                  CONTINUE;              // no string available??
 
-              num_str := extract_tbnumber_str(tbnum_str);
-              // get next timber numbering string from the acummulated string.
-              if num_str = '' then
-                CONTINUE;              // no string available??
-
-              if not pad_form.timber_numbering_on_plain_track_menu_entry.Checked
-                        // 208a
-              then begin
-                s := LeftStr(num_str, 1);
-                if pos(s, 'AERN') > 0    // not wanted on plain track,
+                if not pad_form.timber_numbering_on_plain_track_menu_entry.Checked
+                // 208a
                 then begin
-                  if RightStr(num_str, 1) = '1'   // every 10 sleepers
-                  then
-                    num_str := ''                      // show template ID only
-                  else
-                    CONTINUE;
-                end;
-              end;
-
-              if check_limit(False, False, move_to)
-              then begin
-                //Font.Assign(print_timber_numbers_font);
-
-
-                if pad_form.scale_timber_numbering_menu_entry.Checked
+                  s := LeftStr(num_str, 1);
+                  if pos(s, 'AERN') > 0    // not wanted on plain track,
                   then begin
-                  //fontsize:=Font.Size*out_factor;
-                  //if fontsize<4 then CONTINUE;      // minimum to be legible.
-                  //Font.Size:=Round(fontsize);
+                    if RightStr(num_str, 1) = '1'   // every 10 sleepers
+                    then
+                      num_str := ''                      // show template ID only
+                    else
+                      CONTINUE;
+                  end;
                 end;
 
-                if
-                print_settings_form.output_timb_id_prefix_checkbox.Checked    // 223d
-                then begin
-                  if num_str = '' then
-                    idtb_str := idnum_str               // 208a  template ID only
-                  else
-                    idtb_str := idnum_str + '.' + num_str;  // 208a  timber number output with template ID
-                end
-                else begin
-                  // IDs not wanted  223d
-                  if num_str = '' then
-                    CONTINUE;
-                  idtb_str := num_str;
-                end;
-
-                set_fill_colour(clBlack);    // !!! THIS IS WRONG !!!!
-                set_font(pdf_font_helv, 8);
-
-                write_text(move_to.X,//-(TextWidth(idtb_str) div 2),
-                  move_to.Y,//-(TextHeight(idtb_str) div 2),
-                  idtb_str,
-                  tpBottomCentre, True);
-
-                //Font.Assign(print_labels_font);      // reset for grid labels
-              end;
-            end;
-          end;//numbering
-
-
-          601..605, 701..703: begin
-
-                if out_factor <> 1.0 then
-                  CONTINUE;     // on full size prints only
-
-                p1 := list_bgnd_marks[i].p1;              // x1,y1 in  1/100ths mm
-
-                move_to := page_locate(p1, grid_left, grid_top);
-
-                if check_limit(False, False, move_to)
-                then begin
+                if check_limit(False, False, move_to) then begin
                   //Font.Assign(print_timber_numbers_font);
-                  //
-                  //Font.Style:=[fsBold,fsItalic];
-                  //set_pen_color(printguide_colour);
 
-                  //if scale>3 then Font.Size:=Font.Size+1; // a bit bigger above 3mm/ft
-                  //
-                  //Brush.Style:=bsSolid;
-                  //Brush.Color:=clWhite;
-                  //set_fill_color(printguide_colour);
 
-                  switch_label_str := switch_label_text(code);
+                  if pad_form.scale_timber_numbering_menu_entry.Checked then begin
+                    //fontsize:=Font.Size*out_factor;
+                    //if fontsize<4 then CONTINUE;      // minimum to be legible.
+                    //Font.Size:=Round(fontsize);
+                  end;
 
-                  write_text(move_to.X,
-                    move_to.Y,
-                    switch_label_str,
-                    tpMiddleCentre, True);
+                  if print_settings_form.output_timb_id_prefix_checkbox.Checked
+                  // 223d
+                  then begin
+                    if num_str = '' then
+                      idtb_str := idnum_str               // 208a  template ID only
+                    else
+                      idtb_str := idnum_str + '.' + num_str;
+                    // 208a  timber number output with template ID
+                  end
+                  else begin
+                    // IDs not wanted  223d
+                    if num_str = '' then
+                      CONTINUE;
+                    idtb_str := num_str;
+                  end;
+
+                  set_fill_colour(clBlack);    // !!! THIS IS WRONG !!!!
+                  set_font(pdf_font_helv, 8);
+
+                  write_text(move_to.X,//-(TextWidth(idtb_str) div 2),
+                    move_to.Y,//-(TextHeight(idtb_str) div 2),
+                    idtb_str,
+                    tpBottomCentre, True);
 
                   //Font.Assign(print_labels_font);      // reset for grid labels
                 end;
               end;
+            end;//numbering
 
-            end;//case
+
+            601..605, 701..703: begin
+
+              if out_factor <> 1.0 then
+                CONTINUE;     // on full size prints only
+
+              p1 := list_bgnd_marks[i].p1;              // x1,y1 in  1/100ths mm
+
+              move_to := page_locate(p1, grid_left, grid_top);
+
+              if check_limit(False, False, move_to) then begin
+                //Font.Assign(print_timber_numbers_font);
+                //
+                //Font.Style:=[fsBold,fsItalic];
+                //set_pen_color(printguide_colour);
+
+                //if scale>3 then Font.Size:=Font.Size+1; // a bit bigger above 3mm/ft
+                //
+                //Brush.Style:=bsSolid;
+                //Brush.Color:=clWhite;
+                //set_fill_color(printguide_colour);
+
+                switch_label_str := switch_label_text(code);
+
+                write_text(move_to.X,
+                  move_to.Y,
+                  switch_label_str,
+                  tpMiddleCentre, True);
+
+                //Font.Assign(print_labels_font);      // reset for grid labels
+              end;
+            end;
+
+          end;//case
 
         end;//next i background mark
         write_comment('==> MARK CODES FINISHED <==');
@@ -3962,7 +3971,8 @@ var
   p1, p2: TPoint;
   now_keep: Tbgnd_keep;
 
-  n, aq, nk: integer;
+  aq: ERailData;
+  n, nk: integer;
   array_max: integer;
 
   pt: TPoint;
@@ -3971,7 +3981,8 @@ var
   l_dims_valid: boolean;
   w_dims_valid: boolean;
 
-  now, rail: integer;
+  now: integer;
+  rail: ERailData;
 
   mapping_colour: integer;
   using_mapping_colour: boolean;
@@ -4005,7 +4016,8 @@ var
       if output_diagram_mode
       // 0.94.a  don't use mapping colour for rail edges (used for infill instead).
       then begin
-        if rail in [16, 20]                  // 0.93.a platforms
+        if rail in [eRD_AdjTrackTurnoutSideNearGaugeFace, eRD_AdjTrackMainSideNearGaugeFace]
+        // 0.93.a platforms
         then
           set_pen_colour(printplat_edge_colour)
         else
@@ -4030,7 +4042,8 @@ var
 
       // normal output...
 
-      if rail in [16, 20]   // 0.93.a platforms
+      if rail in [eRD_AdjTrackTurnoutSideNearGaugeFace, eRD_AdjTrackMainSideNearGaugeFace]
+      // 0.93.a platforms
       then
         set_pen_colour(printplat_edge_colour)
       else
@@ -4063,14 +4076,15 @@ var
     end;
 
     if output_diagram_mode then begin   // all black except platforms
-        lsRail.colour := clBlack;
-        lsPlatform.colour := printplat_edge_colour;
-        lsBlanking.colour := clBlack;
-        lsEdge.colour := clBlack;
-        EXIT;
+      lsRail.colour := clBlack;
+      lsPlatform.colour := printplat_edge_colour;
+      lsBlanking.colour := clBlack;
+      lsEdge.colour := clBlack;
+      EXIT;
     end;
 
-    if using_mapping_colour and (not pdf_form.black_edges_checkbox.Checked) then begin  // mapping colour
+    if using_mapping_colour and (not pdf_form.black_edges_checkbox.Checked) then
+    begin  // mapping colour
       lsRail.colour := mapping_colour;
       lsPlatform.colour := mapping_colour;
       lsBlanking.colour := mapping_colour;
@@ -4091,7 +4105,7 @@ var
   end;
   ///////////////////////////////////////////////////////////////
 
-  function pbg_get_w_dots(q, n: integer): integer;
+  function pbg_get_w_dots(q: ERailData; n: integer): integer;
 
   var
     yint: integer;
@@ -4105,7 +4119,7 @@ var
   end;
   ////////////////////////////
 
-  function pbg_get_l_dots(q, n: integer): integer;
+  function pbg_get_l_dots(q: ERailData; n: integer): integer;
 
   var
     xint: integer;
@@ -4121,7 +4135,7 @@ var
   ////////////////////////////////////////////////////////////
 
 
-  procedure pbg_outline_railedge(aq, blanking_colour: integer; blank_it: boolean);
+  procedure pbg_outline_railedge(aq: ERailData; blanking_colour: integer; blank_it: boolean);
 
   var
     nk: integer;
@@ -4160,8 +4174,7 @@ var
           line_to.X := Round((yint - grid_left) * scaw_out) + page_left_dots;
           line_to.Y := Round((xint - grid_top) * scal_out) + page_top_dots;
 
-          if check_limits(move_to, line_to) then
-          begin
+          if check_limits(move_to, line_to) then begin
             draw_line_style(move_to, line_to, linestyle);
           end;
           move_to := line_to;
@@ -4172,7 +4185,7 @@ var
   end;
   ////////////////////////////
 
-  procedure pbg_draw_fill_rail(outer_add: integer);
+  procedure pbg_draw_fill_rail;
   // draw a complete filled rail.
 
   const
@@ -4197,14 +4210,13 @@ var
     edge_started: boolean;
     dots_index: integer;
     x_dots, y_dots: integer;
-    aq: integer;
+    aq: ERailData;
     mid_dots_index: integer;
     edge_colour, blanking_colour: integer;
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    procedure pbg_modify_rail_end(
-      start_index, stop_index, edge, blank: integer);
+    procedure pbg_modify_rail_end(start_index, stop_index, edge, blank: integer);
 
     //var
     //  // Asuming PDF works, no need for screwing around with pen width here
@@ -4212,8 +4224,8 @@ var
 
     begin
 
-      if (start_index >= 0) and (start_index <= dots_index) and
-        (stop_index >= 0) and (stop_index <= dots_index) then begin
+      if (start_index >= 0) and (start_index <= dots_index) and (stop_index >= 0) and
+        (stop_index <= dots_index) then begin
         move_to := dots[start_index];
         line_to := dots[stop_index];
 
@@ -4222,7 +4234,7 @@ var
           with pdf_page do begin
             //saved_pen_width :=
             //  current_pen_width; // 206b
-//            if current_fill_style<>bsSolid then set_pen_width(saved_pen_width+3);    // 206b  PDF bug, needs a wider line to ensure full blanking if hatched fill
+            //            if current_fill_style<>bsSolid then set_pen_width(saved_pen_width+3);    // 206b  PDF bug, needs a wider line to ensure full blanking if hatched fill
             //set_pen_colour(blank);
             // first blank across..
             draw_line_style(move_to, line_to, lsBlanking);
@@ -4246,13 +4258,13 @@ var
 
     with now_keep do begin
 
-      if (Length(list_bgnd_rails[aq]) = 0) or
-        (Length(list_bgnd_rails[aq + outer_add]) = 0)  // data not for both edges?
+      if (Length(list_bgnd_rails[aq]) = 0) or (Length(list_bgnd_rails[aq_oppositeFace[aq]]) = 0)
+      // data not for both edges?
       then begin
         if Length(list_bgnd_rails[aq]) <> 0 then
           pbg_outline_railedge(aq, 0, False);
-        if Length(list_bgnd_rails[aq + outer_add]) <> 0 then
-          pbg_outline_railedge(aq + outer_add, 0, False);
+        if Length(list_bgnd_rails[aq_oppositeFace[aq]]) <> 0 then
+          pbg_outline_railedge(aq_oppositeFace[aq], 0, False);
         EXIT;
       end;
 
@@ -4261,7 +4273,7 @@ var
       if not gaunt_template then begin
 
         case aq of
-          1: begin
+          eRD_StraightTurnoutWingGaugeFace: begin
             {start:=list_mark_straight;  // out - bug fix 0.73 11-8-01. }
 
             start := planing_end_aq1;
@@ -4273,7 +4285,7 @@ var
             //out 18-8-01 0.73.a   if ((start+1)<=now_max) and (now_max>1) then drawn_full_aq1:=False;  // ok to overdraw planing.
           end;
 
-          2: begin                         // ditto
+          eRD_CurvedTurnoutWingGaugeFace: begin                         // ditto
             {start:=list_mark_curve;  // out - bug fix 0.73 11-8-01. }
 
             start := planing_end_aq2;
@@ -4301,8 +4313,7 @@ var
       for now := start to now_max do begin
         x_dots := pbg_get_w_dots(aq, now);
         y_dots := pbg_get_l_dots(aq, now);
-        if w_dims_valid and l_dims_valid
-        then begin
+        if w_dims_valid and l_dims_valid then begin
           edge_started := True;
 
           Inc(dots_index);
@@ -4319,7 +4330,7 @@ var
 
       mid_dots_index := dots_index;
 
-      aq := rail + outer_add;             // outer-edges.
+      aq := aq_oppositeFace[rail];             // outer-edges.
 
       now_max := High(list_bgnd_rails[aq]);
 
@@ -4328,8 +4339,7 @@ var
       for now := now_max downto 0 do begin
         x_dots := pbg_get_w_dots(aq, now);
         y_dots := pbg_get_l_dots(aq, now);
-        if w_dims_valid and l_dims_valid
-        then begin
+        if w_dims_valid and l_dims_valid then begin
           edge_started := True;
 
           Inc(dots_index);
@@ -4346,14 +4356,15 @@ var
 
       with pdf_page do begin
 
-//        set_pen_railcolour(True);
-//        set_pen_width(printrail_wide);
+        //        set_pen_railcolour(True);
+        //        set_pen_width(printrail_wide);
 
                         {if (single_colour_flag=True) and (pdf_form.black_edges_checkbox.Checked=False)
                            then Pen.Color:=printbg_single_colour  // default colour for all background templates.
                            else Pen.Color:=printbgrail_colour;}
 
-        if rail in [16, 20]   // 0.93.a platforms
+        if rail in [eRD_AdjTrackTurnoutSideNearGaugeFace, eRD_AdjTrackMainSideNearGaugeFace]
+        // 0.93.a platforms
         then begin
           //if ((using_mapping_colour = True) and
           //  (current_pen_colour = mapping_colour)) or ((mapping_colours_print < 0) and
@@ -4380,22 +4391,21 @@ var
           //end;//case
         end
         else begin
-          if (this_one_trackbed_cess_ts and (rail = 18))  // 215a
-            or (this_one_trackbed_cess_ms and (rail = 22))  // 215a
+          if (this_one_trackbed_cess_ts and (rail = eRD_AdjTrackTurnoutSideFarGaugeFace))  // 215a
+            or (this_one_trackbed_cess_ms and (rail = eRD_AdjTrackMainSideFarGaugeFace))  // 215a
           then begin
-            if (using_mapping_colour and
-              (current_pen_colour = mapping_colour)) or ((mapping_colours_print < 0) and
-              (current_pen_colour = printbg_single_colour)) then
+            if (using_mapping_colour and (current_pen_colour = mapping_colour)) or
+              ((mapping_colours_print < 0) and (current_pen_colour = printbg_single_colour)) then
               set_fill_colour(current_pen_colour)
             else
-              set_fill_colour(sb_track_bgnd_colour);      // cess use same colour as track background
+              set_fill_colour(sb_track_bgnd_colour);
+            // cess use same colour as track background
             //  Brush.Style:=bsBDiagonal;
           end
           else begin   // normal rails...
 
-            if (using_mapping_colour and
-              (current_fill_colour = mapping_colour)) or ((mapping_colours_print < 0) and
-              (current_fill_colour = printbg_single_colour)) then
+            if (using_mapping_colour and (current_fill_colour = mapping_colour)) or
+              ((mapping_colours_print < 0) and (current_fill_colour = printbg_single_colour)) then
               set_fill_colour(calc_intensity(clSilver))  // 214b  - was clGray
             else begin
               if fb_kludge_this > 0 then
@@ -4424,7 +4434,8 @@ var
         //set_pen_width(printrail_wide);
 
         case rail of
-          1: set_pen_colour(clRed);
+          eRD_StraightTurnoutWingGaugeFace:
+            set_pen_colour(clRed);
         end;
 
         if dots_index > 2 then begin
@@ -4439,13 +4450,15 @@ var
           //      // remove polygon line across end of planing (not for fixed-diamond)..
           //      // (for gaunt template this removes the polygon line across the rail end)
 
-          if (not fixed_diamond_ends) and (rail in [1, 2]) then
+          if (not fixed_diamond_ends) and
+            (rail in [eRD_StraightTurnoutWingGaugeFace, eRD_CurvedTurnoutWingGaugeFace]) then
             pbg_modify_rail_end(0, dots_index, edge_colour, blanking_colour);
 
           // remove polygon lines across stock rail ends...
           // and trackbed ends  206b
 
-          if rail in[0, 3, 18, 22]   // 18,22 added 206b
+          if rail in [eRD_StraightStockGaugeFace, eRD_CurvedStockGaugeFace,
+            eRD_AdjTrackTurnoutSideFarGaugeFace, eRD_AdjTrackMainSideFarGaugeFace]   // 18,22 added 206b
           then begin
             pbg_modify_rail_end(
               0, dots_index, edge_colour, blanking_colour);  // toe or approach end.
@@ -4462,50 +4475,53 @@ var
             then begin
               // 0.93.a blank platform rear edges ...
 
-              if (rail = 16) and
+              if (rail = eRD_AdjTrackTurnoutSideNearGaugeFace) and
                 draw_ts_platform_keep and (not draw_ts_platform_rear_edge_keep)
               // 0.93.a TS platform start
               then
-                pbg_outline_railedge(16, blanking_colour, True);     // blank rear edge
+                pbg_outline_railedge(eRD_AdjTrackTurnoutSideNearGaugeFace, blanking_colour, True);
+              // blank rear edge
 
-              if (rail = 20) and
-                draw_ms_platform_keep and (not draw_ms_platform_rear_edge_keep)
+              if (rail = eRD_AdjTrackMainSideNearGaugeFace) and draw_ms_platform_keep and
+                (not draw_ms_platform_rear_edge_keep)
               // 0.93.a TS platform start
               then
-                pbg_outline_railedge(20, blanking_colour, True);     // blank rear edge
+                pbg_outline_railedge(eRD_AdjTrackMainSideNearGaugeFace, blanking_colour, True);
+              // blank rear edge
 
               // 0.93.a blank platform ends ...
 
-              if (rail = 16) and
+              if (rail = eRD_AdjTrackTurnoutSideNearGaugeFace) and
                 draw_ts_platform_keep and (not draw_ts_platform_start_edge_keep)
               // 0.93.a TS platform start
               then
                 pbg_modify_rail_end(0, dots_index, edge_colour, blanking_colour);
 
-              if (rail = 16) and
+              if (rail = eRD_AdjTrackTurnoutSideNearGaugeFace) and
                 draw_ts_platform_keep and (not draw_ts_platform_end_edge_keep)
               // 0.93.a TS platform end
               then
-                pbg_modify_rail_end(mid_dots_index, mid_dots_index + 1, edge_colour, blanking_colour);
+                pbg_modify_rail_end(mid_dots_index, mid_dots_index + 1,
+                  edge_colour, blanking_colour);
 
-              if (rail = 20) and
-                draw_ms_platform_keep and (not draw_ms_platform_start_edge_keep)
+              if (rail = eRD_AdjTrackMainSideNearGaugeFace) and draw_ms_platform_keep and
+                (not draw_ms_platform_start_edge_keep)
               // 0.93.a MS platform start
               then
                 pbg_modify_rail_end(0, dots_index, edge_colour, blanking_colour);
 
-              if (rail = 20) and
-                draw_ms_platform_keep and (not draw_ms_platform_end_edge_keep)
+              if (rail = eRD_AdjTrackMainSideNearGaugeFace) and draw_ms_platform_keep and
+                (not draw_ms_platform_end_edge_keep)
               // 0.93.a MS platform end
               then
-                pbg_modify_rail_end(mid_dots_index, mid_dots_index + 1, edge_colour, blanking_colour);
+                pbg_modify_rail_end(mid_dots_index, mid_dots_index + 1,
+                  edge_colour, blanking_colour);
 
             end;
           end;//with
 
-          if rail in [26, 28]
-          then
-          begin
+          if rail in [eRD_KCrossingCheckMainSideGaugeFace, eRD_KCrossingCheckTurnoutSideGaugeFace]
+          then begin
             pbg_modify_rail_end(
               0, dots_index, edge_colour, blanking_colour);  // centre of K-crossing check rails.
           end;
@@ -4540,19 +4556,18 @@ var
     edge_started: boolean;
     dots_index: integer;
     x_dots, y_dots: integer;
-    aq: integer;
+    aq: ERailData;
     point_mid_dots_index, splice_mid_dots_index: integer;
     edge_colour, blanking_colour: integer;
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    procedure pbg_modify_vee_end(
-      start_index, stop_index, edge, blank: integer);
+    procedure pbg_modify_vee_end(start_index, stop_index, edge, blank: integer);
 
     begin
 
-      if (start_index >= 0) and (start_index <= dots_index) and
-        (stop_index >= 0) and (stop_index <= dots_index) then begin
+      if (start_index >= 0) and (start_index <= dots_index) and (stop_index >= 0) and
+        (stop_index <= dots_index) then begin
         move_to := dots[start_index];
         line_to := dots[stop_index];
 
@@ -4577,32 +4592,32 @@ var
   begin
     with now_keep do begin
 
-      if (Length(list_bgnd_rails[4]) = 0) or
-        (Length(list_bgnd_rails[5]) = 0) or
-        (Length(list_bgnd_rails[12]) = 0) or
-        (Length(list_bgnd_rails[13]) = 0)  // not enough data for filled vee.
+      if (Length(list_bgnd_rails[eRD_VeePointGaugeFace]) = 0) or
+        (Length(list_bgnd_rails[eRD_VeeSpliceGaugeFace]) = 0) or
+        (Length(list_bgnd_rails[eRD_VeePointOuterFace]) = 0) or
+        (Length(list_bgnd_rails[eRD_VeeSpliceOuterFace]) = 0)
+      // not enough data for filled vee.
       then begin
-        if Length(list_bgnd_rails[4]) <> 0 then
-          pbg_outline_railedge(4, 0, False);       // draw outline vee...
-        if Length(list_bgnd_rails[5]) <> 0 then
-          pbg_outline_railedge(5, 0, False);
-        if Length(list_bgnd_rails[12]) <> 0 then
-          pbg_outline_railedge(12, 0, False);
-        if Length(list_bgnd_rails[13]) <> 0 then
-          pbg_outline_railedge(13, 0, False);
+        if Length(list_bgnd_rails[eRD_VeePointGaugeFace]) <> 0 then
+          pbg_outline_railedge(eRD_VeePointGaugeFace, 0, False);       // draw outline vee...
+        if Length(list_bgnd_rails[eRD_VeeSpliceGaugeFace]) <> 0 then
+          pbg_outline_railedge(eRD_VeeSpliceGaugeFace, 0, False);
+        if Length(list_bgnd_rails[eRD_VeePointOuterFace]) <> 0 then
+          pbg_outline_railedge(eRD_VeePointOuterFace, 0, False);
+        if Length(list_bgnd_rails[eRD_VeeSpliceOuterFace]) <> 0 then
+          pbg_outline_railedge(eRD_VeeSpliceOuterFace, 0, False);
       end
       else begin                // polygon mode...
 
         dots_index := 0 - 1;   // first increment is to zero.
 
-        aq := 4;
+        aq := eRD_VeePointGaugeFace;
         edge_started := False;
-        for now := 0 to High(list_bgnd_rails[aq]) do
-        begin    // vee main-side, gauge_face, start from the tip.
+        for now := 0 to High(list_bgnd_rails[aq]) do begin
+          // vee main-side, gauge_face, start from the tip.
           x_dots := pbg_get_w_dots(aq, now);
           y_dots := pbg_get_l_dots(aq, now);
-          if w_dims_valid and l_dims_valid
-          then begin
+          if w_dims_valid and l_dims_valid then begin
             edge_started := True;
 
             Inc(dots_index);
@@ -4619,14 +4634,12 @@ var
 
         point_mid_dots_index := dots_index;
 
-        aq := 12;
+        aq := eRD_VeePointOuterFace;
         edge_started := False;
-        for now := High(list_bgnd_rails[aq]) downto 0 do
-        begin // back along outer-edge.
+        for now := High(list_bgnd_rails[aq]) downto 0 do begin // back along outer-edge.
           x_dots := pbg_get_w_dots(aq, now);
           y_dots := pbg_get_l_dots(aq, now);
-          if w_dims_valid and l_dims_valid
-          then begin
+          if w_dims_valid and l_dims_valid then begin
             edge_started := True;
 
             Inc(dots_index);
@@ -4641,14 +4654,12 @@ var
             BREAK;   // don't resume adding dots to this edge once started and then gone out of limits.
         end;//next now
 
-        aq := 13;
+        aq := eRD_VeeSpliceOuterFace;
         edge_started := False;
-        for now := 0 to High(list_bgnd_rails[aq]) do
-        begin    // and then turnout side outer edge.
+        for now := 0 to High(list_bgnd_rails[aq]) do begin    // and then turnout side outer edge.
           x_dots := pbg_get_w_dots(aq, now);
           y_dots := pbg_get_l_dots(aq, now);
-          if w_dims_valid and l_dims_valid
-          then begin
+          if w_dims_valid and l_dims_valid then begin
             edge_started := True;
 
             Inc(dots_index);
@@ -4665,14 +4676,13 @@ var
 
         splice_mid_dots_index := dots_index;
 
-        aq := 5;
+        aq := eRD_VeeSpliceGaugeFace;
         edge_started := False;
-        for now := High(list_bgnd_rails[aq]) downto 0 do
-        begin // and back along the gauge face to the tip.
+        for now := High(list_bgnd_rails[aq]) downto 0 do begin
+          // and back along the gauge face to the tip.
           x_dots := pbg_get_w_dots(aq, now);
           y_dots := pbg_get_l_dots(aq, now);
-          if w_dims_valid and l_dims_valid
-          then begin
+          if w_dims_valid and l_dims_valid then begin
             edge_started := True;
 
             Inc(dots_index);
@@ -4734,10 +4744,12 @@ var
             // remove polygon lines across vee rail ends...
 
             pbg_modify_vee_end(
-              point_mid_dots_index, point_mid_dots_index + 1, edge_colour, blanking_colour); // point rail end.
+              point_mid_dots_index, point_mid_dots_index + 1, edge_colour, blanking_colour);
+            // point rail end.
 
             pbg_modify_vee_end(
-              splice_mid_dots_index, splice_mid_dots_index + 1, edge_colour, blanking_colour); // splice rail end.
+              splice_mid_dots_index, splice_mid_dots_index + 1, edge_colour, blanking_colour);
+            // splice rail end.
 
           end;
 
@@ -4748,13 +4760,12 @@ var
   end;
   ////////////////////////////////////////////////////////////////////////
 
-  procedure pbg_mark_end(aq1, aq1end, aq2, aq2end: integer);
+  procedure pbg_mark_end(aq1: ERailData; aq1end: integer; aq2: ERailData; aq2end: integer);
   // print the background rail end mark.
 
   begin
     with now_keep do begin
-      if bgnd_endmarks_yn[aq1, aq1end] and
-         bgnd_endmarks_yn[aq2, aq2end] then begin
+      if bgnd_endmarks_yn[aq1, aq1end] and bgnd_endmarks_yn[aq2, aq2end] then begin
         p1 := bgnd_endmarks[aq1, aq1end];
         p2 := bgnd_endmarks[aq2, aq2end];
 
@@ -4785,24 +4796,32 @@ var
   // draw in the rail ends using existing pen settings...
 
   begin
-    pbg_mark_end(1, 1, 9, 1);    // main rail wing rail finish.
-    pbg_mark_end(2, 1, 10, 1);   // turnout rail wing rail finish.
+    pbg_mark_end(eRD_StraightTurnoutWingGaugeFace, 1, eRD_StraightTurnoutWingOuterFace, 1);
+    // main rail wing rail finish.
+    pbg_mark_end(eRD_CurvedTurnoutWingGaugeFace, 1, eRD_CurvedTurnoutWingOuterFace, 1);
+    // turnout rail wing rail finish.
 
-    pbg_mark_end(6, 0, 14, 0);   // main side check rail start.
-    pbg_mark_end(6, 1, 14, 1);   // main side check rail finish.
+    pbg_mark_end(eRD_MainSideCheckGaugeFace, 0, eRD_MainSideCheckOuterFace, 0);
+    // main side check rail start.
+    pbg_mark_end(eRD_MainSideCheckGaugeFace, 1, eRD_MainSideCheckOuterFace, 1);
+    // main side check rail finish.
 
-    pbg_mark_end(7, 0, 15, 0);   // turnout side check rail start.
-    pbg_mark_end(7, 1, 15, 1);   // turnout side check rail finish.
+    pbg_mark_end(eRD_TurnoutSideCheckGaugeFace, 0, eRD_TurnoutSideCheckOuterFace, 0);
+    // turnout side check rail start.
+    pbg_mark_end(eRD_TurnoutSideCheckGaugeFace, 1, eRD_TurnoutSideCheckOuterFace, 1);
+    // turnout side check rail finish.
 
-    pbg_mark_end(4, 0, 5, 0);    // blunt nose.
+    pbg_mark_end(eRD_VeePointGaugeFace, 0, eRD_VeeSpliceGaugeFace, 0);    // blunt nose.
 
     if fixed_diamond_ends then begin
-      pbg_mark_end(1, 0, 9, 0);
+      pbg_mark_end(eRD_StraightTurnoutWingGaugeFace, 0, eRD_StraightTurnoutWingOuterFace, 0);
       // planed faced of point rails for a fixed-diamond.
-      pbg_mark_end(2, 0, 10, 0);
+      pbg_mark_end(eRD_CurvedTurnoutWingGaugeFace, 0, eRD_CurvedTurnoutWingOuterFace, 0);
 
-      pbg_mark_end(26, 1, 27, 1);     // MS K-crossing check rails.
-      pbg_mark_end(28, 1, 29, 1);     // DS K-crossing check rails.
+      pbg_mark_end(eRD_KCrossingCheckMainSideGaugeFace, 1, eRD_KCrossingCheckMainSideOuterEdge, 1);
+      // MS K-crossing check rails.
+      pbg_mark_end(eRD_KCrossingCheckTurnoutSideGaugeFace, 1,
+        eRD_KCrossingCheckTurnoutSideOuterEdge, 1);     // DS K-crossing check rails.
     end;
 
   end;
@@ -4841,13 +4860,12 @@ var
 
     begin
 
-      if (start_index >= 0) and (start_index <= dots_index) and
-        (stop_index >= 0) and (stop_index <= dots_index) then begin
+      if (start_index >= 0) and (start_index <= dots_index) and (stop_index >= 0) and
+        (stop_index <= dots_index) then begin
         move_to := dots[start_index];
         line_to := dots[stop_index];
 
-        if check_limits(move_to, line_to)
-        then begin
+        if check_limits(move_to, line_to) then begin
           with pdf_page do begin
             set_pen_colour(blank);
             // first blank across..
@@ -4861,12 +4879,13 @@ var
   begin
     with now_keep do begin
 
-      if Length(list_bgnd_rails[0]) = 0 then
+      if Length(list_bgnd_rails[eRD_StraightStockGaugeFace]) = 0 then
         EXIT;    // no data for straight stock rail
-      if Length(list_bgnd_rails[3]) = 0 then
+      if Length(list_bgnd_rails[eRD_CurvedStockGaugeFace]) = 0 then
         EXIT;    // no data for curved stock rail
 
-      if (Length(list_bgnd_rails[4]) = 0) or (Length(list_bgnd_rails[5]) = 0)
+      if (Length(list_bgnd_rails[eRD_VeePointGaugeFace]) = 0) or
+        (Length(list_bgnd_rails[eRD_VeeSpliceGaugeFace]) = 0)
       // no data for vee rails
       then
         omitting_vee := True
@@ -4876,12 +4895,12 @@ var
       dots_index := 0 - 1;                    // first increment is to zero.
 
 
-      now_max := High(list_bgnd_rails[0]);    // straight stock rail
+      now_max := High(list_bgnd_rails[eRD_StraightStockGaugeFace]);    // straight stock rail
       edge_started := False;
 
       for now := 0 to now_max do begin
-        x_dots := pbg_get_w_dots(0, now);
-        y_dots := pbg_get_l_dots(0, now);
+        x_dots := pbg_get_w_dots(eRD_StraightStockGaugeFace, now);
+        y_dots := pbg_get_l_dots(eRD_StraightStockGaugeFace, now);
         if w_dims_valid and l_dims_valid then begin
           edge_started := True;
 
@@ -4900,12 +4919,12 @@ var
       ms_mid_dots_index := dots_index;
 
       if not omitting_vee then begin
-        now_max := High(list_bgnd_rails[4]);    // point rail
+        now_max := High(list_bgnd_rails[eRD_VeePointGaugeFace]);    // point rail
         edge_started := False;
 
         for now := now_max downto 0 do begin
-          x_dots := pbg_get_w_dots(4, now);
-          y_dots := pbg_get_l_dots(4, now);
+          x_dots := pbg_get_w_dots(eRD_VeePointGaugeFace, now);
+          y_dots := pbg_get_l_dots(eRD_VeePointGaugeFace, now);
           if w_dims_valid and l_dims_valid then begin
             edge_started := True;
 
@@ -4922,12 +4941,12 @@ var
         end;//next now
 
 
-        now_max := High(list_bgnd_rails[5]);    // splice rail
+        now_max := High(list_bgnd_rails[eRD_VeeSpliceGaugeFace]);    // splice rail
         edge_started := False;
 
         for now := 0 to now_max do begin
-          x_dots := pbg_get_w_dots(5, now);
-          y_dots := pbg_get_l_dots(5, now);
+          x_dots := pbg_get_w_dots(eRD_VeeSpliceGaugeFace, now);
+          y_dots := pbg_get_l_dots(eRD_VeeSpliceGaugeFace, now);
           if w_dims_valid and l_dims_valid then begin
             edge_started := True;
 
@@ -4946,12 +4965,12 @@ var
 
       ts_mid_dots_index := dots_index;
 
-      now_max := High(list_bgnd_rails[3]);    // curved stock rail
+      now_max := High(list_bgnd_rails[eRD_CurvedStockGaugeFace]);    // curved stock rail
       edge_started := False;
 
       for now := now_max downto 0 do begin
-        x_dots := pbg_get_w_dots(3, now);
-        y_dots := pbg_get_l_dots(3, now);
+        x_dots := pbg_get_w_dots(eRD_CurvedStockGaugeFace, now);
+        y_dots := pbg_get_l_dots(eRD_CurvedStockGaugeFace, now);
         if w_dims_valid and l_dims_valid then begin
           edge_started := True;
 
@@ -5024,7 +5043,8 @@ var
               edge_colour, blanking_colour);  // exit end (turnout) or Ctrl-1 end (plain track).
 
             if not omitting_vee then
-              pbg_modify_boundary(ts_mid_dots_index, ts_mid_dots_index + 1, edge_colour, blanking_colour);
+              pbg_modify_boundary(ts_mid_dots_index, ts_mid_dots_index + 1,
+                edge_colour, blanking_colour);
             // turnout road end.
           end;
         end;
@@ -5036,28 +5056,28 @@ var
             and (not Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.turnout_info2.semi_diamond_flag)            // not for half-diamond
             and (not Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.turnout_info2.gaunt_flag)                   // not for gaunt turnout
 
-            and (Length(list_bgnd_rails[1]) <> 0)    // data for straight switch rail
-            and (Length(list_bgnd_rails[2]) <> 0)    // data for curved stock rail
+            and (Length(list_bgnd_rails[eRD_StraightTurnoutWingGaugeFace]) <>
+            0)    // data for straight switch rail
+            and (Length(list_bgnd_rails[eRD_CurvedTurnoutWingGaugeFace]) <> 0)
+          // data for curved stock rail
           then begin
             if current_fill_colour = clWhite then
               set_pen_colour(clBlack)
             else
               set_pen_colour(clWhite);     // white points mark
 
-            x_dots := pbg_get_w_dots(1, 0);  // ms toe.
-            y_dots := pbg_get_l_dots(1, 0);
+            x_dots := pbg_get_w_dots(eRD_StraightTurnoutWingGaugeFace, 0);  // ms toe.
+            y_dots := pbg_get_l_dots(eRD_StraightTurnoutWingGaugeFace, 0);
 
-            if w_dims_valid and l_dims_valid
-            then begin
-              x_dots := pbg_get_w_dots(2, 0);  // ts toe.
-              y_dots := pbg_get_l_dots(2, 0);
+            if w_dims_valid and l_dims_valid then begin
+              x_dots := pbg_get_w_dots(eRD_CurvedTurnoutWingGaugeFace, 0);  // ts toe.
+              y_dots := pbg_get_l_dots(eRD_CurvedTurnoutWingGaugeFace, 0);
 
-              if w_dims_valid and l_dims_valid
-              then
-                draw_line(pbg_get_w_dots(1, 0),
-                  pbg_get_l_dots(1, 0),
-                  pbg_get_w_dots(2, 0),
-                  pbg_get_l_dots(2, 0));
+              if w_dims_valid and l_dims_valid then
+                draw_line(pbg_get_w_dots(eRD_StraightTurnoutWingGaugeFace, 0),
+                  pbg_get_l_dots(eRD_StraightTurnoutWingGaugeFace, 0),
+                  pbg_get_w_dots(eRD_CurvedTurnoutWingGaugeFace, 0),
+                  pbg_get_l_dots(eRD_CurvedTurnoutWingGaugeFace, 0));
             end;
           end;
         end;//mark points
@@ -5091,8 +5111,7 @@ begin          // print background templates...
       if not this_template.bg_copied then
         CONTINUE;  // no data, not on background.
 
-      if (not this_template.group_selected) and
-        print_group_only_flag then
+      if (not this_template.group_selected) and print_group_only_flag then
         CONTINUE;  // not in group. 0.78.b 10-12-02.
 
       //if (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.fb_kludge_template_code > 0)  // 209c
@@ -5101,17 +5120,22 @@ begin          // print background templates...
         CONTINUE;                                                      // foot lines not wanted.
 
       this_one_platforms_trackbed :=
-      //Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.
-      this_template.template_info.keep_dims.box_dims1.
-        platform_trackbed_info.adjacent_edges_keep;           // True = platforms and trackbed edges   206b
+        //Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.
+        this_template.template_info.keep_dims.box_dims1.
+        platform_trackbed_info.adjacent_edges_keep;
+      // True = platforms and trackbed edges   206b
 
       //this_one_trackbed_cess:=Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.platform_trackbed_info.draw_trackbed_cess_edge_keep;  // True = cess width instead of trackbed cutting line   206b
 
       //this_one_trackbed_cess_ms := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.platform_trackbed_info.draw_ms_trackbed_cess_edge_keep;
-      this_one_trackbed_cess_ms := this_template.template_info.keep_dims.box_dims1.platform_trackbed_info.draw_ms_trackbed_cess_edge_keep;
+      this_one_trackbed_cess_ms :=
+        this_template.template_info.keep_dims.box_dims1.platform_trackbed_info.
+        draw_ms_trackbed_cess_edge_keep;
       // True = cess width instead of trackbed cutting line 215a
       //this_one_trackbed_cess_ts := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.platform_trackbed_info.draw_ts_trackbed_cess_edge_keep;
-      this_one_trackbed_cess_ts := this_template.template_info.keep_dims.box_dims1.platform_trackbed_info.draw_ts_trackbed_cess_edge_keep;
+      this_one_trackbed_cess_ts :=
+        this_template.template_info.keep_dims.box_dims1.platform_trackbed_info.
+        draw_ts_trackbed_cess_edge_keep;
       // True = cess width instead of trackbed cutting line 215a
 
       //now_keep := Ttemplate(keeps_list.Objects[n]).bgnd_keep;    // next background keep.
@@ -5143,11 +5167,9 @@ begin          // print background templates...
             using_mapping_colour := True;
           end;
 
-          if box_dims1.use_pad_marker_colour and
-            (mapping_colours_print = 4)   // use pad settings instead
-            and (not pdf_black_white) and (not pdf_grey_shade)
-          then
-          begin
+          if box_dims1.use_pad_marker_colour and (mapping_colours_print =
+            4)   // use pad settings instead
+            and (not pdf_black_white) and (not pdf_grey_shade) then begin
             mapping_colour := calc_intensity(box_dims1.pad_marker_colour);
             using_mapping_colour := True;
           end;
@@ -5162,9 +5184,11 @@ begin          // print background templates...
               pbg_draw_diagram_mode;  // first draw template in diagrammatic mode.
 
             if (print_settings_form.output_centrelines_checkbox.Checked and
-              (not output_diagram_mode) and (not box_dims1.align_info.dummy_template_flag))
-              or (print_settings_form.output_bgnd_shapes_checkbox.Checked and
-                  box_dims1.align_info.dummy_template_flag)  // 212a dummy templates not part of track plan
+              (not output_diagram_mode) and (not
+              box_dims1.align_info.dummy_template_flag)) or
+              (print_settings_form.output_bgnd_shapes_checkbox.Checked and
+              box_dims1.align_info.dummy_template_flag)
+            // 212a dummy templates not part of track plan
 
             then begin
 
@@ -5173,7 +5197,8 @@ begin          // print background templates...
               else
                 linestyle := lsCentreline_normal;
 
-              for aq := 24 to 25 do begin         // track centre-lines.
+              for aq := eRD_MainRoadCentreLine to eRD_TurnoutRoadCentreLine do
+              begin         // track centre-lines.
 
 
                 if Length(list_bgnd_rails[aq]) = 0 then
@@ -5192,14 +5217,14 @@ begin          // print background templates...
                   //                                  if check_limits(move_to, line_to)=True then begin MoveTo(move_to.X, move_to.Y); LineTo(line_to.X, line_to.Y); end;
                   //                                  move_to:=line_to;
                   draw_line_style(
-                    Round(
-                    (list_bgnd_rails[aq][nk - 1].Y - grid_left) * scaw_out) + page_left_dots,
-                    Round(
-                    (list_bgnd_rails[aq][nk - 1].X - grid_top) * scaw_out) + page_top_dots,
-                    Round(
-                    (list_bgnd_rails[aq][nk].Y - grid_left) * scaw_out) + page_left_dots,
-                    Round(
-                    (list_bgnd_rails[aq][nk].X - grid_top) * scaw_out) + page_top_dots,
+                    Round((list_bgnd_rails[aq][nk - 1].Y - grid_left) *
+                    scaw_out) + page_left_dots,
+                    Round((list_bgnd_rails[aq][nk - 1].X - grid_top) *
+                    scaw_out) + page_top_dots,
+                    Round((list_bgnd_rails[aq][nk].Y - grid_left) * scaw_out) +
+                    page_left_dots,
+                    Round((list_bgnd_rails[aq][nk].X - grid_top) * scaw_out) +
+                    page_top_dots,
                     linestyle);
                 end;//next nk
 
@@ -5216,30 +5241,31 @@ begin          // print background templates...
           //drawn_full_aq2:=True;
 
 
-//          set_pen_style(psSolid);
-          if (rail_infill_i =
-            0)  // out for pdf, was  or ((scale*out_factor)<0.75)   // less than 18.75% for 4mm scale (control template) (10.71% for 7mm).
-            and (not output_diagram_mode) then
-          begin           //  outline (pen) mode ...
+          //          set_pen_style(psSolid);
+          if (rail_infill_i = 0)
+            // out for pdf, was  or ((scale*out_factor)<0.75)   // less than 18.75% for 4mm scale (control template) (10.71% for 7mm).
+            and (not output_diagram_mode) then begin           //  outline (pen) mode ...
             //  n.b. this mode does not automatically close the rail-ends.
             //  no infill for platforms
 
-//            set_pen_railcolour(True);
+            //            set_pen_railcolour(True);
 
                             {if (single_colour_flag=True) and (pdf_form.black_edges_checkbox.Checked=False)
                                then Pen.Color:=printbg_single_colour  // default colour for all background templates.
                                else Pen.Color:=printbgrail_colour;}
 
-            for aq := 0 to 23 do begin
+            for aq := eRD_StraightStockGaugeFace to eRD_AdjTrackMainSideFarOuterFace do begin
               // 24, 25 centre-lines already done.
-              if (not this_one_platforms_trackbed) and (aq > 15) then
+              if (not this_one_platforms_trackbed) and (aq in eRD_AdjacentTracks) then
                 CONTINUE;  // no adjacent tracks in output  // 206b
 
               case aq of     // 223d
-                16, 17, 20, 21:
+                eRD_AdjTrackTurnoutSideNearGaugeFace, eRD_AdjTrackTurnoutSideNearOuterFace,
+                eRD_AdjTrackMainSideNearGaugeFace, eRD_AdjTrackMainSideNearOuterFace:
                   if not print_settings_form.output_platforms_checkbox.Checked then
                     CONTINUE;         // platforms not wanted
-                18, 19, 22, 23:
+                eRD_AdjTrackTurnoutSideFarGaugeFace, eRD_AdjTrackTurnoutSideFarOuterFace,
+                eRD_AdjTrackMainSideFarGaugeFace, eRD_AdjTrackMainSideFarOuterFace:
                   if not print_settings_form.output_trackbed_edges_checkbox.Checked then
                     CONTINUE;    // trackbed edges not wanted
               end;//case
@@ -5247,7 +5273,7 @@ begin          // print background templates...
               pbg_outline_railedge(aq, 0, False);
             end;
 
-            for aq := 26 to aq_max_c do
+            for aq := eRD_KCrossingCheckMainSideGaugeFace to eRD_Unused do
               pbg_outline_railedge(aq, 0, False);   // K-crossing check rails.
 
             pbg_outline_railends;
@@ -5259,47 +5285,43 @@ begin          // print background templates...
             if not output_diagram_mode // detail mode only
             then begin
 
-              for rail := 1 to 3 do
-                pbg_draw_fill_rail(8);  // closure rails and curved stock rail.
+              for rail := eRD_StraightTurnoutWingGaugeFace to eRD_CurvedStockGaugeFace do
+                pbg_draw_fill_rail;  // closure rails and curved stock rail.
 
-              rail := 0;
+              rail := eRD_StraightStockGaugeFace;
               // straight stock rail.
-              pbg_draw_fill_rail(8);
+              pbg_draw_fill_rail;
 
-              for rail := 6 to 7 do
-                pbg_draw_fill_rail(8);  // check rails
+              for rail := eRD_MainSideCheckGaugeFace to eRD_TurnoutSideCheckGaugeFace do
+                pbg_draw_fill_rail;  // check rails
             end;
 
             if this_one_platforms_trackbed
             // no adjacent tracks in output 206b
             then begin
-              rail := 16;
-              // detail mode or diagram mode (for platforms/trackbed)
-              repeat
-                case rail of     // 223d
-                  16, 20:
+              for rail in [eRD_AdjTrackTurnoutSideNearGaugeFace,
+                  eRD_AdjTrackTurnoutSideFarGaugeFace, eRD_AdjTrackMainSideNearGaugeFace,
+                  eRD_AdjTrackMainSideFarGaugeFace] do begin
+                case rail of
+                  eRD_AdjTrackTurnoutSideNearGaugeFace,
+                  eRD_AdjTrackMainSideNearGaugeFace:
                     if print_settings_form.output_platforms_checkbox.Checked then
-                      pbg_draw_fill_rail(1);        // platforms
-                  18, 22:
+                      pbg_draw_fill_rail;        // platforms
+                  eRD_AdjTrackTurnoutSideFarGaugeFace,
+                  eRD_AdjTrackMainSideFarGaugeFace:
                     if print_settings_form.output_trackbed_edges_checkbox.Checked then
-                      pbg_draw_fill_rail(1);   // trackbed edges
-                end;//case
-                rail := rail + 2;
-                if output_diagram_mode and
-                  (not output_include_trackbed_edges) and (rail in [18, 22]) then
-                  rail := rail + 2;  // 206b no trackbed/cess in diagram mode
-              until rail > 22;
+                      pbg_draw_fill_rail;   // trackbed edges
+                end; // case
+              end;
             end;
 
             if not output_diagram_mode // detail mode only
             then begin
 
-              rail := 26;
-              repeat
-                pbg_draw_fill_rail(1);
-                // K-crossing check rails.
-                rail := rail + 2;
-              until rail > 28;
+              for rail in [eRD_KCrossingCheckMainSideGaugeFace,
+                  eRD_KCrossingCheckTurnoutSideGaugeFace] do begin
+                pbg_draw_fill_rail;      // K-crossing MS check rails.
+              end;
 
               pbg_draw_fill_vee;    // do complete vee in one go ...
 
@@ -5311,35 +5333,32 @@ begin          // print background templates...
                                         then Pen.Color:=printbg_single_colour  // default colour for all background templates.
                                         else Pen.Color:=printbgrail_colour;}
 
-              aq := 1;
+              aq := eRD_StraightTurnoutWingGaugeFace;
 
-              if (Length(list_bgnd_rails[aq]) <> 0) and
-                (planing_end_aq1 > 0) { and (drawn_full_aq1=False)} then
-              begin
+              if (Length(list_bgnd_rails[aq]) <> 0) and (planing_end_aq1 > 0)
+              { and (drawn_full_aq1=False)} then begin
                 move_to.X := pbg_get_w_dots(aq, 0);
                 move_to.Y := pbg_get_l_dots(aq, 0);
                 for now := 1 to planing_end_aq1{+1} do begin
                   line_to.X := pbg_get_w_dots(aq, now);
                   line_to.Y := pbg_get_l_dots(aq, now);
-                  if check_limits(move_to, line_to)
-                    then begin
+                  if check_limits(move_to, line_to) then begin
                     draw_line_style(move_to, line_to, lsRail);
                   end;
                   move_to := line_to;
                 end;//for
               end;
 
-              aq := 2;
-              if (Length(list_bgnd_rails[aq]) <> 0) and
-                (planing_end_aq2 > 0) { and (drawn_full_aq2=False)} then
-              begin
+              aq := eRD_CurvedTurnoutWingGaugeFace;
+              if (Length(list_bgnd_rails[aq]) <> 0) and (planing_end_aq2 > 0)
+              { and (drawn_full_aq2=False)} then begin
                 move_to.X := pbg_get_w_dots(aq, 0);
                 move_to.Y := pbg_get_l_dots(aq, 0);
                 for now := 1 to planing_end_aq2{+1} do begin
                   line_to.X := pbg_get_w_dots(aq, now);
                   line_to.Y := pbg_get_l_dots(aq, now);
                   if check_limits(move_to, line_to) then
-                      draw_line_style(move_to, line_to, lsRail);
+                    draw_line_style(move_to, line_to, lsRail);
                   move_to := line_to;
                 end;//for
               end;
@@ -5357,8 +5376,7 @@ begin          // print background templates...
 
   // finally add the rail-joint marks over the rail infill...   // 209c moved outside loop
 
-  if print_settings_form.output_rails_checkbox.Checked and
-    (not output_diagram_mode) then
+  if print_settings_form.output_rails_checkbox.Checked and (not output_diagram_mode) then
     pdf_bgnd_marks(grid_left, grid_top, max_list_index, True, pdf_page);
 
 end;
@@ -5570,8 +5588,8 @@ begin
         except
           alert(2, '    image  preparation  failure',
             'Sorry, preparation of the following picture shape for PDF output has failed:'
-            + '||' + str +
-            '||The failure was caused by insufficient resources in your system.' +
+            +
+            '||' + str + '||The failure was caused by insufficient resources in your system.' +
             '||Try re-scanning the image at a lower resolution, or if it is colour image try re-scanning in grey-scale or black and white.',
             '', '', '', '', '', 'O K', 0);
           EXIT;
@@ -5596,7 +5614,9 @@ begin
           for incol := 0 to (inwidth - 1) do begin
             pixel_colour := image_bitmap.Canvas.Pixels[incol, inrow];
             if pixel_colour <> clWhite then
-              rotated_bitmap.Canvas.Pixels[inheight - 1 - inrow, incol] := calc_intensity(pixel_colour);
+              rotated_bitmap.Canvas.Pixels[inheight - 1 - inrow, incol] :=
+                calc_intensity(pixel_colour);
+
           end;//for
           pdf_form.row_progressbar.StepIt;
 

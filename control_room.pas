@@ -23,7 +23,7 @@
 ====================================================================================
 *)
 
-{ }
+
 unit control_room;
 
 {$MODE Delphi}
@@ -664,7 +664,8 @@ uses
   trackbed_unit,
 
   {IcsMD5,} make_slip_unit, create_tandem,     // 217a
-  curve;
+  curve,
+  rail_data_unit;
 
 {$R *.lfm}
 
@@ -753,8 +754,9 @@ procedure wine_modal_warning(str: string);
 
 begin
   if alert(1, 'php/990    running  under  Linux / Wine / CrossOver',
-    'You are running Templot0 under Linux/Wine/CrossOver.' + '||The ' +
-    str + ' dialog is required to be modal, which means that it must be completed before Templot0 can continue.' + '||Modal dialogs are not fully supported under Wine, so while the dialog window is showing you must click on the dialog window ONLY.' + '||If you click elsewhere on the screen the dialog may become hidden behind other windows, after which Templot0 will not be able to continue until you find the dialog again and complete it.' + '||If you cannot do that, you can press the `0ESC`2 key (top-left) on the keyboard to cancel the operation and try again.' + '||The same applies to this message dialog, while it is showing you must not click anywhere else.' + '||This is a feature of Wine beyond Templot0''s control.' + '||If you have problems with this, please post a message on the <A HREF="go_to_templot_club.85a"><SPAN STYLE="color:#0000FF;"><U>Templot&nbsp;Club</U></SPAN></A> user forum.', '', '', '', 'more  information', '', 'continue', 0) = 4 then
+    'You are running Templot0 under Linux/Wine/CrossOver.' + '||The ' + str +
+    ' dialog is required to be modal, which means that it must be completed before Templot0 can continue.'
+    + '||Modal dialogs are not fully supported under Wine, so while the dialog window is showing you must click on the dialog window ONLY.' + '||If you click elsewhere on the screen the dialog may become hidden behind other windows, after which Templot0 will not be able to continue until you find the dialog again and complete it.' + '||If you cannot do that, you can press the `0ESC`2 key (top-left) on the keyboard to cancel the operation and try again.' + '||The same applies to this message dialog, while it is showing you must not click anywhere else.' + '||This is a feature of Wine beyond Templot0''s control.' + '||If you have problems with this, please post a message on the <A HREF="go_to_templot_club.85a"><SPAN STYLE="color:#0000FF;"><U>Templot&nbsp;Club</U></SPAN></A> user forum.', '', '', '', 'more  information', '', 'continue', 0) = 4 then
     startup_modal_warning(True); // true=over-ride msg prefs
 end;
 //______________________________________________________________________________
@@ -1371,7 +1373,7 @@ begin
             +
             '||( The laws of mathematics prevent a viable turnout being generated for every'
             +
-            ' possible combination of the various settings.)||You now have 3 options ...'  ,
+            ' possible combination of the various settings.)||You now have 3 options ...',
             '', '', '', 're-calculate  and  show  diagnostic  information',
             'cancel  -  restart  with  new  B-6  turnout', 'try  nearest  turnout  to  fit', 0)
           of
@@ -1756,13 +1758,7 @@ begin
         'Your computer is currently set to use multiple monitors.' +
         '||Do you want the Templot0 trackpad to allow use of the full screen area across all monitors?'
         + '||A small margin will be allowed initially at the right and bottom borders for easier resizing to a smaller area.'
-        + '||Be aware that if you answer yes, Templot0 will use more memory and the screen response may be slower on older systems.'
-        + ' For the fastest screen response, arrange the primary monitor to be on the left.' +
-        '||If you answer no, the maximum usable size of the Templot0 trackpad will be restricted to match your primary monitor only.'
-        +
-        ' If you then extend the trackpad beyond that, part of the trackpad area will be unusable.| ',
-        '', '', '', 'no  -  match  primary  monitor  only', '', 'yes  -  use  all  available  monitors',
-        0) = 6 then begin
+        + '||Be aware that if you answer yes, Templot0 will use more memory and the screen response may be slower on older systems.' + ' For the fastest screen response, arrange the primary monitor to be on the left.' + '||If you answer no, the maximum usable size of the Templot0 trackpad will be restricted to match your primary monitor only.' + ' If you then extend the trackpad beyond that, part of the trackpad area will be unusable.| ', '', '', '', 'no  -  match  primary  monitor  only', '', 'yes  -  use  all  available  monitors', 0) = 6 then begin
         he_wants_multiple_monitors := True;
         log.Info('Selected multiple monitors');
       end
@@ -1779,8 +1775,7 @@ begin
       alert(3, '   Templot0   -   Caps Lock  ON',
         'Your computer currently has the CapsLock ON (keyboard indicator light showing).' +
         '||While the Caps Lock is on Templot0 will highlight any background templates on the drawing as the mouse pointer'
-        +
-        ' passes over their name labels.' +
+        + ' passes over their name labels.' +
         '||If you have just started Templot0 for the first time you may find this confusing.' +
         '||You can prevent this by switching the Caps Lock OFF. To do this press the  `0CAPS LOCK`2  key once so that the indicator light is no longer showing.' + '||Please click the green OK bar to continue.',
         '', '', '', '', '', 'O K', 0);
@@ -2179,8 +2174,7 @@ var
 
 begin
 
-  if Application.Title = 'TemplotMEC'
-  then
+  if Application.Title = 'TemplotMEC' then
     logo_img_path := Config.GetFilePath(csfiTMlogo)
   else
   if Application.Title = 'OpenTemplot' then
@@ -2255,12 +2249,14 @@ begin
 
         with boxmru_list do begin
           if Count > 0 then
-            SaveToFile(Config.GetFilePath(csfiBoxMRU));   // 0.82.a 22-08-06 mru list for box files restore.
+            SaveToFile(Config.GetFilePath(csfiBoxMRU));
+          // 0.82.a 22-08-06 mru list for box files restore.
         end;//with
 
         with bgsmru_list do begin
           if Count > 0 then
-            SaveToFile(Config.GetFilePath(csfiBgndMRU));   // 0.82.a 22-08-06 mru list for bgs files restore.
+            SaveToFile(Config.GetFilePath(csfiBgndMRU));
+          // 0.82.a 22-08-06 mru list for bgs files restore.
         end;//with
 
         save_custom_gauges;
@@ -2665,12 +2661,9 @@ const
     '||Re-origination causes all drawing data to be shifted to a new origin (zero point).' +
     '||This is similar in effect to a normal shift (e.g. with mouse action F7), except that:' +
     '||a. Re-origination data entered here remains in force until you come back here and change it or do a B-6 TURNOUT RESET.'
-    +
-    ' It is not affected by mouse shifts and is not cancelled by clicking OMIT or CLEAR for shifts and rotations.'
-    +
-    '||b. Re-origination takes place after any data distortions and is therefore unaffected by them.'
-    +
-    ' Normal shifts take place before any data distortions, and are therefore distorted.' +
+    + ' It is not affected by mouse shifts and is not cancelled by clicking OMIT or CLEAR for shifts and rotations.'
+    + '||b. Re-origination takes place after any data distortions and is therefore unaffected by them.'
+    + ' Normal shifts take place before any data distortions, and are therefore distorted.' +
     '||c. Re-origination applies globally for as long as it remains in force, so all templates drawn on the trackpad or in the storage box will be' + ' re-originated, but will return to normal when re-origination is cancelled. The re-origination data is not included in the template files' + ' when they are saved from the box, and must be re-entered as required for each working session.' + '||( Handy hint - make a note of your re-origination settings in your memo text. They can then be quickly copied and pasted back into the data entry form after reloading.)' + '||This re-origination function is intended primarily for use with data distortions when templates' + ' are being output for use elsewhere (e.g. exported in DXF format) - there should normally be no reason to use it when printing directly' + ' from Templot0. For more information select the PROGRAM > EXPERT > DATA DISTORTIONS > ? HELP menu item.' + '||Enter X and Y settings ( + / -  mm ) for the amount of shift required. X dimensions are positive screen left-to-right,' + ' Y dimensions are positive screen bottom-to-top.' + '||Note that re-origination affects only the drawing data. Grid lines and printed trim margins are unaffected (and are not included in DXF files).';
 
 var
@@ -2888,7 +2881,8 @@ end;
 procedure Tcontrol_room_form.FormDestroy(Sender: TObject);
 
 var
-  n, aq, index: integer;
+  n, index: integer;
+  aq: ERailData;
 
 begin
   if keeps_list.Count > 0      // free all memory used...
@@ -2900,7 +2894,7 @@ begin
         if bg_copied = True then begin
           with bgnd_keep do begin
             SetLength(list_bgnd_marks, 0);
-            for aq := 0 to aq_max_c do begin
+            for aq in ERailData do begin
               SetLength(list_bgnd_rails[aq], 0);
             end;//for next aq
 
@@ -4016,8 +4010,7 @@ const
     '||Use these settings to select the level of graphics parameter limit checking.' +
     ' This controls the maximum size of object which can be drawn on the screen or printed.' +
     '||For <B>Windows NT / 2000 / XP / Vista / Windows 7</B> the recommended setting is 32-bit.'
-    +
-    '||Change to the 16-bit setting if you are using an older printer and experience printing problems.'
+    + '||Change to the 16-bit setting if you are using an older printer and experience printing problems.'
     + '||Change to the 24-bit setting if you are using Windows NT / 2000 with original printer drivers.'
     + '||Change to the no-limits setting if you are content to leave all parameter checking to the Windows graphics systems. This will give the fastest program response,' + ' but may cause problems and/or graphics hardware malfunctions when working at extreme zoom-in or printing very large picture shape images.' + '|<HR NOSHADE COLOR="#EE7700">' + 'For <B>Windows 95 / 98 / ME</B> the setting is fixed at 16-bit and cannot be changed. This is a limitation in Windows, not Templot0.' + ' When zooming-in on the screen and printing at high resolution you may find that you lose some drawing features (e.g. large background shapes and very long timbers).' + ' Background picture shape images may not print on full-size templates. For more information click the `0PICTURE SHAPES`1 tab on the `0print pages`3 window when it appears.' + '|<HR NOSHADE COLOR="#EE7700">' + 'To change the zoom-in limit, click the `0PROGRAM > MAX EXPLODE (ZOOM-IN)...`1 menu item.';
 
@@ -4663,8 +4656,7 @@ const
   jpg_help_str: string = '      `0JPG  Image  Quality`9' +
     '||Enter a setting between 1% and 100%' +
     '||This setting controls the image quality when saving image files in JPG format from Templot0.'
-    +
-    '||Higher settings create a better-quality image but also a larger file size.' +
+    + '||Higher settings create a better-quality image but also a larger file size.' +
     '||The default setting is for 100% best quality.' +
     '||You can reduce this if you need to create a smaller file size. A setting below about 80% will cause a noticeable reduction in image quality.' + '||green_panel_begin tree.gif Generally it is better to use PNG format rather than JPG when saving image files from Templot0.' + '||In most cases PNG will create a smaller file size with 100% image quality. The JPG format is intended only for photographic images from a camera or a scanner.green_panel_end';
 
@@ -4696,23 +4688,6 @@ begin
     Application.Title + ':' + #13 + #13 + '                ' + str + #13 +
     #13 + 'This release of ' + Application.Title + ' is not intended for practical use.' +
     #13 + #13 + 'A full working version of Templot2 is available (free) from the templot.com web site.');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 end;
 //______________________________________________________________________________
 
