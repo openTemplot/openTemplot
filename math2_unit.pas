@@ -23,7 +23,7 @@
 ====================================================================================
 *)
 
-{ }
+
 unit math2_unit;
 
 {$MODE Delphi}
@@ -62,7 +62,8 @@ uses
   control_room, math_unit, info_unit, keep_select, shove_timber, alert_unit,
   help_sheet, grid_unit, wait_message,
   shoved_timber,
-  curve;
+  curve,
+  rail_data_unit;
 
 var
   dummy: double = 0;
@@ -462,9 +463,11 @@ begin
 
       x2 := rad1_orgx;
       y2 := rad1_orgy;
-      r2 := ABS(nomrad) + bgnd_rail_offset * g / 2;   // (bgnd template may be n.g. but is now the control)
+      r2 := ABS(nomrad) + bgnd_rail_offset * g / 2;
+      // (bgnd template may be n.g. but is now the control)
 
-      Result := get_circle_intersections(x1, y1, r1, x2, y2, r2, xi, yi, k1_i, k2_i, xj, yj, k1_j, k2_j);
+      Result := get_circle_intersections(x1, y1, r1, x2, y2, r2, xi, yi, k1_i,
+        k2_i, xj, yj, k1_j, k2_j);
 
       if Result < 1 then
         EXIT;  // no usable intersections
@@ -570,7 +573,8 @@ begin
   else begin
     temp := TAN(xing_angle);
     if ABS(temp) > minfp then
-      angle_str := round_str(xing_angle * 180 / Pi, 2) + ' degrees ( 1: ' + round_str(1 / temp, 2) + '  RAM )'
+      angle_str := round_str(xing_angle * 180 / Pi, 2) + ' degrees ( 1: ' +
+        round_str(1 / temp, 2) + '  RAM )'
     else
       angle_str := '0';
   end;
@@ -634,12 +638,8 @@ begin
           alert_option2a_click_code := 1;    // zoom in   205d
           alert_option2b_click_code := 2;    // zoom out
 
-          i := alert(3, 'php/109    notch  on  intersection',
-            top_str + next_str +
-            'There is only one usable intersection, now shown by the position of the notch at the centre of the trackpad.'
-            + '||The intersection angle is  ' + angle_str + '.| ',
-            '', '_2a_+  zoom in_2b_-  zoom out', '',
-            'more  information', 'cancel  -  reset  notch', 'continue', 4);
+          i := alert(3, 'php/109    notch  on  intersection', top_str +
+            next_str + 'There is only one usable intersection, now shown by the position of the notch at the centre of the trackpad.' + '||The intersection angle is  ' + angle_str + '.| ', '', '_2a_+  zoom in_2b_-  zoom out', '', 'more  information', 'cancel  -  reset  notch', 'continue', 4);
 
           if i = 4 then
             alert_help(0, notch_intersection_help_str, '');
@@ -681,13 +681,17 @@ begin
 
         if making_diamond = True then begin
           i := alert(7, 'php/109    make  diamond - crossing  at  intersection',
-            'This function uses the pegging notch.'
-            +
+            'This function uses the pegging notch.' +
             '||There are two places where the templates intersect, or would intersect if sufficiently extended in length. Templot0 needs to know which intersection is the one you want.' + '||If the place now shown by the position of the notch (ringed in yellow) is not the place where you want to make a diamond-crossing, please click|TRY OTHER INTERSECTION.' + '||If the trackpad appears to be blank or you do not understand what you are seeing, please click|TRY OTHER INTERSECTION.' + '||For some explanations and diagrams, please click|MORE INFORMATION.' + '||The intersection angle is  ' + angle_str + '.', '', '_2a_+  zoom in_2b_-  zoom out', 'more  information', 'try  other  intersection', 'cancel  diamond - crossing   -   reset  notch      ', 'continue   -   make  diamond - crossing  at  notch    ', 3);
         end
         else begin
           i := alert(4, 'php/109    notch  on  intersection',
-            'There are two places where the templates intersect, or would intersect if sufficiently extended in length.' + '||Is the notch on the required intersection, now showing at the centre of the trackpad?' + '||The intersection angle is  ' + angle_str + '.| ', '', '_2a_+  zoom in_2b_-  zoom out', 'more  information', 'no  -  try  other  intersection  instead', 'cancel  -  reset  notch', 'yes  -  continue', 3);
+            'There are two places where the templates intersect, or would intersect if sufficiently extended in length.'
+            +
+            '||Is the notch on the required intersection, now showing at the centre of the trackpad?' +
+            '||The intersection angle is  ' + angle_str + '.| ', '', '_2a_+  zoom in_2b_-  zoom out',
+            'more  information', 'no  -  try  other  intersection  instead',
+            'cancel  -  reset  notch', 'yes  -  continue', 3);
         end;
 
         case i of
@@ -727,7 +731,8 @@ begin
   // extra ...
 
   if (Result = True) and (plain_track = False) and (move_notch = True) and
-    (rail_offset_control <> 0) and (rail_offset_bgnd <> 0) and (ABS(TAN(xing_angle)) > minfp) then begin
+    (rail_offset_control <> 0) and (rail_offset_bgnd <> 0) and (ABS(TAN(xing_angle)) > minfp) then
+  begin
     if 1 / ABS(TAN(xing_angle)) < 1.5 then
       EXIT;
 
@@ -749,8 +754,8 @@ begin
       alert_option2b_click_code := 2;    // zoom out
 
       i := alert(3, 'php/111    notch  now  on  rail  intersection',
-        'The pegging notch is now on the requested rail intersection.'
-        + '||Do you want to set the ' + hd_str +
+        'The pegging notch is now on the requested rail intersection.' +
+        '||Do you want to set the ' + hd_str +
         ' in the control template to a V-crossing angle of ' + angle_str +
         ' and peg the V-crossing onto the notch?' +
         '||The fixing peg will be moved to the FP position (`0CTRL-4`2).' +
@@ -1145,15 +1150,16 @@ begin
   if plain_track = False then begin
     if alert(6, 'php/110    make  diamond - crossing  at  intersection',
       'Sorry, this function is not available because the control template is not plain track.'
-      + '||Try again after using the `0TEMPLATE > CONVERT TO PLAIN TRACK`1 menu function, or split off the approach or exit track using the `0TOOLS > MAKE SPLIT >`1 menu options accordingly.', '', '', '', 'more  information', 'cancel', '', 4) = 4 then
+      +
+      '||Try again after using the `0TEMPLATE > CONVERT TO PLAIN TRACK`1 menu function, or split off the approach or exit track using the `0TOOLS > MAKE SPLIT >`1 menu options accordingly.', '', '', '', 'more  information', 'cancel', '', 4) = 4 then
       help(0, diamond_intersection_help_str, '');
     EXIT;
   end;
 
   if slewing = True then begin
     if alert(6, 'php/110    make  diamond - crossing  at  intersection',
-      'Sorry, this function is not available because the control template contains a slew.'
-      + '||If the intersection is not within the slewing zone, try again after using the `0TOOLS > MAKE SPLIT >`1 menu options accordingly.' + '||If the intersection is within the slewing zone, you may be able to perform this operation manually by moving the fixing peg along the track (`0CTRL+F8`2 mouse action).', '', '', '', 'more  information', 'cancel', '', 4) = 4 then
+      'Sorry, this function is not available because the control template contains a slew.' +
+      '||If the intersection is not within the slewing zone, try again after using the `0TOOLS > MAKE SPLIT >`1 menu options accordingly.' + '||If the intersection is within the slewing zone, you may be able to perform this operation manually by moving the fixing peg along the track (`0CTRL+F8`2 mouse action).', '', '', '', 'more  information', 'cancel', '', 4) = 4 then
       help(0, diamond_intersection_help_str, '');
     EXIT;
   end;
@@ -1175,9 +1181,9 @@ begin
 
     1: begin
       if alert(6, 'php/110    make  diamond - crossing  at  intersection',
-        'One or more of the crossing angles would be shorter than 1:1.5'
-        + '||Sorry, crossings shorter than 1:1.5 are not supported in Templot0.'
-        + '||On the prototype such short crossings are not be made from standard track components. They are specially designed and constructed, and designs vary.' + '||For a model, you can create the basis of a template by overlaying plain tracks. Construction details from your chosen prototype can then be marked on the printed template.| ', '', '', '', 'more  information', 'cancel', '', 4) = 4 then
+        'One or more of the crossing angles would be shorter than 1:1.5' +
+        '||Sorry, crossings shorter than 1:1.5 are not supported in Templot0.' +
+        '||On the prototype such short crossings are not be made from standard track components. They are specially designed and constructed, and designs vary.' + '||For a model, you can create the basis of a template by overlaying plain tracks. Construction details from your chosen prototype can then be marked on the printed template.| ', '', '', '', 'more  information', 'cancel', '', 4) = 4 then
         help(0, diamond_intersection_help_str, '');
     end;
   end;//case
@@ -1246,9 +1252,7 @@ label
 
   begin
     ShowMessage(
-      grow_str + 'No adjustment to the control template appears to be needed to meet the background template.'
-      + #13 + #13 +
-      'If this is not the case, try adjusting the control template manually.');
+      grow_str + 'No adjustment to the control template appears to be needed to meet the background template.' + #13 + #13 + 'If this is not the case, try adjusting the control template manually.');
 
   end;
   ////////////////////////////////////////////////////
@@ -1338,10 +1342,12 @@ begin
             xorg := old_xorg;
 
             if boundary = -1 then
-              ShowMessage(grow_str + 'Sorry, unable to find a matching MS (main-side) boundary on the selected background template.' + try_manual_str)
+              ShowMessage(grow_str +
+              'Sorry, unable to find a matching MS (main-side) boundary on the selected background template.' +
+              try_manual_str)
             else
-              ShowMessage('Sorry, unable to find the required boundary on the selected background template.' +
-              try_manual_str);
+              ShowMessage('Sorry, unable to find the required boundary on the selected background template.'
+              + try_manual_str);
             EXIT;
           end;
           Inc(been_here_before);
@@ -1408,8 +1414,8 @@ begin
               // 250 arbitrary limit
               then begin
                 ShowMessage(
-                grow_str + 'Sorry, unable to find a near boundary on the selected background template.' +
-                try_manual_str);
+                grow_str + 'Sorry, unable to find a near boundary on the selected background template.'
+                + try_manual_str);
                 EXIT;
               end;
 
@@ -1611,7 +1617,8 @@ begin
                 EXIT;
 
             261:
-              if bg_pt = False    // not MEXITP for plain track    menu should be disabled!         217a
+              if bg_pt = False
+              // not MEXITP for plain track    menu should be disabled!         217a
               then begin
                 temp := SQR(loc_261.notch_x - end0.notch_x) + SQR(
                 loc_261.notch_y - end0.notch_y);
@@ -1716,8 +1723,8 @@ begin
       if ABS((diag9 / 2) / arc_rad) > 0.98    // more than 90 degs?  ARCSIN protection
       then begin
         ShowMessage(grow_str +
-          'Sorry, the control template is too far from the background template.'
-          + #13 + #13 + 'Please extend the control template and then try again.');
+          'Sorry, the control template is too far from the background template.' +
+          #13 + #13 + 'Please extend the control template and then try again.');
         EXIT;
       end;
 
@@ -1763,7 +1770,8 @@ begin
           xorg := old_xorg;
 
           ShowMessage(
-            grow_str + 'Sorry, the length of the control template would be too short.' + try_manual_str);
+            grow_str + 'Sorry, the length of the control template would be too short.' +
+            try_manual_str);
           EXIT;
         end;
         xorg := turnoutx;     // plain track
@@ -1777,8 +1785,8 @@ begin
           xorg := old_xorg;
 
           ShowMessage(
-            grow_str + 'Sorry, the length of the control template would be too short.'
-            + #13 + #13 + 'Try adjusting the control template manually or converting to plain track.');
+            grow_str + 'Sorry, the length of the control template would be too short.' +
+            #13 + #13 + 'Try adjusting the control template manually or converting to plain track.');
           EXIT;
         end;
       end;
@@ -1842,8 +1850,8 @@ begin
           turnoutx := old_turnoutx;
           xorg := old_xorg;
 
-          ShowMessage(grow_str + 'Sorry, an error occurred.' +
-            #13 + #13 + 'Please try adjusting the control template manually instead.');
+          ShowMessage(grow_str + 'Sorry, an error occurred.' + #13 +
+            #13 + 'Please try adjusting the control template manually instead.');
           EXIT;
         end;
 
@@ -1852,7 +1860,8 @@ begin
       while k_diff > (Pi / 2) do
         k_diff := k_diff - Pi;    // more than 90, subtract 180 degrees.
 
-      if (ABS(x_diff) > (scale / 20))    // arbitrary from experiments 1/20ft = 0.6in  = 0.2mm at 4mm/ft.
+      if (ABS(x_diff) > (scale / 20))
+        // arbitrary from experiments 1/20ft = 0.6in  = 0.2mm at 4mm/ft.
         or (ABS(y_diff) > (scale / 20)) or (ABS(k_diff) > 0.01)
       // radians  arbitrary from experiments = 0.57 degrees
       then begin
@@ -1869,10 +1878,12 @@ begin
         xorg := old_xorg;
 
         if boundary = -1 then
-          ShowMessage(grow_str + 'Sorry, unable to find a matching MS (main-side) boundary on the selected background template.' + try_manual_str)
+          ShowMessage(grow_str +
+            'Sorry, unable to find a matching MS (main-side) boundary on the selected background template.' +
+            try_manual_str)
         else
-          ShowMessage('The control template does not align with the background template at that boundary.' +
-            try_manual_str);
+          ShowMessage('The control template does not align with the background template at that boundary.'
+            + try_manual_str);
         EXIT;
       end;
 
@@ -1882,13 +1893,7 @@ begin
 
         if alert(4, 'php/203    extend / shorten  the  control  template  to  meet',
           'Small error found:' +
-          '||If extended the control template will not align perfectly with the background template, but may be acceptable for use.'
-          + '||The discrepancies will be:|' + '|on X: ' +
-          round_str(ABS(x_diff), 3) + ' mm' + '|on Y: ' + round_str(ABS(y_diff), 3) +
-          ' mm' + '|on angle: ' + round_str(ABS(k_diff * 180 / Pi), 3) + ' degrees'
-          + '||It is likely that there is a small error in the alignments which could be corrected.'
-          + '||Do you want to continue uncorrected?',
-          '', '', '', 'continue  anyway', 'cancel', '', 0) = 5 then begin
+          '||If extended the control template will not align perfectly with the background template, but may be acceptable for use.' + '||The discrepancies will be:|' + '|on X: ' + round_str(ABS(x_diff), 3) + ' mm' + '|on Y: ' + round_str(ABS(y_diff), 3) + ' mm' + '|on angle: ' + round_str(ABS(k_diff * 180 / Pi), 3) + ' degrees' + '||It is likely that there is a small error in the alignments which could be corrected.' + '||Do you want to continue uncorrected?', '', '', '', 'continue  anyway', 'cancel', '', 0) = 5 then begin
           arc_length := 0;          // for finally
           turnoutx := old_turnoutx;
           xorg := old_xorg;
@@ -1900,8 +1905,7 @@ begin
       if was_end_swapped = True then begin
         swap_end_for_end;            // swap it back for him
 
-        if (plain_track = False) and (half_diamond = False) and (arc_length <> 0)
-        then begin
+        if (plain_track = False) and (half_diamond = False) and (arc_length <> 0) then begin
 
           xorg := xorg + arc_length;    // extension was on turnout approach track
           if xorg < 0 then
@@ -2036,7 +2040,8 @@ begin
           CONTINUE;  // 215a   Ctrl-0 and Ctrl-1 not valid if any blanking (startx>0)
 
         if (bgnd_no_xing = True) and (nb > 1) then
-          CONTINUE;  // 215a   Ctrl-6, Ctrl-9, TOLP not valid if template shortened to exclude the crossing (turnoutx<fpx)
+          CONTINUE;
+        // 215a   Ctrl-6, Ctrl-9, TOLP not valid if template shortened to exclude the crossing (turnoutx<fpx)
 
         // calc distance...
 
@@ -2089,7 +2094,8 @@ begin
 
         wait_form.wait_progressbar.StepIt;
         if wait_form.wait_progressbar.Position = wait_form.wait_progressbar.Max then
-          wait_form.wait_progressbar.Position := wait_form.wait_progressbar.Min;    // wrap if necessary
+          wait_form.wait_progressbar.Position := wait_form.wait_progressbar.Min;
+        // wrap if necessary
 
         Application.ProcessMessages;  // to show the wait form updating
 
@@ -2187,7 +2193,8 @@ begin
       then begin
         ShowMessage(
           'Sorry, the extended the control template does not align with the background template.'
-          + #13 + #13 + 'Try adjusting the control template manually instead.');
+          +
+          #13 + #13 + 'Try adjusting the control template manually instead.');
         EXIT;
       end;
 
@@ -2196,13 +2203,7 @@ begin
 
         if alert(4, 'php/203    grow  the  control  template  to  meet',
           'Small error found:' +
-          '||The extended the control template does not align perfectly with the background template, but may be acceptable for use.'
-          + '||The discrepancy is ' + round_str(ABS(k_diff * 180 / Pi), 3) +
-          ' degrees away from tangency.' +
-          '||It is likely that there is a small error in the alignments which could be corrected.'
-          +
-          '||Do you want to continue uncorrected?', '', '', '', 'continue  anyway',
-          'cancel', '', 0) = 5 then begin
+          '||The extended the control template does not align perfectly with the background template, but may be acceptable for use.' + '||The discrepancy is ' + round_str(ABS(k_diff * 180 / Pi), 3) + ' degrees away from tangency.' + '||It is likely that there is a small error in the alignments which could be corrected.' + '||Do you want to continue uncorrected?', '', '', '', 'continue  anyway', 'cancel', '', 0) = 5 then begin
           EXIT;
         end;
       end;

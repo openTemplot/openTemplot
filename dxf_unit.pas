@@ -23,7 +23,7 @@
 ====================================================================================
 *)
 
-{ }
+
 unit dxf_unit;
 
 {$MODE Delphi}
@@ -155,7 +155,7 @@ uses
   control_room, pad_unit, help_sheet, chat_unit, colour_unit, math_unit, alert_unit,
   bgkeeps_unit, keep_select,
   background_shapes,
-  bgnd_unit, preview_unit, print_unit, print_settings_unit;
+  bgnd_unit, preview_unit, print_unit, print_settings_unit, rail_data_unit;
 
 var
   layer_str: array[0..17] of string;
@@ -180,7 +180,8 @@ var
   rail_foot_z: double = 0 - 2.75;
   // mm default rail base 6" at 5.5 mm scale bleow zero datum (rail top).
   timb_top_z: double = 0 - 3.5;     // mm default timbertop 7.6" at 5.5 mm scale below rail top.
-  timb_bot_z: double = 0 - 6.0;     // mm default timber bottom 13.1" at 5.5 mm scale below rail top.
+  timb_bot_z: double = 0 - 6.0;
+// mm default timber bottom 13.1" at 5.5 mm scale below rail top.
 
 procedure dxf_background_keeps(var dxf_file: TextFile); forward;  // do the background keeps.
 procedure dxf_shapes(var dxf_file: TextFile); forward;            // do any background shapes.
@@ -218,7 +219,8 @@ begin
 end;
 //___________________________________________________________________________________________
 
-function dxf_3dface(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4: double; layer: integer): string;
+function dxf_3dface(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4: double;
+  layer: integer): string;
   // make up a four-cornered 3-D face.
 
 var
@@ -282,9 +284,10 @@ DXF: X value; APP: 3D point
 }
 
   s := '  0|3DFACE|  8|' + layer_str[layer] + ' 10|' + make_dim(x1) + ' 20|' +
-    make_dim(y1) + ' 30|' + make_dim(z1) + ' 11|' + make_dim(x2) + ' 21|' + make_dim(
-    y2) + ' 31|' + make_dim(z2) + ' 12|' + make_dim(x3) + ' 22|' + make_dim(y3) +
-    ' 32|' + make_dim(z3) + ' 13|' + make_dim(x4) + ' 23|' + make_dim(y4) + ' 33|' + make_dim(z4);
+    make_dim(y1) + ' 30|' + make_dim(z1) + ' 11|' + make_dim(x2) + ' 21|' +
+    make_dim(y2) + ' 31|' + make_dim(z2) + ' 12|' + make_dim(x3) + ' 22|' +
+    make_dim(y3) + ' 32|' + make_dim(z3) + ' 13|' + make_dim(x4) + ' 23|' +
+    make_dim(y4) + ' 33|' + make_dim(z4);
 
   //+' 70| 15|';           // edges invisible (lines drawn separately)
 
@@ -292,7 +295,8 @@ DXF: X value; APP: 3D point
 end;
 //________________________________________________________________________________________
 
-function dxf_line(x1, y1, z1, x2, y2, z2: double; layer: integer): string;    // make up a line group
+function dxf_line(x1, y1, z1, x2, y2, z2: double; layer: integer): string;
+  // make up a line group
 
 var
   s: string;
@@ -434,11 +438,10 @@ begin
 
     if (group_option_button.Checked = True) and (any_selected = 0) then begin
       if alert(4, '    no  group  templates',
-        '|||You have clicked the GROUP TEMPLATES ONLY option button,'
-        + ' but there are no group templates currently selected on the trackpad.'
-        + '||Do you want to include all background templates in the DXF file?',
-        '', '', '', '', 'no  -  cancel  DXF', 'yes  -  all  templates  in  file', 0) = 5
-      then
+        '|||You have clicked the GROUP TEMPLATES ONLY option button,' +
+        ' but there are no group templates currently selected on the trackpad.' +
+        '||Do you want to include all background templates in the DXF file?', '',
+        '', '', '', 'no  -  cancel  DXF', 'yes  -  all  templates  in  file', 0) = 5 then
         EXIT;
       all_option_button.Checked := True;           // radio item.
     end;
@@ -506,9 +509,8 @@ begin
 
       if limits_checkbox.Checked = True          // add the current pad limits in mm.
       then
-        s := s + '  9|$LIMMIN|' + ' 10|' + make_dim(xmin) +
-          ' 20|' + make_dim(ymin) + '  9|$LIMMAX|' + ' 10|' +
-          make_dim(xmax) + ' 20|' + make_dim(ymax);
+        s := s + '  9|$LIMMIN|' + ' 10|' + make_dim(xmin) + ' 20|' +
+          make_dim(ymin) + '  9|$LIMMAX|' + ' 10|' + make_dim(xmax) + ' 20|' + make_dim(ymax);
 
       s := s + '  0|ENDSEC|';
 
@@ -525,7 +527,8 @@ begin
         if colour_str = '0|' then
           CONTINUE;  // he wants this layer omitted.
 
-        s := '  0|LAYER|  2|' + layer_str[layer] + ' 70|0|  6|' + line_type(layer) + ' 62|' + colour_str;
+        s := '  0|LAYER|  2|' + layer_str[layer] + ' 70|0|  6|' + line_type(layer) +
+          ' 62|' + colour_str;
         Write(dxf_file, insert_crlf_str(s));
       end;//for
 
@@ -544,8 +547,8 @@ begin
       alert(5, '      file  error',
         '||Unable to create DXF file.' +
         '||Please check the file and folder names and that this file is not in use by another application.'
-        + '||If saving to a floppy disk, please check that it is not write-protected.'
-        + ' DXF files are much larger than Templot0 box data files. A large drawing may have exceeded the capacity of the floppy disk.',
+        + '||If saving to a floppy disk, please check that it is not write-protected.' +
+        ' DXF files are much larger than Templot0 box data files. A large drawing may have exceeded the capacity of the floppy disk.',
         '', '', '', '', 'cancel  DXF', '', 0);
     end;//try
   end;//with
@@ -563,7 +566,10 @@ end;
 procedure chat_click;
 
 const
-  chat_str: string = 'This DXF generator is fairly minimal - the object is simply to get the drawing into your CAD software.' + ' What you do with it after that is up to you. The file contains no header information to change your CAD setup.' + '||( Handy hint - make a note of your DXF file name and date in the memo text for the first template in the box. You will then have a reference' + ' to it when you reload this box file at some future date.)' + '||Templot0''s drawing space is  +/- 1.0E7 mm ( that''s 20 kilometres or 12 miles square ! ) and drawing is done' + ' to the nearest 0.01 mm within it. Your CAD program may need this information to load the file correctly.' + '||Although it is possible to import a DXF file as BACKGROUND SHAPES, there is currently no means of importing individual templates from a DXF file' + ' and never will be as far as the normal template generating functions are concerned - Templot0 cannot work backwards from a collection of drawn lines to recreate' + ' the original template specification which produced them.' + '||p.s. Never say "never" !';
+  chat_str: string =
+    'This DXF generator is fairly minimal - the object is simply to get the drawing into your CAD software.'
+    + ' What you do with it after that is up to you. The file contains no header information to change your CAD setup.'
+    + '||( Handy hint - make a note of your DXF file name and date in the memo text for the first template in the box. You will then have a reference' + ' to it when you reload this box file at some future date.)' + '||Templot0''s drawing space is  +/- 1.0E7 mm ( that''s 20 kilometres or 12 miles square ! ) and drawing is done' + ' to the nearest 0.01 mm within it. Your CAD program may need this information to load the file correctly.' + '||Although it is possible to import a DXF file as BACKGROUND SHAPES, there is currently no means of importing individual templates from a DXF file' + ' and never will be as far as the normal template generating functions are concerned - Templot0 cannot work backwards from a collection of drawn lines to recreate' + ' the original template specification which produced them.' + '||p.s. Never say "never" !';
 
 begin
   chat(chat_str);
@@ -644,7 +650,7 @@ var
 
   layer: integer;
 
-  aq: integer;
+  aq: ERailData;
   array_max: integer;
 
   radcen_dim: integer;
@@ -672,8 +678,7 @@ var
       x1 := move_to.x / 100;
       y1 := move_to.y / 100 - text_height;   // (convert Templot0 top-left to DXF bottom-left.)
 
-      if dxf_form.limits_checkbox.Checked =
-        True     // only within limits?
+      if dxf_form.limits_checkbox.Checked = True     // only within limits?
       then begin
         if (x1 > xmax) or (y1 > ymax) then
           EXIT;
@@ -682,10 +687,8 @@ var
       end;
 
       s :=
-        '  0|TEXT|  8|' + layer_str[layer] +
-        ' 10|' + make_dim(x1) + ' 20|' + make_dim(
-        y1) + ' 40|' + make_dim(
-        text_height) + '  1|' + text_str + '|';
+        '  0|TEXT|  8|' + layer_str[layer] + ' 10|' + make_dim(x1) +
+        ' 20|' + make_dim(y1) + ' 40|' + make_dim(text_height) + '  1|' + text_str + '|';
 
       Write(dxf_file, insert_crlf_str(s));
     end;
@@ -698,21 +701,19 @@ var
     if colour(layer) <> '0|'       // does he want this in the file ?
     then begin
 
-      if (_3d = False) or ((code <> 3) and
-        (code <> 33) and (code <> 93))  // not 3-D timber edges.
+      if (_3d = False) or ((code <> 3) and (code <> 33) and (code <> 93))
+      // not 3-D timber edges.
       then begin
         x1 := move_to.x / 100;
         y1 := move_to.y / 100;
         x2 := line_to.x / 100;
         y2 := line_to.y / 100;
 
-        Write(dxf_file, dxf_line(x1,
-          y1, 0, x2, y2, 0, layer));
+        Write(dxf_file, dxf_line(x1, y1, 0, x2, y2, 0, layer));
       end
       else begin    // 3-D timber edges...
 
-        if dxf_form.timb_full_radiobutton.Checked =
-          True     // (flat tops done elswhere.)
+        if dxf_form.timb_full_radiobutton.Checked = True     // (flat tops done elswhere.)
         then begin
 
           x1 := move_to.x / 100;
@@ -720,27 +721,28 @@ var
           x2 := line_to.x / 100;
           y2 := line_to.y / 100;
 
-          if wire_frame =
-            True then begin
+          if wire_frame = True then begin
             Write(
               dxf_file, dxf_line(x1, y1, timb_top_z, x2, y2, timb_top_z, layer));  // top edge.
             Write(
-              dxf_file, dxf_line(x2, y2, timb_top_z, x2, y2, timb_bot_z, layer));  // then down corner
+              dxf_file, dxf_line(x2, y2, timb_top_z, x2, y2, timb_bot_z, layer));
+            // then down corner
             Write(
               dxf_file, dxf_line(x2, y2, timb_bot_z, x1, y1, timb_bot_z, layer));  // bottom edge.
             Write(
-              dxf_file, dxf_line(x1, y1, timb_bot_z, x1, y1, timb_top_z, layer));  // then back up to top.
+              dxf_file, dxf_line(x1, y1, timb_bot_z, x1, y1, timb_top_z, layer));
+            // then back up to top.
           end
           else
-            Write(dxf_file, dxf_3dface(x1, y1, timb_top_z, x2, y2, timb_top_z, x2, y2, timb_bot_z,
-              x1, y1, timb_bot_z, 17));
+            Write(dxf_file, dxf_3dface(x1, y1, timb_top_z, x2, y2, timb_top_z,
+              x2, y2, timb_bot_z, x1, y1, timb_bot_z, 17));
         end;
       end;
     end;
   end;
   ///////////////////////////////////////////////////////////
 
-  procedure dxf_mark_end(aq1, aq1end, aq2, aq2end: integer);
+  procedure dxf_mark_end(aq1: ERailData; aq1end: integer; aq2: ERailData; aq2end: integer);
   // make the background rail end mark.
 
   begin
@@ -761,7 +763,8 @@ var
         if _3d = True   // add 3-D effect...
         then begin
           Write(
-            dxf_file, dxf_line(x2, y2, 0, x2, y2, rail_foot_z, layer));  // then down corner to foot
+            dxf_file, dxf_line(x2, y2, 0, x2, y2, rail_foot_z, layer));
+          // then down corner to foot
           Write(
             dxf_file, dxf_line(x2, y2, rail_foot_z, x1, y1, rail_foot_z, layer));  // end of foot.
           Write(
@@ -772,7 +775,8 @@ var
           // add solid infill for rail-end...
           then begin
             Write(
-              dxf_file, dxf_3dface(x1, y1, 0, x2, y2, 0, x2, y2, rail_foot_z, x1, y1, rail_foot_z, 14));
+              dxf_file, dxf_3dface(x1, y1, 0, x2, y2, 0, x2, y2, rail_foot_z,
+              x1, y1, rail_foot_z, 14));
           end;
 
         end;
@@ -798,8 +802,9 @@ var
         EXIT;                       // empty rail.
 
       array_max := High(list_bgnd_rails[aq]);
-      if (do_3d = True) and (aq < 9) then
-        array_max_outer := High(list_bgnd_rails[aq + 8])
+      if (do_3d = True) and (aq in
+        [eRD_StraightStockGaugeFace..eRD_TurnoutSideCheckGaugeFace]) then
+        array_max_outer := High(list_bgnd_rails[aq_oppositeFace[aq]])
       else
         array_max_outer := 0;
 
@@ -813,14 +818,14 @@ var
       if array_max_outer > 0     // for 3-D.
       then begin
         move_to_outer.x :=
-          list_bgnd_rails[aq + 8][0].X;
+          list_bgnd_rails[aq_oppositeFace[aq]][0].X;
         move_to_outer.y :=
-          list_bgnd_rails[aq + 8][0].Y;
+          list_bgnd_rails[aq_oppositeFace[aq]][0].Y;
 
         case aq of
-          1:
+          eRD_StraightTurnoutWingGaugeFace:
             nk_3d_start := planing_end_aq1; // start top infill from end of planing
-          2:
+          eRD_CurvedTurnoutWingGaugeFace:
             nk_3d_start := planing_end_aq2;
           else
             nk_3d_start := 0;
@@ -844,23 +849,22 @@ var
         then begin
           // rail sides...
 
-          if wire_frame = True
-          then
+          if wire_frame = True then
             Write(dxf_file, dxf_line(x2, y2, 0, x2, y2, rail_foot_z, layer));  // then down to foot
 
           Write(
             dxf_file, dxf_line(x2, y2, rail_foot_z, x1, y1, rail_foot_z, layer));
           // back along foot.
 
-          if wire_frame = True
-          then
+          if wire_frame = True then
             Write(dxf_file, dxf_line(x1, y1, rail_foot_z, x1, y1, 0, layer));
           // then back up to top.
 
           if wire_frame = False  // add solid rail side infill
           then begin
             Write(
-              dxf_file, dxf_3dface(x1, y1, 0, x2, y2, 0, x2, y2, rail_foot_z, x1, y1, rail_foot_z, 14));
+              dxf_file, dxf_3dface(x1, y1, 0, x2, y2, 0, x2, y2, rail_foot_z,
+              x1, y1, rail_foot_z, 14));
           end;
 
           // rail top surface, use same index into outer rail edge (aproximation) (except blades)...
@@ -875,9 +879,9 @@ var
               nko := 0;
 
             line_to_outer.x :=
-              list_bgnd_rails[aq + 8][nko].X;
+              list_bgnd_rails[aq_oppositeFace[aq]][nko].X;
             line_to_outer.y :=
-              list_bgnd_rails[aq + 8][nko].Y;
+              list_bgnd_rails[aq_oppositeFace[aq]][nko].Y;
 
             x_outer1 := move_to_outer.x / 100;
             y_outer1 := move_to_outer.y / 100;
@@ -885,11 +889,12 @@ var
             y_outer2 := line_to_outer.y / 100;
 
 
-            if wire_frame = True
-            then
-              Write(dxf_file, dxf_line(x1, y1, 0, x_outer1, y_outer1, 0, layer))  // wire across the top.
+            if wire_frame = True then
+              Write(dxf_file, dxf_line(x1, y1, 0, x_outer1, y_outer1, 0, layer))
+            // wire across the top.
             else
-              Write(dxf_file, dxf_3dface(x1, y1, 0, x_outer1, y_outer1, 0, x_outer2, y_outer2, 0, x2, y2, 0, 15));
+              Write(dxf_file, dxf_3dface(x1, y1, 0, x_outer1, y_outer1, 0,
+                x_outer2, y_outer2, 0, x2, y2, 0, 15));
             // solid top face of rail (4 corners of segment).
 
             move_to_outer := line_to_outer;
@@ -958,7 +963,8 @@ begin
             layer := 8;    // curving rad centres.
 
           -4, -1, 0, 8, 9, 10:
-            CONTINUE;    // timber selector, fixing peg, blank entries, peg arms, plain track start marks.  not in DXF.
+            CONTINUE;
+          // timber selector, fixing peg, blank entries, peg arms, plain track start marks.  not in DXF.
 
           1:
             layer := 6;    // guide marks.
@@ -1114,14 +1120,14 @@ begin
 
       if colour(layer) <> '0|'                              // does he want them in the file ?
       then
-        for aq := 24 to 25 do
+        for aq := eRD_MainRoadCentreLine to eRD_TurnoutRoadCentreLine do
           dxf_bgnd_rail(False);   // track centre-lines (no 3-D option).
 
       layer := 1;           // layer ADJTRACK    adjacent track rails.
 
       if colour(layer) <> '0|'                            // does he want them in the file ?
       then
-        for aq := 16 to 23 do
+        for aq := eRD_AdjTrackTurnoutSideNearGaugeFace to eRD_AdjTrackMainSideFarOuterFace do
           dxf_bgnd_rail(_3d);   // all the adjacent rails.
 
       layer := 0;           // layer RAILS       turnout rails.
@@ -1129,30 +1135,39 @@ begin
       if colour(layer) <> '0|'                      // does he want them in the file ?
       then begin
 
-        for aq := 0 to 15 do
+        for aq := eRD_StraightStockGaugeFace to eRD_TurnoutSideCheckOuterFace do
           dxf_bgnd_rail(_3d);   // all the turnout rails.
-        for aq := 26 to 29 do
+        for aq := eRD_KCrossingCheckMainSideGaugeFace to eRD_KCrossingCheckTurnoutSideOuterEdge do
           dxf_bgnd_rail(_3d);   // K-crossing check rails.
 
         // next, draw in the rail ends...
 
-        dxf_mark_end(1, 1, 9, 1);    // main rail wing rail finish.
-        dxf_mark_end(2, 1, 10, 1);   // turnout rail wing rail finish.
+        dxf_mark_end(eRD_StraightTurnoutWingGaugeFace, 1, eRD_StraightTurnoutWingOuterFace, 1);
+        // main rail wing rail finish.
+        dxf_mark_end(eRD_CurvedTurnoutWingGaugeFace, 1, eRD_CurvedTurnoutWingOuterFace, 1);
+        // turnout rail wing rail finish.
 
-        dxf_mark_end(6, 0, 14, 0);   // main side check rail start.
-        dxf_mark_end(6, 1, 14, 1);   // main side check rail finish.
+        dxf_mark_end(eRD_MainSideCheckGaugeFace, 0, eRD_MainSideCheckOuterFace, 0);
+        // main side check rail start.
+        dxf_mark_end(eRD_MainSideCheckGaugeFace, 1, eRD_MainSideCheckOuterFace, 1);
+        // main side check rail finish.
 
-        dxf_mark_end(7, 0, 15, 0);   // turnout side check rail start.
-        dxf_mark_end(7, 1, 15, 1);   // turnout side check rail finish.
+        dxf_mark_end(eRD_TurnoutSideCheckGaugeFace, 0, eRD_TurnoutSideCheckOuterFace, 0);
+        // turnout side check rail start.
+        dxf_mark_end(eRD_TurnoutSideCheckGaugeFace, 1, eRD_TurnoutSideCheckOuterFace, 1);
+        // turnout side check rail finish.
 
-        dxf_mark_end(4, 0, 5, 0);    // blunt nose.
+        dxf_mark_end(eRD_VeePointGaugeFace, 0, eRD_VeeSpliceGaugeFace, 0);    // blunt nose.
 
         if fixed_diamond_ends = True then begin
-          dxf_mark_end(1, 0, 9, 0);   // planed faced of point rails for a fixed-diamond.
-          dxf_mark_end(2, 0, 10, 0);
+          dxf_mark_end(eRD_StraightTurnoutWingGaugeFace, 0, eRD_StraightTurnoutWingOuterFace, 0);
+          // planed faced of point rails for a fixed-diamond.
+          dxf_mark_end(eRD_CurvedTurnoutWingGaugeFace, 0, eRD_CurvedTurnoutWingOuterFace, 0);
 
-          dxf_mark_end(26, 1, 27, 1);     // MS K-crossing check rails.
-          dxf_mark_end(28, 1, 29, 1);     // DS K-crossing check rails.
+          dxf_mark_end(eRD_KCrossingCheckMainSideGaugeFace, 1,
+            eRD_KCrossingCheckMainSideOuterEdge, 1);     // MS K-crossing check rails.
+          dxf_mark_end(eRD_KCrossingCheckTurnoutSideGaugeFace, 1,
+            eRD_KCrossingCheckTurnoutSideOuterEdge, 1);     // DS K-crossing check rails.
         end;
       end;//if RAILS
 
@@ -1247,18 +1262,16 @@ begin
               // and radius.
 
               s :=
-                '  0|CIRCLE|  8|' + layer_str[layer] +
-                ' 10|' + make_dim(p) + ' 20|' + make_dim(
-                q) + ' 40|' + make_dim(rad);
+                '  0|CIRCLE|  8|' + layer_str[layer] + ' 10|' +
+                make_dim(p) + ' 20|' + make_dim(q) + ' 40|' + make_dim(rad);
 
               Write(dxf_file, insert_crlf_str(s));
             end;
 
             3: begin    // label shape
               s :=
-                '  0|TEXT|  8|' + layer_str[layer] +
-                ' 10|' + make_dim(x1) + ' 20|' +
-                make_dim(y1) + ' 40|' + make_dim(
+                '  0|TEXT|  8|' + layer_str[layer] + ' 10|' +
+                make_dim(x1) + ' 20|' + make_dim(y1) + ' 40|' + make_dim(
                 font_height)  // text height for labels
                 + '  1|' + shape_name + '|';        // label string.
 
@@ -1284,14 +1297,14 @@ begin
 
           // now do 4 diamond lines...
 
-          Write(dxf_file, dxf_line(x1 - diamond, y1, 0,
-            x1, y1 + diamond, 0, layer));     // NW line.
-          Write(dxf_file, dxf_line(x1, y1 + diamond, 0,
-            x1 + diamond, y1, 0, layer));     // NE line.
-          Write(dxf_file, dxf_line(x1 + diamond, y1, 0,
-            x1, y1 - diamond, 0, layer));     // SE line.
-          Write(dxf_file, dxf_line(x1, y1 - diamond, 0,
-            x1 - diamond, y1, 0, layer));     // SW line.
+          Write(dxf_file, dxf_line(x1 - diamond, y1, 0, x1, y1 + diamond, 0, layer));
+          // NW line.
+          Write(dxf_file, dxf_line(x1, y1 + diamond, 0, x1 + diamond, y1, 0, layer));
+          // NE line.
+          Write(dxf_file, dxf_line(x1 + diamond, y1, 0, x1, y1 - diamond, 0, layer));
+          // SE line.
+          Write(dxf_file, dxf_line(x1, y1 - diamond, 0, x1 - diamond, y1, 0, layer));
+          // SW line.
         end;
 
       end;//with now_shape
@@ -1370,12 +1383,10 @@ var
 
 begin
   dxf_scaling_help_str := '      `0DXF output scaling`9' +
-    '||The DXF output will now be scaled at ' + round_str(out_factor * 100, 2) + ' %'
-    + '||This setting can be changed on the `0output`1 menu at `0enlarge/reduce size`1 menu items.'
-    +
-    '||For export to a CAD program you should normally leave this on 100% and do any required scaling in the CAD program.'
-    +
-    '||For output to graphics editing and drawing programs you may get better results by exporting a metafile image instead (EMF file).';
+    '||The DXF output will now be scaled at ' + round_str(out_factor * 100, 2) +
+    ' %' + '||This setting can be changed on the `0output`1 menu at `0enlarge/reduce size`1 menu items.'
+    + '||For export to a CAD program you should normally leave this on 100% and do any required scaling in the CAD program.'
+    + '||For output to graphics editing and drawing programs you may get better results by exporting a metafile image instead (EMF file).';
 
   with scaled_checkbox do begin
     if Checked = True then begin
@@ -1413,7 +1424,11 @@ begin
 
   if outline_extensions = True then begin
     alert(3, ' 3-D  -  timber  outline  extension  marks',
-      'The timber OUTLINE EXTENSION MARKS option is currently selected in the GENERATOR > GENERATOR SETTINGS > menu.' + '||This will prevent the timbers from being correctly drawn in 3-D.' + '||De-select this option and then click GENERATOR > REBUILD ALL BACKGROUND.' + '||Ensure that GENERATOR > GENERATOR SETTINGS > TIMBER INFILL is selected, otherwise the timbers will be drawn hollow.',
+      'The timber OUTLINE EXTENSION MARKS option is currently selected in the GENERATOR > GENERATOR SETTINGS > menu.'
+      +
+      '||This will prevent the timbers from being correctly drawn in 3-D.' +
+      '||De-select this option and then click GENERATOR > REBUILD ALL BACKGROUND.' +
+      '||Ensure that GENERATOR > GENERATOR SETTINGS > TIMBER INFILL is selected, otherwise the timbers will be drawn hollow.',
       '', '', '', '', '', 'continue', 0);
   end;
 end;
@@ -1444,8 +1459,8 @@ var
 
 begin
   i := alert(4, '   3-D  rail-side  colour ...',
-    'Choose a colour for the rail-sides in 3-D solid format.',
-    'red', 'blue', 'steel  grey', 'light  rust', 'cancel', 'dark  rust', 0);
+    'Choose a colour for the rail-sides in 3-D solid format.', 'red', 'blue',
+    'steel  grey', 'light  rust', 'cancel', 'dark  rust', 0);
 
   case i of
     1:
@@ -1464,8 +1479,8 @@ begin
 
 
   i := alert(4, '   3-D  timber  colour ...',
-    'Choose a colour for the timbers in 3-D solid format.',
-    'black', 'stone', 'dark  brown', 'light  brown', 'cancel', 'grey', 0);
+    'Choose a colour for the timbers in 3-D solid format.', 'black', 'stone',
+    'dark  brown', 'light  brown', 'cancel', 'grey', 0);
 
   case i of
     1:

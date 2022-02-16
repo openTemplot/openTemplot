@@ -127,10 +127,10 @@ object pdf_form: Tpdf_form
     HorzScrollBar.Page = 488
     HorzScrollBar.Tracking = True
     VertScrollBar.Increment = 4
-    VertScrollBar.Page = 64
+    VertScrollBar.Page = 62
     VertScrollBar.Tracking = True
-    ClientHeight = 64
-    ClientWidth = 508
+    ClientHeight = 62
+    ClientWidth = 504
     Color = clWindow
     ParentColor = False
     TabOrder = 6
@@ -449,15 +449,15 @@ object pdf_form: Tpdf_form
   end
   object warnings_checkbox: TCheckBox
     Left = 24
-    Height = 21
+    Height = 20
     Top = 148
-    Width = 80
+    Width = 78
     Caption = '&warnings'
     TabOrder = 11
   end
   object black_edges_checkbox: TCheckBox
     Left = 150
-    Height = 21
+    Height = 20
     Top = 148
     Width = 121
     Caption = 'blac&k rail-edges'
@@ -466,15 +466,15 @@ object pdf_form: Tpdf_form
   end
   object picture_borders_checkbox: TCheckBox
     Left = 46
-    Height = 21
+    Height = 20
     Top = 220
-    Width = 101
+    Width = 99
     Caption = 'with &borders'
     TabOrder = 16
   end
   object include_pictures_checkbox: TCheckBox
     Left = 24
-    Height = 21
+    Height = 20
     Top = 200
     Width = 242
     Caption = 'include background pict&ure shapes'
@@ -482,9 +482,9 @@ object pdf_form: Tpdf_form
   end
   object detail_mode_radiobutton: TRadioButton
     Left = 296
-    Height = 21
+    Height = 22
     Top = 144
-    Width = 108
+    Width = 106
     Caption = 'detail  mode'
     Checked = True
     Font.Color = clBlack
@@ -498,9 +498,9 @@ object pdf_form: Tpdf_form
   end
   object diagram_mode_radiobutton: TRadioButton
     Left = 422
-    Height = 21
+    Height = 22
     Top = 144
-    Width = 127
+    Width = 123
     Caption = 'diagram  mode'
     Font.Color = clBlack
     Font.Height = -15
@@ -512,16 +512,16 @@ object pdf_form: Tpdf_form
   end
   object include_sketchboard_items_checkbox: TCheckBox
     Left = 4
-    Height = 21
+    Height = 20
     Top = 174
-    Width = 187
+    Width = 186
     Caption = 'include sketchboard items'
     OnClick = include_sketchboard_items_checkboxClick
     TabOrder = 13
   end
   object page_ident_checkbox: TCheckBox
     Left = 200
-    Height = 21
+    Height = 20
     Hint = 'add page-number watermark if more than 3 pages'
     Top = 174
     Width = 88

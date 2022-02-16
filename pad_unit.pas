@@ -23,7 +23,7 @@
 ====================================================================================
 *)
 
-{ }
+
 unit pad_unit;
 
 {$MODE Delphi}
@@ -38,7 +38,8 @@ uses
   ExtDlgs, ImgList, PrintersDlgs,
   point_ex,
   shoved_timber,
-  dummy_vehicle
+  dummy_vehicle,
+  rail_data_unit
   { OT-FIRST ,}{ OT-FIRST ReadHTML,}{ OT-FIRST framview}{,
   OleCtnrs, OleCtrls, SHDocVw};
 
@@ -3287,7 +3288,6 @@ const
   //   ( = 18000 mm or 59ft approx in 4 mm scale).
   //   ( = 66 A4 sheets long if straight turnout - but normally less for curved turnout).
 
-  aq_max_c = 48;                     // currently 49 rail-lines 0-48
 
   gauge_indexmax_c = 84;             // 211b up to 85 different gauges. was =79,  mod 0.79.a was =69
 
@@ -3310,8 +3310,7 @@ const
   // this string used for dropped files, and on bgnd shapes dialog...     214a
 
   picture_buttons_str: string =
-    'image has been loaded into this picture shape. You will now probably want to change its size and/or its position on the trackpad.'
-    + '||You can do that by clicking buttons on the `0background shapes`3 dialog window, now showing. You may need to move the dialog windows to see it and/or see the picture shape.' + '||The buttons needed are on the `0modify shape`1 tab on the background shapes dialog.' + ' They are currently showing highlighted in <SPAN STYLE="BACKGROUND-COLOR:#FFFF00;">yellow</SPAN>.' + '||Templot0 can automatically adjust the size of a picture shape containing a track plan or map' + ' to match your current model gauge and scale. Click the `0auto-fit...`1 button.' + '||To change the size of this picture shape by mouse action, click the `0size`1 button.' + '||To move this picture shape to a new position by mouse action, click the `0shift`1 button.' + '||To change the size manually, click the `0re-size...`1 button.' + '||To set a new position manually, click the `0shift to...`1 button.' + '|||To change the size, position and aspect ratio of the picture shape in one go, click the `0change dimensions...`1 button.|&nbsp;';
+    'image has been loaded into this picture shape. You will now probably want to change its size and/or its position on the trackpad.' + '||You can do that by clicking buttons on the `0background shapes`3 dialog window, now showing. You may need to move the dialog windows to see it and/or see the picture shape.' + '||The buttons needed are on the `0modify shape`1 tab on the background shapes dialog.' + ' They are currently showing highlighted in <SPAN STYLE="BACKGROUND-COLOR:#FFFF00;">yellow</SPAN>.' + '||Templot0 can automatically adjust the size of a picture shape containing a track plan or map' + ' to match your current model gauge and scale. Click the `0auto-fit...`1 button.' + '||To change the size of this picture shape by mouse action, click the `0size`1 button.' + '||To move this picture shape to a new position by mouse action, click the `0shift`1 button.' + '||To change the size manually, click the `0re-size...`1 button.' + '||To set a new position manually, click the `0shift to...`1 button.' + '|||To change the size, position and aspect ratio of the picture shape in one go, click the `0change dimensions...`1 button.|&nbsp;';
 
 
 type
@@ -3329,8 +3328,6 @@ type
     code: integer;
   end;
   Tmark_array = array of Tmark;
-
-  TPoint_array = array of TPoint;    // array of Windows TPoints (integers)
 
 
   Tnotch = record      //  a notch position.
@@ -3455,11 +3452,11 @@ type
 
     list_bgnd_marks: Tmark_array;
     // pointers only, so can't save this data in a file (of Tbgnd_keep).
-    list_bgnd_rails: array[0..aq_max_c] of TPoint_array;
+    list_bgnd_rails: array[ERailData] of TPoint_array;
 
-    bgnd_endmarks: array[0..aq_max_c, 0..1] of TPoint;
+    bgnd_endmarks: array[ERailData, 0..1] of TPoint;
     // rail end mark points. 1/100th mm , curved ready for drawing.
-    bgnd_endmarks_yn: array[0..aq_max_c, 0..1] of boolean; // flag end points exist.
+    bgnd_endmarks_yn: array[ERailData, 0..1] of boolean; // flag end points exist.
   end;
 
   //-----------------------
@@ -4443,7 +4440,8 @@ type
   end;//record
 
 
-  Tsnap_peg_positions = record        // snapping positions for F7 shift mouse action  0.79.a  27-05-06
+  Tsnap_peg_positions = record
+    // snapping positions for F7 shift mouse action  0.79.a  27-05-06
     // and background popup snap options.
 
     ctrl_peg_now_pos: Tnotch;
@@ -4562,6 +4560,13 @@ type
     rollback_memo_str: string;       // ...
   end;
 
+  TRingCheckpoint = record
+    x: integer;
+    y: integer;
+    aq: ERailData;
+    infringed: boolean; // infringed closer than 2ft scale to ring 0/1
+  end;
+
 //-----------------------------------------
 
 var
@@ -4590,35 +4595,6 @@ var
   psleep: array[0..railen_c, 0..psleep_c] of double;  // plain track sleeper spacings.
   railen: array[0..railen_c] of double;               // plain track rail lengths.
 
-  aq_str: array[0..aq_max_c] of string;                //  names of rail-edges.
-
-
-  xy_ends: array[0..aq_max_c, 0..1] of Tpex;
-  // rail edge end points  (used to mark rail ends and blunt nose). 14-4-99
-  // 0=start of edge, 1=end of edge (extended, mm)
-
-  endmarks: array[0..aq_max_c, 0..1] of TPoint;
-  // rail end mark points. 1/100th mm , curved ready for drawing.
-  endmarks_yn: array[0..aq_max_c, 0..1] of boolean; // flag end points exist.
-
-  xy_max: array[0..1] of integer;
-  // max x and y values in list (could be less than xy_most if drawing all negative).
-  xy_min: array[0..1] of integer;
-  // min x and y values in list (could be more than xy_least if drawing all positive).
-
-  aqyn: array[0..aq_max_c] of boolean;      //  yes/no calc this aq ?
-
-  // mods 13-6-99. Use home-made dynamic integer arrays.
-
-  xy_p: array[0..aq_max_c] of TPoint_array; // arrays containing rail data in 1/100 of a mm.
-
-  nlnow_array: array[0..aq_max_c] of integer;
-  //  ( aq_i )    current index into each aq array.
-  nlmax_array: array[0..aq_max_c] of integer;
-  //  ( aq_i )    max nlnow so far used for each aq.
-  nldim_array: array[0..aq_max_c] of integer;
-  //  ( aq_i )    array length (max index) for each aq.
-
   rings: array[0..ring_count_c, 0..3] of double;        // for spacing ring copies.
   ring_index: integer = 0;
   ring_dia: double = 0;
@@ -4627,7 +4603,7 @@ var
 
   // v:0.76.a 1-5-02...
 
-  rings_checkpoints: array[0..ring_count_c, 0..3] of integer;
+  rings_checkpoints: array[0..ring_count_c] of TRingCheckpoint;
   // for spacing ring infringement checks
   // 0=x, 1=y, 2=aq, 3=infringed closer than 2ft scale to ring 0/1.
   min_ring_distance: double = 0;   // v:0.76.a 1-5-02.
@@ -5008,7 +4984,8 @@ var
   shovetimb_crab: double = 0;          // timber shove crabwise.  0.78.c 01-02-03.
 
   bontimb: integer = 0;          // number of bonus timbers 0.76.a 23-10-01.
-  rjcode: integer = 0;           // plain track rail joints code, 0=normal, 1=staggered, -1=none (cwr).
+  rjcode: integer = 0;
+  // plain track rail joints code, 0=normal, 1=staggered, -1=none (cwr).
 
   nine_foot: boolean = False;      // was True pre 0.93.a (9ft timbering was default).
   eight_foot_six: boolean = True;  // 0.93.a 8ft-6in timbering default
@@ -5103,7 +5080,8 @@ var
   // 212a   time since startup (in 200ms intervals, 5 counts per second)
 
   modal_form_count: integer = 0;                // 212a Wine bug
-  modal_form_array: array[1..12] of TForm;    // 212a Wine bug       up to 12 modal forms nested !!!
+  modal_form_array: array[1..12] of TForm;
+  // 212a Wine bug       up to 12 modal forms nested !!!
   showing_message: boolean = False;             // 212a Wine bug
   showing_dialog: boolean = False;              // 212a Wine bug
 
@@ -5175,43 +5153,40 @@ const
 
 
   timbering_help_str: string = '      `0Timbering  Sizes  and  Layout`9' +
-    '||The timbers used in pointwork normally have lengths increasing in fixed 6 inch steps (UK practice). If a timber is too short to'
-    + ' provide the minimum distance beyond the rail at each end, a timber 6 inches longer is used instead. Consequently, the timbering' + ' can be arranged in two ways - CENTRALIZED, or IN-LINE.' + '||Centralized timbering means that the rails are centrally placed on each timber, with the result that the stepped lengths are less' + ' noticeable.||In-line timbering has all the timber ends on the main-road side of the turnout arranged in a neat line,' + ' with the stepped ends all on the turnout-road side. This only makes sense if you are using SQUARE-ON timbering through' + ' the crossing, and gives the turnout a modern "neat and tidy" look.' + '||With the older-style EQUALIZED arrangement, centralized timbering looks more in keeping.' + '||To change between these styles, select the|REAL > TIMBERING > EQUALIZED INCREMENTAL, EQUALIZED CONSTANT or SQUARE-ON menu items.' + '||If required the 6" step size can be changed to other step sizes according to your prototype practice. Click the REAL > TIMBERING > TIMBER LENGTH INCREMENTS menu options.' + ' If the GRADUAL (NO STEPS) option is selected the timber lengths are infinitely variable and all are arranged to be simultaneously in-line and centralized.' + ' Consequently the CENTRALIZED and IN-LINE options are not then available. This neat effect can be modified by using the REAL > SHOVE TIMBERS functions as required.' + '||Templot0 also provides a variable amount of timber randomizing, both in the positioning of the timber ends and the angle at which the timbers' + ' are aligned across the track. Experiment by changing the values to get a realistic slight variation for standard gauge or a complete "crazy-track"' + ' effect for industrial and narrow-gauge lines.' + '||Swapping between IN-LINE and CENTRALIZED resets the randomizing to zero each time.' + '||Be aware that when randomizing is used every re-draw produces a fresh randomized effect. Background templates are frozen between each REBUILD,' + ' but you should make as many identical printed templates as you will need all in one Templot0 session, as there is no way to save the exact timbering layout in your template data files.' + ' When reloaded via your storage box the template will be redrawn with a fresh randomized timbering layout.' + ' (When templates are exported in DXF file format the exact timbering layout is included in the file.)' + '||As an alternative to randomizing, some variation in timbering can be introduced manually using the shove timber functions. Select the REAL > SHOVE TIMBERS menu item and then click the ?HELP button for more information.';
+    '||The timbers used in pointwork normally have lengths increasing in fixed 6 inch steps (UK practice). If a timber is too short to' + ' provide the minimum distance beyond the rail at each end, a timber 6 inches longer is used instead. Consequently, the timbering' + ' can be arranged in two ways - CENTRALIZED, or IN-LINE.' + '||Centralized timbering means that the rails are centrally placed on each timber, with the result that the stepped lengths are less' + ' noticeable.||In-line timbering has all the timber ends on the main-road side of the turnout arranged in a neat line,' + ' with the stepped ends all on the turnout-road side. This only makes sense if you are using SQUARE-ON timbering through' + ' the crossing, and gives the turnout a modern "neat and tidy" look.' + '||With the older-style EQUALIZED arrangement, centralized timbering looks more in keeping.' + '||To change between these styles, select the|REAL > TIMBERING > EQUALIZED INCREMENTAL, EQUALIZED CONSTANT or SQUARE-ON menu items.' + '||If required the 6" step size can be changed to other step sizes according to your prototype practice. Click the REAL > TIMBERING > TIMBER LENGTH INCREMENTS menu options.' + ' If the GRADUAL (NO STEPS) option is selected the timber lengths are infinitely variable and all are arranged to be simultaneously in-line and centralized.' + ' Consequently the CENTRALIZED and IN-LINE options are not then available. This neat effect can be modified by using the REAL > SHOVE TIMBERS functions as required.' + '||Templot0 also provides a variable amount of timber randomizing, both in the positioning of the timber ends and the angle at which the timbers' + ' are aligned across the track. Experiment by changing the values to get a realistic slight variation for standard gauge or a complete "crazy-track"' + ' effect for industrial and narrow-gauge lines.' + '||Swapping between IN-LINE and CENTRALIZED resets the randomizing to zero each time.' + '||Be aware that when randomizing is used every re-draw produces a fresh randomized effect. Background templates are frozen between each REBUILD,' + ' but you should make as many identical printed templates as you will need all in one Templot0 session, as there is no way to save the exact timbering layout in your template data files.' + ' When reloaded via your storage box the template will be redrawn with a fresh randomized timbering layout.' + ' (When templates are exported in DXF file format the exact timbering layout is included in the file.)' + '||As an alternative to randomizing, some variation in timbering can be introduced manually using the shove timber functions. Select the REAL > SHOVE TIMBERS menu item and then click the ?HELP button for more information.';
 
   helpkck_gen_str: string = '      `0About  K-crossings`9' +
     '||A K-crossing is also sometimes called an obtuse crossing or an elbow crossing. Two K-crossings are used at the centre of a diamond-crossing formation, one in each rail.' + '||There are two types of K-crossing, fixed and movable. Movable K-crossings are used for crossing angles flatter than 1:8 in straight track, and for sharper angles in curved track.' + ' In a movable K-crossing the diamond point rails move into contact with the stock rails in a similar way to ordinary switch blades. A diamond-crossing with movable K-crossings is sometimes called switch-diamond.' + '||If the REAL > K-CROSSING OPTIONS > AUTOMATIC menu option is selected, Templot0 will set the type of K-crossing to movable if the crossing angle is flatter than 1:8 and fixed otherwise.' + '||You may need to override the automatic setting on curved track, according to the following rules:' + '||In radius down to:   the flattest angle for a fixed K-crossing is:' + '| 60 chains ( 3960ft )........1:8' + '| 30 chains ( 1980ft )........1:7.75' + '| 20 chains ( 1320ft )........1:7.5' + '| 15 chains ( 990ft )..........1:7.25' + '| 12 chains ( 792ft )..........1:7' + '| 10 chains ( 660ft )..........1:6.5' + '| below 10 chains............1:6' + '||This information is dated 1943 for the GWR, and similar rules can be assumed for other companies. However, in models we often need to use sharp curves to represent the easier curves of the prototype.' + ' In this circumstance the choice of K-crossing type should be based on the known or likely prototype radius, not the full-size equivalent of the model radius. Otherwise nearly all the K-crossings' + ' on the model would be movable, which is not typical of the prototype where the majority of K-crossings are fixed.' + '|-----------' + '||Check rails (guard rails) are used only for fixed K-crossings in which the diamond point rails are fixed. Check rails are not required for movable K-crossings because the wheels see no break in the rail.' + '||K-crossing point rails are blunted to a tip width 1/8" less than the corresponding V-crossing blunt nose, which can be set by clicking the REAL > CUSTOMIZE V-CROSSING > BLUNT NOSE... menu item.' + '|-----------' + '||Click ABOUT DIAMOND-CROSSING TIMBERING below for more information.' + '||For a diagram and further notes explaining the dimensioning of K-crossings, see "Real Track" in the Templot0 Companion pages on the Templot web site at  templot.com .';
 
-  helpkck_timbering_str: string = '      `0Timbering  of  Diamond-Crossings`9' +
-    '||For all diamond-crossings timbering is equalized to a centre-line linking the V-crossings.' +
+  helpkck_timbering_str: string =
+    '      `0Timbering  of  Diamond-Crossings`9' +
+    '||For all diamond-crossings timbering is equalized to a centre-line linking the V-crossings.'
+    +
     '||For bullhead diamond-crossings (except when shorter than 1:5.5) there is a single timber at the centre datum position, for both fixed and movable K-crossings. In many cases this timber is widened to 14".' + ' When using the TOOLS > MAKE DIAMOND-CROSSING and TOOLS > MAKE LADDER CROSSOVER functions, this centre timber will be duplicated and overlapped on the two half-diamond templates.' + ' Use the REAL > SHOVE TIMBERS functions to omit one of them and widen the other.' + '||For flat-bottom diamond-crossings, there is a centre-timber only in the case of fixed K-crossings (except when shorter than 1:5).' + ' For movable K-crossings two timbers are used instead, with a space between them at the centre for the point linkages.' + '||Because the K-crossing point rails need to be supported on a timber at their tips, if you are using overscale flangeway gaps it is necessary to modify the timber positions from the prototype spacings.' + ' Click the REAL > TIMBERING > HALF-DIAMOND TIMBERING > TIMBERING AS MODEL menu option to do this. If you are using exact-scale or near exact-scale flangeways (e.g. S4/P4 or S7), select instead the' + ' REAL > TIMBERING > HALF-DIAMOND TIMBERING > TIMBERING AS PROTOTYPE menu option.' + '|-----------' + '||Click ABOUT K-CROSSINGS below for more information.' + '||For a diagram and further notes explaining the dimensioning of diamond-crossings, see "Real Track" in the Templot0 Companion pages on the Templot web site at  templot.com .';
 
-  help_rail_str: string = 'php/701    `0Rail  Types  and  Section  Dimensions`9'
-    + '||All dimensions should be entered in full-size prototype `0inches`3.' +
+  help_rail_str: string = 'php/701    `0Rail  Types  and  Section  Dimensions`9' +
+    '||All dimensions should be entered in full-size prototype `0inches`3.' +
     '||Alternatively, if you are using a non-scale rail section, enter the actual model dimensions of the rail in mm, prefixed with a letter s.' + ' For example, if the rail head is 1.2 mm wide, enter s1.2 which will then be converted to the prototype equivalent in inches at your current model scale.';
 
   marker_mapping_help_str: string =
     '      `0Using  Marker  Colours  and  Mapping  Colours`9' +
     '||Marker and mapping colours allow individual templates or groups of templates to be displayed and printed in different colours. This is useful when templates are being superimposed,' + ' or when it is desired to have different areas of the track plan in different colours. For example, the main running lines might be in one colour, sidings and yards in another colour,' + ' and off-stage storage sidings in a third colour.' + '||"Marker colour" is the term used for a colour which applies primarily to the trackpad and sketchboard display on the screen.' + '||"Mapping colour" is the term used for a colour which applies primarily to the print and PDF output.' + '||Colours for the screen and printing are set independently because some colours which are usable on the screen are not suitable for printing templates (white, yellow, pale pastel colours, etc.).' + '||Every stored template has an individual marker colour in which it can be displayed on the trackpad,' + ' and an option setting for whether this colour should be used instead of the normal colours which are being used for background templates on the trackpad.' + ' The pre-set marker colour is Red, and the option setting is Off, i.e. the marker colour is not actually used until this option setting is changed for this template.' + '||Likewise, every stored template has an individual mapping colour in which it can be printed,' + ' and an option setting for whether this colour should be used instead of the normal colours which are being used for printing background templates.' + ' The pre-set mapping colour is Magenta-pink, and the option setting is Off, i.e. the mapping colour is not actually used until this option setting is changed for this template.' + '||Marker and mapping colours and these option settings are part of the template specification and are included in template data .box3 files when templates are saved.' + '||To change the colours and options for a single background template, click on the template and then on its pop-up menu select the TEMPLATE COLOURS menu items.' + ' Changing the marker or mapping colour automatically selects the option to use the relevant colour.' + '||To change the colours and options for a group of templates (so that they are all displayed in the same colour), first select the group. Then click the GROUP > GROUP SELECT > TEMPLATE COLOURS FOR GROUP menu items.' + '||N.B. PLEASE BE AWARE that a selected group of templates is normally displayed in the GROUP COLOUR. The templates will not appear in the chosen marker colour until the group is de-selected (GROUP > GROUP SELECT > GROUP SELECT NONE menu item).' + '||When a number of templates are being displayed in a given marker colour, it is possible to select all those templates as a group by clicking the GROUP > GROUP SELECT > SELECT BY MARKER COLOUR... menu item.' + ' In this way the marker colour for the whole group can be changed.' + '||Handy Hint:' + '|It will often be useful to maintain a correlation between coloured areas of the track plan and your remembered groups (GROUP > GROUP SELECT > REMEMBER THIS GROUP menu items).' + ' There is no automatic link between marker colours and remembered groups, because only you know what the colours signify. It is possible to have every template on the plan in a slightly different colour,' + ' whereas the number of remembered groups is limited to 8.' + '||The way in which the marker colours are actually used in displaying the background templates is set in the TRACKPAD > TRACKPAD BACKGND TEMPLATES COLOURS menu options. You can choose whether these colours should apply to the rails, timbers, or both.' + ' It is also possible to use the mapping colours instead as a means of previewing the printed output. Changing these settings has no effect on templates which have not had their option setting changed to use their marker or mapping colours.' + '||The way in which the mapping colours are actually used in printing background templates is set in the PRINT > PRINTED DRAWING OPTIONS > COLOUR OPTIONS menu options.' + ' You can choose whether these colours should apply to the rails, timbers, or both. This will often be determined by the current printing size and likely consumption of coloured ink.' + ' Mapping colours do not apply to any timber infill or rail infill. When mapping colours are used for the rails the rail infill colour is set to grey.' + ' It is also possible to use the marker colours instead as a means of printing the track plan in the same colours as those in which it is being displayed on the screen.' + ' Changing these settings has no effect on templates which have not had their option setting changed to use their marker or mapping colours.' + '||There is also a SINGLE COLOUR option for printing which overrides all other colour settings and prints the entire track plan in a single colour of your choice.' + ' Finally there is an OPTIONS > BLACK RAIL-EDGES tickbox on the PRINT PAGES window which overrides all other colour, grey-shade, and print-intensity settings and ensures that the rail-edges are always printed in full black.';
 
-  transition_help_str: string = '      `0Transition  Curves  and  Easements`9'
-    + '||These are brief notes. For diagrams, tutorials and more information about using transition curves and linking together transition templates, please refer to the Templot0 Companion pages on the Templot web site at  templot.com .' + '|------------------------------------' + '||For information about the MAKE TRANSITION function which creates a transition curve between two existing templates, click the button below (if present) or click the GEOMETRY > TRANSITION CURVE > ? TRANSITION - HELP menu item.' + '|------------------------------------' + '||In a transition curve, the curving radius is progressively changed from the 1st or initial radius to the 2nd or final radius within the length of the transition zone.' + '||Any track preceding the start point of the transition zone will be curved at the 1st radius. Any track beyond the end point of the transition zone will be curved at the 2nd radius.' + '||It is possible for one of the radii to be straight, but not both.' + '||An "easement" is a short transition curve in which one end is straight, commonly used to ease the running of rolling stock from straight track to a curve,' + ' and providing a length in which the superelevation can be ramped up to suit the requirements of the curve.' + '||When selecting a transition curve, you have several options for the initial settings, which can be changed subsequently, or you can enter new settings immediately:' + '||Selecting C-CURVE SHRINKING TRANSITION retains your existing radius as the larger radius and sets the smaller radius to half of that size in the same direction.' + ' If the existing radius is straight, the smaller radius is set to 10 chains (scale).' + '||Selecting C-CURVE EXPANDING TRANSITION retains your existing radius as the smaller radius and sets the larger radius to double that size in the same direction.' + ' If the existing radius is straight, a shrinking transition is instead created down to 10 chains (scale) radius.' + '||Selecting S-CURVE REVERSE TRANSITION retains your existing radius as one of the radii and sets the other radius to the same size but in the opposite direction.' + ' If the existing radius is straight, both radii are set to 10 chains (scale) in opposite directions.' + '||Selecting EASEMENT FROM STRAIGHT sets the initial radius to straight and retains your existing radius as the final radius.' + '||Selecting EASEMENT TO STRAIGHT sets the final radius to straight and retains your existing radius as the initial radius.' + '||Before selecting these settings you will normally want to ensure that the fixing peg is at the appropriate end of the template,' + ' so that the newly modified template remains in alignment with the previous curve.' + '||For C-CURVE and S-CURVE transitions, the control template length is divided up as follows: initial radius length = 20%, transition zone length = 60%, final radius length = 20%.' + '||For EASEMENTS the transition zone length is set to 2 chains (132ft) (scale), unless this is more than 95% of the length of the control template,' + ' and the length of the straight section is set to zero.' + '||You will probably want to change these settings afterwards to suit your requirements for each situation - see below.' + '||Selecting AS PREVIOUS SETTINGS sets a new transition curve with the same radii and length settings that were last used for a transition curve.' + ' If transition curving is already in force for the control template, this option will have no effect.' + '||Selecting NEW TRANSITION SETTINGS... brings up the Templot0 data entry form on which you can enter your required radii and length settings for the new transition curve.' + '||The start and end points for the transition zone section of the curve are indicated by special marks across the track. The transition start mark is a large arrow-head symbol pointing into the transition zone,' + ' and the transition end mark resembles a set of "goalposts".' + '||To move the transition zone along the track, select the MOVE TRANSITION START mouse action (SHIFT+CTRL-F3) or just press the [ key.' + '||To lengthen or shorten the transition zone, select the ADJUST TRANSITION LENGTH mouse action (SHIFT+CTRL-F4) or just press the ] key.' + '||The transition radii are adjusted using the same ADJUST CURVING (F6) mouse action as for a constant radius curve.' + '||To toggle between adjusting the 1st or 2nd radius, click the triangle symbol on the mouse action panel.' + ' Or select either of the ACTION > TRANSITION RADIUS OPTIONS menu items (SHIFT+CTRL-F1 or SHIFT+CTRL-F2), or press the - (minus) or = (equals) keys for 1st or 2nd radius respectively. You can do this while the mouse action is in force.' + '||(These 1st or 2nd radius selections also apply to other mouse actions such as the ORBIT function CTRL-F5. The BACKSPACE key continues to work normally to repeat a previous mouse action.)' + '||If the first radius is positive and the second radius negative, or vice versa, an S-curve effect is achieved. For further explanation of the meaning of a negative radius' + ' click the GEOMETRY > CURVING DATA... menu item and read the HELP notes.' + '||When using the MOVE TRANSITION START and ADJUST TRANSITION LENGTH mouse actions, there are two options for the way the curve is calculated (ACTION > TRANSITION ZONE OPTIONS > menu items).' + '||The RADII FIXED (NORMAL) option maintains the 1st and 2nd radii constant, and adjusts the transition alignment between them accordingly.' + ' The TRANSITION FIXED (ROLL-OUT) option maintains a constant alignment in the transition zone, and adjusts the 1st or 2nd radius accordingly.' + '||This setting reverts to the RADII FIXED (NORMAL) option whenever a new transition curve is set.' + '||As for the other mouse actions, the way in which the template responds to transition and overall length adjustments is determined by the position of the fixing peg within it.' + ' Normallly, before making an adjustment, the fixing peg should be moved to a position where you want the template alignment to remain unchanged.' + '||In achieving the desired alignment the transition markers may sometimes be moved out beyond the actual extent of the template at one or both ends.' + ' If this is the case it avoids confusion to re-calculate the transition zone and radii to match the ends of the template.' + ' This can be done by clicking the GEOMETRY > TRANSITION CURVE > NORMALIZE TRANSITION menu item. The alignment of the template is not affected.' + '||A frequent need is to slide a template along a transition curve alignment without disturbing the alignment. This is done using the SNAKE (CTRL-F6) mouse action. Compare the results with the otherwise similar SLIDE (F9) mouse action.' + '||In addition, a transition curve can be combined with a SLEW to give a virtually unlimited range of alignments. For more information about slewing, click the GEOMETRY > SLEW (NUDGE) > ? SLEW - HELP menu item.' + '||To enter the radius and transition length settings directly, select the GEOMETRY > CURVING DATA... menu item while the control template contains a transition, or click the figures showing on the lower line of text in the MOUSE ACTION panel.' + '||When changing from a transition to a constant-radius template, GEOMETRY > CONSTANT RADIUS menu item, the new constant radius will be the radius at the current position of the fixing peg within the transition template.' + '||Bear in mind when using transitions that a long transition curve will significantly extend redraw times because of the amount of calculation needed to draw it.' + ' If you are using a slow processor you will want to keep transition zones as short as possible.' + '||For more information about the transition mathematics, see the help notes for the PROGRAM > EXPERT > TRANSITION MATHS > items on the PROGRAM PANEL menus.';
+  transition_help_str: string = '      `0Transition  Curves  and  Easements`9' +
+    '||These are brief notes. For diagrams, tutorials and more information about using transition curves and linking together transition templates, please refer to the Templot0 Companion pages on the Templot web site at  templot.com .' + '|------------------------------------' + '||For information about the MAKE TRANSITION function which creates a transition curve between two existing templates, click the button below (if present) or click the GEOMETRY > TRANSITION CURVE > ? TRANSITION - HELP menu item.' + '|------------------------------------' + '||In a transition curve, the curving radius is progressively changed from the 1st or initial radius to the 2nd or final radius within the length of the transition zone.' + '||Any track preceding the start point of the transition zone will be curved at the 1st radius. Any track beyond the end point of the transition zone will be curved at the 2nd radius.' + '||It is possible for one of the radii to be straight, but not both.' + '||An "easement" is a short transition curve in which one end is straight, commonly used to ease the running of rolling stock from straight track to a curve,' + ' and providing a length in which the superelevation can be ramped up to suit the requirements of the curve.' + '||When selecting a transition curve, you have several options for the initial settings, which can be changed subsequently, or you can enter new settings immediately:' + '||Selecting C-CURVE SHRINKING TRANSITION retains your existing radius as the larger radius and sets the smaller radius to half of that size in the same direction.' + ' If the existing radius is straight, the smaller radius is set to 10 chains (scale).' + '||Selecting C-CURVE EXPANDING TRANSITION retains your existing radius as the smaller radius and sets the larger radius to double that size in the same direction.' + ' If the existing radius is straight, a shrinking transition is instead created down to 10 chains (scale) radius.' + '||Selecting S-CURVE REVERSE TRANSITION retains your existing radius as one of the radii and sets the other radius to the same size but in the opposite direction.' + ' If the existing radius is straight, both radii are set to 10 chains (scale) in opposite directions.' + '||Selecting EASEMENT FROM STRAIGHT sets the initial radius to straight and retains your existing radius as the final radius.' + '||Selecting EASEMENT TO STRAIGHT sets the final radius to straight and retains your existing radius as the initial radius.' + '||Before selecting these settings you will normally want to ensure that the fixing peg is at the appropriate end of the template,' + ' so that the newly modified template remains in alignment with the previous curve.' + '||For C-CURVE and S-CURVE transitions, the control template length is divided up as follows: initial radius length = 20%, transition zone length = 60%, final radius length = 20%.' + '||For EASEMENTS the transition zone length is set to 2 chains (132ft) (scale), unless this is more than 95% of the length of the control template,' + ' and the length of the straight section is set to zero.' + '||You will probably want to change these settings afterwards to suit your requirements for each situation - see below.' + '||Selecting AS PREVIOUS SETTINGS sets a new transition curve with the same radii and length settings that were last used for a transition curve.' + ' If transition curving is already in force for the control template, this option will have no effect.' + '||Selecting NEW TRANSITION SETTINGS... brings up the Templot0 data entry form on which you can enter your required radii and length settings for the new transition curve.' + '||The start and end points for the transition zone section of the curve are indicated by special marks across the track. The transition start mark is a large arrow-head symbol pointing into the transition zone,' + ' and the transition end mark resembles a set of "goalposts".' + '||To move the transition zone along the track, select the MOVE TRANSITION START mouse action (SHIFT+CTRL-F3) or just press the [ key.' + '||To lengthen or shorten the transition zone, select the ADJUST TRANSITION LENGTH mouse action (SHIFT+CTRL-F4) or just press the ] key.' + '||The transition radii are adjusted using the same ADJUST CURVING (F6) mouse action as for a constant radius curve.' + '||To toggle between adjusting the 1st or 2nd radius, click the triangle symbol on the mouse action panel.' + ' Or select either of the ACTION > TRANSITION RADIUS OPTIONS menu items (SHIFT+CTRL-F1 or SHIFT+CTRL-F2), or press the - (minus) or = (equals) keys for 1st or 2nd radius respectively. You can do this while the mouse action is in force.' + '||(These 1st or 2nd radius selections also apply to other mouse actions such as the ORBIT function CTRL-F5. The BACKSPACE key continues to work normally to repeat a previous mouse action.)' + '||If the first radius is positive and the second radius negative, or vice versa, an S-curve effect is achieved. For further explanation of the meaning of a negative radius' + ' click the GEOMETRY > CURVING DATA... menu item and read the HELP notes.' + '||When using the MOVE TRANSITION START and ADJUST TRANSITION LENGTH mouse actions, there are two options for the way the curve is calculated (ACTION > TRANSITION ZONE OPTIONS > menu items).' + '||The RADII FIXED (NORMAL) option maintains the 1st and 2nd radii constant, and adjusts the transition alignment between them accordingly.' + ' The TRANSITION FIXED (ROLL-OUT) option maintains a constant alignment in the transition zone, and adjusts the 1st or 2nd radius accordingly.' + '||This setting reverts to the RADII FIXED (NORMAL) option whenever a new transition curve is set.' + '||As for the other mouse actions, the way in which the template responds to transition and overall length adjustments is determined by the position of the fixing peg within it.' + ' Normallly, before making an adjustment, the fixing peg should be moved to a position where you want the template alignment to remain unchanged.' + '||In achieving the desired alignment the transition markers may sometimes be moved out beyond the actual extent of the template at one or both ends.' + ' If this is the case it avoids confusion to re-calculate the transition zone and radii to match the ends of the template.' + ' This can be done by clicking the GEOMETRY > TRANSITION CURVE > NORMALIZE TRANSITION menu item. The alignment of the template is not affected.' + '||A frequent need is to slide a template along a transition curve alignment without disturbing the alignment. This is done using the SNAKE (CTRL-F6) mouse action. Compare the results with the otherwise similar SLIDE (F9) mouse action.' + '||In addition, a transition curve can be combined with a SLEW to give a virtually unlimited range of alignments. For more information about slewing, click the GEOMETRY > SLEW (NUDGE) > ? SLEW - HELP menu item.' + '||To enter the radius and transition length settings directly, select the GEOMETRY > CURVING DATA... menu item while the control template contains a transition, or click the figures showing on the lower line of text in the MOUSE ACTION panel.' + '||When changing from a transition to a constant-radius template, GEOMETRY > CONSTANT RADIUS menu item, the new constant radius will be the radius at the current position of the fixing peg within the transition template.' + '||Bear in mind when using transitions that a long transition curve will significantly extend redraw times because of the amount of calculation needed to draw it.' + ' If you are using a slow processor you will want to keep transition zones as short as possible.' + '||For more information about the transition mathematics, see the help notes for the PROGRAM > EXPERT > TRANSITION MATHS > items on the PROGRAM PANEL menus.';
 
 
   slew_help_str: string = '      `0Slewing`9' +
     '||These are brief notes. For diagrams, tutorials and more information about using the slewing functions, please refer to the Templot0 Companion pages on the Templot web site at  templot.com .' + '|-----------------------------------------------------------' + '||The slewing function shifts a section of the track sideways from its normal position. There is a section between the slewed and unslewed portions called the SLEWING ZONE in which the amount of SLEW (sideways shift) is progressively increased' + ' so that the slewed and unslewed portions are joined by a smooth reverse curve.' + '||Slewing is a useful means of nudging the track into an alignment to fit the existing site, but should normally be used for plain track only. A turnout placed in the slewing zone is likely to be distorted and/or difficult' + ' to construct, and Templot0 will be unable to warn you about the minimum radius within it.' + '||A common use for slewing is to increase the space between double-track running lines to make room for a fixed obstruction such as a bridge girder, or perhaps to accommodate an island platform.' + '||Unlike a transition curve, slewing introduces some distortion into the rail lengths and sleeper spacings. This will be negligible if slewing is used as intended to make small adjustments to the alignment.' + ' If you use the slewing functions to generate a sharp S-curve some noticeable distortion is inevitable. It is better to build up such curves with transitions whenever possible.' + '||While slewing is in force a reminder notice appears on the trackpad. This shows in blue normally, but will change to yellow if Templot0 judges the slew to be excessive.' + '||There are two slew MODES, using different maths for the reverse curve. Mode 1 makes the centre reverse curve as gentle as possible to avoid buffer-locking problems and is suitable for slews in large radius curves or straight track.' + '||Mode 2 eases the radius at each end of the slewing zone and is therefore more suitable for slews in sharply curving track. But it does this at the expense of a more pronounced reverse curve at the centre of the slewing zone.' + '||For Mode 2 slews there is an adjustable SLEW FACTOR which permits fine tuning of the slewing radii by mouse action, select the ACTION > MOUSE ACTIONS CONTROL > ADJUST MODE 2 SLEW FACTOR menu item. (There is no slew factor for slew mode 1.)' + '||Slewing is enabled by selecting the GEOMETRY > SLEW (NUDGE) > SLEW USING MODE menu items, and can be cancelled without losing the current settings by selecting the GEOMETRY > SLEW (NUDGE) > CANCEL SLEW menu item.' + '||The slewing settings can be adjusted by the mouse actions only while slewing is in force.' + '||Note that slewing does not change the track radius (except within the slewing zone). The slewed and unslewed sections are of the same radius, and by zooming out you can see the two radial centre marks, one for each section.' + '||If you want the radius of the slewed section to differ, you can combine a slew with a transition curve. By careful adjustment of the starting points and lengths of the transition curve and slewing zone, it is possible to make' + ' the slewed and unslewed sections concentric.' + '||As for the other mouse actions, the way in which the template responds to the slewing adjustments is determined by the position of the fixing peg within it.' + ' Please experiment fully with the various settings before finalising a template as there are a number of interesting effects.' + '||A frequent need is to slide a template along a slewed alignment without disturbing the alignment. This is done using the SNAKE (CTRL-F6) mouse action. Compare the results with the otherwise similar SLIDE (F9) mouse action.';
 
 
-  group_link_help_str: string = '      `0Linking  a  Group  to  the  Pegging  Notch`9'
-    + '||Clicking the PEG / ALIGN TOOLS > NOTCH UNDER BACKGROUND PEG menu item on the pop-up menu for a background template which is a member of a GROUP gives you the option of "linking" the whole group to the pegging notch.' + '||Activating this function means that the selected group of templates will be linked to subsequent movements of the pegging notch.' + '||This means for example that subsequently clicking the GEOMETRY > NOTCH > NOTCH UNDER PEG menu item (or pressing the DIVIDE key) will shift the whole group into alignment with the control template.' + '||Occasionally Templot0 may align the group of templates facing the wrong way. This is easily corrected by clicking the GROUP > ROTATE GROUP 180 DEGREES menu item (or pressing SHIFT-F6).' + '||While this function is in force a warning label appears on the trackpad, and this function can be cancelled by clicking the label.' + '||Handy Hints :' + '||A group of template(s) must be selected before this function can be activated (by clicking on one of them and then NOTCH UNDER BACKGROUND PEG).' + '||Group moves made this way can be undone by repeatedly clicking the GEOMETRY > NOTCH > CYCLE NOTCH menu item (CTRL+C).' + ' But it is wise to save the group templates in a data file before using this function, in case of errors (SAVE GROUP in the STORAGE BOX menus).' + '||For static moves this function provides an easier alternative to the GROUP > SHIFT GROUP ONTO NOTCH function,' + ' and also permits direct pegging between background templates without affecting the control template (click the PEG / ALIGN TOOLS > NOTCH UNDER BACKGROUND PEG menu item for the background template onto which you wish to peg the group).' + '||In conjunction with the GEOMETRY > NOTCH > LINK NOTCH TO TEMPLATE AT PEG function, a whole group of templates can be maintained in alignment with the control template while it is being adjusted by mouse action.' + '||N.B. Remember to cancel this function as soon as you have finished using it, to avoid making unexpected changes to the group.';
+  group_link_help_str: string = '      `0Linking  a  Group  to  the  Pegging  Notch`9' +
+    '||Clicking the PEG / ALIGN TOOLS > NOTCH UNDER BACKGROUND PEG menu item on the pop-up menu for a background template which is a member of a GROUP gives you the option of "linking" the whole group to the pegging notch.' + '||Activating this function means that the selected group of templates will be linked to subsequent movements of the pegging notch.' + '||This means for example that subsequently clicking the GEOMETRY > NOTCH > NOTCH UNDER PEG menu item (or pressing the DIVIDE key) will shift the whole group into alignment with the control template.' + '||Occasionally Templot0 may align the group of templates facing the wrong way. This is easily corrected by clicking the GROUP > ROTATE GROUP 180 DEGREES menu item (or pressing SHIFT-F6).' + '||While this function is in force a warning label appears on the trackpad, and this function can be cancelled by clicking the label.' + '||Handy Hints :' + '||A group of template(s) must be selected before this function can be activated (by clicking on one of them and then NOTCH UNDER BACKGROUND PEG).' + '||Group moves made this way can be undone by repeatedly clicking the GEOMETRY > NOTCH > CYCLE NOTCH menu item (CTRL+C).' + ' But it is wise to save the group templates in a data file before using this function, in case of errors (SAVE GROUP in the STORAGE BOX menus).' + '||For static moves this function provides an easier alternative to the GROUP > SHIFT GROUP ONTO NOTCH function,' + ' and also permits direct pegging between background templates without affecting the control template (click the PEG / ALIGN TOOLS > NOTCH UNDER BACKGROUND PEG menu item for the background template onto which you wish to peg the group).' + '||In conjunction with the GEOMETRY > NOTCH > LINK NOTCH TO TEMPLATE AT PEG function, a whole group of templates can be maintained in alignment with the control template while it is being adjusted by mouse action.' + '||N.B. Remember to cancel this function as soon as you have finished using it, to avoid making unexpected changes to the group.';
 
-  line_thick_help_str: string = '      `0Setting  Printed  Line  Thicknesses`9'
-    + '||The settings in the PRINT > PRINTED LINE THICKNESS menu options determine the thickness (width) of the lines which make up the drawing on printed templates.' + '||Click the THIN LINES menu option to print all lines on your templates at the minimum thickness which is possible on your printer (or not less than 0.02 mm).' + '||Click the NORMAL LINES menu option to use the following settings, or the nearest possible on your printer:' + '|Grid lines 0.02 mm or minimum' + '|Trim margin lines 0.22 mm' + '|Background shapes 0.22 mm' + '|Picture shape borders 0.02 mm or minimum' + '|Rail-edge lines 0.16 mm' + '|Timber outlines 0.16 mm' + '|Track centre-lines lines 0.02 mm or minimum'    // 0.79.a
+  line_thick_help_str: string = '      `0Setting  Printed  Line  Thicknesses`9' +
+    '||The settings in the PRINT > PRINTED LINE THICKNESS menu options determine the thickness (width) of the lines which make up the drawing on printed templates.' + '||Click the THIN LINES menu option to print all lines on your templates at the minimum thickness which is possible on your printer (or not less than 0.02 mm).' + '||Click the NORMAL LINES menu option to use the following settings, or the nearest possible on your printer:' + '|Grid lines 0.02 mm or minimum' + '|Trim margin lines 0.22 mm' + '|Background shapes 0.22 mm' + '|Picture shape borders 0.02 mm or minimum' + '|Rail-edge lines 0.16 mm' + '|Timber outlines 0.16 mm' + '|Track centre-lines lines 0.02 mm or minimum'    // 0.79.a
     + '|All other marks 0.16 mm' +
-    '|(These slightly odd dimensions have been chosen to give as near as possible equivalent results on different makes of printer.)'
-    + '||Click the THICK LINES menu option to use the following settings, or the nearest possible on your printer:'
-    + '|Grid lines 0.16 mm' + '|Trim-margin lines 0.5 mm' + '|Background shapes 0.4 mm' +
-    '|Picture shape borders 0.16 mm' + '|Rail-edge lines 0.3 mm' + '|Timber outlines 0.3 mm'
-    + '|Track centre-lines lines 0.16 mm'   // 0.79.a
+    '|(These slightly odd dimensions have been chosen to give as near as possible equivalent results on different makes of printer.)' + '||Click the THICK LINES menu option to use the following settings, or the nearest possible on your printer:' + '|Grid lines 0.16 mm' + '|Trim-margin lines 0.5 mm' + '|Background shapes 0.4 mm' + '|Picture shape borders 0.16 mm' + '|Rail-edge lines 0.3 mm' + '|Timber outlines 0.3 mm' + '|Track centre-lines lines 0.16 mm'   // 0.79.a
     + '|All other marks 0.3 mm' +
     '||Or click the SET ANY LINE THICKNESS... menu option to make any other line thickness settings which you require.'
     + '||If the SIZE-ADJUST LINE THICKNESS menu option is ticked, Templot0 will scale down some of these line thicknesses in accordance with any reduced size setting for printing in the PRINT > ENLARGE/REDUCE SIZE menu options.' + ' The grid lines and trim-margin lines are not affected.' + '||If the SIZE-ADJUST LINE THICKNESS menu option is unticked, all lines will be printed at the set thickness, without regard to any reduced size setting for printing in the PRINT > ENLARGE/REDUCE SIZE menu options.' + '||For Picture Shape borders, the set line thickness applies only if the image is being printed. If the OUTLINES ONLY option is selected the outline is printed at the Background Shape line thickness.' + '||N.B. If you are using an old-style dot-matrix impact printer (or a pen plotter), Templot0 draws all lines 1 ink-dot thick, and the settings which you make' + ' here will have no effect until you change to a non-impact printer.' + '||Handy Hints:' + '||For the final construction templates printed using Best or Letter-Quality or Photo print quality, the THIN LINES option will give the most precise result.' + '||For trial prints using the Economy or Draft setting, the NORMAL LINES option is more prominent.' + '||The actual drawn line thickness (line width) may vary from these settings and is determined by the dot size and dpi (dots per inch) resolution for your printer.' + '||These settings have no effect on templates exported in DXF file format. The way the templates are rendered in your CAD software is determined only in that program.' + '||These line thickness settings affect only the printed output, they have no effect on the screen drawing. To change the appearance of' + ' the drawing on the screen, select the TRACKPAD menu items.';
@@ -5224,10 +5199,12 @@ const
   modify_rebuild_str: string =
     '||These changes cannot be undone. If you may want to revert to this template, cancel this and create an unused copy of it first (click the CREATE UNUSED COPY menu item),' + ' which you can subsequently COPY TO BACKGROUND on the Storage Box if necessary.' + '||For more information, click the ? HELP button on the Storage Box, and read about the OPTIONS > MODIFY ON REBUILD menu options.' + '||If you simply want to change the appearance of this template by rebuilding it with changed generator settings, cancel this and click the REBUILD menu item instead.' + '||Are you sure you want to modify this template now?';
 
-  gaunt_offset_help_str: string = '    `0gaunt  offset`9' +
+  gaunt_offset_help_str: string =
+    '    `0gaunt  offset`9' +
     '||Enter a dimension in full-size prototype INCHES for the amount by which one set of rails in gauntletted track is displaced from the other set of rails.' + '||Changing this dimension will have no effect unless or until the control template is a `0gaunt turnout`3.' + '||To convert a normal turnout to a gaunt turnout, click the `0template > gaunt options > gaunt turnout`1 menu item.' + '||green_panel_begin tree.gif The V-crossing from a gaunt turnout is useful as a partial template in formations such as a tandem turnout,' + ' allowing the turnout radius to be adjusted independently of the crossing angle.' + '||Changing the gaunt offset will modify the gaunt turnout radius.' + '||If an invalid dimension is entered, the gaunt offset will be adjusted to fit. The modified dimension is shown in the template info panel.' + '||For more information about using gaunt turnouts click the `0more information online`1 link above.green_panel_end';
 
-  gaunt_radius_help_str: string = '    `0gaunt  turnout  radius`9' +
+  gaunt_radius_help_str: string =
+    '    `0gaunt  turnout  radius`9' +
     '||Enter a dimension in mm for the turnout radius of a gaunt turnout.' +
     '||This radius applies to the equivalent straight turnout before it is curved. A negative radius is not valid.'
     + '||Changing this dimension will have no effect unless or until the control template is a `0gaunt turnout`3.'
@@ -5323,8 +5300,7 @@ procedure Tpad_form.hover_colour_menu_entryClick(Sender: TObject);
 
 begin
   hover_colour := get_colour(
-    'choose  a  mouse  hover  colour  when  selecting  background  templates',
-    hover_colour);
+    'choose  a  mouse  hover  colour  when  selecting  background  templates', hover_colour);
 end;
 //__________________________________________________________________________________________
 
@@ -5339,8 +5315,7 @@ procedure Tpad_form.rail_colour_menu_entryClick(Sender: TObject);
 
 begin
   rail_colour := get_colour(
-    'choose  a  colour  for  the  control  template  rail  lines  on  the  pad',
-    rail_colour);
+    'choose  a  colour  for  the  control  template  rail  lines  on  the  pad', rail_colour);
 end;
 //_________________________________________________________________________________________
 
@@ -5348,7 +5323,8 @@ procedure Tpad_form.align_colour_menu_entryClick(Sender: TObject);
 
 begin
   align_colour := get_colour(
-    'choose  a  colour  for  the  control  template  radial  end  marks  on  the  pad', align_colour);
+    'choose  a  colour  for  the  control  template  radial  end  marks  on  the  pad',
+    align_colour);
 end;
 //____________________________________________________________________________________________
 
@@ -5365,7 +5341,8 @@ procedure Tpad_form.timber_colour_menu_entryClick(Sender: TObject);
 
 begin
   timber_colour := get_colour(
-    'choose  a  colour  for  the  control  template  timber  outlines  on  the  pad', timber_colour);
+    'choose  a  colour  for  the  control  template  timber  outlines  on  the  pad',
+    timber_colour);
 end;
 //_________________________________________________________________________________________
 
@@ -5373,8 +5350,7 @@ procedure Tpad_form.guide_colour_menu_entryClick(Sender: TObject);
 
 begin
   guide_colour := get_colour(
-    'choose  a  colour  for  the  control  template  guide  marks  on  the  pad',
-    guide_colour);
+    'choose  a  colour  for  the  control  template  guide  marks  on  the  pad', guide_colour);
 end;
 //____________________________________________________________________________________________
 
@@ -5391,14 +5367,16 @@ procedure Tpad_form.joint_colour_menu_entryClick(Sender: TObject);
 
 begin
   joint_colour := get_colour(
-    'choose  a  colour  for  the  control  template  rail-joint  marks  on  the  pad', joint_colour);
+    'choose  a  colour  for  the  control  template  rail-joint  marks  on  the  pad',
+    joint_colour);
 end;
 //________________________________________________________________________________________
 
 procedure Tpad_form.page_outline_colour_menu_entryClick(Sender: TObject);
 
 begin
-  page_colour := get_colour('choose  a  colour  for  the  page  outlines  on  the  pad', page_colour);
+  page_colour := get_colour('choose  a  colour  for  the  page  outlines  on  the  pad',
+    page_colour);
 end;
 //______________________________________________________________________________________
 
@@ -5445,8 +5423,8 @@ begin
   if plain_track = True then begin
     alert(6, '    adjust  both  size  and  curving',
       'Adjust both size and curving.' +
-      '||This mouse action applies only to turnout and half-diamond templates.'
-      + '||The control template is plain track.' +
+      '||This mouse action applies only to turnout and half-diamond templates.' +
+      '||The control template is plain track.' +
       '||For plain track use `0F4`2 mouse action to adjust the length, or `0F6`2 mouse action to adjust the curving radius.',
       '', '', '', '', '', 'O K', 0);
     EXIT;
@@ -5459,7 +5437,8 @@ begin
   else
     trail_str := captext(nomrad) + ' mm';
 
-  mouse_action_selected('    adjust  both  size  and  curving ...', 'size  and  curving', trail_str);
+  mouse_action_selected('    adjust  both  size  and  curving ...',
+    'size  and  curving', trail_str);
 
   both_mod := 1;                           // set up for adjusting both.
 
@@ -5510,7 +5489,8 @@ begin
   action_panel_hint('rotate around peg instead'); // 205c
 
   mouse_action_selected('F7    shift  template  position' + str + ' ...',
-    'F7  shift  position' + str, ' X : ' + captext(xshift) + ' mm      Y : ' + captext(yshift) + ' mm');
+    'F7  shift  position' + str, ' X : ' + captext(xshift) + ' mm      Y : ' +
+    captext(yshift) + ' mm');
 
   shift_mod := 1;
   //if transform=False then transform_on_and_redraw;     // won't work otherwise - also does a redraw.
@@ -5527,7 +5507,8 @@ begin
     peg_rail := 8;     // can't have free peg moving - so default to ms centre-line.
 
   if peg_code = 22 then
-    peg_rail := 2;   // 208b on TP aligned to turnout road -- no available centre-line so move peg to turnout rail.
+    peg_rail := 2;
+  // 208b on TP aligned to turnout road -- no available centre-line so move peg to turnout rail.
   if peg_code = 100 then
     peg_rail := 2;   // 208b on end of planing  -- no available centre-line so move peg to turnout rail.
 
@@ -5632,9 +5613,9 @@ procedure Tpad_form.move_notch_menu_entryClick(Sender: TObject);
 begin
   if (any_selected > 0) and (group_notch_linked = True) then begin
     if alert(2, '    group  linked  to  notch',
-      'A selected group of templates is currently linked to the pegging notch.'
-      + '||This MOVE NOTCH mouse action will unlink the group.'
-      + '||To move a group of templates, use the SHIFT GROUP (SHIFT+CTRL-F7) mouse action instead.',
+      'A selected group of templates is currently linked to the pegging notch.' +
+      '||This MOVE NOTCH mouse action will unlink the group.' +
+      '||To move a group of templates, use the SHIFT GROUP (SHIFT+CTRL-F7) mouse action instead.',
       '', '', '', '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
       EXIT;
     unlink_group;
@@ -5705,8 +5686,8 @@ begin
     bgnd_form_closed := True;
   end;
 
-  mouse_action_selected('    shift  shape ...', 'shift  shape', 'by  X : ' + captext(
-    shapes_shiftx_now) + ' mm   Y : ' + captext(shapes_shifty_now) + ' mm');
+  mouse_action_selected('    shift  shape ...', 'shift  shape', 'by  X : ' +
+    captext(shapes_shiftx_now) + ' mm   Y : ' + captext(shapes_shifty_now) + ' mm');
   oneshape_shift_mod := 1;
 end;
 //_____________________________________________________________________________________
@@ -5789,7 +5770,8 @@ begin
     mouse_str := mouse_str + ' ( banner  paper )';
 
   mouse_action_selected('SHIFT+CTRL-F10    move  page  origin ...', mouse_str,
-    'X : ' + captext(print_pages_top_origin) + ' mm   Y : ' + captext(print_pages_left_origin) + ' mm');
+    'X : ' + captext(print_pages_top_origin) + ' mm   Y : ' +
+    captext(print_pages_left_origin) + ' mm');
   porg_mod := 1;
   if show_margins = 0 then
     show_margins := 1;  // assume printer if off
@@ -5810,7 +5792,8 @@ begin
   if banner_paper = True then
     mouse_str := mouse_str + ' ( banner  paper )';
 
-  mouse_action_selected('    adjust  print  size ...', mouse_str, captext(out_factor * 100) + ' %');
+  mouse_action_selected('    adjust  print  size ...', mouse_str,
+    captext(out_factor * 100) + ' %');
   out_factor_mod := 1;
 
   tick_not_normal;
@@ -5841,9 +5824,9 @@ begin
   if plain_track = True then begin
     alert(6, '    F5  adjust  size',
       '  •  F5 adjust size.' +
-      '||The `0F5`2 mouse action applies to turnout and half-diamond templates only.'
-      + '||The control template is currently plain track.'
-      + '||For plain track use `0F4`2 mouse action to adjust the length,||or use `0F6`2 mouse action to adjust the curving radius.| ',
+      '||The `0F5`2 mouse action applies to turnout and half-diamond templates only.' +
+      '||The control template is currently plain track.' +
+      '||For plain track use `0F4`2 mouse action to adjust the length,||or use `0F6`2 mouse action to adjust the curving radius.| ',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
@@ -5852,10 +5835,10 @@ begin
 
     repeat
       i := alert(7, '    F5  convert  irregular  half-diamond ?',
-        '  •  `0F5`2 convert irregular half-diamond?'
-        + '||The control template is currently an `0irregular`3 type of half-diamond.'
-        + '||Meaning that the K-crossing angle is not the same as the V-crossing angle.'
-        + '||If you continue using the `0F5`2 mouse action, this template will be converted to a `0regular`3 type half-diamond and the K-crossing angle will be changed to match the V-crossing angle.' + '||To retain an `0irregular`3 type of half-diamond having unequal angles, cancel this and:' + '||Use `0F9`2 mouse action to adjust the V-crossing angle independently.' + '||Use `0F10`2 mouse action to adjust the K-crossing angle independently.', '', '', '', 'more  information', 'cancel', 'continue', 4);
+        '  •  `0F5`2 convert irregular half-diamond?' +
+        '||The control template is currently an `0irregular`3 type of half-diamond.' +
+        '||Meaning that the K-crossing angle is not the same as the V-crossing angle.' +
+        '||If you continue using the `0F5`2 mouse action, this template will be converted to a `0regular`3 type half-diamond and the K-crossing angle will be changed to match the V-crossing angle.' + '||To retain an `0irregular`3 type of half-diamond having unequal angles, cancel this and:' + '||Use `0F9`2 mouse action to adjust the V-crossing angle independently.' + '||Use `0F10`2 mouse action to adjust the K-crossing angle independently.', '', '', '', 'more  information', 'cancel', 'continue', 4);
       if i = 5 then
         EXIT;
 
@@ -5966,8 +5949,7 @@ begin
 
       // 208b mods..
 
-      i := alert(7, '      delete  template  to  the  control ?',
-        str +
+      i := alert(7, '      delete  template  to  the  control ?', str +
         '||You are about to copy this template to the control template and delete the original from your storage box and background drawing, so that it can be modified and stored again later.' + '||If necessary it can be restored unmodified to the background drawing, either by clicking the `0PROGRAM > STORE & BACKGROUND`1 menu item, or pressing the `0INSERT`2 key, before making any changes to it.' + '||Or by clicking the `0EDIT > UNDO DELETE`1 menu item on the storage box before another template is deleted.' + '||Are you sure you want to delete this stored template back to the control template?' + '||If you are not sure, click the green bar.', '', '', '', '', 'no  -  cancel  delete    ', 'yes  -  delete  ' + str + '  to  control', 0);
       //%%%%  was"today"
 
@@ -5996,7 +5978,8 @@ procedure Tpad_form.make_control_popup_entryClick(Sender: TObject);
 // no delete alerts
 
 begin
-  bgnd_clicked_in_quick_mode := True;           // use Quick mode options regardless of mode for make
+  bgnd_clicked_in_quick_mode := True;
+  // use Quick mode options regardless of mode for make
 
   if turnoutx = 0                                         // ignore storing a zero-length template
   then
@@ -6424,7 +6407,9 @@ end;
 const
   help_warn_str: string = '    `0Small  Radius  Warning`9' +
     '||The warning "lamp" on the information panel will flash <span style="color:#FF0000; font-weight:bold;">red</span> if any'
-    + ' part of the control template is curved to a radius smaller than this limit dimension (at the track centre-line).' + '||This indicator is a design aid only -- changing this limit has no effect on the actual design of the control template.' + '||green_panel_begin tree.gif The specified limit applies to the current control template only. Stored templates can each have a separate limit setting.' + ' This makes it possible to set different limits for different parts of the layout design.' + '||To set the limit for a group of templates, change it for the control template and then click the `0geometry > radius&nbsp;warning > modify group to match`1 menu item.green_panel_end';
+    + ' part of the control template is curved to a radius smaller than this limit dimension (at the track centre-line).'
+    + '||This indicator is a design aid only -- changing this limit has no effect on the actual design of the control template.'
+    + '||green_panel_begin tree.gif The specified limit applies to the current control template only. Stored templates can each have a separate limit setting.' + ' This makes it possible to set different limits for different parts of the layout design.' + '||To set the limit for a group of templates, change it for the control template and then click the `0geometry > radius&nbsp;warning > modify group to match`1 menu item.green_panel_end';
 //______________________________________________________________________________
 
 procedure Tpad_form.min_rad_menu_entryClick(Sender: TObject);
@@ -6597,25 +6582,20 @@ begin
             t55_str := '';
 
           1:
-            t55_str := '||There is one T-55 template in your storage box.'
-              +
+            t55_str := '||There is one T-55 template in your storage box.' +
               ' If this is unintended, click the `0box > delete T-55 templates`z menu item on the storage box.';
 
           else
-            t55_str := '||There are ' + IntToStr(t55) + ' T-55 templates in your storage box.'
-              +
+            t55_str := '||There are ' + IntToStr(t55) +
+              ' T-55 templates in your storage box.' +
               ' If these are unintended, click the `0box > delete T-55 templates`z menu item on the storage box.';
         end;//case
 
-        if alert(3, 'php/320    T - 55  gauge',
-          '    `0T-55  Gauge`9'
-          +
-          '||You are currently using the fictional T-55 startup gauge.'
-          +
-          '||Have you forgotten to set your required gauge and scale?'
-          +
-          t55_str, '', '', '', 'continue  with  T-55  gauge',
-          '', 'change  gauge  and  scale ...', 0) = 6 then
+        if alert(3, 'php/320    T - 55  gauge', '    `0T-55  Gauge`9' +
+          '||You are currently using the fictional T-55 startup gauge.' +
+          '||Have you forgotten to set your required gauge and scale?' +
+          t55_str, '', '', '', 'continue  with  T-55  gauge', '',
+          'change  gauge  and  scale ...', 0) = 6 then
           other_gauges_menu_entry.Click;
       end;
     end;
@@ -7430,7 +7410,8 @@ begin
       rotate_keeps_menu_entry.Click;           //  SHIFT+CTRL-F8
 
     '.':
-      differ_check_rails_menu_entry.Click;     // 0.94.a SHIFT+CTRL-F9  was move_ring_menu_entry.Click;
+      differ_check_rails_menu_entry.Click;
+    // 0.94.a SHIFT+CTRL-F9  was move_ring_menu_entry.Click;
 
     ';':
       full_draw := not full_draw;
@@ -7542,8 +7523,7 @@ procedure Tpad_form.blunt_nose_menu_entryClick(Sender: TObject);
 const
   bnw_str: string = '      Width of Blunt Nose' +
     '||Enter a dimension in full-size prototype inches for the width of the nose of the crossing vee.'
-    +
-    '||For British standard-gauge bullhead track this dimension is normally 3/4" (0.75").'
+    + '||For British standard-gauge bullhead track this dimension is normally 3/4" (0.75").'
     + '||For British standard-gauge flat-bottom track this dimension is normally 5/8" (0.625").'
     + '||(The nose of the crossing vee is not made sharp, otherwise it would be very quickly damaged by the passing of wheels over it.)' + '||Handy Hint:' + '|For model gauges using overscale flangeway gaps (H0, 00/H0, 00-BF, EM, GOG-F, etc.), improved running may be obtained by making the nose of the crossing vee sharper than exact scale.' + ' A scale equivalent of 1/4" (0.25") nose width is suggested.' + '||In the case of a half-diamond template, the K-crossing point rails are blunted to a tip width 1/8" less than the dimension used for the V-crossing vees.';
 
@@ -7557,8 +7537,8 @@ var
 begin
   putdim(bnw_str, 0, 'width  of  blunt  nose  ( full-size  inches )',
     bn_wide, True, False, False, False);       // no neg, pre-set ok, zero ok.
-  n := putdim(bna_str, 0, 'blunt  nose  to  timber  centre  ( f-s  inches)', bn_to_a,
-    False, False, False, False);      // neg ok, pre-set ok, zero ok.
+  n := putdim(bna_str, 0, 'blunt  nose  to  timber  centre  ( f-s  inches)',
+    bn_to_a, False, False, False, False);      // neg ok, pre-set ok, zero ok.
 
   if n <> 1 then
     EXIT;
@@ -7581,7 +7561,8 @@ end;
 procedure Tpad_form.wing_front_menu_entryClick(Sender: TObject);
 
 const
-  help_wing_all_size_str: string = '    Wing  Rail  Front  Dimensions' +
+  help_wing_all_size_str: string =
+    '    Wing  Rail  Front  Dimensions' +
     '||Enter the number of timbers spanned by the wing rail in front of the crossing (i.e. between the wing rail joint and the "A" timber bearing the nose of the vee, but not including the "A" timber itself or any timbers beyond it),' + ' and the centre-to-centre spacing for these timbers in FULL-SIZE prototype inches.' + '||Handy Hint:' + '|If the spacing is variable, set an average spacing which will give the required wing rail front length, and then use the REAL > SHOVE TIMBERS function to make an appropriate adjustment to each timber.' + '||To set the overall length of the wing rail, click the REAL > CUSTOMIZE V-CROSSING > WING AND CHECK RAILS... menu item.' + '||For a diagram of wing rail dimensioning, see "Real Track" in the Templot0 Companion pages on the Templot web site at  templot.com .' + '||To change the fill timber spacing between the switch and the crossing, click the REAL > TIMBERING > TIMBERING DATA... menu item.' + '||To change the timber spacings in the switch, use the SHOVE TIMBERS functions or click the TEMPLATE > SWITCH OPTIONS... menu item and create a CUSTOM SWITCH.' + '||To change the sleeper spacing for plain track, click the REAL > PLAIN TRACK OPTIONS > RAIL LENGTHS AND SLEEPER SPACINGS... menu item.';
 
   helpw1_str: string = '   Size  1  Wing  Rail  Front  Dimensions' +
@@ -7613,10 +7594,11 @@ const
 
   helpwj_str: string = '   Timber  Spacing  at  Wing  Rail  Joint' +
     '||Enter a dimension in FULL-SIZE prototype INCHES for the timber centre-to-centre spacing at the wing rail joint.'
-    + '||For British standard gauge flatbottom track this dimension is normally 26 inches.'
-    + '||For British standard gauge bullhead track this dimension varies, but is typically 25 inches.';
+    + '||For British standard gauge flatbottom track this dimension is normally 26 inches.' +
+    '||For British standard gauge bullhead track this dimension varies, but is typically 25 inches.';
 
-  more_str: string = '||This setting has no effect when the crossing angle is not within this range.||For more information click the button below.';
+  more_str: string =
+    '||This setting has no effect when the crossing angle is not within this range.||For more information click the button below.';
 
 var
   n: integer;
@@ -7624,29 +7606,35 @@ var
 
 begin
   putdim(helpw1_str + more_str, 0, 'number of timbers spanned by size 1 wing front',
-    wing_spco1, True, False, False, False);   // no neg, preset ok, zero ok, don't terminate on zero.
+    wing_spco1, True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.
   putdim(helpw2_str + more_str, 0, 'number of timbers spanned by size 2 wing front',
-    wing_spco2, True, False, False, False);   // no neg, preset ok, zero ok, don't terminate on zero.
+    wing_spco2, True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.
   putdim(helpw3_str + more_str, 0, 'number of timbers spanned by size 3 wing front',
-    wing_spco3, True, False, False, False);   // no neg, preset ok, zero ok, don't terminate on zero.
+    wing_spco3, True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.
   putdim(helpw4_str + more_str, 0, 'number of timbers spanned by size 4 wing front',
-    wing_spco4, True, False, False, False);   // no neg, preset ok, zero ok, don't terminate on zero.
+    wing_spco4, True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.
   putdim(helpw5_str + more_str, 0, 'number of timbers spanned by size 5 wing front',
-    wing_spco5, True, False, False, False);   // no neg, preset ok, zero ok, don't terminate on zero.
+    wing_spco5, True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.
   putdim(helpw6_str + more_str, 0, 'number of timbers spanned by size 6 wing front',
-    wing_spco6, True, False, False, False);   // no neg, preset ok, zero ok, don't terminate on zero.
+    wing_spco6, True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.
 
   putdim(helpwsp_str, 2, 'timber spacing for wing rail front (f-s inches)',
     wingtimb_sp, True, False, False, False);
-  n := putdim(helpwj_str, 2, 'timber spacing at wing rail joint (f-s inches)', wingj_sp,
-    True, False, False, False);         // no neg, preset ok, zero ok, don't terminate on zero.
+  n := putdim(helpwj_str, 2, 'timber spacing at wing rail joint (f-s inches)',
+    wingj_sp, True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.
 
   if n <> 7 then
     EXIT;
 
   if getdims('wing  rail  front  dimensions', help_wing_all_size_str, pad_form, n, od) =
-    True then
-  begin
+    True then begin
     // number of timbers - these are byte values...
 
     if (od[0] <= 255) and (od[0] <> def_req) then
@@ -7682,7 +7670,8 @@ begin
     if od[6] <> def_req then
       wingtimb_sp := od[6]
     else
-      wingtimb_sp := 30;    // full-size inches - 30" timber spacing for wing rail front part of crossing (up to "A").
+      wingtimb_sp := 30;
+    // full-size inches - 30" timber spacing for wing rail front part of crossing (up to "A").
 
     if od[7] <> def_req then
       wingj_sp := od[7]
@@ -7697,7 +7686,8 @@ end;
 procedure Tpad_form.vee_rail_menu_entryClick(Sender: TObject);
 
 const
-  help_vee_all_size_str: string = '    Vee  Rail  Dimensions' +
+  help_vee_all_size_str: string =
+    '    Vee  Rail  Dimensions' +
     '||Enter the number of timbers spanned by the vee rail (i.e. from the "A" timber bearing the nose of the vee to the vee rail joint, including the "A" timber itself),' + ' and the centre-to-centre spacing for these timbers in FULL-SIZE prototype inches.' + '||Handy Hint:' + '|If the spacing is variable, set an average spacing which will give the required vee rail length, and then use the REAL > SHOVE TIMBERS function to make an appropriate adjustment to each timber.' + '||For a diagram of vee rail dimensioning, see "Real Track" in the Templot0 Companion pages on the Templot web site at  templot.com .' + '||To change the fill timber spacing between the switch and the crossing, click the REAL > TIMBERING > TIMBERING DATA... menu item.' + '||To change the timber spacings in the switch, use the SHOVE TIMBERS functions or click the TEMPLATE > SWITCH OPTIONS... menu item and create a CUSTOM SWITCH.' + '||To change the sleeper spacing for plain track, click the REAL > PLAIN TRACK OPTIONS > RAIL LENGTHS AND SLEEPER SPACINGS... menu item.';
 
   helpv1_str: string = '   Size  1  Vee  Rail  Dimensions' +
@@ -7722,8 +7712,8 @@ const
 
   helpv6_str: string = '   Size  6  Vee  Rail  Dimensions' +
     '||Enter the mininum number of timbers spanned by size 6 vee rails.' +
-    '||Size 6 vee rails are used when the crossing angle is flatter than 1:20.'
-    + '||The actual number of timbers may be more than this minimum to ensure adequate separation between the vee point and splice rails at the joint.';
+    '||Size 6 vee rails are used when the crossing angle is flatter than 1:20.' +
+    '||The actual number of timbers may be more than this minimum to ensure adequate separation between the vee point and splice rails at the joint.';
 
   helpvsp_str: string = '    Timber  Spacing  for  Vee  Rail' +
     '||Enter a dimension in full-size inches which will be the timber spacing (centre-to-centre) for the timbers under the vee rail part of the crossing (i.e. from the "A" timber bearing the nose of the vee to the vee rail joint).' + '||For British standard-gauge bullhead and flatbottom track this dimension is normally 30 inches.' + '||If a constant spacing is not wanted, individual timbers can be re-positioned using the REAL > SHOVE TIMBERS menu item functions.';
@@ -7731,7 +7721,8 @@ const
   helpvj_str: string = '   Timber  to  Vee  Rail  Joint' +
     '||Enter a dimension in FULL-SIZE prototype INCHES for the amount by which the end of the vee rail extends beyond the timber centre at the vee rail joint (the MVJP CTRL-8 position).' + '||For British standard gauge flatbottom track this dimension is normally 13 inches.' + '||For British standard gauge bullhead track this dimension varies, but is typically 12.5 inches.';
 
-  more_str: string = '||This setting has no effect when the crossing angle is not within this range.||For more information click the button below.';
+  more_str: string =
+    '||This setting has no effect when the crossing angle is not within this range.||For more information click the button below.';
 
 var
   n: integer;
@@ -7739,22 +7730,29 @@ var
 
 begin
   putdim(helpv1_str + more_str, 0, 'number of timbers spanned by size 1 vee rail',
-    vee_spco1, True, False, False, False);   // no neg, preset ok, zero ok, don't terminate on zero.
+    vee_spco1, True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.
   putdim(helpv2_str + more_str, 0, 'number of timbers spanned by size 2 vee rail',
-    vee_spco2, True, False, False, False);   // no neg, preset ok, zero ok, don't terminate on zero.
+    vee_spco2, True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.
   putdim(helpv3_str + more_str, 0, 'number of timbers spanned by size 3 vee rail',
-    vee_spco3, True, False, False, False);   // no neg, preset ok, zero ok, don't terminate on zero.
+    vee_spco3, True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.
   putdim(helpv4_str + more_str, 0, 'number of timbers spanned by size 4 vee rail',
-    vee_spco4, True, False, False, False);   // no neg, preset ok, zero ok, don't terminate on zero.
+    vee_spco4, True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.
   putdim(helpv5_str + more_str, 0, 'number of timbers spanned by size 5 vee rail',
-    vee_spco5, True, False, False, False);   // no neg, preset ok, zero ok, don't terminate on zero.
+    vee_spco5, True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.
   putdim(helpv6_str + more_str, 0, 'number of timbers spanned by size 6 vee rail',
-    vee_spco6, True, False, False, False);   // no neg, preset ok, zero ok, don't terminate on zero.
+    vee_spco6, True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.
 
   putdim(helpvsp_str, 2, 'timber spacing for vee rail (f-s inches)',
     veetimb_sp, True, False, False, False);
-  n := putdim(helpvj_str, 2, 'timber to vee rail joint (full-size inches)', mvj_sp,
-    True, False, False, False);           // no neg, preset ok, zero ok, don't terminate on zero.
+  n := putdim(helpvj_str, 2, 'timber to vee rail joint (full-size inches)',
+    mvj_sp, True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.
 
   if n <> 7 then
     EXIT;
@@ -7813,8 +7811,8 @@ const
                   +'||All dimensions should be entered in full-size prototype INCHES.'
                   +'||The prototype dimensions for chairs and baseplates vary widely between railway companies. The example dimensions given are an indication only.';
 }
-  helprs_str: string = ' Chair  or  Baseplate  ( Tie-plate )  Seating  Thickness'
-    + '||This dimension is used for 3D effects in exported DXF files and also for the `0REAL > RAILS > TIMBER-SURFACE CENTRE-LINE ONLY`1 menu option when the rail is inclined.' + '||The seating thickness is the dimension between the surface of the timber and the underside of the rail.' + '||Enter the dimension in full-size prototype inches.' + '||For bullhead chairs this dimension is typically 1.3/4" (1.75").' + '||For flat-bottom baseplates this dimension is typically 1.1/4" (1.25").';
+  helprs_str: string = ' Chair  or  Baseplate  ( Tie-plate )  Seating  Thickness' +
+    '||This dimension is used for 3D effects in exported DXF files and also for the `0REAL > RAILS > TIMBER-SURFACE CENTRE-LINE ONLY`1 menu option when the rail is inclined.' + '||The seating thickness is the dimension between the surface of the timber and the underside of the rail.' + '||Enter the dimension in full-size prototype inches.' + '||For bullhead chairs this dimension is typically 1.3/4" (1.75").' + '||For flat-bottom baseplates this dimension is typically 1.1/4" (1.25").';
 
   {
   helpco_str:string=' Chair  or  Baseplate  ( Tie-plate )  Outer  Half-length'
@@ -7848,7 +7846,8 @@ begin
   with cpi do begin
 
     n := putdim(helprs_str, 2, 'chair/baseplate seating thickness (f-s inches)',
-      seat_thick_pi, True, False, False, False);   // no neg, preset ok, zero ok, don't terminate on zero.
+      seat_thick_pi, True, False, False, False);
+    // no neg, preset ok, zero ok, don't terminate on zero.
     //    putdim(helpco_str,2,'chair/baseplate outer half-length (f-s inches)',chair_outlen_pi,True,False,False,False);         // no neg, preset ok, zero ok, don't terminate on zero.
     //    putdim(helpci_str,2,'chair/baseplate inner half-length (f-s inches)',chair_inlen_pi,True,False,False,False);         // no neg, preset ok, zero ok, don't terminate on zero.
     //    putdim(helpcw_str,2,'chair/baseplate width (full-size inches)',chair_width_pi,True,False,False,False);         // no neg, preset ok, zero ok, don't terminate on zero.
@@ -7876,37 +7875,33 @@ procedure Tpad_form.rail_section_menu_entryClick(Sender: TObject);
 const
   helprd_str: string = 'php/701    `0Rail  Head  Width`9' +
     '||Enter the rail head width in full-size prototype `0inches`3.' +
-    '||The rail head width for British standard-gauge bullhead (BS-95R) and most flat-bottom rail is 2.75 inches. Narrower rails are'
-    + ' often used for narrow-gauge, industrial and light railways. Some USA and European rail is wider.'
-    + '||If you enter a silly dimension, e.g 24 inches, the results may be unexpected or Templot0 may decline to generate a template.' + '||If you are using a non-scale model rail section, click `0MORE GENERAL INFORMATION`1 below.';
+    '||The rail head width for British standard-gauge bullhead (BS-95R) and most flat-bottom rail is 2.75 inches. Narrower rails are' + ' often used for narrow-gauge, industrial and light railways. Some USA and European rail is wider.' + '||If you enter a silly dimension, e.g 24 inches, the results may be unexpected or Templot0 may decline to generate a template.' + '||If you are using a non-scale model rail section, click `0MORE GENERAL INFORMATION`1 below.';
 
   helprb_str: string = 'php/701    `0Rail  Foot  Width`9' +
-    '||This dimension is used for flat-bottom rails, and for inclined bullhead rails.'
-    +
-    '||The rail foot width for British standard-gauge FB-109, BS-110A and BS-113A flat-bottom rail is 5.5 inches. Narrower rails are'
-    + ' often used for narrow-gauge, industrial and light railways. Some USA and European rail is wider.'
-    + '||For inclined bullhead rails, enter a foot width equal to the head width (2.75 inches for BS-95R section).'
-    + '||If you are using a non-scale model rail section, click `0MORE GENERAL INFORMATION`1 below.';
+    '||This dimension is used for flat-bottom rails, and for inclined bullhead rails.' +
+    '||The rail foot width for British standard-gauge FB-109, BS-110A and BS-113A flat-bottom rail is 5.5 inches. Narrower rails are' + ' often used for narrow-gauge, industrial and light railways. Some USA and European rail is wider.' + '||For inclined bullhead rails, enter a foot width equal to the head width (2.75 inches for BS-95R section).' + '||If you are using a non-scale model rail section, click `0MORE GENERAL INFORMATION`1 below.';
 
   helprh_str: string = 'php/701    `0Rail  Section  Height`9' +
     '||Templot0 uses this dimension to correctly position the rail foot when the rail is inclined from vertical.'
-    + ' This dimension is also used for 3D effects in exported DXF files.'
-    + '||The height of BS-95R bullhead rail is 5.23/32" (5.719").'
-    + '||The height of FB-109, BS-110A and BS-113A flat-bottom rail is 6.1/4" (6.25").'
-    + '||If you are using a non-scale model rail section, click `0MORE GENERAL INFORMATION`1 below.';
+    + ' This dimension is also used for 3D effects in exported DXF files.' +
+    '||The height of BS-95R bullhead rail is 5.23/32" (5.719").' +
+    '||The height of FB-109, BS-110A and BS-113A flat-bottom rail is 6.1/4" (6.25").' +
+    '||If you are using a non-scale model rail section, click `0MORE GENERAL INFORMATION`1 below.';
 
   helpfh_str: string = 'php/701    `0Rail  Foot  Edge  Thickness`9' +
-    '||This dimension is used only for 3D effects in exported DXF files.'
-    + '||This dimension is used only with flat-bottom rail.'
-    + '||The rail foot edge thickness for British standard-gauge FB-109 flat-bottom rail is 3/8" (0.375").'
-    + '||The rail foot edge thickness for British standard-gauge BS-110A and BS-113A flat-bottom rail is 7/16" (0.438").' + '||Lighter rails are often used for narrow-gauge, industrial and light railways. Some USA and European rail is heavier.' + '||If you are using a non-scale model rail section, click `0MORE GENERAL INFORMATION`1 below.';
+    '||This dimension is used only for 3D effects in exported DXF files.' +
+    '||This dimension is used only with flat-bottom rail.' +
+    '||The rail foot edge thickness for British standard-gauge FB-109 flat-bottom rail is 3/8" (0.375").'
+    + '||The rail foot edge thickness for British standard-gauge BS-110A and BS-113A flat-bottom rail is 7/16" (0.438").'
+    + '||Lighter rails are often used for narrow-gauge, industrial and light railways. Some USA and European rail is heavier.'
+    + '||If you are using a non-scale model rail section, click `0MORE GENERAL INFORMATION`1 below.';
 
   helprk_str: string = 'php/701    `0Rail  Inclination  Angle`9' +
     '||Running rails are normally inclined inwards at the top to match the coning angle on the wheels.'
     + '||Many modellers ignore this however and build model trackwork with vertical rails for ease of construction.'
-    + '||The usual inclination angle is 2.86 degrees (1:20).'
-    + '||Templot0 uses this dimension to correctly position the rail foot.'
-    + '||green_panel_begintree.gif To enter the angle as a ratio, prefix it with a letter n. For example to enter an angle of 1:20, enter `0n20`z.green_panel_end' + '|If the inclination angle is set to zero the effect is the same as selecting the `0REAL > RAILS > VERTICAL RAILS`1 menu option.' + '||N.B. Any angle setting you make here is ignored while the `0REAL > RAILS > VERTICAL RAILS`1 menu option is in force.';
+    + '||The usual inclination angle is 2.86 degrees (1:20).' +
+    '||Templot0 uses this dimension to correctly position the rail foot.' +
+    '||green_panel_begintree.gif To enter the angle as a ratio, prefix it with a letter n. For example to enter an angle of 1:20, enter `0n20`z.green_panel_end' + '|If the inclination angle is set to zero the effect is the same as selecting the `0REAL > RAILS > VERTICAL RAILS`1 menu option.' + '||N.B. Any angle setting you make here is ignored while the `0REAL > RAILS > VERTICAL RAILS`1 menu option is in force.';
 
 var
   n: integer;
@@ -7920,15 +7915,16 @@ begin
       inscale, False{True}, False, True, False);
     // no neg, preset ok, no zero, don't terminate on zero.
     putdim(helprb_str, 2, 'rail  foot  width  ( full-size inches )', railbottom_pi /
-      inscale, True, False, True, False);      // no neg, preset ok, no zero, don't terminate on zero.
+      inscale, True, False, True, False);
+    // no neg, preset ok, no zero, don't terminate on zero.
 
     // these are all stored in FULL-SIZE INCHES (3-D for DXF)...
 
     putdim(helprh_str, 2, 'rail  section  height  ( full-size inches )',
       rail_height_pi, True, False, False, False);
     // no neg, preset ok, zero ok, don't terminate on zero.
-    putdim(helprk_str, 3, 'rail  inclination  angle', rail_inclination_pi * 180 /
-      Pi, True, False, False, False);
+    putdim(helprk_str, 3, 'rail  inclination  angle', rail_inclination_pi *
+      180 / Pi, True, False, False, False);
     // no neg, preset ok, zero ok, don't terminate on zero.
     n := putdim(helpfh_str, 2, 'rail  foot  edge  thickness  ( full-size inches )',
       foot_height_pi, True, False, False, False);
@@ -7938,8 +7934,7 @@ begin
       EXIT;
 
     if getdims('prototype  rail  section  dimensions  ', help_rail_str, pad_form, n, od) =
-      True then
-    begin
+      True then begin
       railtop_pi := od[0];
       if railtop_pi <> def_req then
         railtop_pi := od[0] * inscale;   // mm.
@@ -7976,8 +7971,8 @@ procedure Tpad_form.wing_check_rails_menu_entryClick(Sender: TObject);
 
 const
 
-  help_gen_str: string = 'php/601  `0Wing Rails and Check Rails (Guard Rails)`9'
-    + '||green_panel_begintree.gif The settings here are the basic check rail and wing rail dimensions which apply to all check and wing rails.' + ' These basic dimensions are intended to be derived from prototype trackwork data.' + '||If you are customizing templates for a specific formation, you can adjust each check rail individually as required. Cancel this and click the `0real > adjust check rails...`1 menu item instead.' + 'green_panel_end' + '|For diagrams and further notes explaining the dimensioning of wing and check rails, click <A HREF="online_ref601.85a">more information online</A>.' + '||The wing rails are the short lengths of running rail with bent extensions which lie alongside the nose of the crossing vee.' + '||The wing rail "reach" length is measured from the centre of the "A" timber (the timber bearing the nose of the vee) to the free end of the wing rail.' + '||(To set the wing rail "front" length from the rail joint to the "A" timber, click the REAL > CUSTOMIZE V-CROSSING > WING RAIL FRONT ... menu item.)' + '||The check rails (guard rails) are the short lengths of rail fixed alongside the opposite running rail to prevent the wheels from taking the wrong path at the nose of the crossing.' + '||For dimensioning purposes the overall length of a check rail is divided into two component lengths, named "working length" and "extension length".' + '||The check rail "working" length is measured from the position where it crosses the centre-line of the "A" timber, to the near end of the check rail (the end which is nearer to the switch) (point blades).' + '||The check rail "extension" length is the remaining length from the "A" timber to the far end of the check rail.' + '||Templot0 uses 2 sizes of wing rail reach length, 3 sizes of check rail working length and 2 sizes of check rail extension length, according to the crossing angle.' + ' These sizes are preset in increasing lengths, but can be set to be all the same, or to any desired lengths.' + '||Here is a summary of the way these sizes are used according to the current crossing angle:' + '||angle:          chk working len:   chk ext len:    wing reach len:' + '||under 1:6                 size 1              size 1             size 1' + '|1:6 to 1:10                size 2              size 1             size 1' + '|over 1:10 to 1:12     size 2              size 2             size 2' + '|over 1:12                 size 3              size 2             size 2' + '||In the majority of cases, the check rail extension length is the same dimension as the wing rail reach length, so that the far end of the check rail is aligned with the end of the wing rail,' + ' but this can be changed as necessary by entering the appropriate dimensions.' + '||These dimensions for the wing and check rails should be entered in full-size prototype INCHES and apply to the main-side (MS) wing rail and check rail (in the main-road of the turnout).' + '||The turnout-side (TS) wing rail (in the turnout-road) can be made longer or shorter than the main-side wing rail by setting a non-zero dimension for the turnout-side wing rail reach length modifier.' + '||The turnout-side (TS) check rail working length can be made longer or shorter than the main-side check rail working length by setting a non-zero dimension for the turnout-side check rail working length modifier.' + '||The turnout-side (TS) check rail extension length can be made longer or shorter than the main-side check rail extension length by setting a non-zero dimension for the turnout-side check rail extension length modifier.' + '||For specific information about each dimension, click the ? HELP flag on each line or press the F2 key.' + '||For diagrams and further notes explaining the dimensioning of wing and check rails, see "Real Track" on the Templot0 Companion web site, or click <A HREF="online_ref601.85a">more information online</A>.' + '||green_panel_begintree.gif Be aware that because the check rails are linked to the "A" timber, the position of the check rails will change when changing the style of timbering (EQUALIZED, SQUARE-ON, or ANGLED-ON).' + ' But their position is NOT affected by any TIMBER SHOVING which is applied to the "A" timber.' + 'green_panel_end';
+  help_gen_str: string = 'php/601  `0Wing Rails and Check Rails (Guard Rails)`9' +
+    '||green_panel_begintree.gif The settings here are the basic check rail and wing rail dimensions which apply to all check and wing rails.' + ' These basic dimensions are intended to be derived from prototype trackwork data.' + '||If you are customizing templates for a specific formation, you can adjust each check rail individually as required. Cancel this and click the `0real > adjust check rails...`1 menu item instead.' + 'green_panel_end' + '|For diagrams and further notes explaining the dimensioning of wing and check rails, click <A HREF="online_ref601.85a">more information online</A>.' + '||The wing rails are the short lengths of running rail with bent extensions which lie alongside the nose of the crossing vee.' + '||The wing rail "reach" length is measured from the centre of the "A" timber (the timber bearing the nose of the vee) to the free end of the wing rail.' + '||(To set the wing rail "front" length from the rail joint to the "A" timber, click the REAL > CUSTOMIZE V-CROSSING > WING RAIL FRONT ... menu item.)' + '||The check rails (guard rails) are the short lengths of rail fixed alongside the opposite running rail to prevent the wheels from taking the wrong path at the nose of the crossing.' + '||For dimensioning purposes the overall length of a check rail is divided into two component lengths, named "working length" and "extension length".' + '||The check rail "working" length is measured from the position where it crosses the centre-line of the "A" timber, to the near end of the check rail (the end which is nearer to the switch) (point blades).' + '||The check rail "extension" length is the remaining length from the "A" timber to the far end of the check rail.' + '||Templot0 uses 2 sizes of wing rail reach length, 3 sizes of check rail working length and 2 sizes of check rail extension length, according to the crossing angle.' + ' These sizes are preset in increasing lengths, but can be set to be all the same, or to any desired lengths.' + '||Here is a summary of the way these sizes are used according to the current crossing angle:' + '||angle:          chk working len:   chk ext len:    wing reach len:' + '||under 1:6                 size 1              size 1             size 1' + '|1:6 to 1:10                size 2              size 1             size 1' + '|over 1:10 to 1:12     size 2              size 2             size 2' + '|over 1:12                 size 3              size 2             size 2' + '||In the majority of cases, the check rail extension length is the same dimension as the wing rail reach length, so that the far end of the check rail is aligned with the end of the wing rail,' + ' but this can be changed as necessary by entering the appropriate dimensions.' + '||These dimensions for the wing and check rails should be entered in full-size prototype INCHES and apply to the main-side (MS) wing rail and check rail (in the main-road of the turnout).' + '||The turnout-side (TS) wing rail (in the turnout-road) can be made longer or shorter than the main-side wing rail by setting a non-zero dimension for the turnout-side wing rail reach length modifier.' + '||The turnout-side (TS) check rail working length can be made longer or shorter than the main-side check rail working length by setting a non-zero dimension for the turnout-side check rail working length modifier.' + '||The turnout-side (TS) check rail extension length can be made longer or shorter than the main-side check rail extension length by setting a non-zero dimension for the turnout-side check rail extension length modifier.' + '||For specific information about each dimension, click the ? HELP flag on each line or press the F2 key.' + '||For diagrams and further notes explaining the dimensioning of wing and check rails, see "Real Track" on the Templot0 Companion web site, or click <A HREF="online_ref601.85a">more information online</A>.' + '||green_panel_begintree.gif Be aware that because the check rails are linked to the "A" timber, the position of the check rails will change when changing the style of timbering (EQUALIZED, SQUARE-ON, or ANGLED-ON).' + ' But their position is NOT affected by any TIMBER SHOVING which is applied to the "A" timber.' + 'green_panel_end';
 
   helpwr1_str: string = 'php/601    `0Size 1 Wing Rail Reach Length`9' +
     '||The reach length is measured from the centre of the "A" timber (the timber which carries the nose of the vee) to the end of the wing rail.' + '||The entered length will apply to both wing rails, and should be in full-size prototype `0inches`3.' + '||green_panel_begintree.gif To adjust each wing rail separately,|click the `0real > adjust check rails...`1 menu item.green_panel_end' + '|A size 1 (normally short) wing rail is used when the crossing angle is 1:10 or shorter. The preset reach length for size 1 wing rails is 48 inches.' + '||Changing this dimension will have no effect on the control template if the crossing angle is currently longer than 1:10.' + '||For more information click the button below.';
@@ -7985,8 +7980,8 @@ const
   helpwr2_str: string = 'php/601    `0Size  2  Wing  Rail  Reach Length`9' +
     '||The reach length is measured from the centre of the "A" timber (the timber which carries the nose of the vee) to the end of the wing rail.' + '||The entered length will apply to both wing rails, and should be in full-size prototype `0inches`3.' + '||green_panel_begintree.gif To adjust each wing rail separately,|click the `0real > adjust check rails...`1 menu item.green_panel_end' + '|A size 2 (normally long) wing rail is used when the crossing angle is longer than 1:10. The preset reach length for size 2 wing rails is 78 inches.' + '||Changing this dimension will have no effect on the control template if the crossing angle is currently 1:10 or shorter.' + '||For more information click the button below.';
 
-  helpf_str: string = 'php/601    `0Flared (Splayed) Ends on Wing and Check Rails`9'
-    + '||The exposed ends of wing rails and check rails (guard rails) are normally splayed out away from the running rail to provide a flared entry for the wheels.' + '||The entered flared length will apply to both wing rails, and to both ends of both check rails, and should be in full-size prototype `0inches`3.' + '||green_panel_begintree.gif To adjust each rail end separately,|click the `0real > adjust check rails...`1 menu item.green_panel_end' + '|Templot0 will ignore your changes to the flared length if there is insufficient space within the check rail and wing rail lengths,' + ' and set the maximum flared length which will fit.' + '||To set the flangeway end gap at the end of the check rail, and thus the amount of flare, click the `0GAUGE > MODIFY CURRENT SETTINGS > MODIFY FLANGEWAY GAP...`1 menu item.' + '||For more information click the button below.';
+  helpf_str: string = 'php/601    `0Flared (Splayed) Ends on Wing and Check Rails`9' +
+    '||The exposed ends of wing rails and check rails (guard rails) are normally splayed out away from the running rail to provide a flared entry for the wheels.' + '||The entered flared length will apply to both wing rails, and to both ends of both check rails, and should be in full-size prototype `0inches`3.' + '||green_panel_begintree.gif To adjust each rail end separately,|click the `0real > adjust check rails...`1 menu item.green_panel_end' + '|Templot0 will ignore your changes to the flared length if there is insufficient space within the check rail and wing rail lengths,' + ' and set the maximum flared length which will fit.' + '||To set the flangeway end gap at the end of the check rail, and thus the amount of flare, click the `0GAUGE > MODIFY CURRENT SETTINGS > MODIFY FLANGEWAY GAP...`1 menu item.' + '||For more information click the button below.';
 
   helpckw1_str: string = 'php/601    `0Size 1 Check Rail Working Length`9' +
     '||The entered length will apply to both check rails, and should be in full-size prototype `0inches`3.'
@@ -8043,9 +8038,11 @@ begin
     // no neg, preset ok, zero ok, don't terminate on zero.
 
     putdim(helpcke1_str + xing_str, 2, 'size 1 check-rail extension length (f-s)',
-      ck_ms_ext1_pi, True, False, False, False);      // no neg, preset ok, zero ok, don't terminate on zero.
+      ck_ms_ext1_pi, True, False, False, False);
+    // no neg, preset ok, zero ok, don't terminate on zero.
     putdim(helpcke2_str + xing_str, 2, 'size 2 check-rail extension length (f-s)',
-      ck_ms_ext2_pi, True, False, False, False);      // no neg, preset ok, zero ok, don't terminate on zero.
+      ck_ms_ext2_pi, True, False, False, False);
+    // no neg, preset ok, zero ok, don't terminate on zero.
 
     n := putdim(helpf_str, 2, 'flared length on wing and check rail ends (f-s)',
       xing_fl_pi / inscale, True, False, False, False);
@@ -8196,8 +8193,8 @@ const
     '||The entered length will apply to both K-crossing wing rails, and should be in full-size prototype `0inches`3.'
     + '||This dimension applies only to half-diamond templates and is the full K-crossing wing rail length (over both halves).'
     + ' This dimension controls the position of the wing rail joint marks, and the adjacent timber spacing.'
-    + '||The default dimensions used by Templot0 correspond to the UK REA dimensions, as follows:' +
-    '||<TABLE ALIGN="CENTER" BORDER="1" CELLSPACING="0" CELLPADDING="6" STYLE="FONT-SIZE:15px; COLOR:#000099; BACKGROUND-COLOR:#DDEEFF; TEXT-ALIGN:CENTER;">' + '<TR STYLE="BACKGROUND-COLOR:#EEFFDD;"><TD NOWRAP>wing rail length</TD><TD NOWRAP>BH bullhead rail</TD><TD NOWRAP>FB flat-bottom rail</TD></TR>' + '<TR><TD NOWRAP>fixed K-crossings<BR>1:4 to 1:6.25</TD><TD NOWRAP><B>173</B> inches</TD><TD NOWRAP><B>168</B> inches</TD></TR>' + '<TR><TD NOWRAP>fixed K-crossings<BR>1:6.5 to 1:8</TD><TD NOWRAP><B>185</B> inches</TD><TD NOWRAP><B>220</B> inches</TD></TR>' + '<TR><TD NOWRAP>movable K-crossings<BR>over 1:8</TD><TD NOWRAP><B>216</B> inches</TD><TD NOWRAP><B>193</B> inches</TD></TR></TABLE>' + '|To revert to using these dimensions, click the `0use default K-crossing wing rails`z option.' + '||The FB dimensions apply to FB-109, BS-110A, BS-113A inclined-rail K-crossings.';
+    + '||The default dimensions used by Templot0 correspond to the UK REA dimensions, as follows:'
+    + '||<TABLE ALIGN="CENTER" BORDER="1" CELLSPACING="0" CELLPADDING="6" STYLE="FONT-SIZE:15px; COLOR:#000099; BACKGROUND-COLOR:#DDEEFF; TEXT-ALIGN:CENTER;">' + '<TR STYLE="BACKGROUND-COLOR:#EEFFDD;"><TD NOWRAP>wing rail length</TD><TD NOWRAP>BH bullhead rail</TD><TD NOWRAP>FB flat-bottom rail</TD></TR>' + '<TR><TD NOWRAP>fixed K-crossings<BR>1:4 to 1:6.25</TD><TD NOWRAP><B>173</B> inches</TD><TD NOWRAP><B>168</B> inches</TD></TR>' + '<TR><TD NOWRAP>fixed K-crossings<BR>1:6.5 to 1:8</TD><TD NOWRAP><B>185</B> inches</TD><TD NOWRAP><B>220</B> inches</TD></TR>' + '<TR><TD NOWRAP>movable K-crossings<BR>over 1:8</TD><TD NOWRAP><B>216</B> inches</TD><TD NOWRAP><B>193</B> inches</TD></TR></TABLE>' + '|To revert to using these dimensions, click the `0use default K-crossing wing rails`z option.' + '||The FB dimensions apply to FB-109, BS-110A, BS-113A inclined-rail K-crossings.';
 
 var
   i: integer;
@@ -8233,7 +8230,8 @@ begin
   until i <> 3;
 
   n := putdim(help_k_wing_str, 2, 'K - crossing  wing  rail  length  ( full - size )',
-    k_custom_wing_long, True, True, False, False);  // no neg, no preset, zero ok, don't terminate on zero.
+    k_custom_wing_long, True, True, False, False);
+  // no neg, no preset, zero ok, don't terminate on zero.
 
   if n <> 0 then
     EXIT;
@@ -8253,8 +8251,8 @@ end;
 procedure Tpad_form.k_crossing_check_rails_menu_entryClick(Sender: TObject);
 
 const
-  helpkck1_str: string = 'php/601  `0Size 1 Fixed K-crossing Check Rail Length`9'
-    + '||The entered length will apply to both K-crossing check rails, and should be in full-size prototype `0inches`3.'
+  helpkck1_str: string = 'php/601  `0Size 1 Fixed K-crossing Check Rail Length`9' +
+    '||The entered length will apply to both K-crossing check rails, and should be in full-size prototype `0inches`3.'
     + '||This dimension applies only to half-diamond templates and is the full check rail length (over both halves).'
     + '||Size 1 K-crossing check rails are used when the K-crossing angle is 1:6 or shorter.' +
     '||Changing this dimension has no effect for templates in which the K-crossing angle is longer than 1:6.'
@@ -8262,11 +8260,11 @@ const
     // +' For single slips this reduction is best made by setting a modifier dimension for one side only. For more information see the subsequent lines is this data-entry dialog.'
     + '||For more information click the button below.';
 
-  helpkck2_str: string = 'php/601  `0Size 2 Fixed K-crossing Check Rail Length`9'
-    + '||The entered length will apply to both K-crossing check rails, and should be in full-size prototype `0inches`3.'
+  helpkck2_str: string = 'php/601  `0Size 2 Fixed K-crossing Check Rail Length`9' +
+    '||The entered length will apply to both K-crossing check rails, and should be in full-size prototype `0inches`3.'
     + '||This dimension applies only to half-diamond templates and is the full check rail length (over both halves).'
-    + '||Size 2 K-crossing check rails are used when the K-crossing angle is longer than 1:6.'
-    + '||Changing this dimension has no effect for templates in which the K-crossing angle is 1:6 or shorter.'
+    + '||Size 2 K-crossing check rails are used when the K-crossing angle is longer than 1:6.' +
+    '||Changing this dimension has no effect for templates in which the K-crossing angle is 1:6 or shorter.'
     + '||If the control template is not a half-diamond template, changing this dimension will have no effect until the control template is converted to half-diamond template by clicking the' + '|`0TEMPLATE > CONVERT TURNOUT TO HALF-DIAMOND`1 or|`0TEMPLATE > INSERT HALF-DIAMOND IN PLAIN TRACK`1 menu items.' + '||For UK bullhead K-crossings, this dimension is normally 197 inches (144 inches on the GWR).' + '||For UK flat-bottom K-crossings, this dimension is normally 156 inches.' + '||When a slip road is added, this dimension is typically reduced to 142 inches for crossings 1:7 or shorter. If overscale flangeway gaps are being used, this dimension may need to be further reduced.' + '||For more information click the button below.';
 
   helpkckfl_str: string = 'php/601`0  Flared (Splayed) Ends on<BR>  K-crossing Check Rails`9' +
@@ -8291,7 +8289,8 @@ begin
   //putdim(helpkckms_str,        2,'modify MS K-crossing check rail end by (f-s)',     kckmsmod,    False,True,False,False); // neg ok, no preset, zero ok, don't terminate on zero.
   //putdim(helpkckds_str,        2,'modify DS K-crossing check rail end by (f-s)',     kckdsmod,    False,True,False,False); // neg ok, no preset, zero ok, don't terminate on zero.
   n := putdim(helpkckfl_str, 2, 'flared length on K-crossing check rail ends (f-s)',
-    k_flare_len, True, True, False, False);  // no neg, no preset, zero ok, don't terminate on zero.
+    k_flare_len, True, True, False, False);
+  // no neg, no preset, zero ok, don't terminate on zero.
 
   if n <> 2 then
     EXIT;
@@ -8343,8 +8342,7 @@ var
 
 begin
   if plain_track = True then begin
-    if alert(3, '    plain  track',
-      'The control template is plain track.' +
+    if alert(3, '    plain  track', 'The control template is plain track.' +
       '||Any changes which you make to the crossing settings will have no effect until you change to a turnout or a half-diamond template' + ' by clicking the|TEMPLATE > INSERT TURNOUT IN PLAIN TRACK or|TEMPLATE > INSERT HALF-DIAMOND IN PLAIN TRACK|menu items.', '', '', '', '', 'cancel', 'continue  -  set  crossing ...', 0) = 5 then
       EXIT;
   end;
@@ -8375,7 +8373,8 @@ begin
   case xing_list_i of
     0: begin
       if retpar_i = 1 then
-        turnout_road_i := 0;  // 0.93.a changing from parallel, assume long turnout road not now needed.
+        turnout_road_i := 0;
+      // 0.93.a changing from parallel, assume long turnout road not now needed.
       xing_type_i := 0;                        // regular crossing (normal)...
       retpar_i := 0;
       //crossover_turnout_road_menu_entry.Enabled:=True;  // ok to do a crossover.
@@ -8400,7 +8399,8 @@ begin
 
     2: begin
       if retpar_i = 1 then
-        turnout_road_i := 0;  // 0.93.a changing from parallel, assume long turnout road not now needed.
+        turnout_road_i := 0;
+      // 0.93.a changing from parallel, assume long turnout road not now needed.
       xing_type_i := 1;             // curviform...
       retpar_i := 0;
       snap_exit_to_return_curve_menu_entry.Enabled := False;
@@ -8414,7 +8414,8 @@ begin
 
     3: begin                    // generic...
       if retpar_i = 1 then
-        turnout_road_i := 0;  // 0.93.a changing from parallel, assume long turnout road not now needed.
+        turnout_road_i := 0;
+      // 0.93.a changing from parallel, assume long turnout road not now needed.
       xing_type_i := -1;
       retpar_i := 0;
       //crossover_turnout_road_menu_entry.Enabled:=True;   // ok to do a crossover.
@@ -8498,8 +8499,8 @@ begin
   then begin
     if xing_ret_i = 1        //  he wants to set the parallel centres.
     then begin
-      n := putdim('', 1, 'turnout  road  track  centres',
-        cpi.retcent_pi, True, False, True, False);
+      n := putdim('', 1, 'turnout  road  track  centres', cpi.retcent_pi,
+        True, False, True, False);
       // no neg, preset ok, no zero, don't terminate on zero.
       if n < 0 then
         EXIT;
@@ -8517,9 +8518,8 @@ begin
   if (n1 >= 0) and (ok = True) then begin
     if od[n1] < (1.5 - minfp) then begin
       if alert(6, 'php/108    invalid  V - crossing  angle',
-        'The V-crossing angle cannot be less than 1 : 1.5  (RAM)',
-        '', '', '', '', 'cancel', 'change  angle  to  1 : 1.5  and  continue',
-        0) = 6 then begin
+        'The V-crossing angle cannot be less than 1 : 1.5  (RAM)', '',
+        '', '', '', 'cancel', 'change  angle  to  1 : 1.5  and  continue', 0) = 6 then begin
         k3n := 1.5;
         set_xing_k_i;      // set selector list index to match k3n.
       end
@@ -8535,7 +8535,8 @@ begin
   if (n2 >= 0) and (ok = True) then begin
     fixed_sl := od[n2];
     if fixed_sl < ABS(fw * k3n) then
-      fixed_sl := ABS(fw * k3n);   // minimum sl to ensure knuckle is on the straight (if straight crossing).
+      fixed_sl := ABS(fw * k3n);
+    // minimum sl to ensure knuckle is on the straight (if straight crossing).
   end
   else
     fixed_sl := def_req;
@@ -8570,13 +8571,7 @@ const
     + '||The curving radius can also be quickly adjusted by means of the F6 mouse action, select the ACTION > MOUSE ACTIONS:GEOMETRY > ADJUST CURVING RADIUS ONLY menu item (F6).' + '||Bear in mind that despite appearances a left-hand turnout curved to the right remains a left-hand turnout, with a left-hand switch deflection to (and consequently a reduced speed restriction' + ' over) the turnout road on the left, and a constant radius in the main running road on the right.' + '||N.B. Plain track is also handed, so take care to enter a positive or negative radius as required. The hand of the current plain track is shown in the information panel.';
 
   transgo_help_str: string = '      Transition  Curving  Data' +
-    '||Enter the required length and radius settings in mm. It is usually easier to adjust transition curves using the mouse actions.'
-    + '||The pre-set dimensions (available by entering a forward slash "/") are these:'
-    + '||Initial Radius pre-set = STRAIGHT.' +
-    '||Final Radius pre-set = STRAIGHT, unless the Initial Radius is straight, in which case 660ft radius (10 chains) scale.'
-    + '||Length along Initial Radius pre-set = zero.' +
-    '||Length along Transition Zone pre-set = 66ft (1 chain) scale.' +
-    '||For more information, please click the button below and refer to the general transition help notes.';
+    '||Enter the required length and radius settings in mm. It is usually easier to adjust transition curves using the mouse actions.' + '||The pre-set dimensions (available by entering a forward slash "/") are these:' + '||Initial Radius pre-set = STRAIGHT.' + '||Final Radius pre-set = STRAIGHT, unless the Initial Radius is straight, in which case 660ft radius (10 chains) scale.' + '||Length along Initial Radius pre-set = zero.' + '||Length along Transition Zone pre-set = 66ft (1 chain) scale.' + '||For more information, please click the button below and refer to the general transition help notes.';
 
 var
   //nr,clr,ssr,yoff:double;
@@ -8596,7 +8591,8 @@ begin
     then begin
       repeat
         n := putdim(rad_help_str, 1, 'constant  radius  at  the  track  centre-line',
-          nomrad, False, False, True, False);    // neg ok, no preset, 0 not allowed, don't terminate on zero.
+          nomrad, False, False, True, False);
+        // neg ok, no preset, 0 not allowed, don't terminate on zero.
         //n:=putdim(ycurv_help_str,1,'offset from the base line to the track centre-line',yoff,False,False,False,False);   // neg ok, preset OK, 0 is valid.
         if n <> 0 then
           EXIT;
@@ -8617,7 +8613,8 @@ begin
     else begin    // transition curving...
       repeat
         n := putdim(transgo_help_str, 1, '1st  ( initial )  radius  at  the  track  centre-line',
-          nomrad1, False, False, True, False); // neg ok, preset OK, 0 not allowed, don't terminate on zero.
+          nomrad1, False, False, True, False);
+        // neg ok, preset OK, 0 not allowed, don't terminate on zero.
         n := putdim(transgo_help_str, 1, '2nd  ( final )  radius  at  the  track  centre-line',
           nomrad2, False, False, True, False);   // neg ok, preset OK, 0 not allowed.
         n := putdim(transgo_help_str, 1, 'length  along  1st  ( initial )  radius',
@@ -8626,9 +8623,8 @@ begin
           tst, True, False, False, False);    // no neg, preset OK, 0 OK.
         if n <> 3 then
           EXIT;
-        if getdims('transition  curve  settings',
-          transition_help_str + '||||' + rad_help_str{+'||||'+ycurv_help_str},
-          pad_form, n, od) = True then begin
+        if getdims('transition  curve  settings', transition_help_str +
+          '||||' + rad_help_str{+'||||'+ycurv_help_str}, pad_form, n, od) = True then begin
           if od[0] = def_req then
             od[0] := max_rad;    // straight.
           if od[1] = def_req then begin
@@ -8662,8 +8658,8 @@ begin
           if ABS(temp) > minfp            // no good if rads equal.
           then begin
 
-            if ABS(od[0] * od[1] * od[3] / temp) < max_spiral_constant
-            then begin                    //  ok, change settings.
+            if ABS(od[0] * od[1] * od[3] / temp) < max_spiral_constant then
+            begin                    //  ok, change settings.
               nomrad1 := od[0];
               nomrad2 := od[1];
               os := od[2];
@@ -8672,13 +8668,11 @@ begin
               BREAK;
             end
             else
-            if alert(6, '  transition  too  gentle ...',
-              '1st (initial) radius = ' + captext(
-              od[0]) + ' mm' + '|2nd (final) radius = ' +
+            if alert(6, '  transition  too  gentle ...', '1st (initial) radius = ' +
+              captext(od[0]) + ' mm' + '|2nd (final) radius = ' +
               captext(od[1]) + ' mm' + '|Transition zone length = ' +
-              round_str(od[3], 2) + ' mm' +
-              '||( spiral constant = ' + round_str(od[0] * od[1] * od[3] / temp / 1.0E6, 4) + ' )'
-              +
+              round_str(od[3], 2) + ' mm' + '||( spiral constant = ' +
+              round_str(od[0] * od[1] * od[3] / temp / 1.0E6, 4) + ' )' +
               '||These settings would create a transition curve which is too gentle to be generated without error.'
               +
               '||Try reducing the smaller radius slightly and/or increasing the larger radius slightly and/or shortening the transition zone.'
@@ -8689,14 +8683,13 @@ begin
 
           end
           else
-          if alert(6, '    equal  radii ...',
-            '1st (initial) radius = ' + captext(
-            od[0]) + ' mm' + '|2nd (final) radius = ' +
+          if alert(6, '    equal  radii ...', '1st (initial) radius = ' +
+            captext(od[0]) + ' mm' + '|2nd (final) radius = ' +
             captext(od[1]) + ' mm' +
-            '||A transition curve cannot be generated if these two radii are equal.'
-            + '||If you want a constant curving radius, click the'
-            + '|GEOMETRY > CONSTANT RADIUS menu item.',
-            '', '', '', '', 'cancel', 're-try', 0) = 5 then
+            '||A transition curve cannot be generated if these two radii are equal.' +
+            '||If you want a constant curving radius, click the' +
+            '|GEOMETRY > CONSTANT RADIUS menu item.', '', '', '', '', 'cancel',
+            're-try', 0) = 5 then
             BREAK;
         end
         else
@@ -8723,12 +8716,12 @@ const
     '||Enter the required slew (sideways shift) in mm. This setting can also be adjusted by mouse action CTRL-F7.'
     + '||If a positive dimension is entered, the slew will be in the same direction as the hand of the template. If a negative dimension is entered the slew will be in the opposite direction.' + '||If the pre-set dimension is requested (enter a "/" slash), the amount of slew is set to match the current turnout-side adjacent track spacing.' + '||For more general information about slewing click the button below.';
 
-  help_slew_stretch_str: string = '      Mode  2  Slew  Factor' +
-    '||If you enter zero, slewing will be changed to Mode 1.' +
+  help_slew_stretch_str: string =
+    '      Mode  2  Slew  Factor' + '||If you enter zero, slewing will be changed to Mode 1.' +
     '||If you enter any other figure, slewing will be changed to Mode 2, and the figure entered will be used as the slew factor.'
     + '||When using slewing mode 2, reducing this figure eases the reverse curve at the centre of the slewing zone.'
-    + '||Moderately increasing this figure eases the curves at each end of the slewing zone.'
-    + '||The sensible range of figures is 5-200. The pre-set figure is 100. The minimum and maximum figures are 1-500.'
+    + '||Moderately increasing this figure eases the curves at each end of the slewing zone.' +
+    '||The sensible range of figures is 5-200. The pre-set figure is 100. The minimum and maximum figures are 1-500.'
     + '||It is easier to see the effect of changes if you adjust this factor by mouse action, select the ACTION > MOUSE ACTIONS CONTROL > ADJUST MODE 2 SLEW FACTOR menu item.' + '||For more general information about the slewing modes click the button below.';
 
 var
@@ -8750,11 +8743,13 @@ begin
 
 
   putdim(help_slews_str, 1, 'length  ( along  track )  to  start  of  slew',
-    slew_s, False, False, False, False);          // neg ok, preset ok, zero ok, don't terminate on zero.
+    slew_s, False, False, False, False);
+  // neg ok, preset ok, zero ok, don't terminate on zero.
   putdim(help_slewl_str, 1, 'length  of  slewing  zone', slew_l,
     True, False, True, False);           // no neg, preset ok, no zero, don't terminate on zero.
   putdim(help_slew_str, 1, 'amount  of  slew',
-    slew, False, False, False, False);            // neg ok, preset ok, zero ok, don't terminate on zero.
+    slew, False, False, False, False);
+  // neg ok, preset ok, zero ok, don't terminate on zero.
   n := putdim(help_slew_stretch_str, 0, 'slewing  factor  for  mode  2  ( 0  for  mode  1 )',
     slew_factor_value, True, False, False, False);
   // no neg, preset ok, zero ok, don't terminate on zero.
@@ -8762,8 +8757,8 @@ begin
   if n <> 3 then
     EXIT;
   if getdims('slewing', slew_help_str +
-    '||For more information about the slew settings, click the HELP flag for each one.', pad_form, n, od) =
-    True then begin
+    '||For more information about the slew settings, click the HELP flag for each one.',
+    pad_form, n, od) = True then begin
     slew_s := od[0];
     slew_l := od[1];
     slew := od[2];
@@ -9166,8 +9161,9 @@ procedure Tpad_form.modify_gauge_menu_entryClick(Sender: TObject);
 const
   helpg_str: string = '    `0Modified  Track  Gauge`9' +
     '||Enter the new track gauge in millimetres.' +
-    '||rp.gif Modifying the track gauge disrupts the template alignment.'
-    + ' If this template is part of a track plan, it will need to be realigned to the adjacent templates after modifying the track gauge.' + '||green_panel_begintree.gif Changes made here affect only the distance between the rails, i.e. they do not affect the current scale ratio or timbering sizes.' + '||To change to a different gauge/scale combination (for example to change from N Gauge to 0 Gauge), or to establish a custom gauge/scale setting,' + ' cancel this and select the `0GAUGE`1 menu items instead.green_panel_end' + '|If you change the track gauge dimension here, the information panel will continue to show the original gauge name, i.e. it would continue' + ' to show, say, EM even though you had changed the track gauge here to, say, 18.83 mm, and the flangeway gaps and other settings would continue to be those for EM Gauge.' + '||The option of changing the track gauge here is intended for making minor adjustments only, for example to introduce some gauge-widening on sharp curves.';
+    '||rp.gif Modifying the track gauge disrupts the template alignment.' +
+    ' If this template is part of a track plan, it will need to be realigned to the adjacent templates after modifying the track gauge.' +
+    '||green_panel_begintree.gif Changes made here affect only the distance between the rails, i.e. they do not affect the current scale ratio or timbering sizes.' + '||To change to a different gauge/scale combination (for example to change from N Gauge to 0 Gauge), or to establish a custom gauge/scale setting,' + ' cancel this and select the `0GAUGE`1 menu items instead.green_panel_end' + '|If you change the track gauge dimension here, the information panel will continue to show the original gauge name, i.e. it would continue' + ' to show, say, EM even though you had changed the track gauge here to, say, 18.83 mm, and the flangeway gaps and other settings would continue to be those for EM Gauge.' + '||The option of changing the track gauge here is intended for making minor adjustments only, for example to introduce some gauge-widening on sharp curves.';
 var
   n: integer;
   od: Toutdim;
@@ -9191,8 +9187,7 @@ procedure Tpad_form.checks_menu_entryClick(Sender: TObject);   // get new CHECK 
 
 const
   helpf_str: string = '    `0Modified  Flangeway  Gap`9' +
-    '||Enter the new flangeway gap dimension for the check and wing rails in millimetres.'
-    +
+    '||Enter the new flangeway gap dimension for the check and wing rails in millimetres.' +
     '||rp.gif Modifying the flangeway gap disrupts the alignment of templates which have a `0regular`3 type V-crossing.'
     + ' If such a template is part of a track plan, it will need to be realigned to the adjacent templates after modifying the flangeway gap.' + '||green_panel_begintree.gif Changes made here affect only the flangeway gaps, i.e. they do not affect the current scale ratio or track gauge.' + '||To change to a different gauge/scale combination (for example to change from N Gauge to 0 Gauge), or to establish a custom gauge/scale setting,' + ' cancel this and select the `0GAUGE`1 menu items instead.green_panel_end' + '|If you change the flangeway gap dimension here, the information panel will continue to show the original gauge name, i.e. it would continue' + ' to show, say, EM even though you had changed the flangeway gap here to, say, 1.5 mm, and the track gauge and other settings would continue to be those for EM Gauge.' + '||The option of changing the flangeway gap here is intended for making minor adjustments (e.g. for non-standard rolling stock) and for setting narrow-gauge requirements.';
 
@@ -9227,8 +9222,8 @@ end;
 procedure Tpad_form.roll_rails_by_menu_entryClick(Sender: TObject);
 
 const
-  help_roll1_str: string = '     Rolling  Plain  Track  Rail  Lengths  and  Sleepers.'
-    + '||This function permits the insertion of a partial rail length between the nominal "joint" end (CTRL-1) of a plain track template and the first actual rail joint.' + '||This is useful when it is desired to have the correct rail lengths and sleeper spacing pattern bridging adjacent templates.' + '||Sleepers within this partial rail length are numbered with an "N" prefix.' + '||Enter the fraction of a full rail length as a percentage. Valid figures are in the range 0% to 100% of the current rail length setting.' + '||The current rail length setting (in full-size inches) is ';
+  help_roll1_str: string = '     Rolling  Plain  Track  Rail  Lengths  and  Sleepers.' +
+    '||This function permits the insertion of a partial rail length between the nominal "joint" end (CTRL-1) of a plain track template and the first actual rail joint.' + '||This is useful when it is desired to have the correct rail lengths and sleeper spacing pattern bridging adjacent templates.' + '||Sleepers within this partial rail length are numbered with an "N" prefix.' + '||Enter the fraction of a full rail length as a percentage. Valid figures are in the range 0% to 100% of the current rail length setting.' + '||The current rail length setting (in full-size inches) is ';
 
   help_roll2_str: string =
     ' inches per rail.||To change the current rail length, click the REAL > PLAIN TRACK OPTIONS > RAIL LENGTHS AND SLEEPER SPACINGS... menu item.' + '||The section of the template from the first rail joint to the CTRL-0 datum end is called the "rolled-out" length.' + '||The section of the template comprising the inserted partial rail length from the first rail joint to the CTRL-1 end is called the "rolled-in" length.' + '||This function is available only for plain track templates. If it is desired to roll the rail lengths within the approach or exit tracks of a turnout template,' + ' these should first be split off as separate plain track templates (TOOLS > MAKE SPLIT > menu items).' + '||Handy Hint:' + '|Rolling rail lengths and sleepers is usually more conveniently done by mouse action (CTRL-F4 ROLL RAILS AND SLEEPERS),' + ' the INFORMATION panel shows the current percentage of rail length and number of sleepers inserted.' + '||N.B. If bonus timbers are added to a rolled template (REAL > TIMBERING > BONUS TIMBERS > ADD ONE menu item), they will appear initially at the first rail joint,' + ' from where they can then be shoved to the desired position. Existing bonus timbers will roll along with the other sleepers.';
@@ -9238,8 +9233,8 @@ var
   od: Toutdim;
 
 begin
-  n := putdim(help_roll1_str + round_str(railen[pt_i], 2) + help_roll2_str, 4,
-    'roll  rail  lengths  and  sleepers  by', tb_roll_percent, True, True, False, False);
+  n := putdim(help_roll1_str + round_str(railen[pt_i], 2) + help_roll2_str,
+    4, 'roll  rail  lengths  and  sleepers  by', tb_roll_percent, True, True, False, False);
   // no negative, no preset, zero ok, don't terminate on zero.
   if n <> 0 then
     EXIT;
@@ -9261,8 +9256,7 @@ procedure Tpad_form.adjacent_centres_menu_entryClick(Sender: TObject);
 const
   help_cent_str: string = '    Adjacent track spacing.' +
     '||Enter the centre-to-centre distance in <U>full-size prototype inches</U> to the adjacent track.'
-    +
-    '||If preferred, model dimensions (in mm) can be entered instead of full-size prototype dimemsions, by using the S conversion factor. For example, to enter model track centres of 50mm, enter <SPAN STYLE="COLOR:BLUE;">s50</SPAN>.' + '||For more about conversion factors, click the `0? HELP`1 button.' + '||Different spacing dimensions can be set for the tracks on each side of the template.' + '||TS is "turnout-side", i.e. the same side as the hand of the template. The diverging side of a turnout.' + '||MS is "main-side", i.e. the opposite side from the hand of the template. The straight-ahead side of a turnout.' + '||For UK standard-gauge practice the minimum spacing on straight track should normally give a "6ft way" between the inner rails, that means 11ft 2in (134in) minimum centre-to-centre spacing for standard-gauge tracks.' + '||Where there are sharp curves or superelevation, this distance must be increased to allow for vehicle overhang.' + '||The `0utils > dummy vehicle`1 functions can be used to determine the required clearance on such curves, in comjunction with the `0ACTION > MOUSE ACTIONS: CONTROL/GEOMETRY > ADJUST ADJACENT TRACK CENTRES`1 mouse actions.' + '||The minimum spacing should also be increased when using the `0TOOLS > MAKE DOUBLE-TRACK`1 functions on a transition curve, as it is not mathematically possible to create an exact uniformly spaced adjacent track on a transition curve.' + '||If you are using a reduced track gauge such as 00 or EM these centre-to-centre spacings <U>remain the same</U>. The actual "6ft way" betwen the inner rails increases accordingly.' + '||Where the adjacent track forms a loop or siding, the spacing should normally be increased by 4ft to 15ft 2in (182in) for UK tracks.' + ' This is to provide a space for signal posts and other obstructions, and to ensure the safety of shunting staff.' + '||Changes made here will be reset if a new gauge/scale setting is selected. Many model railway gauge standards incorporate overscale nominal spacings to allow for the use of sharp curves.';
+    + '||If preferred, model dimensions (in mm) can be entered instead of full-size prototype dimemsions, by using the S conversion factor. For example, to enter model track centres of 50mm, enter <SPAN STYLE="COLOR:BLUE;">s50</SPAN>.' + '||For more about conversion factors, click the `0? HELP`1 button.' + '||Different spacing dimensions can be set for the tracks on each side of the template.' + '||TS is "turnout-side", i.e. the same side as the hand of the template. The diverging side of a turnout.' + '||MS is "main-side", i.e. the opposite side from the hand of the template. The straight-ahead side of a turnout.' + '||For UK standard-gauge practice the minimum spacing on straight track should normally give a "6ft way" between the inner rails, that means 11ft 2in (134in) minimum centre-to-centre spacing for standard-gauge tracks.' + '||Where there are sharp curves or superelevation, this distance must be increased to allow for vehicle overhang.' + '||The `0utils > dummy vehicle`1 functions can be used to determine the required clearance on such curves, in comjunction with the `0ACTION > MOUSE ACTIONS: CONTROL/GEOMETRY > ADJUST ADJACENT TRACK CENTRES`1 mouse actions.' + '||The minimum spacing should also be increased when using the `0TOOLS > MAKE DOUBLE-TRACK`1 functions on a transition curve, as it is not mathematically possible to create an exact uniformly spaced adjacent track on a transition curve.' + '||If you are using a reduced track gauge such as 00 or EM these centre-to-centre spacings <U>remain the same</U>. The actual "6ft way" betwen the inner rails increases accordingly.' + '||Where the adjacent track forms a loop or siding, the spacing should normally be increased by 4ft to 15ft 2in (182in) for UK tracks.' + ' This is to provide a space for signal posts and other obstructions, and to ensure the safety of shunting staff.' + '||Changes made here will be reset if a new gauge/scale setting is selected. Many model railway gauge standards incorporate overscale nominal spacings to allow for the use of sharp curves.';
 
 var
   n: integer;
@@ -9339,8 +9333,8 @@ end;
 procedure Tpad_form.lengths_rails_menu_entryClick(Sender: TObject);
 
 const
-  pt_rail1_str: string = '  Overall  Length  of  Plain Track  in  Scale  Rail  Lengths'
-    + '||Enter the required overall length of the current plain track template as a number of scale rail lengths.'
+  pt_rail1_str: string = '  Overall  Length  of  Plain Track  in  Scale  Rail  Lengths' +
+    '||Enter the required overall length of the current plain track template as a number of scale rail lengths.'
     + '||The current rail length setting (in full-size prototype inches) is ';
 
   pt_rail2_str: string =
@@ -9367,12 +9361,14 @@ begin
   // save current peg data for peg_curve calcs.
 
   n := putdim(pt_rail1_str + round_str(railen[pt_i], 2) + pt_rail2_str, 0,
-    'overall  length  of  plain  track  in  rail  lengths', xorg / rail_len_mm, True, True, True, False);
+    'overall  length  of  plain  track  in  rail  lengths', xorg / rail_len_mm,
+    True, True, True, False);
   // no neg, no preset, no zero, don't terminate on zero.
   if n <> 0 then
     EXIT;
 
-  if getdims('plain  track  length  in  scale  rail  lengths', '', pad_form, n, od) = True then begin
+  if getdims('plain  track  length  in  scale  rail  lengths', '', pad_form, n, od) = True then
+  begin
     xorg := ABS(od[0] * rail_len_mm);
     turnoutx := xorg;
 
@@ -9525,8 +9521,7 @@ procedure Tpad_form.fit_single_page_menu_entryClick(Sender: TObject);
 begin
   if (print_pages_top_origin <> 0) or (print_pages_left_origin <> 0) then begin
     if alert(2, '    fit  single  page  -  page  origin  is  offset',
-      'Your current page origin is not at the drawing datum.'
-      +
+      'Your current page origin is not at the drawing datum.' +
       '||In order to fit the drawing on a single page the page origin will be reset.',
       '', '', '', '', 'cancel  single  page  -  no  changes    ', 'O K', 0) = 5 then
       EXIT;
@@ -9549,10 +9544,9 @@ procedure Tpad_form.set_output_size_menu_entryClick(Sender: TObject);
 
 const
   help_str: string = '     Print  Size' +
-    '||Enter here the scaling factor to be used when printing the template pages.'
-    + '||For example, if you want to print your template reduced to three-quarters of the normal size ( 3/4 ), change the'
+    '||Enter here the scaling factor to be used when printing the template pages.' +
+    '||For example, if you want to print your template reduced to three-quarters of the normal size ( 3/4 ), change the'
     + ' value showing to 75 % and then click ENTER. This might be useful when planning your railway'
-
     + ' if the full-size printouts would be too large to handle comfortably. You can also print'
     + ' enlargements of the template by entering values greater than 100 %. If you enter 250 % for example,'
     + ' you would get a printout two-and-a-half times the normal size.||To change back to normal printing,'
@@ -9569,7 +9563,8 @@ begin
   tick_not_normal;
   set_output_size_menu_entry.Checked := True;        // radio item.
 
-  n := putdim(help_str, 4, 'print  output  scaling  factor', out_factor * 100, True, False, True, False);
+  n := putdim(help_str, 4, 'print  output  scaling  factor', out_factor * 100,
+    True, False, True, False);
   // no neg, preset ok, no zero, don't terminate on zero.
   if n <> 0 then
     EXIT;
@@ -9603,8 +9598,8 @@ procedure Tpad_form.landscape_menu_entryClick(Sender: TObject);
 begin
   if banner_paper = True then begin
     if alert(1, '    sideways (landscape)  -  banner  printing',
-      'Templot is currently set for printing on banner or roll paper.'
-      + '||For all standard printers banner printing from Templot0 works correctly only if the printer is set for upright (portrait) printing.', '', '', 'sideways  ( landscape )  printing  on  banner  paper', '', 'cancel', '', 0) = 5 then
+      'Templot is currently set for printing on banner or roll paper.' +
+      '||For all standard printers banner printing from Templot0 works correctly only if the printer is set for upright (portrait) printing.', '', '', 'sideways  ( landscape )  printing  on  banner  paper', '', 'cancel', '', 0) = 5 then
       EXIT;
   end;
   // !!! don't call single_sheets.click   - infinite loop via printer_setup !!!
@@ -9878,7 +9873,8 @@ procedure Tpad_form.rail_infill_colours_menu_entryClick(Sender: TObject);
 begin
   if check_black_white = True then
     EXIT;
-  save_priccu := get_colour('choose  a  colour  for  the  control  template  printed  rail  infill',
+  save_priccu := get_colour(
+    'choose  a  colour  for  the  control  template  printed  rail  infill',
     save_priccu);
 end;
 //_______________________________________________________________________________________
@@ -9967,8 +9963,7 @@ begin
   if check_black_white = True then
     EXIT;
   save_pricbg := get_colour(
-    'choose  a  colour  for  the  background  templates  printed  rail  infill',
-    save_pricbg);
+    'choose  a  colour  for  the  background  templates  printed  rail  infill', save_pricbg);
 end;
 //___________________________________________________________________________________________
 
@@ -9999,7 +9994,8 @@ procedure Tpad_form.print_font_menu_entryClick(Sender: TObject);
 
 begin
   print_labels_font.Assign(get_font(
-    'choose  a  font  and  text  colour  for  the  printed  grid  labels', print_labels_font, True));
+    'choose  a  font  and  text  colour  for  the  printed  grid  labels',
+    print_labels_font, True));
 
   if (print_labels_font.Color <> clBlack) and ((black_white = True) or (grey_shade = True))
   then begin
@@ -10034,11 +10030,10 @@ procedure Tpad_form.corner_page_numbers_font_menu_entryClick(Sender: TObject);
 
 begin
   print_corner_page_numbers_font.Assign(
-    get_font('choose  a  font  and  text  colour  for  the  printed  corner  page  numbers  and  date',
-    print_corner_page_numbers_font, True));
+    get_font('choose  a  font  and  text  colour  for  the  printed  corner  page  numbers  and  date', print_corner_page_numbers_font, True));
 
-  if (print_corner_page_numbers_font.Color <> clBlack) and ((black_white = True) or (grey_shade = True))
-  then begin
+  if (print_corner_page_numbers_font.Color <> clBlack) and
+    ((black_white = True) or (grey_shade = True)) then begin
     if check_black_white = True then
       EXIT;   // font colour will be reset on printing.
   end;
@@ -10061,10 +10056,10 @@ begin
   problem_str := '      Print  Preview  Problems' +
     '||There is a problem previewing the pages of your control template.' +
     '||Has your printer paper-size been set up correctly?' +
-    '||Have you shifted the template completely below or to the left of the trim margins?'
-    + '||Or shifted the template beyond the printing area of ' + IntToStr(
-    sheet_down_c + 1) + ' pages long by ' + IntToStr(sheet_across_c + 1) + ' pages wide?'
-    + '||If so, please adjust the page origin or trim margins accordingly.' +
+    '||Have you shifted the template completely below or to the left of the trim margins?' +
+    '||Or shifted the template beyond the printing area of ' + IntToStr(
+    sheet_down_c + 1) + ' pages long by ' + IntToStr(sheet_across_c + 1) +
+    ' pages wide?' + '||If so, please adjust the page origin or trim margins accordingly.' +
     '||Have you changed the page origin so far that all the pages are empty? If so click the PRINT > PAGE ORIENTATION / ORIGIN > RESET PAGE ORIGIN menu item.' + '||If none of these apply, click the TEMPLATE > NEW TEMPLATE (QUICK SET)... menu item.';
 
   cancel_adjusts(False);           //  in case he bumps the mouse.
@@ -10086,7 +10081,8 @@ begin
     if out_factor = 1 then
       preview_form.scaling_label.Caption := 'at normal size ( 100 % )'
     else
-      preview_form.scaling_label.Caption := 'scaled at  ' + round_str(out_factor * 100, 2) + ' % of normal size';
+      preview_form.scaling_label.Caption :=
+        'scaled at  ' + round_str(out_factor * 100, 2) + ' % of normal size';
 
     if (fit_single_sheet = True) and (out_factor <> 1) then
       preview_form.scaling_label.Caption :=
@@ -10106,9 +10102,9 @@ begin
   else begin
     repeat
       i := alert(6, '      problem  with  preview  pages',
-        'Sorry, unable to preview the pages of your control template.',
-        '', '?  help', 'printer  setup...', 'clear  shift  data',
-        'cancel  preview / print', 'B-6  LH  turnout  reset', 2);
+        'Sorry, unable to preview the pages of your control template.', '',
+        '?  help', 'printer  setup...', 'clear  shift  data', 'cancel  preview / print',
+        'B-6  LH  turnout  reset', 2);
       case i of
         2:
           alert_help(0, problem_str, '');
@@ -10175,7 +10171,8 @@ begin
   change_transition_zone_menu_entry.Enabled := spiral;
   swap_transition_rads_menu_entry.Enabled := spiral;
   zero_trans_zone_menu_entry.Enabled := spiral;
-  normalize_transition_menu_entry.Enabled := (spiral = True) and ((os < 0) or ((os + tst) > turnoutx));
+  normalize_transition_menu_entry.Enabled :=
+    (spiral = True) and ((os < 0) or ((os + tst) > turnoutx));
 end;
 //________________________________________________________________________________________
 
@@ -10275,7 +10272,8 @@ begin
   case code of
 
     0:
-      trans_calc_timer.Tag := make_transition_from_current_calcs;    // return error code the same way.
+      trans_calc_timer.Tag := make_transition_from_current_calcs;
+    // return error code the same way.
 
     -1, 1:
       make_double_track_calcs(trans_calc_timer.Tag);  // code is +1 or -1 for side of track.
@@ -10382,8 +10380,7 @@ begin
   if colour_depth_bits = 1 then begin
     i := alert(6, '    monochrome  printer',
       'Your current printer is not a colour printer, or has not been set for colour printing.',
-      '', '', 'ignore  this  message', 'printer  setup ...',
-      'cancel  colour  printing', '', 0);
+      '', '', 'ignore  this  message', 'printer  setup ...', 'cancel  colour  printing', '', 0);
     if i = 4 then begin
       printer_setup(False, False);
       EXIT;
@@ -10531,8 +10528,7 @@ begin
     if alert(3, '    no  timbers  showing',
       'There are no timbers showing because the control template has been set to show track centre-lines only.'
       + '||Do you want to restore the rails and timbers for this template?',
-      '', '', '', '', 'no', 'yes  -  restore  rails  and  timbers', 0) = 5
-    then begin
+      '', '', '', '', 'no', 'yes  -  restore  rails  and  timbers', 0) = 5 then begin
       Result := False;
       EXIT;
     end;
@@ -10750,33 +10746,34 @@ end;
 procedure Tpad_form.timbering_data_menu_entryClick(Sender: TObject);
 
 const
-  helptl_str: string = '    `0Plain  Track  Sleeper  Length`9|    `0Nominal  Turnout  Timber  Length`9'
+  helptl_str: string =
+    '    `0Plain  Track  Sleeper  Length`9|    `0Nominal  Turnout  Timber  Length`9'
     + '||The dimension entered here is used for plain track sleeper lengths and for the nominal length of turnout timbers.'
     + '||By "nominal" is meant that this length will apply only to the first few timbers at the front of the switch. The remaining turnout timbers increase in 6 inch increments as necessary to accommodate the rails.' + '||Enter the length dimension in full-size inches.' + '||For British standard-gauge bullhead track this dimension was normally 108 inches (9ft) in the pre-grouping era, and 102 inches (8ft-6in) subsequently.' + ' But 9ft sleepers remained in use for many years after grouping and could still be found in yards and sidings to the end of the traditional steam railway.' + '||Templot0 is pre-set to draw 8ft-6in timbers. If the setting is changed to 9ft timbers, an additional mark is drawn on the printed templates showing the end positions for 8ft-6in timbers.' + '||The length of individual timbers can be changed using the <I>shove timbers</I> functions. Select the `0REAL > SHOVE TIMBERS`1 menu item and read the help notes.';
 
   helpsw_str: string = '    `0Plain  Track  Sleeper  Width`9' +
-    '||Enter a dimension in full-size inches for the width of the plain track sleepers.'
-    + '||For British standard-gauge bullhead track this dimension is normally 10 inches.'
-    + '||The width of individual sleepers can be changed subsequently using the `0REAL > SHOVE TIMBERS`1 functions.'
+    '||Enter a dimension in full-size inches for the width of the plain track sleepers.' +
+    '||For British standard-gauge bullhead track this dimension is normally 10 inches.' +
+    '||The width of individual sleepers can be changed subsequently using the `0REAL > SHOVE TIMBERS`1 functions.'
     + '||Some pre-grouping UK companies used sleepers 12 inches wide on each side of a rail joint. For this enter 10 inches here and 12 inches on the next line.' + '||The timbers in the switch front at the toe of a turnout (usually two of them, numbered J1 and J2) may be either plain track sleepers or turnout timbers, according to the design of the switch.' + '||If they are turnout timbers they will not be affected by changes to this plain track sleeper width setting. To reduce the width of them to match the plain track sleepers, use the <I>shove timbers</I> width functions,' + ' or create a custom switch.';
 
   helpjw_str: string = '    `0Plain  Track  Joint  Sleeper  Width`9' +
     '||Some pre-grouping UK companies used sleepers 12 inches wide on each side of a rail joint.'
     +
     '||Enter a dimension in full-size inches for the width of these joint sleepers (e.g. 12 inches).'
-    +
-    '||If wide joint sleepers are not wanted enter the same dimension here as on the previous line (e.g. 10 inches in UK) or enter zero (0).';
+    + '||If wide joint sleepers are not wanted enter the same dimension here as on the previous line (e.g. 10 inches in UK) or enter zero (0).';
 
   helptw_str: string = '    `0Turnout  Timber  Width`9' +
-    '||Enter a dimension in full-size inches for the width of the turnout timbers.'
-    + '||For British standard-gauge bullhead track this dimension is normally 12 inches.'
-    + '||The width of individual timbers can be changed subsequently using the `0REAL > SHOVE TIMBERS`1 width functions.'
+    '||Enter a dimension in full-size inches for the width of the turnout timbers.' +
+    '||For British standard-gauge bullhead track this dimension is normally 12 inches.' +
+    '||The width of individual timbers can be changed subsequently using the `0REAL > SHOVE TIMBERS`1 width functions.'
     + '||The timbers in the switch front at the toe of a turnout (usually two of them, numbered J1 and J2) may be either plain track sleepers or turnout timbers, according to the design of the switch.' + '||If they are plain track sleepers they will not be affected by changes to this turnout timber width setting. To widen them to match the turnout timbers, use the <I>shove timbers</I> width functions,' + ' or create a custom switch.';
 
   helptt_str: string = '    `0Timber  Thickness`9' +
     '||This dimension is used only for 3D effects in exported DXF files.' +
-    '||Enter a dimension in full-size inches for the thickness of the sleepers and timbers.'
-    + '||For British standard-gauge track this dimension is normally 5 inches for plain track sleepers and 6 inches for turnout timbers.' + '||For ease of model track construction, the same thickness is normally used for both, and it is rarely to scale.';
+    '||Enter a dimension in full-size inches for the thickness of the sleepers and timbers.' +
+    '||For British standard-gauge track this dimension is normally 5 inches for plain track sleepers and 6 inches for turnout timbers.' +
+    '||For ease of model track construction, the same thickness is normally used for both, and it is rarely to scale.';
 
   helps_str: string = '    `0Fill  Timber  Spacing`9' +
     '||Enter a dimension in full-size inches which will be the MAXIMUM timber spacing (centre-to-centre) for the timbers filling the space between the' + ' heel of the switch and the wing rail joint. The actual spacing used is likely to be less than this in order to fit the space evenly with a whole number of timbers.' + '||If a constant spacing is not wanted, individual timbers can be re-positioned using the `0REAL > SHOVE TIMBERS`1 functions.' + '||To change the timber spacings in the switch, use the <I>shove timber</I> functions or click the `0REAL > SWITCH SETTINGS...`1 menu item and create a `0CUSTOM SWITCH`1.' + '||To change the timber spacings in the crossing, use the <I>shove timber</I> functions or click the `0REAL > CUSTOMIZE V-CROSSING >`1 menu items.' + '||To change the sleeper spacing for plain track, click the `0REAL > PLAIN TRACK OPTIONS > RAIL LENGTHS AND SLEEPER SPACINGS...`1 menu item.' + '||Handy Hint:' + '|When the fill space is very short it can be difficult to find a setting for this maximum dimension which gives the desired result. It is often easier to leave the' + ' pre-set dimension and use the `0REAL > SHOVE TIMBERS`1 menu item functions to set the timber positions manually.';
@@ -10802,15 +10799,18 @@ begin
     True, False, False, False);            // no neg, preset ok, zero ok, don't terminate on zero.
 
   putdim(helpjw_str, 2, 'joint-sleeper width (full-size inches)', cpi.jt_slwide_pi,
-    True, False, False, False);         // no neg, preset ok, zero ok, don't terminate on zero.  212a
+    True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.  212a
 
   putdim(helptw_str, 2, 'turnout-timber width (full-size inches)', cpi.tbwide_pi,
     True, False, False, False);           // no neg, preset ok, zero ok, don't terminate on zero.
   putdim(helptt_str, 2, 'timber thickness (full-size inches)', cpi.timber_thick_pi,
-    True, False, False, False);                // no neg, preset ok, zero ok, don't terminate on zero.
+    True, False, False, False);
+  // no neg, preset ok, zero ok, don't terminate on zero.
 
   putdim(helps_str, 2, 'fill timber spacing (maximum, full-size inches)',
-    cpi.ftimbspmax_pi, True, False, True, False); // no neg, preset ok, no zero, don't terminate on zero.
+    cpi.ftimbspmax_pi, True, False, True, False);
+  // no neg, preset ok, no zero, don't terminate on zero.
 
   putdim(rend_help_str, 2, 'end-randomizing (full-size inches)', cpi.random_end_pi /
     inscale, True, False, False, False);       // inches, no neg, preset ok, zero ok.
@@ -11145,15 +11145,17 @@ var
   od: Toutdim;
 
 begin
-  n := putdim('', 1, 'rotation centre dimension X ( from left )   ', xform, False, True, False, False);
+  n := putdim('', 1, 'rotation centre dimension X ( from left )   ', xform,
+    False, True, False, False);
   // neg ok, no preset, allow zero, don't terminate on zero.
-  n := putdim('', 1, 'rotation centre dimension Y (from bottom)', yform * hand_i +
-    y_datum, False, True, False, False);        // ditto.
-  n := putdim('', 3, 'rotation  angle  ( + = anticlockwise ) ', kform * hand_i * 180.0 /
-    Pi, False, True, False, False); // ditto.
+  n := putdim('', 1, 'rotation centre dimension Y (from bottom)', yform *
+    hand_i + y_datum, False, True, False, False);        // ditto.
+  n := putdim('', 3, 'rotation  angle  ( + = anticlockwise ) ', kform * hand_i *
+    180.0 / Pi, False, True, False, False); // ditto.
   n := putdim('', 1, '+ / -  X  shift  (after rotation) ', xshift, False, True, False, False);
   // ditto.
-  n := putdim('', 1, '+ / -  Y  shift  (after rotation) ', yshift * hand_i, False, True, False, False);
+  n := putdim('', 1, '+ / -  Y  shift  (after rotation) ', yshift * hand_i,
+    False, True, False, False);
   // ditto.
   if n <> 4 then
     EXIT;
@@ -11182,8 +11184,9 @@ begin
   kform_start := kform;     // for angle read-out.
 
   mouse_action_selected('F8    rotate  around  fixing  peg ...', 'F8  rotate  around  peg',
-    'by : ' + captext((kform - kform_start) * hand_i * 180 / Pi) + ' degrees.   peg  at : ' +
-    captext(arm_angle * hand_i * 180 / Pi) + ' degrees' + k_ram_str(arm_angle * hand_i));
+    'by : ' + captext((kform - kform_start) * hand_i * 180 / Pi) +
+    ' degrees.   peg  at : ' + captext(arm_angle * hand_i * 180 / Pi) +
+    ' degrees' + k_ram_str(arm_angle * hand_i));
   twist_mod := 1;
 end;
 //_______________________________________________________________________________________
@@ -11210,7 +11213,8 @@ begin
     mouse_str := 'CTRL-F5  orbit around radial centre';
 
   mouse_action_selected('CTRL-F5    orbit  template  around  radial  centre ...',
-    mouse_str, 'peg  at : ' + captext(arm_angle * hand_i * 180 / Pi) + ' degrees' + k_ram_str(arm_angle * hand_i));
+    mouse_str, 'peg  at : ' + captext(arm_angle * hand_i * 180 / Pi) + ' degrees' +
+    k_ram_str(arm_angle * hand_i));
   orbit_mod := 1;
 end;
 //________________________________________________________________________________________
@@ -11421,7 +11425,8 @@ var
   pad_str, mouse_str: string;
 
 begin
-  if half_diamond = True   // menu item should be disabled, but could be repeat_last_action call or beginner button
+  if half_diamond = True
+  // menu item should be disabled, but could be repeat_last_action call or beginner button
   then begin
     alert(6, '    F3  adjust  turnout  approach  length',
       'F3  adjust  turnout  approach  length.' +
@@ -11516,10 +11521,12 @@ begin
   if (railen[pt_i] < minfp) or (inscale < minfp) then
     EXIT;      // div 0
 
-  tb_roll_factor := ffx / railen[pt_i] / inscale * 100;              // all in mm, 100 is for percentage.
+  tb_roll_factor := ffx / railen[pt_i] / inscale * 100;
+  // all in mm, 100 is for percentage.
 
   mouse_action_selected('CTRL-F4    roll  rails  and  sleepers ...',
-    'CTRL-F4  roll  rails  and  sleepers', 'rolled - in : ' + captext(tb_roll_percent) + ' %  of  a  rail');
+    'CTRL-F4  roll  rails  and  sleepers', 'rolled - in : ' + captext(tb_roll_percent) +
+    ' %  of  a  rail');
   roll_mod := 1;
   if peg_code = -2 then
     peg_code := -1;  // so peg on joints can re-initialise.
@@ -11531,19 +11538,19 @@ procedure Tpad_form.adjust_roam_menu_entryClick(Sender: TObject);
 begin
   if plain_track = True then begin
     alert(6, '    CTRL-F9  ROAM  turnout  along  length',
-      '`0CTRL-F9`2|`0Roam turnout along length of template`9'
-      + '||This mouse action applies to turnout templates only.'
-      + '||The control template is a plain track template, not a turnout.',
+      '`0CTRL-F9`2|`0Roam turnout along length of template`9' +
+      '||This mouse action applies to turnout templates only.' +
+      '||The control template is a plain track template, not a turnout.',
       '', '', '', '', '', 'O K', 0);
     EXIT;
   end;
 
   if half_diamond = True then begin
     alert(6, '    CTRL-F9  ROAM  turnout  along  length',
-      '`0CTRL-F9`2|`0Roam turnout along length of template`9'
-      + '||This mouse action applies to turnout templates only.'
-      + '||The control template is a half-diamond, not a turnout.'
-      + '||Use the `0CTRL-F6`2 SNAKE mouse action instead.',
+      '`0CTRL-F9`2|`0Roam turnout along length of template`9' +
+      '||This mouse action applies to turnout templates only.' +
+      '||The control template is a half-diamond, not a turnout.' +
+      '||Use the `0CTRL-F6`2 SNAKE mouse action instead.',
       '', '', '', '', '', 'O K', 0);
     EXIT;
   end;
@@ -11570,9 +11577,9 @@ procedure Tpad_form.adjustable_turnout_road_menu_entryClick(Sender: TObject);   
 begin
   if retpar_i = 1 then begin
     alert(6, '    adjustable  turnout-road  exit',
-      'The control template has a parallel V-crossing.'
-      + '||The turnout road on parallel V-crossings cannot be made adjustable.'
-      + '||If you wish to adjust the turnout-road exit length,|first change to a different type of V-crossing at|`0real > V-crossing options >`z menu options.',
+      'The control template has a parallel V-crossing.' +
+      '||The turnout road on parallel V-crossings cannot be made adjustable.' +
+      '||If you wish to adjust the turnout-road exit length,|first change to a different type of V-crossing at|`0real > V-crossing options >`z menu options.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
@@ -11604,9 +11611,9 @@ procedure Tpad_form.minimum_turnout_road_menu_entryClick(Sender: TObject);
 begin
   if retpar_i = 1 then begin
     alert(6, '    mimimum  turnout-road  exit',
-      'The control template has a parallel V-crossing.'
-      + '||The turnout road on parallel V-crossings cannot be reduced to a minimum.'
-      + '||If you wish to reduce the turnout-road exit length to a minimum,|first change to a different type of V-crossing at|`0real > V-crossing options >`z menu options.',
+      'The control template has a parallel V-crossing.' +
+      '||The turnout road on parallel V-crossings cannot be reduced to a minimum.' +
+      '||If you wish to reduce the turnout-road exit length to a minimum,|first change to a different type of V-crossing at|`0real > V-crossing options >`z menu options.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
@@ -11726,9 +11733,10 @@ begin
   if hi_color = False then begin
     i := alert(2, 'php/901   trackpad  colours  -  pre-set  schemes ...',
       'Here are some simple pre-set colour schemes for the trackpad, using only the basic colours.'
-      + '||For a wider choice of colours click the `0TRACKPAD > TRACKPAD COLOURS`1 > menu items.| ',
-      'classic  grey', 'snow  white', 'silver  paper',
-      'sunshine  yellow', 'cancel  -  no  change    ', 'coal  black    ', 0);
+      +
+      '||For a wider choice of colours click the `0TRACKPAD > TRACKPAD COLOURS`1 > menu items.| ',
+      'classic  grey', 'snow  white', 'silver  paper', 'sunshine  yellow',
+      'cancel  -  no  change    ', 'coal  black    ', 0);
     case i of
       1:
         pad_bright;
@@ -11863,10 +11871,9 @@ begin
   else begin
     i := alert(2, 'php/901   trackpad  colours  -  pre-set  schemes ...',
       'Here are some pre-set colour schemes for the trackpad. The 8-bit schemes use only the basic colours.'
-      + '||For a wider choice of colours click the `0TRACKPAD > TRACKPAD COLOURS`1 > menu items.| ',
-      'classic  grey    ( 8-bit )', 'snow  white    ( 8-bit )',
-      'coal  black    ( 8-bit )', 'sky  blue  startup    ( 16-bit )', 'cancel  -  no  change    ',
-      'bright  night    ( 16-bit )    ', 0);
+      + '||For a wider choice of colours click the `0TRACKPAD > TRACKPAD COLOURS`1 > menu items.| ', 'classic  grey    ( 8-bit )', 'snow  white    ( 8-bit )',
+      'coal  black    ( 8-bit )', 'sky  blue  startup    ( 16-bit )',
+      'cancel  -  no  change    ', 'bright  night    ( 16-bit )    ', 0);
     case i of
       1:
         pad_bright;                     // grey day.
@@ -12378,8 +12385,8 @@ begin
   timber_outlines_menu_entry.Checked := not timber_outlines_menu_entry.Checked;
   // toggle outlines calc
 
-  timber_marks := timber_centres_menu_entry.Checked or
-    timber_outlines_menu_entry.Checked or timber_numbers_menu_entry.Checked;
+  timber_marks := timber_centres_menu_entry.Checked or timber_outlines_menu_entry.Checked or
+    timber_numbers_menu_entry.Checked;
   // set timbering calcs flag.
 
   redraw(True);
@@ -12392,8 +12399,8 @@ begin
   timber_numbers_menu_entry.Checked := not timber_numbers_menu_entry.Checked;
   // toggle timber numbers calc.
 
-  timber_marks := timber_centres_menu_entry.Checked or
-    timber_outlines_menu_entry.Checked or timber_numbers_menu_entry.Checked;
+  timber_marks := timber_centres_menu_entry.Checked or timber_outlines_menu_entry.Checked or
+    timber_numbers_menu_entry.Checked;
   // set timbering calcs flag.
 
   redraw(True);
@@ -12406,8 +12413,8 @@ begin
   timber_centres_menu_entry.Checked := not timber_centres_menu_entry.Checked;
   // toggle timber centres calc.
 
-  timber_marks := timber_centres_menu_entry.Checked or
-    timber_outlines_menu_entry.Checked or timber_numbers_menu_entry.Checked;
+  timber_marks := timber_centres_menu_entry.Checked or timber_outlines_menu_entry.Checked or
+    timber_numbers_menu_entry.Checked;
   // set timbering calcs flag.
 
   redraw(True);
@@ -12687,9 +12694,8 @@ begin
   prstr := printer_list.Strings[prindex];
 
   if alert(7, '    delete  calibration',
-    'You are about to delete the calibration information (if any)'
-    + '|for  ' + prstr +
-    '||Templates printed on this printer may become dimensionally inaccurate and unusable until you re-calibrate this printer (Shift+F5),' + ' or reload calibration information for it.', '', '', '', '', 'cancel', 'O K  -  delete  calibration', 0) = 6 then begin
+    'You are about to delete the calibration information (if any)' + '|for  ' +
+    prstr + '||Templates printed on this printer may become dimensionally inaccurate and unusable until you re-calibrate this printer (Shift+F5),' + ' or reload calibration information for it.', '', '', '', '', 'cancel', 'O K  -  delete  calibration', 0) = 6 then begin
 
     printer_setup_done := False;    // so it shows again.
 
@@ -12713,10 +12719,10 @@ var
 
 begin
   if alert(7, '    delete  all  calibrations',
-    'You are about to delete the calibration information (if any) for all of your printers.'
-    + '||Your templates may become dimensionally inaccurate and unusable until you re-calibrate your printer (Shift+F5),'
-    + ' or reload calibration information for it.',
-    '', '', '', '', 'cancel', 'O K  -  delete  all  calibrations', 0) = 6 then begin
+    'You are about to delete the calibration information (if any) for all of your printers.' +
+    '||Your templates may become dimensionally inaccurate and unusable until you re-calibrate your printer (Shift+F5),'
+    + ' or reload calibration information for it.', '', '', '', '', 'cancel',
+    'O K  -  delete  all  calibrations', 0) = 6 then begin
 
     printer_setup_done := False;    // so it shows again.
 
@@ -12754,7 +12760,8 @@ begin
   Font.Size := 8;    // for lo-res screens.  n.b. can't write  "pad_form.Font"  until after pad_form is created.
 
 
-  arrow_button_dummy_trackbar.Width := 0; // so still "Visible=True" but not actually visible on pad.
+  arrow_button_dummy_trackbar.Width := 0;
+  // so still "Visible=True" but not actually visible on pad.
   // used to receive arrow keys, which can then be intercepted.
 
   pad_about_templotmec_menu_entry.Caption :=
@@ -12873,8 +12880,8 @@ begin
 
   action_panel_hint('adjust transition start instead'); // 205c
 
-  mouse_action_selected('SHIFT+CTRL-F4   adjust  transition  length  ' + mode_str +
-    ' ...', 'SHIFT+CTRL-F4  transition  length  ' + mode_str, captext(tst) + ' mm');
+  mouse_action_selected('SHIFT+CTRL-F4   adjust  transition  length  ' +
+    mode_str + ' ...', 'SHIFT+CTRL-F4  transition  length  ' + mode_str, captext(tst) + ' mm');
   trans_length_mod := 1;
 end;
 //_____________________________________________________________________________________
@@ -13076,17 +13083,17 @@ begin
   else
     logo_img_path := Config.GetFilePath(csfiT3logo);
 
-  logo_str := '<P CLASS="spacer">&nbsp;</P>' + '<TABLE WIDTH="90%" ALIGN="CENTER"><TR>'
-    + '<TD ROWSPAN="2" VALIGN="BOTTOM"><IMG SRC="' + logo_img_path
-    + '"></TD>' + '<TD ROWSPAN="2">&nbsp; &nbsp; &nbsp;</TD>'
-    + '<TD CLASS="mainheading" ALIGN="CENTER">welcome &nbsp;to &nbsp;' +
+  logo_str := '<P CLASS="spacer">&nbsp;</P>' + '<TABLE WIDTH="90%" ALIGN="CENTER"><TR>' +
+    '<TD ROWSPAN="2" VALIGN="BOTTOM"><IMG SRC="' + logo_img_path + '"></TD>' +
+    '<TD ROWSPAN="2">&nbsp; &nbsp; &nbsp;</TD>' +
+    '<TD CLASS="mainheading" ALIGN="CENTER">welcome &nbsp;to &nbsp;' +
     Application.Title + '</TD>' + '</TR><TR>' +
     '<TD CLASS="subheading" ALIGN="CENTER">Getting &nbsp;Started &nbsp;and &nbsp;Finding &nbsp;Help</TD>'
     + '</TR></TABLE>';
 
   sig_str := '<P>Welcome to ' + Application.Title + ' and happy modelling. <img src="' +
-    Config.GetFilePath(csfiSmile) + '"></P>' + '<P CLASS="spacer">&nbsp;</P>'
-    + '<P>Martin.</P>';
+    Config.GetFilePath(csfiSmile) + '"></P>' + '<P CLASS="spacer">&nbsp;</P>' +
+    '<P>Martin.</P>';
 
   no_new_help_sizes := True;      // don't change the user's default sizes.
 
@@ -13462,7 +13469,8 @@ procedure Tpad_form.bgrails_colour_menu_entryClick(Sender: TObject);
 
 begin
   bgkeep_rail_colour := get_colour(
-    'choose  a  colour  for  the  background  templates  rail  lines  on  the  trackpad', bgkeep_rail_colour);
+    'choose  a  colour  for  the  background  templates  rail  lines  on  the  trackpad',
+    bgkeep_rail_colour);
 end;
 //________________________________________________________________________________________
 
@@ -13488,7 +13496,8 @@ procedure Tpad_form.bgtimber_infill_colour_menu_entryClick(Sender: TObject);
 
 begin
   bgkeep_timberfill_colour := get_colour(
-    'choose  a  colour  for  the  background  templates  timber  infill', bgkeep_timberfill_colour);
+    'choose  a  colour  for  the  background  templates  timber  infill',
+    bgkeep_timberfill_colour);
 end;
 //___________________________________________________________________________________________
 
@@ -13496,7 +13505,8 @@ procedure Tpad_form.bg_peg_colour_menu_entryClick(Sender: TObject);
 
 begin
   bgkeep_peg_colour := get_colour(
-    'choose  a  colour  for  the  pegs  on  the  background  on  the  trackpad', bgkeep_peg_colour);
+    'choose  a  colour  for  the  pegs  on  the  background  on  the  trackpad',
+    bgkeep_peg_colour);
 end;
 //____________________________________________________________________________________________
 
@@ -13670,16 +13680,16 @@ var
 begin
   cancel_adjusts(False);
 
-  max_wide := y_datum * 100 + xy_max[1];   //xy_most[1];   // init for control template in 1/100th mm...
+  max_wide := y_datum * 100 + xy_max[1];
+  //xy_most[1];   // init for control template in 1/100th mm...
   max_long := xy_max[0];               //xy_most[0];
 
   if (max_long < 0) or (max_wide < 0)    // all negative.
   then begin
     if alert(6, '    control  template  all  negative',
-      '||Your control template is entirely to the left of or below the trackpad margins.'
-      + '||Unable to fit the trackpad to the extent of the control template.',
-      '', '', '', '', 'cancel', 'fit  the  extent  of  the  background      ', 0) =
-      6 then
+      '||Your control template is entirely to the left of or below the trackpad margins.' +
+      '||Unable to fit the trackpad to the extent of the control template.', '',
+      '', '', '', 'cancel', 'fit  the  extent  of  the  background      ', 0) = 6 then
       fit_bgnd_menu_entry.Click;
     EXIT;
   end;
@@ -13928,8 +13938,10 @@ procedure Tpad_form.set_datum_menu_entryClick(Sender: TObject);
 
 const
   helpdp_str: string = '     Set  Datum' +
-    '||Enter a new Y-dimension for the datum point (green dot) in millimetres.'
-    + '||The datum point is normally located on the Y-axis (i.e. where the X dimension is zero), and represents the base point from which' + ' all the template dimensions are calculated.' + '||( It can only be moved off the Y-axis by means of RE-ORIGINATION; see the PROGRAM > EXPERT menu items on the PROGRAM PANEL window.)';
+    '||Enter a new Y-dimension for the datum point (green dot) in millimetres.' +
+    '||The datum point is normally located on the Y-axis (i.e. where the X dimension is zero), and represents the base point from which' +
+    ' all the template dimensions are calculated.' +
+    '||( It can only be moved off the Y-axis by means of RE-ORIGINATION; see the PROGRAM > EXPERT menu items on the PROGRAM PANEL window.)';
 var
   n: integer;
   od: Toutdim;
@@ -13969,10 +13981,9 @@ procedure Tpad_form.select_by_tag_help_menu_entry_click(Sender: TObject);  // 20
 
 const
   str: string = 'php/330    `0select  a  group  by  prefix  tag`9' +
-    '||Click a tag listed on the sub-menu to create a group of all the templates so tagged.'
-    +
-    '||By this means you can quickly re-create a defined group of templates at any time.'
-    + '||green_panel_begintree.gif Click the `0group > add prefix tag to names ...`1 menu item to add a tag to all the templates in a group.green_panel_end' + '|For more information about using prefix tags,|click `0more information online`1 above.';
+    '||Click a tag listed on the sub-menu to create a group of all the templates so tagged.' +
+    '||By this means you can quickly re-create a defined group of templates at any time.' +
+    '||green_panel_begintree.gif Click the `0group > add prefix tag to names ...`1 menu item to add a tag to all the templates in a group.green_panel_end' + '|For more information about using prefix tags,|click `0more information online`1 above.';
 
 begin
   help(0, str, '');
@@ -13983,8 +13994,7 @@ procedure Tpad_form.remove_group_tag_help_menu_entry_click(Sender: TObject);  //
 
 const
   str: string = 'php/330    `0remove  prefix  tag  from  group`9' +
-    '||Click a tag listed on the sub-menu to remove it from all the templates in the group.'
-    +
+    '||Click a tag listed on the sub-menu to remove it from all the templates in the group.' +
     '||For more information about using prefix tags,|click `0more information online`1 above.';
 
 begin
@@ -14023,7 +14033,8 @@ begin
     name_str := StringReplace(name_str, tag1_str, '', [rfReplaceAll, rfIgnoreCase]);
     // in case the tailing space was missing
 
-    Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.reference_string := name_str;
+    Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.reference_string :=
+      name_str;
 
   end;//next
 
@@ -14076,9 +14087,8 @@ begin                        // this handler is called by all the menus.
 
   if hide_current_flag = True then begin
     if (Sender = gauge_menu)        // show the control if hidden...
-      or (Sender = template_menu) or (Sender = real_menu) or
-      (Sender = geometry_menu) or (Sender = action_menu) or
-      (Sender = do_menu) then begin
+      or (Sender = template_menu) or (Sender = real_menu) or (Sender = geometry_menu) or
+      (Sender = action_menu) or (Sender = do_menu) then begin
       hide_current_flag := False;
       save_hide := False;
 
@@ -14271,11 +14281,11 @@ begin                        // this handler is called by all the menus.
   if Sender = tools_menu   // 213b
   then begin
     ts_spacing_info_menu_entry.Caption :=
-      '     TS = ' + FormatFloat('0.##', cpi.trtscent_pi / inscale) + '"        ' + FormatFloat(
-      '0.##', cpi.trtscent_pi) + 'mm';           // 215b
+      '     TS = ' + FormatFloat('0.##', cpi.trtscent_pi / inscale) + '"        ' +
+      FormatFloat('0.##', cpi.trtscent_pi) + 'mm';           // 215b
     ms_spacing_info_menu_entry.Caption :=
-      '    MS = ' + FormatFloat('0.##', cpi.trmscent_pi / inscale) + '"        ' + FormatFloat(
-      '0.##', cpi.trmscent_pi) + 'mm';            // 215b
+      '    MS = ' + FormatFloat('0.##', cpi.trmscent_pi / inscale) + '"        ' +
+      FormatFloat('0.##', cpi.trmscent_pi) + 'mm';            // 215b
   end;
 
 end;
@@ -14287,11 +14297,13 @@ const
   help_jump_str: string = '    Explode / Shrink  Step  Size' +
     '||Enter the explosion factor for each spot zoom step.' +
     '||The preset factor is 200 %, meaning that the trackpad width is doubled or halved each time.'
-    + '||To make the trackpad zoom in or out faster, increase this number.' +
+    +
+    '||To make the trackpad zoom in or out faster, increase this number.' +
     '||To make the trackpad zoom in or out more slowly, reduce this number.' +
     '||If you set 141.42 %, it will take 2 steps to exactly double or halve the trackpad width.'
-    + '||The preset for the slow zoom step is 110 %. The minimum setting for either is 100.5 %.'
-    + '||Handy Hints :' + '||You can zoom in or out to a precise size using the SPOT ZOOM mouse action (CTRL-F1) or the SCALE ZOOM mouse action.' + '||Or you can zoom in by drawing a rectangle on the pad. Select the TRACKPAD > ZOOM (EXPLODE/SHRINK) > CLICK-DRAG ZOOM RECTANGLE... menu item, or click the zoom rectangle button at the top of the pad.' + '||It is also possible to enter the zoom settings directly by selecting the TRACKPAD > ZOOM/PAN OPTIONS > LOCK ZOOM AT... menu item.';
+    +
+    '||The preset for the slow zoom step is 110 %. The minimum setting for either is 100.5 %.' +
+    '||Handy Hints :' + '||You can zoom in or out to a precise size using the SPOT ZOOM mouse action (CTRL-F1) or the SCALE ZOOM mouse action.' + '||Or you can zoom in by drawing a rectangle on the pad. Select the TRACKPAD > ZOOM (EXPLODE/SHRINK) > CLICK-DRAG ZOOM RECTANGLE... menu item, or click the zoom rectangle button at the top of the pad.' + '||It is also possible to enter the zoom settings directly by selecting the TRACKPAD > ZOOM/PAN OPTIONS > LOCK ZOOM AT... menu item.';
 
 var
   n: integer;
@@ -14372,28 +14384,30 @@ const
     //+'||CTRL-Z    REBUILD GROUP'+              '|                    rebuilds the currently selected group of templates using the current generator settings'
     + '||CTRL-Z    UNDO DELETED TEMPLATE' +
     '|                    restores the most recently deleted template back to the storage box and background drawing'
-    +
-    '|' + '||CTRL-DELETE    CLEAR ALL TEMPLATES' +
+    + '|' + '||CTRL-DELETE    CLEAR ALL TEMPLATES' +
     '|                    clears (deletes) all stored templates and the background drawing' +
     '|' + '||CTRL-0    RESET PEG' +
-    '|                    resets the fixing peg on the template datum end' + '||CTRL-1    PEG ON JOINT' +
-    '|                    sets the fixing peg at the turnout toe rail-joint, or at the joint end of plain track' +
-    '||CTRL-2    PEG ON TP' + '|                    sets the fixing peg at the toe-point'
-    + '||CTRL-3    PEG ON DP' +
-    '|                    sets the fixing peg at the deflection-point' + '||CTRL-4    PEG ON FP' +
-    '|                    sets the fixing peg at the fine-point' + '||CTRL-5    PEG ON TXP'
-    + '|                    sets the fixing peg at the turnout-side mid-point' +
+    '|                    resets the fixing peg on the template datum end' +
+    '||CTRL-1    PEG ON JOINT' +
+    '|                    sets the fixing peg at the turnout toe rail-joint, or at the joint end of plain track'
+    +
+    '||CTRL-2    PEG ON TP' + '|                    sets the fixing peg at the toe-point' +
+    '||CTRL-3    PEG ON DP' + '|                    sets the fixing peg at the deflection-point' +
+    '||CTRL-4    PEG ON FP' + '|                    sets the fixing peg at the fine-point' +
+    '||CTRL-5    PEG ON TXP' +
+    '|                    sets the fixing peg at the turnout-side mid-point' +
     '||CTRL-6    PEG ON TVJP' +
-    '|                    sets the fixing peg at the turnout-side vee joint (vee splice rail end)' +
+    '|                    sets the fixing peg at the turnout-side vee joint (vee splice rail end)'
+    +
     '||CTRL-7    PEG ON MXP' +
-    '|                    sets the fixing peg at the main-side mid-point' + '||CTRL-8    PEG ON MVJP' +
-    '|                    sets the fixing peg at the main-side vee joint (vee point rail end)'
-    +
+    '|                    sets the fixing peg at the main-side mid-point' +
+    '||CTRL-8    PEG ON MVJP' +
+    '|                    sets the fixing peg at the main-side vee joint (vee point rail end)' +
     '||CTRL-9    PEG ON LENGTH' +
-    '|                    sets the fixing peg at the full template length' + '||CTRL-END  PEG ON RAIL JOINTS'
-    +
-    '|                    sets the fixing peg on a plain track rail joint (CTRL + End key)' + '|'
-    + '||F1        HELP BUTTONS AND BARS' +
+    '|                    sets the fixing peg at the full template length' +
+    '||CTRL-END  PEG ON RAIL JOINTS' +
+    '|                    sets the fixing peg on a plain track rail joint (CTRL + End key)' +
+    '|' + '||F1        HELP BUTTONS AND BARS' +
     '|                    shows help texts (where available)' + '||F2        INFO TOGGLE' +
     '|                    shows or hides the template information panel' +
     '||F3        ADJUST TURNOUT APPROACH LENGTH|                    MOUSE ACTION adjusts the turnout approach track length and modifies the overall template length accordingly' + '||F4        ADJUST OVERALL TEMPLATE LENGTH|                    MOUSE ACTION adjusts the overall turnout template length and adds or removes exit track accordingly' + '||F4        ADJUST PLAIN TRACK LENGTH' + '|                    MOUSE ACTION adjusts the length of plain track template' + '||N.B. The F3 and F4 mouse actions are identical when adjusting plain track.' + '|' + '||F5        ADJUST TURNOUT SIZE' + '|                    MOUSE ACTION adjusts the turnout size' + '||F6        ADJUST CURVING RADIUS' + '|                    MOUSE ACTION adjusts the curving-line radius (template pegged)' + '||F7        SHIFT TEMPLATE POSITION' + '|                    MOUSE ACTION moves the template across the grid' + '||F8        ROTATE AROUND PEG' + '|                    MOUSE ACTION rotates the template around the fixing peg' + '||F9        ADJUST V-CROSSING ANGLE' + '|                    MOUSE ACTION adjusts the V-crossing angle' + '||F10       ADJUST K-CROSSING ANGLE' + '|                    MOUSE ACTION adjusts the K-crossing angle on half-diamond templates' + '||F11       PRINT CONTROL TEMPLATE' + '|                    prints the control template only' + '||F12       REDRAW + SHOW CONTROL' + '|                    reset and re-draw; cancel MOUSE actions' + '|' + '||CTRL-F1   SPOT ZOOM AND LOCK' + '| or 1 key           MOUSE ACTION zooms on the spot' + '||CTRL-F2   ZOOM/VIEW TOGGLE' + '| or 2 key           shows or hides the zoom/view controls' + '||CTRL-F3   ADJUST TURNOUT BLANKING LENGTH| or 3 key           MOUSE ACTION adjusts the blanked out length on turnout template.' + '||CTRL-F4   ROLL RAILS AND SLEEPERS' + '| or 4 key           MOUSE ACTION rolls in a partial rail length at the joint end of a plain track template' + '||CTRL-F5   ORBIT AROUND RADIAL CENTRE' + '| or 5 key           MOUSE ACTION orbits the template around the radial centre' + '||CTRL-F6   SNAKE THROUGH PEG' + '| or 6 key           MOUSE ACTION snakes the template through the peg position (alignment fixed)' + '||CTRL-F7   ADJUST SLEW AMOUNT' + '| or 7 key           MOUSE ACTION adjusts the amount of slew' + '||CTRL-F8   MOVE PEG' + '| or 8 key           MOUSE ACTION moves the fixing peg' + '||CTRL-F9   ROAM TURNOUT ALONG LENGTH' + '| or 9 key           MOUSE ACTION adjusts the approach track length but maintains the overall length constant' + '||CTRL-F10  SWELL CURVING RADIUS' + '| or 0 key           MOUSE ACTION adjusts the curving-line radius (with template ends fixed)' + '||CTRL-F11  PRINT BACKGROUND TEMPLATES' + '|                    prints all the background templates, i.e. the track plan on the trackpad' + '||CTRL-F12  ADJUST TURNOUT-ROAD EXIT LENGTH|                    MOUSE ACTION adjusts the length of the turnout-road exit' + '||N.B. The above number-key alternatives to the CTRL-F shortcuts are not available while the MEMO text panel is being (or has been) used. Press the ESCAPE (Esc) key to restore normal working.' + '|' + '||SHIFT-F1    MAKE DIAMOND-CROSSING' + '|                    duplicates the current half-diamond template to form a diamond-crossing.' + '||SHIFT-F2    MAKE ORDINARY CROSSOVER' + '|                    duplicates the current turnout template to form an ordinary crossover between double tracks.' + '||SHIFT-F3    MAKE DOUBLE-TRACK TS' + '|                    draws plain track on the turnout-side for double-track.' + '||SHIFT-F4    MAKE DOUBLE-TRACK MS' + '|                    draws plain track on the main-side for double-track.' + '||SHIFT-F5    CALIBRATE PRINTER' + '|                    performs the printer calibration process' + '||SHIFT-F6    ROTATE GROUP 180 DEGREES|                    rotates a group of templates 180 degrees around the pegging notch' + '||SHIFT-F7    MAKE BRANCH TRACK' + '|                    adds a new length of plain track to the diverging turnout road or diagonal road of a template.' + '||SHIFT-F8    ROTATE CONTROL 180 DEGREES' + '|                    rotates the control template 180 degrees around the fixing peg' + '||SHIFT-F9    SLIDE THROUGH PEG' + '|                    MOUSE ACTION slides the template through the peg position' + '||SHIFT-F10   SHOVE TIMBERS' + '|                    show the dialog for the shove timber functions (or , key)' + '||SHIFT-F11   ADJUST CROSSING ENTRY STRAIGHT|                   MOUSE ACTION adjusts the length of the crossing entry straight' + '||SHIFT-F12   ADJUST GAUNT OFFSET' + '|                    MOUSE ACTION adjusts the offset on a gaunt turnout' + '|' + '||SHIFT+CTRL-F1    MOUSE 1st TRANSITION RADIUS' + '|                    mouse actions apply to 1st transition radius (or - key)' + '||SHIFT+CTRL-F2    MOUSE 2nd TRANSITION RADIUS' + '|                    mouse actions apply to 2nd transition radius (or = key)' + '||SHIFT+CTRL-F3    MOVE TRANSITION START' + '|                    MOUSE ACTION moves the transition zone start point (or [ key)' + '||SHIFT+CTRL-F4    ADJUST TRANSITION LENGTH|                    MOUSE ACTION adjusts transition zone length (or ] key)' + '||SHIFT+CTRL-F5    MOVE SLEWING START' + '|                    MOUSE ACTION moves the slewing zone start point (or '' key)' + '||SHIFT+CTRL-F6    ADJUST SLEWING LENGTH' + '|                    MOUSE ACTION adjusts the length of the slewing zone (or # key)' + '||SHIFT+CTRL-F7    SHIFT GROUP' + '|                    MOUSE ACTION shifts all or a selected group of background templates (or \ key)' + '||SHIFT+CTRL-F8    ROTATE GROUP' + '|                    MOUSE ACTION rotates all or a selected group of background templates around the notch (or / key)' + '||SHIFT+CTRL-F9    ADJUST CHECK RAILS' + '|                    show the check rail adjustment dialog (or . key)' + '||SHIFT+CTRL-F10    MOVE PAGE ORIGIN' + '|                    MOUSE ACTION moves the origin point for the printed page margins' + '||SHIFT+CTRL-F11   ADJUST TS TRACK CENTRES|                    MOUSE ACTION adjusts the TS (turnout-side) adjacent track centres' + '||SHIFT+CTRL-F12    SKELETON MOUSE DRAW' + '|                    shows skeleton control template during mouse actions (toggle on-off) (or ; key)' + '|' + '||HOME Key        HIDE CONTROL TEMPLATE' + '|                    shows background templates only (toggle or F12 to show the control template again)' + '||BACKSPACE Key   REPEAT LAST ACTION' + '|                    repeats the most recently used mouse action' + '||DELETE Key       HIDE MOUSE ACTION PANEL|                    hides the mouse action panel without cancelling the mouse action (toggle hide-show)' + '|' + '||NUMPAD 2,4,6,8   MOVE MOUSE POINTER' + '|                    moves the mouse pointer using the number-pad keys, for mouse actions (square moves)' + '||NUMPAD 1,3,7,9   MOVE MOUSE POINTER' + '|                    moves the mouse pointer using the number-pad keys, for mouse actions (diagonal moves)' + '||NUMPAD 5   CLICK MOUSE' + '|                    makes a mouse click with the key instead of the mouse button' + '|' + '||CTRL- \    RESET NOTCH ON GRID ORIGIN' + '|                    resets the pegging notch on the grid origin' + '||CTRL- -    SHORTEN BY ONE SLEEPER' + '|                    shortens the length of approach track or plain track by one sleeper (CTRL + hyphen key)' + '||CTRL- =    EXTEND TO NEXT SLEEPER' + '|                    extends the length of approach track or plain track by one sleeper (CTRL + equal key)' + '|' + '||CTRL- /    SHOW/HIDE REMINDERS' + '|                    toggles the on-screen reminders on or off' + '||CTRL- [    SHORTEN EXIT BY ONE SLEEPER' + '|                    shortens the length of exit track by one sleeper' + '||CTRL- ]    EXTEND EXIT TO NEXT SLEEPER' + '|                    extends the length of exit track by one sleeper' + '||CTRL- `    SNAP TURNOUT LENGTH TO VEE JOINT' + '|                    snaps the turnout length to the end of the vee point rail (CTRL + ` (top left) key)' + '||SHIFT+CTRL- `    CROP AT PEG' + '|                    shortens the control template to the peg position (SHIFT+CTRL + ` (top left) key)' + '|' + '||CTRL- .    CROSS-HAIRS MOUSE POINTER' + '|                    changes the mouse pointer to a cross-hairs symbol (CTRL + full stop (period) key) (click or F12 to cancel)' + '|' + '||ADD Key         SPOT EXPLODE' + '|                    zooms in one normal step (number-pad + key)' + '||SUBTRACT Key    SPOT SHRINK' + '|                    zooms out one normal step (number-pad - key)' + '|' + '||CTRL-ADD        SPOT EXPLODE (SLOW)' + '|                    zooms in one small step (CTRL+ number-pad + key)' + '||CTRL-SUBTRACT   SPOT SHRINK (SlOW)' + '|                    zooms out one small step (CTRL+ number-pad - key)' + '|' + '||MULTIPLY Key    SHIFT PEG ONTO NOTCH' + '|                    shifts the template to engage the fixing peg on the pegging notch (number-pad * key)' + '||DIVIDE Key      MOVE NOTCH UNDER PEG' + '|                    moves the pegging notch under the current fixing peg (number-pad / key)' + '|||The following four shortcuts repeat the above and are intended for laptop computers without number-pads:' + '||SHIFT+CTRL- =   SPOT EXPLODE' + '|                    same as ADD key above (SHIFT+CTRL+ equals key)' + '||SHIFT+CTRL- -   SPOT SHRINK' + '|                    same as SUBTRACT key above (SHIFT+CTRL+ minus key)' + '||SHIFT+CTRL- ''   SHIFT PEG ONTO NOTCH' + '|                    same as MULTIPLY key above (SHIFT+CTRL+ quote key)' + '||SHIFT+CTRL- /   MOVE NOTCH UNDER PEG' + '|                    same as DIVIDE key above (SHIFT+CTRL+ forwardslash key)' + '|' + '||DECIMAL Key     TRACKPAD VIEW CENTRED ON PEG' + '|                    same as SHIFT-F9 above (number-pad . key)' + '||CTRL-DECIMAL    TRACKPAD VIEW CENTRED ON NOTCH' + '|                    centralizes the trackpad view on the pegging notch (CTRL + number-pad . key)' + '||NUMPAD 0        EXAMINE PEG' + '|                    centralizes the trackpad on the control template fixing peg and zooms in close (toggle to return)' + '|' + '||INSERT Key      STORE AND BACKGROUND' + '|                    stores a copy of the control template in the storage box and copies it to background - same as CTRL+V key or ` key (top-left key)' + '||CTRL-INSERT     STORE AND BACKGROUND SPECIAL' + '|                    as above but the previous name label position is retained'
@@ -14407,13 +14421,11 @@ const
     '|                    turnout length is fixed regardless of size' + '|' +
     '||CTRL-NUMPAD 0    PEG FREE' +
     '|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg free of constraints'
-    +
-    '||CTRL-NUMPAD 1    PEG ON MAIN-ROAD STOCK RAIL|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the main-road stock rail (gauge-face)' + '||CTRL-NUMPAD 2    PEG ON TURNOUT-ROAD CROSSING RAIL|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the turnout-road crossing rail (gauge-face)' + '||CTRL-NUMPAD 3    PEG ON MAIN-ROAD CROSSING RAIL|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the main-road crossing rail (gauge-face)' + '||CTRL-NUMPAD 4    PEG ON TURNOUT-ROAD STOCK RAIL|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the turnout-road stock rail (gauge-face)' + '||CTRL-NUMPAD 5    PEG ON ADJACENT TRACK CENTRE MS|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the adjacent track (main-side) centre-line' + '||CTRL-NUMPAD 6    PEG ON ADJACENT TRACK CENTRE TS|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the adjacent track (turnout-side) centre-line' + '||CTRL-NUMPAD 7    PEG ON DOUBLE-TRACK CENTRE-LINE|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the double-track (turnout-side) centre-line' + '||CTRL-NUMPAD 8    PEG ON MAIN-ROAD CENTRE-LINE|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the main-road centre-line' + '||CTRL-NUMPAD 9    PEG ON TURNOUT-ROAD CENTRE-LINE|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the turnout-road centre-line' + '|' + '||@  Key    EXTRA-FINE ADJUST' + '|                    sets extra-fine mouse action response rate' + '||%  Key    FINE ADJUST' + '|                    sets fine mouse action response rate' + '||!  Key    COARSE ADJUST' + '|                    sets coarse mouse action response rate' + '|' + '||<  Key    PAPER BUNCHING ON' + '|                    switches on paper bunching for the trackpad' + '||>  Key    PAPER BUNCHING OFF' + '|                    switches off paper bunching for the trackpad' + '|' + '||PAUSE Key       MINIMIZE TEMPLOT' + '|                    Templot0 minimizes to taskbar' + '|' + '||-  Key    MOUSE 1st TRANSITION RADIUS' + '|                    (hyphen) same as SHIFT+CTRL-F1 above' + '||=  Key    MOUSE 2nd TRANSITION RADIUS' + '|                    (equal) same as SHIFT+CTRL-F2 above' + '||[  Key    MOVE TRANSITION START' + '|                    (left-bracket) same as SHIFT+CTRL-F3 above' + '||]  Key    ADJUST TRANSITION LENGTH' + '|                    (right-bracket) same as SHIFT+CTRL-F4 above' + '||''  Key    MOVE SLEWING START' + '|                    (quote) same as SHIFT+CTRL-F5 above' + '||#  Key    ADJUST SLEWING LENGTH' + '|                    (hash) same as SHIFT+CTRL-F6 above' + '|' + '||\  Key    SHIFT GROUP' + '|                    (backslash) same as SHIFT+CTRL-F7 above' + '||/  Key    ROTATE GROUP' + '|                    (forwardslash) same as SHIFT+CTRL-F8 above' + '||.  Key    ADJUST CHECK RAILS' + '|                    (full stop)(period) same as SHIFT+CTRL-F9 above' + '|' + '||;  Key    TOGGLE MOUSE DRAW' + '|                    (semi-colon) toggles skeleton mouse draw as SHIFT+CTRL-F12 above' + '|' + '||PageUp  Key  ZOOM TO FIT ALL TEMPLATES' + '|                    zoom the trackpad to show all background templates' + '||PageDown  Key  ZOOM TO FIT GROUP TEMPLATES' + '|                    zoom the trackpad to show all group templates only' + '||Space Bar ZOOM TO FIT CONTROL ONLY' + '|                    (spacebar) zoom the trackpad to show the control template only' + '|' + '||,  Key    SHOVE TIMBERS' + '|                    (comma) same as SHIFT-F10 above' + '||` (top-left) Key    STORE AND BACKGROUND' + '|                    stores a copy of the control template in the storage box and copies it to background - same as INSERT key or CTRL+V key' + '|' + '||SHIFT and CAPSLOCK keys :' + '|If the SHIFT key is held down, or CAPSLOCK is ON, templates drawn on the background will be highlighted as the mouse pointer passes over their name labels, and a click on the label will show the popup menu of selection options.' + ' This makes it possible to select overlapping templates when it is difficult to click them directly.' + '||N.B. The BACKSPACE and DELETE keys and the above single-key alternatives to the CTRL-F# and SHIFT-F# shortcuts are not available while the MEMO text panel is being (or has been) used.' + ' Press the ESCAPE (Esc) key to restore normal working for them.' + '||The number-pad shortcuts will work only if NUMLOCK is ON and properly initialised. This may require NUMLOCK to be pressed  OFF and then ON again.' + ' (This is a feature of some Windows Accessibilty functions, not Templot).' + '||If you use the Windows Accessiblity MouseKeys function it should be set to apply when NUMLOCK is OFF,' + ' otherwise the number-pad shortcuts will not work. To change the setting click Start > Settings > Control Panel > Accessibility Options > Mouse > Settings.' + ' A function similar to MouseKeys is available within Templot0 (when NUMLOCK is ON) for use with the mouse actions, as shown in the list.'
+    + '||CTRL-NUMPAD 1    PEG ON MAIN-ROAD STOCK RAIL|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the main-road stock rail (gauge-face)' + '||CTRL-NUMPAD 2    PEG ON TURNOUT-ROAD CROSSING RAIL|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the turnout-road crossing rail (gauge-face)' + '||CTRL-NUMPAD 3    PEG ON MAIN-ROAD CROSSING RAIL|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the main-road crossing rail (gauge-face)' + '||CTRL-NUMPAD 4    PEG ON TURNOUT-ROAD STOCK RAIL|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the turnout-road stock rail (gauge-face)' + '||CTRL-NUMPAD 5    PEG ON ADJACENT TRACK CENTRE MS|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the adjacent track (main-side) centre-line' + '||CTRL-NUMPAD 6    PEG ON ADJACENT TRACK CENTRE TS|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the adjacent track (turnout-side) centre-line' + '||CTRL-NUMPAD 7    PEG ON DOUBLE-TRACK CENTRE-LINE|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the double-track (turnout-side) centre-line' + '||CTRL-NUMPAD 8    PEG ON MAIN-ROAD CENTRE-LINE|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the main-road centre-line' + '||CTRL-NUMPAD 9    PEG ON TURNOUT-ROAD CENTRE-LINE|                    the CTRL-F8 MOVE PEG mouse action will move the fixing peg along the turnout-road centre-line' + '|' + '||@  Key    EXTRA-FINE ADJUST' + '|                    sets extra-fine mouse action response rate' + '||%  Key    FINE ADJUST' + '|                    sets fine mouse action response rate' + '||!  Key    COARSE ADJUST' + '|                    sets coarse mouse action response rate' + '|' + '||<  Key    PAPER BUNCHING ON' + '|                    switches on paper bunching for the trackpad' + '||>  Key    PAPER BUNCHING OFF' + '|                    switches off paper bunching for the trackpad' + '|' + '||PAUSE Key       MINIMIZE TEMPLOT' + '|                    Templot0 minimizes to taskbar' + '|' + '||-  Key    MOUSE 1st TRANSITION RADIUS' + '|                    (hyphen) same as SHIFT+CTRL-F1 above' + '||=  Key    MOUSE 2nd TRANSITION RADIUS' + '|                    (equal) same as SHIFT+CTRL-F2 above' + '||[  Key    MOVE TRANSITION START' + '|                    (left-bracket) same as SHIFT+CTRL-F3 above' + '||]  Key    ADJUST TRANSITION LENGTH' + '|                    (right-bracket) same as SHIFT+CTRL-F4 above' + '||''  Key    MOVE SLEWING START' + '|                    (quote) same as SHIFT+CTRL-F5 above' + '||#  Key    ADJUST SLEWING LENGTH' + '|                    (hash) same as SHIFT+CTRL-F6 above' + '|' + '||\  Key    SHIFT GROUP' + '|                    (backslash) same as SHIFT+CTRL-F7 above' + '||/  Key    ROTATE GROUP' + '|                    (forwardslash) same as SHIFT+CTRL-F8 above' + '||.  Key    ADJUST CHECK RAILS' + '|                    (full stop)(period) same as SHIFT+CTRL-F9 above' + '|' + '||;  Key    TOGGLE MOUSE DRAW' + '|                    (semi-colon) toggles skeleton mouse draw as SHIFT+CTRL-F12 above' + '|' + '||PageUp  Key  ZOOM TO FIT ALL TEMPLATES' + '|                    zoom the trackpad to show all background templates' + '||PageDown  Key  ZOOM TO FIT GROUP TEMPLATES' + '|                    zoom the trackpad to show all group templates only' + '||Space Bar ZOOM TO FIT CONTROL ONLY' + '|                    (spacebar) zoom the trackpad to show the control template only' + '|' + '||,  Key    SHOVE TIMBERS' + '|                    (comma) same as SHIFT-F10 above' + '||` (top-left) Key    STORE AND BACKGROUND' + '|                    stores a copy of the control template in the storage box and copies it to background - same as INSERT key or CTRL+V key' + '|' + '||SHIFT and CAPSLOCK keys :' + '|If the SHIFT key is held down, or CAPSLOCK is ON, templates drawn on the background will be highlighted as the mouse pointer passes over their name labels, and a click on the label will show the popup menu of selection options.' + ' This makes it possible to select overlapping templates when it is difficult to click them directly.' + '||N.B. The BACKSPACE and DELETE keys and the above single-key alternatives to the CTRL-F# and SHIFT-F# shortcuts are not available while the MEMO text panel is being (or has been) used.' + ' Press the ESCAPE (Esc) key to restore normal working for them.' + '||The number-pad shortcuts will work only if NUMLOCK is ON and properly initialised. This may require NUMLOCK to be pressed  OFF and then ON again.' + ' (This is a feature of some Windows Accessibilty functions, not Templot).' + '||If you use the Windows Accessiblity MouseKeys function it should be set to apply when NUMLOCK is OFF,' + ' otherwise the number-pad shortcuts will not work. To change the setting click Start > Settings > Control Panel > Accessibility Options > Mouse > Settings.' + ' A function similar to MouseKeys is available within Templot0 (when NUMLOCK is ON) for use with the mouse actions, as shown in the list.'
     //+' (This means that to enter numbers in the memo text panel, the main keyboard number keys should be used.)'
 
     + '||There are some alternatives to the number-pad shortcuts for use on laptop computers - see the notes in the list.'
-    +
-    '||This list contains only the `0TRACKPAD`1 menu items for which there is a keyboard shortcut. There are many other menu items not listed here.' + '||The SKETCHBOARD, PROGRAM PANEL, STORAGE BOX and BACKGROUND SHAPES each have their own menus and a different set of shortcuts, some of which actually correspond to the Windows standard.';
+    + '||This list contains only the `0TRACKPAD`1 menu items for which there is a keyboard shortcut. There are many other menu items not listed here.' + '||The SKETCHBOARD, PROGRAM PANEL, STORAGE BOX and BACKGROUND SHAPES each have their own menus and a different set of shortcuts, some of which actually correspond to the Windows standard.';
 
 begin
   if help(0, sc_key_help_str, 'print  function  keys  chart') = 1 then
@@ -14537,8 +14549,8 @@ procedure Tpad_form.set_notch_menu_entryClick(Sender: TObject);
 
 const
   help_notch_str: string = '     Set  Notch  Position' +
-    '||Enter new X and Y dimensions for the centre of the pegging notch in millimetres.'
-    + '||The pegging notch "belongs" to the trackpad, not to the templates, and there is only one notch.'
+    '||Enter new X and Y dimensions for the centre of the pegging notch in millimetres.' +
+    '||The pegging notch "belongs" to the trackpad, not to the templates, and there is only one notch.'
     + '||The dimensions to be entered here are referenced from the trackpad origin point, and can be determined from the grid margin scales.' + ' X-dimensions are positive across the trackpad from the left and read along the bottom margin,' + ' Y-dimensions are positive up the trackpad from the bottom and read along the left margin.' + '||For many purposes, it is easier to move the notch with the mouse action, or by selecting the GEOMETRY > NOTCH > NOTCH UNDER PEG' + ' menu item (or pressing the DIVIDE key) after setting the position of the fixing peg within the control template.';
 
   help_notchangle_str: string = '     Set  Notch  Pegging  Angle' +
@@ -14557,8 +14569,8 @@ begin
   // negative ok, no preset, zero ok, don't terminate on zero.
   putdim(help_notch_str, 1, 'notch  Y - dimension', notchy, False, True, False, False);
   // negative ok, no preset, zero ok, don't terminate on zero.
-  n := putdim(help_notchangle_str, 3, 'notch  pegging  angle', notch_angle * 180 / Pi,
-    False, True, False, False);
+  n := putdim(help_notchangle_str, 3, 'notch  pegging  angle', notch_angle *
+    180 / Pi, False, True, False, False);
   // negative ok, no preset, zero ok, don't terminate on zero.
 
   if n <> 2 then
@@ -14671,50 +14683,40 @@ procedure Tpad_form.mouse_factors_menu_entryClick(Sender: TObject);
 
 const
   help_f8_str: string = '      Mouse  Response  Rate  for  F8  Rotate' +
-    '||Enter a setting for the mouse sensitivity when doing mouse action rotations (F8).'
-    +
-    '||Higher figures cause the template to rotate more slowly as the mouse is moved.'
-    +
-    '||Lower figures cause the template to rotate more rapidly as the mouse is moved.'
-    +
-    '||The pre-set figure is 100. Sensible figures are in the range 10 to 5000.'
-    + '||The actual angular rate of change is determined by the current zoom setting.'
-    + '||Handy Hints :' +
-    '|Setting changes made here are intended to apply for the whole working session.'
-    +
-    ' A quick way to make a temporary change to the mouse response rate is to select instead the ACTION > MODIFY MOUSE RESPONSE menu items.' + ' The change will remain in force while you make the adjustment and be reset to normal on the next F12 redraw.' + '||If you need to set an exact rotation angle, it is easier to use the GEOMETRY > SHIFT/ROTATE > ROTATE BY... menu item.';
+    '||Enter a setting for the mouse sensitivity when doing mouse action rotations (F8).' +
+    '||Higher figures cause the template to rotate more slowly as the mouse is moved.' +
+    '||Lower figures cause the template to rotate more rapidly as the mouse is moved.' +
+    '||The pre-set figure is 100. Sensible figures are in the range 10 to 5000.' +
+    '||The actual angular rate of change is determined by the current zoom setting.' +
+    '||Handy Hints :' + '|Setting changes made here are intended to apply for the whole working session.'
+    + ' A quick way to make a temporary change to the mouse response rate is to select instead the ACTION > MODIFY MOUSE RESPONSE menu items.' + ' The change will remain in force while you make the adjustment and be reset to normal on the next F12 redraw.' + '||If you need to set an exact rotation angle, it is easier to use the GEOMETRY > SHIFT/ROTATE > ROTATE BY... menu item.';
 
-  help_orbit_str: string = '      Mouse  Response  Rate  for  CTRL-F5  Orbit'
-    + '||Enter a setting for the mouse sensitivity when doing mouse action orbital adjustments (CTRL-F5).'
-    + '||Higher figures cause the template to orbit more slowly as the mouse is moved.'
-    + '||Lower figures cause the template to orbit more rapidly as the mouse is moved.'
-    + '||The pre-set figure is 100. Sensible figures are in the range 10 to 5000.'
-    + '||The actual speed of orbit is determined by the curving radius and the current zoom setting.'
-    + '||Handy Hint :' +
-    '|Setting changes made here are intended to apply for the whole working session.'
+  help_orbit_str: string = '      Mouse  Response  Rate  for  CTRL-F5  Orbit' +
+    '||Enter a setting for the mouse sensitivity when doing mouse action orbital adjustments (CTRL-F5).'
+    + '||Higher figures cause the template to orbit more slowly as the mouse is moved.' +
+    '||Lower figures cause the template to orbit more rapidly as the mouse is moved.' +
+    '||The pre-set figure is 100. Sensible figures are in the range 10 to 5000.' +
+    '||The actual speed of orbit is determined by the curving radius and the current zoom setting.'
     +
-    ' A quick way to make a temporary change to the mouse response rate is to select instead the ACTION > MODIFY MOUSE RESPONSE menu items.' + ' The change will remain in force while you make the adjustment and be reset to normal on the next F12 redraw.';
+    '||Handy Hint :' + '|Setting changes made here are intended to apply for the whole working session.'
+    + ' A quick way to make a temporary change to the mouse response rate is to select instead the ACTION > MODIFY MOUSE RESPONSE menu items.' + ' The change will remain in force while you make the adjustment and be reset to normal on the next F12 redraw.';
 
-  help_f6_str: string = '      Mouse  Response  Rate  for  F6  Adjust  Curving'
-    + '||Enter a setting for the mouse sensitivity when doing mouse action curving (F6).'
-    + '||Higher figures cause the curving radius to change more slowly as the mouse is moved.'
-    + '||Lower figures cause the curving radius to change more rapidly as the mouse is moved.'
-    + '||The pre-set figure is 100. Sensible figures are in the range 10 to 5000.'
-    + '||The actual rate of change of the radius is determined by the current zoom setting.'
-    + '||Handy Hints :' +
-    '|Setting changes made here are intended to apply for the whole working session.'
-    +
-    ' A quick way to make a temporary change to the mouse response rate is to select instead the ACTION > MODIFY MOUSE RESPONSE menu items.' + ' The change will remain in force while you make the adjustment and be reset to normal on the next F12 redraw.' + '||If you need to set an exact curving radius, it is easier to use the GEOMETRY > CURVING DATA... menu item.';
+  help_f6_str: string = '      Mouse  Response  Rate  for  F6  Adjust  Curving' +
+    '||Enter a setting for the mouse sensitivity when doing mouse action curving (F6).' +
+    '||Higher figures cause the curving radius to change more slowly as the mouse is moved.' +
+    '||Lower figures cause the curving radius to change more rapidly as the mouse is moved.' +
+    '||The pre-set figure is 100. Sensible figures are in the range 10 to 5000.' +
+    '||The actual rate of change of the radius is determined by the current zoom setting.' +
+    '||Handy Hints :' + '|Setting changes made here are intended to apply for the whole working session.'
+    + ' A quick way to make a temporary change to the mouse response rate is to select instead the ACTION > MODIFY MOUSE RESPONSE menu items.' + ' The change will remain in force while you make the adjustment and be reset to normal on the next F12 redraw.' + '||If you need to set an exact curving radius, it is easier to use the GEOMETRY > CURVING DATA... menu item.';
 
-  help_f5_str: string = '      Mouse  Response  Rate  for  F5  Adjust  Size'
-    + '||Enter a setting for the mouse sensitivity when adjusting the size of the turnout (mouse action F5).'
-    + '||Higher figures cause the turnout size to change more slowly as the mouse is moved.'
-    + '||Lower figures cause the turnout size to change more rapidly as the mouse is moved.'
-    + '||The pre-set figure is 100. Sensible figures are in the range 20 to 2500.'
-    + '||Handy Hints :' +
-    '|Setting changes made here are intended to apply for the whole working session.'
-    +
-    ' A quick way to make a temporary change to the mouse response rate is to select instead the ACTION > MODIFY MOUSE RESPONSE menu items.' + ' The change will remain in force while you make the adjustment and be reset to normal on the next F12 redraw.' + '||If you need to set a known turnout size, it might be quicker to use the TEMPLATE > SWITCH OPTIONS.. or TEMPLATE > V-CROSSING OPTIONS... menu items.';
+  help_f5_str: string = '      Mouse  Response  Rate  for  F5  Adjust  Size' +
+    '||Enter a setting for the mouse sensitivity when adjusting the size of the turnout (mouse action F5).'
+    + '||Higher figures cause the turnout size to change more slowly as the mouse is moved.' +
+    '||Lower figures cause the turnout size to change more rapidly as the mouse is moved.' +
+    '||The pre-set figure is 100. Sensible figures are in the range 20 to 2500.' +
+    '||Handy Hints :' + '|Setting changes made here are intended to apply for the whole working session.'
+    + ' A quick way to make a temporary change to the mouse response rate is to select instead the ACTION > MODIFY MOUSE RESPONSE menu items.' + ' The change will remain in force while you make the adjustment and be reset to normal on the next F12 redraw.' + '||If you need to set a known turnout size, it might be quicker to use the TEMPLATE > SWITCH OPTIONS.. or TEMPLATE > V-CROSSING OPTIONS... menu items.';
 
 var
   n: integer;
@@ -14899,10 +14901,9 @@ begin
 
   if (any_selected > 0) and (group_notch_linked = True) then begin
     if alert(2, '    group  linked  to  notch',
-      'The selected group is currently linked to the notch.'
-      +
-      '||This `0SHIFT GROUP`1 function will unlink the group.',
-      '', '', '', '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
+      'The selected group is currently linked to the notch.' +
+      '||This `0SHIFT GROUP`1 function will unlink the group.', '', '',
+      '', '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
       EXIT;
     unlink_group;
   end;
@@ -14910,25 +14911,24 @@ begin
   action_panel_hint('rotate group instead'); // 205c
 
   mouse_action_selected('SHIFT+CTRL-F7    shift  group  of  templates ...',
-    'SHIFT+CTRL-F7  shift  group', 'X  by : ' + captext(xshift_keeps) + ' mm   Y  by : ' +
-    captext(yshift_keeps) + ' mm');
+    'SHIFT+CTRL-F7  shift  group', 'X  by : ' + captext(xshift_keeps) +
+    ' mm   Y  by : ' + captext(yshift_keeps) + ' mm');
 
   shift_keeps_mod := 1;
 
   do_rollback := False;
   redraw(True);
 
-  if (bgnd_form.bgnd_shapes_listbox.Items.Count < 1) or (bgnd_form.allow_sync_checkbox.Checked = False)
-  then begin
+  if (bgnd_form.bgnd_shapes_listbox.Items.Count < 1) or
+    (bgnd_form.allow_sync_checkbox.Checked = False) then begin
     mouse_shift_sync_wanted := False;
     EXIT;
   end;
 
   if alert(4, '    shift  background  shapes  in  sync ?',
-    '||Do you want all your background shapes to be shifted by the same amount?'
-    +
-    '||The shapes will shift when this mouse action terminates.',
-    '', '', '', 'yes  please  -  keep  shapes  in  sync', 'no  thanks', '', 0) = 5 then
+    '||Do you want all your background shapes to be shifted by the same amount?' +
+    '||The shapes will shift when this mouse action terminates.', '', '',
+    '', 'yes  please  -  keep  shapes  in  sync', 'no  thanks', '', 0) = 5 then
     mouse_shift_sync_wanted := False
   else
     mouse_shift_sync_wanted := True;
@@ -14949,10 +14949,9 @@ begin
 
   if (any_selected > 0) and (group_notch_linked = True) then begin
     if alert(2, '    group  linked  to  notch',
-      'The selected group is currently linked to the notch.'
-      +
-      '||This `0ROTATE GROUP`1 function will unlink the group.',
-      '', '', '', '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
+      'The selected group is currently linked to the notch.' +
+      '||This `0ROTATE GROUP`1 function will unlink the group.', '', '',
+      '', '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
       EXIT;
     unlink_group;
   end;
@@ -14960,25 +14959,24 @@ begin
   action_panel_hint('shift group position instead'); // 205c
 
   mouse_action_selected('SHIFT+CTRL-F8    rotate  group  around  notch ...',
-    'SHIFT+CTRL-F8  rotate  group', 'by : ' + captext(0 - kform_keeps * 180 / Pi) + ' degrees' +
-    k_ram_str(0 - kform_keeps));  // change of kform sign needed because of ??
+    'SHIFT+CTRL-F8  rotate  group', 'by : ' + captext(0 - kform_keeps * 180 / Pi) +
+    ' degrees' + k_ram_str(0 - kform_keeps));  // change of kform sign needed because of ??
   twist_keeps_mod := 1;
 
   do_rollback := False;
   redraw(True);                                             //  to show selected keeps
 
-  if (bgnd_form.bgnd_shapes_listbox.Items.Count < 1) or (bgnd_form.allow_sync_checkbox.Checked = False)
-  then begin
+  if (bgnd_form.bgnd_shapes_listbox.Items.Count < 1) or
+    (bgnd_form.allow_sync_checkbox.Checked = False) then begin
     mouse_rotate_sync_wanted := False;
     EXIT;
   end;
 
   if alert(4, '    rotate  background  shapes  in  sync ?',
-    '||Do you want all your background shapes to be rotated by the same amount?'
-    +
+    '||Do you want all your background shapes to be rotated by the same amount?' +
     '||The shapes will rotate when this mouse action terminates.' +
-    '||If there are any picture shapes, rotation may take several seconds to complete.'
-    + '||rp.gif If the rotation angle is not 90 degrees or 180 degrees, picture shapes will gain white corners. If they overlap, it will be necessary to set them transparent in order to be viewed properly.' + '|Click the `0all > all picture shapes transparent`1 menu item on the background shapes dialog. Note that this will restrict deep zooming over them, and slow down trackpad panning.', '', '', '', 'yes  please  -  keep  shapes  in  sync', 'no  thanks', '', 0) = 5 then
+    '||If there are any picture shapes, rotation may take several seconds to complete.' +
+    '||rp.gif If the rotation angle is not 90 degrees or 180 degrees, picture shapes will gain white corners. If they overlap, it will be necessary to set them transparent in order to be viewed properly.' + '|Click the `0all > all picture shapes transparent`1 menu item on the background shapes dialog. Note that this will restrict deep zooming over them, and slow down trackpad panning.', '', '', '', 'yes  please  -  keep  shapes  in  sync', 'no  thanks', '', 0) = 5 then
     mouse_rotate_sync_wanted := False
   else
     mouse_rotate_sync_wanted := True;
@@ -15050,10 +15048,9 @@ begin
 
   if (any_selected > 0) and (group_notch_linked = True) then begin
     if alert(2, '    group  linked  to  notch',
-      'The selected group is currently linked to the pegging notch.'
-      +
-      '||This SHIFT GROUP function will unlink the group.',
-      '', '', '', '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
+      'The selected group is currently linked to the pegging notch.' +
+      '||This SHIFT GROUP function will unlink the group.', '', '', '',
+      '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
       EXIT;
     unlink_group;
   end;
@@ -15127,9 +15124,9 @@ begin
 
   if alert(4, '    rotate  background  shapes  in  sync ?',
     'The group templates have been rotated.' +
-    '||Do you now want all your background shapes to be rotated by the same amount?'
-    + '||If there are any picture shapes this may take several seconds to complete.'
-    + trans_str, '', '', '', '', 'no  thanks', 'yes  please  -  rotate  shapes', 0) = 5 then
+    '||Do you now want all your background shapes to be rotated by the same amount?' +
+    '||If there are any picture shapes this may take several seconds to complete.' +
+    trans_str, '', '', '', '', 'no  thanks', 'yes  please  -  rotate  shapes', 0) = 5 then
     EXIT;
 
   bgnd_form.rotate_notch_radiobutton.Checked := True;
@@ -15149,8 +15146,8 @@ end;
 procedure Tpad_form.enter_rotation_keeps_menu_entryClick(Sender: TObject);
 
 const
-  help_kshift_str: string = '     Rotate  selected  group  around  notch.'
-    + '||Enter an angle in degrees for the amount by which to rotate the currently selected group of background templates around the current position of the notch.' + '||Angles are measured positive in the anti-clockwise direction, and negative in the clockwise direction.' + '||Rotating templates can also be done with a mouse action, select the|ACTION >  MOUSE ACTIONS:GROUP > ROTATE GROUP menu item (or press SHIFT+CTRL-F8 or just the "/" FORWARD-SLASH key).' + '||( This function does not rotate the control template. To do that select instead the F8 ROTATE mouse action, or the GEOMETRY > SHIFT/ROTATE menu items.)';
+  help_kshift_str: string = '     Rotate  selected  group  around  notch.' +
+    '||Enter an angle in degrees for the amount by which to rotate the currently selected group of background templates around the current position of the notch.' + '||Angles are measured positive in the anti-clockwise direction, and negative in the clockwise direction.' + '||Rotating templates can also be done with a mouse action, select the|ACTION >  MOUSE ACTIONS:GROUP > ROTATE GROUP menu item (or press SHIFT+CTRL-F8 or just the "/" FORWARD-SLASH key).' + '||( This function does not rotate the control template. To do that select instead the F8 ROTATE mouse action, or the GEOMETRY > SHIFT/ROTATE menu items.)';
 var
   n: integer;
   od: Toutdim;
@@ -15167,10 +15164,9 @@ begin
 
   if (any_selected > 0) and (group_notch_linked = True) then begin
     if alert(2, '    group  linked  to  notch',
-      'The selected group is currently linked to the pegging notch.'
-      +
-      '||This ROTATE GROUP function will unlink the group.',
-      '', '', '', '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
+      'The selected group is currently linked to the pegging notch.' +
+      '||This ROTATE GROUP function will unlink the group.', '', '', '',
+      '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
       EXIT;
     unlink_group;
   end;
@@ -15180,7 +15176,8 @@ begin
 
   kform_keeps := 0;
 
-  n := putdim(help_kshift_str, 3, 'rotate  selected  group  by', kform_keeps, False, True, False, False);
+  n := putdim(help_kshift_str, 3, 'rotate  selected  group  by', kform_keeps,
+    False, True, False, False);
   // negative ok, no preset, zero ok, don't terminate on zero.
 
   if n <> 0 then
@@ -15200,7 +15197,8 @@ procedure Tpad_form.shift_rotate_current_menu_entryClick(Sender: TObject);
 begin
   shift_radial_centre_menu_entry.Enabled := ((ABS(nomrad) < max_rad_test) or (spiral = True));
   // only for curved template.
-  shift_radial_centre_to_notch_menu_entry.Enabled := ((ABS(nomrad) < max_rad_test) or (spiral = True));
+  shift_radial_centre_to_notch_menu_entry.Enabled :=
+    ((ABS(nomrad) < max_rad_test) or (spiral = True));
 end;
 //_______________________________________________________________________________________
 
@@ -15255,8 +15253,8 @@ end;
 procedure Tpad_form.rotate_current_by_menu_entryClick(Sender: TObject);
 
 const
-  help_kcushift_str: string = '     Rotate  control  template  around  peg.'
-    + '||Enter an angle in degrees for the amount by which to rotate the control template around its fixing peg.'
+  help_kcushift_str: string = '     Rotate  control  template  around  peg.' +
+    '||Enter an angle in degrees for the amount by which to rotate the control template around its fixing peg.'
     + '||Angles are measured positive in the anti-clockwise direction, and negative in the clockwise direction.'
     + '||Rotating the control template is more usually done with the mouse action, select the|ACTION >  MOUSE ACTIONS:GEOMETRY > ROTATE AROUND PEG menu item (or press F8).';
 var
@@ -15432,9 +15430,9 @@ begin
   if xing_type_i <> 0        // curviform or generic crossing.
   then begin
     alert(6, '    curviform  or  generic  crossing',
-      '||The control template contains a curviform or generic V-crossing type.'
-      + '||There is no crossing entry straight in these types of V-crossings.'
-      + '||To change to a regular or parallel V-crossing type with an entry straight, click the `0template > V-crossing settings...`z menu item,' + ' or click the green indicator at the top left of the trackpad.',
+      '||The control template contains a curviform or generic V-crossing type.' +
+      '||There is no crossing entry straight in these types of V-crossings.' +
+      '||To change to a regular or parallel V-crossing type with an entry straight, click the `0template > V-crossing settings...`z menu item,' + ' or click the green indicator at the top left of the trackpad.',
       '', '', '', '', '', 'O K', 0);
     EXIT;
   end;
@@ -15694,14 +15692,15 @@ procedure Tpad_form.peg_on_TORG_menu_entryClick(Sender: TObject);
 begin
   // only for a straight turnout with a curved crossing...
 
-  if (plain_track = True) or (ABS(nomrad) < max_rad_test) or (spiral = True) or (xing_type_i <> 1) then
+  if (plain_track = True) or (ABS(nomrad) < max_rad_test) or (spiral = True) or
+    (xing_type_i <> 1) then
     EXIT;  // ??? menu should be disabled.
 
   if tradius_is_straight = True      // 0.93.a ex 081
   then begin
     alert(6, '    peg  on  TORG  position',
-      'The switch heel angle and V-crossing angle for your current turnout are equal.'
-      + '||This means that the turnout radius is straight (infinite radius), and it is not therefore possible to put the fixing peg on its radial centre.',
+      'The switch heel angle and V-crossing angle for your current turnout are equal.' +
+      '||This means that the turnout radius is straight (infinite radius), and it is not therefore possible to put the fixing peg on its radial centre.',
       '', '', '', '', '', 'O K  -  cancel', 0);
     EXIT;
   end;
@@ -15940,7 +15939,8 @@ begin
   if draw_mode <> 2 then
     pad_form.lock_scaling_menu_entry.Click;
   normalize_transforms;
-  docurving(True, True, pegx, pegy, padpegx, padpegy, dummy1, dummy2);   // calc current peg position.
+  docurving(True, True, pegx, pegy, padpegx, padpegy, dummy1, dummy2);
+  // calc current peg position.
 
   zoom_offsetx := padpegx - screenx / 2;
   zoom_offsety := padpegy * hand_i + y_datum - screeny / 2;
@@ -16042,9 +16042,8 @@ begin
       repeat
         i := alert(4, '    link  group  to  notch ?',
           'Do you want to link the selected group of template(s) to subsequent moves of the pegging notch?',
-          '', '', 'more  information',
-          'yes  -  put  notch  under  peg  and  link  group', 'cancel',
-          'no  -  put  notch  under  peg  without  linking', 3);
+          '', '', 'more  information', 'yes  -  put  notch  under  peg  and  link  group',
+          'cancel', 'no  -  put  notch  under  peg  without  linking', 3);
         case i of
           3:
             alert_help(0, group_link_help_str, '');
@@ -16057,7 +16056,8 @@ begin
     end
     else begin
       i := alert(2, '    group  linked  to  notch',
-        'This template is a member of a group of templates which is currently linked to the pegging notch.' + '||The notch can only be moved under the fixing peg on a background template if that template is not currently linked to it.', '', '', '', 'remove  template  from  group  and  move  notch', 'cancel', 'unlink  group  and  move  notch', 0);
+        'This template is a member of a group of templates which is currently linked to the pegging notch.'
+        + '||The notch can only be moved under the fixing peg on a background template if that template is not currently linked to it.', '', '', '', 'remove  template  from  group  and  move  notch', 'cancel', 'unlink  group  and  move  notch', 0);
       case i of
         4:
           Ttemplate(keeps_list.Objects[clicked_keep_index]).group_selected := False;
@@ -16182,9 +16182,9 @@ var
 begin
   if plain_track = True then begin
     alert(6, '    make  separate  exit  track',
-      'The control template is a plain track template.'
-      + '||A plain track template has no exit track to be split off.'
-      + '||To make a split in plain track, click the `0tools > make split > make split at peg`1 menu item.',
+      'The control template is a plain track template.' +
+      '||A plain track template has no exit track to be split off.' +
+      '||To make a split in plain track, click the `0tools > make split > make split at peg`1 menu item.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
@@ -16193,9 +16193,9 @@ begin
   if retpar_i = 1  // 0.82.a  not for a parallel crossing...
   then begin
     alert(6, '    make  separate  exit  track  -  parallel  V-crossing',
-      'This turnout has a parallel type of V-crossing.'
-      + '||It is not possible to split separate exit tracks for a parallel V-crossing.'
-      + '||Click the TEMPLATE > V-CROSSING OPTIONS... menu item to change to a different type of V-crossing.',
+      'This turnout has a parallel type of V-crossing.' +
+      '||It is not possible to split separate exit tracks for a parallel V-crossing.' +
+      '||Click the TEMPLATE > V-CROSSING OPTIONS... menu item to change to a different type of V-crossing.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
@@ -16211,10 +16211,9 @@ begin
   if (turnoutx - mvjpx) < (10 * scale)            // 10ft scale arbitrary minimum
   then begin
     if alert(7, '    make  separate  exit  track  -  very  short',
-      'The exit track from this turnout is very short.'
-      + '||Are you sure you want it to be a separate template?',
-      '', '', '', '', 'no  -  cancel', 'yes  -  make  separate  exit  track', 0) = 5
-    then
+      'The exit track from this turnout is very short.' +
+      '||Are you sure you want it to be a separate template?', '', '', '', '',
+      'no  -  cancel', 'yes  -  make  separate  exit  track', 0) = 5 then
       EXIT;
   end;
 
@@ -16310,8 +16309,7 @@ var
 begin
   if plain_track = False then begin
     alert(6, '    make  split  at  peg  -  turnout',
-      'Make split at peg.' +
-      '||The control template is a turnout.' +
+      'Make split at peg.' + '||The control template is a turnout.' +
       '||It is not possible to use this function to split a turnout. This function applies only to plain track.'
       + '||You should first use the TOOLS > MAKE SPLIT > MAKE SEPARATE APPROACH TRACK and/or MAKE SEPARATE EXIT TRACK menu items to split a new plain track template from a turnout.',
       '', '', '', '', '', 'continue', 0);
@@ -16320,21 +16318,20 @@ begin
 
   if (pegx <= minfp) or (pegx >= (turnoutx - minfp)) then begin
     alert(6, '    make  split  at  peg  -  beyond  limits',
-      'The current fixing peg position is not within the template length.'
-      +
+      'The current fixing peg position is not within the template length.' +
       '||Use the CTRL-F8 MOVE PEG mouse action to position the fixing peg at the desired split location.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
 
 
-  if ((turnoutx - pegx) < (10 * scale)) or (pegx < (10 * scale))            // 10ft scale arbitrary minimum
+  if ((turnoutx - pegx) < (10 * scale)) or (pegx < (10 * scale))
+  // 10ft scale arbitrary minimum
   then begin
     if alert(7, '    make  split  at  peg  -  short  template',
-      'The current fixing peg position will result in a very short split template.'
-      + '||Are you sure you want to split this template?',
-      '', '', '', '', 'no  -  cancel', 'yes  -  make  split  at  peg', 0) = 5
-    then
+      'The current fixing peg position will result in a very short split template.' +
+      '||Are you sure you want to split this template?', '', '', '', '',
+      'no  -  cancel', 'yes  -  make  split  at  peg', 0) = 5 then
       EXIT;
   end;
 
@@ -16359,8 +16356,7 @@ begin
     peg_on_joint_end_menu_entry.Click;    // peg at new CTRL-1.
     gocalc(0, 0);                          // do peg calcs.
 
-    if (spiral = True) and (make_tools_normalize_transitions_menu_entry.Checked = True) then
-    begin
+    if (spiral = True) and (make_tools_normalize_transitions_menu_entry.Checked = True) then begin
       gocalc(0, 0);                 // peg calcs.
       normalize_transition;        // ignore result.
     end;
@@ -16391,8 +16387,7 @@ begin
     peg_on_joint_end_menu_entry.Click; // put peg at CTRL-1 rail joint.
     gocalc(0, 0);                       // peg calcs.
 
-    if (spiral = True) and (make_tools_normalize_transitions_menu_entry.Checked = True) then
-    begin
+    if (spiral = True) and (make_tools_normalize_transitions_menu_entry.Checked = True) then begin
       gocalc(0, 0);                 // peg calcs.
       normalize_transition;        // ignore result.
     end;
@@ -16528,8 +16523,13 @@ begin
 
   if retpar_i = 1 then begin
     alert(6, '    make  return  curve  -  parallel  crossing',
-      'Your current V-crossing type is parallel, which already includes a return curve.'
-      + ' You may need to extend the length of the turnout to see it, using the ADJUST OVERALL LENGTH mouse action `0F4`2.' + '||It is not possible to add another return curve when the crossing type is parallel.' + '||To change to a regular or generic type of V-crossing from which this function can make a return curve, select the' + '|`0template > V-crossing settings...`z menu item.',
+      'Your current V-crossing type is parallel, which already includes a return curve.' +
+      ' You may need to extend the length of the turnout to see it, using the ADJUST OVERALL LENGTH mouse action `0F4`2.'
+      +
+      '||It is not possible to add another return curve when the crossing type is parallel.' +
+      '||To change to a regular or generic type of V-crossing from which this function can make a return curve, select the'
+      +
+      '|`0template > V-crossing settings...`z menu item.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
@@ -16537,8 +16537,8 @@ begin
   if slewing = True then begin
     alert(6, '    make  return  curve  -  slewed  track',
       'Your control template contains a slew.' +
-      '||Sorry, this return curve function is not available for slewed track.'
-      + '||You can add a return curve by other means, for example by selecting a parallel type of V-crossing, or by making a branch track.',
+      '||Sorry, this return curve function is not available for slewed track.' +
+      '||You can add a return curve by other means, for example by selecting a parallel type of V-crossing, or by making a branch track.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
@@ -16552,8 +16552,8 @@ begin
 
   if spiral = True then begin
     if alert(3, '    make  return  curve  -  transition  curve',
-      'The control template contains a transition curve.'
-      + '||The return curve function will attempt to create a matching return curve as a fixed-radius template. This may take a few seconds.' + '||The result will be satisfactory in most cases, but if the transition curve is very short or sharp you may need to make some further adjustment.' + '||Or alternatively change to a parallel type V-crossing instead.', '', '', '', '', 'cancel', 'continue  -  make  return  curve', 0) = 5 then
+      'The control template contains a transition curve.' +
+      '||The return curve function will attempt to create a matching return curve as a fixed-radius template. This may take a few seconds.' + '||The result will be satisfactory in most cases, but if the transition curve is very short or sharp you may need to make some further adjustment.' + '||Or alternatively change to a parallel type V-crossing instead.', '', '', '', '', 'cancel', 'continue  -  make  return  curve', 0) = 5 then
       EXIT;
   end;
 
@@ -16581,11 +16581,11 @@ begin
       '||If this is not correct you can change it before continuing. Remember to allow sufficient running clearance on sharp curves.';
 
     i := alert(2, '    make  return  curve',
-      '||You are about to make a return curve for turnout-side (TS) double-track.'
-      + '||The current setting for the turnout-side (TS) adjacent track centre spacing is:'
-      + sp_str,
-      'continue  and  don''t  show  this  message  again  today    ',
-      'widen  TS  spacing  by  18  inches  and  continue', 'reduce  TS  spacing  by  18  inches  and  continue',
+      '||You are about to make a return curve for turnout-side (TS) double-track.' +
+      '||The current setting for the turnout-side (TS) adjacent track centre spacing is:' +
+      sp_str, 'continue  and  don''t  show  this  message  again  today    ',
+      'widen  TS  spacing  by  18  inches  and  continue',
+      'reduce  TS  spacing  by  18  inches  and  continue',
       'set  new  track  spacings  and  continue ...', 'cancel  return  curve', 'continue', 0);
     case i of
       1:
@@ -16745,8 +16745,8 @@ begin
   redraw(False);
 
   if i > 10000 then begin
-    ShowMessage('Sorry, it has not been possible to make a return curve.'
-      + #13 + #13 + 'The template showing will need further manual adjustment.');
+    ShowMessage('Sorry, it has not been possible to make a return curve.' +
+      #13 + #13 + 'The template showing will need further manual adjustment.');
     EXIT;
   end;
 
@@ -16763,8 +16763,7 @@ begin
   if plain_track = True then begin
     alert(6, '    make  branch  track  -  plain  track',
       'The control template is plain track.' +
-      '||It is not meaningful to add a branch track to a plain track template. The control template must be a turnout or half-diamond.'
-      + '||Select the `0TEMPLATE > INSERT TURNOUT IN PLAIN TRACK`1 or `0TEMPLATE > NEW TEMPLATE (QUICK SET)...`1 menu items, or copy an existing background template.',
+      '||It is not meaningful to add a branch track to a plain track template. The control template must be a turnout or half-diamond.' + '||Select the `0TEMPLATE > INSERT TURNOUT IN PLAIN TRACK`1 or `0TEMPLATE > NEW TEMPLATE (QUICK SET)...`1 menu items, or copy an existing background template.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
@@ -16772,7 +16771,9 @@ begin
   if retpar_i = 1 then begin
     if alert(3, '    make  branch  track  -  parallel  V-crossing',
       'Your current V-crossing type is parallel, which already includes a branch track as a return curve.'
-      + ' You may need to extend the length of the template to see it, using the ADJUST OVERALL LENGTH mouse action (F4).' + '||This function will create an additional separate length of branch track.', '', '', '', '', 'cancel', 'continue', 0) = 5 then
+      + ' You may need to extend the length of the template to see it, using the ADJUST OVERALL LENGTH mouse action (F4).'
+      + '||This function will create an additional separate length of branch track.',
+      '', '', '', '', 'cancel', 'continue', 0) = 5 then
       EXIT;
   end;
 
@@ -17010,7 +17011,8 @@ procedure Tpad_form.unpark_1_menu_entryClick(Sender: TObject);
 
 begin
   if classic_templot = False then
-    store_and_background(False, False);  // 0.93.a Quick mode - first store existing control template
+    store_and_background(False, False);
+  // 0.93.a Quick mode - first store existing control template
 
   copy_keep(parking_bay[0]);           // retrieve parked entry.
   show_and_redraw(True, True);          // redraw pad when ready.
@@ -17038,7 +17040,8 @@ procedure Tpad_form.unpark_2_menu_entryClick(Sender: TObject);
 
 begin
   if classic_templot = False then
-    store_and_background(False, False);  // 0.93.a Quick mode - first store existing control template
+    store_and_background(False, False);
+  // 0.93.a Quick mode - first store existing control template
 
   copy_keep(parking_bay[1]);           // retrieve parked entry.
   show_and_redraw(True, True);          // redraw pad when ready.
@@ -17066,7 +17069,8 @@ procedure Tpad_form.unpark_3_menu_entryClick(Sender: TObject);
 
 begin
   if classic_templot = False then
-    store_and_background(False, False);  // 0.93.a Quick mode - first store existing control template
+    store_and_background(False, False);
+  // 0.93.a Quick mode - first store existing control template
 
   copy_keep(parking_bay[2]);           // retrieve parked entry.
   show_and_redraw(True, True);          // redraw pad when ready.
@@ -17274,7 +17278,12 @@ begin
 
 
     i := alert(7, '    rotate  group  180  degrees',
-      '|You are about to rotate the currently selected group of background templates through 180 degrees around the notch.' + '||This can be undone by repeating the process, but only if the notch has not been subsequently moved.' + '||( If the notch is at the startup position on the origin, after this process you will probably need to zoom out' + ' to see the rotated templates, and/or need to shift them back into the printed area.)', '', '', '', '', 'cancel  rotate', 'O K  -  continue', 0);
+      '|You are about to rotate the currently selected group of background templates through 180 degrees around the notch.'
+      +
+      '||This can be undone by repeating the process, but only if the notch has not been subsequently moved.'
+      + '||( If the notch is at the startup position on the origin, after this process you will probably need to zoom out'
+      + ' to see the rotated templates, and/or need to shift them back into the printed area.)',
+      '', '', '', '', 'cancel  rotate', 'O K  -  continue', 0);
 
     k180_message_msg_pref := alert_box.preferences_checkbox.Checked;
     alert_box.preferences_checkbox.Hide;
@@ -17362,10 +17371,9 @@ begin
 
   if (any_selected > 0) and (group_notch_linked = True) then begin
     if alert(2, '    group  linked  to  notch',
-      'The selected group is currently linked to the pegging notch.'
-      +
-      '||This SHIFT GROUP function will unlink the group.',
-      '', '', '', '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
+      'The selected group is currently linked to the pegging notch.' +
+      '||This SHIFT GROUP function will unlink the group.', '', '', '',
+      '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
       EXIT;
     unlink_group;
   end;
@@ -17429,10 +17437,9 @@ begin
 
   if (any_selected > 0) and (group_notch_linked = True) then begin
     if alert(2, '    group  linked  to  notch',
-      'The selected group is currently linked to the pegging notch.'
-      +
-      '||This SHIFT GROUP function will unlink the group.',
-      '', '', '', '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
+      'The selected group is currently linked to the pegging notch.' +
+      '||This SHIFT GROUP function will unlink the group.', '', '', '',
+      '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
       EXIT;
     unlink_group;
   end;
@@ -17441,9 +17448,9 @@ begin
   redraw(False);           //  to show selected keeps
 
   if alert(7, '    undo  shift  group  from  notch',
-    '|You are about to undo a previous shift of a group of templates.'
-    + '||Ensure that the required group of templates are currently selected.'
-    + '||Do not use this function if there was no previous shift, or you have subsequently made other peg or notch moves.'
+    '|You are about to undo a previous shift of a group of templates.' +
+    '||Ensure that the required group of templates are currently selected.' +
+    '||Do not use this function if there was no previous shift, or you have subsequently made other peg or notch moves.'
     + '||Handy Hint : You can re-do the shift by selecting SHIFT GROUP ONTO NOTCH again. There should be no need to move the control template again.', '', '', '', '', 'cancel', 'O K  -  undo  shift', 0) = 5 then
     EXIT;
 
@@ -17665,8 +17672,7 @@ procedure Tpad_form.differ_check_rails_menu_entryClick(Sender: TObject);
 begin
   if plain_track = True then begin
     alert(6, '    adjust  check  rails',
-      '  •  adjust check rails.' +
-      '||The control template is currently plain track.' +
+      '  •  adjust check rails.' + '||The control template is currently plain track.' +
       '||Plain track doesn''t have any check rails.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
@@ -17745,8 +17751,8 @@ begin
   repeat
     i := alert(7, '    continuous  banner  or  roll  paper  printing',
       '||You must make the appropriate settings on your printer for banner printing to work correctly.'
-      + '||Templot0 cannot make these settings for you.',
-      '', '', '', 'read  this  first', 'cancel  banner  printing',
+      + '||Templot0 cannot make these settings for you.', '', '', '',
+      'read  this  first', 'cancel  banner  printing',
       'O K   -   printer  setup  for  banner  paper ...', 4);
     case i of
       4:
@@ -17760,10 +17766,9 @@ begin
   printer_setup(False, False);     // he must do the printer settings.
 
   if paper_way = 2 then begin
-    i := alert(1, '    sideways  ( landscape )  printing',
-      '||Printing on banner paper.' +
-      '||The printer is currently set for sideways (landscape) printing.'
-      + '||For all standard printers you should change to upright (portrait) printing so that Templot0 can print correctly on banner paper.', '', '', '', 'continue  with  sideways  ( landscape )  printing', 'cancel  banner  printing', 'change  to  upright  ( portrait )  printing', 0);
+    i := alert(1, '    sideways  ( landscape )  printing', '||Printing on banner paper.' +
+      '||The printer is currently set for sideways (landscape) printing.' +
+      '||For all standard printers you should change to upright (portrait) printing so that Templot0 can print correctly on banner paper.', '', '', '', 'continue  with  sideways  ( landscape )  printing', 'cancel  banner  printing', 'change  to  upright  ( portrait )  printing', 0);
     case i of
       5:
         EXIT;
@@ -17980,10 +17985,9 @@ begin
 
   if (any_selected > 0) and (group_notch_linked = True) then begin
     if alert(2, '    group  linked  to  notch',
-      'The selected group is currently linked to the pegging notch.'
-      +
-      '||This MIRROR GROUP function will unlink the group.',
-      '', '', '', '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
+      'The selected group is currently linked to the pegging notch.' +
+      '||This MIRROR GROUP function will unlink the group.', '', '', '',
+      '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
       EXIT;
     unlink_group;
   end;
@@ -17997,8 +18001,8 @@ begin
     alert_box.preferences_checkbox.Show;
 
     i := alert(7, '    mirror  group  on  Y  at  notch',
-      '|           Mirror on Y  =  Flip top-to-bottom'
-      + '||You are about to mirror the currently selected group of background templates on a horizontal line through the current notch position.' + ' (Flip them top-to-bottom.)' + '||This can be undone by simply repeating the process, provided the notch has not been moved subsequently.' + '||Before using this function you will normally want to set the notch at your intended mirror line by clicking the GEOMETRY > NOTCH > SET NOTCH POSITION AND ANGLE... menu item,' + ' and then setting the Y dimension accordingly. The notch X dimension and notch angle have no effect on this function, and can be left unchanged or set to zero.', '', '', '', '', 'cancel  mirror', 'O K  -  mirror  group  on  Y', 0);
+      '|           Mirror on Y  =  Flip top-to-bottom' +
+      '||You are about to mirror the currently selected group of background templates on a horizontal line through the current notch position.' + ' (Flip them top-to-bottom.)' + '||This can be undone by simply repeating the process, provided the notch has not been moved subsequently.' + '||Before using this function you will normally want to set the notch at your intended mirror line by clicking the GEOMETRY > NOTCH > SET NOTCH POSITION AND ANGLE... menu item,' + ' and then setting the Y dimension accordingly. The notch X dimension and notch angle have no effect on this function, and can be left unchanged or set to zero.', '', '', '', '', 'cancel  mirror', 'O K  -  mirror  group  on  Y', 0);
 
 
     mirrory_msg_pref := alert_box.preferences_checkbox.Checked;
@@ -18039,10 +18043,9 @@ begin
 
   if (any_selected > 0) and (group_notch_linked = True) then begin
     if alert(2, '    group  linked  to  notch',
-      'The selected group is currently linked to the pegging notch.'
-      +
-      '||This MIRROR GROUP function will unlink the group.',
-      '', '', '', '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
+      'The selected group is currently linked to the pegging notch.' +
+      '||This MIRROR GROUP function will unlink the group.', '', '', '',
+      '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
       EXIT;
     unlink_group;
   end;
@@ -18056,8 +18059,8 @@ begin
     alert_box.preferences_checkbox.Show;
 
     i := alert(7, '    mirror  group  on  X  at  notch',
-      '|              Mirror on X  =  Flip sideways'
-      + '||You are about to mirror the currently selected group of background templates on a vertical line through the current notch position.' + ' (Flip them sideways.)' + '||This can be undone by simply repeating the process, provided the notch has not been moved subsequently.' + '||Before using this function you will normally want to set the notch at your intended mirror line by clicking the GEOMETRY > NOTCH > SET NOTCH POSITION AND ANGLE... menu item,' + ' and then setting the X dimension accordingly. The notch Y dimension and notch angle have no effect on this function, and can be left unchanged or set to zero.', '', '', '', '', 'cancel  mirror', 'O K  -  mirror  group  on  X', 0);
+      '|              Mirror on X  =  Flip sideways' +
+      '||You are about to mirror the currently selected group of background templates on a vertical line through the current notch position.' + ' (Flip them sideways.)' + '||This can be undone by simply repeating the process, provided the notch has not been moved subsequently.' + '||Before using this function you will normally want to set the notch at your intended mirror line by clicking the GEOMETRY > NOTCH > SET NOTCH POSITION AND ANGLE... menu item,' + ' and then setting the X dimension accordingly. The notch Y dimension and notch angle have no effect on this function, and can be left unchanged or set to zero.', '', '', '', '', 'cancel  mirror', 'O K  -  mirror  group  on  X', 0);
 
     mirrorx_msg_pref := alert_box.preferences_checkbox.Checked;
     alert_box.preferences_checkbox.Hide;
@@ -18101,10 +18104,9 @@ begin
 
   if (any_selected > 0) and (group_notch_linked = True) then begin
     if alert(2, '    group  linked  to  notch',
-      'The selected group is currently linked to the pegging notch.'
-      +
-      '||This DUPLICATE GROUP function will unlink the group.',
-      '', '', '', '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
+      'The selected group is currently linked to the pegging notch.' +
+      '||This DUPLICATE GROUP function will unlink the group.', '', '',
+      '', '', 'cancel', 'O K  -  unlink  group  and  continue', 0) = 5 then
       EXIT;
     unlink_group;
   end;
@@ -18132,7 +18134,8 @@ begin
   try
     Screen.Cursor := crHourglass;
 
-    turnout_i := 1;      // length locked at turnoutx.  so that plain track or approach and exit tracks can be drawn.
+    turnout_i := 1;
+    // length locked at turnoutx.  so that plain track or approach and exit tracks can be drawn.
 
     saved_current.keep_shove_list := Tshoved_timber_list.Create;
     fill_kd(saved_current);                              // save control template for restore.
@@ -18594,7 +18597,8 @@ end;
 procedure Tpad_form.slew_help_menu_entryClick(Sender: TObject);
 
 begin
-  help(0, slew_help_str + '||For more information about the slew settings, click the GEOMETRY > SLEW (NUDGE) > NEW SLEW SETTINGS... menu item, and click the HELP flags for each setting.', '');
+  help(0, slew_help_str +
+    '||For more information about the slew settings, click the GEOMETRY > SLEW (NUDGE) > NEW SLEW SETTINGS... menu item, and click the HELP flags for each setting.', '');
 end;
 //________________________________________________________________________________________
 
@@ -18730,8 +18734,8 @@ procedure Tpad_form.normalize_transition_menu_entryClick(Sender: TObject);
 begin
   if normalize_transition = False then
     alert(2, '    unable  to  normalize',
-      'Sorry, this transition curve template cannot be normalized.'
-      + '||If no other error message appears you may continue to use this template as it stands.',
+      'Sorry, this transition curve template cannot be normalized.' +
+      '||If no other error message appears you may continue to use this template as it stands.',
       '', '', '', '', 'cancel  normalize', '', 0)
   else
     redraw_pad(True, True);
@@ -18983,7 +18987,8 @@ begin
         if Length(menu_caption_str) > 20 then
           menu_caption_str := Copy(menu_caption_str, 1, 18) + '...';  // 20 arbitrary.
 
-        with Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1 do begin
+        with Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1 do
+        begin
 
           pad_form.align_current_popup_entry.Enabled :=
             (ABS(proto_info.gauge_pi - g) < minfp);  // 205d disabled for mixed-gauge templates
@@ -19068,7 +19073,8 @@ procedure Tpad_form.move_label_popup_entryClick(Sender: TObject);
 
 begin
 
-  if (any_bgnd = 0) or (clicked_keep_index < 0) or (clicked_keep_index > (keeps_list.Count - 1)) then
+  if (any_bgnd = 0) or (clicked_keep_index < 0) or (clicked_keep_index >
+    (keeps_list.Count - 1)) then
     EXIT;
 
   with Ttemplate(keeps_list.Objects[clicked_keep_index]) do begin
@@ -19167,8 +19173,7 @@ procedure Tpad_form.arrange_labels_popup_entryClick(Sender: TObject);
 const
   arrange_help_str: string = '      Arrange  Name  Labels' +
     '||This function will neatly arrange the background template name labels into a row or a column.'
-    +
-    '||The name labels of the currently selected group of background templates will be arranged in a column below, or a row alongside, the current position of the label for this selected template.' + '||Before using this function zoom out to an appropriate size and make sure that the name label for this template is in an appropriate starting position. To move it, cancel this and select MOVE NAME LABEL on its menu.' + '||To arrange ALL the name labels, first click the GROUP > GROUP SELECT ALL TEMPLATES menu item to select all the background templates as a group.' + '||HANDY HINTS:' + '||By selecting different groups of background templates you can arrange the name labels in multiple columns or rows.' + '||If this selected template is itself a member of the group, its name label will be moved down or along into numerical order within the other name labels.' + '||While moving a name label, you can get the menu again by right-clicking on the label.' + '||If you use this function while zoomed too far in, the name labels are likely to overlap as you zoom out. Zoom out first.' + '||After arranging the group name labels, you can move them all in one go to a new position using the ACTION > MOUSE ACTIONS: GROUP > MOVE TEMPLATE NAME LABELS mouse action.' + '||See also the different styles of label available on the TRACKPAD > TRACKPAD BACKGROUND OPTIONS > BACKGROUND NAME LABELS > menu options.' + ' If the BOXED OVER style is wanted, select this first before arranging the name labels.';
+    + '||The name labels of the currently selected group of background templates will be arranged in a column below, or a row alongside, the current position of the label for this selected template.' + '||Before using this function zoom out to an appropriate size and make sure that the name label for this template is in an appropriate starting position. To move it, cancel this and select MOVE NAME LABEL on its menu.' + '||To arrange ALL the name labels, first click the GROUP > GROUP SELECT ALL TEMPLATES menu item to select all the background templates as a group.' + '||HANDY HINTS:' + '||By selecting different groups of background templates you can arrange the name labels in multiple columns or rows.' + '||If this selected template is itself a member of the group, its name label will be moved down or along into numerical order within the other name labels.' + '||While moving a name label, you can get the menu again by right-clicking on the label.' + '||If you use this function while zoomed too far in, the name labels are likely to overlap as you zoom out. Zoom out first.' + '||After arranging the group name labels, you can move them all in one go to a new position using the ACTION > MOUSE ACTIONS: GROUP > MOVE TEMPLATE NAME LABELS mouse action.' + '||See also the different styles of label available on the TRACKPAD > TRACKPAD BACKGROUND OPTIONS > BACKGROUND NAME LABELS > menu options.' + ' If the BOXED OVER style is wanted, select this first before arranging the name labels.';
 
 var
   i, n: integer;
@@ -19182,16 +19187,16 @@ var
 
 begin
   try
-    if (any_bgnd = 0) or (clicked_keep_index < 0) or (clicked_keep_index > (keeps_list.Count - 1)) or
-      (keeps_list.Count < 1) then
+    if (any_bgnd = 0) or (clicked_keep_index < 0) or (clicked_keep_index >
+      (keeps_list.Count - 1)) or (keeps_list.Count < 1) then
       EXIT;
 
     in_a_row := False; // init, keep compiler happy.
 
     repeat
       i := alert(7, '        arrange  name  labels',
-        'This function will neatly arrange the name labels for the background templates.'
-        + '||Click MORE INFORMATION for some handy hints about using this function.| ',
+        'This function will neatly arrange the name labels for the background templates.' +
+        '||Click MORE INFORMATION for some handy hints about using this function.| ',
         '', '', 'more  information', 'arrange  group  template  name  labels  in  a  row   ',
         'cancel', 'arrange  group  template  name  labels  in  a  column     ', 3);
 
@@ -19307,7 +19312,8 @@ var                               // convert the keep name label to a background
   n: integer;
 
 begin
-  if (any_bgnd = 0) or (clicked_keep_index < 0) or (clicked_keep_index > (keeps_list.Count - 1)) then
+  if (any_bgnd = 0) or (clicked_keep_index < 0) or (clicked_keep_index >
+    (keeps_list.Count - 1)) then
     EXIT;
 
   with Ttemplate(keeps_list.Objects[clicked_keep_index]) do begin
@@ -19327,7 +19333,8 @@ begin
         if Trim(shape_name) = '' then
           shape_name := template_info.keep_dims.box_dims1.id_number_str
         else
-          shape_name := shape_name + ' - ' + template_info.keep_dims.box_dims1.id_number_str;  // 208d
+          shape_name := shape_name + ' - ' + template_info.keep_dims.box_dims1.id_number_str;
+        // 208d
 
         hide_bits := 0;    // 214a  normal visibility
         option_bits := 0;  // byte;
@@ -19382,11 +19389,9 @@ begin
   with math_form do begin
     Caption := '   name  or  rename  this  template ...';
     big_label.Caption := insert_crlf_str('|             Name or rename template :  ' +
-      idnum_str + '|||' + keep_name_str
-      + '|||Name or rename this template by entering a new name below.'
-      +
-      '|||If the existing name includes any prefix tags in square brackets,|take care not to delete or modify them unintentionally.'
-      + '|Enter the new name after the square brackets.');
+      idnum_str + '|||' + keep_name_str +
+      '|||Name or rename this template by entering a new name below.' +
+      '|||If the existing name includes any prefix tags in square brackets,|take care not to delete or modify them unintentionally.' + '|Enter the new name after the square brackets.');
 
     math_editbox.Text := keep_name_str;
 
@@ -19399,7 +19404,9 @@ begin
         keep_name_str := s;
 
         Ttemplate(
-          keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1.reference_string :=
+          keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.
+          box_dims1.reference_string
+        :=
           keep_name_str;
         save_done := False;
         backup_wanted := True;
@@ -19479,8 +19486,7 @@ var
   his_option: boolean;
 
 begin
-  if alert(7, '    modify  and  rebuild  rail  section',
-    'Modify and rebuild rail section' +
+  if alert(7, '    modify  and  rebuild  rail  section', 'Modify and rebuild rail section' +
     '||This function will modify the rail section settings on the selected background template to match the current settings on the control template.' + modify_rebuild_str, '', '', '', '', 'no  -  cancel', 'yes  -  modify  and  rebuild', 0) = 5 then begin
     clicked_keep_index := -1;    // so can popup again.
     redraw_pad(True, False);    // to cancel highlighting.
@@ -19571,8 +19577,7 @@ var
   his_option: boolean;
 
 begin
-  if alert(7, '    modify  and  rebuild  timbering',
-    'Modify and rebuild timbering' +
+  if alert(7, '    modify  and  rebuild  timbering', 'Modify and rebuild timbering' +
     '||This function will modify the timbering styles and sizes on the selected background template to match the current settings on the control template.' + modify_rebuild_str, '', '', '', '', 'no  -  cancel', 'yes  -  modify  and  rebuild', 0) = 5 then begin
     clicked_keep_index := -1;    // so can popup again.
     redraw_pad(True, False);    // to cancel highlighting.
@@ -19580,7 +19585,8 @@ begin
   end;
 
   his_option := keep_form.timbering_as_stored_menu_entry.Checked;
-  keep_form.timbering_as_control_menu_entry.Checked := True;                          // radio item.
+  keep_form.timbering_as_control_menu_entry.Checked := True;
+  // radio item.
   rebuild_popup_entry.Click;
   if his_option = True then
     keep_form.timbering_as_stored_menu_entry.Checked := True;   // radio item.
@@ -19593,8 +19599,7 @@ var
   his_option: boolean;
 
 begin
-  if alert(7, '    modify  and  rebuild  trackbed  edges',
-    'Modify and rebuild trackbed edges' +
+  if alert(7, '    modify  and  rebuild  trackbed  edges', 'Modify and rebuild trackbed edges' +
     '||This function will modify the trackbed edge settings on the selected background template to match the current settings on the control template.' + modify_rebuild_str, '', '', '', '', 'no  -  cancel', 'yes  -  modify  and  rebuild', 0) = 5 then begin
     clicked_keep_index := -1;    // so can popup again.
     redraw_pad(True, False);    // to cancel highlighting.
@@ -19646,7 +19651,8 @@ begin
     EXIT;
 
   try
-    turnout_i := 1;      // length locked at turnoutx.  so that plain track or approach and exit tracks can be drawn.
+    turnout_i := 1;
+    // length locked at turnoutx.  so that plain track or approach and exit tracks can be drawn.
 
     saved_current.keep_shove_list := Tshoved_timber_list.Create;
     fill_kd(saved_current);                              // save control template for restore.
@@ -20003,36 +20009,28 @@ procedure Tpad_form.set_print_origin_menu_entryClick(Sender: TObject);
 
 const
   help_x_str: string = '     Page  Origin  X  in  mm' +
-    '||Enter a new X-dimension in millimetres for the origin point of the printed pages.'
-    +
-    '||X-dimensions are measured across the width of the screen from the left.'
-    + '||The page origin can also be moved with the mouse, select the ACTION > MOUSE ACTIONS:PAD > MOVE PAGE ORIGIN menu item (SHIFT+CTRL-F10).';
+    '||Enter a new X-dimension in millimetres for the origin point of the printed pages.' +
+    '||X-dimensions are measured across the width of the screen from the left.' +
+    '||The page origin can also be moved with the mouse, select the ACTION > MOUSE ACTIONS:PAD > MOVE PAGE ORIGIN menu item (SHIFT+CTRL-F10).';
 
   help_y_str: string = '     Page  Origin  Y  in  mm' +
-    '||Enter a new Y-dimension in millimetres for the origin point of the printed pages.'
-    +
-    '||Y-dimensions are measured upwards from the bottom of the screen.'
-    + '||The page origin can also be moved with the mouse, select the ACTION > MOUSE ACTIONS:PAD > MOVE PAGE ORIGIN menu item (SHIFT+CTRL-F10).';
+    '||Enter a new Y-dimension in millimetres for the origin point of the printed pages.' +
+    '||Y-dimensions are measured upwards from the bottom of the screen.' +
+    '||The page origin can also be moved with the mouse, select the ACTION > MOUSE ACTIONS:PAD > MOVE PAGE ORIGIN menu item (SHIFT+CTRL-F10).';
 
   help_xpages_str: string = '     Page  Origin  X  in  page-lengths' +
     '||Enter a new X-setting as the number of page-lengths from the drawing datum to the origin point of the printed pages.'
-    + '||Negative and fractional settings are permissible.'
-    + '||The page-length is determined by your current paper-size for the printer and the current trim margins which have been set in the PRINT > TRIM MARGINS menu items.' + ' The apparent page length dimensions shown on the trackpad reflect the current print size setting in the PRINT > ENLARGE/REDUCE SIZE menu options.' + '||The page origin can also be moved with the mouse, select the ACTION > MOUSE ACTIONS:PAD > MOVE PAGE ORIGIN menu item (SHIFT+CTRL-F10).';
+    + '||Negative and fractional settings are permissible.' +
+    '||The page-length is determined by your current paper-size for the printer and the current trim margins which have been set in the PRINT > TRIM MARGINS menu items.' + ' The apparent page length dimensions shown on the trackpad reflect the current print size setting in the PRINT > ENLARGE/REDUCE SIZE menu options.' + '||The page origin can also be moved with the mouse, select the ACTION > MOUSE ACTIONS:PAD > MOVE PAGE ORIGIN menu item (SHIFT+CTRL-F10).';
 
   help_ypages_str: string = '     Page  Origin  Y  in  page-widths' +
     '||Enter a new Y-setting as the number of page-widths from the drawing datum to the origin point of the printed pages.'
-    + '||Negative and fractional settings are permissible.'
-    + '||The page-width is determined by your current paper-size for the printer and the current trim margins which have been set in the PRINT > TRIM MARGINS menu items.' + ' The apparent page width dimensions shown on the trackpad reflect the current print size setting in the PRINT > ENLARGE/REDUCE SIZE menu options.' + '||The page origin can also be moved with the mouse, select the ACTION > MOUSE ACTIONS:PAD > MOVE PAGE ORIGIN menu item (SHIFT+CTRL-F10).';
+    + '||Negative and fractional settings are permissible.' +
+    '||The page-width is determined by your current paper-size for the printer and the current trim margins which have been set in the PRINT > TRIM MARGINS menu items.' + ' The apparent page width dimensions shown on the trackpad reflect the current print size setting in the PRINT > ENLARGE/REDUCE SIZE menu options.' + '||The page origin can also be moved with the mouse, select the ACTION > MOUSE ACTIONS:PAD > MOVE PAGE ORIGIN menu item (SHIFT+CTRL-F10).';
 
   help_porg_str: string = '     Set  Page  Origin' +
-    '||You can change the X and Y dimensions for the origin point of the printed pages.'
-    +
-    '||The origin point is the bottom-left corner of the page outlines on the screen, and the top-left corner of page a/1 when printed.'
-    + '||Changing the page origin is useful if the page margins are inconveniently positioned within the drawing.'
-    + '||The pre-set dimensions are zero, so that the page origin normally co-incides with the drawing datum.'
-    + '||Negative dimensions for the page origin are permissible.'
-    + '||Handy Hints:' +
-    '|The page origin setting is not saved between Templot0 sessions. If you will need the same setting again, make a note of the page origin dimensions' + ' in the MEMO panel for the first template in the storage box. Then you can quickly copy and paste them back here on reloading.' + '||The size of the page outlines is determined by your current paper-size for the printer and the current trim margins which have been set in the PRINT > TRIM MARGINS menu items.' + ' The apparent page size dimensions shown on the trackpad reflect the current print size setting in the PRINT > ENLARGE/REDUCE SIZE menu options.';
+    '||You can change the X and Y dimensions for the origin point of the printed pages.' +
+    '||The origin point is the bottom-left corner of the page outlines on the screen, and the top-left corner of page a/1 when printed.' + '||Changing the page origin is useful if the page margins are inconveniently positioned within the drawing.' + '||The pre-set dimensions are zero, so that the page origin normally co-incides with the drawing datum.' + '||Negative dimensions for the page origin are permissible.' + '||Handy Hints:' + '|The page origin setting is not saved between Templot0 sessions. If you will need the same setting again, make a note of the page origin dimensions' + ' in the MEMO panel for the first template in the storage box. Then you can quickly copy and paste them back here on reloading.' + '||The size of the page outlines is determined by your current paper-size for the printer and the current trim margins which have been set in the PRINT > TRIM MARGINS menu items.' + ' The apparent page size dimensions shown on the trackpad reflect the current print size setting in the PRINT > ENLARGE/REDUCE SIZE menu options.';
 
 var
   i, n: integer;
@@ -20041,8 +20039,10 @@ var
 begin
   if fit_single_sheet = True then begin
     i := alert(3, '    set  page  origin  -  fit  single  page',
-      'You are currently set to print the drawing reduced to fit on a single page.'
-      + '||If you change the page origin not all of your drawing may be printed, or more than one page may be printed.', '', '', '', 'change  to  normal  size  printing  ( 100 % )    ', 'cancel  -  no  changes    ', 'O K', 0);
+      'You are currently set to print the drawing reduced to fit on a single page.' +
+      '||If you change the page origin not all of your drawing may be printed, or more than one page may be printed.',
+      '', '', '', 'change  to  normal  size  printing  ( 100 % )    ',
+      'cancel  -  no  changes    ', 'O K', 0);
     case i of
       4:
         normal_scaling_menu_entry.Click;
@@ -20095,8 +20095,7 @@ begin
 
       if n <> 1 then
         EXIT;
-      if getdims('page  origin  in  mm', help_porg_str, pad_form, n, od) =
-        True then begin
+      if getdims('page  origin  in  mm', help_porg_str, pad_form, n, od) = True then begin
         if od[0] = def_req then
           print_pages_top_origin := 0
         else
@@ -20194,8 +20193,8 @@ begin
 
         putdim(help_trleft_str, 1, 'left  trim  margin', page_margin_left_mm,
           True, False, True, False);   // no neg, preset ok, no zero, don't terminate on zero.
-        n := putdim(help_trtop_str, 1, 'top  trim  margin',
-          page_margin_top_mm, True, False, True, False);
+        n := putdim(help_trtop_str, 1, 'top  trim  margin', page_margin_top_mm,
+          True, False, True, False);
         // no neg, preset ok, no zero, don't terminate on zero.
 
         if n <> 1 then
@@ -20226,11 +20225,10 @@ begin
         if warn = True then begin
           repeat
             i := alert(6, '    trim  margins  wrong',
-              'The left trim margin cannot be less than 1 mm.'
-              +
+              'The left trim margin cannot be less than 1 mm.' +
               '||You are currently set to print on single sheets, for which the top trim margin cannot be less than 1 mm.',
-              '', '', '', 'help  information',
-              'reset  normal  margins', 're - try ...', 4);
+              '', '', '', 'help  information', 'reset  normal  margins',
+              're - try ...', 4);
             case i of
               4:
                 alert_help(0, trim_help_str, '');
@@ -20258,9 +20256,11 @@ begin
         warn := False;  // init
 
         putdim(help_trwidth_str, 1, 'trimmed width between left and right margins',
-          trim_width, True, True, True, False);   // no neg, no preset, no zero, don't terminate on zero.
+          trim_width, True, True, True, False);
+        // no neg, no preset, no zero, don't terminate on zero.
         n := putdim(help_trlength_str, 1, 'trimmed length between top and bottom margins',
-          trim_length, True, True, True, False);   // no neg, no preset, no zero, don't terminate on zero.
+          trim_length, True, True, True, False);
+        // no neg, no preset, no zero, don't terminate on zero.
 
         if n <> 1 then
           EXIT;
@@ -20287,11 +20287,12 @@ begin
             i := alert(6, '    trim  margins  wrong',
               'For the current paper size and printer calibration settings the following limits apply:'
               + '||With the current left trim margin setting of ' +
-              round_str(page_margin_left_mm, 2) + ' mm, the trimmed page width cannot be more than ' +
-              round_str(max_trim_width, 2) + ' mm.' +
-              '||With the current top trim margin setting of ' + round_str(page_margin_top_mm, 2) +
-              ' mm, the trimmed page length cannot be more than ' + round_str(max_trim_length, 2) +
-              ' mm (currently printing on single sheets).',
+              round_str(page_margin_left_mm, 2) +
+              ' mm, the trimmed page width cannot be more than ' + round_str(max_trim_width, 2) +
+              ' mm.' + '||With the current top trim margin setting of ' +
+              round_str(page_margin_top_mm, 2) +
+              ' mm, the trimmed page length cannot be more than ' +
+              round_str(max_trim_length, 2) + ' mm (currently printing on single sheets).',
               '', '', 'help  information', 'printer  setup ...',
               'reset  normal  margins', 're - try ...', 3);
             case i of
@@ -20336,9 +20337,8 @@ begin
 
           repeat
             i := alert(6, '    trim  margin  wrong',
-              'The left trim margin cannot be less than 1 mm.',
-              '', '', '', 'help  information',
-              'reset  normal  margins', 're - try ...', 4);
+              'The left trim margin cannot be less than 1 mm.', '',
+              '', '', 'help  information', 'reset  normal  margins', 're - try ...', 4);
             case i of
               4:
                 alert_help(0, trim_help_str, '');
@@ -20363,7 +20363,8 @@ begin
 
       repeat
         n := putdim(help_trwidth_str, 1, 'trimmed width between left and right margins',
-          trim_width, True, True, True, False);   // no neg, no preset, no zero, don't terminate on zero.
+          trim_width, True, True, True, False);
+        // no neg, no preset, no zero, don't terminate on zero.
 
         if n <> 0 then
           EXIT;
@@ -20377,7 +20378,12 @@ begin
           page_margin_right_mm := 1.0;    // 1mm arbitrary.
           repeat
             i := alert(6, '    trim  margins  wrong',
-              'For the current paper size and printer calibration settings the following limit applies (banner paper):' + '||With the current left trim margin setting of ' + round_str(page_margin_left_mm, 2) + ' mm, the trimmed page width cannot be more than ' + round_str(max_trim_width, 2) + ' mm.', '', '', 'help  information', 'printer  setup ...', 'reset  normal  margins', 're - try ...', 3);
+              'For the current paper size and printer calibration settings the following limit applies (banner paper):'
+              +
+              '||With the current left trim margin setting of ' + round_str(page_margin_left_mm, 2) +
+              ' mm, the trimmed page width cannot be more than ' + round_str(max_trim_width, 2) +
+              ' mm.', '', '', 'help  information', 'printer  setup ...', 'reset  normal  margins',
+              're - try ...', 3);
             case i of
               3:
                 alert_help(0, trim_help_str, '');
@@ -20451,7 +20457,8 @@ procedure Tpad_form.next_run_width_menu_entryClick(Sender: TObject);
 
 begin
   get_show_margins_info(True);  // 0.93.a
-  print_pages_left_origin := print_pages_left_origin + page_width * (sheet_across_c + 1) / 100 / out_factor;
+  print_pages_left_origin := print_pages_left_origin + page_width *
+    (sheet_across_c + 1) / 100 / out_factor;
   redraw(True);
 end;
 //___________________________________________________________________________________________
@@ -20460,7 +20467,8 @@ procedure Tpad_form.previous_run_width_menu_entryClick(Sender: TObject);
 
 begin
   get_show_margins_info(True);  // 0.93.a
-  print_pages_left_origin := print_pages_left_origin - page_width * (sheet_across_c + 1) / 100 / out_factor;
+  print_pages_left_origin := print_pages_left_origin - page_width *
+    (sheet_across_c + 1) / 100 / out_factor;
   redraw(True);
 end;
 //___________________________________________________________________________________________
@@ -20469,7 +20477,8 @@ procedure Tpad_form.next_run_length_menu_entryClick(Sender: TObject);
 
 begin
   get_show_margins_info(True);  // 0.93.a
-  print_pages_top_origin := print_pages_top_origin + page_length * (sheet_down_c + 1) / 100 / out_factor;
+  print_pages_top_origin := print_pages_top_origin + page_length * (sheet_down_c + 1) /
+    100 / out_factor;
   redraw(True);
 end;
 //___________________________________________________________________________________________
@@ -20478,7 +20487,8 @@ procedure Tpad_form.previous_run_length_menu_entryClick(Sender: TObject);
 
 begin
   get_show_margins_info(True);  // 0.93.a
-  print_pages_top_origin := print_pages_top_origin - page_length * (sheet_down_c + 1) / 100 / out_factor;
+  print_pages_top_origin := print_pages_top_origin - page_length * (sheet_down_c + 1) /
+    100 / out_factor;
   redraw(True);
 end;
 //___________________________________________________________________________________________
@@ -20772,7 +20782,8 @@ begin
       EXIT;
 
     if (loaded_version < 93) and (hl > -1) and (hl < keeps_list.Count) then
-      mint_final_or_copy_control(hl);   // if something loaded mint from highest bgnd if he so wants.
+      mint_final_or_copy_control(hl);
+    // if something loaded mint from highest bgnd if he so wants.
     if (loaded_version > 92) then
       mint_final_or_copy_control(hl);
     // copy the control template if there is one in the file.
@@ -20805,8 +20816,8 @@ procedure Tpad_form.pad_clear_all_menu_entryClick(Sender: TObject);
 begin
   if keeps_list.Count < 1 then begin
     if alert(6, '    no  stored  templates',
-      'Your storage box is currently empty, so there is nothing to clear.'
-      + '||For more information about storing background templates click the ? HELP button in the storage box.'
+      'Your storage box is currently empty, so there is nothing to clear.' +
+      '||For more information about storing background templates click the ? HELP button in the storage box.'
       + '||To remove the control template, click the red Z toolbutton at the top of the trackpad, or press the Delete key on the keyboard. To simply hide it from view, press the Home key on the keyboard.', '', '', '', '', 'cancel  clear', 'show  storage  box', 0) = 6 then begin
       keep_form.Show;
       keep_form.BringToFront;
@@ -21137,8 +21148,8 @@ end;
 procedure Tpad_form.notch_link_help_menu_entryClick(Sender: TObject);
 
 const
-  notch_link_help_str: string = '      Linking the Pegging Notch to the Control Template'
-    + '||Clicking the LINK NOTCH TO TEMPLATE AT PEG menu item moves the pegging notch under the fixing peg at its current position on the control template, in the same way as the normal NOTCH UNDER PEG function (DIVIDE key).' + '||In addition however, if the peg is at a pre-set position (peg-indicator showing numbers 0-9, N, or U), this position within the template will be remembered,' + ' and the notch will be maintained there as the control template is adjusted by mouse action.' + '||Note that it is NOT subsequently necessary for the fixing peg to also remain at this position, you will often want to move it to a different position to maintain the track alignment for the mouse action.' + '||If the peg is not at a pre-set position (peg-indicator showing F, M, or S), for example after moving the peg manually (CTRL-F8 MOVE PEG mouse action),' + ' the notch will follow the position of the peg as the control template is adjusted by mouse action.' + '||The linking will be cancelled if you move the position of the notch manually, or click the NOTCH UNLINKED menu item.' + '||N.B. This linking to the control template applies only while a mouse action is in force. Other changes to the control template will not change the position of the notch on the trackpad.' + ' The normal unlinked peg and notch functions are used in this case.' + '||Handy Hint :' + '|This function is primarily intended for use when a selected group of background templates have been previously linked to the notch.' + ' In this way a group of templates can be maintained in alignment with the control template while it is being adjusted.' + '||For more information about GROUP LINKING, click the button below.';
+  notch_link_help_str: string = '      Linking the Pegging Notch to the Control Template' +
+    '||Clicking the LINK NOTCH TO TEMPLATE AT PEG menu item moves the pegging notch under the fixing peg at its current position on the control template, in the same way as the normal NOTCH UNDER PEG function (DIVIDE key).' + '||In addition however, if the peg is at a pre-set position (peg-indicator showing numbers 0-9, N, or U), this position within the template will be remembered,' + ' and the notch will be maintained there as the control template is adjusted by mouse action.' + '||Note that it is NOT subsequently necessary for the fixing peg to also remain at this position, you will often want to move it to a different position to maintain the track alignment for the mouse action.' + '||If the peg is not at a pre-set position (peg-indicator showing F, M, or S), for example after moving the peg manually (CTRL-F8 MOVE PEG mouse action),' + ' the notch will follow the position of the peg as the control template is adjusted by mouse action.' + '||The linking will be cancelled if you move the position of the notch manually, or click the NOTCH UNLINKED menu item.' + '||N.B. This linking to the control template applies only while a mouse action is in force. Other changes to the control template will not change the position of the notch on the trackpad.' + ' The normal unlinked peg and notch functions are used in this case.' + '||Handy Hint :' + '|This function is primarily intended for use when a selected group of background templates have been previously linked to the notch.' + ' In this way a group of templates can be maintained in alignment with the control template while it is being adjusted.' + '||For more information about GROUP LINKING, click the button below.';
 
 begin
   if help(0, notch_link_help_str, 'about  group  linking') = 1 then
@@ -21192,10 +21203,11 @@ end;
 procedure Tpad_form.flatbottom_rails_menu_entryClick(Sender: TObject);
 
 const
-  fb_help_str: string = 'php/701    `0Rail Foot Edges (flat-bottom rails)`9'
-    + '||This template option causes the rail-foot edges to be shown in addition to the rail-head edges.'
+  fb_help_str: string = 'php/701    `0Rail Foot Edges (flat-bottom rails)`9' +
+    '||This template option causes the rail-foot edges to be shown in addition to the rail-head edges.'
     + '||This is intended for construction templates for track having flat-bottom rails (FB track).'
-    + ' The rail-foot edge lines can be used to align the rails where the width of the rail foot obscures the rail-head edge lines.' + '||rp.gif <span style="color:red;">This function is a provisional implementation in this version of Templot0 with the following limitations:</span>' + '||Rail foot edges are shown on background templates only, they are not available when printing the control template.' + '||If detail-mode output is in force, rail foot edges are shown on printed templates, in PDF files, in exported image files, and on the sketchboard.' + '||Sorry, the rail-foot indication on the trackpad, on the storage box, and in DXF fles is not yet implemented in this version of Templot0.' + '||The representation of the rail foot in the region of the switch rail tips (points) will be improved in later versions of Templot0.' + '||green_panel_begintree.gif The rail foot dimensions can be set at `0REAL > RAILS > RAIL SECTION DATA...`1 menu item.' + '||The rail inclination angle, if any, will be ignored if the `0REAL > RAILS > VERTICAL RAILS`1 menu option is in force.' + '||If the `0REAL > RAILS > INCLINED RAILS`1 menu option is selected for canted rails, the rail foot edges will be offset accordingly to maintain the correct track gauge at the rail head.' + 'green_panel_end' + '|green_panel_begintree.gif If inclined bullhead rails are used, this function can be used to show the outer edge of the foot in the larger scales.' + ' Set the foot width to match the head width.' + 'green_panel_end';
+    + ' The rail-foot edge lines can be used to align the rails where the width of the rail foot obscures the rail-head edge lines.'
+    + '||rp.gif <span style="color:red;">This function is a provisional implementation in this version of Templot0 with the following limitations:</span>' + '||Rail foot edges are shown on background templates only, they are not available when printing the control template.' + '||If detail-mode output is in force, rail foot edges are shown on printed templates, in PDF files, in exported image files, and on the sketchboard.' + '||Sorry, the rail-foot indication on the trackpad, on the storage box, and in DXF fles is not yet implemented in this version of Templot0.' + '||The representation of the rail foot in the region of the switch rail tips (points) will be improved in later versions of Templot0.' + '||green_panel_begintree.gif The rail foot dimensions can be set at `0REAL > RAILS > RAIL SECTION DATA...`1 menu item.' + '||The rail inclination angle, if any, will be ignored if the `0REAL > RAILS > VERTICAL RAILS`1 menu option is in force.' + '||If the `0REAL > RAILS > INCLINED RAILS`1 menu option is selected for canted rails, the rail foot edges will be offset accordingly to maintain the correct track gauge at the rail head.' + 'green_panel_end' + '|green_panel_begintree.gif If inclined bullhead rails are used, this function can be used to show the outer edge of the foot in the larger scales.' + ' Set the foot width to match the head width.' + 'green_panel_end';
 
 var
   i: integer;
@@ -21204,10 +21216,10 @@ begin
 
   repeat
     i := alert(2, 'php/701    FB  (flat-bottom)  rails',
-      'Show rail-foot edge lines for FB track (flat-bottom rails).'
-      + '||This option causes rail-foot edges to be shown in addition to the rail-head edges.'
-      + '||This function is a provisional implementation in this version of Templot0.'
-      + '||Please be sure to click `0MORE INFORMATION`1 below and read the notes.',
+      'Show rail-foot edge lines for FB track (flat-bottom rails).' +
+      '||This option causes rail-foot edges to be shown in addition to the rail-head edges.' +
+      '||This function is a provisional implementation in this version of Templot0.' +
+      '||Please be sure to click `0MORE INFORMATION`1 below and read the notes.',
       '', '', '', 'more  information', 'cancel  -  no  change', 'O K', 4);
 
     if i = 5 then
@@ -21483,8 +21495,8 @@ begin
 
   if any_selected < 1 then
     alert(6, '    no  matching  templates  for  group',
-      'There are no background templates matching the specified marker colour.'
-      + '||No group is selected.',
+      'There are no background templates matching the specified marker colour.' +
+      '||No group is selected.',
       '', '', '', '', '', 'continue', 0);
 
   redraw_pad(True, False);    // show them.  // 0.82.d
@@ -21515,8 +21527,7 @@ begin
 
   if any_selected < 1 then
     alert(6, '    no  plain  track  templates  for  group',
-      'There are no plain track background templates.' +
-      '||No group is selected.',
+      'There are no plain track background templates.' + '||No group is selected.',
       '', '', '', '', '', 'continue', 0);
   redraw_pad(True, False);    // show them.
 end;
@@ -21675,8 +21686,8 @@ end;
 procedure Tpad_form.normal_colours_popup_entryClick(Sender: TObject);
 
 begin
-  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or (clicked_keep_index >
-    (keeps_list.Count - 1)) then
+  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or
+    (clicked_keep_index > (keeps_list.Count - 1)) then
     EXIT;
 
   list_position := clicked_keep_index;
@@ -21692,8 +21703,8 @@ end;
 procedure Tpad_form.marker_colour_popup_entryClick(Sender: TObject);
 
 begin
-  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or (clicked_keep_index >
-    (keeps_list.Count - 1)) then
+  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or
+    (clicked_keep_index > (keeps_list.Count - 1)) then
     EXIT;
 
   list_position := clicked_keep_index;
@@ -21712,8 +21723,8 @@ var
   col: integer;
 
 begin
-  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or (clicked_keep_index >
-    (keeps_list.Count - 1)) then
+  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or
+    (clicked_keep_index > (keeps_list.Count - 1)) then
     EXIT;
 
   list_position := clicked_keep_index;
@@ -21736,8 +21747,8 @@ end;
 procedure Tpad_form.normal_print_colours_popup_entryClick(Sender: TObject);
 
 begin
-  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or (clicked_keep_index >
-    (keeps_list.Count - 1)) then
+  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or
+    (clicked_keep_index > (keeps_list.Count - 1)) then
     EXIT;
 
   list_position := clicked_keep_index;
@@ -21753,8 +21764,8 @@ end;
 procedure Tpad_form.print_mapping_colour_popup_entryClick(Sender: TObject);
 
 begin
-  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or (clicked_keep_index >
-    (keeps_list.Count - 1)) then
+  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or
+    (clicked_keep_index > (keeps_list.Count - 1)) then
     EXIT;
 
   list_position := clicked_keep_index;
@@ -21773,8 +21784,8 @@ var
   col: integer;
 
 begin
-  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or (clicked_keep_index >
-    (keeps_list.Count - 1)) then
+  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or
+    (clicked_keep_index > (keeps_list.Count - 1)) then
     EXIT;
 
   list_position := clicked_keep_index;
@@ -22150,8 +22161,9 @@ var
   od: Toutdim;
 
 begin
-  n := putdim(step_help_str, 2, 'timber  length  increments  ( step  size )', timbinc,
-    True, True, False, False);   // no negative, no preset, zero ok, don't terminate on zero.
+  n := putdim(step_help_str, 2, 'timber  length  increments  ( step  size )',
+    timbinc, True, True, False, False);
+  // no negative, no preset, zero ok, don't terminate on zero.
   if n <> 0 then
     EXIT;
   if getdims('timber  length  increments', timbering_help_str, pad_form, n, od) = True then
@@ -22220,7 +22232,8 @@ procedure Tpad_form.set_ruler_ends_menu_entryClick(Sender: TObject);
 const
   help_ruler_str: string = '     Set  Ruler  Ends' +
     '||Enter new X and Y dimensions in millimetres for the position of each end of the ruler tool.'
-    + '||To enter dimensions in inches, prefix the figure with a letter i, e.g. enter i12 for 12 inches.'
+    +
+    '||To enter dimensions in inches, prefix the figure with a letter i, e.g. enter i12 for 12 inches.'
     + '||The dimensions to be entered here are referenced from the trackpad origin point, and can be determined from the grid margin scales.' + ' X-dimensions are positive across the trackpad from the left and read along the bottom margin,' + ' Y-dimensions are positive up the trackpad from the bottom and read along the left margin.' + '||For many purposes, it is easier to move the ends of the ruler with the mouse actions, click the ACTION > MOUSE ACTIONS: TRACKPAD > MOVE RULER TOOL END menu items.' + '||The ends of the ruler can also be positioned by holding down the ALT key and clicking the mouse. A left-button click sets the 1st end at the mouse pointer position,' + ' a right-button click sets the 2nd end. The mouse pointer can be changed to cross-hairs by clicking the TRACKPAD > CROSS-HAIRS MOUSE POINTER menu item.' + '||The ALT click functions will work while a mouse action is in force (including moving the ends by mouse action), but are available only while the ruler is actually showing.' + ' Be aware that ALT-LEFT click also zeroes the MOVED BY read-out on the Jotter. If you want to do this without moving the ruler, temporarily hide the ruler (UTILS > RULER > HIDE RULER menu item).';
 
 var
@@ -22228,13 +22241,17 @@ var
   od: Toutdim;
 
 begin
-  putdim(help_ruler_str, 1, 'ruler  1st  end  X - dimension', ruler_startx, False, True, False, False);
+  putdim(help_ruler_str, 1, 'ruler  1st  end  X - dimension', ruler_startx,
+    False, True, False, False);
   // negative ok, no preset, zero ok, don't terminate on zero.
-  putdim(help_ruler_str, 1, 'ruler  1st  end  Y - dimension', ruler_starty, False, True, False, False);
+  putdim(help_ruler_str, 1, 'ruler  1st  end  Y - dimension', ruler_starty,
+    False, True, False, False);
   // negative ok, no preset, zero ok, don't terminate on zero.
-  putdim(help_ruler_str, 1, 'ruler  2nd  end  X - dimension', ruler_endx, False, True, False, False);
+  putdim(help_ruler_str, 1, 'ruler  2nd  end  X - dimension', ruler_endx, False,
+    True, False, False);
   // negative ok, no preset, zero ok, don't terminate on zero.
-  n := putdim(help_ruler_str, 1, 'ruler  2nd  end  Y - dimension', ruler_endy, False, True, False, False);
+  n := putdim(help_ruler_str, 1, 'ruler  2nd  end  Y - dimension', ruler_endy,
+    False, True, False, False);
   // negative ok, no preset, zero ok, don't terminate on zero.
 
   if n <> 3 then
@@ -22301,7 +22318,8 @@ var
   od: Toutdim;
 
 begin
-  n := putdim(help_ruler_div_str, 1, 'ruler  division  mark  spacing', ruler_div, True, True, True, False);
+  n := putdim(help_ruler_div_str, 1, 'ruler  division  mark  spacing', ruler_div,
+    True, True, True, False);
   // no negative, no preset, no zero, don't terminate on zero.
   if n <> 0 then
     EXIT;
@@ -22736,7 +22754,8 @@ begin
     (keeps_list.Count < 1) then
     EXIT;     // !!!
 
-  extend_to_boundary(clicked_keep_index, 600, True);   // in math2 unit  600 = at TOLP   True ignored
+  extend_to_boundary(clicked_keep_index, 600, True);
+  // in math2 unit  600 = at TOLP   True ignored
 
   clicked_keep_index := -1;    // so can popup again.
 
@@ -23378,8 +23397,8 @@ end;
 procedure Tpad_form.enable_f7_snap_popup_entryClick(Sender: TObject);
 
 begin
-  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or (clicked_keep_index >
-    (keeps_list.Count - 1)) then
+  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or
+    (clicked_keep_index > (keeps_list.Count - 1)) then
     EXIT;
 
   list_position := clicked_keep_index;
@@ -23398,8 +23417,8 @@ end;
 procedure Tpad_form.disable_f7_snap_popup_entryClick(Sender: TObject);
 
 begin
-  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or (clicked_keep_index >
-    (keeps_list.Count - 1)) then
+  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or
+    (clicked_keep_index > (keeps_list.Count - 1)) then
     EXIT;
 
   list_position := clicked_keep_index;
@@ -23649,7 +23668,8 @@ begin
 
   cancel_adjusts(False);
 
-  if (Shift = [ssShift]) and (panning_form.mouse_wheel_view_checkbox.Checked = False)   // zoom fast
+  if (Shift = [ssShift]) and (panning_form.mouse_wheel_view_checkbox.Checked = False)
+  // zoom fast
   then begin
     if panning_form.scroll_option_button.Checked = True then
       explode_shrink(screenx * normal_explode_jump, False, True)
@@ -23720,7 +23740,8 @@ begin
 
   cancel_adjusts(False);
 
-  if (Shift = [ssShift]) and (panning_form.mouse_wheel_view_checkbox.Checked = False)   // zoom fast
+  if (Shift = [ssShift]) and (panning_form.mouse_wheel_view_checkbox.Checked = False)
+  // zoom fast
   then begin
     if panning_form.scroll_option_button.Checked = False then
       explode_shrink(screenx * normal_explode_jump, False, True)
@@ -23746,7 +23767,8 @@ end;
 procedure Tpad_form.orientation_help_menu_entryClick(Sender: TObject);
 
 const
-  orientation_help_str: string = '    Page  Orientation`6' +
+  orientation_help_str: string =
+    '    Page  Orientation`6' +
     '||The `0end-run`1 option is the normal setting and corresponds to "landscape" (wide) page outlines on the trackpad (and "portrait" setting for text on the printer).' + ' This setting is recommended and will be found to be the most convenient in the majority of cases.' + '||The `0side-run`1 option corresponds to "portrait" (tall) page outlines on the trackpad (and "landscape" setting for text on the printer).' + '||`0Important: For banner printing on roll or z-fold paper, the end-run option is necessary.`3' + '||Note that in all cases the top of the printed page corresponds to the left edge of the page outline shown on the trackpad.';
 
 begin
@@ -23798,10 +23820,7 @@ procedure Tpad_form.f6_options_help_menu_entryClick(Sender: TObject);
 const
   f6_options_help_str: string = '`0    F6  Curving  Options`9' +
     '||These options apply when using the `0F6`2 mouse action to adjust the template curving radius.'
-    +
-    '||If the normal `0length fixed`1 menu option is in force, the length of the template will remain constant as the radius changes.'
-    + '||green_panel_begintree.gif The template length is measured along the curve, following the track centre-line.green_panel_end'
-    + '|If the `0swing angle fixed`1 menu option is in force, the length of the template will be adjusted as the radius changes so that the angle turned along the template remains constant.' + ' This is a useful option when adjusting a return curve where the main road is straight.' + '||If the `0swing angle fixed`1 menu option is in force, and the starting template is `0straight`3, the swing angle will be set to 1:7 RAM (8.13 degrees). This may cause a significant initial change in the template length.' + '||To set some other swing angle, click the `0geometry > swing angles (in degrees) ...`1 menu item after curving to the required radius.' + '||rp.gif The `0swing angle fixed`1 option applies only when adjusting a template of `0constant radius`3.' + ' When a `0transition curve`3 template is being adjusted, this option setting is ignored and the template length remains constant.' + '||rp.gif Care is needed if the `0swing angle fixed`1 option is applied when adjusting a template containing a `0slew`3, to ensure the result is as intended.' + '||To change the option in force click the `0action > F6 curving options >`z menu items.';
+    + '||If the normal `0length fixed`1 menu option is in force, the length of the template will remain constant as the radius changes.' + '||green_panel_begintree.gif The template length is measured along the curve, following the track centre-line.green_panel_end' + '|If the `0swing angle fixed`1 menu option is in force, the length of the template will be adjusted as the radius changes so that the angle turned along the template remains constant.' + ' This is a useful option when adjusting a return curve where the main road is straight.' + '||If the `0swing angle fixed`1 menu option is in force, and the starting template is `0straight`3, the swing angle will be set to 1:7 RAM (8.13 degrees). This may cause a significant initial change in the template length.' + '||To set some other swing angle, click the `0geometry > swing angles (in degrees) ...`1 menu item after curving to the required radius.' + '||rp.gif The `0swing angle fixed`1 option applies only when adjusting a template of `0constant radius`3.' + ' When a `0transition curve`3 template is being adjusted, this option setting is ignored and the template length remains constant.' + '||rp.gif Care is needed if the `0swing angle fixed`1 option is applied when adjusting a template containing a `0slew`3, to ensure the result is as intended.' + '||To change the option in force click the `0action > F6 curving options >`z menu items.';
 
 begin
   help(0, f6_options_help_str, '');   // 0.91.b
@@ -23815,8 +23834,9 @@ begin
     alert(6, '    adjust  V-Crossing  entry  straight',
       'Adjust V-Crossing entry straight.' +
       '||This mouse action applies only to turnout templates and irregular half-diamond templates.'
-      + '||The current control template is plain track.'
-      + '||For plain track use F4 to adjust the length, or F6 to adjust the curving radius.',
+      +
+      '||The current control template is plain track.' +
+      '||For plain track use F4 to adjust the length, or F6 to adjust the curving radius.',
       '', '', '', '', '', 'O K', 0);
     EXIT;
   end;
@@ -23825,8 +23845,9 @@ begin
     alert(6, '    adjust  V-crossing  entry  straight',
       'Adjust V-crossing entry straight.' +
       '||This mouse action applies only to turnout templates and irregular half-diamond templates.'
-      + '||The current control template is a regular half-diamond.'
-      + '||To maintain as a regular half-diamond, use F4 to adjust the length, or F5 to adjust the crossing angles, or F6 to adjust the curving radius.' + '||To change to an irregular half-diamond, use F9 to adjust only the V-crossing angle, or F10 to adjust only the K-crossing angle.',
+      +
+      '||The current control template is a regular half-diamond.' +
+      '||To maintain as a regular half-diamond, use F4 to adjust the length, or F5 to adjust the crossing angles, or F6 to adjust the curving radius.' + '||To change to an irregular half-diamond, use F9 to adjust only the V-crossing angle, or F10 to adjust only the K-crossing angle.',
       '', '', '', '', '', 'O K', 0);
     EXIT;
   end;
@@ -23834,10 +23855,10 @@ begin
   if xing_type_i <> 0 then begin
     alert(6, '    adjust  V-crossing  entry  straight',
       'Adjust V-crossing entry straight.' +
-      '||This mouse action applies only to `0regular`3 type|V-crossings.'
-      + '||The current V-crossing in the control template is not regular type.'
-      + '||To change the V-crossing type, click the `0real > V-crossing options >`z menu options,'
-      + ' or click the green indicator at the top left of the trackpad until it shows <SPAN STYLE="COLOR:GREEN;"><B>R</B></SPAN> .',
+      '||This mouse action applies only to `0regular`3 type|V-crossings.' +
+      '||The current V-crossing in the control template is not regular type.' +
+      '||To change the V-crossing type, click the `0real > V-crossing options >`z menu options,' +
+      ' or click the green indicator at the top left of the trackpad until it shows <SPAN STYLE="COLOR:GREEN;"><B>R</B></SPAN> .',
       '', '', '', '', '', 'O K', 0);
     EXIT;
   end;
@@ -23871,17 +23892,17 @@ begin
       str := ' |    •  plain track';
 
     alert(6, '    adjust  gaunt  offset',
-      str + '||The control template is not a turnout template.'
-      + '||Only a turnout can be gaunt.| ',
+      str + '||The control template is not a turnout template.' +
+      '||Only a turnout can be gaunt.| ',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
 
   if gaunt = False then begin
     i := alert(2, '    adjust  gaunt  offset',
-      ' |The control template is not a gaunt turnout.| ',
-      '', '', '', 'convert  to  a  gaunt  turnout  and  adjust  offset     ',
-      'cancel', 'more  information', 0);
+      ' |The control template is not a gaunt turnout.| ', '', '', '',
+      'convert  to  a  gaunt  turnout  and  adjust  offset     ', 'cancel',
+      'more  information', 0);
     if i = 5 then
       EXIT;
 
@@ -23919,17 +23940,17 @@ begin
       str := ' |    •  plain track';
 
     alert(6, '    adjust  gaunt  radius',
-      str + '||The control template is not a turnout template.'
-      + '||Only a turnout can be gaunt.| ',
+      str + '||The control template is not a turnout template.' +
+      '||Only a turnout can be gaunt.| ',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
 
   if gaunt = False then begin
     i := alert(2, '    adjust  gaunt  radius',
-      ' |The control template is not a gaunt turnout.| ',
-      '', '', '', 'convert  to  a  gaunt  turnout  and  adjust  radius     ',
-      'cancel', 'more  information', 0);
+      ' |The control template is not a gaunt turnout.| ', '', '', '',
+      'convert  to  a  gaunt  turnout  and  adjust  radius     ', 'cancel',
+      'more  information', 0);
     if i = 5 then
       EXIT;
 
@@ -24670,10 +24691,10 @@ procedure Tpad_form.hide_notch_menu_entryClick(Sender: TObject);
 
 begin
 
-  if alert(7, '    hide  notch', ' |The pegging notch is a very useful design aid.'
-    + '||Hiding it from view will make it difficult or impossible to use some functions.'
-    + '||Are you sure you want to hide the notch?| ',
-    '', '', '', '', 'no  -  cancel', 'yes  -  hide  notch', 0) = 5 then
+  if alert(7, '    hide  notch', ' |The pegging notch is a very useful design aid.' +
+    '||Hiding it from view will make it difficult or impossible to use some functions.' +
+    '||Are you sure you want to hide the notch?| ', '', '', '', '', 'no  -  cancel',
+    'yes  -  hide  notch', 0) = 5 then
     EXIT;
 
   hide_notch_menu_entry.Checked := True;  // radio item
@@ -24698,8 +24719,10 @@ begin
 
   if alert(7, '    adjacent  rails  option',
     'This option shows the rails of adjacent tracks for use as a design guide on the trackpad.'
-    + '||The adjacent track spacings are set at|`0GEOMETRY > ADJACENT TRACK CENTRES...`1 menu item.'
-    + '||The spacings can also be adjusted by mouse action at `0action > mouse actions: control/geometry > adjacent track centres`1 menu items.' + '||While this option is in force it will remove any platforms and/or trackbed edges from this template.' + '||They can be restored by clicking the `0GEOMETRY > ADJACENT OPTIONS > TRACKBED EDGES AND PLATFORMS`1 menu option.' + '||green_panel_begin tree.gif This option is for use as a design guide on the trackpad only. The adjacent rails do not appear on the output.' + '||If such design guides are needed on the output, dummy background templates can be used for the purpose.green_panel_end', '', '', '', '', 'cancel', 'show  adjacent  rails', 0) = 5 then
+    +
+    '||The adjacent track spacings are set at|`0GEOMETRY > ADJACENT TRACK CENTRES...`1 menu item.'
+    +
+    '||The spacings can also be adjusted by mouse action at `0action > mouse actions: control/geometry > adjacent track centres`1 menu items.' + '||While this option is in force it will remove any platforms and/or trackbed edges from this template.' + '||They can be restored by clicking the `0GEOMETRY > ADJACENT OPTIONS > TRACKBED EDGES AND PLATFORMS`1 menu option.' + '||green_panel_begin tree.gif This option is for use as a design guide on the trackpad only. The adjacent rails do not appear on the output.' + '||If such design guides are needed on the output, dummy background templates can be used for the purpose.green_panel_end', '', '', '', '', 'cancel', 'show  adjacent  rails', 0) = 5 then
     EXIT;
 
   trackbed_form.Hide;  // 215a
@@ -24831,26 +24854,26 @@ begin
 
   if half_diamond = True then begin
     alert(6, 'php/151    set  gaunt  turnout  radius',
-      'The control template is a half-diamond template.'
-      + '||This function applies only to gaunt turnout templates.',
+      'The control template is a half-diamond template.' +
+      '||This function applies only to gaunt turnout templates.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
 
   if spiral = True then begin
     alert(6, 'php/151    set  gaunt  turnout  radius',
-      'The control template contains a transition curve.'
-      + '||It is not possible to use this function on a transition curve template.',
+      'The control template contains a transition curve.' +
+      '||It is not possible to use this function on a transition curve template.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
 
   if xing_calc_i <> 1 then begin
     if alert(2, 'php/151    set  gaunt  turnout  radius',
-      'The V-crossing in the control template is not currently curviform.'
-      + '||This function is intended for use with curviform V-crossings only.'
-      + '||Change to curviform ?', '',
-      '', '', '', 'cancel', 'change  to  curviform  V - crossing', 0) = 5 then
+      'The V-crossing in the control template is not currently curviform.' +
+      '||This function is intended for use with curviform V-crossings only.' +
+      '||Change to curviform ?', '', '', '', '', 'cancel',
+      'change  to  curviform  V - crossing', 0) = 5 then
       EXIT;
 
     curviform_crossing_menu_entry.Click;
@@ -24860,8 +24883,7 @@ begin
 
   if gaunt = False then begin
     if alert(2, 'php/151    set  gaunt  turnout  radius',
-      'The control template is not currently a gaunt turnout.'
-      +
+      'The control template is not currently a gaunt turnout.' +
       '||Change to a gaunt turnout ?', '', '', '', '', 'cancel',
       'change  to  gaunt  turnout', 0) = 5 then
       EXIT;
@@ -24877,8 +24899,9 @@ begin
   old_dp := dpx - xorg;
   gaunt_rad := tradius;       // to gauge-face
 
-  n := putdim('php/151' + gaunt_radius_help_str, 1, 'gaunt  turnout  radius', tradius - g /
-    2, True, True, True, False);   // no negative, no preset, no zero, don't terminate on zero.
+  n := putdim('php/151' + gaunt_radius_help_str, 1, 'gaunt  turnout  radius',
+    tradius - g / 2, True, True, True, False);
+  // no negative, no preset, no zero, don't terminate on zero.
   if n <> 0 then
     EXIT;
   if getdims('gaunt  turnout  radius', '', pad_form, n, od) = False then
@@ -24935,7 +24958,8 @@ var
 
 begin
   n := putdim('php/151' + gaunt_sleeper_help_str, 2,
-    'gauntlet  sleeper  length  modifier  ( full-size )', gaunt_sleeper_mod_in, False, True, False, False);
+    'gauntlet  sleeper  length  modifier  ( full-size )', gaunt_sleeper_mod_in,
+    False, True, False, False);
   // negative ok, no preset, zero ok, don't terminate on zero.
   if n <> 0 then
     EXIT;
@@ -24949,7 +24973,8 @@ end;
 procedure Tpad_form.gaunt_help_menu_entryClick(Sender: TObject);
 
 begin
-  help(0, 'php/151' + gaunt_offset_help_str + '|' + gaunt_radius_help_str + '|' + gaunt_sleeper_help_str, '');
+  help(0, 'php/151' + gaunt_offset_help_str + '|' + gaunt_radius_help_str +
+    '|' + gaunt_sleeper_help_str, '');
 end;
 //______________________________________________________________________________
 
@@ -24970,8 +24995,8 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure Tpad_form.xing_indicator_panelContextPopup(Sender: TObject; MousePos: TPoint;
-  var Handled: Boolean);
+procedure Tpad_form.xing_indicator_panelContextPopup(Sender: TObject;
+  MousePos: TPoint; var Handled: Boolean);
 
 begin
   crossing_menu_entry.Click;
@@ -25025,7 +25050,8 @@ const
   vk_str: string = 'php/112    `0V - Crossing  Angle`9' +
     '||Enter the required V-crossing angle in RAM units.' +
     '||Do not enter the 1: part. For example to set the V-crossing angle to 1:8, simply enter 8.'
-    + '||For more information click the white bar below.';
+    +
+    '||For more information click the white bar below.';
 
 var
   n: integer;
@@ -25035,9 +25061,10 @@ var
 begin
   if plain_track = True then begin
     if alert(6, 'php/112    set  V - crossing  angle',
-      'V-crossings apply only to turnout and half-diamond templates.'
-      + '||The control template is currently plain track.'
-      + '||To work with turnout or half-diamond templates click the TEMPLATE > INSERT HALF-DIAMOND IN PLAIN TRACK menu item.', '', '', '', 'more  information', 'O K  -  cancel', '', 4) = 4 then
+      'V-crossings apply only to turnout and half-diamond templates.' +
+      '||The control template is currently plain track.' +
+      '||To work with turnout or half-diamond templates click the TEMPLATE > INSERT HALF-DIAMOND IN PLAIN TRACK menu item.',
+      '', '', '', 'more  information', 'O K  -  cancel', '', 4) = 4 then
       v_crossings_help_menu_entry.Click;
     EXIT;
   end;
@@ -25050,9 +25077,8 @@ begin
   if getdims('V - crossing  angle', v_xing_angle_help_str, pad_form, n, od) = True then begin
     if od[0] < (1.5 - minfp) then begin
       if alert(6, 'php/104    invalid  V - crossing  angle',
-        'The V-crossing angle cannot be less than 1 : 1.5  (RAM)',
-        '', '', '', '', 'cancel', 'change  angle  to  1 : 1.5  and  continue',
-        0) = 6 then
+        'The V-crossing angle cannot be less than 1 : 1.5  (RAM)', '',
+        '', '', '', 'cancel', 'change  angle  to  1 : 1.5  and  continue', 0) = 6 then
         k3n := 1.5
       else
         EXIT;
@@ -25081,7 +25107,8 @@ const
   hk_str: string = 'php/106    `0K - Crossing  Angle`9' +
     '||Enter the required K-crossing angle in RAM units.' +
     '||Do not enter the 1: part. For example to set the K-crossing angle to 1:8, simply enter 8.'
-    + '||For more information click the white bar below.';
+    +
+    '||For more information click the white bar below.';
 
 var
   n: integer;
@@ -25091,9 +25118,9 @@ var
 begin
   if plain_track = True then begin
     if alert(6, 'php/106    set  K - crossing  angle',
-      'K-crossings apply only to half-diamond templates.'
-      + '||The control template is currently plain track.'
-      + '||To work with half-diamond templates click the TEMPLATE > INSERT HALF-DIAMOND IN PLAIN TRACK menu item.',
+      'K-crossings apply only to half-diamond templates.' +
+      '||The control template is currently plain track.' +
+      '||To work with half-diamond templates click the TEMPLATE > INSERT HALF-DIAMOND IN PLAIN TRACK menu item.',
       '', '', '', 'more  information', 'O K  -  cancel', '', 4) = 4 then
       k_crossings_help_menu_entry.Click;
     EXIT;
@@ -25102,9 +25129,9 @@ begin
 
   if half_diamond = False then begin
     if alert(6, 'php/105    set  K - crossing  angle',
-      'K-crossings apply only to half-diamond templates.'
-      + '||The control template is currently a turnout template.'
-      + '||To work with half-diamond templates click the TEMPLATE > CONVERT TURNOUT TO HALF-DIAMOND menu item or the TOOLS > MAKE DIAMOND-CROSSING menu item.', '', '', '', 'more  information', 'O K  -  cancel', '', 4) = 4 then
+      'K-crossings apply only to half-diamond templates.' +
+      '||The control template is currently a turnout template.' +
+      '||To work with half-diamond templates click the TEMPLATE > CONVERT TURNOUT TO HALF-DIAMOND menu item or the TOOLS > MAKE DIAMOND-CROSSING menu item.', '', '', '', 'more  information', 'O K  -  cancel', '', 4) = 4 then
       k_crossings_help_menu_entry.Click;
     EXIT;
   end;
@@ -25117,9 +25144,8 @@ begin
   if getdims('K - crossing  angle', helpkck_gen_str, pad_form, n, od) = True then begin
     if od[0] < (1.5 - minfp) then begin
       if alert(6, 'php/104    invalid  K - crossing  angle',
-        'The K-crossing angle cannot be less than 1 : 1.5  (RAM)',
-        '', '', '', '', 'cancel', 'change  angle  to  1 : 1.5  and  continue',
-        0) = 6 then
+        'The K-crossing angle cannot be less than 1 : 1.5  (RAM)', '',
+        '', '', '', 'cancel', 'change  angle  to  1 : 1.5  and  continue', 0) = 6 then
         hdkn := 1.5
       else
         EXIT;
@@ -25160,9 +25186,9 @@ var
 begin
   if plain_track = True then begin
     if alert(6, '    set  K - crossing  diagonal  radius',
-      'K-crossings apply only to half-diamond templates.'
-      + '||The control template is currently plain track.'
-      + '||To work with half-diamond templates click the TEMPLATE > INSERT HALF-DIAMOND IN PLAIN TRACK menu item.',
+      'K-crossings apply only to half-diamond templates.' +
+      '||The control template is currently plain track.' +
+      '||To work with half-diamond templates click the TEMPLATE > INSERT HALF-DIAMOND IN PLAIN TRACK menu item.',
       '', '', '', 'more  information', 'O K  -  cancel', '', 4) = 4 then
       k_crossings_help_menu_entry.Click;
     EXIT;
@@ -25170,9 +25196,9 @@ begin
 
   if half_diamond = False then begin
     if alert(6, '    set  K - crossing  diagonal  radius',
-      'K-crossings apply only to half-diamond templates.'
-      + '||The control template is currently a turnout template.'
-      + '||To work with half-diamond templates click the TEMPLATE > CONVERT TURNOUT TO HALF-DIAMOND menu item or the TOOLS > MAKE DIAMOND-CROSSING menu item.', '', '', '', 'more  information', 'O K  -  cancel', '', 4) = 4 then
+      'K-crossings apply only to half-diamond templates.' +
+      '||The control template is currently a turnout template.' +
+      '||To work with half-diamond templates click the TEMPLATE > CONVERT TURNOUT TO HALF-DIAMOND menu item or the TOOLS > MAKE DIAMOND-CROSSING menu item.', '', '', '', 'more  information', 'O K  -  cancel', '', 4) = 4 then
       k_crossings_help_menu_entry.Click;
     EXIT;
   end;
@@ -25181,10 +25207,10 @@ begin
     repeat
       i := alert(6, '    set  K - crossing  diagonal  radius',
         'This function applies only to half-diamond templates having a curviform V-crossing.'
-        + '||The V-crossing in the control template is not currently set to curviform.'
-        + '||Do you want to change it to curviform ?',
-        '', '', '', 'more  information', 'no  -  cancel',
-        'yes  -  change  to  curviform  V - crossing', 4);
+        +
+        '||The V-crossing in the control template is not currently set to curviform.' +
+        '||Do you want to change it to curviform ?', '', '', '', 'more  information',
+        'no  -  cancel', 'yes  -  change  to  curviform  V - crossing', 4);
 
       if i = 4 then
         alert_help(0, helpkck_gen_str, '');
@@ -25548,7 +25574,8 @@ var
 begin
 
   if alert(7, '   make  a  trackpad  screenshot',
-    'This function makes an exact copy of the current trackpad screen, similar to using the Windows `0Print`2&nbsp;`0Screen`2 key.' + '||green_panel_begin tree.gif It is usually more useful to export an image file of your track plan, which will give much better image quality and allow control of the background colour and other details.' + '||To export an image file, cancel this and click the `0output&nbsp;>&nbsp;export&nbsp;a&nbsp;file ...`1 menu item instead.green_panel_end', '', '', '', 'make  screenshot  image', 'cancel', '', 0) = 5 then
+    'This function makes an exact copy of the current trackpad screen, similar to using the Windows `0Print`2&nbsp;`0Screen`2 key.' +
+    '||green_panel_begin tree.gif It is usually more useful to export an image file of your track plan, which will give much better image quality and allow control of the background colour and other details.' + '||To export an image file, cancel this and click the `0output&nbsp;>&nbsp;export&nbsp;a&nbsp;file ...`1 menu item instead.green_panel_end', '', '', '', 'make  screenshot  image', 'cancel', '', 0) = 5 then
     EXIT;
 
   file_name_str := remove_invalid_str('trackpad_screenshot' + FormatDateTime(
@@ -25608,8 +25635,8 @@ begin
         i := alert(2, '   screenshot  image  file  created',
           'The screenshot image file was created successfully:||`0' +
           file_str + '`f' +
-          '||Click <A HREF="alert_2.85a">view image in Templot</A> to see it.',
-          '', 'view  image  in  Templot', 'view  image  in  your  usual  image  viewer',
+          '||Click <A HREF="alert_2.85a">view image in Templot</A> to see it.', '',
+          'view  image  in  Templot', 'view  image  in  your  usual  image  viewer',
           'open  the  containing  folder', '', 'continue', 0);
 
         if i = 2 then
@@ -26079,16 +26106,15 @@ begin
 
   if half_diamond = True then begin
     alert(6, 'php/151    set  gaunt  radius  from  background  template',
-      'The control template is a half-diamond template.'
-      + '||This function applies only to gaunt turnout templates.',
+      'The control template is a half-diamond template.' +
+      '||This function applies only to gaunt turnout templates.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
 
   if Ttemplate(keeps_list.Objects[clicked_keep_index]).bgnd_spiral = True then begin
     alert(6, 'php/151    set  gaunt  radius  from  background  template',
-      'The selected background template contains a transition curve.'
-      +
+      'The selected background template contains a transition curve.' +
       '||It is not possible to set the gaunt radius from a transition curve template.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
@@ -26096,10 +26122,10 @@ begin
 
   if xing_calc_i <> 1 then begin
     if alert(2, 'php/151    set  gaunt  radius  from  background  template',
-      'The V-crossing in the control template is not currently curviform.'
-      + '||This function is intended for use with curviform V-crossings only.'
-      + '||Change to curviform ?', '',
-      '', '', '', 'cancel', 'change  to  curviform  V - crossing', 0) = 5 then
+      'The V-crossing in the control template is not currently curviform.' +
+      '||This function is intended for use with curviform V-crossings only.' +
+      '||Change to curviform ?', '', '', '', '', 'cancel',
+      'change  to  curviform  V - crossing', 0) = 5 then
       EXIT;
 
     curviform_crossing_menu_entry.Click;
@@ -26108,8 +26134,7 @@ begin
 
   if gaunt = False then begin
     if alert(2, 'php/151    set  gaunt  radius  from  background  template',
-      'The control template is not currently a gaunt turnout.'
-      +
+      'The control template is not currently a gaunt turnout.' +
       '||Change to a gaunt turnout ?', '', '', '', '', 'cancel',
       'change  to  gaunt  turnout', 0) = 5 then
       EXIT;
@@ -26216,8 +26241,7 @@ begin
 
   if Ttemplate(keeps_list.Objects[clicked_keep_index]).bgnd_spiral = True then begin
     alert(6, 'php/151    set  diagonal  radius  from  background  template',
-      'The selected background template contains a transition curve.'
-      +
+      'The selected background template contains a transition curve.' +
       '||It is not possible to set the diagonal-road radius from a transition curve template.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
@@ -26225,10 +26249,10 @@ begin
 
   if xing_calc_i <> 1 then begin
     if alert(2, 'php/151    set  diagonal  radius  from  background  template',
-      'The V-crossing in the control template is not currently curviform.'
-      + '||This function is intended for use with curviform V-crossings only.'
-      + '||Change to curviform ?', '',
-      '', '', '', 'cancel', 'change  to  curviform  V - crossing', 0) = 5 then
+      'The V-crossing in the control template is not currently curviform.' +
+      '||This function is intended for use with curviform V-crossings only.' +
+      '||Change to curviform ?', '', '', '', '', 'cancel',
+      'change  to  curviform  V - crossing', 0) = 5 then
       EXIT;
 
     curviform_crossing_menu_entry.Click;
@@ -26258,8 +26282,8 @@ begin
     gocalc(0, 0);
   except
     ShowMessage('Sorry, it is not possible to set the diagonal-road radius on this half-diamond template'
-      + ' to match the turnout-road radius on the background template.'
-      + #13 + #13 + 'Try starting with a different V-crossing angle.');
+      + ' to match the turnout-road radius on the background template.' +
+      #13 + #13 + 'Try starting with a different V-crossing angle.');
   end;//try
 
   clicked_keep_index := -1;    // so can popup again.
@@ -26355,7 +26379,8 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure Tpad_form.rebuild_group_to_match_cl_options_menu_entryClick(Sender: TObject);      // 214a
+procedure Tpad_form.rebuild_group_to_match_cl_options_menu_entryClick(Sender: TObject);
+// 214a
 
 var
   his_option: boolean;
@@ -26377,7 +26402,8 @@ begin
     EXIT;
 
   his_option := keep_form.centre_line_offset_options_as_stored_menu_entry.Checked;
-  keep_form.centre_line_offset_options_as_control_menu_entry.Checked := True;         // radio item.
+  keep_form.centre_line_offset_options_as_control_menu_entry.Checked := True;
+  // radio item.
 
   rebuild_group(True, True);
 
@@ -26427,7 +26453,8 @@ end;
 procedure Tpad_form.centre_line_option_custom_offet_menu_entryClick(Sender: TObject);
 
 const
-  help_custom_offset_str: string = 'php/180    `0centre-line  options  -  custom  offset`9' +
+  help_custom_offset_str: string =
+    'php/180    `0centre-line  options  -  custom  offset`9' +
     '||Enter a distance in millimetres to offset the main-road centre-line. This is sometimes useful as a design guide.'
     + '||The dimension should be positive for an offset to TS, and negative for an offset to MS.'
     + '||TS is "turnout-side", i.e. the same side as the hand of the template. MS is "main-side", i.e. the opposite side to the hand of the template.' + '||green_panel_begin tree.gif Changes to this dimension will take effect only while the `0geometry > centre-line options > custom`1 menu option is selected.green_panel_end';
@@ -26469,16 +26496,11 @@ begin
   with math_form do begin
     Caption := '    add  a  prefix  tag  to  all  template  names  in  group';
     big_label.Caption := insert_crlf_str('           Add  a  prefix  tag  to  template  names.'
-      +
-      '||You can add a prefix tag to the names of all the templates in the group by entering the required tag below.'
-      +
-      ' This will make it easier to sort templates in the storage box, and to recreate the same group at a later time.'
-      +
-      '||The tag can be any string of letters and numbers, but ideally should be kept as short as possible.'
-      +
-      ' For example, all the templates forming a second goods yard could be tagged: yard 2.'
-      +
-      '||The tag string will be enclosed in square brackets like this: [yard 2].|Do not enter the square brackets, they will be added automatically.' + '||You can repeat this process to add multiple tags, so that a template can be in more than one group, for example: [up loop] [yard 2].');
+      + '||You can add a prefix tag to the names of all the templates in the group by entering the required tag below.'
+      + ' This will make it easier to sort templates in the storage box, and to recreate the same group at a later time.'
+      + '||The tag can be any string of letters and numbers, but ideally should be kept as short as possible.'
+      + ' For example, all the templates forming a second goods yard could be tagged: yard 2.'
+      + '||The tag string will be enclosed in square brackets like this: [yard 2].|Do not enter the square brackets, they will be added automatically.' + '||You can repeat this process to add multiple tags, so that a template can be in more than one group, for example: [up loop] [yard 2].');
     math_editbox.Text := '';
 
     do_show_modal(math_form);     // 212a  ShowModal
@@ -26570,7 +26592,8 @@ begin
     normal_print_colours_popup_entry.Checked := True;   // radio items.
 
 
-  if Ttemplate(keeps_list.Objects[list_position]).template_info.keep_dims.box_dims1.disable_f7_snap = True then
+  if Ttemplate(keeps_list.Objects[list_position]).template_info.keep_dims.box_dims1.disable_f7_snap
+    = True then
     disable_f7_snap_popup_entry.Checked := True
   else
     enable_f7_snap_popup_entry.Checked := True;   // radio items.
@@ -26653,7 +26676,8 @@ begin
   snap_to_mminp_popup_entry.Enabled := (not bg_pt);
   snap_to_mexitp_popup_entry.Enabled := (not bg_pt);
 
-  bg_rp := Ttemplate(keeps_list.Objects[clicked_keep_index]).bgnd_retpar;        // parallel crossing
+  bg_rp := Ttemplate(keeps_list.Objects[clicked_keep_index]).bgnd_retpar;
+  // parallel crossing
 
   meet_at_ctrl0_popup_entry.Enabled := (not bg_hd);
   meet_at_ctrl6_popup_entry.Enabled := (not bg_pt);
@@ -26766,7 +26790,8 @@ begin
     Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1.use_pad_marker_colour;
 
   group_all_with_same_colour_popup_entry.Enabled :=
-    group_all_with_same_marker_colour_popup_entry.Enabled;  // duplicate popup entry in colour options
+    group_all_with_same_marker_colour_popup_entry.Enabled;
+  // duplicate popup entry in colour options
 
 end;
 //______________________________________________________________________________
@@ -26803,8 +26828,8 @@ procedure Tpad_form.add_this_tag_help_menu_entry_click(Sender: TObject);   // 20
 const
   str1: string = 'php/330    `0add  an  existing  prefix  tag`9||   <I>';
 
-  str2: string = '</I>||Click a tag listed on the sub-menu to add it to the above template.'
-    + '||The list shows all the prefix tags currently in use on your templates (except any tags already on this template).'
+  str2: string = '</I>||Click a tag listed on the sub-menu to add it to the above template.' +
+    '||The list shows all the prefix tags currently in use on your templates (except any tags already on this template).'
     + '||If you want to create and add a new prefix tag, click the|`0add a new prefix tag...`1 menu item, or click the button below.' + '||green_panel_begintree.gif If you want to edit the template tags directly,|click `0rename...`1 on the full menu.green_panel_end' + '|For more information about using prefix tags,|click `0more information online`1 above.';
 
 var
@@ -26863,8 +26888,8 @@ const
 
   str2: string = '</I>||Click a tag listed on the sub-menu to remove it from the above template.'
     + '||green_panel_begintree.gif If you want to edit the template tags directly,|click `0rename...`1 on the full menu,'
-    + '||or click the `0rename this template...`1 button below.green_panel_end'
-    + '|For more information about using prefix tags,|click `0more information online`1 above.';
+    + '||or click the `0rename this template...`1 button below.green_panel_end' +
+    '|For more information about using prefix tags,|click `0more information online`1 above.';
 
 var
   name_str: string;
@@ -26893,16 +26918,11 @@ begin
   with math_form do begin
     Caption := '    add  a  prefix  tag  to  this  template  name';
     big_label.Caption := insert_crlf_str('       Add  a  prefix  tag  to  this  template  name.'
-      +
-      '||You can add a prefix tag to the name of this template by entering the required tag below.'
-      +
-      ' This will make it easier to sort templates in the storage box, and to recreate the same group at a later time.'
-      +
-      '||The tag can be any string of letters and numbers, but ideally should be kept as short as possible.'
-      +
-      ' For example, all the templates forming a second goods yard could be tagged: yard 2.'
-      +
-      '||The tag string will be enclosed in square brackets like this: [yard 2].|Do not enter the square brackets, they will be added automatically.' + '||You can repeat this process to add multiple tags, so that a template can be in more than one group, for example: [up loop] [yard 2].');
+      + '||You can add a prefix tag to the name of this template by entering the required tag below.'
+      + ' This will make it easier to sort templates in the storage box, and to recreate the same group at a later time.'
+      + '||The tag can be any string of letters and numbers, but ideally should be kept as short as possible.'
+      + ' For example, all the templates forming a second goods yard could be tagged: yard 2.'
+      + '||The tag string will be enclosed in square brackets like this: [yard 2].|Do not enter the square brackets, they will be added automatically.' + '||You can repeat this process to add multiple tags, so that a template can be in more than one group, for example: [up loop] [yard 2].');
     math_editbox.Text := '';
 
     do_show_modal(math_form);     // 212a  ShowModal
@@ -27068,8 +27088,8 @@ procedure Tpad_form.output_preview_help_menu_entryClick(Sender: TObject);
 
 const
   help_preview_str: string = '     `0preview  options`9' +
-    '||These menu options control which features are shown on the output preview screen.'
-    + '||They have no effect on the actual output.' +
+    '||These menu options control which features are shown on the output preview screen.' +
+    '||They have no effect on the actual output.' +
     '||To control which features are included in the output, click the `0output > output drawing options > element options...`1 menu item,' + ' and also tick the option boxes for each page on the preview dialog - on the `0options`1 and `0picture shapes`1 tabs.' + '||To control the order in which these features are output, click the `0background > shapes`1 menu item, and tick the option boxes on the `0general options`1 tab.';
 
 begin
@@ -27121,8 +27141,8 @@ begin
       'rp.gif There is nothing to undo.' +
       '||No stored template has yet been deleted from the storage box and background drawing.'
       +
-      '||green_panel_begin tree.gif To undo changes to the control template,'
-      + '||click the `0do > undo changes`1 menu item,|or click the <img src="' +
+      '||green_panel_begin tree.gif To undo changes to the control template,' +
+      '||click the `0do > undo changes`1 menu item,|or click the <img src="' +
       Config.GetFilePath(csfiUndoChanges) + '"> button, or press `0CTRL+U`2.green_panel_end',
       '', '', '', '', '', 'continue', 0);
     EXIT;
@@ -27130,8 +27150,8 @@ begin
 
   if alert(2, '    undo  deleted  template',
     'You are about to restore the most recently deleted stored template back to the storage box and background drawing.'
-    + '||green_panel_begin tree.gif To undo changes to the control template,'
-    + '||click the `0do > undo changes`1 menu item,|or click the <img src="' +
+    + '||green_panel_begin tree.gif To undo changes to the control template,' +
+    '||click the `0do > undo changes`1 menu item,|or click the <img src="' +
     Config.GetFilePath(csfiUndoChanges) + '"> button, or press `0CTRL+U`2.green_panel_end',
     '', '', '', '', 'cancel  undo', 'undo  deleted  template', 0) = 5 then
     EXIT;
@@ -27175,8 +27195,7 @@ begin
   if turnoutx < (xorg + min_turnout_road_endx) then begin
     alert(6, '    CTRL+F12  adjust  turnout-road  exit',
       '    `0CTRL+F12`2  adjust turnout-road exit' +
-      '||The control template is not long enough to have any exit on the turnout road.'
-      +
+      '||The control template is not long enough to have any exit on the turnout road.' +
       '||If you wish to adjust the turnout-road exit length, first extend the overall length using the `0F4`2 mouse action.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
@@ -27210,8 +27229,7 @@ begin
 
   if plain_track = True then begin
     alert(6, '    adjust  main-road  exit',
-      '    adjust main-road exit' +
-      '||The control template is plain track.' +
+      '    adjust main-road exit' + '||The control template is plain track.' +
       '||This function is not meaningful for plain track.' +
       '||Instead you can use the `0F4`2 mouse action to adjust the overall length of the template.',
       '', '', '', '', 'cancel', '', 0);
@@ -27221,8 +27239,8 @@ begin
   if turnoutx < (xorg + min_main_road_endx) then begin
     alert(6, '    adjust  main-road  exit',
       '    adjust main-road exit' +
-      '||The control template is not long enough to have any exit on the main road.'
-      + '||If you wish to adjust the main-road exit length, first extend the overall length using the `0F4`2 mouse action.',
+      '||The control template is not long enough to have any exit on the main road.' +
+      '||If you wish to adjust the main-road exit length, first extend the overall length using the `0F4`2 mouse action.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
@@ -27398,12 +27416,12 @@ procedure Tpad_form.qb_other_mm_menu_entryClick(Sender: TObject);
 
 const
   help_qbx_mm_str: string = '     `0baseboard length in mm`9' +
-    '||Enter a dimension in millimetres for the length of the baseboard.'
-    + '||This is measured horizontally on the screen, from left to right.';
+    '||Enter a dimension in millimetres for the length of the baseboard.' +
+    '||This is measured horizontally on the screen, from left to right.';
 
   help_qby_mm_str: string = '     `0baseboard width in mm`9' +
-    '||Enter a dimension in millimetres for the width of the baseboard.'
-    + '||This is measured vertically on the screen, from bottom to top.';
+    '||Enter a dimension in millimetres for the width of the baseboard.' +
+    '||This is measured vertically on the screen, from bottom to top.';
 
 var
   n: integer;
@@ -27659,12 +27677,9 @@ var
       then begin
         i :=
           alert(7, 'reload  storage  box  from  dropped  file  -  save  first ?',
-          'Dropped file:'
-          +
-          '||`0' + her_file_name_str + '`f' +
-          '||Your storage box contains one or more templates which have not yet been saved.'
-          +
-          '||Reloading your storage box from the dropped file will replace all of the existing contents and the background track plan drawing.' + '||These templates can be restored by clicking the `0FILES > UNDO RELOAD / UNDO CLEAR`1 menu item.' + ' But if any of these templates may be needed again, you should save them in a named data file.' + '||Do you want to save the existing contents before reloading?' + '||Or add the new templates from the dropped file to the existing contents instead?', '', '', 'add  new  templates  to  existing', 'replace  existing  contents  without  saving', 'cancel  drop', 'save  existing  contents  before  reloading', 0);
+          'Dropped file:' + '||`0' + her_file_name_str +
+          '`f' + '||Your storage box contains one or more templates which have not yet been saved.'
+          + '||Reloading your storage box from the dropped file will replace all of the existing contents and the background track plan drawing.' + '||These templates can be restored by clicking the `0FILES > UNDO RELOAD / UNDO CLEAR`1 menu item.' + ' But if any of these templates may be needed again, you should save them in a named data file.' + '||Do you want to save the existing contents before reloading?' + '||Or add the new templates from the dropped file to the existing contents instead?', '', '', 'add  new  templates  to  existing', 'replace  existing  contents  without  saving', 'cancel  drop', 'save  existing  contents  before  reloading', 0);
         case i of
           3:
             append := True;
@@ -27678,11 +27693,8 @@ var
       else begin      //  it has been saved...
         i :=
           alert(7, 'reload  storage  box  from  dropped  file  -  clear  first ?',
-          'Dropped file:'
-          +
-          '||`0' + her_file_name_str + '`f' +
-          '||Your storage box contains one or more existing templates.'
-          +
+          'Dropped file:' + '||`0' + her_file_name_str +
+          '`f' + '||Your storage box contains one or more existing templates.' +
           '||Reloading your storage box from the dropped file will replace all of the existing contents and the background track plan drawing.' + '||These templates can be restored by clicking the `0FILES > UNDO RELOAD / UNDO CLEAR`1 menu item.' + '||Are you sure you want to replace the existing templates?' + '||Or add the new templates from the dropped file to the existing contents instead?', '', '', '', 'add  new  templates  to  existing', 'cancel  drop', 'replace  existing  contents', 0);
         case i of
           4:
@@ -27699,8 +27711,7 @@ var
         True  // hl= highest loaded index
       then begin
         if keeps_list.Count > 0 then begin
-          if append = False then
-          begin
+          if append = False then begin
             save_done := True;
             // box contents matches loaded file.
             keep_form.box_file_label.Caption :=
@@ -27709,8 +27720,7 @@ var
               keep_form.box_file_label.Caption;  // in case too long for caption
           end
           else begin
-            if keeps_list.Count > old_count
-            then begin
+            if keeps_list.Count > old_count then begin
               save_done := False;
               keep_form.box_file_label.Caption :=
                 ' last added from :  ' + dropped_file_name_str;
@@ -27725,9 +27735,9 @@ var
 
           if append = True then
             EXIT;
-          if (loaded_version < 93) and (hl > -1) and
-            (hl < keeps_list.Count) then
-            mint_final_or_copy_control(hl);   // if something loaded mint from highest bgnd if he so wants.
+          if (loaded_version < 93) and (hl > -1) and (hl < keeps_list.Count) then
+            mint_final_or_copy_control(hl);
+          // if something loaded mint from highest bgnd if he so wants.
           if (loaded_version > 92) then
             mint_final_or_copy_control(hl);
           // copy the control template if there is one in the file.
@@ -27805,7 +27815,8 @@ begin
         img_width, img_height) = True  // 291a
       then begin
         with bgshape.bgnd_shape do
-          p2.y := p1.y + (p2.x - p1.x) * img_height / img_width;      // adjust height to aspect ratio of loaded image
+          p2.y := p1.y + (p2.x - p1.x) * img_height / img_width;
+        // adjust height to aspect ratio of loaded image
         succesful := True;
       end
       else
@@ -27866,8 +27877,9 @@ procedure Tpad_form.expert_picture_help_menu_entryClick(Sender: TObject);
 const
   str: string = 'php/401      `0Background  Images`9' +
     '||Background images can be displayed on the trackpad. They are called `0picture shapes`3.'
-    + '||The usual reason for doing that is to use them as a guide to Templot0 track planning.'
-    + '|||Images which you have scanned from sketches, maps, and model track plans can be scaled (re-sized) automatically to match your model scale.' + '||For full explanations and options click `0add your own map or background image ...`1 menu item.' + '|||Maps and aerial images can also be captured as screenshots from many web sites. In many cases Templot0 can make the screenshot for you, and scale (re-size) it automatically to match your model scale.' + '||For more about this, click the `0background > maps`1 menu item, or click the `0read about maps on Templot0 Companion`z button below.' + '|||Templot0 can also load some types of map directly from the web without making screenshots, and scale (re-size) them automatically to match your model scale.' + ' These maps are comprised of multiple small picture shapes, each one containing a map "tile".' + '||Unlike screenshots, such tiled maps are not limited by the size of your computer screen. The map area can be easily enlarged by adding additional rows or columns of tiles, to any size.' + '||For more details click the `0background > maps`1 menu item, or click the `0read about maps on Templot0 Companion`z button below.' + '||||Alternatively if you know what you are doing, click `0add a picture shape quick ... (expert)`1 menu item.| ';
+    +
+    '||The usual reason for doing that is to use them as a guide to Templot0 track planning.' +
+    '|||Images which you have scanned from sketches, maps, and model track plans can be scaled (re-sized) automatically to match your model scale.' + '||For full explanations and options click `0add your own map or background image ...`1 menu item.' + '|||Maps and aerial images can also be captured as screenshots from many web sites. In many cases Templot0 can make the screenshot for you, and scale (re-size) it automatically to match your model scale.' + '||For more about this, click the `0background > maps`1 menu item, or click the `0read about maps on Templot0 Companion`z button below.' + '|||Templot0 can also load some types of map directly from the web without making screenshots, and scale (re-size) them automatically to match your model scale.' + ' These maps are comprised of multiple small picture shapes, each one containing a map "tile".' + '||Unlike screenshots, such tiled maps are not limited by the size of your computer screen. The map area can be easily enlarged by adding additional rows or columns of tiles, to any size.' + '||For more details click the `0background > maps`1 menu item, or click the `0read about maps on Templot0 Companion`z button below.' + '||||Alternatively if you know what you are doing, click `0add a picture shape quick ... (expert)`1 menu item.| ';
 
 begin
   if help(0, str, 'read  about  maps  on  Templot0  Companion') = 1 then
@@ -28011,8 +28023,8 @@ procedure Tpad_form.scaling_help_staticClick(Sender: TObject);
 
 const
   str: string = 'php/995    `0Change  Program  Size`9' +
-    '||Program size means the size of Templot0''s dialog windows, buttons, text, etc.'
-    + '||Using the vertical slider the program size can be changed to be more comfortable on your screen, for example on tablet computers or on wide-screen monitors.' + '||The program size setting has no effect on track design.' + '||The available sizes are:' + '||<i>smallest - smaller - small - medium - large - larger - largest</i>' + '||The actual sizes these represent will be determined by your current Windows screen settings.' + '||If you are currently using the <i>medium</i> size, the change to any other size will take place immediately when you click the `0change`1 button.' + '||Otherwise the change will take place after you next quit and restart Templot0. Remember to save your work first.';
+    '||Program size means the size of Templot0''s dialog windows, buttons, text, etc.' +
+    '||Using the vertical slider the program size can be changed to be more comfortable on your screen, for example on tablet computers or on wide-screen monitors.' + '||The program size setting has no effect on track design.' + '||The available sizes are:' + '||<i>smallest - smaller - small - medium - large - larger - largest</i>' + '||The actual sizes these represent will be determined by your current Windows screen settings.' + '||If you are currently using the <i>medium</i> size, the change to any other size will take place immediately when you click the `0change`1 button.' + '||Otherwise the change will take place after you next quit and restart Templot0. Remember to save your work first.';
 
 begin
   scaling_labels_panel.Visible := True;
@@ -28134,8 +28146,8 @@ begin
   if scaling_done_at_least_once = False then begin      // immediate
 
     i := alert(2, 'php/995     change  program  size to  ' + str + ' ?',
-      'Program size means the size of Templot0''s dialog windows, buttons, text, etc.'
-      + '||The program size can be changed to be more comfortable on your screen, for example on tablet computers or on wide-screen monitors.' + '||The program size setting has no effect on track design.' + '||The available sizes are:' + '||<i>smallest - smaller - small - medium - large - larger - largest</i>' + '||The actual sizes these represent will be determined by your current Windows screen settings.' + '||The current program size is `0' + prev_str + '`3.' + '||The program size will be changed to `0' + str + '`3 when you click `0yes`1 below. Changing back to any other size afterwards will require you to quit and restart Templot0.' + '||Change  program  size to  `0' + str + '`3 ?', '', '', '', '', 'no  -  cancel', 'yes', 0);
+      'Program size means the size of Templot0''s dialog windows, buttons, text, etc.' +
+      '||The program size can be changed to be more comfortable on your screen, for example on tablet computers or on wide-screen monitors.' + '||The program size setting has no effect on track design.' + '||The available sizes are:' + '||<i>smallest - smaller - small - medium - large - larger - largest</i>' + '||The actual sizes these represent will be determined by your current Windows screen settings.' + '||The current program size is `0' + prev_str + '`3.' + '||The program size will be changed to `0' + str + '`3 when you click `0yes`1 below. Changing back to any other size afterwards will require you to quit and restart Templot0.' + '||Change  program  size to  `0' + str + '`3 ?', '', '', '', '', 'no  -  cancel', 'yes', 0);
 
     if i = 5 then begin
       current_scaling_position := old_scaling_position;
@@ -28152,8 +28164,8 @@ begin
 
 
     i := alert(2, 'php/995     change  program  size to  ' + str + ' ?',
-      'Program size means the size of Templot0''s dialog windows, buttons, text, etc.'
-      + '||The program size can be changed to be more comfortable on your screen, for example on tablet computers or on wide-screen monitors.' + '||The program size setting has no effect on track design.' + '||The available sizes are:' + '||<i>smallest - smaller - small - medium - large - larger - largest</i>' + '||The actual sizes these represent will be determined by your current Windows screen settings.' + '||The current program size is `0' + prev_str + '`3.' + '||The program size will be changed to `0' + str + '`3 after you next quit and restart Templot0. Remember to save your work first.' + '||Change  program  size to  `0' + str + '`3 ?', '', '', '', 'yes  -  quit  now', 'no  -  cancel', 'yes  next  time  -  continue  unchanged  for  now', 0);
+      'Program size means the size of Templot0''s dialog windows, buttons, text, etc.' +
+      '||The program size can be changed to be more comfortable on your screen, for example on tablet computers or on wide-screen monitors.' + '||The program size setting has no effect on track design.' + '||The available sizes are:' + '||<i>smallest - smaller - small - medium - large - larger - largest</i>' + '||The actual sizes these represent will be determined by your current Windows screen settings.' + '||The current program size is `0' + prev_str + '`3.' + '||The program size will be changed to `0' + str + '`3 after you next quit and restart Templot0. Remember to save your work first.' + '||Change  program  size to  `0' + str + '`3 ?', '', '', '', 'yes  -  quit  now', 'no  -  cancel', 'yes  next  time  -  continue  unchanged  for  now', 0);
 
     if i = 5 then begin
       current_scaling_position := old_scaling_position;
@@ -28216,11 +28228,10 @@ begin
   Application.ProcessMessages;
 
   alert(2, '   show  sketchboard  items  on  trackpad',
-    'To show items from the sketchboard on the trackpad background:'
-    + '||1. start the sketchboard with your current trackplan, if not already.'
-    + '||2. add some items.' +
-    '||3. tick the `0show items on trackpad`1 box (top left):' + '||<IMG SRC="' +
-    Config.GetFilePath(csfiSBshowItems) + '">' +
+    'To show items from the sketchboard on the trackpad background:' +
+    '||1. start the sketchboard with your current trackplan, if not already.' +
+    '||2. add some items.' + '||3. tick the `0show items on trackpad`1 box (top left):' +
+    '||<IMG SRC="' + Config.GetFilePath(csfiSBshowItems) + '">' +
     '||4. click the `0file > hide sketchboard`1 menu item on the sketchboard, or click the usual <SPAN STYLE="COLOR:WHITE; FONT-WEIGHT:BOLD; BACKGROUND-COLOR:RED;">&nbsp;X&nbsp;</SPAN> close button, to hide the sketchboard and return to the trackpad.',
     '', '', '', '', '', 'continue', 0);
 
@@ -28334,7 +28345,8 @@ procedure Tpad_form.make_slip_help_menu_entryClick(Sender: TObject);
 const
   slip_help_str: string = 'php/115    `0make  slip`9' +
     '||This function will create a collection of background templates comprising a slip formation.'
-    + '||Start with a turnout or half-diamond in the control template, of the required crossing angle, and in the location where you want the slip. It can be straight, curved or on a transition curve.' + '||For a single slip it is convenient to start with a turnout, so that you can easily see whether you want a slip of the same hand (same side) or opposite hand.' + '||If starting with a half-diamond do not create the full diamond-crossing, this function will do that. Otherwise you will get duplicated templates. If the other half-diamond already exists, delete it before making the slip.' + '||For a single-slip there will be 5 templates. For a double-slip there will be 8 templates. The templates will be given a unique prefix tag, so that you can easily select them as a group if you need to move the entire slip, or to delete it.' + ' To do that, click the `0group > create smaller group > group by prefix tag >`1 menu item.' + '||green_panel_begin tree.gif  After the slip has been created, it is likely that you will want to delete one of the half-diamonds to the control template, so that you can continue your track planning.' + '||After storing it again, be sure to move it above the slip roads and switches in the storage box, so that the slip switches are drawn correctly in the output.' + '||You can do that for all the half-diamonds in the storage box by clicking the `0box > sort half-diamonds to first (back)`1 menu item on the storage box.' + '||For more about the `0tools > make slip`1 function please ask on the <A HREF="go_to_templot_club.85a"><U>Templot&nbsp;Club</U></A> user forum.green_panel_end' + '|rp.gif If the starting template is on a transition curve, Templot0 will do its best to create the slip on the transition, using fixed arcs for the slip roads. That will be satisfactory in the majority of cases,' + ' but if the transition is severe the slip roads may not align well with the slip switches.||You will then want to replace the slip roads with transition curves, using the `0make transition`1 function.' + ' Templot0 can''t do that for you because it requires a human eyeball to arrive at the optimum alignment.' + '||A slip on a transition curve isn''t prototypical, but sometimes model space constraints leave no choice.';
+    +
+    '||Start with a turnout or half-diamond in the control template, of the required crossing angle, and in the location where you want the slip. It can be straight, curved or on a transition curve.' + '||For a single slip it is convenient to start with a turnout, so that you can easily see whether you want a slip of the same hand (same side) or opposite hand.' + '||If starting with a half-diamond do not create the full diamond-crossing, this function will do that. Otherwise you will get duplicated templates. If the other half-diamond already exists, delete it before making the slip.' + '||For a single-slip there will be 5 templates. For a double-slip there will be 8 templates. The templates will be given a unique prefix tag, so that you can easily select them as a group if you need to move the entire slip, or to delete it.' + ' To do that, click the `0group > create smaller group > group by prefix tag >`1 menu item.' + '||green_panel_begin tree.gif  After the slip has been created, it is likely that you will want to delete one of the half-diamonds to the control template, so that you can continue your track planning.' + '||After storing it again, be sure to move it above the slip roads and switches in the storage box, so that the slip switches are drawn correctly in the output.' + '||You can do that for all the half-diamonds in the storage box by clicking the `0box > sort half-diamonds to first (back)`1 menu item on the storage box.' + '||For more about the `0tools > make slip`1 function please ask on the <A HREF="go_to_templot_club.85a"><U>Templot&nbsp;Club</U></A> user forum.green_panel_end' + '|rp.gif If the starting template is on a transition curve, Templot0 will do its best to create the slip on the transition, using fixed arcs for the slip roads. That will be satisfactory in the majority of cases,' + ' but if the transition is severe the slip roads may not align well with the slip switches.||You will then want to replace the slip roads with transition curves, using the `0make transition`1 function.' + ' Templot0 can''t do that for you because it requires a human eyeball to arrive at the optimum alignment.' + '||A slip on a transition curve isn''t prototypical, but sometimes model space constraints leave no choice.';
 
 begin
   help(0, slip_help_str, '');
@@ -28395,16 +28407,16 @@ begin
 
   with math_form do begin
     Caption := '    template  reminder  message ...';
-    big_label.Caption := insert_crlf_str('      Add  Reminder  Message'
-      + '||Enter below a reminder message for the selected template.'
-      +
+    big_label.Caption := insert_crlf_str('      Add  Reminder  Message' +
+      '||Enter below a reminder message for the selected template.' +
       '||This will appear in one of the the reminder boxes on the right of the screen. Click on the reminder box to zoom the trackpad to the relevant template. Right-click on the box for options.' + ' Hover the mouse over the box to see the full message if it does not fit in the box. To hide the reminders click the trackpad > hide reminders menu item ( CTRL+/ ).' + '||Only the first 5 reminders found in the storage box list of background templates will be shown in the boxes. Any remaining reminder templates will be shown with a coloured marker only,' + ' and shown in the boxes when one or more of the first 5 reminders are removed.' + '||If a stored template is deleted to the control template, its reminder will be discarded, but can be seen for later reference on the jotter.' + '||Reminder messages are limited to 200 characters maximum and' + '|are saved in the template data file between working sessions.');
     math_editbox.Text := '';
 
     do_show_modal(math_form);    // 212a
 
     if ModalResult = mrOk then begin
-      with Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1.align_info do begin
+      with Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1.align_info do
+      begin
 
         reminder_str := Trim(math_editbox.Text);
         reminder_flag := (Trim(math_editbox.Text) <> '');
@@ -28442,19 +28454,18 @@ begin
 
   with math_form do begin
     Caption := '    template  reminder  message ...';
-    big_label.Caption := insert_crlf_str('||      Edit  Reminder  Message'
-      +
-      '|||You can edit below the current reminder message for the selected template.'
-      +
-      '||If you leave the reminder message blank, the reminder will be removed.'
-      + '||Reminder messages are limited to 200 characters maximum.');
+    big_label.Caption := insert_crlf_str('||      Edit  Reminder  Message' +
+      '|||You can edit below the current reminder message for the selected template.' +
+      '||If you leave the reminder message blank, the reminder will be removed.' +
+      '||Reminder messages are limited to 200 characters maximum.');
 
     math_editbox.Text := Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1.align_info.reminder_str;
 
     do_show_modal(math_form);    // 212a
 
     if ModalResult = mrOk then begin
-      with Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1.align_info do begin
+      with Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1.align_info do
+      begin
 
         reminder_str := Trim(math_editbox.Text);
         reminder_flag := (Trim(math_editbox.Text) <> '');
@@ -28645,11 +28656,11 @@ end;
 procedure Tpad_form.f9_options_help_menu_entryClick(Sender: TObject);
 
 const
-  f9_help_str: string = '  `0F9 mouse  action  -  adjust  V-crossing  angle`9||  `0Options`9'
-    + '||The `0keep gaunt radius fixed`1 option applies only for gaunt turnouts having a curviform V-crossing.'
-    + '||This option is not available for transition curve templates.'
-    + '||Changing the gaunt turnout radius will modify the gaunt offset.'
-    + '||When this option is not available, the `0keep gaunt offset fixed`1 option applies.';
+  f9_help_str: string = '  `0F9 mouse  action  -  adjust  V-crossing  angle`9||  `0Options`9' +
+    '||The `0keep gaunt radius fixed`1 option applies only for gaunt turnouts having a curviform V-crossing.'
+    + '||This option is not available for transition curve templates.' +
+    '||Changing the gaunt turnout radius will modify the gaunt offset.' +
+    '||When this option is not available, the `0keep gaunt offset fixed`1 option applies.';
 
 begin
   help(0, f9_help_str, '');
@@ -28764,9 +28775,11 @@ begin
 
   if plain_track = True then begin
     alert(6, '    make  tandem  -  plain  track',
-      'Sorry, this function is not available because the control template is plain track.'
-      + '||This function requires a turnout as its starting point to create a tandem turnout.'
-      + '||You must first change to a turnout template, by clicking the `0TEMPLATE > INSERT TURNOUT IN PLAIN TRACK`1 menu item.' + '||And then setting the hand and facing/trailing direction as required.',
+      'Sorry, this function is not available because the control template is plain track.' +
+      '||This function requires a turnout as its starting point to create a tandem turnout.' +
+      '||You must first change to a turnout template, by clicking the `0TEMPLATE > INSERT TURNOUT IN PLAIN TRACK`1 menu item.'
+      +
+      '||And then setting the hand and facing/trailing direction as required.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
@@ -28774,8 +28787,9 @@ begin
   if half_diamond = True then begin
     alert(6, '    make  tandem  -  half - diamond',
       'Sorry, this function is not available because the control template is a half-diamond.'
-      + '||This function requires a turnout as its starting point to create a tandem turnout.'
-      + '||You must first change to a turnout template, by clicking the `0TEMPLATE > CONVERT HALF-DIAMOND TO TURNOUT`1 menu item.',
+      +
+      '||This function requires a turnout as its starting point to create a tandem turnout.' +
+      '||You must first change to a turnout template, by clicking the `0TEMPLATE > CONVERT HALF-DIAMOND TO TURNOUT`1 menu item.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
@@ -28790,8 +28804,8 @@ begin
 
   if slewing = True then begin
     alert(6, '    make  tandem  -  slewed  track',
-      'Sorry, this function is not available because the control template contains a slew.'
-      + '||A tandem could be created manually, but it is generally unwise to create a tandem turnout if any part of it will be within a slewing zone.' + '||The slewing function is intended primarily for plain track.',
+      'Sorry, this function is not available because the control template contains a slew.' +
+      '||A tandem could be created manually, but it is generally unwise to create a tandem turnout if any part of it will be within a slewing zone.' + '||The slewing function is intended primarily for plain track.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
@@ -28813,8 +28827,7 @@ begin
   end;
 
   if k3n < 5.95 then begin
-    if alert(3, '    make  tandem  -  short  turnout',
-      'The starting turnout is very short.' +
+    if alert(3, '    make  tandem  -  short  turnout', 'The starting turnout is very short.' +
       '||If you continue, the created tandem turnout is likely to include a sharp radius.',
       '', '', '', '', 'cancel', 'continue', 0) = 5 then
       EXIT;
@@ -28924,9 +28937,11 @@ begin
 
   if plain_track = True then begin
     alert(6, '    make  tandem  -  plain  track',
-      'Sorry, this function is not available because the control template is plain track.'
-      + '||This function requires a turnout as its starting point to create a tandem turnout.'
-      + '||You must first change to a turnout template, by clicking the `0TEMPLATE > INSERT TURNOUT IN PLAIN TRACK`1 menu item.' + '||And then setting the hand and facing/trailing direction as required.',
+      'Sorry, this function is not available because the control template is plain track.' +
+      '||This function requires a turnout as its starting point to create a tandem turnout.' +
+      '||You must first change to a turnout template, by clicking the `0TEMPLATE > INSERT TURNOUT IN PLAIN TRACK`1 menu item.'
+      +
+      '||And then setting the hand and facing/trailing direction as required.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
@@ -28934,8 +28949,9 @@ begin
   if half_diamond = True then begin
     alert(6, '    make  tandem  -  half - diamond',
       'Sorry, this function is not available because the control template is a half-diamond.'
-      + '||This function requires a turnout as its starting point to create a tandem turnout.'
-      + '||You must first change to a turnout template, by clicking the `0TEMPLATE > CONVERT HALF-DIAMOND TO TURNOUT`1 menu item.',
+      +
+      '||This function requires a turnout as its starting point to create a tandem turnout.' +
+      '||You must first change to a turnout template, by clicking the `0TEMPLATE > CONVERT HALF-DIAMOND TO TURNOUT`1 menu item.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
@@ -28950,8 +28966,8 @@ begin
 
   if slewing = True then begin
     alert(6, '    make  tandem  -  slewed  track',
-      'Sorry, this function is not available because the control template contains a slew.'
-      + '||A tandem could be created manually, but it is generally unwise to create a tandem turnout if any part of it will be within a slewing zone.' + '||The slewing function is intended primarily for plain track.',
+      'Sorry, this function is not available because the control template contains a slew.' +
+      '||A tandem could be created manually, but it is generally unwise to create a tandem turnout if any part of it will be within a slewing zone.' + '||The slewing function is intended primarily for plain track.',
       '', '', '', '', 'cancel', '', 0);
     EXIT;
   end;
