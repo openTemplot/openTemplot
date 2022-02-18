@@ -732,7 +732,7 @@ var
   park_name_str: array[0..2] of string;        // template names in parking bay.
   park_memo_str: array[0..2] of string;        // template memo notes in parking bay.
 
-  current_diff_code: integer = 0;  // 0.94.a check rails ...
+  current_diff_code: EmarkCode = eMC_0_Ignore;  // 0.94.a check rails ...
   null_diff: Tcheck_end_diff;    // used for errors
   mouse_diff: Tcheck_end_diff;   // current diff for mouse action
 
@@ -1221,9 +1221,9 @@ procedure debug(str: string; abc: double); // 0.93.a
 
 function make_curviform_ladder: boolean; // 0.93.a
 
-function get_checkrail_diff(code: integer): Tcheck_end_diff;    // 0.94.a
+function get_checkrail_diff(code: EmarkCode): Tcheck_end_diff;    // 0.94.a
 
-procedure set_checkrail_diff(code: integer; this_diff: Tcheck_end_diff); // 0.94.a
+procedure set_checkrail_diff(code: EmarkCode; this_diff: Tcheck_end_diff); // 0.94.a
 
 procedure draw_dummy_vehicle_on_control_template(on_canvas: TCanvas);   // 0.98.a
 
@@ -2140,7 +2140,7 @@ begin
 end;
 //______________________________________________________________________________
 
-function get_checkrail_diff(code: integer): Tcheck_end_diff;    // 0.94.a
+function get_checkrail_diff(code: EmarkCode): Tcheck_end_diff;    // 0.94.a
 
 begin
   with null_diff do begin   // return for invalid code
@@ -2154,21 +2154,21 @@ begin
 
   case code of
 
-    501:
+    eMC_501_MSWorkingEnd:
       Result := ccd.end_diff_mw;
-    502:
+    eMC_502_MSExtensionEnd:
       Result := ccd.end_diff_me;
-    503:
+    eMC_503_MSWingRail:
       Result := ccd.end_diff_mr;
-    504:
+    eMC_504_TSWorkingEnd:
       Result := ccd.end_diff_tw;
-    505:
+    eMC_505_TSExtensionEnd:
       Result := ccd.end_diff_te;
-    506:
+    eMC_506_TSWingRail:
       Result := ccd.end_diff_tr;
-    507:
+    eMC_507_MSKCheckRail:
       Result := ccd.end_diff_mk;
-    508:
+    eMC_508_DSWingRail:
       Result := ccd.end_diff_dk;
 
     else
@@ -2178,27 +2178,27 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure set_checkrail_diff(code: integer; this_diff: Tcheck_end_diff);
+procedure set_checkrail_diff(code: EmarkCode; this_diff: Tcheck_end_diff);
 
 begin
 
   case code of
 
-    501:
+    eMC_501_MSWorkingEnd:
       ccd.end_diff_mw := this_diff;
-    502:
+    eMC_502_MSExtensionEnd:
       ccd.end_diff_me := this_diff;
-    503:
+    eMC_503_MSWingRail:
       ccd.end_diff_mr := this_diff;
-    504:
+    eMC_504_TSWorkingEnd:
       ccd.end_diff_tw := this_diff;
-    505:
+    eMC_505_TSExtensionEnd:
       ccd.end_diff_te := this_diff;
-    506:
+    eMC_506_TSWingRail:
       ccd.end_diff_tr := this_diff;
-    507:
+    eMC_507_MSKCheckRail:
       ccd.end_diff_mk := this_diff;
-    508:
+    eMC_508_DSWingRail:
       ccd.end_diff_dk := this_diff;
 
   end;//case
@@ -3667,14 +3667,16 @@ begin
 
   case current_diff_code of
 
-    501: begin                     //MS1 MS working len
+    eMC_501_MSWorkingEnd:
+    begin                     //MS1 MS working len
       current_diffed_len := check_ms_wklen * inscale;
       current_diffed_fl_len := flen_mw;
       current_diffed_end_gap := fw_end + ccd.end_diff_mw.gap_diff;
       num_str := 'MS1';
     end;
 
-    502: begin                     //MS2 MS ext len
+    eMC_502_MSExtensionEnd:
+    begin                     //MS2 MS ext len
       current_diffed_len := check_ms_extlen * inscale;
       ;
       current_diffed_fl_len := flen_me;
@@ -3682,7 +3684,8 @@ begin
       num_str := 'MS2';
     end;
 
-    503: begin                     //MS3 MS wing reach
+    eMC_503_MSWingRail:
+    begin                     //MS3 MS wing reach
       current_diffed_len := wgl_ms_len * inscale;
       ;
       current_diffed_fl_len := flen_mr;
@@ -3690,7 +3693,8 @@ begin
       num_str := 'MS3';
     end;
 
-    504: begin                     //TS1 TS working len
+    eMC_504_TSWorkingEnd:
+    begin                     //TS1 TS working len
       current_diffed_len := check_ts_wklen * inscale;
       ;
       current_diffed_fl_len := flen_tw;
@@ -3701,7 +3705,8 @@ begin
         num_str := 'TS1';
     end;
 
-    505: begin                     //TS2 TS ext len
+    eMC_505_TSExtensionEnd:
+    begin                     //TS2 TS ext len
       current_diffed_len := check_ts_extlen * inscale;
       ;
       current_diffed_fl_len := flen_te;
@@ -3712,7 +3717,8 @@ begin
         num_str := 'TS2';
     end;
 
-    506: begin                     //TS3 TS wing reach
+    eMC_506_TSWingRail:
+    begin                     //TS3 TS wing reach
       current_diffed_len := wgl_ts_len * inscale;
       ;
       current_diffed_fl_len := flen_tr;
@@ -3723,7 +3729,8 @@ begin
         num_str := 'TS3';
     end;
 
-    507: begin                     //MS4 MS K check len
+    eMC_507_MSKCheckRail:
+    begin                     //MS4 MS K check len
       current_diffed_len := kckl_mk;
       current_diffed_fl_len := flen_mk;
       current_diffed_end_gap := fw_end + ccd.end_diff_mk.gap_diff;
@@ -3731,7 +3738,8 @@ begin
         num_str := 'MS4';
     end;
 
-    508: begin                     //DS4 DS K check len
+    eMC_508_DSWingRail:
+    begin                     //DS4 DS K check len
       current_diffed_len := kckl_dk;
       current_diffed_fl_len := flen_dk;
       current_diffed_end_gap := fw_end + ccd.end_diff_dk.gap_diff;
@@ -3753,7 +3761,7 @@ var
 
   this_diff: Tcheck_end_diff;
 
-  code, code_max: integer;
+  code, code_max: EmarkCode;
 
 begin
   if check_diffs_form.Showing = True then begin
@@ -3824,11 +3832,12 @@ begin
 
 
       if half_diamond = True then
-        code_max := 508
+        code_max := eMC_508_DSWingRail
       else
-        code_max := 506;
+        code_max := eMC_506_TSWingRail;
 
-      for code := 501 to code_max do begin
+      for code := eMC_501_MSWorkingEnd to code_max do
+      begin
 
         this_diff := get_checkrail_diff(code);
 
@@ -16879,7 +16888,8 @@ begin
       mouse_check_len_mm_now := mouse_diff.len_diff * inscale;
 
       case current_diff_code of
-        501, 504:
+        eMC_501_MSWorkingEnd,
+        eMC_504_TSWorkingEnd:
           diff_dir := 0 - 1;  // +/-1 mouse diffing direction
         else
           diff_dir := 1;
@@ -16888,7 +16898,7 @@ begin
       min_diff := (current_diffed_fl_len - current_diffed_len) / inscale + mouse_diff.len_diff;
       // minimum negative diff
 
-      if current_diff_code = 504 then
+      if current_diff_code = eMC_504_TSWorkingEnd then
         min_diff := min_diff + cktsmid_offset / inscale;  // TS1 stop at F.P.
     end;
 
@@ -16911,7 +16921,8 @@ begin
       mouse_check_flare_mm_now := mouse_diff.flr_diff * inscale;
 
       case current_diff_code of
-        501, 504:
+        eMC_501_MSWorkingEnd,
+        eMC_504_TSWorkingEnd:
           diff_dir := 1;  // +/-1 mouse diffing direction
         else
           diff_dir := 0 - 1;
@@ -16919,7 +16930,9 @@ begin
 
       case current_diff_code of
         // !!!  k_flare_len is f-s ins,   xing_flare_len is model mm     *2.5 arbitrary, max flare angle 1:2.5
-        507, 508: begin
+        eMC_507_MSKCheckRail,
+        eMC_508_DSWingRail:
+        begin
           min_diff := (current_diffed_end_gap - fw) * 2.5 / inscale - k_flare_len;
           // minimum negative diff, K-crossing
           max_diff := current_diffed_len / inscale - k_flare_len;
@@ -16933,7 +16946,7 @@ begin
           max_diff := (current_diffed_len - xing_flare_len) / inscale;
           // maximum positive diff
 
-          if current_diff_code = 504 then
+          if current_diff_code = eMC_504_TSWorkingEnd then
             max_diff := max_diff - cktsmid_offset / inscale;  // TS1 stop at F.P.
 
         end;
@@ -16959,7 +16972,10 @@ begin
       mouse_check_gap_mm_now := mouse_diff.gap_diff;
 
       case current_diff_code of
-        501, 502, 506, 507:
+        eMC_501_MSWorkingEnd,
+        eMC_502_MSExtensionEnd,
+        eMC_506_TSWingRail,
+        eMC_507_MSKCheckRail:
           diff_dir := 1 * hand_i;      // +/-1 mouse diffing direction
         else
           diff_dir := 0 - 1 * hand_i;
@@ -21746,7 +21762,7 @@ begin
 end;
 //_______________________________________________________________________________________
 
-procedure fill_mark(p1, p2: TPoint; code: integer; num_str: string);   // enter this mark in list.
+procedure fill_mark(p1, p2: TPoint; code: EmarkCode; num_str: string);   // enter this mark in list.
 
 var
   ptr: ^Tmark;          // pointer to a Tmark record.
@@ -21785,7 +21801,8 @@ begin
   ptr^.p2.X := p2.X;             // fill the LineTo data or other info.
   ptr^.p2.Y := p2.Y;
 
-  if code = 99 then begin
+  if code = eMC_99_TimberNumber then
+  begin
     //ptr^.str:=text;             // TextOut data.
 
     timb_numbers_str := timb_numbers_str + num_str + Chr($1B);
@@ -21821,7 +21838,7 @@ begin
 end;
 //_______________________________________________________________________________________________________________________________
 
-procedure enter_mark(track: boolean; p1, p2: Tpex; code: integer; num_str: string);
+procedure enter_mark(track: boolean; p1, p2: Tpex; code: EmarkCode; num_str: string);
 //  main mark entry point. dims in mm (floats)
 
 //  enter with points p1 and p2 in mm floats.
@@ -21866,7 +21883,8 @@ var
 
 begin
 
-  if code < 0 then begin
+  if code < eMC_0_Ignore then
+  begin
     info.X := Round(limits(minint, maxint, p2.x, dummy_i));
     // p2 contains other info or none.
     info.Y := Round(limits(minint, maxint, p2.y, dummy_i));
@@ -21880,9 +21898,11 @@ begin
 
     // first do any blanking...
 
-    if (plain_track = False) and (code = 99) and (track = True) then begin
-      if (Copy(num_str, 1, 1) <> 'B') and (Copy(num_str, 1, 1) <> 'R') and
-        (p1.x < (startx - 6 * inscale)) then
+    if (plain_track = False)
+      and (code = eMC_99_TimberNumber)
+      and (track = True) then
+    begin
+      if (Copy(num_str, 1, 1) <> 'B') and (Copy(num_str, 1, 1) <> 'R') and (p1.x < (startx - 6 * inscale)) then
         EXIT;  // blank timber numbering (not plain track or bonus timbers 0.76.a) .
       if (Copy(num_str, 1, 1) = 'R') and (p1.x < (startx - 30 * inscale)) then
         EXIT;
@@ -21892,8 +21912,27 @@ begin
     // not timbering, these are joint marks, etc.
     then begin
       case code of
-        1, 2, 3, 4, 5, 6, 14, 33, 44, 54, 55, 93, 95, 203, 233,
-        293, 493, 501..508, 600..605, 700..703:
+        eMC_1_GuideMark,
+        eMC_2_RadialEnd,
+        eMC_3_TimberOutline,
+        eMC_4_TimberCL,
+        eMC_5_TimberReducedEnd,
+        eMC_6_RailJoint,
+        eMC_14_TimberCLSolid,
+        eMC_33_ShovingTimberOutline,
+        eMC_44_ShovingTimberCL_1,
+        eMC_54_ShovingTimberCL_2,
+        eMC_55_ReducedEnd,
+        eMC_93_Infill_1,
+        eMC_95_Infill_2,
+        eMC_203_TimberInfill,
+        eMC_233_Infill_3,
+        eMC_293_Infill_4,
+        eMC_493_Chair,
+        eMC_501_MSWorkingEnd .. eMC_508_DSWingRail,
+        eMC_600_LongMark .. eMC_605_JoggleLabel,
+        eMC_700_XingLabelStart .. eMC_703_XingLabelEnd:
+
           EXIT;    // blank nearly everything.
       end;//case
     end;
@@ -21903,14 +21942,20 @@ begin
 
     if ((p1.x > (turnoutx + scale)) or (p2.x > (turnoutx + scale))) and (track = True) then begin
       case code of
-        1, 2, 6, 501..508, 600..605, 700..703:
+        eMC_1_GuideMark,
+        eMC_2_RadialEnd,
+        eMC_6_RailJoint,
+        eMC_501_MSWorkingEnd .. eMC_508_DSWingRail,
+        eMC_600_LongMark .. eMC_605_JoggleLabel,
+        eMC_700_XingLabelStart .. eMC_703_XingLabelEnd:
           EXIT;    // no guide marks or joints.
       end;//case
     end;
 
 
     case code of    // 99 timber numbers
-      99: begin
+      eMC_99_TimberNumber:
+      begin
 
         // 208a mods...
 
@@ -21924,7 +21969,9 @@ begin
           code, num_str);
       end;
 
-      501..508, 601..605: begin
+      eMC_501_MSWorkingEnd .. eMC_508_DSWingRail,
+      eMC_601_TipsLabel .. eMC_605_JoggleLabel:
+      begin
         // 0.94.a  501..508 check labels added.   601-605 added 206b switch labels.  !!! 701,702,703 crossing labels entered directly  211b
         info.X := 0;
         info.Y := 0;
@@ -21956,46 +22003,46 @@ begin
   if main_road_check_rail_flag = True then begin
     p1.x := ckx_ms;
     p1.y := g / 3;
-    enter_mark(True, p1, p2, 501, '');  // main-side working end
+    enter_mark(True, p1, p2, eMC_501_MSWorkingEnd, '');  // main-side working end
 
     p1.x := ckendx;
     p1.y := g / 3;
-    enter_mark(True, p1, p2, 502, '');  // main-side extension end
+    enter_mark(True, p1, p2, eMC_502_MSExtensionEnd, '');  // main-side extension end
   end;
 
   if turnout_road_crossing_rail_flag = True then begin
     p1.x := wingendox;
     p1.y := g * 2 / 3;
-    enter_mark(True, p1, p2, 503, '');  // main-side wing rail
+    enter_mark(True, p1, p2, eMC_503_MSWingRail, '');  // main-side wing rail
   end;
 
   if turnout_road_check_rail_flag = True then begin
     p1.x := cuckx;
     p1.y := aq3offset(p1.x, dummy_k) - g / 3;  // curved stock rail offset
-    enter_mark(True, p1, p2, 504, '');      // turnout-side working end
+    enter_mark(True, p1, p2, eMC_504_TSWorkingEnd, '');      // turnout-side working end
 
     p1.x := cuckendx;
     p1.y := aq3offset(p1.x, dummy_k) - g / 3;
-    enter_mark(True, p1, p2, 505, '');      // turnout-side extension end
+    enter_mark(True, p1, p2, eMC_505_TSExtensionEnd, '');      // turnout-side extension end
   end;
 
   if main_road_crossing_rail_flag = True then begin
     p1.x := flcendox;
     p1.y := aq2offset(p1.x, dummy_k) + g / 3;
-    enter_mark(True, p1, p2, 506, '');      // turnout-side wing rail
+    enter_mark(True, p1, p2, eMC_506_TSWingRail, '');      // turnout-side wing rail
   end;
 
   if (half_diamond = True) and (fixed_diamond = True) then begin
     if k_main_side_check_rail_flag = True then begin
       p1.x := kckmsflendox;
       p1.y := aq2offset(p1.x, dummy_k) - g / 8;
-      enter_mark(True, p1, p2, 507, '');      // main-side K check rail
+      enter_mark(True, p1, p2, eMC_507_MSKCheckRail, '');      // main-side K check rail
     end;
 
     if k_diagonal_side_check_rail_flag = True then begin
       p1.x := kckdsflendox;
       p1.y := g * 9 / 8;
-      enter_mark(True, p1, p2, 508, '');     // diagonal-side wing rail
+      enter_mark(True, p1, p2, eMC_508_DSWingRail, '');     // diagonal-side wing rail
     end;
   end;
 end;
@@ -22039,7 +22086,7 @@ begin
   p2.x := 0;    // not used for peg.
   p2.y := 0;
 
-  enter_mark(True, p1, p2, -1, '');      // fixing peg - goes on the pad only.
+  enter_mark(True, p1, p2, eMC__1_PegCentre, '');      // fixing peg - goes on the pad only.
 
   // calculate peg arm marks...
 
@@ -22051,12 +22098,12 @@ begin
   p2.x := p1.x - arm_long * COS(arm_angle);
   p2.y := p1.y - arm_long * SIN(arm_angle);
 
-  fill_mark(convert_point(p1), convert_point(p2), 8, '');   // first arm.
+  fill_mark(convert_point(p1), convert_point(p2), eMC_8_PegArm_1, '');   // first arm.
 
   p2.x := p1.x + arm_long * COS(arm_angle);
   p2.y := p1.y + arm_long * SIN(arm_angle);
 
-  fill_mark(convert_point(p1), convert_point(p2), 9, '');   // second arm.
+  fill_mark(convert_point(p1), convert_point(p2), eMC_9_PegArm_2, '');   // second arm.
 
   // next comes the label position...
 
@@ -22078,7 +22125,7 @@ begin
   p2.x := 0;   // not used.
   p2.y := 0;
 
-  enter_mark(True, p1, p2, -5, '');
+  enter_mark(True, p1, p2, eMC__5_Label, '');
 
   // now do other marks...
 
@@ -22122,7 +22169,7 @@ begin
       p2.x := 0;              // not used.
       p2.y := 0;
 
-      fill_mark(convert_point(p1), convert_point(p2), -2, '');
+      fill_mark(convert_point(p1), convert_point(p2), eMC__2_CurvingRadiusCentre_1, '');
       // rad 1 mark location
 
       if slewing = True     // centre(s) of slewed over portion ...
@@ -22141,7 +22188,7 @@ begin
         p2.x := 0;              // not used.
         p2.y := 0;
 
-        fill_mark(convert_point(p1), convert_point(p2), -2, '');
+        fill_mark(convert_point(p1), convert_point(p2), eMC__2_CurvingRadiusCentre_1, '');
         // rad 1 slewed mark location
 
       end;
@@ -22161,7 +22208,7 @@ begin
       p2.x := 0;    // not used.
       p2.y := 0;
 
-      fill_mark(convert_point(p1), convert_point(p2), -3, '');
+      fill_mark(convert_point(p1), convert_point(p2), eMC__3_CurvingRadiusCentre_2, '');
       // rad 2 mark location.
 
 
@@ -22180,7 +22227,7 @@ begin
         p2.x := 0;    // not used.
         p2.y := 0;
 
-        fill_mark(convert_point(p1), convert_point(p2), -3, '');
+        fill_mark(convert_point(p1), convert_point(p2), eMC__3_CurvingRadiusCentre_2, '');
         // rad 2 slewed mark location.
       end;
     end;//rad 2
@@ -22194,37 +22241,37 @@ begin
     p1.y := 0 - g;                          // mark start of transition zone.
     p2.x := os;
     p2.y := g * 2;                          // wide mark across g beyond gauge face each side.
-    enter_mark(True, p1, p2, 7, '');
+    enter_mark(True, p1, p2, eMC_7_TransitionAndSlewing, '');
 
     p1.x := os;
     p1.y := g * 2;                          // mark start of transition zone.
     p2.x := os + g * 2;
     p2.y := g / 2;                          // put an arrow on the start marker.
-    enter_mark(True, p1, p2, 7, '');
+    enter_mark(True, p1, p2, eMC_7_TransitionAndSlewing, '');
 
     p1.x := os;
     p1.y := 0 - g;                          // mark start of transition zone.
     p2.x := os + g * 2;
     p2.y := g / 2;                          // put an arrow on the start marker.
-    enter_mark(True, p1, p2, 7, '');
+    enter_mark(True, p1, p2, eMC_7_TransitionAndSlewing, '');
 
     p1.x := os + tst;
     p1.y := 0 - g;                          // mark end of transition zone.
     p2.x := os + tst;
     p2.y := g * 2;                          // wide mark across g beyond gauge face each side.
-    enter_mark(True, p1, p2, 7, '');
+    enter_mark(True, p1, p2, eMC_7_TransitionAndSlewing, '');
 
     p1.x := os + tst;
     p1.y := g * 2;                          // mark end of transition zone.
     p2.x := os + tst - scale * 4;
     p2.y := g * 2;                          // put a 4ft scale top on the end marker.
-    enter_mark(True, p1, p2, 7, '');
+    enter_mark(True, p1, p2, eMC_7_TransitionAndSlewing, '');
 
     p1.x := os + tst;
     p1.y := 0 - g;                          // mark end of transition zone.
     p2.x := os + tst - scale * 4;
     p2.y := 0 - g;                          // put a 4ft tail on the end marker.
-    enter_mark(True, p1, p2, 7, '');
+    enter_mark(True, p1, p2, eMC_7_TransitionAndSlewing, '');
 
   end;
 
@@ -22236,55 +22283,55 @@ begin
     p1.y := 0 - g * 3 / 2;                        // mark start of slewing zone.
     p2.x := slew_s;
     p2.y := g * 5 / 2;                          // mark across beyond gauge face each side.
-    enter_mark(True, p1, p2, 7, '');
+    enter_mark(True, p1, p2, eMC_7_TransitionAndSlewing, '');
 
     p1.x := slew_s;                         // then 2 arrows on start mark...
     p1.y := g * 3 / 2;
     p2.x := slew_s + g;
     p2.y := g * 2;
-    enter_mark(True, p1, p2, 7, '');
+    enter_mark(True, p1, p2, eMC_7_TransitionAndSlewing, '');
 
     p1.x := slew_s + g;
     p1.y := g * 2;
     p2.x := slew_s;
     p2.y := g * 5 / 2;
-    enter_mark(True, p1, p2, 7, '');
+    enter_mark(True, p1, p2, eMC_7_TransitionAndSlewing, '');
 
     p1.x := slew_s;
     p1.y := 0 - g / 2;
     p2.x := slew_s + g;
     p2.y := 0 - g;
-    enter_mark(True, p1, p2, 7, '');
+    enter_mark(True, p1, p2, eMC_7_TransitionAndSlewing, '');
 
     p1.x := slew_s + g;
     p1.y := 0 - g;
     p2.x := slew_s;
     p2.y := 0 - g * 3 / 2;
-    enter_mark(True, p1, p2, 7, '');
+    enter_mark(True, p1, p2, eMC_7_TransitionAndSlewing, '');
 
     p1.x := slew_s + slew_l;
     p1.y := g * 3 / 4;                            // 2 marks at end of slewing zone...
     p2.x := slew_s + slew_l;
     p2.y := g * 3;
-    enter_mark(True, p1, p2, 7, '');
+    enter_mark(True, p1, p2, eMC_7_TransitionAndSlewing, '');
 
     p1.x := slew_s + slew_l;
     p1.y := g / 4;
     p2.x := slew_s + slew_l;
     p2.y := 0 - g * 2;
-    enter_mark(True, p1, p2, 7, '');
+    enter_mark(True, p1, p2, eMC_7_TransitionAndSlewing, '');
 
     p1.x := slew_s + slew_l;
     p1.y := g / 4;                            // add arms to end mark.
     p2.x := slew_s + slew_l - g;
     p2.y := g / 4;
-    enter_mark(True, p1, p2, 7, '');
+    enter_mark(True, p1, p2, eMC_7_TransitionAndSlewing, '');
 
     p1.x := slew_s + slew_l;
     p1.y := g * 3 / 4;
     p2.x := slew_s + slew_l - g;
     p2.y := g * 3 / 4;
-    enter_mark(True, p1, p2, 7, '');
+    enter_mark(True, p1, p2, eMC_7_TransitionAndSlewing, '');
 
   end;
 
@@ -22301,7 +22348,7 @@ begin
     p1.y := g / 2 - gm;
     p2.x := 0;
     p2.y := g / 2 + gm;
-    enter_mark(True, p1, p2, 1, '');      // mark vertical.
+    enter_mark(True, p1, p2, eMC_1_GuideMark, '');      // mark vertical.
 
     // rail-joint centre mark (or plain track end mark)...
 
@@ -22310,7 +22357,7 @@ begin
       p1.y := g / 2 - gm;
       p2.x := xorg;
       p2.y := g / 2 + gm;
-      enter_mark(True, p1, p2, 1, '');      // mark vertical.
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');      // mark vertical.
     end
     else begin
       // prominent marks for plain track CTRL-1 rail joint (start) end...
@@ -22319,19 +22366,19 @@ begin
       p1.y := g - gmi;
       p2.x := xorg;
       p2.y := gmi;
-      enter_mark(True, p1, p2, 10, '');      // mark vertical.
+      enter_mark(True, p1, p2, eMC_10_PlainTrackStart, '');      // mark vertical.
 
       p1.x := xorg;
       p1.y := g + railtop + gmo;
       p2.x := xorg;
       p2.y := g + railtop + gmo + g;
-      enter_mark(True, p1, p2, 10, '');      // mark vertical.
+      enter_mark(True, p1, p2, eMC_10_PlainTrackStart, '');      // mark vertical.
 
       p1.x := xorg;
       p1.y := 0 - railtop - gmo;
       p2.x := xorg;
       p2.y := 0 - railtop - gmo - g;
-      enter_mark(True, p1, p2, 10, '');      // mark vertical.
+      enter_mark(True, p1, p2, eMC_10_PlainTrackStart, '');      // mark vertical.
 
       ms_loop := 18 * inscale;    // 216b  size of maker loop  18"
 
@@ -22339,19 +22386,19 @@ begin
       p1.y := 0 - railtop - gmo - g;
       p2.x := xorg - ms_loop;
       p2.y := 0 - railtop - gmo - g;
-      enter_mark(True, p1, p2, 10, '');      // mark horizontal MS indicator loop 216a.
+      enter_mark(True, p1, p2, eMC_10_PlainTrackStart, '');      // mark horizontal MS indicator loop 216a.
 
       p1.x := xorg - ms_loop;
       p1.y := 0 - railtop - gmo - g;
       p2.x := xorg - ms_loop;
       p2.y := 0 - railtop - gmo - g + ms_loop;     // loop
-      enter_mark(True, p1, p2, 10, '');      // mark vertical MS indicator loop 216a.
+      enter_mark(True, p1, p2, eMC_10_PlainTrackStart, '');      // mark vertical MS indicator loop 216a.
 
       p1.x := xorg - ms_loop;
       p1.y := 0 - railtop - gmo - g + ms_loop;
       p2.x := xorg;
       p2.y := 0 - railtop - gmo - g + ms_loop;     // loop
-      enter_mark(True, p1, p2, 10, '');      // mark horizontal MS indicator loop 216a.
+      enter_mark(True, p1, p2, eMC_10_PlainTrackStart, '');      // mark horizontal MS indicator loop 216a.
 
     end;
   end;
@@ -22375,7 +22422,7 @@ begin
 
         joggle_labels_p1 := p1;    // 206b
 
-        enter_mark(True, p1, p2, 1, '');
+        enter_mark(True, p1, p2, eMC_1_GuideMark, '');
         // main-side joggle mark. scale 6" each side of rail.
       end;
 
@@ -22389,7 +22436,7 @@ begin
 
         joggle_labels_p2 := p1;   // 206b
 
-        enter_mark(True, p1, p2, 1, '');
+        enter_mark(True, p1, p2, eMC_1_GuideMark, '');
         // turnout-side joggle mark. scale 6" each side of rail.
       end;
 
@@ -22397,12 +22444,12 @@ begin
 
       if (turnout_road_crossing_rail_flag = True) and (main_road_stock_rail_flag = True) and
         (main_road_crossing_rail_flag = True) and (turnout_road_stock_rail_flag = True) then begin
-        enter_mark(True, joggle_labels_p1, joggle_labels_p2, 600, '');
+        enter_mark(True, joggle_labels_p1, joggle_labels_p2, eMC_600_LongMark, '');
         // long joggle mark across track linking first marks
 
         joggle_labels_p2.y := g / 2;
 
-        enter_mark(True, joggle_labels_p2, dummy_p, 605, '');
+        enter_mark(True, joggle_labels_p2, dummy_p, eMC_605_JoggleLabel, '');
         // joggle label on centre of joggle mark
 
       end;
@@ -22420,7 +22467,7 @@ begin
       p2.x := toex;                            // 206b *TAN(k1/2);
       p2.y := 0 - railtop - gmo;
 
-      enter_mark(True, p1, p2, 1, '');
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');
       // normal toe mark (trackpad). each side of rail.
 
       if half_diamond = False   // 208a
@@ -22429,10 +22476,10 @@ begin
         p2.y := 0 - gm_swlabels_ms;
         // 206b longer mark to clear timbers after fixing on template
 
-        enter_mark(True, p1, p2, 600, '');
+        enter_mark(True, p1, p2, eMC_600_LongMark, '');
         // long toe mark (overwrite on output). each side of rail.
 
-        enter_mark(True, p2, dummy_p, 601, '');    // 206b toe tips label
+        enter_mark(True, p2, dummy_p, eMC_601_TipsLabel, '');    // 206b toe tips label
       end;
     end;
 
@@ -22444,7 +22491,7 @@ begin
       p2.x := setx;
       p2.y := g + railtop + gmo;
 
-      enter_mark(True, p1, p2, 1, '');
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');
       // normal set mark (trackpad). each side of rail.
 
       if half_diamond = False   // 208a
@@ -22452,10 +22499,10 @@ begin
         p2.y := g + gm_swlabels_ts;
         // 206b longer mark to clear timbers after fixing on template
 
-        enter_mark(True, p1, p2, 600, '');
+        enter_mark(True, p1, p2, eMC_600_LongMark, '');
         // long set mark (overwrite on output). each side of rail.
 
-        enter_mark(True, p2, dummy_p, 602, '');    // 206b set label
+        enter_mark(True, p2, dummy_p, eMC_602_SetLabel, '');    // 206b set label
       end;
     end;
 
@@ -22471,7 +22518,7 @@ begin
       p2.x := plox;
       p2.y := 0 - railtop - gmo;
 
-      enter_mark(True, p1, p2, 1, '');
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');
       // normal planing end mark (trackpad). each side of rail.
 
       if half_diamond = False   // 208a
@@ -22479,10 +22526,10 @@ begin
 
         p2.y := 0 - gm_swlabels_ms;
 
-        enter_mark(True, p1, p2, 600, '');
+        enter_mark(True, p1, p2, eMC_600_LongMark, '');
         // long planing end mark (overwrite on output). each side of rail.
 
-        enter_mark(True, p2, dummy_p, 603, '');
+        enter_mark(True, p2, dummy_p, eMC_603_PlaningLabel, '');
         // planing end label  206b
       end;
       //end;
@@ -22495,7 +22542,7 @@ begin
       p2.x := stox;
       p2.y := g + railtop + railtop + gmo;
 
-      enter_mark(True, p1, p2, 1, '');
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');
       // normal stock gauge mark (trackpad). each side of rail.
 
       if half_diamond = False   // 208a
@@ -22503,10 +22550,10 @@ begin
 
         p2.y := g + railtop + gm_swlabels_ts;
 
-        enter_mark(True, p1, p2, 600, '');
+        enter_mark(True, p1, p2, eMC_600_LongMark, '');
         // long stock gauge mark (overwrite on output). each side of rail.
 
-        enter_mark(True, p2, dummy_p, 604, '');
+        enter_mark(True, p2, dummy_p, eMC_604_StockGaugeLabel, '');
         // stock gauge label  206b
       end;
       //end;
@@ -22540,7 +22587,7 @@ begin
         end;
 
         if (p1.x <> 0) and (p1.y <> 0) then
-          fill_mark(convert_point(p1), convert_point(dummy_p), 703, 'bt');
+          fill_mark(convert_point(p1), convert_point(dummy_p), eMC_703_XingLabelEnd, 'bt');
         // label note into marks list ('bt' string ignored, label added for 703 code in print_unit, pdf_unit).
 
       end;
@@ -22561,7 +22608,7 @@ begin
       p2.x := wingx_minus;
       p2.y := g - fw - wing_bend_offset;
 
-      enter_mark(True, p1, p2, 1, '');    // start of knuckle bend
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');    // start of knuckle bend
 
 
       p1.x := wingcx;
@@ -22570,7 +22617,7 @@ begin
       p2.x := wingx;
       p2.y := g - fw;
 
-      enter_mark(True, p1, p2, 1, '');    // knuckle - middle of knuckle bend
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');    // knuckle - middle of knuckle bend
 
 
       p1.x := wingcx_plus;
@@ -22579,7 +22626,7 @@ begin
       p2.x := wingx_plus;
       p2.y := g - fw;
 
-      enter_mark(True, p1, p2, 1, '');    // end of knuckle bend
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');    // end of knuckle bend
 
     end;
 
@@ -22597,13 +22644,13 @@ begin
       p1.y := g;
       p2.x := fpx + 1.5 * inscale;
       p2.y := g;
-      enter_mark(True, p1, p2, 1, '');      // mark f.p. target horizontal.
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');      // mark f.p. target horizontal.
 
       p1.x := fpx;
       p1.y := g - inscale;           // and 2 scale inches overall vertical.
       p2.x := fpx;
       p2.y := g + inscale;
-      enter_mark(True, p1, p2, 1, '');      // mark f.p. target vertical.
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');      // mark f.p. target vertical.
 
       // crosing label mods 211b...
 
@@ -22617,7 +22664,7 @@ begin
       // 211b do long FP marks, and get FP note position
 
       if (p1.x <> 0) and (p1.y <> 0) then
-        fill_mark(convert_point(p1), convert_point(dummy_p), 701, 'fp');
+        fill_mark(convert_point(p1), convert_point(dummy_p), eMC_701_XingIntersectionFP, 'fp');
       // label note into marks list ('fp' string ignored, label added for 701 code in print_unit, pdf_unit).
 
     end;
@@ -22631,7 +22678,7 @@ begin
       // 211b do blunt nose marks, and get BN note position
 
       if (p1.x <> 0) and (p1.y <> 0) then
-        fill_mark(convert_point(p1), convert_point(dummy_p), 702, 'bn');
+        fill_mark(convert_point(p1), convert_point(dummy_p), eMC_702_XingBluntNose, 'bn');
       // label note into marks list ('bn' string ignored, label added for 702 code in print_unit, pdf_unit).
 
     end;
@@ -22643,28 +22690,28 @@ begin
       p1.y := g / 2 - gm;
       p2.x := toemidx;
       p2.y := g / 2 + gm;
-      enter_mark(True, p1, p2, 1, '');      // mark vertical.
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');      // mark vertical.
 
       // d.p. mark...
       p1.x := dpx;
       p1.y := g / 2 - gm;
       p2.x := dpx;
       p2.y := g / 2 + gm;
-      enter_mark(True, p1, p2, 1, '');      // mark vertical.
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');      // mark vertical.
 
       // turnout side crossover mid-point mark...
       p1.x := txpx;
       p1.y := txpy - gm;
       p2.x := txpx;
       p2.y := txpy + gm;
-      enter_mark(True, p1, p2, 1, '');      // mark vertical.
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');      // mark vertical.
 
       // main side crossover mid-point mark...
       p1.x := mxpx;
       p1.y := g / 2 - gm;
       p2.x := mxpx;
       p2.y := g / 2 + gm;
-      enter_mark(True, p1, p2, 1, '');      // mark vertical.
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');      // mark vertical.
 
 
       // turnout side vee joint (splice rail end) centre mark...
@@ -22674,14 +22721,14 @@ begin
       p1.y := temp - gm;
       p2.x := tvjpx;
       p2.y := temp + gm;
-      enter_mark(True, p1, p2, 1, '');      // mark vertical.
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');      // mark vertical.
 
       // main side vee joint (point rail end) centre mark...
       p1.x := mvjpx;
       p1.y := g / 2 - gm;
       p2.x := mvjpx;
       p2.y := g / 2 + gm;
-      enter_mark(True, p1, p2, 1, '');      // mark vertical.
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');      // mark vertical.
 
 
       if retpar_i = 1
@@ -22691,7 +22738,7 @@ begin
         p1.y := g / 2 - gm;
         p2.x := mrpx;
         p2.y := g / 2 + gm;
-        enter_mark(True, p1, p2, 1, '');      // mark vertical.
+        enter_mark(True, p1, p2, eMC_1_GuideMark, '');      // mark vertical.
       end;
 
     end;
@@ -22714,25 +22761,25 @@ begin
       p1.y := g + tbe;
       p2.x := xtb + tbw;
       p2.y := g + tbe;
-      enter_mark(True, p1, p2, 1, '');      // top end of tie-bar.
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');      // top end of tie-bar.
 
       p1.x := xtb - tbw;
       p1.y := 0 - tbe;
       p2.x := xtb + tbw;
       p2.y := 0 - tbe;
-      enter_mark(True, p1, p2, 1, '');      // bottom end of tie-bar.
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');      // bottom end of tie-bar.
 
       p1.x := xtb - tbw;
       p1.y := g + tbe;
       p2.x := xtb - tbw;
       p2.y := 0 - tbe;
-      enter_mark(True, p1, p2, 1, '');      // left side of tie-bar.
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');      // left side of tie-bar.
 
       p1.x := xtb + tbw;
       p1.y := g + tbe;
       p2.x := xtb + tbw;
       p2.y := 0 - tbe;
-      enter_mark(True, p1, p2, 1, '');      // right side of tie-bar.
+      enter_mark(True, p1, p2, eMC_1_GuideMark, '');      // right side of tie-bar.
     end;
   end;
 
@@ -22747,7 +22794,7 @@ begin
         p1.y := g - gmi;
         p2.x := xorg;
         p2.y := g + gmo + railtop;
-        enter_mark(True, p1, p2, 6, '');  // curved stock rail end joint mark.
+        enter_mark(True, p1, p2, eMC_6_RailJoint, '');  // curved stock rail end joint mark.
       end;
 
       if main_road_stock_rail_flag = True then begin
@@ -22755,7 +22802,7 @@ begin
         p1.y := gmi;
         p2.x := xorg;
         p2.y := 0 - (gmo + railtop);
-        enter_mark(True, p1, p2, 6, '');
+        enter_mark(True, p1, p2, eMC_6_RailJoint, '');
         // straight stock rail end joint mark.
       end;
     end;
@@ -22785,7 +22832,7 @@ begin
           p1.y := tempy - gmo * tempcos;
           p2.x := tempx - gmi * tempsin;
           p2.y := tempy + gmi * tempcos;
-          enter_mark(True, p1, p2, 6, '');
+          enter_mark(True, p1, p2, eMC_6_RailJoint, '');
           // curved switch rail joint mark.
         end;
 
@@ -22795,7 +22842,7 @@ begin
           p1.y := g + gmo;
           p2.x := tempx;
           p2.y := g - gmi;
-          enter_mark(True, p1, p2, 6, '');
+          enter_mark(True, p1, p2, eMC_6_RailJoint, '');
           // straight switch rail joint mark.
         end;
       end;
@@ -22824,7 +22871,7 @@ begin
           p2.x := tempx + (gmi - railtop) * tempsin;
           // offset mark to outer edge.
           p2.y := tempy - (gmi - railtop) * tempcos;
-          enter_mark(True, p1, p2, 6, '');
+          enter_mark(True, p1, p2, eMC_6_RailJoint, '');
           // curved stock rail joint mark.
         end;
 
@@ -22833,7 +22880,7 @@ begin
           p1.y := gmi - railtop;
           p2.x := tempx;
           p2.y := 0 - (gmo + railtop);
-          enter_mark(True, p1, p2, 6, '');
+          enter_mark(True, p1, p2, eMC_6_RailJoint, '');
           // straight stock rail joint mark.
         end;
       end;
@@ -22886,7 +22933,7 @@ begin
           p2.x := tempx + gmi * tempsin;
           // offset mark to outer edge.
           p2.y := tempy - gmi * tempcos;
-          enter_mark(True, p1, p2, 6, '');
+          enter_mark(True, p1, p2, eMC_6_RailJoint, '');
           // curved stock rail joint mark.
         end;
 
@@ -22898,7 +22945,7 @@ begin
           p1.y := gmi;
           p2.x := tempx;
           p2.y := 0 - railtop - gmo;
-          enter_mark(True, p1, p2, 6, '');
+          enter_mark(True, p1, p2, eMC_6_RailJoint, '');
           // straight stock rail joint mark.
         end;
       end;
@@ -22921,7 +22968,7 @@ begin
           p1.y := g + gmo + railtop;
           p2.x := tempx;
           p2.y := g - gmi;
-          enter_mark(True, p1, p2, 6, '');
+          enter_mark(True, p1, p2, eMC_6_RailJoint, '');
           // straight turnout rail crossing joint mark.
         end;
 
@@ -22937,7 +22984,7 @@ begin
           p1.y := tempy + gmi * tempcos;
           p2.x := tempx + (gmo + railtop) * tempsin;
           p2.y := tempy - (gmo + railtop) * tempcos;
-          enter_mark(True, p1, p2, 6, '');
+          enter_mark(True, p1, p2, eMC_6_RailJoint, '');
           // curved turnout rail crossing joint mark.
         end;
       end;
@@ -22976,7 +23023,7 @@ begin
       p1.y := tempy + gmi * tempcos;
       p2.x := tempx + (gmo + railtop) * tempsin;
       p2.y := tempy - (gmo + railtop) * tempcos;
-      enter_mark(True, p1, p2, 6, '');             // splice rail joint mark.
+      enter_mark(True, p1, p2, eMC_6_RailJoint, '');             // splice rail joint mark.
 
       tempx := mvjpx;
 
@@ -22984,7 +23031,7 @@ begin
       p1.y := g - gmi;
       p2.x := tempx;
       p2.y := g + gmo + railtop;
-      enter_mark(True, p1, p2, 6, '');    // point rail joint mark.
+      enter_mark(True, p1, p2, eMC_6_RailJoint, '');    // point rail joint mark.
     end;
   end;
   // radial end marks...
@@ -23006,7 +23053,7 @@ begin
         p1.y := g;
         p2.x := toex;
         p2.y := 0;
-        enter_mark(True, p1, p2, 2, '');
+        enter_mark(True, p1, p2, eMC_2_RadialEnd, '');
       end
       else begin
         //  semi-curved switch (mark across between planing end marks instead of strictly radial).
@@ -23016,7 +23063,7 @@ begin
         p2.x := plox;
         p2.y := j;
 
-        enter_mark(True, p1, p2, 2, '');
+        enter_mark(True, p1, p2, eMC_2_RadialEnd, '');
       end;
     end;
 
@@ -23028,7 +23075,7 @@ begin
         p1.y := torgy - csradius * COS(k2);
         p2.x := torgx + tradius * SIN(k2);     //^^^
         p2.y := torgy - tradius * COS(k2);     //^^^
-        enter_mark(True, p1, p2, 2, '');
+        enter_mark(True, p1, p2, eMC_2_RadialEnd, '');
       end;
 
       if xing_calc_i <> 1     // not curviform V-crossing
@@ -23037,7 +23084,7 @@ begin
         p1.y := torgy - csradius * COS(k3);
         p2.x := torgx + tradius * SIN(k3);     //^^^
         p2.y := torgy - tradius * COS(k3);     //^^^
-        enter_mark(True, p1, p2, 2, '');
+        enter_mark(True, p1, p2, eMC_2_RadialEnd, '');
       end;
     end
     else begin                     // straight turnout radius.
@@ -23046,7 +23093,7 @@ begin
         p1.y := sworgy - (swrad - g) * COS(k2);
         p2.x := sworgx + swrad * SIN(k2);
         p2.y := sworgy - swrad * COS(k2);
-        enter_mark(True, p1, p2, 2, '');
+        enter_mark(True, p1, p2, eMC_2_RadialEnd, '');
       end;
     end;
   end;
@@ -23060,13 +23107,13 @@ begin
     p1.y := retrorgy + (retr + g / 2) * COS(k3);
     p2.x := retrorgx - (retr - g / 2) * SIN(k3);
     p2.y := retrorgy + (retr - g / 2) * COS(k3);
-    enter_mark(True, p1, p2, 2, '');
+    enter_mark(True, p1, p2, eMC_2_RadialEnd, '');
 
     p1.x := retrorgx;                          // return curve end.
     p1.y := trtscent + g;
     p2.x := retrorgx;
     p2.y := trtscent;
-    enter_mark(True, p1, p2, 2, '');
+    enter_mark(True, p1, p2, eMC_2_RadialEnd, '');
   end;
 end;
 //_______________________________________________________________________________________
@@ -23275,7 +23322,8 @@ function pad_marks_current(on_canvas: TCanvas; ink: boolean): boolean;
   // draw all the marks (control template). (not rail ends)
   // on the specified canvas.
 var
-  i, code: integer;
+  i: integer;
+  code: EmarkCode;
   p1, p2, p3, p4: Tpoint;
 
   move_to, line_to: TPoint;
@@ -23340,16 +23388,19 @@ begin
 
         code := ptr_1st^.code;
 
-        if code = 0 then
+        if code = eMC_0_Ignore then
           CONTINUE;
         // ignore mark entries with code zero (might be the second or third of a multi-mark entry, e.g. for timber infill).
 
-        if code > 599 then
+        if code >= eMC_600_LongMark then
           CONTINUE;
         // 206b 211b ignore long marks and switch/xing labels for control template on trackpad  600,601-605, 700,701-703
 
-        if ((code = 203) or (code = 233) or (code = 293) or (code = 493)) and
-          (i < (mark_index - 1))
+        if ((code = eMC_203_TimberInfill)
+        or (code = eMC_233_Infill_3)
+        or (code = eMC_293_Infill_4)
+        or (code = eMC_493_Chair))
+          and (i < (mark_index - 1))
         // timber infill, chair outlines
         then begin
           ptr_2nd := @marks_list_ptr[i + 1];
@@ -23365,8 +23416,10 @@ begin
 
         p1 := ptr_1st^.p1;              // x1,y1 in  1/100ths mm
 
-        if (code <> 99) and (code < 501)  // 0.94.a  501-508 is check-rail labels
-        then begin
+        if (code <> eMC_99_TimberNumber)
+          and (code < eMC_501_MSWorkingEnd)  // 0.94.a  501-508 is check-rail labels
+        then
+        begin
           p2 := ptr_1st^.p2;    // x2,y2 in  1/100ths mm
 
           //Pen.Style:=ptr^.pen_style;
@@ -23376,99 +23429,108 @@ begin
           if ink = True            // not erasing ?
           then begin
             case code of
-              -5:
+              eMC__5_Label:
                 CONTINUE;                                        // ignore label position.
 
               {
                                    -4: if paper_colour<>clBlack then Pen.Color:=clBlack // timber selector mark.
                                                                 else Pen.Color:=clWhite;
-                                  !!! removed 5-6-00} -3, -2:
+                                  !!! removed 5-6-00}
+              eMC__3_CurvingRadiusCentre_2,
+              eMC__2_CurvingRadiusCentre_1:
                 if pad_guide_marks = True then
                   Pen.Color := guide_colour  // curving rad centres.
                 else
                   CONTINUE;
-              -1:
+              eMC__1_PegCentre:
                 if paper_colour <> clRed then
                   Pen.Color := clRed     // fixing peg.
                 else
                   Pen.Color := clBlack;
 
-              1:
+              eMC_1_GuideMark:
                 if pad_guide_marks = True then
                   Pen.Color := guide_colour  // guide marks.
                 else
                   CONTINUE;
 
-              2:
+              eMC_2_RadialEnd:
                 if pad_guide_marks = True then
                   Pen.Color := align_colour  // radial ends.
                 else
                   CONTINUE;
 
-              3:
+              eMC_3_TimberOutline:
                 if pad_timber_outlines = True then
                   Pen.Color := timber_colour   // timber outlines
                 else
                   CONTINUE;
 
-              4, 14:
+              eMC_4_TimberCL,
+              eMC_14_TimberCLSolid:
                 if pad_timber_centres = True then
                   Pen.Color := timber_colour   // timber centre-lines.
                 else
                   CONTINUE;
 
-              5:
+              eMC_5_TimberReducedEnd:
                 CONTINUE;    // timber reduced ends not on screen.
 
-              6:
+              eMC_6_RailJoint:
                 if pad_guide_marks = True then
                   Pen.Color := joint_colour  // rail joint marks.
                 else
                   CONTINUE;
 
-              7:
+              eMC_7_TransitionAndSlewing:
                 if pad_guide_marks = True then
                   Pen.Color := trans_colour  // transition marks.
                 else
                   CONTINUE;
 
-              8: begin                  // peg 1st arm.
+              eMC_8_PegArm_1:
+              begin                  // peg 1st arm.
                 peg_arm1 := ptr_1st^;  // save mark for marking later.
                 CONTINUE;            // next mark.
               end;
 
-              9: begin                  // peg 2nd arm.
+              eMC_9_PegArm_2:
+              begin                  // peg 2nd arm.
                 peg_arm2 := ptr_1st^;  // save mark for marking later.
                 CONTINUE;            // next mark.
               end;
 
-              10:
+              eMC_10_PlainTrackStart:
                 if pad_guide_marks = True then
                   Pen.Color := guide_colour   // plain track start marks.
                 else
                   CONTINUE;
 
-              33, 55, 233:
+              eMC_33_ShovingTimberOutline,
+              eMC_55_ReducedEnd,
+              eMC_233_Infill_3:
                 if paper_colour <> clRed then
                   Pen.Color := clRed        // selected for shoving timber outline and infill.
                 else
                   Pen.Color := clYellow;
 
-              93, 95, 293:
+              eMC_93_Infill_1,
+              eMC_95_Infill_2,
+              eMC_293_Infill_4:
                 if paper_colour <> clBlue then
                   Pen.Color := clBlue      // other shoved timbers outline and infill.
                 else
                   Pen.Color := clWhite;
 
-              44, 54:
+              eMC_44_ShovingTimberCL_1,
+              eMC_54_ShovingTimberCL_2:
                 if check_dark_paper = False then
                   Pen.Color := clBlack   // shoved timber centre-line.
                 else
                   Pen.Color := clWhite;
 
-              203:
-                if (pad_timb_infill_style > 0) and ((screenx < 200 * scale) or
-                  (pad_timb_infill_style > 2))
+            eMC_203_TimberInfill:
+                if (pad_timb_infill_style > 0) and ((screenx < 200 * scale) or (pad_timb_infill_style > 2))
                 // infill on pad if solid/blank fill or large enough to see hatching.
                 then
                   Pen.Color := timber_infill_colour
@@ -23492,7 +23554,9 @@ begin
           check_int2x := limits(h_minint, h_maxint, p2.X * sx + ex - gx, dummy_i);
           check_int2y := limits(h_minint, h_maxint, (p2.Y + yd) * sy + by - gy, dummy_i);
 
-          if (code > 0) and (code < 200) then begin
+          if (code > eMC_0_Ignore)
+            and (code < eMC_200_placeholder) then
+          begin
             move_to.X := Round(check_int1x);
             move_to.Y := Round(check_int1y);
             line_to.X := Round(check_int2x);
@@ -23502,10 +23566,13 @@ begin
               LineTo(line_to.X, line_to.Y);
             end;
           end
-          else begin
-            if code = -1              // code -1, draw fixing peg (not arms) ...
-            then begin
-              if ink = True then begin
+          else
+          begin
+            if code = eMC__1_PegCentre        // code -1, draw fixing peg (not arms) ...
+            then
+            begin
+              if ink = True then
+              begin
                 draw_notch(on_canvas);
                 // first draw the pegging notch again between the timbers and the rails.
                 // This routine is in the grid unit (notch already drawn underneath timbers).
@@ -23620,8 +23687,10 @@ begin
               end;
             end;
 
-            if (code = -2) or (code = -3)              // draw curving rad centres...
-            then begin
+            if (code = eMC__2_CurvingRadiusCentre_1)
+              or (code = eMC__3_CurvingRadiusCentre_2)              // draw curving rad centres...
+            then
+            begin
               radcen_dim := 6;
               // 0.91.b was Screen.Width div 150; // 150 arbitrary. (larger for the current than bgnd keeps).
               if radcen_dim > Round(scale * 5 * fx) then
@@ -23636,13 +23705,16 @@ begin
                 rad_centy := radceny;
               end;
 
-              if (spiral = True) and (adjust_trans_rad = 1) and (code = -2) then begin
+              if (spiral = True) and (adjust_trans_rad = 1)
+                and (code = eMC__2_CurvingRadiusCentre_1) then
+              begin
                 rad_centx := radcenx;
                 // save pad co-ords for orbit action (r1).
                 rad_centy := radceny;
               end;
 
-              if (spiral = True) and (adjust_trans_rad = 2) and (code = -3) then begin
+              if (spiral = True) and (adjust_trans_rad = 2) and (code = eMC__3_CurvingRadiusCentre_2) then
+              begin
                 rad_centx := radcenx;
                 // save pad co-ords for orbit action (r2).
                 rad_centy := radceny;
@@ -23667,9 +23739,13 @@ begin
               end;
             end;
 
-            if ((code = 203) or (code = 233) or (code = 293) or (code = 493)) and
-              (ptr_2nd <> nil)   // timber infill, chair outlines...
-              and (pad_timb_infill_style > 0) then begin
+            if ((code = eMC_203_TimberInfill)
+            or (code = eMC_233_Infill_3)
+            or (code = eMC_293_Infill_4)
+            or (code = eMC_493_Chair))
+              and (ptr_2nd <> nil)   // timber infill, chair outlines...
+              and (pad_timb_infill_style > 0) then
+            begin
               check_int3x := limits(h_minint, h_maxint, p3.X * sx + ex - gx, dummy_i);
               // h_min, h_max 31 bit to give room for some arithmetic on the data (shift keeps, etc.)
               check_int3y :=
@@ -23728,16 +23804,18 @@ begin
 
                   // shoved timber overides...
 
-                  if code = 293        // shoved but not selected.
-                  then begin
+                  if code = eMC_293_Infill_4        // shoved but not selected.
+                  then
+                  begin
                     if paper_colour <> clBlue then
                       Brush.Color := clBlue
                     else
                       Brush.Color := clWhite;
                   end;
 
-                  if code = 233        // currently selected for shoving.
-                  then begin
+                  if code = eMC_233_Infill_3        // currently selected for shoving.
+                  then
+                  begin
                     if paper_colour <> clRed then
                       Brush.Color := clRed
                     else
@@ -23746,8 +23824,9 @@ begin
 
                   // chair outline overides...
 
-                  if code = 493        // chair outlines (appear hollow)
-                  then begin
+                  if code = eMC_493_Chair        // chair outlines (appear hollow)
+                  then
+                  begin
                     Pen.Color := timber_colour;
                     Brush.Color := $00B0D0D0; // was paper_colour;
                     Brush.Style := bsSolid;
@@ -23761,7 +23840,8 @@ begin
         end
         else begin   // 99 or 501+  0.94.a
 
-          if code = 99 then begin
+          if code = eMC_99_TimberNumber then
+          begin
             if pad_timber_numbers = True // code=99, text mark (timber numbering).
             then begin
               check_int1x := limits(h_minint, h_maxint, p1.X * sx + ex - gx, dummy_i);
@@ -23854,30 +23934,30 @@ begin
 
               case code of
 
-                501:
+                eMC_501_MSWorkingEnd:
                   num_str := 'MS1';
-                502:
+                eMC_502_MSExtensionEnd:
                   num_str := 'MS2';
-                503:
+                eMC_503_MSWingRail:
                   num_str := 'MS3';
-                504:
+                eMC_504_TSWorkingEnd:
                   if half_diamond = True then
                     num_str := 'DS1'
                   else
                     num_str := 'TS1';
-                505:
+                eMC_505_TSExtensionEnd:
                   if half_diamond = True then
                     num_str := 'DS2'
                   else
                     num_str := 'TS2';
-                506:
+                eMC_506_TSWingRail:
                   if half_diamond = True then
                     num_str := 'DS3'
                   else
                     num_str := 'TS3';
-                507:
+                eMC_507_MSKCheckRail:
                   num_str := 'MS4';
-                508:
+                eMC_508_DSWingRail:
                   num_str := 'DS4';
 
                 else
@@ -24347,7 +24427,7 @@ var
             if ((main_road_stock_rail_flag = True) and ((timb_str = 'A') or
               (timb_str = 'E') or (timb_str = 'N'))) or
               ((crossing_vee_flag = True) and (timb_str = 'R')) then
-              enter_mark(True, p1, p2, 6, '');
+              enter_mark(True, p1, p2, eMC_6_RailJoint, '');   
             // make rail-joint mark, straight stock rail.
           end;
 
@@ -24367,7 +24447,7 @@ var
             if ((turnout_road_stock_rail_flag = True) and ((timb_str = 'A') or
               (timb_str = 'R') or (timb_str = 'N'))) or
               ((crossing_vee_flag = True) and (timb_str = 'E')) then
-              enter_mark(True, p1, p2, 6, '');
+              enter_mark(True, p1, p2, eMC_6_RailJoint, '');  
             // make rail-joint mark, curved stock rail.
           end;
         end;
@@ -24987,7 +25067,7 @@ begin
     if shove_omitted = True then
       marktext_str := '!' + marktext_str;   // indicate it's omitted while shoving.
 
-    enter_mark(True, p1, p2, 99, marktext_str);
+    enter_mark(True, p1, p2, eMC_99_TimberNumber, marktext_str);
 
   finally
     tbn := tbn + 1;      // increment number even if omitted.
@@ -25061,7 +25141,7 @@ var                                // enter with xtb, yns, yfs, tbq
 
   ////////////////////////////////////////////////////////////
 
-  procedure calc_fill_timber_mark(code: integer);
+  procedure calc_fill_timber_mark(code: EmarkCode);
 
   // this routine used only if timber outlines are not being drawn.
 
@@ -25248,9 +25328,9 @@ begin
     y_curmod := y_curtimb - yeq;
 
     if midline = False then
-      calc_fill_timber_mark(4 + shove_this)  // 4 = centre-line,  44 = selected timber.
+      calc_fill_timber_mark(EmarkCode(4 + shove_this))  // 4 = centre-line,  44 = selected timber.
     else
-      calc_fill_timber_mark(14 + shove_this);
+      calc_fill_timber_mark(EmarkCode(14 + shove_this));
     // 14,54 = timber centre-line, use solid line if drawing rail centrelines. (for rivets?)
   end;
 
@@ -25310,7 +25390,7 @@ var
 
   ////////////////////////////////////////////////////////////
 
-  procedure calc_fill_chair_outline(code: integer);  // 214a
+  procedure calc_fill_chair_outline(code: EmarkCode);  // 214a
 
   // enter with chair rectangle centred on yeq
 
@@ -25347,7 +25427,7 @@ var
   end;
   ////////////////////////////////////////////////////////////
 
-  procedure calc_fill_timber_mark(code: integer);
+  procedure calc_fill_timber_mark(code: EmarkCode);
 
   var
     pk1, pk2, ponpad, pp1, pp2: Tpex;
@@ -25399,7 +25479,7 @@ var
 
     // p2 contains chair angle and chair type code...
 
-    enter_mark(True, p1, p2, -493, '');     // -493 is DXF block marker
+    enter_mark(True, p1, p2, eMC__493_DXFblock, '');     // -493 is DXF block marker
   end;
   /////////////////////////////////////////////////////////
 
@@ -25553,13 +25633,13 @@ begin
       p1.y := yns + yret;
       p2.x := xns + crab;
       p2.y := yfs + yret;
-      calc_fill_timber_mark(203 + shove_this);
+      calc_fill_timber_mark(EmarkCode(203 + shove_this));
 
       p1.x := xfs + crab;
       p1.y := yfs + yret;
       p2.x := xfs + crab;
       p2.y := yns + yret;
-      calc_fill_timber_mark(0);
+      calc_fill_timber_mark(eMC_0_Ignore);
     end;
 
     // then timber outlines..
@@ -25568,7 +25648,7 @@ begin
     p1.y := yns + yret;
     p2.x := xfs + tbl + crab;
     p2.y := yns + yret;
-    calc_fill_timber_mark(3 + shove_this);  // mark timber near end. ( 3 = timber outline.)
+    calc_fill_timber_mark(EmarkCode(3 + shove_this));  // mark timber near end. ( 3 = timber outline.)
     // (33 = highlighted timber outline).
 
     if full_length = True then begin
@@ -25576,7 +25656,7 @@ begin
       p1.y := yfs + yret;
       p2.x := xfs + tbl + crab;
       p2.y := yfs + yret;
-      calc_fill_timber_mark(3 + shove_this);      // mark timber far end
+      calc_fill_timber_mark(EmarkCode(3 + shove_this));      // mark timber far end
     end;
 
 
@@ -25584,13 +25664,13 @@ begin
     p1.y := yns - tbl + yret;
     p2.x := xns + crab;
     p2.y := yfs + tbl + yret;
-    calc_fill_timber_mark(3 + shove_this);       // timber toe side.
+    calc_fill_timber_mark(EmarkCode(3 + shove_this));       // timber toe side.
 
     p1.x := xfs + crab;
     p1.y := yns - tbl + yret;
     p2.x := xfs + crab;
     p2.y := yfs + tbl + yret;
-    calc_fill_timber_mark(3 + shove_this);       // timber heel side.
+    calc_fill_timber_mark(EmarkCode(3 + shove_this));       // timber heel side.
 
     //-------------
 
@@ -25603,7 +25683,7 @@ begin
       p1.y := ynsred + yret;
       p2.x := xfs + tbl + crab;
       p2.y := ynsred + yret;
-      calc_fill_timber_mark(5 + shove_this); // 5 =  timber reduced near end
+      calc_fill_timber_mark(EmarkCode(5 + shove_this)); // 5 =  timber reduced near end
       // 55 = highlighted reduced ends (selected, red).
       // 95 = highlighted reduced ends (shoved, blue).
       if full_length = True then begin
@@ -25611,7 +25691,7 @@ begin
         p1.y := yfsred + yret;
         p2.x := xfs + tbl + crab;
         p2.y := yfsred + yret;
-        calc_fill_timber_mark(5 + shove_this);       // timber reduced far end
+        calc_fill_timber_mark((EmarkCode(5 + shove_this)));       // timber reduced far end
       end;
     end;
 
@@ -25633,9 +25713,9 @@ begin
       end;//with
 
       if midline = False then
-        calc_fill_timber_mark(4 + shove_this)  // 4 = centre-line,  44 = selected timber.
+        calc_fill_timber_mark(EmarkCode(4 + shove_this))  // 4 = centre-line,  44 = selected timber.
       else
-        calc_fill_timber_mark(14 + shove_this);
+        calc_fill_timber_mark(EmarkCode(14 + shove_this));
       // 14,54 = timber centre-line, use solid line if drawing rail centrelines. (for rivets?)
 
     end;
@@ -25827,7 +25907,7 @@ begin
       p2.x := p1.x;
       p2.y := yret + chair_inlong;
 
-      calc_fill_chair_outline(493);
+      calc_fill_chair_outline(eMC_493_Chair);
 
 
       p1.x := xtimbcl + xcl_mod + chair_halfwide;
@@ -25836,7 +25916,7 @@ begin
       p2.x := p1.x;
       p2.y := yret - chair_outlong;
 
-      calc_fill_chair_outline(0);
+      calc_fill_chair_outline(eMC_0_Ignore);
 
       // main road crossing rail...
 
@@ -25858,7 +25938,7 @@ begin
         p2.x := p1.x;
         p2.y := yret - chair_inlong;
 
-        calc_fill_chair_outline(493);
+        calc_fill_chair_outline(eMC_493_Chair);
 
 
         p1.x := xtimbcl + xcl_mod + chair_halfwide;
@@ -25867,7 +25947,7 @@ begin
         p2.x := p1.x;
         p2.y := yret + chair_outlong;
 
-        calc_fill_chair_outline(0);
+        calc_fill_chair_outline(eMC_0_Ignore);
       end;
 
 
@@ -25913,7 +25993,7 @@ begin
         p2.x := p1.x;
         p2.y := yret + chair_inlong;
 
-        calc_fill_chair_outline(493);
+        calc_fill_chair_outline(eMC_493_Chair);
 
 
         p1.x := xtimbcl - xcl_mod + chair_halfwide - chair_mod * SIN(chair_k);
@@ -25922,7 +26002,7 @@ begin
         p2.x := p1.x;
         p2.y := yret - chair_outlong;
 
-        calc_fill_chair_outline(0);
+        calc_fill_chair_outline(eMC_0_Ignore);
 
       end;// T timbers
 
@@ -25953,7 +26033,7 @@ begin
         p2.x := p1.x;
         p2.y := yret - chair_inlong;
 
-        calc_fill_chair_outline(493);
+        calc_fill_chair_outline(eMC_493_Chair);
 
 
         p1.x := xtimbcl - xcl_mod + chair_halfwide + chair_mod * SIN(chair_k);
@@ -25962,7 +26042,7 @@ begin
         p2.x := p1.x;
         p2.y := yret + chair_outlong;
 
-        calc_fill_chair_outline(0);
+        calc_fill_chair_outline(eMC_0_Ignore);
 
       end;
 
@@ -32884,7 +32964,7 @@ function shove_number_clicked(X, Y: integer): boolean;
 
 var
   i, n: integer;
-  code: integer;
+  code: EmarkCode;
   ptr_1st: ^Tmark;         // pointer to a Tmark record..
   markmax: integer;
   num_str, tbnum_str: string;
@@ -32929,7 +33009,7 @@ begin
 
       code := ptr_1st^.code;
 
-      if code <> 99 then
+      if code <> eMC_99_TimberNumber then
         CONTINUE;   // we are only looking for timber number entries.
 
       num_str := extract_tbnumber_str(tbnum_str);
@@ -32983,7 +33063,7 @@ procedure mouse_on_timber_number(X, Y: integer);
 
 var
   i: integer;
-  code: integer;
+  code: EmarkCode;
   ptr_1st: ^Tmark;         // pointer to a Tmark record..
   markmax: integer;
   num_str, tbnum_str: string;
@@ -33031,7 +33111,7 @@ begin
 
       code := ptr_1st^.code;
 
-      if code <> 99 then
+      if code <> eMC_99_TimberNumber then
         CONTINUE;   // we are only looking for timber number entries.
 
       num_str := extract_tbnumber_str(tbnum_str);
@@ -33133,7 +33213,7 @@ function checkrail_label_clicked(X, Y: integer): boolean;
 
 var
   i, n: integer;
-  code: integer;
+  code: EmarkCode;
   ptr_1st: ^Tmark;         // pointer to a Tmark record..
   markmax: integer;
   //tbnum_str:string;
@@ -33175,7 +33255,7 @@ begin
 
       code := ptr_1st^.code;
 
-      if code < 501 then
+      if code < eMC_501_MSWorkingEnd then
         CONTINUE;   // we are only looking for check-rail label entries.
 
 
@@ -33210,7 +33290,7 @@ procedure mouse_on_check_label(X, Y: integer);
 
 var
   i: integer;
-  code: integer;
+  code: EmarkCode;
   ptr_1st: ^Tmark;         // pointer to a Tmark record..
   markmax: integer;
   num_str, tbnum_str: string;
@@ -33256,35 +33336,35 @@ begin
 
       code := ptr_1st^.code;
 
-      if code < 501 then
+      if code < eMC_501_MSWorkingEnd then
         CONTINUE;   // we are only looking for check label entries.
 
       case code of
 
-        501:
+        eMC_501_MSWorkingEnd:
           num_str := 'MS1';
-        502:
+        eMC_502_MSExtensionEnd:
           num_str := 'MS2';
-        503:
+        eMC_503_MSWingRail:
           num_str := 'MS3';
-        504:
+        eMC_504_TSWorkingEnd:
           if half_diamond = True then
             num_str := 'DS1'
           else
             num_str := 'TS1';
-        505:
+        eMC_505_TSExtensionEnd:
           if half_diamond = True then
             num_str := 'DS2'
           else
             num_str := 'TS2';
-        506:
+        eMC_506_TSWingRail:
           if half_diamond = True then
             num_str := 'DS3'
           else
             num_str := 'TS3';
-        507:
+        eMC_507_MSKCheckRail:
           num_str := 'MS4';
-        508:
+        eMC_508_DSWingRail:
           num_str := 'DS4';
 
         else
@@ -36437,7 +36517,7 @@ begin
   pp2.x := ponpad.x + xshift;
   pp2.y := ponpad.y + yshift;
 
-  fill_mark(convert_point(pp1), convert_point(pp2), 700, '');  // into marks list.
+  fill_mark(convert_point(pp1), convert_point(pp2), eMC_700_XingLabelStart, '');  // into marks list.
 
   Result := pp1;     // in case label note needed (TS side) (half-diamonds)
 
@@ -36469,7 +36549,7 @@ begin
   pp4.x := ponpad.x + xshift;
   pp4.y := ponpad.y + yshift;
 
-  fill_mark(convert_point(pp3), convert_point(pp4), 700, '');   // into marks list.
+  fill_mark(convert_point(pp3), convert_point(pp4), eMC_700_XingLabelStart, '');   // into marks list.
 
   Result := pp4;  // return position for note
 

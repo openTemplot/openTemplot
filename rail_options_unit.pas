@@ -238,23 +238,25 @@ begin
 
   case current_diff_code of   // 0.94.a  check rail diffs ...
 
-    501, 502:
+    eMC_501_MSWorkingEnd,
+    eMC_502_MSExtensionEnd:
       cancel_diff := not main_road_check_rail_flag;          // MS1 MS2
-    503:
+    eMC_503_MSWingRail:
       cancel_diff := not turnout_road_crossing_rail_flag;    // MS3
-    504, 505:
+    eMC_504_TSWorkingEnd,
+    eMC_505_TSExtensionEnd:
       cancel_diff := not turnout_road_check_rail_flag;       // TS1 TS2
-    506:
+    eMC_506_TSWingRail:
       cancel_diff := not main_road_crossing_rail_flag;       // TS3
-    507:
+    eMC_507_MSKCheckRail:
       cancel_diff := not k_main_side_check_rail_flag;        // MS4
-    508:
+    eMC_508_DSWingRail:
       cancel_diff := not k_diagonal_side_check_rail_flag;    // DS4
 
   end;//case
 
   if cancel_diff = True then
-    current_diff_code := 0;    // no longer a check rail to adjust.
+    current_diff_code := eMC_0_Ignore;    // no longer a check rail to adjust.
 
   do_railedges;
   redraw_pad(True, True);

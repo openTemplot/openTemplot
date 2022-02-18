@@ -4796,7 +4796,8 @@ var
 
   peg_linex, peg_liney: double;
 
-  i, code: integer;
+  i: integer;
+  code: EmarkCode;
   p1, p2: TPoint;
 
   move_to: Tpoint;
@@ -5148,13 +5149,15 @@ begin
 
         code := ptr^.code;              // check this mark wanted.
 
-        if (code <> 0) and (code <> 99) and (code < 501)
+        if (code <> eMC_0_Ignore)
+          and (code <> eMC_99_TimberNumber)
+          and (code < eMC_501_MSWorkingEnd)
         // 0.94.a  501-508 is check-rail labels   213b 777 is chair oulines// ignore text (timber labels)  // 206b 600,601-604  switch long marks and labels
         then begin
           p1 := ptr^.p1;    // x1,y1 in  1/100ths mm
           p2 := ptr^.p2;    // x2,y2 in  1/100ths mm
 
-          if code = -1    // fixing peg centres
+          if code = eMC__1_PegCentre    // fixing peg centres
           then begin
             peg_linex := p1.X / 100;             // mm
             peg_liney := p1.Y / 100 + y_datum;
@@ -5177,40 +5180,58 @@ begin
 
           with bgkeeps_form do begin
             case code of
-              -5, -4:
+              eMC__5_Label,
+              eMC__4_TimberSelector:
                 CONTINUE;     // ignore label and timber selector.
 
-              -3, -2:
+              eMC__3_CurvingRadiusCentre_2,
+              eMC__2_CurvingRadiusCentre_1:
                 if marks_checkbox.Checked = True then
                   Pen.Color := keep_mark_colour  // curving rad centres.
                 else
                   CONTINUE;
-              -1:
+              eMC__1_PegCentre:
                 Pen.Color := bgnd_ident_color; // fixing peg (changes again later).
 
-              1, 2, 7, 10:
+              eMC_1_GuideMark,
+              eMC_2_RadialEnd,            // 2
+              eMC_7_TransitionAndSlewing,
+              eMC_10_PlainTrackStart:
                 if marks_checkbox.Checked = True then
                   Pen.Color := keep_mark_colour
                 // guide marks, radial ends, transition marks, plain track start marks.
                 else
                   CONTINUE;
 
-              3, 33, 93:
+              eMC_3_TimberOutline,
+              eMC_33_ShovingTimberOutline,
+              eMC_93_Infill_1:
                 if timber_outlines_checkbox.Checked = True then
                   Pen.Color := box_timber_col   // timber outlines.
                 else
                   CONTINUE;
 
-              4, 14, 44, 54:
+              eMC_4_TimberCL,
+              eMC_14_TimberCLSolid,
+              eMC_44_ShovingTimberCL_1,
+              eMC_54_ShovingTimberCL_2:
                 if timber_centres_checkbox.Checked = True then
                   Pen.Color := box_timber_col   // timber centre-lines.
                 else
                   CONTINUE;
 
-              5, 8, 9, 55, 95, 203, 233, 293, 493:
+              eMC_5_TimberReducedEnd,
+              eMC_8_PegArm_1,
+              eMC_9_PegArm_2,
+              eMC_55_ReducedEnd,
+              eMC_95_Infill_2,
+              eMC_203_TimberInfill,
+              eMC_233_Infill_3,
+              eMC_293_Infill_4,
+              eMC_493_Chair:
                 CONTINUE;        // ignore timber reduced ends, peg arms, timber infill, chairs
 
-              6:
+              eMC_6_RailJoint:
                 if joints_checkbox.Checked = True then
                   Pen.Color := keep_mark_colour  // rail joint marks.
                 else
@@ -5221,7 +5242,7 @@ begin
             end;//case
           end;//with
 
-          if code > 0                // draw timbers and marks...
+          if code > eMC_0_Ignore                // draw timbers and marks...
           then begin
             move_to.X := Round(p1.X * sx + x_offset);
             move_to.Y := Round(p1.Y * sy + y_offset);
@@ -5233,7 +5254,7 @@ begin
             end;
           end
           else begin
-            if code = -1              // code -1, draw fixing peg...
+            if code = eMC__1_PegCentre    // code -1, draw fixing peg...
             then begin
               case Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1.bgnd_code_077 of
                 -1:
@@ -5338,7 +5359,8 @@ begin
 
             end;
 
-            if (code = -2) or (code = -3)
+            if (code = eMC__2_CurvingRadiusCentre_1)
+              or (code = eMC__3_CurvingRadiusCentre_2)
             // draw curving rad centres...
             then begin
               radcen_dim := xmax div 150;
@@ -6421,7 +6443,7 @@ begin
             list_bgnd_marks[i].p2.Y := ptr^.p2.Y + Round(y_datum * 100);
             list_bgnd_marks[i].code := ptr^.code;
 
-            if ptr^.code = 99
+            if ptr^.code = eMC_99_TimberNumber
             //then timber_numbers_string:=timber_numbers_string+ptr^.str+Chr($1B);  // add on the next timber numbering string, + separator.
             then
               timber_numbers_string := timb_numbers_str;  // copy from control template
@@ -7235,7 +7257,8 @@ procedure highlight_bgkeep(index: integer);
 // highlight the peg and the current keep on the background.
 
 var
-  i, array_max, code: integer;
+  i, array_max: integer;
+  code: EmarkCode;
   now_keep: Tbgnd_keep;
   peg_dim, bg_pegx, bg_pegy: integer;
 
@@ -7277,7 +7300,7 @@ begin
       for i := 0 to array_max do begin
         code := list_bgnd_marks[i].code;
 
-        if code = -1              // code -1, draw highlight on bgnd fixing peg...
+        if code = eMC__1_PegCentre              // code -1, draw highlight on bgnd fixing peg...
         then begin
           p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
 

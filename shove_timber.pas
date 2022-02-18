@@ -1245,7 +1245,7 @@ procedure Tshove_timber_form.omit_all_buttonClick(Sender: TObject);
 var
   i, n: integer;
 
-  code: integer;
+  code: EmarkCode;
   ptr_1st: ^Tmark;         // pointer to a Tmark record..
   markmax: integer;
   num_str, tbnum_str: string;
@@ -1292,7 +1292,7 @@ begin
 
       code := ptr_1st^.code;
 
-      if code <> 99 then
+      if code <> eMC_99_TimberNumber then
         CONTINUE;   // we are only looking for timber number entries.
 
       num_str := timb_num_strip(extract_tbnumber_str(tbnum_str));

@@ -218,7 +218,7 @@ end;
 procedure Tcheck_diffs_form.FormShow(Sender: TObject);
 
 begin
-  current_diff_code := 0;
+  current_diff_code := eMC_0_Ignore;
   show_and_redraw(True, False);   // in case hidden (when idle, no rollback).
 end;
 //______________________________________________________________________________
@@ -312,31 +312,31 @@ begin
 
   case current_diff_code of
 
-    501:
+    eMC_501_MSWorkingEnd:
       num_str := 'MS1';
-    502:
+    eMC_502_MSExtensionEnd:
       num_str := 'MS2';
-    503:
+    eMC_503_MSWingRail:
       num_str := 'MS3';
-    504:
+    eMC_504_TSWorkingEnd:
       if half_diamond = True then
         num_str := 'DS1'
       else
         num_str := 'TS1';
-    505:
+    eMC_505_TSExtensionEnd:
       if half_diamond = True then
         num_str := 'DS2'
       else
         num_str := 'TS2';
-    506:
+    eMC_506_TSWingRail:
       if half_diamond = True then
         num_str := 'DS3'
       else
         num_str := 'TS3';
-    507:
+    eMC_507_MSKCheckRail:
       if half_diamond = True then
         num_str := 'MS4';
-    508:
+    eMC_508_DSWingRail:
       if half_diamond = True then
         num_str := 'DS4';
 
@@ -381,7 +381,8 @@ begin
   if num_str = '' then
     EXIT;
 
-  if (current_diff_code = 503) or (current_diff_code = 506) then
+  if (current_diff_code = eMC_503_MSWingRail)
+  or (current_diff_code = eMC_506_TSWingRail) then
     end_str := StringReplace(mod_str, 'check!!!', 'wing', [rfReplaceAll, rfIgnoreCase])
   else
     end_str := StringReplace(mod_str, 'check!!!', 'check', [rfReplaceAll, rfIgnoreCase]);
@@ -419,7 +420,8 @@ var
 
 begin
   cancel_adjusts(False);
-  if (current_diff_code < 501) or (current_diff_code > 508) then
+  if (current_diff_code < eMC_501_MSWorkingEnd)
+  or (current_diff_code > eMC_508_DSWingRail) then
     EXIT;
 
   this_diff := get_checkrail_diff(current_diff_code);
@@ -461,7 +463,8 @@ var
 
 begin
   cancel_adjusts(False);
-  if (current_diff_code < 501) or (current_diff_code > 508) then
+  if (current_diff_code < eMC_501_MSWorkingEnd)
+  or (current_diff_code > eMC_508_DSWingRail) then
     EXIT;
 
   this_diff := get_checkrail_diff(current_diff_code);
@@ -530,7 +533,8 @@ begin
   if num_str = '' then
     EXIT;
 
-  if (current_diff_code = 503) or (current_diff_code = 506) then
+  if (current_diff_code = eMC_503_MSWingRail)
+  or (current_diff_code = eMC_506_TSWingRail) then
     end_str := StringReplace(mod_str, 'check!!!', 'wing', [rfReplaceAll, rfIgnoreCase])
   else
     end_str := StringReplace(mod_str, 'check!!!', 'check', [rfReplaceAll, rfIgnoreCase]);
@@ -612,7 +616,8 @@ begin
   if num_str = '' then
     EXIT;
 
-  if (current_diff_code = 503) or (current_diff_code = 506) then
+  if (current_diff_code = eMC_503_MSWingRail)
+  or (current_diff_code = eMC_506_TSWingRail) then
     end_str := StringReplace(mod_str, 'check!!!', 'wing', [rfReplaceAll, rfIgnoreCase])
   else
     end_str := StringReplace(mod_str, 'check!!!', 'check', [rfReplaceAll, rfIgnoreCase]);
@@ -692,7 +697,8 @@ begin
   if num_str = '' then
     EXIT;
 
-  if (current_diff_code = 503) or (current_diff_code = 506) then
+  if (current_diff_code = eMC_503_MSWingRail)
+  or (current_diff_code = eMC_506_TSWingRail) then
     end_str := StringReplace(mod_str, 'check!!!', 'wing', [rfReplaceAll, rfIgnoreCase])
   else
     end_str := StringReplace(mod_str, 'check!!!', 'check', [rfReplaceAll, rfIgnoreCase]);
