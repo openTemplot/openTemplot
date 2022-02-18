@@ -23,7 +23,7 @@
 ====================================================================================
 *)
 
-
+{ }
 unit math_unit;
 
 {$MODE Delphi}
@@ -3667,16 +3667,14 @@ begin
 
   case current_diff_code of
 
-    eMC_501_MSWorkingEnd:
-    begin                     //MS1 MS working len
+    eMC_501_MSWorkingEnd: begin                     //MS1 MS working len
       current_diffed_len := check_ms_wklen * inscale;
       current_diffed_fl_len := flen_mw;
       current_diffed_end_gap := fw_end + ccd.end_diff_mw.gap_diff;
       num_str := 'MS1';
     end;
 
-    eMC_502_MSExtensionEnd:
-    begin                     //MS2 MS ext len
+    eMC_502_MSExtensionEnd: begin                     //MS2 MS ext len
       current_diffed_len := check_ms_extlen * inscale;
       ;
       current_diffed_fl_len := flen_me;
@@ -3684,8 +3682,7 @@ begin
       num_str := 'MS2';
     end;
 
-    eMC_503_MSWingRail:
-    begin                     //MS3 MS wing reach
+    eMC_503_MSWingRail: begin                     //MS3 MS wing reach
       current_diffed_len := wgl_ms_len * inscale;
       ;
       current_diffed_fl_len := flen_mr;
@@ -3693,8 +3690,7 @@ begin
       num_str := 'MS3';
     end;
 
-    eMC_504_TSWorkingEnd:
-    begin                     //TS1 TS working len
+    eMC_504_TSWorkingEnd: begin                     //TS1 TS working len
       current_diffed_len := check_ts_wklen * inscale;
       ;
       current_diffed_fl_len := flen_tw;
@@ -3705,8 +3701,7 @@ begin
         num_str := 'TS1';
     end;
 
-    eMC_505_TSExtensionEnd:
-    begin                     //TS2 TS ext len
+    eMC_505_TSExtensionEnd: begin                     //TS2 TS ext len
       current_diffed_len := check_ts_extlen * inscale;
       ;
       current_diffed_fl_len := flen_te;
@@ -3717,8 +3712,7 @@ begin
         num_str := 'TS2';
     end;
 
-    eMC_506_TSWingRail:
-    begin                     //TS3 TS wing reach
+    eMC_506_TSWingRail: begin                     //TS3 TS wing reach
       current_diffed_len := wgl_ts_len * inscale;
       ;
       current_diffed_fl_len := flen_tr;
@@ -3729,8 +3723,7 @@ begin
         num_str := 'TS3';
     end;
 
-    eMC_507_MSKCheckRail:
-    begin                     //MS4 MS K check len
+    eMC_507_MSKCheckRail: begin                     //MS4 MS K check len
       current_diffed_len := kckl_mk;
       current_diffed_fl_len := flen_mk;
       current_diffed_end_gap := fw_end + ccd.end_diff_mk.gap_diff;
@@ -3738,8 +3731,7 @@ begin
         num_str := 'MS4';
     end;
 
-    eMC_508_DSWingRail:
-    begin                     //DS4 DS K check len
+    eMC_508_DSWingRail: begin                     //DS4 DS K check len
       current_diffed_len := kckl_dk;
       current_diffed_fl_len := flen_dk;
       current_diffed_end_gap := fw_end + ccd.end_diff_dk.gap_diff;
@@ -3836,8 +3828,7 @@ begin
       else
         code_max := eMC_506_TSWingRail;
 
-      for code := eMC_501_MSWorkingEnd to code_max do
-      begin
+      for code := eMC_501_MSWorkingEnd to code_max do begin
 
         this_diff := get_checkrail_diff(code);
 
@@ -5084,7 +5075,10 @@ begin
   then begin
     program_help_str := 'The current V-crossing angle is 1 : ' + FormatFloat('#.##', k3n) +
       '||This is flatter than the heel angle of the currently selected switch size.' +
-      '||The equivalent turnout-road radius is therefore negative and this very long turnout is unlikely to be of any practical use.' + '||You should probably use a longer switch size, or shorten the V-crossing angle to match the current switch size.' + '||Click the `0TEMPLATE > SWITCH SETTINGS...`1 menu item, or the `0template > V-crossing settings...`z menu item.';
+      '||The equivalent turnout-road radius is therefore negative and this very long turnout is unlikely to be of any practical use.' +
+      '||You should probably use a longer switch size, or shorten the V-crossing angle to match the current switch size.'
+      +
+      '||Click the `0TEMPLATE > SWITCH SETTINGS...`1 menu item, or the `0template > V-crossing settings...`z menu item.';
     pad_form.program_warning_panel.Caption :=
       '1 : ' + FormatFloat('#.##', k3n) + '  V-crossing angle is flatter than the switch heel.';
     temp_flag := True;
@@ -6967,7 +6961,8 @@ begin
             end;
 
             if ((aq = eRD_AdjTrackTurnoutSideNearGaugeFace) or
-              (aq = eRD_AdjTrackTurnoutSideNearOuterFace) or (aq = eRD_AdjTrackMainSideNearGaugeFace) or
+              (aq = eRD_AdjTrackTurnoutSideNearOuterFace) or
+              (aq = eRD_AdjTrackMainSideNearGaugeFace) or
               (aq = eRD_AdjTrackMainSideNearOuterFace)) and (adjacent_edges = True)
             // 0.93.a platforms
             then
@@ -8814,7 +8809,8 @@ begin
   aq3_done := False;  // init for trackbed edges
 
   if ((aq = eRD_AdjTrackTurnoutSideNearGaugeFace) or
-    (aq = eRD_AdjTrackTurnoutSideNearOuterFace)) and (plain_track = False) and (adjacent_edges = True)
+    (aq = eRD_AdjTrackTurnoutSideNearOuterFace)) and (plain_track = False) and
+    (adjacent_edges = True)
   // TS platform rear/front
   then begin
     if (xe > tvjpx) and (xe <= (mvjpx + scale * 3)) then
@@ -9699,7 +9695,8 @@ begin
       xs := xe;                           // ensure we hit the end.
 
     if (machined_end = True) and ((aq = eRD_CurvedTurnoutWingOuterFace) or
-      (aq = eRD_MainSideCheckOuterFace) {or (aq=27)} or (aq = eRD_KCrossingCheckTurnoutSideOuterEdge))
+      (aq = eRD_MainSideCheckOuterFace) {or (aq=27)} or
+      (aq = eRD_KCrossingCheckTurnoutSideOuterEdge))
     // MS wing or check rail outer-edges
     then
       ys := yfl                                                          // machined flares.
@@ -10498,7 +10495,8 @@ function randomizing_warn(pdf: boolean): boolean;    // pre-init printing.
 
 const
   random_help_str: string = '    `0Output  Randomized  Timbering`9' +
-    '||When timber randomizing is in force, every re-draw of the control template on the trackpad produces a fresh randomized effect.' + '||To "freeze" a randomized timbering layout for printing identical multiple copies of a template, click the `0MAIN > STORE & BACKGROUND`1 menu item to copy the template to the background drawing,' + ' and then click the `0OUTPUT > PRINT BACKGROUND TEMPLATES (TRACK PLAN)`1 menu item.' + '||To create a fresh randomized layout for a background template, click the `0GENERATOR > REBUILD`1 menu options.' + '||You should make as many print copies as you will need all in one Templot0 session, because it is not possible to save the exact timbering layout between sessions.' + ' When reloaded from a data file, the template will be rebuilt with a fresh randomized timbering layout.' + '||Alternatively, if you create a PDF file you can print identical copies at any time using a PDF reader program.';
+    '||When timber randomizing is in force, every re-draw of the control template on the trackpad produces a fresh randomized effect.' +
+    '||To "freeze" a randomized timbering layout for printing identical multiple copies of a template, click the `0MAIN > STORE & BACKGROUND`1 menu item to copy the template to the background drawing,' + ' and then click the `0OUTPUT > PRINT BACKGROUND TEMPLATES (TRACK PLAN)`1 menu item.' + '||To create a fresh randomized layout for a background template, click the `0GENERATOR > REBUILD`1 menu options.' + '||You should make as many print copies as you will need all in one Templot0 session, because it is not possible to save the exact timbering layout between sessions.' + ' When reloaded from a data file, the template will be rebuilt with a fresh randomized timbering layout.' + '||Alternatively, if you create a PDF file you can print identical copies at any time using a PDF reader program.';
 
 var
   i: integer;
@@ -16931,8 +16929,7 @@ begin
       case current_diff_code of
         // !!!  k_flare_len is f-s ins,   xing_flare_len is model mm     *2.5 arbitrary, max flare angle 1:2.5
         eMC_507_MSKCheckRail,
-        eMC_508_DSWingRail:
-        begin
+        eMC_508_DSWingRail: begin
           min_diff := (current_diffed_end_gap - fw) * 2.5 / inscale - k_flare_len;
           // minimum negative diff, K-crossing
           max_diff := current_diffed_len / inscale - k_flare_len;
@@ -17470,7 +17467,10 @@ begin
         repeat                      // no cal done and not called from calibration function.
           i := alert(2, '    printer  not  calibrated', '||The current printer is  ' +
             prstr + '||Templot0 has no calibration information for this printer.' +
-            '||Using the printer uncalibrated will probably be satisfactory for overall track design and printing trial templates.' + '||Before printing the final construction templates a printer calibration is recommended to ensure dimensional accuracy.', '', 'more  information', 'load  previous  calibration  settings  from  file', 'calibrate  this  printer  now', '', 'use  printer  uncalibrated', 2);
+            '||Using the printer uncalibrated will probably be satisfactory for overall track design and printing trial templates.' +
+            '||Before printing the final construction templates a printer calibration is recommended to ensure dimensional accuracy.',
+            '', 'more  information', 'load  previous  calibration  settings  from  file',
+            'calibrate  this  printer  now', '', 'use  printer  uncalibrated', 2);
           case i of
             2:
               alert_help(0, cal_prompt_str, '');
@@ -17601,8 +17601,7 @@ begin
       if n <> 1 then
         EXIT;
       if getdims('grid  line  spacings  in  cm', grid_help_all_str, calling_form,
-        n, od) = True then
-      begin
+        n, od) = True then begin
         if od[0] = def_req then
           grid_spacex := 20               // 2 cm default
         else
@@ -17628,8 +17627,7 @@ begin
       if n <> 1 then
         EXIT;
       if getdims('grid  line  spacings  in  mm', grid_help_all_str, calling_form,
-        n, od) = True then
-      begin
+        n, od) = True then begin
         if od[0] = def_req then
           grid_spacex := 20            // 20 mm  default.
         else
@@ -21762,7 +21760,8 @@ begin
 end;
 //_______________________________________________________________________________________
 
-procedure fill_mark(p1, p2: TPoint; code: EmarkCode; num_str: string);   // enter this mark in list.
+procedure fill_mark(p1, p2: TPoint; code: EmarkCode; num_str: string);
+// enter this mark in list.
 
 var
   ptr: ^Tmark;          // pointer to a Tmark record.
@@ -21801,8 +21800,7 @@ begin
   ptr^.p2.X := p2.X;             // fill the LineTo data or other info.
   ptr^.p2.Y := p2.Y;
 
-  if code = eMC_99_TimberNumber then
-  begin
+  if code = eMC_99_TimberNumber then begin
     //ptr^.str:=text;             // TextOut data.
 
     timb_numbers_str := timb_numbers_str + num_str + Chr($1B);
@@ -21883,8 +21881,7 @@ var
 
 begin
 
-  if code < eMC_0_Ignore then
-  begin
+  if code < eMC_0_Ignore then begin
     info.X := Round(limits(minint, maxint, p2.x, dummy_i));
     // p2 contains other info or none.
     info.Y := Round(limits(minint, maxint, p2.y, dummy_i));
@@ -21900,9 +21897,9 @@ begin
 
     if (plain_track = False)
       and (code = eMC_99_TimberNumber)
-      and (track = True) then
-    begin
-      if (Copy(num_str, 1, 1) <> 'B') and (Copy(num_str, 1, 1) <> 'R') and (p1.x < (startx - 6 * inscale)) then
+      and (track = True) then begin
+      if (Copy(num_str, 1, 1) <> 'B') and (Copy(num_str, 1, 1) <> 'R') and
+        (p1.x < (startx - 6 * inscale)) then
         EXIT;  // blank timber numbering (not plain track or bonus timbers 0.76.a) .
       if (Copy(num_str, 1, 1) = 'R') and (p1.x < (startx - 30 * inscale)) then
         EXIT;
@@ -21954,8 +21951,7 @@ begin
 
 
     case code of    // 99 timber numbers
-      eMC_99_TimberNumber:
-      begin
+      eMC_99_TimberNumber: begin
 
         // 208a mods...
 
@@ -21970,8 +21966,7 @@ begin
       end;
 
       eMC_501_MSWorkingEnd .. eMC_508_DSWingRail,
-      eMC_601_TipsLabel .. eMC_605_JoggleLabel:
-      begin
+      eMC_601_TipsLabel .. eMC_605_JoggleLabel: begin
         // 0.94.a  501..508 check labels added.   601-605 added 206b switch labels.  !!! 701,702,703 crossing labels entered directly  211b
         info.X := 0;
         info.Y := 0;
@@ -22386,19 +22381,22 @@ begin
       p1.y := 0 - railtop - gmo - g;
       p2.x := xorg - ms_loop;
       p2.y := 0 - railtop - gmo - g;
-      enter_mark(True, p1, p2, eMC_10_PlainTrackStart, '');      // mark horizontal MS indicator loop 216a.
+      enter_mark(True, p1, p2, eMC_10_PlainTrackStart, '');
+      // mark horizontal MS indicator loop 216a.
 
       p1.x := xorg - ms_loop;
       p1.y := 0 - railtop - gmo - g;
       p2.x := xorg - ms_loop;
       p2.y := 0 - railtop - gmo - g + ms_loop;     // loop
-      enter_mark(True, p1, p2, eMC_10_PlainTrackStart, '');      // mark vertical MS indicator loop 216a.
+      enter_mark(True, p1, p2, eMC_10_PlainTrackStart, '');
+      // mark vertical MS indicator loop 216a.
 
       p1.x := xorg - ms_loop;
       p1.y := 0 - railtop - gmo - g + ms_loop;
       p2.x := xorg;
       p2.y := 0 - railtop - gmo - g + ms_loop;     // loop
-      enter_mark(True, p1, p2, eMC_10_PlainTrackStart, '');      // mark horizontal MS indicator loop 216a.
+      enter_mark(True, p1, p2, eMC_10_PlainTrackStart, '');
+      // mark horizontal MS indicator loop 216a.
 
     end;
   end;
@@ -23397,9 +23395,9 @@ begin
         // 206b 211b ignore long marks and switch/xing labels for control template on trackpad  600,601-605, 700,701-703
 
         if ((code = eMC_203_TimberInfill)
-        or (code = eMC_233_Infill_3)
-        or (code = eMC_293_Infill_4)
-        or (code = eMC_493_Chair))
+          or (code = eMC_233_Infill_3)
+          or (code = eMC_293_Infill_4)
+          or (code = eMC_493_Chair))
           and (i < (mark_index - 1))
         // timber infill, chair outlines
         then begin
@@ -23418,8 +23416,7 @@ begin
 
         if (code <> eMC_99_TimberNumber)
           and (code < eMC_501_MSWorkingEnd)  // 0.94.a  501-508 is check-rail labels
-        then
-        begin
+        then begin
           p2 := ptr_1st^.p2;    // x2,y2 in  1/100ths mm
 
           //Pen.Style:=ptr^.pen_style;
@@ -23488,14 +23485,12 @@ begin
                 else
                   CONTINUE;
 
-              eMC_8_PegArm_1:
-              begin                  // peg 1st arm.
+              eMC_8_PegArm_1: begin                  // peg 1st arm.
                 peg_arm1 := ptr_1st^;  // save mark for marking later.
                 CONTINUE;            // next mark.
               end;
 
-              eMC_9_PegArm_2:
-              begin                  // peg 2nd arm.
+              eMC_9_PegArm_2: begin                  // peg 2nd arm.
                 peg_arm2 := ptr_1st^;  // save mark for marking later.
                 CONTINUE;            // next mark.
               end;
@@ -23529,8 +23524,9 @@ begin
                 else
                   Pen.Color := clWhite;
 
-            eMC_203_TimberInfill:
-                if (pad_timb_infill_style > 0) and ((screenx < 200 * scale) or (pad_timb_infill_style > 2))
+              eMC_203_TimberInfill:
+                if (pad_timb_infill_style > 0) and ((screenx < 200 * scale) or
+                  (pad_timb_infill_style > 2))
                 // infill on pad if solid/blank fill or large enough to see hatching.
                 then
                   Pen.Color := timber_infill_colour
@@ -23555,8 +23551,7 @@ begin
           check_int2y := limits(h_minint, h_maxint, (p2.Y + yd) * sy + by - gy, dummy_i);
 
           if (code > eMC_0_Ignore)
-            and (code < eMC_200_placeholder) then
-          begin
+            and (code < eMC_200_placeholder) then begin
             move_to.X := Round(check_int1x);
             move_to.Y := Round(check_int1y);
             line_to.X := Round(check_int2x);
@@ -23566,13 +23561,10 @@ begin
               LineTo(line_to.X, line_to.Y);
             end;
           end
-          else
-          begin
+          else begin
             if code = eMC__1_PegCentre        // code -1, draw fixing peg (not arms) ...
-            then
-            begin
-              if ink = True then
-              begin
+            then begin
+              if ink = True then begin
                 draw_notch(on_canvas);
                 // first draw the pegging notch again between the timbers and the rails.
                 // This routine is in the grid unit (notch already drawn underneath timbers).
@@ -23689,8 +23681,7 @@ begin
 
             if (code = eMC__2_CurvingRadiusCentre_1)
               or (code = eMC__3_CurvingRadiusCentre_2)              // draw curving rad centres...
-            then
-            begin
+            then begin
               radcen_dim := 6;
               // 0.91.b was Screen.Width div 150; // 150 arbitrary. (larger for the current than bgnd keeps).
               if radcen_dim > Round(scale * 5 * fx) then
@@ -23706,15 +23697,14 @@ begin
               end;
 
               if (spiral = True) and (adjust_trans_rad = 1)
-                and (code = eMC__2_CurvingRadiusCentre_1) then
-              begin
+                and (code = eMC__2_CurvingRadiusCentre_1) then begin
                 rad_centx := radcenx;
                 // save pad co-ords for orbit action (r1).
                 rad_centy := radceny;
               end;
 
-              if (spiral = True) and (adjust_trans_rad = 2) and (code = eMC__3_CurvingRadiusCentre_2) then
-              begin
+              if (spiral = True) and (adjust_trans_rad = 2) and
+                (code = eMC__3_CurvingRadiusCentre_2) then begin
                 rad_centx := radcenx;
                 // save pad co-ords for orbit action (r2).
                 rad_centy := radceny;
@@ -23740,12 +23730,11 @@ begin
             end;
 
             if ((code = eMC_203_TimberInfill)
-            or (code = eMC_233_Infill_3)
-            or (code = eMC_293_Infill_4)
-            or (code = eMC_493_Chair))
+              or (code = eMC_233_Infill_3)
+              or (code = eMC_293_Infill_4)
+              or (code = eMC_493_Chair))
               and (ptr_2nd <> nil)   // timber infill, chair outlines...
-              and (pad_timb_infill_style > 0) then
-            begin
+              and (pad_timb_infill_style > 0) then begin
               check_int3x := limits(h_minint, h_maxint, p3.X * sx + ex - gx, dummy_i);
               // h_min, h_max 31 bit to give room for some arithmetic on the data (shift keeps, etc.)
               check_int3y :=
@@ -23805,8 +23794,7 @@ begin
                   // shoved timber overides...
 
                   if code = eMC_293_Infill_4        // shoved but not selected.
-                  then
-                  begin
+                  then begin
                     if paper_colour <> clBlue then
                       Brush.Color := clBlue
                     else
@@ -23814,8 +23802,7 @@ begin
                   end;
 
                   if code = eMC_233_Infill_3        // currently selected for shoving.
-                  then
-                  begin
+                  then begin
                     if paper_colour <> clRed then
                       Brush.Color := clRed
                     else
@@ -23825,8 +23812,7 @@ begin
                   // chair outline overides...
 
                   if code = eMC_493_Chair        // chair outlines (appear hollow)
-                  then
-                  begin
+                  then begin
                     Pen.Color := timber_colour;
                     Brush.Color := $00B0D0D0; // was paper_colour;
                     Brush.Style := bsSolid;
@@ -23840,8 +23826,7 @@ begin
         end
         else begin   // 99 or 501+  0.94.a
 
-          if code = eMC_99_TimberNumber then
-          begin
+          if code = eMC_99_TimberNumber then begin
             if pad_timber_numbers = True // code=99, text mark (timber numbering).
             then begin
               check_int1x := limits(h_minint, h_maxint, p1.X * sx + ex - gx, dummy_i);
@@ -24427,7 +24412,7 @@ var
             if ((main_road_stock_rail_flag = True) and ((timb_str = 'A') or
               (timb_str = 'E') or (timb_str = 'N'))) or
               ((crossing_vee_flag = True) and (timb_str = 'R')) then
-              enter_mark(True, p1, p2, eMC_6_RailJoint, '');   
+              enter_mark(True, p1, p2, eMC_6_RailJoint, '');
             // make rail-joint mark, straight stock rail.
           end;
 
@@ -24447,7 +24432,7 @@ var
             if ((turnout_road_stock_rail_flag = True) and ((timb_str = 'A') or
               (timb_str = 'R') or (timb_str = 'N'))) or
               ((crossing_vee_flag = True) and (timb_str = 'E')) then
-              enter_mark(True, p1, p2, eMC_6_RailJoint, '');  
+              enter_mark(True, p1, p2, eMC_6_RailJoint, '');
             // make rail-joint mark, curved stock rail.
           end;
         end;
@@ -25648,7 +25633,8 @@ begin
     p1.y := yns + yret;
     p2.x := xfs + tbl + crab;
     p2.y := yns + yret;
-    calc_fill_timber_mark(EmarkCode(3 + shove_this));  // mark timber near end. ( 3 = timber outline.)
+    calc_fill_timber_mark(EmarkCode(3 + shove_this));
+    // mark timber near end. ( 3 = timber outline.)
     // (33 = highlighted timber outline).
 
     if full_length = True then begin
@@ -25713,7 +25699,8 @@ begin
       end;//with
 
       if midline = False then
-        calc_fill_timber_mark(EmarkCode(4 + shove_this))  // 4 = centre-line,  44 = selected timber.
+        calc_fill_timber_mark(EmarkCode(4 + shove_this))
+      // 4 = centre-line,  44 = selected timber.
       else
         calc_fill_timber_mark(EmarkCode(14 + shove_this));
       // 14,54 = timber centre-line, use solid line if drawing rail centrelines. (for rivets?)
@@ -29223,8 +29210,7 @@ begin
     gocalc(0, 0);         // peg calcs.
 
     if (spiral = True) and (pad_form.make_tools_normalize_transitions_menu_entry.Checked =
-      True) then
-    begin
+      True) then begin
       normalize_transition;   // ignore result.
       gocalc(0, 0);            // peg calcs.
     end;
@@ -29255,8 +29241,7 @@ begin
     set_plain_track(True, True);
 
     if (spiral = True) and (pad_form.make_tools_normalize_transitions_menu_entry.Checked =
-      True) then
-    begin
+      True) then begin
       gocalc(0, 0);                 // peg calcs.
       normalize_transition;        // ignore result.
     end;
@@ -29732,7 +29717,9 @@ begin
 
         repeat
           i := alert(7, 'php/102   make  irregular  diamond - crossing',
-            'Using the current settings, you are about to make an irregular-type diamond-crossing having regular-type V-crossings.' + '||The result will be that the diagonal road will not follow a single ruling curve through the V-crossings.' + '||This is normally correct only when a half-diamond template is forming part of a crossover with a turnout also having a regular or generic type of V-crossing,' + ' or the half-diamond is connected to a return curve.' + '||Otherwise it is generally better to use curviform V-crossings in an irregular diamond-crossing, so that the diagonal road follows a single curve through the full diamond.' + '||In special cases it is possible to mix different types of V-crossing in the same diamond-crossing, and/or to have a different diagonal radius in each half-diamond.' + ' Make such changes after creating the full diamond-crossing, so that the K-crossing angles in each half always match.' + '||(This diamond-crossing will be irregular-type because the current V-crossing and K-crossing angles are unequal.)', '', '', '', 'more  information  about  types  of  V-crossing', 'cancel', 'continue  with  regular  V-crossings', 4);
+            'Using the current settings, you are about to make an irregular-type diamond-crossing having regular-type V-crossings.' +
+            '||The result will be that the diagonal road will not follow a single ruling curve through the V-crossings.'
+            + '||This is normally correct only when a half-diamond template is forming part of a crossover with a turnout also having a regular or generic type of V-crossing,' + ' or the half-diamond is connected to a return curve.' + '||Otherwise it is generally better to use curviform V-crossings in an irregular diamond-crossing, so that the diagonal road follows a single curve through the full diamond.' + '||In special cases it is possible to mix different types of V-crossing in the same diamond-crossing, and/or to have a different diagonal radius in each half-diamond.' + ' Make such changes after creating the full diamond-crossing, so that the K-crossing angles in each half always match.' + '||(This diamond-crossing will be irregular-type because the current V-crossing and K-crossing angles are unequal.)', '', '', '', 'more  information  about  types  of  V-crossing', 'cancel', 'continue  with  regular  V-crossings', 4);
 
           if i = 4 then
             alert_help(0, v_xing_types_help_str, '');
@@ -36517,7 +36504,8 @@ begin
   pp2.x := ponpad.x + xshift;
   pp2.y := ponpad.y + yshift;
 
-  fill_mark(convert_point(pp1), convert_point(pp2), eMC_700_XingLabelStart, '');  // into marks list.
+  fill_mark(convert_point(pp1), convert_point(pp2), eMC_700_XingLabelStart, '');
+  // into marks list.
 
   Result := pp1;     // in case label note needed (TS side) (half-diamonds)
 
@@ -36549,7 +36537,19 @@ begin
   pp4.x := ponpad.x + xshift;
   pp4.y := ponpad.y + yshift;
 
-  fill_mark(convert_point(pp3), convert_point(pp4), eMC_700_XingLabelStart, '');   // into marks list.
+  fill_mark(convert_point(pp3), convert_point(pp4), eMC_700_XingLabelStart, '');
+  // into marks list.
+
+
+
+
+
+
+
+
+
+
+
 
   Result := pp4;  // return position for note
 

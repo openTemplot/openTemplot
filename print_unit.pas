@@ -23,7 +23,7 @@
 ====================================================================================
 *)
 
-
+{}
 unit print_unit;
 
 {$MODE Delphi}
@@ -705,8 +705,8 @@ var
         end;
 
         if ((mark_code = eMC_203_TimberInfill)
-        or (mark_code = eMC_233_Infill_3)
-        or (mark_code = eMC_293_Infill_4)) and
+          or (mark_code = eMC_233_Infill_3)
+          or (mark_code = eMC_293_Infill_4)) and
           (i < (mark_index - 1))      // timber infill
         then begin
           ptr_2nd := @marks_list_ptr[i + 1];
@@ -723,10 +723,10 @@ var
           ptr_2nd := nil;    // keep compiler happy.
 
         if ((mark_code > eMC_0_Ignore)
-        and (mark_code < eMC_200_placeholder)
-        and (mark_code <> eMC_8_PegArm_1)
-        and (mark_code <> eMC_9_PegArm_2)
-        and (mark_code <> eMC_10_PlainTrackStart))
+          and (mark_code < eMC_200_placeholder)
+          and (mark_code <> eMC_8_PegArm_1)
+          and (mark_code <> eMC_9_PegArm_2)
+          and (mark_code <> eMC_10_PlainTrackStart))
           // ignore peg, rad centres, timber selector and peg arms, plain track start, label.
           or (mark_code = eMC_600_LongMark)
           or (mark_code = eMC_700_XingLabelStart)
@@ -734,12 +734,12 @@ var
         then begin
 
           if ((mark_code = eMC_5_TimberReducedEnd)
-          or (mark_code = eMC_55_ReducedEnd)
-          or (mark_code = eMC_95_Infill_2)
-          or (mark_code = eMC_600_LongMark)
-          or (mark_code = eMC_700_XingLabelStart))
+            or (mark_code = eMC_55_ReducedEnd)
+            or (mark_code = eMC_95_Infill_2)
+            or (mark_code = eMC_600_LongMark)
+            or (mark_code = eMC_700_XingLabelStart))
             and (out_factor <> 1.0) then
-            CONTINUE;   
+            CONTINUE;
           // reduced ends are meaningless if not full-size. 206b 600 added, 211b 700 added
 
           p1 := ptr_1st^.p1;              // x1,y1 in  1/100ths mm
@@ -762,16 +762,14 @@ var
               eMC_93_Infill_1:
                 Pen.Width := printtimber_wide;  // timber outlines.
               eMC_4_TimberCL,
-              eMC_44_ShovingTimberCL_1:
-              begin
+              eMC_44_ShovingTimberCL_1: begin
                 Pen.Width := 1;
                 // timber centre-lines.
                 Pen.Style := psDash;
               end;
               eMC_5_TimberReducedEnd,
               eMC_55_ReducedEnd,
-              eMC_95_Infill_2:
-              begin
+              eMC_95_Infill_2: begin
                 Pen.Width := 1;
                 // timber reduced ends.
                 Pen.Style := psDot;
@@ -783,8 +781,7 @@ var
 
 
               eMC_14_TimberCLSolid,
-              eMC_54_ShovingTimberCL_2:
-              begin
+              eMC_54_ShovingTimberCL_2: begin
                 Pen.Width := printrail_wide;
                 // timber centre-lines with rail centre-lines (for rivet locations?).
                 Pen.Style := psSolid;
@@ -899,7 +896,7 @@ var
         else begin   // other codes...
 
           if ((mark_code = eMC__2_CurvingRadiusCentre_1)
-          or (mark_code = eMC__3_CurvingRadiusCentre_2)) and
+            or (mark_code = eMC__3_CurvingRadiusCentre_2)) and
             {(pad_form.print_radial_centres_menu_entry.Checked=True)}// 0.82.b
             (print_settings_form.output_radial_centres_checkbox.Checked = True)
           // draw curving rad centres...
@@ -953,8 +950,8 @@ var
           end;
 
           if ((mark_code = eMC_203_TimberInfill)
-          or (mark_code = eMC_233_Infill_3)
-          or (mark_code = eMC_293_Infill_4)) and
+            or (mark_code = eMC_233_Infill_3)
+            or (mark_code = eMC_293_Infill_4)) and
             (ptr_2nd <> nil)        // timber infill...
           then begin
             infill_points[0].X :=
@@ -1028,8 +1025,7 @@ var
           case mark_code of     // switch labels 206b
 
             eMC_601_TipsLabel .. eMC_605_JoggleLabel,
-            eMC_701_XingIntersectionFP .. eMC_703_XingLabelEnd:
-            begin
+            eMC_701_XingIntersectionFP .. eMC_703_XingLabelEnd: begin
 
               if out_factor <> 1.0 then
                 CONTINUE;     // on full size prints only
@@ -4129,7 +4125,7 @@ begin
             case code of
               eMC_3_TimberOutline,
               eMC_4_TimberCL,
-              eMC_5_TimberReducedEnd ,
+              eMC_5_TimberReducedEnd,
               eMC_14_TimberCLSolid,
               eMC_33_ShovingTimberOutline,
               eMC_44_ShovingTimberCL_1,
@@ -4169,17 +4165,17 @@ begin
           end;
 
           if ((code = eMC_5_TimberReducedEnd)
-          or (code = eMC_55_ReducedEnd)
-          or (code = eMC_95_Infill_2)
-          or (code = eMC_600_LongMark)
-          or (code = eMC_700_XingLabelStart)) and
+            or (code = eMC_55_ReducedEnd)
+            or (code = eMC_95_Infill_2)
+            or (code = eMC_600_LongMark)
+            or (code = eMC_700_XingLabelStart)) and
             (out_factor <> 1.0) then
             CONTINUE;
           // reduced ends are meaningless if not full-size.   206b 600 added. 211b 700 added
 
           if ((code = eMC_203_TimberInfill)
-          or (code = eMC_233_Infill_3)
-          or (code = eMC_293_Infill_4))
+            or (code = eMC_233_Infill_3)
+            or (code = eMC_293_Infill_4))
             and (i < array_max)         // timber infill
           then begin
             p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
@@ -4203,7 +4199,7 @@ begin
           end;
 
           if ((code > eMC_0_Ignore)
-          and (code < eMC_99_TimberNumber))
+            and (code < eMC_99_TimberNumber))
             or (code = eMC_600_LongMark)
             or (code = eMC_700_XingLabelStart)
           // 206b 211b overwrite switch/xing marks on output
@@ -4241,11 +4237,13 @@ begin
                   Pen.Width := printmark_wide;    // transition ends.
                 eMC_14_TimberCLSolid,
                 eMC_54_ShovingTimberCL_2:
-                  Pen.Width := printrail_wide;    // timber centre-lines with rail centre-lines (for rivet locations?).
+                  Pen.Width := printrail_wide;
+                // timber centre-lines with rail centre-lines (for rivet locations?).
 
                 eMC_600_LongMark,
                 eMC_700_XingLabelStart:
-                  Pen.Width := printrail_wide + printrail_wide div 2;   //  206b 211b long switch/xing marks
+                  Pen.Width := printrail_wide + printrail_wide div 2;
+                  //  206b 211b long switch/xing marks
 
                 else
                   Pen.Width := 1;                  // others not drawn.
@@ -4286,7 +4284,8 @@ begin
                     eMC_1_GuideMark,
                     eMC_600_LongMark,
                     eMC_700_XingLabelStart:
-                      Pen.Color := printguide_colour;  // guide marks.  206b 600 added, 211b 700 added
+                      Pen.Color := printguide_colour;
+                    // guide marks.  206b 600 added, 211b 700 added
                     eMC_2_RadialEnd:
                       Pen.Color := printalign_colour;  // rad end marks.
                     eMC_3_TimberOutline,
@@ -4319,7 +4318,7 @@ begin
           end
           else begin
             if ((code = eMC__2_CurvingRadiusCentre_1)
-            or (code = eMC__3_CurvingRadiusCentre_2)) and
+              or (code = eMC__3_CurvingRadiusCentre_2)) and
               {(pad_form.print_radial_centres_menu_entry.Checked=True)}// 0.82.b
               (print_settings_form.output_radial_centres_checkbox.Checked = True)
             // draw curving rad centres...
@@ -4449,7 +4448,8 @@ begin
 
             if (code = eMC_99_TimberNumber) and
               ((pad_form.print_timber_numbering_menu_entry.Checked = True) or
-              ((out_factor > 0.99) and (pad_form.numbering_fullsize_only_menu_entry.Checked = True)))
+              ((out_factor > 0.99) and
+              (pad_form.numbering_fullsize_only_menu_entry.Checked = True)))
             then begin
               p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
               p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
@@ -4520,8 +4520,7 @@ begin
             case code of     // switch labels 206b
 
               eMC_601_TipsLabel .. eMC_605_JoggleLabel,
-              eMC_701_XingIntersectionFP .. eMC_703_XingLabelEnd:
-              begin
+              eMC_701_XingIntersectionFP .. eMC_703_XingLabelEnd: begin
 
                 if out_factor <> 1.0 then
                   CONTINUE;     // on full size prints only
@@ -5007,7 +5006,8 @@ var
           // and trackbed ends  206b
 
           if (rail = eRD_StraightStockGaugeFace) or (rail = eRD_CurvedStockGaugeFace) or
-            (rail = eRD_AdjTrackTurnoutSideFarGaugeFace) or (rail = eRD_AdjTrackMainSideFarGaugeFace)
+            (rail = eRD_AdjTrackTurnoutSideFarGaugeFace) or
+            (rail = eRD_AdjTrackMainSideFarGaugeFace)
           // 18,22 added 206b
           then begin
             pbg_modify_rail_end(

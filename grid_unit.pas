@@ -23,7 +23,7 @@
 ====================================================================================
 *)
 
-
+{ }
 unit grid_unit;
 
 {$MODE Delphi}
@@ -1974,7 +1974,7 @@ begin
                     eMC_501_MSWorkingEnd..eMC_508_DSWingRail,
                     eMC_600_LongMark..eMC_605_SWitchLabelEnd,
                     eMC_700_XingLabelStart..eMC_703_XingLabelEnd:
-                      CONTINUE;    
+                      CONTINUE;
                     // ignore timber selector mark, blank lines. // 0.94.a ignore check-rail labels
                     // 206b  600..605, 700..703 ignore long marks and switch/xing labels on trackpad
 
@@ -1988,18 +1988,18 @@ begin
                       end
                       else
                         CONTINUE;
-                        eMC__1_PegCentre,
-                        eMC_8_PegArm_1,
-                        eMC_9_PegArm_2:
+                    eMC__1_PegCentre,
+                    eMC_8_PegArm_1,
+                    eMC_9_PegArm_2:
                       if peg_checkbox.Checked = True then
                         Pen.Color := bgkeep_peg_colour     // fixing peg, peg arms.
                       else
                         CONTINUE;
 
-                        eMC_1_GuideMark,
-                        eMC_2_RadialEnd,
-                        eMC_7_TransitionAndSlewing,
-                        eMC_10_PlainTrackStart:
+                    eMC_1_GuideMark,
+                    eMC_2_RadialEnd,
+                    eMC_7_TransitionAndSlewing,
+                    eMC_10_PlainTrackStart:
                       if marks_checkbox.Checked = True then begin
                         if using_marker_colour = False then
                           Pen.Color :=
@@ -2010,9 +2010,9 @@ begin
                       else
                         CONTINUE;
 
-                      eMC_3_TimberOutline,
-                      eMC_33_ShovingTimberOutline,
-                      eMC_93_Infill_1:
+                    eMC_3_TimberOutline,
+                    eMC_33_ShovingTimberOutline,
+                    eMC_93_Infill_1:
                       if timber_outlines_checkbox.Checked = True then begin
                         if using_marker_colour = False then
                           Pen.Color := bgkeep_timber_colour  // timber outlines.
@@ -2022,10 +2022,10 @@ begin
                       else
                         CONTINUE;
 
-                      eMC_4_TimberCL,
-                      eMC_14_TimberCLSolid,
-                      eMC_44_ShovingTimberCL_1,
-                      eMC_54_ShovingTimberCL_2:
+                    eMC_4_TimberCL,
+                    eMC_14_TimberCLSolid,
+                    eMC_44_ShovingTimberCL_1,
+                    eMC_54_ShovingTimberCL_2:
                       if timber_centres_checkbox.Checked = True then begin
                         if using_marker_colour = False then
                           Pen.Color := bgkeep_timber_colour  // timber centre-lines only on pad.
@@ -2035,9 +2035,9 @@ begin
                       else
                         CONTINUE;
 
-                      eMC_5_TimberReducedEnd,
-                      eMC_55_ReducedEnd,
-                      eMC_95_Infill_2:
+                    eMC_5_TimberReducedEnd,
+                    eMC_55_ReducedEnd,
+                    eMC_95_Infill_2:
                       if reduced_ends_checkbox.Checked = True  // timber reduced ends.
                       then begin
                         if using_marker_colour = False then
@@ -2049,7 +2049,7 @@ begin
                         CONTINUE;
 
 
-                      eMC_6_RailJoint:
+                    eMC_6_RailJoint:
                       if joints_checkbox.Checked = True then begin
                         if using_marker_colour = False then
                           Pen.Color := bgkeep_mark_colour    // rail joints.
@@ -2059,19 +2059,20 @@ begin
                       else
                         CONTINUE;
 
-                      eMC_99_TimberNumber:
+                    eMC_99_TimberNumber:
                       if timber_numbering_checkbox.Checked = False then
                         CONTINUE;  // text.
 
-                      eMC_203_TimberInfill,
-                      eMC_233_Infill_3,
-                      eMC_293_Infill_4:
+                    eMC_203_TimberInfill,
+                    eMC_233_Infill_3,
+                    eMC_293_Infill_4:
                       if (timber_infill_checkbox.Checked = True) and
                         ((screenx < 200 * scale) or (bgpad_timb_infill_style > 2))
                       // infill on pad if solid/blank fill or large enough to see hatching.
                       then
                         Pen.Color :=
-                          paper_colour //use paper colour to avoid line thickening caused by rounding, when the outline overwrites.
+                          paper_colour
+                      //use paper colour to avoid line thickening caused by rounding, when the outline overwrites.
                       //was bgkeep_timber_colour  // timber infill.
                       else
                         CONTINUE;
@@ -2116,8 +2117,8 @@ begin
                 check_int2y := limits(h_minint, h_maxint, p2.Y * sy + by - gy, dummy_i);
 
                 if ((code = eMC_203_TimberInfill)
-                or (code = eMC_233_Infill_3)
-                or (code = eMC_293_Infill_4))
+                  or (code = eMC_233_Infill_3)
+                  or (code = eMC_293_Infill_4))
                   and (i < array_max)    // timber infill
                 then begin
                   p3 := list_bgnd_marks[i + 1].p1;  // x3,y3 in  1/100ths mm
@@ -2210,7 +2211,8 @@ begin
                   end
                   else begin
                     if (bgk = last_bgnd_index) and (Pen.Color =
-                      bgkeep_timber_colour) and (bgkeeps_form.bold_timber_outlines_checkbox.Checked = True)
+                      bgkeep_timber_colour) and
+                      (bgkeeps_form.bold_timber_outlines_checkbox.Checked = True)
                     // 219a
                     then
                       Pen.Width := 3
@@ -2844,8 +2846,7 @@ begin
                 if (requested_label_string <> '') and
                   (text_begin_X <> min_draw_int) and (text_begin_Y <> min_draw_int)
                 then begin
-                  if pad_form.boxed_over_names_menu_entry.Checked = True then
-                  begin
+                  if pad_form.boxed_over_names_menu_entry.Checked = True then begin
                     Pen.Color := paper_colour;
                     Pen.Width := 1;
                     Pen.Style := psSolid;     // 215b

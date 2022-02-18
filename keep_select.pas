@@ -3015,8 +3015,7 @@ var
       then begin
         st := 0;    // keep compiler happy.
 
-        with Ttemplate(keeps_list.Objects[t_index]).template_info.keep_shove_list do
-        begin
+        with Ttemplate(keeps_list.Objects[t_index]).template_info.keep_shove_list do begin
 
           if Count <> 0 then
             EXIT;   // !!! shove list should be empty (created in init_ttemplate).
@@ -3609,7 +3608,8 @@ begin
                       i :=
                         alert(4, '    restore  previous  work ?',
                         ' |Do you want to restore your work in progress from your previous Templot0 session?| ',
-                        '', '', '', 'more  information', 'no  thanks', 'yes  please  -  restore  previous  work', 4);
+                        '', '', '', 'more  information', 'no  thanks',
+                        'yes  please  -  restore  previous  work', 4);
                       case i of
                         4:
                           alert_help(0, ask_restore_str, '');
@@ -3801,7 +3801,8 @@ begin
         'The file which you just reloaded contained one or more templates from a later version of Templot0 than this one.'
         +
         ' Some features may not be available or may be drawn differently.' +
-        '||The earliest loaded template was from version  ' + FormatFloat('0.00', loaded_version / 100) +
+        '||The earliest loaded template was from version  ' +
+        FormatFloat('0.00', loaded_version / 100) +
         '|This version of Templot0 is  ' + GetVersionString(voShort) +
         '||Please refer to the Templot web site at  templot.com  for information about upgrading to the latest version, or click| <A HREF="online_ref980.85a">more information online</A> .',
         '', '', '', '', '', 'continue', 0);
@@ -5506,15 +5507,14 @@ begin
             draw_rail(aq);
         end;//next aq
 
-      if (adjacent_edges = False) and (bgkeeps_form.gauge_faces_checkbox.Checked = True) then
-      begin
+      if (adjacent_edges = False) and (bgkeeps_form.gauge_faces_checkbox.Checked = True) then begin
         for aq in eRD_AdjacentTracksGaugeFaces do begin
           draw_rail(aq);
         end;
       end;
 
-      if (adjacent_edges = False) and (bgkeeps_form.outer_edges_checkbox.Checked = True) then
-      begin
+      if (adjacent_edges = False) and (bgkeeps_form.outer_edges_checkbox.Checked = True) then begin
+
         for aq in eRD_AdjacentTracksOuterFaces do begin
           draw_rail(aq);
         end;

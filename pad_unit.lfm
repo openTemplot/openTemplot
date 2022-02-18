@@ -1,13 +1,13 @@
 object pad_form: Tpad_form
   Left = 12
   Height = 748
-  Top = 12
+  Top = 41
   Width = 1268
   HorzScrollBar.Tracking = True
   VertScrollBar.Tracking = True
   AllowDropFiles = True
   Caption = '          trackpad'
-  ClientHeight = 728
+  ClientHeight = 727
   ClientWidth = 1268
   Color = clSilver
   Font.Color = clNavy
@@ -74,7 +74,7 @@ object pad_form: Tpad_form
   object time_now_panel: TPanel
     Left = 1138
     Height = 29
-    Top = 696
+    Top = 695
     Width = 88
     Anchors = [akRight, akBottom]
     BevelOuter = bvNone
@@ -98,8 +98,8 @@ object pad_form: Tpad_form
     Alignment = taLeftJustify
     BevelOuter = bvNone
     BorderStyle = bsSingle
-    ClientHeight = 16
-    ClientWidth = 105
+    ClientHeight = 18
+    ClientWidth = 107
     Color = clAqua
     Font.Color = clBlack
     Font.Height = -13
@@ -266,7 +266,7 @@ object pad_form: Tpad_form
   end
   object arrow_button_dummy_trackbar: TTrackBar
     Left = 0
-    Height = 25
+    Height = 38
     Top = 120
     Width = 60
     Position = 5
@@ -1002,18 +1002,18 @@ object pad_form: Tpad_form
       Width = 19
       BevelOuter = bvNone
       BorderStyle = bsSingle
-      ClientHeight = 18
-      ClientWidth = 15
+      ClientHeight = 20
+      ClientWidth = 17
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
       OnClick = colour_panelClick
       object colour_patch: TImage
         Left = 0
-        Height = 18
+        Height = 20
         Hint = ' change  trackpad  colour  scheme '
         Top = 0
-        Width = 15
+        Width = 17
         Align = alClient
         OnClick = colour_panelClick
         Picture.Data = {
@@ -1291,7 +1291,7 @@ object pad_form: Tpad_form
     Left = 1244
     Height = 160
     Hint = ' change program size to suit your screen '
-    Top = 568
+    Top = 567
     Width = 24
     Max = 7
     Min = 1
@@ -1311,7 +1311,7 @@ object pad_form: Tpad_form
     Left = 1244
     Height = 20
     Hint = 'whats this?'
-    Top = 548
+    Top = 547
     Width = 24
     Alignment = taCenter
     Anchors = [akRight, akBottom]
@@ -1516,7 +1516,7 @@ object pad_form: Tpad_form
   object scaling_labels_panel: TPanel
     Left = 1072
     Height = 160
-    Top = 568
+    Top = 567
     Width = 172
     Anchors = [akRight, akBottom]
     BevelOuter = bvNone

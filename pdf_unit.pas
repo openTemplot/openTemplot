@@ -22,7 +22,7 @@ I have a list of things still to do, including:
 
 }
 
-
+{}
 unit pdf_unit;
 
 {$MODE Delphi}
@@ -485,23 +485,23 @@ function switch_label_text(code: EmarkCode): String;
 begin
   case code of
     eMC_601_TipsLabel:
-      RESULT := 'tips';
+      Result := 'tips';
     eMC_602_SetLabel:
-      RESULT := 'set (bend)';
+      Result := 'set (bend)';
     eMC_603_PlaningLabel:
-      RESULT := 'planing';
+      Result := 'planing';
     eMC_604_StockGaugeLabel:
-      RESULT := 'stock gauge';
+      Result := 'stock gauge';
     eMC_605_JoggleLabel:
-      RESULT := 'joggles';
+      Result := 'joggles';
     eMC_701_XingIntersectionFP:
-      RESULT := 'intersection FP';
+      Result := 'intersection FP';
     eMC_702_XingBluntNose:
-      RESULT := 'blunt nose';
+      Result := 'blunt nose';
     eMC_703_XingBluntTips:
-      RESULT := 'blunt tips';
+      Result := 'blunt tips';
     else
-      RESULT := 'code ' + inttostr(ord(code)) + ' mark';
+      Result := 'code ' + IntToStr(Ord(code)) + ' mark';
   end;//case
 end;
 //__________________________________________________________________________________________
@@ -547,64 +547,65 @@ begin
     ;
     case code of
       //-5 .. 0: // no name label, timber selector, curve rad or peg centre, blank
-      eMC__5_Label .. eMC_0_Ignore: // no name label, timber selector, curve rad or peg centre, blank
-        RESULT := False;
+      eMC__5_Label .. eMC_0_Ignore:
+        // no name label, timber selector, curve rad or peg centre, blank
+        Result := False;
       eMC_1_GuideMark:
-        RESULT := output_guide_marks_checkbox.Checked;
+        Result := output_guide_marks_checkbox.Checked;
       eMC_2_RadialEnd:
-        RESULT := output_radial_ends_checkbox.Checked;
+        Result := output_radial_ends_checkbox.Checked;
       eMC_3_TimberOutline:
-        RESULT := output_timbering_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked;
       eMC_4_TimberCL:
-        RESULT := output_timbering_checkbox.Checked and
-                  output_timber_centres_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked and
+          output_timber_centres_checkbox.Checked;
       eMC_5_TimberReducedEnd:
-        RESULT := output_timbering_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked;
       eMC_6_RailJoint:
-        RESULT := output_rail_joints_checkbox.Checked;
+        Result := output_rail_joints_checkbox.Checked;
       eMC_7_TransitionAndSlewing:
-        RESULT := output_radial_ends_checkbox.Checked;
+        Result := output_radial_ends_checkbox.Checked;
       eMC_8_PegArm_1,
       eMC_9_PegArm_2,
       eMC_10_PlainTrackStart:
-        RESULT := False;
+        Result := False;
       eMC_14_TimberCLSolid:
-        RESULT := output_timbering_checkbox.Checked and
-                  output_timber_centres_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked and
+          output_timber_centres_checkbox.Checked;
       eMC_33_ShovingTimberOutline:
-        RESULT := output_timbering_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked;
       eMC_44_ShovingTimberCL_1,
       eMC_54_ShovingTimberCL_2:
-        RESULT := output_timbering_checkbox.Checked and
-                  output_timber_centres_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked and
+          output_timber_centres_checkbox.Checked;
       eMC_55_ReducedEnd,
       eMC_93_Infill_1,
       eMC_95_Infill_2,
       eMC_99_TimberNumber:
-        RESULT := output_timbering_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked;
       eMC_101_SwitchDrive:
-        RESULT := output_switch_drive_checkbox.Checked;
+        Result := output_switch_drive_checkbox.Checked;
       eMC_203_TimberInfill,
       eMC_233_Infill_3,
       eMC_293_Infill_4:
-        RESULT := output_timbering_checkbox.Checked;
+        Result := output_timbering_checkbox.Checked;
       eMC_480_ChairStart .. eMC_499_ChairEnd:
-        RESULT := output_chairs_checkbox.Checked;
+        Result := output_chairs_checkbox.Checked;
       eMC_501_MSWorkingEnd .. eMC_508_DSWingRail:
-        RESULT := False;
+        Result := False;
       eMC_600_LongMark .. eMC_605_SwitchLabelEnd:
-        RESULT := output_switch_labels_checkbox.Checked;
+        Result := output_switch_labels_checkbox.Checked;
       eMC_700_XingLabelStart .. eMC_703_XingLabelEnd:
-        RESULT := output_xing_labels_checkbox.Checked;
+        Result := output_xing_labels_checkbox.Checked;
       else
-        show_modal_message('Unhandled code ' + IntToStr(ord(code)) + 'in pdf_unit.wanted_mark().');
+        show_modal_message('Unhandled code ' + IntToStr(Ord(code)) + 'in pdf_unit.wanted_mark().');
     end;
   end;
 
 end;
 //______________________________________________________________________________
 
-function choose_mark_linestyle(pdf_page: TPDF_page; code: EmarkCode; 
+function choose_mark_linestyle(pdf_page: TPDF_page; code: EmarkCode;
   control: boolean): Tpdf_LineStyle; overload;
   // return the line style for a particular mark code
 
@@ -625,7 +626,7 @@ begin
     eMC_4_TimberCL,
     eMC_44_ShovingTimberCL_1:
       Result := lsMark_TimberCentreline;
-    eMC_5_TimberReducedEnd ,
+    eMC_5_TimberReducedEnd,
     eMC_55_ReducedEnd,
     eMC_95_Infill_2:
       Result := lsMark_TimberReducedEnd;
@@ -637,7 +638,7 @@ begin
       Result := lsMark_TimberRivetCentreline;
     eMC_600_LongMark,
     eMC_700_XingLabelStart:                  // TODO: this does not seem to make sense :-/
-//    600, 700:                 //  long marks
+      //    600, 700:                 //  long marks
       Result := lsMark_TimberLongmarks;
     else
       Result := lsMark_Default;
@@ -648,27 +649,26 @@ begin
 
   // do fill colours
   with pdf_page do begin
-      case code of
-        eMC_99_TimberNumber: begin
-          set_fill_colour(clBlack);
-          if not control and (mapping_colours_print < 0) then
-              set_pen_colour(printbg_single_colour);
-          end;
-        eMC_203_TimberInfill,
-        eMC_233_Infill_3,
-        eMC_293_Infill_4:
-        begin
-          set_pen_colour(clwhite);             // so don't overdraw timber outlines.
-          if pdf_black_white then
-            set_fill_colour(clBlack)
-          else
-            set_fill_colour(printtimber_infill_colour);
-          end;
-        eMC_600_LongMark ..  eMC_605_SWitchLabelEnd,
-        eMC_700_XingLabelStart ..  eMC_703_XingLabelEnd:
-          set_fill_colour(printguide_colour);
-        else                                  // -- DEFAULT --
-          set_fill_colour(clRed);       // Let's make it obvious when we mess up!
+    case code of
+      eMC_99_TimberNumber: begin
+        set_fill_colour(clBlack);
+        if not control and (mapping_colours_print < 0) then
+          set_pen_colour(printbg_single_colour);
+      end;
+      eMC_203_TimberInfill,
+      eMC_233_Infill_3,
+      eMC_293_Infill_4: begin
+        set_pen_colour(clwhite);             // so don't overdraw timber outlines.
+        if pdf_black_white then
+          set_fill_colour(clBlack)
+        else
+          set_fill_colour(printtimber_infill_colour);
+      end;
+      eMC_600_LongMark ..  eMC_605_SWitchLabelEnd,
+      eMC_700_XingLabelStart ..  eMC_703_XingLabelEnd:
+        set_fill_colour(printguide_colour);
+      else                                  // -- DEFAULT --
+        set_fill_colour(clRed);       // Let's make it obvious when we mess up!
     end;
   end; // with pdf_page
 
@@ -1137,8 +1137,7 @@ var
           eMC_11_placeholder .. eMC_98_placeholder,
           eMC_100_placeholder .. eMC_199_placeholder,
           eMC_600_LongMark,
-          eMC_700_XingLabelStart:
-          begin
+          eMC_700_XingLabelStart: begin
             p2 := ptr_1st^.p2;      // x2,y2 in  1/100ths mm
 
             move_to := page_locate(p1, grid_left, grid_top, [ypd, 0]);
@@ -1149,7 +1148,7 @@ var
 
           end;
 
-        eMC_99_TimberNumber: begin
+          eMC_99_TimberNumber: begin
             p1 := ptr_1st^.p1;              // x1,y1 in  1/100ths mm
 
             if (pad_form.print_timber_numbering_menu_entry.Checked or
@@ -1200,9 +1199,8 @@ var
             end;
           end;
 
-        eMC__3_CurvingRadiusCentre_2,
-        eMC__2_CurvingRadiusCentre_1:
-        begin                        // curving rad centres...
+          eMC__3_CurvingRadiusCentre_2,
+          eMC__2_CurvingRadiusCentre_1: begin                        // curving rad centres...
             p1 := ptr_1st^.p1;        // x1,y1 in  1/100ths mm
             radcen_arm := 400 * scale;
             // 4ft scale arbitrary (scale is for control template).
@@ -1221,10 +1219,9 @@ var
               draw_line_style(move_to, line_to, linestyle);
           end;
 
-        eMC_203_TimberInfill,
-        eMC_233_Infill_3,
-        eMC_293_Infill_4:
-        begin
+          eMC_203_TimberInfill,
+          eMC_233_Infill_3,
+          eMC_293_Infill_4: begin
             if i >= (mark_index - 1) then
               BREAK; // Is this really needed???
             ptr_2nd := @marks_list_ptr[i + 1];
@@ -1285,9 +1282,8 @@ var
           end;
 
 
-        eMC_601_TipsLabel .. eMC_605_SWitchLabelEnd,
-        eMC_701_XingIntersectionFP .. eMC_703_XingLabelEnd:
-        begin
+          eMC_601_TipsLabel .. eMC_605_SWitchLabelEnd,
+          eMC_701_XingIntersectionFP .. eMC_703_XingLabelEnd: begin
 
             if out_factor <> 1.0 then
               CONTINUE;     // on full size prints only
@@ -3728,25 +3724,25 @@ begin
           if rail_joints = (code <> eMC_6_RailJoint) then
             CONTINUE;
 
-          if (  (code = eMC_5_TimberReducedEnd)
-             or (code = eMC_55_ReducedEnd)
-             or (code = eMC_95_Infill_2)
-             or (code = eMC_600_LongMark)
-             or (code = eMC_700_XingLabelStart)) and
+          if ((code = eMC_5_TimberReducedEnd)
+            or (code = eMC_55_ReducedEnd)
+            or (code = eMC_95_Infill_2)
+            or (code = eMC_600_LongMark)
+            or (code = eMC_700_XingLabelStart)) and
             (out_factor <> 1.0) then
             CONTINUE;
           // reduced ends are meaningless if not full-size.   206b 600 added. 211b 700 added
 
           line_style := choose_mark_linestyle(pdf_page, code, False);
 
-          case code  of
-          eMC_1_GuideMark .. eMC_98_placeholder,
-          eMC_100_placeholder .. eMC_199_placeholder,
-          eMC_600_LongMark,
-          eMC_700_XingLabelStart: begin
-          write_comment('Mark ' + inttostr(ord(code)) + ' using ' + line_style.str());
-            p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
-            p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
+          case code of
+            eMC_1_GuideMark .. eMC_98_placeholder,
+            eMC_100_placeholder .. eMC_199_placeholder,
+            eMC_600_LongMark,
+            eMC_700_XingLabelStart: begin
+              write_comment('Mark ' + IntToStr(Ord(code)) + ' using ' + line_style.str());
+              p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
+              p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
 
               if pdf_black_white then
                 set_pen_colour(clBlack)
@@ -3770,9 +3766,8 @@ begin
                 draw_line_style(move_to, line_to, line_style);
             end;
 
-          eMC__3_CurvingRadiusCentre_2,
-          eMC__2_CurvingRadiusCentre_1:
-          begin
+            eMC__3_CurvingRadiusCentre_2,
+            eMC__2_CurvingRadiusCentre_1: begin
               //if pdf_black_white=True
               //   then Pen.Color:=clBlack  // overide.
               //   else begin
@@ -3816,8 +3811,7 @@ begin
 
             eMC_203_TimberInfill,
             eMC_233_Infill_3,
-            eMC_293_Infill_4:
-            begin
+            eMC_293_Infill_4: begin
 
               if i < array_max then begin
                 p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
@@ -3893,15 +3887,15 @@ begin
               end;
             end;
 
-          eMC_99_TimberNumber: begin                           // Timber Labels
-            if (pad_form.print_timber_numbering_menu_entry.Checked
-              or  ((out_factor > 0.99)
+            eMC_99_TimberNumber: begin                           // Timber Labels
+              if (pad_form.print_timber_numbering_menu_entry.Checked
+                or ((out_factor > 0.99)
                 and pad_form.numbering_fullsize_only_menu_entry.Checked))
-              and print_settings_form.output_timber_numbers_checkbox.Checked
+                and print_settings_form.output_timber_numbers_checkbox.Checked
 
-            then begin
-              p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
-              p2 := list_bgnd_marks[i].p2;
+              then begin
+                p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
+                p2 := list_bgnd_marks[i].p2;
 
                 if print_settings_form.output_timb_id_prefix_checkbox.Checked then
                   move_to := page_locate(p2, grid_left, grid_top)
@@ -3968,9 +3962,8 @@ begin
             end;//numbering
 
 
-          eMC_601_TipsLabel .. eMC_605_SWitchLabelEnd,
-          eMC_701_XingIntersectionFP .. eMC_703_XingLabelEnd:
-          begin
+            eMC_601_TipsLabel .. eMC_605_SWitchLabelEnd,
+            eMC_701_XingIntersectionFP .. eMC_703_XingLabelEnd: begin
 
               if out_factor <> 1.0 then
                 CONTINUE;     // on full size prints only
@@ -4510,7 +4503,14 @@ var
           // and trackbed ends  206b
 
           if rail in [eRD_StraightStockGaugeFace, eRD_CurvedStockGaugeFace,
-            eRD_AdjTrackTurnoutSideFarGaugeFace, eRD_AdjTrackMainSideFarGaugeFace]   // 18,22 added 206b
+            eRD_AdjTrackTurnoutSideFarGaugeFace, eRD_AdjTrackMainSideFarGaugeFace]
+          // 18,22 added 206b
+
+
+
+
+
+
           then begin
             pbg_modify_rail_end(
               0, dots_index, edge_colour, blanking_colour);  // toe or approach end.

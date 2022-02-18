@@ -22,7 +22,7 @@
 ====================================================================================
 *)
 
-
+{ }
 unit export_draw_unit;
 
 {$mode delphi}
@@ -417,7 +417,7 @@ var
           case mark_code of
             eMC_3_TimberOutline,
             eMC_4_TimberCL,
-            eMC_5_TimberReducedEnd ,
+            eMC_5_TimberReducedEnd,
             eMC_14_TimberCLSolid,
             eMC_33_ShovingTimberOutline,
             eMC_44_ShovingTimberCL_1,
@@ -476,8 +476,8 @@ var
         end;
 
         if ((mark_code = eMC_203_TimberInfill)
-        or (mark_code = eMC_233_Infill_3)
-        or (mark_code = eMC_293_Infill_4))
+          or (mark_code = eMC_233_Infill_3)
+          or (mark_code = eMC_293_Infill_4))
           and
           (i < (mark_index - 1))      // timber infill
         then begin
@@ -503,8 +503,8 @@ var
         then begin
 
           if ((mark_code = eMC_5_TimberReducedEnd)
-          or (mark_code = eMC_55_ReducedEnd)
-          or (mark_code = eMC_95_Infill_2))
+            or (mark_code = eMC_55_ReducedEnd)
+            or (mark_code = eMC_95_Infill_2))
             and (out_factor <> 1.0) then
             CONTINUE;   // reduced ends are meaningless if not full-size.
 
@@ -557,7 +557,7 @@ var
               eMC_44_ShovingTimberCL_1:
                 Pen.Style := psDash;    // timber centre-lines.
 
-              eMC_5_TimberReducedEnd ,
+              eMC_5_TimberReducedEnd,
               eMC_55_ReducedEnd,
               eMC_95_Infill_2:
                 Pen.Style := psDot;                   // timber reduced ends.
@@ -657,8 +657,8 @@ var
           end;
 
           if ((mark_code = eMC_203_TimberInfill)
-          or (mark_code = eMC_233_Infill_3)
-          or (mark_code = eMC_293_Infill_4)) and
+            or (mark_code = eMC_233_Infill_3)
+            or (mark_code = eMC_293_Infill_4)) and
             (ptr_2nd <> nil)        // timber infill...
           then begin
             infill_points[0].X :=
@@ -2514,15 +2514,15 @@ begin
           end;
 
           if ((code = eMC_5_TimberReducedEnd)
-          or (code = eMC_55_ReducedEnd)
-          or (code = eMC_95_Infill_2))
+            or (code = eMC_55_ReducedEnd)
+            or (code = eMC_95_Infill_2))
             and (out_factor <> 1.0) then
             CONTINUE;   // reduced ends are meaningless if not full-size.
 
           if ((code = eMC_203_TimberInfill)
-          or (code = eMC_233_Infill_3)
-          or (code = eMC_293_Infill_4))
-            and (i < array_max)         
+            or (code = eMC_233_Infill_3)
+            or (code = eMC_293_Infill_4))
+            and (i < array_max)
           // timber infill
           then begin
             p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
@@ -2546,8 +2546,8 @@ begin
           end;
 
           if ((code > eMC_0_Ignore)
-          and (code < eMC_200_placeholder)
-          and (code <> eMC_99_TimberNumber))  // 223d
+            and (code < eMC_200_placeholder)
+            and (code <> eMC_99_TimberNumber))  // 223d
           then begin
             Brush.Color := clWhite;  // 0.93.a gaps in dotted lines.
             Brush.Style := bsClear;
@@ -2572,7 +2572,7 @@ begin
               eMC_4_TimberCL,
               eMC_44_ShovingTimberCL_1:
                 Pen.Width := 1;                  // timber centre-lines.
-              eMC_5_TimberReducedEnd ,
+              eMC_5_TimberReducedEnd,
               eMC_55_ReducedEnd,
               eMC_95_Infill_2:
                 Pen.Width := 1;                  // timber reduced ends.
@@ -2598,7 +2598,7 @@ begin
               eMC_4_TimberCL,
               eMC_44_ShovingTimberCL_1:
                 Pen.Style := psDash;    // timber centre-lines (not for rivets).
-              eMC_5_TimberReducedEnd ,
+              eMC_5_TimberReducedEnd,
               eMC_55_ReducedEnd,
               eMC_95_Infill_2:
                 Pen.Style := psDot;     // timber reduced ends.
@@ -2658,7 +2658,7 @@ begin
           end
           else begin
             if ((code = eMC__2_CurvingRadiusCentre_1)
-            or (code = eMC__3_CurvingRadiusCentre_2)) and
+              or (code = eMC__3_CurvingRadiusCentre_2)) and
               {(pad_form.print_radial_centres_menu_entry.Checked=True)}// 0.82.b
               (print_settings_form.output_radial_centres_checkbox.Checked = True)
 
@@ -3227,7 +3227,8 @@ var
           // and trackbed ends  206b
 
           if (rail = eRD_StraightStockGaugeFace) or (rail = eRD_CurvedStockGaugeFace) or
-            (rail = eRD_AdjTrackTurnoutSideFarGaugeFace) or (rail = eRD_AdjTrackMainSideFarGaugeFace)
+            (rail = eRD_AdjTrackTurnoutSideFarGaugeFace) or
+            (rail = eRD_AdjTrackMainSideFarGaugeFace)
           // 18,22 added 206b
           then begin
             pbg_modify_rail_end(

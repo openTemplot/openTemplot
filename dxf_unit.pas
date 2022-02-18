@@ -23,7 +23,7 @@
 ====================================================================================
 *)
 
-
+{ }
 unit dxf_unit;
 
 {$MODE Delphi}
@@ -704,7 +704,7 @@ var
       if (_3d = False)
         or ((code <> eMC_3_TimberOutline)
         and (code <> eMC_33_ShovingTimberOutline)
-        and (code <> eMC_93_Infill_1))  
+        and (code <> eMC_93_Infill_1))
       // not 3-D timber edges.
       then begin
         x1 := move_to.x / 100;
@@ -990,18 +990,16 @@ begin
           eMC_4_TimberCL,
           eMC_14_TimberCLSolid,
           eMC_44_ShovingTimberCL_1,
-          eMC_54_ShovingTimberCL_2:
-          begin
+          eMC_54_ShovingTimberCL_2: begin
             if _3d = True then
               CONTINUE
             else
               layer := 5;    // timber centre-lines.
           end;
 
-          eMC_5_TimberReducedEnd ,
+          eMC_5_TimberReducedEnd,
           eMC_55_ReducedEnd,
-          eMC_95_Infill_2:
-          begin
+          eMC_95_Infill_2: begin
             if _3d = True then
               CONTINUE
             else
@@ -1020,8 +1018,7 @@ begin
 
           eMC_203_TimberInfill,
           eMC_233_Infill_3,
-          eMC_293_Infill_4:
-          begin
+          eMC_293_Infill_4: begin
             if _3d = False then
               CONTINUE
             else
@@ -1048,8 +1045,11 @@ begin
 
 
         if ((code = eMC_203_TimberInfill)
-        or (code = eMC_233_Infill_3)
-        or (code = eMC_293_Infill_4))
+          or (code = eMC_233_Infill_3)
+          or (code = eMC_293_Infill_4))
+
+
+
           and (i < array_max)      // timber infill
           and (_3d = True) and (wire_frame = False) and (colour(layer) <> '0|') then begin
           x1 := move_to.x / 100;

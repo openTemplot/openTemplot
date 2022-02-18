@@ -23,7 +23,7 @@
 ====================================================================================
 *)
 
-{ }
+{}
 unit rail_options_unit;
 
 {$MODE Delphi}
@@ -333,18 +333,18 @@ begin
   if size_updown.Position > size_updown.Tag
   // ! position goes up, size goes down.
   then
-    ScaleBy(9, 10);                                           // scale the form contents down.
+    ScaleBy(9, 10);                             // scale the form contents down.
 
   if size_updown.Position < size_updown.Tag then
-    ScaleBy(10, 9);                                           // scale the form contents up.
+    ScaleBy(10, 9);                             // scale the form contents up.
 
-  ClientHeight := VertScrollBar.Range;                               // allow 4 pixel right margin.
+  ClientHeight := VertScrollBar.Range;          // allow 4 pixel right margin.
   ClientWidth := HorzScrollBar.Range + 4;
   // don't need bottom margin - datestamp label provides this.
   ClientHeight := VertScrollBar.Range;
   // do this twice, as each affects the other.
 
-  size_updown.Tag := size_updown.Position;                           // and save for the next click.
+  size_updown.Tag := size_updown.Position;      // and save for the next click.
 end;
 //__________________________________________________________________________________________
 
