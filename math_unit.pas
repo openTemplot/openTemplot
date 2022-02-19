@@ -52,7 +52,8 @@ uses
   pad_unit,    //  need Tcheck_end_diff declaration
   dummy_vehicle,
   path_interface,
-  rail_data_unit;
+  rail_data_unit,
+  template, mark_unit;
 
 type
   Tmath_form = class(TForm)
@@ -11805,7 +11806,7 @@ begin
 
   for n := 0 to (keeps_list.Count - 1) do begin
 
-    with Ttemplate(keeps_list.Objects[n]) do begin
+    with keeps_list[n] do begin
 
       if group_selected = False then
         CONTINUE;     // not in group.
@@ -14480,7 +14481,7 @@ begin
 
   if (keeps_list.Count > 0) and (clicked_keep_index > -1) and
     (clicked_keep_index < keeps_list.Count) then begin
-    with Ttemplate(keeps_list.Objects[clicked_keep_index]) do begin
+    with keeps_list[clicked_keep_index] do begin
       if template_info.keep_dims.box_dims1.bgnd_code_077 <> -1 then
         group_selected := not group_selected
       else
@@ -14583,7 +14584,7 @@ begin
   if (index < 0) or (index > (keeps_list.Count - 1)) or (keeps_list.Count < 1) then
     EXIT;
 
-  with Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1 do begin    // 205d
+  with keeps_list[index].template_info.keep_dims.box_dims1 do begin    // 205d
 
     if ABS(proto_info.gauge_pi - g) > minfp
     // ??? menu should be disabled   205d mixed-gauge templates
@@ -14594,7 +14595,7 @@ begin
     end;
   end;//with
 
-  align_current_over_this(Ttemplate(keeps_list.Objects[index]).template_info.keep_dims, clicked);
+  align_current_over_this(keeps_list[index].template_info.keep_dims, clicked);
   if facing_facing = False then
     swap_end_for_end;
 
@@ -14727,7 +14728,7 @@ begin
   if (index < 0) or (index > (keeps_list.Count - 1)) or (keeps_list.Count < 1) then
     EXIT;
 
-  if snake_onto_this_peg(Ttemplate(keeps_list.Objects[index]).template_info.keep_dims,
+  if snake_onto_this_peg(keeps_list[index].template_info.keep_dims,
     facing_facing, alerts) = False then
     EXIT;
 end;
@@ -14777,7 +14778,7 @@ begin
     EXIT;
   end;
 
-  now_bgkeep := Ttemplate(keeps_list.Objects[clicked_keep_index]).bgnd_keep;
+  now_bgkeep := keeps_list[clicked_keep_index].bgnd_keep;
   // next background keep.
 
   with now_bgkeep do begin
@@ -14786,7 +14787,7 @@ begin
     if Length(menu_caption_str) > 20 then
       menu_caption_str := Copy(menu_caption_str, 1, 18) + '...';  // 20 arbitrary.
 
-    with Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1 do
+    with keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1 do
     begin
 
       pad_form.align_current_popup_entry.Enabled := (ABS(proto_info.gauge_pi - g) < minfp);
@@ -14849,7 +14850,7 @@ begin
   else
     popup_Y := user_popup_Y;
 
-  with Ttemplate(keeps_list.Objects[clicked_keep_index]) do begin
+  with keeps_list[clicked_keep_index] do begin
     if (template_info.keep_dims.box_dims1.mod_text_x = 0) and
       (template_info.keep_dims.box_dims1.mod_text_y = 0) then
       pad_form.restore_label_popup_entry.Enabled := False
@@ -15249,7 +15250,7 @@ begin
       if (clicked_keep_index > -1) and (clicked_keep_index < keeps_list.Count) and
         (keeps_list.Count > 0) then begin
 
-        with Ttemplate(keeps_list.Objects[clicked_keep_index]) do begin
+        with keeps_list[clicked_keep_index] do begin
           if (template_info.keep_dims.box_dims1.mod_text_x = 0) and
             (template_info.keep_dims.box_dims1.mod_text_y = 0) then
             pad_form.restore_label_popup_entry.Enabled := False
@@ -15261,11 +15262,11 @@ begin
       end;
 
       menu_caption_str :=
-        UpperCase(Trim(Ttemplate(keeps_list.Objects[clicked_keep_index]).bgnd_keep.full_label_string));
+        UpperCase(Trim(keeps_list[clicked_keep_index].bgnd_keep.full_label_string));
       if Length(menu_caption_str) > 20 then
         menu_caption_str := Copy(menu_caption_str, 1, 18) + '...';  // 20 arbitrary.
 
-      with Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1 do
+      with keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1 do
       begin
 
         pad_form.align_current_popup_entry.Enabled :=
@@ -21076,7 +21077,7 @@ begin
   if check_control_template_is_valid('transition') = False then
     EXIT;  // zero length
 
-  if Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1.align_info.slewing_flag = True then begin
+  if keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1.align_info.slewing_flag = True then begin
     alert(6, 'php/201    make  transition',
       'The selected background template contains a slew.' +
       '||It is not possible to make a transition curve from a slewed template.' +
@@ -21098,7 +21099,7 @@ begin
   control_loc := 0;   // init for fixed curve..  212a
   bgnd_loc := 0;
 
-  if Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1.align_info.trans_flag = True then begin
+  if keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1.align_info.trans_flag = True then begin
     repeat
       i := alert(4, 'php/201    make  transition',
         'The selected background template contains a transition curve.' +
@@ -21122,7 +21123,7 @@ begin
         4: begin
           bgnd_loc := 0;
 
-          with Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims.box_dims1 do begin
+          with keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1 do begin
 
             if (transform_info.peg_pos.x > align_info.trans_start) and
               (transform_info.peg_pos.x < (align_info.trans_start + align_info.trans_length)) then
@@ -27894,7 +27895,7 @@ begin
   then begin
     for n := 0 to (keeps_list.Count - 1) do begin
 
-      with Ttemplate(keeps_list.Objects[n]) do begin
+      with keeps_list[n] do begin
 
         if bg_copied = False then
           CONTINUE;  // this one not a background template.
@@ -28061,7 +28062,7 @@ begin
 
   for n := 0 to (keeps_list.Count - 1) do begin
 
-    with Ttemplate(keeps_list.Objects[n]) do begin
+    with keeps_list[n] do begin
 
       if bg_copied = False then
         CONTINUE;  // this one not a background template.
@@ -30263,7 +30264,7 @@ begin
 
     for n := 0 to (keeps_list.Count - 1) do begin
 
-      with Ttemplate(keeps_list.Objects[n]) do begin
+      with keeps_list[n] do begin
 
         now_kd := template_info.keep_dims;    // get the current keep data (don't need the shoves).
 
@@ -30329,7 +30330,7 @@ begin
 
     for n := 0 to (keeps_list.Count - 1) do begin
 
-      with Ttemplate(keeps_list.Objects[n]) do begin
+      with keeps_list[n] do begin
 
         now_kd := template_info.keep_dims;    // get the current keep data (don't need the shoves).
 
@@ -30717,7 +30718,7 @@ begin
 
       for bgk := 0 to (keeps_list.Count - 1) do begin
 
-        with Ttemplate(keeps_list.Objects[bgk]) do begin
+        with keeps_list[bgk] do begin
 
           if bg_copied = False then
             CONTINUE;  // this one not a background template.
@@ -31277,7 +31278,7 @@ begin
 
   for n := 0 to (keeps_list.Count - 1) do begin
 
-    with Ttemplate(keeps_list.Objects[n]) do begin
+    with keeps_list[n] do begin
 
       now_keep := template_info.keep_dims;    // get the current keep data.
 
@@ -31723,7 +31724,7 @@ begin
     (keeps_list.Count - 1)) then
     EXIT;
 
-  with Ttemplate(keeps_list.Objects[clicked_keep_index]) do begin
+  with keeps_list[clicked_keep_index] do begin
 
     if bg_copied = False then
       EXIT;  // ??? not on background.
@@ -34118,7 +34119,7 @@ begin
   docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
   // save current peg data for peg_curve calcs.
 
-  with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.turnout_info2 do begin
+  with keeps_list[n].template_info.keep_dims.turnout_info2 do begin
 
     if set_csi_from_switch_info(switch_info) = False  // set current switch from supplied info.
     then begin
@@ -34142,7 +34143,7 @@ begin
   if (keeps_list.Count < 1) or (n < 0) or (n > (keeps_list.Count - 1)) then
     EXIT;
 
-  with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.turnout_info2.plain_track_info do
+  with keeps_list[n].template_info.keep_dims.turnout_info2.plain_track_info do
   begin
 
     if (pt_custom = True) or (list_index > 4)  // put data in bottom slot.
@@ -34316,7 +34317,7 @@ begin
 
   for n := 0 to (keeps_list.Count - 1) do begin
 
-    with Ttemplate(keeps_list.Objects[n]) do begin
+    with keeps_list[n] do begin
 
       if template_info.keep_dims.box_dims1.disable_f7_snap = True then
         CONTINUE;  // 0.82.a disabled for this template.
@@ -34473,7 +34474,7 @@ begin
       (keeps_list.Count < 1) then
       EXIT;
 
-    with Ttemplate(keeps_list.Objects[clicked_keep_index]).template_info.keep_dims do begin
+    with keeps_list[clicked_keep_index].template_info.keep_dims do begin
 
       if (box_dims1.turnout_info1.plain_track_flag = False) or (plain_track = False) then begin
         alert(6, '      roll  rails  to  match  background  template',

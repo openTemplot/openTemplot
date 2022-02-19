@@ -155,7 +155,7 @@ uses
   control_room, pad_unit, help_sheet, chat_unit, colour_unit, math_unit, alert_unit,
   bgkeeps_unit, keep_select,
   background_shapes,
-  bgnd_unit, preview_unit, print_unit, print_settings_unit, rail_data_unit;
+  bgnd_unit, preview_unit, print_unit, print_settings_unit, rail_data_unit, template, mark_unit;
 
 var
   layer_str: array[0..17] of string;
@@ -921,7 +921,7 @@ begin
 
   for n := 0 to (keeps_list.Count - 1) do begin
 
-    with Ttemplate(keeps_list.Objects[n]) do begin   // to next template.
+    with keeps_list[n] do begin   // to next template.
 
       if bg_copied = False then
         CONTINUE;              // no data, unused template.
@@ -1098,7 +1098,7 @@ begin
           if code = eMC__5_Label       // keep name labels
           then begin
             text_str :=
-              Trim(Copy(Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.reference_string, 1, 99));
+              Trim(Copy(keeps_list[n].template_info.keep_dims.box_dims1.reference_string, 1, 99));
             // not the keep number.
 
             text_height := pad_form.bgnd_keeps_font_label.Font.Size * 25.4 / 72;
@@ -1107,9 +1107,9 @@ begin
             // to match screen appearance.
 
             mod_name_x :=
-              Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.mod_text_x;
+              keeps_list[n].template_info.keep_dims.box_dims1.mod_text_x;
             mod_name_y :=
-              Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.mod_text_y;
+              keeps_list[n].template_info.keep_dims.box_dims1.mod_text_y;
 
             move_to.x := move_to.x + Round(mod_name_x * 100);
             // (Templot top-left of text.)

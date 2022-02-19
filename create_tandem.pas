@@ -83,7 +83,7 @@ implementation
 uses
   point_ex, pad_unit, math_unit, math2_unit, keep_select, alert_unit, info_unit, control_room, shove_timber,
   switch_select, { OT-FIRST web_browser_unit,} wait_message, help_sheet,
-  shoved_timber;
+  shoved_timber, template;
 
 var
   saved_current: Ttemplate_info;
@@ -179,14 +179,13 @@ var
     if keeps_list.Count > first_bgnd_template then begin
       for z := first_bgnd_template to keeps_list.Count - 1 do begin
 
-        if Ttemplate(keeps_list.Objects[z]).bgnd_gaunt =
+        if keeps_list[z].bgnd_gaunt =
           True then
           str := 'middle V-crossing'
         else
           str := 'turnout';
 
-        Ttemplate(
-          keeps_list.Objects[z]).template_info.keep_dims.box_dims1.reference_string := id_str + '  ' + str;
+        keeps_list[z].template_info.keep_dims.box_dims1.reference_string := id_str + '  ' + str;
       end;//next
     end;
   end;
@@ -352,7 +351,7 @@ begin
 
     first_bgnd_template := keeps_list.Count - 1;     // index to it
 
-    Ttemplate(keeps_list.Objects[first_bgnd_template]).this_is_tandem_first := True;
+    keeps_list[first_bgnd_template].this_is_tandem_first := True;
     // find it on re-entry
 
     // now create 2nd turnout ...
@@ -546,7 +545,7 @@ begin
 
   if keeps_list.Count > 0 then begin
     for n := 0 to (keeps_list.Count - 1) do begin
-      if Ttemplate(keeps_list.Objects[n]).this_is_tandem_first = True then
+      if keeps_list[n].this_is_tandem_first = True then
       begin
         first_bgnd_template := n;
         BREAK;
@@ -584,7 +583,7 @@ begin
   keep_form.move_to_bottom_button.Click;
   first_bgnd_template := keeps_list.Count - 1;
 
-  Ttemplate(keeps_list.Objects[first_bgnd_template]).this_is_tandem_first := False;
+  keeps_list[first_bgnd_template].this_is_tandem_first := False;
   // to allow further tandems
 
   gocalc(0, 0);
@@ -1095,14 +1094,13 @@ var
     if keeps_list.Count > first_bgnd_template then begin
       for z := first_bgnd_template to keeps_list.Count - 1 do begin
 
-        if (Ttemplate(keeps_list.Objects[z]).bgnd_half_diamond = True) or
-          (Ttemplate(keeps_list.Objects[z]).bgnd_gaunt = True) then
+        if (keeps_list[z].bgnd_half_diamond = True) or
+          (keeps_list[z].bgnd_gaunt = True) then
           str := 'V-crossing'
         else
           str := 'turnout';
 
-        Ttemplate(
-          keeps_list.Objects[z]).template_info.keep_dims.box_dims1.reference_string := id_str + '  ' + str;
+        keeps_list[z].template_info.keep_dims.box_dims1.reference_string := id_str + '  ' + str;
       end;//next
     end;
   end;
@@ -1397,7 +1395,7 @@ begin
 
     first_bgnd_template := keeps_list.Count - 1;     // index to it
 
-    Ttemplate(keeps_list.Objects[first_bgnd_template]).this_is_tandem_first := True;
+    keeps_list[first_bgnd_template].this_is_tandem_first := True;
     // find it on re-entry
 
     // now create 2nd template (1st turnout) ...
@@ -1576,7 +1574,7 @@ begin
 
   if keeps_list.Count > 0 then begin
     for n := 0 to (keeps_list.Count - 1) do begin
-      if Ttemplate(keeps_list.Objects[n]).this_is_tandem_first = True then
+      if keeps_list[n].this_is_tandem_first = True then
       begin
         first_bgnd_template := n;
         BREAK;
@@ -1612,7 +1610,7 @@ begin
   keep_form.move_to_bottom_button.Click;
   first_bgnd_template := keeps_list.Count - 1;
 
-  Ttemplate(keeps_list.Objects[first_bgnd_template]).this_is_tandem_first := False;
+  keeps_list[first_bgnd_template].this_is_tandem_first := False;
   // to allow further tandems
 
   // get midx again in case he moved the crossing on the control template ...

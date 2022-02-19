@@ -85,7 +85,7 @@ implementation
 {$R *.lfm}
 
 uses pad_unit, alert_unit, control_room, entry_sheet, colour_unit, help_sheet, chat_unit,
-  math_unit;
+  math_unit, template;
 
 var
   plain_track_spacing_size: integer;

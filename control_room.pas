@@ -35,7 +35,8 @@ interface
 uses
   Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Buttons, Menus, ExtCtrls, ComCtrls, FileCtrl, { OT-FIRST, Psock, NMHttp}
-  shoved_timber;
+  shoved_timber,
+  template;
 
 type
 
@@ -446,7 +447,7 @@ var
 
   html_path_str: string = '';        // for html viewer. 0.91
 
-  keeps_list: TStringList;                    // 8-2-99
+  keeps_list: TTemplateList;                    // 8-2-99
   memo_list: TStringList;
 
   tag_list: TStringList;                  // 206b
@@ -2889,7 +2890,7 @@ begin
   then begin
     for n := 0 to keeps_list.Count - 1 do begin
 
-      with Ttemplate(keeps_list.Objects[n]) do begin
+      with keeps_list[n] do begin
 
         if bg_copied = True then begin
           with bgnd_keep do begin
@@ -2904,9 +2905,6 @@ begin
         template_info.keep_shove_list.Free;
 
       end;//with template.
-
-      Ttemplate(keeps_list.Objects[n]).Free;
-
     end;//next n
   end;//if any
 
@@ -3710,7 +3708,7 @@ begin
 
   info_text_list := TStringList.Create;            // 0.78.a  15-11-02.
   printer_list := TStringList.Create;
-  keeps_list := TStringList.Create;
+  keeps_list := TTemplateList.Create;
   memo_list := TStringList.Create;
 
 

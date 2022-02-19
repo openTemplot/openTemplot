@@ -59,7 +59,7 @@ uses
   config_unit,
   keep_select, wait_message, pad_unit, info_unit, control_room, alert_unit,
   math_unit, shove_timber, rail_options_unit,
-  shoved_timber;
+  shoved_timber, template;
 
 {$R *.lfm}
 
@@ -923,7 +923,7 @@ var
       Add(' ');  // spacer
       Add('`!`!`');      // mark start of info text
 
-      Add(StringReplace(keeps_list.Strings[i], '`', '_', [rfReplaceAll, rfIgnoreCase]));
+      Add(StringReplace(keeps_list[i].name, '`', '_', [rfReplaceAll, rfIgnoreCase]));
 
       Add(' ');  // spacer
       Add('`@`@`');      // mark start of memo text
@@ -1014,7 +1014,7 @@ begin
 
     next_ti.keep_shove_list.Clear;
 
-    copy_template_info_from_to(False, Ttemplate(keeps_list.Objects[i]).template_info, next_ti);
+    copy_template_info_from_to(False, keeps_list[i].template_info, next_ti);
     // next template in list.
 
     if i = keeps_list.Count - 1 then
@@ -3135,7 +3135,7 @@ begin
       end;
 
       try
-        n := keeps_list.AddObject(info_str, Ttemplate.Create);
+        n := keeps_list.Add(Ttemplate.Create(info_str));
         // create and append a new line in keeps list
         if memo_list.Add(memo_str) <> n then
           run_error(197);    // and memo list. Ensure indices correspond
@@ -3164,7 +3164,7 @@ begin
 
       // data updated if needed - now can copy it into the box list..
 
-      copy_template_info_from_to(True, next_ti, Ttemplate(keeps_list.Objects[n]).template_info);
+      copy_template_info_from_to(True, next_ti, keeps_list[n].template_info);
       // True = free next_ti shovelist and its data objects
 
       // and recreate shove list for next template..
@@ -3219,7 +3219,7 @@ begin
       EXIT;  // cleared on error or nothing loaded.
 
     for n := 0 to (keeps_list.Count - 1) do begin
-      if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 = 1
+      if keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 = 1
       then begin
         list_position := n;                       // put new keep on background.
         copy_keep_to_background(n, False, True);  // don't update info, reloading=True.

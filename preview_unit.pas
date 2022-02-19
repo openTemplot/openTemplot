@@ -205,7 +205,8 @@ uses Printers, control_room, grid_unit, alert_unit, math_unit, calibration_unit,
   background_shapes,
   bgnd_unit, print_unit, info_unit, help_sheet,
   print_settings_unit, pdf_unit, { OT-FIRST dtp_unit, dtp_settings_unit,} export_unit,
-  rail_data_unit;
+  rail_data_unit,
+  template;
 
 var
   pvsx: double = 1;
@@ -324,13 +325,13 @@ begin
 
     for n := 0 to (keeps_list.Count - 1) do begin
 
-      if Ttemplate(keeps_list.Objects[n]).bg_copied = False then
+      if keeps_list[n].bg_copied = False then
         CONTINUE;  // no data, not on background.
 
-      if (Ttemplate(keeps_list.Objects[n]).group_selected = False) and (group_only = True) then
+      if (keeps_list[n].group_selected = False) and (group_only = True) then
         CONTINUE;  // not in group.
 
-      with Ttemplate(keeps_list.Objects[n]).bgnd_keep do begin
+      with keeps_list[n].bgnd_keep do begin
         if xlist_max > max_long then
           max_long := xlist_max;
         if ylist_max > max_wide then
@@ -899,14 +900,14 @@ begin
 
           for n := 0 to (keeps_list.Count - 1) do begin
 
-            if Ttemplate(keeps_list.Objects[n]).bg_copied = False then
+            if keeps_list[n].bg_copied = False then
               CONTINUE;  // no data, not on background.
 
-            if (Ttemplate(keeps_list.Objects[n]).group_selected = False) and
+            if (keeps_list[n].group_selected = False) and
               (print_group_only_flag = True) then
               CONTINUE;  // not in group. 0.78.b 10-12-02.
 
-            bgndk := Ttemplate(keeps_list.Objects[n]).bgnd_keep;
+            bgndk := keeps_list[n].bgnd_keep;
 
             with bgndk do begin
               for aq in ERailData do begin
@@ -1566,16 +1567,16 @@ begin
 
         for bgk := 0 to (keeps_list.Count - 1) do begin  // next background keep.
 
-          if Ttemplate(keeps_list.Objects[bgk]).bg_copied = False then
+          if keeps_list[bgk].bg_copied = False then
             CONTINUE;  // no data, not on background.
 
-          if (Ttemplate(keeps_list.Objects[bgk]).group_selected = False) and
+          if (keeps_list[bgk].group_selected = False) and
             (print_group_only_flag = True) then
             CONTINUE;  // not in group. 0.78.b 10-12-02.
 
-          now_keep := Ttemplate(keeps_list.Objects[bgk]).bgnd_keep;
+          now_keep := keeps_list[bgk].bgnd_keep;
 
-          with Ttemplate(keeps_list.Objects[bgk]).template_info.keep_dims.box_dims1 do begin
+          with keeps_list[bgk].template_info.keep_dims.box_dims1 do begin
 
             with platform_trackbed_info do begin
 
@@ -2290,14 +2291,14 @@ begin
 
         for bgk := 0 to (keeps_list.Count - 1) do begin
 
-          if Ttemplate(keeps_list.Objects[bgk]).bg_copied = False then
+          if keeps_list[bgk].bg_copied = False then
             CONTINUE;  // no data, not on background.
 
-          if (Ttemplate(keeps_list.Objects[bgk]).group_selected = False) and
+          if (keeps_list[bgk].group_selected = False) and
             (print_group_only_flag = True) then
             CONTINUE;  // not in group. 0.78.b 10-12-02.
 
-          now_keep := Ttemplate(keeps_list.Objects[bgk]).bgnd_keep;
+          now_keep := keeps_list[bgk].bgnd_keep;
 
           with now_keep do begin
 

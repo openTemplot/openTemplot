@@ -41,7 +41,8 @@ uses
   WPPDFR1, WPPDFR2,} Htmlview,
   shoved_timber,
   pad_unit,
-  HtmlGlobals;      // moved 290a
+  HtmlGlobals,
+  template;      // moved 290a
 
 type
 
@@ -720,7 +721,10 @@ implementation
 
 {$R *.lfm}
 
-uses  LCLIntf, Math, control_room,
+uses
+  Generics.Collections,
+  Generics.Defaults,
+  LCLIntf, Math, control_room,
   config_unit,
   {pad_unit,} switch_select, help_sheet,
   alert_unit, math_unit,     // moved up 290a
@@ -729,7 +733,8 @@ uses  LCLIntf, Math, control_room,
   jotter_unit, print_settings_unit, data_memo_unit,
   MetaFilePrinter, { OT-FIRST file_viewer,} panning_unit, mecbox_unit,
   curve,
-  rail_data_unit;
+  rail_data_unit,
+  mark_unit;
 
 const
 
@@ -889,7 +894,7 @@ var
   aq: ERailData;
 
 begin
-  with Ttemplate(keeps_list.Objects[n]) do begin
+  with keeps_list[n] do begin
     bg_copied := False;                               // True=has been copied to the background.
     group_selected := False;                          // True=selected as one of a group.
     new_stamp_wanted := False;
@@ -933,7 +938,7 @@ begin
   if any_bgnd = 0 then
     EXIT;  // not on background.
 
-  with Ttemplate(keeps_list.Objects[n]) do begin
+  with keeps_list[n] do begin
 
     template_info.keep_dims.box_dims1.bgnd_code_077 := 0;
     // bgnd_flag:=False;  // flag it is not now a background keep.
@@ -985,7 +990,7 @@ begin
     if wipe_it(n) = False then
       EXIT;        // not a background template.
 
-    with Ttemplate(keeps_list.Objects[n]) do begin
+    with keeps_list[n] do begin
 
       if move_bgnd_peg = True     // 205c
       then begin
@@ -1112,7 +1117,7 @@ begin
   end;//try
 end;
 //______________________________________________________________________________________
-
+(*
 function load_lines(append: boolean; file_name: string; var ident: string): boolean;
   // load text lines into info and user memos from a single file.
 
@@ -1174,6 +1179,7 @@ begin
     Result := False;                          // file has been tampered with.
   end;
 end;
+*)
 //_______________________________________________________________________________________
 
 procedure delete_keep(echo_cut, alerts: boolean);           // delete the current keep.
@@ -1197,9 +1203,9 @@ begin
   ti.keep_shove_list := Tshoved_timber_list.Create;
 
   try
-    copy_template_info_from_to(False, Ttemplate(keeps_list.Objects[n]).template_info, ti);
+    copy_template_info_from_to(False, keeps_list[n].template_info, ti);
     // current keep data
-    bf := Ttemplate(keeps_list.Objects[n]).bg_copied;
+    bf := keeps_list[n].bg_copied;
     // background flag.
 
     if bf = True then
@@ -1240,7 +1246,7 @@ begin
       then begin
         copy_template_info_from_to(False, ti, deleted_keep);
         // save for undo delete.
-        deleted_keep_string := keeps_list.Strings[n];
+        deleted_keep_string := keeps_list[n].name;
         deleted_memo_string := memo_list.Strings[n];
         keep_form.undo_delete_menu_entry.Enabled := True;
       end;
@@ -1282,9 +1288,7 @@ begin
       end;
     end;
 
-    Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
-
-    Ttemplate(keeps_list.Objects[n]).Free;
+    keeps_list[n].template_info.keep_shove_list.Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
     save_done := False;
@@ -2295,7 +2299,7 @@ var
     n := 0;
     while n < keeps_list.Count do begin
 
-      if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.this_was_control_template = False  // normal template
+      if keeps_list[n].template_info.keep_dims.box_dims1.this_was_control_template = False  // normal template
       then begin
         Inc(n);
         CONTINUE;
@@ -2304,10 +2308,7 @@ var
 
       // delete it...
 
-      Ttemplate(
-        keeps_list.Objects[n]).template_info.keep_shove_list.Free;
-
-      Ttemplate(keeps_list.Objects[n]).Free;
+      keeps_list[n].template_info.keep_shove_list.Free;
       keeps_list.Delete(n);
       memo_list.Delete(n);
 
@@ -2546,13 +2547,12 @@ begin
 
           for i := 0 to keeps_list.Count - 1 do begin     // first write the template data.
 
-            Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.file_format_code
-            := 1;
+            keeps_list[i].template_info.keep_dims.box_dims1.file_format_code := 1;
             // OT format      // put format in file
 
             // 0.94.a  fb_kludge templates are created on output/printing, and destroyed afterwards. Don't save any remaining..
 
-            if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.fb_kludge_template_code <> 0 then
+            if keeps_list[i].template_info.keep_dims.box_dims1.fb_kludge_template_code <> 0 then
               CONTINUE;  // 0.94.a don't save kludge templates, if any found (error in print?)
 
 
@@ -2561,23 +2561,23 @@ begin
                 if i <> this_one then
                   CONTINUE;
               1:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> 1 then
                   CONTINUE;  // bgnd only, ignore unused and library.
               2:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> 0 then
                   CONTINUE;  // unused only, ignore others.
               3:
-                if Ttemplate(keeps_list.Objects[i]).group_selected = False then
+                if keeps_list[i].group_selected = False then
                   CONTINUE;  // group only, ignore unselected.
               4:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> -1 then
                   CONTINUE;  // library only, ignore others.
             end;//case
 
-            copy_template_info_from_to(False, Ttemplate(keeps_list.Objects[i]).template_info, next_ti);
+            copy_template_info_from_to(False, keeps_list[i].template_info, next_ti);
             // next template.
 
             if file_index = (group_count - 1) then
@@ -2647,7 +2647,7 @@ begin
 
             // 0.94.a  fb_kludge templates are created on printing, and destroyed afterwards. Don't save any remaining..
 
-            if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.fb_kludge_template_code <> 0 then
+            if keeps_list[i].template_info.keep_dims.box_dims1.fb_kludge_template_code <> 0 then
               CONTINUE;
 
             case which_ones of
@@ -2655,23 +2655,23 @@ begin
                 if i <> this_one then
                   CONTINUE;
               1:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> 1 then
                   CONTINUE;   // bgnd only, ignore unused and library.
               2:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> 0 then
                   CONTINUE;   // unused, ignore others
               3:
-                if Ttemplate(keeps_list.Objects[i]).group_selected = False then
+                if keeps_list[i].group_selected = False then
                   CONTINUE;   // group only, ignore unselected.
               4:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> -1 then
                   CONTINUE;   // library only, ignore others.
             end;//case
 
-            s := remove_esc_str(keeps_list.Strings[i]) + Char($1B) + remove_esc_str(
+            s := remove_esc_str(keeps_list[i].name) + Char($1B) + remove_esc_str(
               memo_list.Strings[i]) + Char($1B) + Char($1B);
             // use ESC chars as terminators, plus one for luck on the end.
 
@@ -2730,7 +2730,7 @@ begin
 
           for i := 0 to keeps_list.Count - 1 do begin
 
-            if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.fb_kludge_template_code <> 0 then
+            if keeps_list[i].template_info.keep_dims.box_dims1.fb_kludge_template_code <> 0 then
               CONTINUE;
 
             case which_ones of
@@ -2738,23 +2738,23 @@ begin
                 if i <> this_one then
                   CONTINUE;
               1:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> 1 then
                   CONTINUE;   // bgnd only, ignore unused and library.
               2:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> 0 then
                   CONTINUE;   // unused only.
               3:
-                if Ttemplate(keeps_list.Objects[i]).group_selected = False then
+                if keeps_list[i].group_selected = False then
                   CONTINUE;   // group only, ignore unselected.
               4:
-                if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.bgnd_code_077
+                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> -1 then
                   CONTINUE;   // library only.
             end;//case
 
-            copy_template_info_from_to(False, Ttemplate(keeps_list.Objects[i]).template_info, next_ti);
+            copy_template_info_from_to(False, keeps_list[i].template_info, next_ti);
             // next template.
 
             // first block is the shove timber data...
@@ -3015,7 +3015,8 @@ var
       then begin
         st := 0;    // keep compiler happy.
 
-        with Ttemplate(keeps_list.Objects[t_index]).template_info.keep_shove_list do begin
+        with keeps_list[t_index].template_info.keep_shove_list do
+        begin
 
           if Count <> 0 then
             EXIT;   // !!! shove list should be empty (created in init_ttemplate).
@@ -3065,7 +3066,7 @@ var
           try
             n_valid := False;   // default for error exits.
 
-            n := keeps_list.AddObject('no information available', Ttemplate.Create);
+            n := keeps_list.Add(TTemplate.Create('no information available'));
             // create and append a new line in keeps list (temporary strings).
             if memo_list.Add('no memo notes available') <> n then
               run_error(197);     // and memo list. Ensure indices correspond.
@@ -3116,12 +3117,11 @@ var
 
           this_ti.keep_dims := Tkeep_dims(old_next_data);
 
-          copy_template_info_from_to(True, this_ti, Ttemplate(
-            keeps_list.Objects[n]).template_info);  // True = free the shove list.
+          copy_template_info_from_to(True, this_ti, keeps_list[n].template_info);  // True = free the shove list.
 
           if (append = True) and (make_lib = False) and
             (keep_form.add_ignore_group_menu_entry.Checked = False) then
-            Ttemplate(keeps_list.Objects[n]).group_selected := True;
+            keeps_list[n].group_selected := True;
           // group select added template.
 
         until Copy(s, 1, 2) = 'NX';      // last template marker.
@@ -3216,7 +3216,7 @@ var
 
             // we don't change either unless we've got both..
 
-            keeps_list.Strings[n] := remove_esc_str(info_string);
+            keeps_list[n].name := remove_esc_str(info_string);
             // remove any ESC is belt and braces...
             memo_list.Strings[n] := remove_esc_str(memo_string);
           end;
@@ -3383,8 +3383,8 @@ var
       then begin
         n := old_count;
         while n < keeps_list.Count do begin
-          if (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 =
-            0) and (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.this_was_control_template = False)  // 0.93.a
+          if (keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 =
+            0) and (keeps_list[n].template_info.keep_dims.box_dims1.this_was_control_template = False)  // 0.93.a
 
           then
             clear_keep(n)
@@ -3752,7 +3752,7 @@ begin
           i := old_count;
 
         for n := i to (keeps_list.Count - 1) do begin
-          if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 =
+          if keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 =
             1 then begin
             if update_background_menu_entry.Checked = True then begin
               last_bgnd_loaded_index := n;
@@ -3763,7 +3763,7 @@ begin
               // don't update info, reloading=True.
             end
             else begin
-              with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do begin
+              with keeps_list[n].template_info.keep_dims.box_dims1 do begin
                 bgnd_code_077 := 0;          // make it unused instead.
                 pre077_bgnd_flag := False;
                 // in case reloaded in older version than 0.77.a
@@ -3982,7 +3982,7 @@ begin
     ti.keep_shove_list := Tshoved_timber_list.Create;
 
     try
-      copy_template_info_from_to(False, Ttemplate(keeps_list.Objects[n]).template_info, ti);
+      copy_template_info_from_to(False, keeps_list[n].template_info, ti);
       copy_keep(ti);
       // and make it current.
 
@@ -3992,7 +3992,7 @@ begin
         save_hide := False;      // he will want to see it.
 
         if (bgnd_options = True) and (wipe_to_control_radiobutton.Checked = True) and
-          (Ttemplate(keeps_list.Objects[n]).bg_copied = True) then begin
+          (keeps_list[n].bg_copied = True) then begin
           if wipe_it(n) = False      // wipe the background and free drawing data.
           then begin
             alert(5, '    program  error',
@@ -4174,7 +4174,7 @@ begin
     if keeps_list.Count > 0 then begin
       if keepform_listbox.Items.Count = 0 then begin
         for n := 0 to keeps_list.Count - 1 do begin
-          with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims do begin
+          with keeps_list[n].template_info.keep_dims do begin
 
             with box_dims1 do begin
 
@@ -4194,7 +4194,7 @@ begin
                 end;
               end;
 
-              if Ttemplate(keeps_list.Objects[n]).group_selected = True then begin
+              if keeps_list[n].group_selected = True then begin
                 total_group_template_length :=
                   total_group_template_length + turnout_info1.turnout_length;    // 0.93.a
                 total_group_timbering_length :=
@@ -4282,7 +4282,7 @@ begin
       //end;//with
 
 
-      with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.align_info do
+      with keeps_list[n].template_info.keep_dims.box_dims1.align_info do
       begin   // 216a ...
 
         if reminder_flag = True then begin
@@ -4303,9 +4303,9 @@ begin
       template_number_label.Caption := IntToStr(n + 1);
       total_label.Caption := 'of   ' + IntToStr(keeps_list.Count);
 
-      gauge_panel.Caption := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.top_label;
+      gauge_panel.Caption := keeps_list[n].template_info.keep_dims.box_dims1.top_label;
 
-      id_label.Caption := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.id_number_str;  // 208a
+      id_label.Caption := keeps_list[n].template_info.keep_dims.box_dims1.id_number_str;  // 208a
 
       if remove_space_str(box_file_label.Caption) = 'boxempty' then begin
         box_file_label.Caption := '';
@@ -4313,7 +4313,7 @@ begin
       end;
 
 
-      with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do begin
+      with keeps_list[n].template_info.keep_dims.box_dims1 do begin
         ref_str := reference_string + '  ' + id_number_str;
 
         // 208a mods...
@@ -4514,7 +4514,7 @@ begin
       rebuild_button.Visible := True;
       group_select_groupbox.Visible := True;
 
-      if Ttemplate(keeps_list.Objects[n]).group_selected = True then begin
+      if keeps_list[n].group_selected = True then begin
         flag_shape.Show;
         template_number_shape.Show;
         select_menu_entry.Checked := True;
@@ -4543,7 +4543,7 @@ begin
         list_position + 1) + '  ' + bg_str + '   ' + ref_str + '||  ' +
         gauge_panel.Caption + '||--------------------------------------------------------------'
         + '||      Information  about  this  template :' +
-        '||( all dimensions in millimetres )' + '||' + keeps_list.Strings[list_position] +
+        '||( all dimensions in millimetres )' + '||' + keeps_list[list_position].name +
         '||--------------------------------------------------------------'
         //+'||      Your  memo  notes  for  this  template :'
         + '||Memo:  ' + memo_text_str{) out 0.91.b};
@@ -4903,9 +4903,9 @@ begin
   try
     fill_kd(pad_ti);        // fill the keep record with the saved control template.
 
-    copy_keep(Ttemplate(keeps_list.Objects[index]).template_info);    // get the current keep.
+    copy_keep(keeps_list[index].template_info);    // get the current keep.
 
-    with Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1 do
+    with keeps_list[index].template_info.keep_dims.box_dims1 do
     begin      // 213b
 
       marcol := pad_marker_colour;
@@ -5257,7 +5257,7 @@ begin
           else begin
             if code = eMC__1_PegCentre    // code -1, draw fixing peg...
             then begin
-              case Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1.bgnd_code_077 of
+              case keeps_list[index].template_info.keep_dims.box_dims1.bgnd_code_077 of
                 -1:
                   Font.Color := clGreen;
                 0:
@@ -5320,7 +5320,7 @@ begin
               if peg_dim > Round(scale * 250 * sx) then
                 peg_dim := Round(scale * 250 * sx); // but not more than 4ft scale.
 
-              case Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1.bgnd_code_077 of
+              case keeps_list[index].template_info.keep_dims.box_dims1.bgnd_code_077 of
                 -1:
                   Pen.Color := clGreen;
                 0:
@@ -5406,7 +5406,7 @@ begin
 
       // indicator colour
 
-      case Ttemplate(keeps_list.Objects[index]).template_info.keep_dims.box_dims1.bgnd_code_077
+      case keeps_list[index].template_info.keep_dims.box_dims1.bgnd_code_077
         of
         -1:
           Pen.Color := clGreen;
@@ -5673,7 +5673,6 @@ begin
   try
     fill_kd(new_ti);               // fill the keep record with the control template data.
 
-    keeps_list.Sorted := False;      // ensure new line is appended.
     n := keeps_list.Count;           // for error message if AddObject fails.
 
     //with info_form do begin
@@ -5689,7 +5688,7 @@ begin
     end;
 
     try
-      n := keeps_list.AddObject(si, Ttemplate.Create);
+      n := keeps_list.Add(TTemplate.Create(si));
       // create and append a new line in keeps list.
       if memo_list.Add(current_memo_str) <> n then
         run_error(199);    // and memo list. Ensure indices correspond.
@@ -5724,7 +5723,7 @@ begin
       with new_ti.keep_dims.turnout_info2 do
         template_type_str := template_type_str + 'c';  // max 6 chars
 
-    copy_template_info_from_to(False, new_ti, Ttemplate(keeps_list.Objects[n]).template_info);
+    copy_template_info_from_to(False, new_ti, keeps_list[n].template_info);
 
     if control_template_on_save = False           // 0.93.a ...
     then begin
@@ -5810,20 +5809,13 @@ begin
 
   wipe_all_background;  //bgkeeps_form.clear_button.Click;     // first clear all the background data.
 
-  if keeps_list.Count > 0 then begin
-    for n := 0 to keeps_list.Count - 1 do begin
-
-      Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
-      Ttemplate(keeps_list.Objects[n]).Free;
-
-    end;//next n
-  end;
+  for n := 0 to keeps_list.Count - 1 do begin
+    keeps_list[n].template_info.keep_shove_list.Free;
+  end;//next n
 
   keeps_list.Clear;
 
   memo_list.Clear;
-  keeps_list.Sorted := False;    // append any new lines.
-  memo_list.Sorted := False;
   keep_canvas_clear;
 
 
@@ -5847,8 +5839,7 @@ begin
     run_error(220);
 
   if (n >= 0) and (n < keeps_list.Count) then begin
-    Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
-    Ttemplate(keeps_list.Objects[n]).Free;
+    keeps_list[n].template_info.keep_shove_list.Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
     save_done := False;
@@ -6027,7 +6018,7 @@ begin
 
   for line_now := 0 to keeps_list.Count - 1 do begin
 
-    case Ttemplate(keeps_list.Objects[line_now]).template_info.keep_dims.box_dims1.bgnd_code_077 of
+    case keeps_list[line_now].template_info.keep_dims.box_dims1.bgnd_code_077 of
       -1:
         type_str := 'LIBRARY';
       0:
@@ -6040,12 +6031,11 @@ begin
 
 
     html_str := html_str + #13 + '<TR><TD>' + IntToStr(line_now + 1) +
-      '</TD>' + '<TD>' + type_str + '</TD>' + '<TD>' + Ttemplate(
-      keeps_list.Objects[line_now]).template_info.keep_dims.box_dims1.id_number_str +
+      '</TD>' + '<TD>' + type_str + '</TD>' + '<TD>' + keeps_list[line_now].template_info.keep_dims.box_dims1.id_number_str +
       '</TD>' // 208b
       + '<TD>' + Trim(keepform_listbox.Items.Strings[line_now]) + '</TD>';
 
-    show_str := Trim(Ttemplate(keeps_list.Objects[line_now]).template_info.keep_dims.box_dims1.top_label);
+    show_str := Trim(keeps_list[line_now].template_info.keep_dims.box_dims1.top_label);
 
     if Pos('BH •', show_str) = 1 then begin
       html_str := html_str + '<TD>BH</TD>';
@@ -6262,7 +6252,7 @@ begin
   if (n < 0) or (n > (keeps_list.Count - 1)) or (keeps_list.Count < 1) then
     EXIT;  // safety.
 
-  if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 = -1 then
+  if keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 = -1 then
     EXIT;   // library template, button should be disabled???
 
   if keep_form.Active = True then
@@ -6274,7 +6264,7 @@ begin
   saved_current_memo_str := current_memo_str;
 
   try
-    if Ttemplate(keeps_list.Objects[n]).bg_copied = True       // wipe it...
+    if keeps_list[n].bg_copied = True       // wipe it...
     then begin
       if wipe_it(n) = False      // wipe background
       then begin
@@ -6360,9 +6350,9 @@ begin
       if (list_index < 0) or (list_index > (keeps_list.Count - 1)) then
         EXIT;  // how did this happen ?
 
-      if Ttemplate(keeps_list.Objects[list_index]).bg_copied = True then
+      if keeps_list[list_index].bg_copied = True then
         EXIT;                            // already on background.
-      if Ttemplate(keeps_list.Objects[list_index]).template_info.keep_dims.box_dims1.bgnd_code_077
+      if keeps_list[list_index].template_info.keep_dims.box_dims1.bgnd_code_077
         = -1 then
         EXIT;  // ??? library template.
 
@@ -6370,7 +6360,7 @@ begin
 
       try
         copy_template_info_from_to(False,
-          Ttemplate(keeps_list.Objects[list_index]).template_info, ti);  // get the keep data.
+          keeps_list[list_index].template_info, ti);  // get the keep data.
 
         copy_keep(ti);    // make the keep data current.
 
@@ -6482,7 +6472,7 @@ begin
         end;//with new_bgk          // filled local copy.
 
 
-        with Ttemplate(keeps_list.Objects[list_index]) do begin
+        with keeps_list[list_index] do begin
           bgnd_keep := new_bgk;                                      // background data.
           template_info.keep_dims.box_dims1.bgnd_code_077 := 1;
           // flag it is now a background keep (for file).
@@ -6604,8 +6594,8 @@ begin
       // re-write the info (e.g. for mirror tools = swapped hand, shift data, etc.)..
       // (no need to change the memo or ref_label - won't have changed)
 
-      keeps_list.Strings[list_index] := si;
-      Ttemplate(keeps_list.Objects[list_index]).template_info.
+      keeps_list[list_index].name := si;
+      keeps_list[list_index].template_info.
         keep_dims.box_dims1.top_label := Copy(info_form.gauge_label.Caption, 1, 99);
       // (in case change of hand on mirror-rebuild.)
     end;
@@ -6748,9 +6738,9 @@ begin
   if (n < 0) or (n > (keeps_list.Count - 1)) then
     EXIT;  // how did this happen ?
 
-  keep_name_str := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.reference_string;
+  keep_name_str := keeps_list[n].template_info.keep_dims.box_dims1.reference_string;
 
-  idnum_str := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.id_number_str;
+  idnum_str := keeps_list[n].template_info.keep_dims.box_dims1.id_number_str;
   // 208a ID number
 
 
@@ -6772,8 +6762,7 @@ begin
 
         keep_name_str := s;
 
-        Ttemplate(
-          keeps_list.Objects[n]).template_info.keep_dims.box_dims1.reference_string :=
+        keeps_list[n].template_info.keep_dims.box_dims1.reference_string :=
           keep_name_str;
         save_done := False;
         backup_wanted := True;
@@ -6984,7 +6973,7 @@ begin
   else begin      // 0.93.a copy the control template if there is one, otherwise mint as before
 
     n := keeps_list.Count - 1;
-    if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.this_was_control_template
+    if keeps_list[n].template_info.keep_dims.box_dims1.this_was_control_template
       = True then begin
       //ShowMessage('debug 1  '+IntToStr(loaded_version));
 
@@ -7224,18 +7213,17 @@ begin
   while n < keeps_list.Count do begin        // repeat search for all starting points.
     // n.b. Count decreases on any deletes.
 
-    ident := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.now_time;
+    ident := keeps_list[n].template_info.keep_dims.box_dims1.now_time;
     // current search ident.
 
     i := n + 1;    // start searching at next line.
 
     while i < keeps_list.Count do begin
-      if Ttemplate(keeps_list.Objects[i]).template_info.keep_dims.box_dims1.now_time =
+      if keeps_list[i].template_info.keep_dims.box_dims1.now_time =
         ident    // found a duplicate
       then begin
 
-        Ttemplate(keeps_list.Objects[i]).template_info.keep_shove_list.Free;
-        Ttemplate(keeps_list.Objects[i]).Free;
+        keeps_list[i].template_info.keep_shove_list.Free;
         keeps_list.Delete(i);
         // delete it. i now points to next line so no need to inc.
         memo_list.Delete(i);
@@ -7277,10 +7265,10 @@ begin
   // is not on the background.
   // (pad would be wiped if low_memory option in force).
 
-  if Ttemplate(keeps_list.Objects[index]).bg_copied = False then
+  if keeps_list[index].bg_copied = False then
     EXIT;     // not on the background.
 
-  now_keep := Ttemplate(keeps_list.Objects[index]).bgnd_keep;
+  now_keep := keeps_list[index].bgnd_keep;
 
   draw_background_templates(pad_form.Canvas, 0, index, True, hover_colour);
   //  draw directly on pad and highlight this one. 26-10-99.
@@ -7397,18 +7385,17 @@ begin
   n := 0;
   while n < keeps_list.Count do begin
 
-    if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 <> 0
+    if keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 <> 0
     // background or library template.
     then begin
       Inc(n);
       CONTINUE;                                             // leave this one.
     end;
 
-    if Ttemplate(keeps_list.Objects[n]).bg_copied = True then
+    if keeps_list[n].bg_copied = True then
       wipe_it(n);  // ??? not a background template but data on background!
 
-    Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
-    Ttemplate(keeps_list.Objects[n]).Free;
+    keeps_list[n].template_info.keep_shove_list.Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
 
@@ -7473,18 +7460,17 @@ begin
   n := 0;
   while n < keeps_list.Count do begin
 
-    if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 <> -1
+    if keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 <> -1
     // not a library template.
     then begin
       Inc(n);
       CONTINUE;                                             // leave this one.
     end;
 
-    if Ttemplate(keeps_list.Objects[n]).bg_copied = True then
+    if keeps_list[n].bg_copied = True then
       wipe_it(n);  // ??? library template but data on background!
 
-    Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
-    Ttemplate(keeps_list.Objects[n]).Free;
+    keeps_list[n].template_info.keep_shove_list.Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
 
@@ -7542,7 +7528,7 @@ begin
   n := 0;
   while n < keeps_list.Count do begin
 
-    with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do begin
+    with keeps_list[n].template_info.keep_dims.box_dims1 do begin
 
       if not ((proto_info.scale_pi = 5.5) and (proto_info.gauge_pi = 25.4) and
         (proto_info.fw_pi = 1.0) and (this_was_control_template =
@@ -7554,11 +7540,10 @@ begin
       end;
     end;//with
 
-    if Ttemplate(keeps_list.Objects[n]).bg_copied = True then
+    if keeps_list[n].bg_copied = True then
       wipe_it(n);  // any data on background
 
-    Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
-    Ttemplate(keeps_list.Objects[n]).Free;
+    keeps_list[n].template_info.keep_shove_list.Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
 
@@ -7706,7 +7691,7 @@ begin
 
   for n := start_n to keeps_list.Count - 1 do begin
 
-    with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do
+    with keeps_list[n].template_info.keep_dims.box_dims1 do
       s := reference_string + ' ' + id_number_str;
 
     if Pos(LowerCase(str), LowerCase(s)) = 0 then
@@ -7838,10 +7823,10 @@ begin
 
   for n := 0 to keeps_list.Count - 1 do begin
 
-    with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do
+    with keeps_list[n].template_info.keep_dims.box_dims1 do
       s := reference_string + ' ' + id_number_str;
 
-    Ttemplate(keeps_list.Objects[n]).group_selected :=
+    keeps_list[n].group_selected :=
       Pos(LowerCase(search_str), LowerCase(s)) <> 0;
 
   end;//next
@@ -7851,7 +7836,7 @@ begin
 
   for n := 0 to (keeps_list.Count - 1) do begin
 
-    if Ttemplate(keeps_list.Objects[n]).group_selected = True then begin
+    if keeps_list[n].group_selected = True then begin
       ShowMessage('A new group was created, matching ''' + search_str +
         ''' in the template name or ID number.');
       EXIT;
@@ -7875,7 +7860,7 @@ begin
   if keeps_list.Count < 1 then
     EXIT;
   for n := 0 to keeps_list.Count - 1 do
-    Ttemplate(keeps_list.Objects[n]).group_selected := False;
+    keeps_list[n].group_selected := False;
 
   unlink_group;
   current_state(-1);
@@ -7908,7 +7893,7 @@ begin
 
     for n := 0 to (keeps_list.Count - 1) do begin
 
-      with Ttemplate(keeps_list.Objects[n]) do begin
+      with keeps_list[n] do begin
 
         if template_info.keep_dims.box_dims1.bgnd_code_077 <> 1 then
           CONTINUE;  // not a background template.
@@ -8125,12 +8110,12 @@ begin
 
     for n := 0 to (keeps_list.Count - 1) do begin
 
-      if Ttemplate(keeps_list.Objects[n]).bg_copied = False then
+      if keeps_list[n].bg_copied = False then
         CONTINUE;     // not a background template. bug fix 0.79.a  24-05-06
 
-      sel := Ttemplate(keeps_list.Objects[n]).group_selected;
+      sel := keeps_list[n].group_selected;
 
-      now_bgkeep := Ttemplate(keeps_list.Objects[n]).bgnd_keep;   // next background keep.
+      now_bgkeep := keeps_list[n].bgnd_keep;   // next background keep.
 
       with now_bgkeep do begin
 
@@ -8318,7 +8303,7 @@ begin
 
   for n := 0 to keeps_list.Count - 1 do begin
 
-    case Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 of
+    case keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 of
       -1:
         type_str := 'LIBRARY';
       0:
@@ -8331,11 +8316,11 @@ begin
 
     html_str := html_str + '<TR STYLE="font-weight:bold;">' + '<TD>' +
       IntToStr(n + 1) + '</TD>' + '<TD>' + type_str + '</TD>' + '<TD>' +
-      Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.id_number_str +
+      keeps_list[n].template_info.keep_dims.box_dims1.id_number_str +
       '</TD>' // 208b
       + '<TD>' + Trim(keep_form.keepform_listbox.Items.Strings[n]) + '</TD>';
 
-    show_str := Trim(Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.top_label);
+    show_str := Trim(keeps_list[n].template_info.keep_dims.box_dims1.top_label);
 
     if Pos('BH •', show_str) = 1 then begin
       html_str := html_str + '<TD>BH</TD>';
@@ -8374,7 +8359,7 @@ begin
 
 
     if info = True then begin
-      full_string := StringReplace(keeps_list.Strings[n], '  ', ' &nbsp;',
+      full_string := StringReplace(keeps_list[n].name, '  ', ' &nbsp;',
         [rfReplaceAll, rfIgnoreCase]);  // allow multiple spaces.
 
       full_string := StringReplace(full_string, ' > ', ' &gt; ', [rfReplaceAll, rfIgnoreCase]);
@@ -8553,7 +8538,7 @@ begin
     fill_kd(save_current);                  // fill with the control template data.
 
     for n := 0 to (keeps_list.Count - 1) do begin
-      if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 =
+      if keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 =
         0 then begin
         list_position := n;                       // put this unused keep on background.
         copy_keep_to_background(n, True, False);
@@ -8623,7 +8608,7 @@ begin
   try
     for n := 0 to (keeps_list.Count - 1) do begin
 
-      with Ttemplate(keeps_list.Objects[n]) do begin
+      with keeps_list[n] do begin
 
         if (group = True) and (group_selected = False) then
           CONTINUE;
@@ -8712,7 +8697,7 @@ begin     // menu is not enabled until there is something there.
   m := -1;
 
   try
-    n := keeps_list.Add(deleted_keep_string);        // add line to info.
+    n := keeps_list.Add(TTemplate.Create(deleted_keep_string));        // add line to info.
   except
     alert(5, '    undo  delete  error',
       '|||There is an internal problem with undo.' + '||Please quote fail code 901.',
@@ -8743,25 +8728,11 @@ begin     // menu is not enabled until there is something there.
     EXIT;
   end;
 
-  try
-    keeps_list.Objects[n] := Ttemplate.Create;
-  except
-    alert(1, '      memory  problem',
-      '||Unable to undo because of memory problems.' + '||Please quote fail code 904.',
-      '', '', '', '', '', 'cancel  undo', 0);
-
-    if n > -1 then
-      keeps_list.Delete(n);
-    if m > -1 then
-      memo_list.Delete(m);
-    EXIT;
-  end;//try
-
   save_done := False;
   // need a fresh save.
   init_ttemplate(n);
   // init flags for new keep.
-  copy_template_info_from_to(False, deleted_keep, Ttemplate(keeps_list.Objects[n]).template_info);
+  copy_template_info_from_to(False, deleted_keep, keeps_list[n].template_info);
   // data into list.
 
   backup_wanted := True;
@@ -8780,7 +8751,7 @@ begin     // menu is not enabled until there is something there.
       copy_keep_to_background(n, False, False)
     // put it in background.
     else begin
-      with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do begin
+      with keeps_list[n].template_info.keep_dims.box_dims1 do begin
         bgnd_code_077 := 0;             // set it unused instead.
         pre077_bgnd_flag := False;
         // in case reloaded in older version than 0.77.a
@@ -8816,7 +8787,7 @@ begin
     EXIT;
 
   for n := 0 to (keeps_list.Count - 1) do begin
-    if Ttemplate(keeps_list.Objects[n]).group_selected = True then
+    if keeps_list[n].group_selected = True then
       Result := Result + 1;       // return count.
   end;//next keep
 end;
@@ -8833,7 +8804,7 @@ begin
     EXIT;
 
   for n := 0 to (keeps_list.Count - 1) do begin
-    if Ttemplate(keeps_list.Objects[n]).bg_copied = True then
+    if keeps_list[n].bg_copied = True then
       Result := Result + 1;       // return count.
   end;//next keep
 end;
@@ -8850,8 +8821,8 @@ begin
     EXIT;
 
   for n := 0 to (keeps_list.Count - 1) do begin
-    if (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 = 0) and
-      (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.this_was_control_template
+    if (keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 = 0) and
+      (keeps_list[n].template_info.keep_dims.box_dims1.this_was_control_template
       = False)   // added 208d for file viewer
     then
       Result := Result + 1;   // return count.
@@ -8870,7 +8841,7 @@ begin
     EXIT;
 
   for n := 0 to (keeps_list.Count - 1) do begin
-    if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 = -1 then
+    if keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 = -1 then
       Result := Result + 1;   // return count.
   end;//next template
 end;
@@ -8890,7 +8861,7 @@ begin
 
   for n := 0 to (keeps_list.Count - 1) do begin
 
-    with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do begin
+    with keeps_list[n].template_info.keep_dims.box_dims1 do begin
 
       if (proto_info.scale_pi = 5.5) and (proto_info.gauge_pi = 25.4) and
         (proto_info.fw_pi = 1.0) and (this_was_control_template = False)
@@ -8916,7 +8887,7 @@ begin
     EXIT;
 
   for n := 0 to (keeps_list.Count - 1) do begin
-    if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 <> -1 then
+    if keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 <> -1 then
       Result := Result + 1;   // return count.
   end;//next template
 end;
@@ -8933,7 +8904,7 @@ begin
     EXIT;
 
   for n := (keeps_list.Count - 1) downto 0 do begin
-    if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 <>
+    if keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 <>
       -1 then begin
       Result := n;   // return index.
       EXIT;
@@ -8953,7 +8924,7 @@ begin
     EXIT;
 
   for n := 0 to (keeps_list.Count - 1) do begin
-    if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 =
+    if keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 =
       -1 then begin
       Result := n;   // return index.
       EXIT;
@@ -8973,7 +8944,7 @@ begin
     EXIT;
 
   for n := (keeps_list.Count - 1) downto 0 do begin
-    if Ttemplate(keeps_list.Objects[n]).group_selected = True then begin
+    if keeps_list[n].group_selected = True then begin
       Result := n;   // return index.
       EXIT;
     end;
@@ -8993,7 +8964,7 @@ begin
     EXIT;
 
   for n := 0 to (keeps_list.Count - 1) do begin
-    if Ttemplate(keeps_list.Objects[n]).group_selected = False then begin
+    if keeps_list[n].group_selected = False then begin
       Result := n;   // return index.
       EXIT;
     end;
@@ -9012,7 +8983,7 @@ begin
     EXIT;
 
   for n := 0 to (keeps_list.Count - 1) do begin
-    if Ttemplate(keeps_list.Objects[n]).group_selected = True then begin
+    if keeps_list[n].group_selected = True then begin
       Result := n;   // return index.
       EXIT;
     end;
@@ -9032,7 +9003,7 @@ begin
     EXIT;
 
   for n := (keeps_list.Count - 1) downto 0 do begin
-    if Ttemplate(keeps_list.Objects[n]).group_selected = False then begin
+    if keeps_list[n].group_selected = False then begin
       Result := n;   // return index.
       EXIT;
     end;
@@ -9052,7 +9023,7 @@ begin
     EXIT;
 
   for n := (keeps_list.Count - 1) downto 0 do begin
-    if Ttemplate(keeps_list.Objects[n]).bg_copied = True then begin
+    if keeps_list[n].bg_copied = True then begin
       Result := n;   // return index.
       EXIT;
     end;
@@ -9161,12 +9132,12 @@ begin
       mpsy := updown_panel.ClientToScreen(sp).Y;
 
       if (n >= 0) and (n < keeps_list.Count) then begin
-        if Ttemplate(keeps_list.Objects[n]).group_selected = True then
+        if keeps_list[n].group_selected = True then
           slider_shape.Show
         else
           slider_shape.Hide;
 
-        with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do begin
+        with keeps_list[n].template_info.keep_dims.box_dims1 do begin
 
           case bgnd_code_077 of
             -1:
@@ -9221,12 +9192,12 @@ begin
       n := slider_index(Left);
 
       if (n >= 0) and (n < keeps_list.Count) then begin
-        if Ttemplate(keeps_list.Objects[n]).group_selected = True then
+        if keeps_list[n].group_selected = True then
           slider_shape.Show
         else
           slider_shape.Hide;
 
-        with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do begin
+        with keeps_list[n].template_info.keep_dims.box_dims1 do begin
 
           case bgnd_code_077 of
             -1:
@@ -9364,8 +9335,7 @@ begin
   if (list_position < 0) or (memo_list.Count < 1) or (list_position > (memo_list.Count - 1)) then
     EXIT;
 
-  new_str := edit_memo_str(memo_list.Strings[list_position], Ttemplate(
-    keeps_list.Objects[list_position]).template_info.keep_dims.box_dims1.reference_string);
+  new_str := edit_memo_str(memo_list.Strings[list_position], keeps_list[list_position].template_info.keep_dims.box_dims1.reference_string);
 
   memo_list.Strings[list_position] := new_str;
 
@@ -9562,7 +9532,7 @@ begin
   if (Index < 0) or (Index > (keeps_list.Count - 1)) then
     EXIT;  // ???
 
-  with Ttemplate(keeps_list.Objects[Index]) do begin
+  with keeps_list[Index] do begin
     idnum_str := template_info.keep_dims.box_dims1.id_number_str;   // 208a
     bg_flag := template_info.keep_dims.box_dims1.bgnd_code_077;
     gsel := group_selected;
@@ -9771,7 +9741,7 @@ begin
     append := False;
     if load_storage_box(True, False, pb_str, False, False, append, hl) = True then begin
       if keeps_list.Count > 0 then begin
-        with Ttemplate(keeps_list.Objects[0]).template_info.keep_dims.box_dims1 do
+        with keeps_list[0].template_info.keep_dims.box_dims1 do
         begin   // read only from first keep.
           if version_as_loaded > 62 then
             save_done := box_save_done      // mods 23-6-00 for version 0.63
@@ -9823,7 +9793,7 @@ begin
     append := False;
     if load_storage_box(True, False, pbo_str, False, False, append, hl) = True then begin
       if keeps_list.Count > 0 then begin
-        with Ttemplate(keeps_list.Objects[0]).template_info.keep_dims.box_dims1 do
+        with keeps_list[0].template_info.keep_dims.box_dims1 do
         begin   // read only from first keep.
           if version_as_loaded > 62 then
             save_done := box_save_done      // mods 23-6-00 for version 0.63
@@ -9848,7 +9818,7 @@ end;
 procedure Tkeep_form.select_menu_entryClick(Sender: TObject);
 
 begin
-  with Ttemplate(keeps_list.Objects[list_position]) do begin
+  with keeps_list[list_position] do begin
     if template_info.keep_dims.box_dims1.bgnd_code_077 <> -1 then
       group_selected := not group_selected
     else
@@ -9872,7 +9842,7 @@ begin
     EXIT;
 
   for n := 0 to keeps_list.Count - 1 do begin
-    with Ttemplate(keeps_list.Objects[n]) do
+    with keeps_list[n] do
       group_selected := (template_info.keep_dims.box_dims1.bgnd_code_077 <> -1);
     // select if not a library template.
   end;
@@ -9891,7 +9861,7 @@ begin
     EXIT;
 
   for n := 0 to keeps_list.Count - 1 do begin
-    with Ttemplate(keeps_list.Objects[n]) do
+    with keeps_list[n] do
       group_selected := (template_info.keep_dims.box_dims1.bgnd_code_077 = 1);
   end;//next n
 
@@ -9912,7 +9882,7 @@ begin
     EXIT;
 
   for n := 0 to keeps_list.Count - 1 do begin
-    with Ttemplate(keeps_list.Objects[n]) do
+    with keeps_list[n] do
       group_selected := (template_info.keep_dims.box_dims1.bgnd_code_077 = 0);
   end;//next n
 
@@ -9940,7 +9910,7 @@ begin
     EXIT;
 
   for n := 0 to keeps_list.Count - 1 do begin
-    with Ttemplate(keeps_list.Objects[n]) do begin
+    with keeps_list[n] do begin
       if template_info.keep_dims.box_dims1.bgnd_code_077 <> -1 then
         group_selected := not group_selected
       else
@@ -9970,7 +9940,7 @@ begin
 
   for n := 0 to (keeps_list.Count - 1) do begin
 
-    with Ttemplate(keeps_list.Objects[n]) do begin
+    with keeps_list[n] do begin
 
       if (group_selected = True) and (bg_copied = True)
       // selected and currently on background?
@@ -10011,7 +9981,7 @@ begin
 
   for n := 0 to keeps_list.Count - 1 do begin
 
-    with Ttemplate(keeps_list.Objects[n]) do begin
+    with keeps_list[n] do begin
 
       // selected and not currently on background...?
 
@@ -10068,7 +10038,7 @@ begin
 
     for n := 0 to (keeps_list.Count - 1) do begin
 
-      with Ttemplate(keeps_list.Objects[n]) do begin
+      with keeps_list[n] do begin
 
         if (group_selected = False) or (bg_copied = False) then
           CONTINUE;     // not selected or on background.
@@ -10227,7 +10197,7 @@ begin
   n := 0;
   while n < keeps_list.Count do begin
 
-    if Ttemplate(keeps_list.Objects[n]).group_selected = all_except then begin
+    if keeps_list[n].group_selected = all_except then begin
       Inc(n);
       CONTINUE;  // leave this one.
     end;
@@ -10325,7 +10295,7 @@ begin
 
     while n < Count do begin
 
-      with Ttemplate(keeps_list.Objects[0]).template_info.keep_dims.box_dims1 do
+      with keeps_list[0].template_info.keep_dims.box_dims1 do
       begin    // always top of list
         bgnd := bgnd_code_077;
         // remember if it's on bgnd.
@@ -10353,7 +10323,7 @@ begin
         EXIT;
       end;
 
-      with Ttemplate(keeps_list.Objects[Count - 1]).template_info.keep_dims.box_dims1 do
+      with keeps_list[Count - 1].template_info.keep_dims.box_dims1 do
       begin    // always bottom of list
 
         // 0.82.d  restore label position...
@@ -10476,7 +10446,7 @@ begin
   if (keeps_list.Count < 1) or (list_position < 0) or (list_position > (keeps_list.Count - 1)) then
     EXIT;
 
-  if Ttemplate(keeps_list.Objects[list_position]).template_info.keep_dims.box_dims1.bgnd_code_077
+  if keeps_list[list_position].template_info.keep_dims.box_dims1.bgnd_code_077
     <> 1 then
     EXIT;
 
@@ -10511,7 +10481,7 @@ begin
   if (keeps_list.Count < 1) or (list_position < 0) or (list_position > (keeps_list.Count - 1)) then
     EXIT;
 
-  with Ttemplate(keeps_list.Objects[list_position]).template_info.keep_dims.box_dims1 do begin
+  with keeps_list[list_position].template_info.keep_dims.box_dims1 do begin
 
     if bgnd_code_077 <> 0 then
       EXIT                // already library or on bgnd???  menu should be disabled.
@@ -10899,7 +10869,7 @@ begin
   if (n < 0) or (n >= keeps_list.Count) then
     EXIT;
 
-  tagged_str := Trim(Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.reference_string);
+  tagged_str := Trim(keeps_list[n].template_info.keep_dims.box_dims1.reference_string);
 
   repeat
     i := Pos('[', tagged_str);
@@ -10945,7 +10915,7 @@ begin
 
   for n := 0 to keeps_list.Count - 1 do begin
 
-    if (group_tags_only = True) and (Ttemplate(keeps_list.Objects[n]).group_selected = False) then
+    if (group_tags_only = True) and (keeps_list[n].group_selected = False) then
       CONTINUE;
 
     if return_prefix_tags_list(n, new_tags_list) > 0  // get any tags for this one in new_tag_list
@@ -11016,10 +10986,10 @@ begin
   for n := 0 to keeps_list.Count - 1 do begin
 
     if (add_to_existing_group = True) and
-      (Ttemplate(keeps_list.Objects[n]).group_selected = True) then
+      (keeps_list[n].group_selected = True) then
       CONTINUE;
 
-    with Ttemplate(keeps_list.Objects[n]) do
+    with keeps_list[n] do
       group_selected := (Pos(tag_str, template_info.keep_dims.box_dims1.reference_string) <> 0);
 
   end;//next template
@@ -11039,7 +11009,7 @@ begin
 
   for n := 0 to keeps_list.Count - 1 do begin
 
-    id := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.id_number;
+    id := keeps_list[n].template_info.keep_dims.box_dims1.id_number;
 
     if Result < id then
       Result := id;
@@ -11063,6 +11033,32 @@ begin
 end;
 //______________________________________________________________________________
 
+function CompareTemplateByName(constref Left, Right: TTemplate): Integer;
+var
+  LeftS: string;
+  RightS: string;
+begin
+  LeftS := LowerCase(Left.template_info.keep_dims.box_dims1.reference_string);
+  RightS := LowerCase(Right.template_info.keep_dims.box_dims1.reference_string);
+
+  result := TComparer<string>.Default.Compare(LeftS, RightS);
+end;
+
+function CompareTemplateByIDNumber(constref Left, Right: TTemplate): Integer;
+begin
+  result := TComparer<integer>.Default.Compare(Left.template_info.keep_dims.box_dims1.id_number, Right.template_info.keep_dims.box_dims1.id_number);
+end;
+
+function CompareTemplateByTemplateType(constref Left, Right: TTemplate): Integer;
+begin
+  result := TComparer<string>.Default.Compare(Left.template_info.keep_dims.box_dims1.id_number_str, Right.template_info.keep_dims.box_dims1.id_number_str);
+end;
+
+function CompareTemplateByInfo(constref Left, Right: TTemplate): Integer;
+begin
+  result := TComparer<string>.Default.Compare(Left.template_info.keep_dims.box_dims1.top_label, Right.template_info.keep_dims.box_dims1.top_label);
+end;
+
 procedure sort_box(code: integer);
 
 // 208a temp swap the template name (reference_string) to the list strings, so can sort it.
@@ -11071,44 +11067,37 @@ procedure sort_box(code: integer);
 
 var
   n: integer;
+  comparer: IComparer<TTemplate>;
 
 begin
   if keeps_list.Count < 1 then
     EXIT;
 
   for n := 0 to (keeps_list.Count - 1) do begin
-
-    Ttemplate(keeps_list.Objects[n]).sort_swap_info_str := keeps_list.Strings[n];
-    Ttemplate(keeps_list.Objects[n]).sort_swap_memo_str := memo_list.Strings[n];
-
-    case code of
-
-      1:
-        keeps_list.Strings[n] :=
-          LowerCase(Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.reference_string);
-
-      2:
-        keeps_list.Strings[n] :=
-          FormatFloat('000000', Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.id_number);
-
-      3:
-        keeps_list.Strings[n] := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.id_number_str;
-
-      4:
-        keeps_list.Strings[n] := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.top_label;
-
-    end;//case
-
+    keeps_list[n].sort_swap_memo_str := memo_list.Strings[n];
   end;//next
 
-  keeps_list.Sort;
+
+  case code of
+    1:
+      comparer := TComparer<TTemplate>.Construct(CompareTemplateByName);
+    2:
+      comparer := TComparer<TTemplate>.Construct(CompareTemplateByIDNumber);
+    3:
+      comparer := TComparer<TTemplate>.Construct(CompareTemplateByTemplateType);
+    4:
+      comparer := TComparer<TTemplate>.Construct(CompareTemplateByInfo);
+    else
+      comparer := TComparer<TTemplate>.Construct(CompareTemplateByName);
+  end;
+
+  keeps_list.Sort(comparer);
 
   // swap back
 
   for n := 0 to (keeps_list.Count - 1) do begin
 
-    keeps_list.Strings[n] := Ttemplate(keeps_list.Objects[n]).sort_swap_info_str;
-    memo_list.Strings[n] := Ttemplate(keeps_list.Objects[n]).sort_swap_memo_str;
+    memo_list.Strings[n] := keeps_list[n].sort_swap_memo_str;
 
   end;//next
 
@@ -11155,7 +11144,7 @@ var
 begin
   Result := False;  // init
 
-  with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims do begin
+  with keeps_list[n].template_info.keep_dims do begin
 
     with box_dims1.rail_info do begin
 
@@ -11234,7 +11223,7 @@ begin
 
     for n := 0 to (keeps_list.Count - 1) do begin
 
-      with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims do begin
+      with keeps_list[n].template_info.keep_dims do begin
 
         box_dims1.id_number := n + 1;
 
@@ -11309,7 +11298,7 @@ begin
 
   for n := 0 to keeps_list.Count - 1 do begin
 
-    name_str := Trim(LowerCase(Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.reference_string));
+    name_str := Trim(LowerCase(keeps_list[n].template_info.keep_dims.box_dims1.reference_string));
 
     while Pos(']', name_str) > 0 do
       Delete(name_str, 1, 1);    // remove any tags
@@ -11338,7 +11327,7 @@ begin
     EXIT;
 
   for n := 0 to (keeps_list.Count - 1) do begin
-    if Ttemplate(keeps_list.Objects[n]).bgnd_half_diamond = False then begin
+    if keeps_list[n].bgnd_half_diamond = False then begin
       Result := n;   // return index.
       EXIT;
     end;
@@ -11358,7 +11347,7 @@ begin
     EXIT;
 
   for n := (keeps_list.Count - 1) downto 0 do begin
-    if Ttemplate(keeps_list.Objects[n]).bgnd_half_diamond = True then begin
+    if keeps_list[n].bgnd_half_diamond = True then begin
       Result := n;   // return index.
       EXIT;
     end;
@@ -11405,12 +11394,12 @@ begin
     EXIT;
 
   edit_reminder_menu_entry.Enabled :=
-    Ttemplate(keeps_list.Objects[list_position]).template_info.keep_dims.box_dims1.align_info.reminder_flag;
+    keeps_list[list_position].template_info.keep_dims.box_dims1.align_info.reminder_flag;
   remove_reminder_menu_entry.Enabled :=
-    Ttemplate(keeps_list.Objects[list_position]).template_info.keep_dims.box_dims1.align_info.reminder_flag;
+    keeps_list[list_position].template_info.keep_dims.box_dims1.align_info.reminder_flag;
 
   add_reminder_menu_entry.Enabled :=
-    not Ttemplate(keeps_list.Objects[list_position]).template_info.keep_dims.box_dims1.align_info.reminder_flag;
+    not keeps_list[list_position].template_info.keep_dims.box_dims1.align_info.reminder_flag;
 
 end;
 //______________________________________________________________________________

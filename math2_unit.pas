@@ -33,7 +33,8 @@ interface
 uses
   Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls, MaskEdit, FileCtrl, Math,
-  pad_unit;      //  need Tpex declaration in this part for parameters to routines.
+  pad_unit,
+  template;      //  need Tpex declaration in this part for parameters to routines.
 
 function do_notch_on_intersection(making_diamond, move_notch: boolean;
   rail_offset_control, rail_offset_bgnd: integer; top_str, next_str: string): boolean;
@@ -1303,9 +1304,9 @@ begin
       grow_str := 'Shortening the control template to meet --' + #13 + #13;
   end;
 
-  bg_pt := Ttemplate(keeps_list.Objects[index]).bgnd_plain_track;
-  bg_hd := Ttemplate(keeps_list.Objects[index]).bgnd_half_diamond;
-  bg_rp := Ttemplate(keeps_list.Objects[index]).bgnd_retpar;        // parallel crossing
+  bg_pt := keeps_list[index].bgnd_plain_track;
+  bg_hd := keeps_list[index].bgnd_half_diamond;
+  bg_rp := keeps_list[index].bgnd_retpar;        // parallel crossing
 
   was_end_swapped := False;  // init
   been_here_before := 0;     // init
@@ -1326,7 +1327,7 @@ begin
   mod_dir := 1;              // init   1=extend  -1=shorten
 
 
-  with Ttemplate(keeps_list.Objects[index]).boundary_info do begin
+  with keeps_list[index].boundary_info do begin
 
     try
 
@@ -2010,7 +2011,7 @@ begin
 
   for n := 0 to (keeps_list.Count - 1) do begin
 
-    with Ttemplate(keeps_list.Objects[n]) do begin
+    with keeps_list[n] do begin
 
       if bg_copied = False then
         CONTINUE;  // not on background.
@@ -2121,7 +2122,7 @@ begin
 
         for n := 0 to (keeps_list.Count - 1) do begin
 
-          with Ttemplate(keeps_list.Objects[n]) do begin
+          with keeps_list[n] do begin
 
             if bg_copied = False then
               CONTINUE;  // not on background.

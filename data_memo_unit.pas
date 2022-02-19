@@ -63,7 +63,7 @@ implementation
 {$R *.lfm}
 
 uses
-  pad_unit, switch_select;
+  pad_unit, switch_select, template;
 
 var
   template_showing: boolean = False;
@@ -146,12 +146,12 @@ begin
   begin
     memo_text_str := memo_list.Strings[list_position];
 
-    with Ttemplate(keeps_list.Objects[list_position]).template_info.keep_dims.box_dims1 do begin
+    with keeps_list[list_position].template_info.keep_dims.box_dims1 do begin
       info_str := '    ' + IntToStr(list_position + 1) + '  ' + reference_string + '   ' +
         id_number_str + '||  ' + top_label +
         '||--------------------------------------------------------------' +
         '||      Information  about  this  template :' + '||( all dimensions in millimetres )'
-        + '||' + keeps_list.Strings[list_position] +
+        + '||' + keeps_list[list_position].name +
         '||--------------------------------------------------------------' +
         '||      Your  memo  notes  for  this  template :' + '||' + memo_text_str;
     end;//with

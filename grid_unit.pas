@@ -210,7 +210,8 @@ uses
   { OT-FIRST dtp_unit, dtp_settings_unit,} export_unit, { OT-FIRST pdf_unit,} entry_sheet,
   alert_unit,
   action_unit,
-  rail_data_unit { OT-FIRST , file_viewer};
+  rail_data_unit,
+  template, mark_unit{ OT-FIRST , file_viewer};
 
 {$R *.lfm}
 //_________________________________________________________________________________________
@@ -551,7 +552,7 @@ begin
   if (n < 0) or (n > (keeps_list.Count - 1)) then
     EXIT;     // ???
 
-  if Ttemplate(keeps_list.Objects[n]).group_selected =
+  if keeps_list[n].group_selected =
     False  // not selected for mouse shift/rotate.
   then
     EXIT;
@@ -575,7 +576,7 @@ begin
   if (n < 0) or (n > (keeps_list.Count - 1)) then
     EXIT;   // ???
 
-  if Ttemplate(keeps_list.Objects[n]).group_selected =
+  if keeps_list[n].group_selected =
     False  // not selected for mouse shift/rotate.
   then
     EXIT;
@@ -616,7 +617,7 @@ begin
   if (n < 0) or (n > (keeps_list.Count - 1)) then
     EXIT;  // ???
 
-  if Ttemplate(keeps_list.Objects[n]).group_selected =
+  if keeps_list[n].group_selected =
     False  // not selected for mouse shift/rotate.
   then
     EXIT;
@@ -636,7 +637,7 @@ begin
   if (n < 0) or (n > (keeps_list.Count - 1)) then
     EXIT;  // ???
 
-  if Ttemplate(keeps_list.Objects[n]).group_selected =
+  if keeps_list[n].group_selected =
     False  // not selected for mouse shift/rotate.
   then
     EXIT;
@@ -1444,7 +1445,7 @@ begin
 
     for n := 0 to (keeps_list.Count - 1) do begin
 
-      with Ttemplate(keeps_list.Objects[n]) do begin
+      with keeps_list[n] do begin
 
         if bg_copied = False then
           CONTINUE;  // not a background template.
@@ -1686,7 +1687,7 @@ var
 begin
   Result := False;  // default init.
 
-  with Ttemplate(keeps_list.Objects[bgk]) do begin
+  with keeps_list[bgk] do begin
 
     if bg_copied = False then
       EXIT;  // not a background template.
@@ -1879,7 +1880,7 @@ begin
   end;
 
   for keeps_index := 0 to (keeps_list.Count - 1) do begin
-    Ttemplate(keeps_list.Objects[keeps_index]).bgnd_is_in_rect :=
+    keeps_list[keeps_index].bgnd_is_in_rect :=
       is_bgnd_in_rect(keeps_index, X_left, X_right, Y_top, Y_bottom);   // temp flag
   end;//next
 
@@ -1901,7 +1902,7 @@ begin
       if (highlight_index <> -1) and (bgk <> highlight_index) then
         CONTINUE;  // don't need to draw any others if one is for highlighting.
 
-      with Ttemplate(keeps_list.Objects[bgk]) do begin
+      with keeps_list[bgk] do begin
 
         if bgnd_is_in_rect = False then
           CONTINUE;     // 218d no part of template in screen area
@@ -2415,7 +2416,7 @@ begin
       if (highlight_index <> -1) and (bgk <> highlight_index) then
         CONTINUE;  // don't need to draw any others if one is for highlighting.
 
-      with Ttemplate(keeps_list.Objects[bgk]) do begin
+      with keeps_list[bgk] do begin
 
         if bgnd_is_in_rect = False then
           CONTINUE;     // 218d no part of template in screen area
@@ -2719,7 +2720,7 @@ begin
       if (highlight_index <> -1) and (bgk <> highlight_index) then
         CONTINUE;  // don't need to draw any others if one is for highlighting.
 
-      with Ttemplate(keeps_list.Objects[bgk]) do begin
+      with keeps_list[bgk] do begin
 
         if bgnd_is_in_rect = False then
           CONTINUE;     // 218d no part of template in screen area
@@ -4019,7 +4020,7 @@ begin
 
   for bgk := 0 to (keeps_list.Count - 1) do begin
 
-    with Ttemplate(keeps_list.Objects[bgk]) do begin
+    with keeps_list[bgk] do begin
 
       if bg_copied = False then
         CONTINUE;  // not a background template.

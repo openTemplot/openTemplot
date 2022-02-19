@@ -165,7 +165,8 @@ uses
   Printers, Clipbrd, control_room, pad_unit, entry_sheet, help_sheet, chat_unit,
   math_unit, alert_unit,
   colour_unit, keep_select, info_unit, print_unit, shove_timber, print_settings_unit,
-  shoved_timber;
+  shoved_timber,
+  template;
 
 const
 
@@ -273,12 +274,12 @@ begin
 
     while n < Count do begin
 
-      if Ttemplate(keeps_list.Objects[n]).group_selected = False then begin
+      if keeps_list[n].group_selected = False then begin
         Inc(n);
         CONTINUE;     // don't change this one.
       end;
 
-      bgnd := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077;
+      bgnd := keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077;
       // remember if it's on bgnd.
 
       list_position := n;
@@ -308,7 +309,7 @@ begin
     n := 0;
     while n < keeps_list.Count do begin
 
-      if Ttemplate(keeps_list.Objects[n]).group_selected = False then begin
+      if keeps_list[n].group_selected = False then begin
         Inc(n);
         CONTINUE;  // leave this one.
       end;
