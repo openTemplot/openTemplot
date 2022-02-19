@@ -23,7 +23,7 @@
 ====================================================================================
 *)
 
-
+{}
 unit pad_unit;
 
 {$MODE Delphi}
@@ -3322,10 +3322,99 @@ type
     sparebool: boolean;
   end;
 
+  // Enumeration of the possible values for Mark codes
+
+  // NOTE:
+  // 1. These names contain the values of the codes. This is a temporary step to help avoid
+  //    mistakes as I deploy the enumeration into the code. Later, the names can be refactored
+  //    to remove the values from them.
+  // 2. Also later, the values themselves can be changed, once it is confirmed that they are
+  //    transient - i.e. not written to files (which I think is true)
+
+  // !!! BEWARE !!!
+  // When the time comes to allow the values to be derived by the compiler ... all sorts
+  // of shonky stuff is going on with these 'codes', including:
+  //    - dependency on the order of the values
+  //    - arithmetic performed on the codes
+  // You have been warned!
+
+  EmarkCode = (
+
+    eMC__493_DXFblock = -493,         // -493
+    eMC__5_Label = -5,                // -5
+    eMC__4_TimberSelector,            // -4
+    eMC__3_CurvingRadiusCentre_2,     // -3
+    eMC__2_CurvingRadiusCentre_1,     // -2
+    eMC__1_PegCentre,                 // -1
+
+    eMC_0_Ignore = 0,                 // 0
+
+    eMC_1_GuideMark,                  // 1
+    eMC_2_RadialEnd,                  // 2
+    eMC_3_TimberOutline,              // 3
+    eMC_4_TimberCL,                   // 4
+    eMC_5_TimberReducedEnd,           // 5
+    eMC_6_RailJoint,                  // 6
+    eMC_7_TransitionAndSlewing,       // 7
+    eMC_8_PegArm_1,                   // 8
+    eMC_9_PegArm_2,                   // 9
+    eMC_10_PlainTrackStart,           // 10
+    eMC_11_placeholder,               // 11 - placeholder
+    eMC_14_TimberCLSolid = 14,        // 14
+    eMC_33_ShovingTimberOutline = 33, // 33
+    eMC_44_ShovingTimberCL_1 = 44,    // 44
+    eMC_54_ShovingTimberCL_2 = 54,    // 54
+    eMC_55_ReducedEnd,                // 55
+
+    eMC_93_Infill_1 = 93,             // 93
+    eMC_95_Infill_2 = 95,             // 95
+    eMC_98_placeholder = 98,          // 98 - placeholder
+    eMC_99_TimberNumber,              // 99
+
+    eMC_100_placeholder,              // 100 - placeholder
+    eMC_101_SwitchDrive,              // 101
+    eMC_199_placeholder = 199,        // 199 - placeholder
+
+    eMC_200_placeholder,              // 200 - placeholder
+    eMC_203_TimberInfill = 203,       // 203
+    eMC_233_Infill_3 = 233,           // 233
+    eMC_293_Infill_4 = 293,           // 293
+
+    eMC_480_ChairStart = 480,         // 480
+    eMC_493_Chair = 493,              // 493
+    eMC_499_ChairEnd = 499,           // 499
+
+    eMC_501_MSWorkingEnd = 501,       // 501
+    eMC_502_MSExtensionEnd,           // 502
+    eMC_503_MSWingRail,               // 503
+    eMC_504_TSWorkingEnd,             // 504
+    eMC_505_TSExtensionEnd,           // 505
+    eMC_506_TSWingRail,               // 506
+    eMC_507_MSKCheckRail,             // 507
+    eMC_508_DSWingRail,               // 508
+
+    eMC_600_LongMark = 600,           // 600
+    eMC_601_TipsLabel,                // 601
+    eMC_602_SetLabel,                 // 602
+    eMC_603_PlaningLabel,             // 603
+    eMC_604_StockGaugeLabel,          // 604
+    eMC_605_JoggleLabel,              // 605
+    eMC_605_SWitchLabelEnd,           // 605
+    eMC_607_placeholder = 607,        // 607
+
+    eMC_700_XingLabelStart = 700,     // 700 - What's the real use of this field?
+    eMC_701_XingIntersectionFP,       // 701
+    eMC_702_XingBluntNose,            // 702
+    eMC_703_XingBluntTips,            // 703
+    eMC_703_XingLabelEnd              // 703
+
+    );
+
+
   Tmark = record                     // mark from p1 to p2.
     p1: TPoint;
     p2: TPoint;
-    code: integer;
+    code: eMarkCode;
   end;
   Tmark_array = array of Tmark;
 
@@ -5186,7 +5275,12 @@ const
   line_thick_help_str: string = '      `0Setting  Printed  Line  Thicknesses`9' +
     '||The settings in the PRINT > PRINTED LINE THICKNESS menu options determine the thickness (width) of the lines which make up the drawing on printed templates.' + '||Click the THIN LINES menu option to print all lines on your templates at the minimum thickness which is possible on your printer (or not less than 0.02 mm).' + '||Click the NORMAL LINES menu option to use the following settings, or the nearest possible on your printer:' + '|Grid lines 0.02 mm or minimum' + '|Trim margin lines 0.22 mm' + '|Background shapes 0.22 mm' + '|Picture shape borders 0.02 mm or minimum' + '|Rail-edge lines 0.16 mm' + '|Timber outlines 0.16 mm' + '|Track centre-lines lines 0.02 mm or minimum'    // 0.79.a
     + '|All other marks 0.16 mm' +
-    '|(These slightly odd dimensions have been chosen to give as near as possible equivalent results on different makes of printer.)' + '||Click the THICK LINES menu option to use the following settings, or the nearest possible on your printer:' + '|Grid lines 0.16 mm' + '|Trim-margin lines 0.5 mm' + '|Background shapes 0.4 mm' + '|Picture shape borders 0.16 mm' + '|Rail-edge lines 0.3 mm' + '|Timber outlines 0.3 mm' + '|Track centre-lines lines 0.16 mm'   // 0.79.a
+    '|(These slightly odd dimensions have been chosen to give as near as possible equivalent results on different makes of printer.)' +
+    '||Click the THICK LINES menu option to use the following settings, or the nearest possible on your printer:'
+    +
+    '|Grid lines 0.16 mm' + '|Trim-margin lines 0.5 mm' + '|Background shapes 0.4 mm' +
+    '|Picture shape borders 0.16 mm' + '|Rail-edge lines 0.3 mm' +
+    '|Timber outlines 0.3 mm' + '|Track centre-lines lines 0.16 mm'   // 0.79.a
     + '|All other marks 0.3 mm' +
     '||Or click the SET ANY LINE THICKNESS... menu option to make any other line thickness settings which you require.'
     + '||If the SIZE-ADJUST LINE THICKNESS menu option is ticked, Templot0 will scale down some of these line thicknesses in accordance with any reduced size setting for printing in the PRINT > ENLARGE/REDUCE SIZE menu options.' + ' The grid lines and trim-margin lines are not affected.' + '||If the SIZE-ADJUST LINE THICKNESS menu option is unticked, all lines will be printed at the set thickness, without regard to any reduced size setting for printing in the PRINT > ENLARGE/REDUCE SIZE menu options.' + '||For Picture Shape borders, the set line thickness applies only if the image is being printed. If the OUTLINES ONLY option is selected the outline is printed at the Background Shape line thickness.' + '||N.B. If you are using an old-style dot-matrix impact printer (or a pen plotter), Templot0 draws all lines 1 ink-dot thick, and the settings which you make' + ' here will have no effect until you change to a non-impact printer.' + '||Handy Hints:' + '||For the final construction templates printed using Best or Letter-Quality or Photo print quality, the THIN LINES option will give the most precise result.' + '||For trial prints using the Economy or Draft setting, the NORMAL LINES option is more prominent.' + '||The actual drawn line thickness (line width) may vary from these settings and is determined by the dot size and dpi (dots per inch) resolution for your printer.' + '||These settings have no effect on templates exported in DXF file format. The way the templates are rendered in your CAD software is determined only in that program.' + '||These line thickness settings affect only the printed output, they have no effect on the screen drawing. To change the appearance of' + ' the drawing on the screen, select the TRACKPAD menu items.';
@@ -7875,11 +7969,17 @@ procedure Tpad_form.rail_section_menu_entryClick(Sender: TObject);
 const
   helprd_str: string = 'php/701    `0Rail  Head  Width`9' +
     '||Enter the rail head width in full-size prototype `0inches`3.' +
-    '||The rail head width for British standard-gauge bullhead (BS-95R) and most flat-bottom rail is 2.75 inches. Narrower rails are' + ' often used for narrow-gauge, industrial and light railways. Some USA and European rail is wider.' + '||If you enter a silly dimension, e.g 24 inches, the results may be unexpected or Templot0 may decline to generate a template.' + '||If you are using a non-scale model rail section, click `0MORE GENERAL INFORMATION`1 below.';
+    '||The rail head width for British standard-gauge bullhead (BS-95R) and most flat-bottom rail is 2.75 inches. Narrower rails are' +
+    ' often used for narrow-gauge, industrial and light railways. Some USA and European rail is wider.'
+    + '||If you enter a silly dimension, e.g 24 inches, the results may be unexpected or Templot0 may decline to generate a template.'
+    + '||If you are using a non-scale model rail section, click `0MORE GENERAL INFORMATION`1 below.';
 
   helprb_str: string = 'php/701    `0Rail  Foot  Width`9' +
     '||This dimension is used for flat-bottom rails, and for inclined bullhead rails.' +
-    '||The rail foot width for British standard-gauge FB-109, BS-110A and BS-113A flat-bottom rail is 5.5 inches. Narrower rails are' + ' often used for narrow-gauge, industrial and light railways. Some USA and European rail is wider.' + '||For inclined bullhead rails, enter a foot width equal to the head width (2.75 inches for BS-95R section).' + '||If you are using a non-scale model rail section, click `0MORE GENERAL INFORMATION`1 below.';
+    '||The rail foot width for British standard-gauge FB-109, BS-110A and BS-113A flat-bottom rail is 5.5 inches. Narrower rails are' +
+    ' often used for narrow-gauge, industrial and light railways. Some USA and European rail is wider.'
+    + '||For inclined bullhead rails, enter a foot width equal to the head width (2.75 inches for BS-95R section).'
+    + '||If you are using a non-scale model rail section, click `0MORE GENERAL INFORMATION`1 below.';
 
   helprh_str: string = 'php/701    `0Rail  Section  Height`9' +
     '||Templot0 uses this dimension to correctly position the rail foot when the rail is inclined from vertical.'
@@ -8571,7 +8671,14 @@ const
     + '||The curving radius can also be quickly adjusted by means of the F6 mouse action, select the ACTION > MOUSE ACTIONS:GEOMETRY > ADJUST CURVING RADIUS ONLY menu item (F6).' + '||Bear in mind that despite appearances a left-hand turnout curved to the right remains a left-hand turnout, with a left-hand switch deflection to (and consequently a reduced speed restriction' + ' over) the turnout road on the left, and a constant radius in the main running road on the right.' + '||N.B. Plain track is also handed, so take care to enter a positive or negative radius as required. The hand of the current plain track is shown in the information panel.';
 
   transgo_help_str: string = '      Transition  Curving  Data' +
-    '||Enter the required length and radius settings in mm. It is usually easier to adjust transition curves using the mouse actions.' + '||The pre-set dimensions (available by entering a forward slash "/") are these:' + '||Initial Radius pre-set = STRAIGHT.' + '||Final Radius pre-set = STRAIGHT, unless the Initial Radius is straight, in which case 660ft radius (10 chains) scale.' + '||Length along Initial Radius pre-set = zero.' + '||Length along Transition Zone pre-set = 66ft (1 chain) scale.' + '||For more information, please click the button below and refer to the general transition help notes.';
+    '||Enter the required length and radius settings in mm. It is usually easier to adjust transition curves using the mouse actions.' +
+    '||The pre-set dimensions (available by entering a forward slash "/") are these:' +
+    '||Initial Radius pre-set = STRAIGHT.' +
+    '||Final Radius pre-set = STRAIGHT, unless the Initial Radius is straight, in which case 660ft radius (10 chains) scale.'
+    +
+    '||Length along Initial Radius pre-set = zero.' +
+    '||Length along Transition Zone pre-set = 66ft (1 chain) scale.' +
+    '||For more information, please click the button below and refer to the general transition help notes.';
 
 var
   //nr,clr,ssr,yoff:double;
@@ -14303,7 +14410,10 @@ const
     '||If you set 141.42 %, it will take 2 steps to exactly double or halve the trackpad width.'
     +
     '||The preset for the slow zoom step is 110 %. The minimum setting for either is 100.5 %.' +
-    '||Handy Hints :' + '||You can zoom in or out to a precise size using the SPOT ZOOM mouse action (CTRL-F1) or the SCALE ZOOM mouse action.' + '||Or you can zoom in by drawing a rectangle on the pad. Select the TRACKPAD > ZOOM (EXPLODE/SHRINK) > CLICK-DRAG ZOOM RECTANGLE... menu item, or click the zoom rectangle button at the top of the pad.' + '||It is also possible to enter the zoom settings directly by selecting the TRACKPAD > ZOOM/PAN OPTIONS > LOCK ZOOM AT... menu item.';
+    '||Handy Hints :' +
+    '||You can zoom in or out to a precise size using the SPOT ZOOM mouse action (CTRL-F1) or the SCALE ZOOM mouse action.'
+    +
+    '||Or you can zoom in by drawing a rectangle on the pad. Select the TRACKPAD > ZOOM (EXPLODE/SHRINK) > CLICK-DRAG ZOOM RECTANGLE... menu item, or click the zoom rectangle button at the top of the pad.' + '||It is also possible to enter the zoom settings directly by selecting the TRACKPAD > ZOOM/PAN OPTIONS > LOCK ZOOM AT... menu item.';
 
 var
   n: integer;
@@ -17678,7 +17788,7 @@ begin
     EXIT;
   end;
 
-  current_diff_code := 0;  // init
+  current_diff_code := eMC_0_Ignore;  // init
 
   cancel_adjusts(False);
   pad_form.hide_info_menu_entry.Click;
@@ -20380,7 +20490,8 @@ begin
             i := alert(6, '    trim  margins  wrong',
               'For the current paper size and printer calibration settings the following limit applies (banner paper):'
               +
-              '||With the current left trim margin setting of ' + round_str(page_margin_left_mm, 2) +
+              '||With the current left trim margin setting of ' +
+              round_str(page_margin_left_mm, 2) +
               ' mm, the trimmed page width cannot be more than ' + round_str(max_trim_width, 2) +
               ' mm.', '', '', 'help  information', 'printer  setup ...', 'reset  normal  margins',
               're - try ...', 3);

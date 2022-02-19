@@ -22,7 +22,7 @@ I have a list of things still to do, including:
 
 }
 
-
+{}
 unit pdf_unit;
 
 {$MODE Delphi}
@@ -162,10 +162,10 @@ uses
 
 const
   pdf_help_str: string = '      Printing  Pages' +
-    '||Behind this PRINT PAGES window you can see the layout of pages comprising your drawing. Drag and resize this window as necessary to get a clear view.' + ' (It is often useful to have resized the trackpad window beforehand to less than the full screen.)' + '||The tracks are drawn in skeleton form with rails only, but will print out fully detailed according to your current settings in the GENERATOR and PRINT menus.' + ' The rails are shown in different colours for the control template and background templates, the latter being shown as single rail-edges only.' + '||( The TOP of the printed pages corresponds to the LEFT MARGIN on the screen, so selecting between upright (portrait) and sideways (landscape) paper orientation might at first seem confusing.' + ' In most cases the pre-set upright (portrait) setting gives the best fit on the pages.)' + '||If PRINT CONTROL TEMPLATE was selected only pages containing it will be printed, along with any background items which happen to be on them.' + '||If PRINT ENTIRE TRACKPAD was selected, all the pages needed to contain any background templates will be printed.' + '||To enlarge or reduce the scale of the printed template, or change the printed colours or line thicknesses, select the various PRINT menu items.' + ' The page layout shown here (and on the trackpad) will change to reflect the new size.' + '||You can choose to print any or all of the pages shown:' + '||To create all the pages click the CREATE ALL REMAINING PAGES bar.' + '||To cancel any printing, click the OMIT ALL REMAINING PAGES bar or press the F12 or Esc keys.' + '||To create individual page(s), click the OMIT PAGE button until the NEXT PAGE display shows the page you require. Then click the CREATE PAGE button.' + '||To omit all the pages in a row, or the remaining pages in the current row, click the NEXT ROW button.' + '||Continue clicking the OMIT PAGE, CREATE PAGE and NEXT ROW buttons as required. If no more pages are required click the OMIT ALL REMAINING PAGES bar. To print' + ' all the remaining pages click the CREATE ALL REMAINING PAGES bar.' + '|--------------' + '|Handy Hint:' + '|To rapidly run through the pages of a large plan you can repeatedly select the OMIT PAGE, CREATE PAGE or NEXT ROW buttons by using the accelerator keys marked on the buttons' + ' (i.e. hold down the O key on the keyboard to omit a run of pages, the C key to create a run of pages, or the N key to omit several rows of pages).' + '|--------------' + '||To change the font used for the page labels on the preview screen click the FONT... button.' + '||To print a copy of this preview screen click the PRINT PAGE MAP button. This is a useful guide to joining the pages when you are printing a large plan.' + ' (If the button is clicked after page printing has started, the page map will be printed when page printing has finished. The font used for the page labels on the page map' + ' can be changed by selecting the PROGRAM > PRINTER FONT + MARGINS... menu item on the PROGRAM PANEL window.)' + '||If the page margins do not conveniently fit the paper size or grid spacings being used, the trim margins can be changed. Return to the trackpad (F12) and then click the PRINT > TRIM MARGINS > ? TRIM MARGINS HELP menu item for more information.' + '||If the drawing is not conveniently placed between the page margins, the page origin can be moved. Return to the trackpad (F12) and then click either the PRINT > PAGE ORIENTATION / ORIGIN > SET PAGE ORIGIN... menu item' + ' to enter the new page origin position directly, or the ACTION > MOUSE ACTIONS:PAD > MOVE PAGE ORIGIN menu item (SHIFT+CTRL-F10) to move the page origin with the mouse.' + '||Likewise when printing the entire trackpad at a reduced size, the print size can be changed by mouse action to achieve a convenient fit to the pages. Click the ACTION > MOUSE ACTIONS:PAD > ADJUST PRINT SIZE menu item.' + ' The page outlines on the trackpad will change accordingly.' + '|--------------' + '||There are four OPTIONS > tickboxes:' + '||If INFORMATION PAGE is ticked, a page containing the INFO details from the information panel will be printed to accompany the control template.' + '||This is useful when printing final construction templates as a permanent written record, but you will probably want to untick the box when doing trial templates to save paper.' + ' Any MEMO notes for the control template will also be added.' + '||This option box has no effect when the entire trackpad is being printed, even if the control template is included.' + ' The text font used for this page can be changed - select the PROGRAM > PRINTER FONT + MARGINS... menu item on the PROGRAM PANEL window.' + '||If BLACK RAIL-EDGES is ticked, all rail edges will be printed in black regardless of any other colour, print-intensity or grey-shade settings which you may have made.' + '||This option is useful when the print intensity has been reduced (see below),' + ' or when printing the background templates in their mapping colours, or in a single non-black colour ( PRINT > PRINTED DRAWING OPTIONS > CLOLOUR OPTIONS > PRINT ALL TEMPLATES IN A SINGLE COLOUR menu item),' + ' but you want to retain a full black for the rail edge lines.' + '||If WARNINGS is ticked, a warning will be printed on each page if the printer is uncalibrated, or if data distortions are in force. For more information about' + ' printer calibration, select the PRINT > PRINTER CALIBRATION > CALIBRATE PRINTER... menu item.' + '||For information about data distortions, select the PROGRAM > EXPERT menu items on the PROGRAM PANEL menus.' + '||When printing on single sheets of paper Templot ignores any empty (blank) pages and prints only the pages of your drawing which actually contain track.' + '||If BANNER FILL is ticked, any such empty pages will be included in the print run when printing on banner or roll paper, so that no lengthwise page joins are needed. Bear in mind that for some track plans' + ' this could mean printing a great many blank pages (e.g. for a circular layout you would be printing blank pages to fill the whole of the centre space).' + ' In such cases you will probably want to untick the box and separate out the individual pages from the banner print run.' + ' This option box has no effect when printing on single sheets.' + '||The PRINT INTENSITY adjuster is useful to darken trial templates when using the printer''s Draft/Fast print-quality mode, without upsetting your colour settings for final templates using the Best/Letter-Quality mode.' + '||Change the setting by sliding the adjuster, or by clicking the LIGHT and DARK labels. The RESET button restores the normal print intensity setting.' + '||The setting is also reset to normal after changing any of the print colours (PRINT > PRINTED DRAWING OPTIONS menu items).' + '||The intensity setting modifies the print colours, not the line thicknesses (line widths) which can be set separately using the PRINT > PRINTED LINE THICKNESS menu items.' + '||When using a reduced print intensity, you can ensure that the rail edges remain a full black by ticking the BLACK RAIL-EDGES option box (see above).' + '||The print intensity adjustment is not available when printing in black && white only. Select GREY-SHADE PRINTING instead.' + '||Printers vary considerably in performance and you may need to experiment to achieve the optimum results from your particular printer.' + '||This print intensity setting is internal to Templot. Many printers also include setup options to vary the ink intensity and to print' + ' in grey-shades (gray-scale). You can compare the results from these hardware options with those from changing the settings here in Templot.' + '||For some additional notes about colour options for printing, click the ABOUT MAPPING COLOURS button below.' + '|-----------------' + '||N.B. If PRINT ALL REMAINING PAGES has been selected you can abort the sending of pages to the printer by pressing the F12 or Esc keys, but any already sent will continue to be printed.' + '||After all the pages have been sent, Templot returns to the trackpad so that you can continue working while the pages are being printed. To abort printing at this stage you must use the Windows' + ' printer controls (double-click on the printer icon in the taskbar, in the window which appears click the TEMPLOT PAGES entry, then in the DOCUMENT menu, select CANCEL PRINTING).' + '||When printing all the pages of a complete track plan at full-size, you may be printing several dozen pages of graphics. If your system memory or disk space is limited, the Windows' + ' printer spooler and/or your printer driver software may have problems. Try changing the spooler settings, or printing directly to the printer.' + ' To make these changes, from the Windows taskbar click Start > Settings > Printers > File menu > Properties > Details tab > Spool Settings, or consult Windows Help and your printer documentation for further details.' + '||If you print directly to the printer Templot sends pages for printing one at a time, so you will be able to abort printing after each page by pressing F12 or Esc,' + ' but you will not be able to continue working in Templot until all of the required pages have been printed.' + '||( The difference between pressing F12 or Esc is that F12 additionally unlocks the trackpad redraw if you have been printing with the redraw locked. For more information about locking the redraw, see' + ' the help notes in the REAL > TIMBERING > TIMBERING DATA... menu item. Locking the redraw is unnecessary when timber randomizing is switched off, or when printing only background templates between rebuilds.' + ' If you have not locked the redraw, there is no difference between F12 and Esc.)' + '||Handy Hints :' + '||When printing the entire trackpad the control template is normally omitted and only the templates comprising the background drawing are printed. To include the control template,' + ' select the PRINT > ENTIRE TRACKPAD OPTIONS > INCLUDE CONTROL TEMPLATE menu item.' + '||If your background contains a great many templates, it could take up to a minute or more before the printer starts printing. This is true even if you are printing only the control template on a single page.' + ' To speed up printing, temporarily wipe unwanted background templates from the trackpad.' + '||If your printer is capable of printing continuous banners on Z-fold or roll paper this can usefully eliminate most (or all) of the page-joins for a large template.' + ' It is important to make the correct settings for the printer. Click the PRINT > BANNER / ROLL PAPER menu item, and read the help notes.';
+    '||Behind this PRINT PAGES window you can see the layout of pages comprising your drawing. Drag and resize this window as necessary to get a clear view.' + ' (It is often useful to have resized the trackpad window beforehand to less than the full screen.)' + '||The tracks are drawn in skeleton form with rails only, but will print out fully detailed according to your current settings in the GENERATOR and PRINT menus.' + ' The rails are shown in different colours for the control template and background templates, the latter being shown as single rail-edges only.' + '||( The TOP of the printed pages corresponds to the LEFT MARGIN on the screen, so selecting between upright (portrait) and sideways (landscape) paper orientation might at first seem confusing.' + ' In most cases the pre-set upright (portrait) setting gives the best fit on the pages.)' + '||If PRINT CONTROL TEMPLATE was selected only pages containing it will be printed, along with any background items which happen to be on them.' + '||If PRINT ENTIRE TRACKPAD was selected, all the pages needed to contain any background templates will be printed.' + '||To enlarge or reduce the scale of the printed template, or change the printed colours or line thicknesses, select the various PRINT menu items.' + ' The page layout shown here (and on the trackpad) will change to reflect the new size.' + '||You can choose to print any or all of the pages shown:' + '||To create all the pages click the CREATE ALL REMAINING PAGES bar.' + '||To cancel any printing, click the OMIT ALL REMAINING PAGES bar or press the F12 or Esc keys.' + '||To create individual page(s), click the OMIT PAGE button until the NEXT PAGE display shows the page you require. Then click the CREATE PAGE button.' + '||To omit all the pages in a row, or the remaining pages in the current row, click the NEXT ROW button.' + '||Continue clicking the OMIT PAGE, CREATE PAGE and NEXT ROW buttons as required. If no more pages are required click the OMIT ALL REMAINING PAGES bar. To print' + ' all the remaining pages click the CREATE ALL REMAINING PAGES bar.' + '|--------------' + '|Handy Hint:' + '|To rapidly run through the pages of a large plan you can repeatedly select the OMIT PAGE, CREATE PAGE or NEXT ROW buttons by using the accelerator keys marked on the buttons' + ' (i.e. hold down the O key on the keyboard to omit a run of pages, the C key to create a run of pages, or the N key to omit several rows of pages).' + '|--------------' + '||To change the font used for the page labels on the preview screen click the FONT... button.' + '||To print a copy of this preview screen click the PRINT PAGE MAP button. This is a useful guide to joining the pages when you are printing a large plan.' + ' (If the button is clicked after page printing has started, the page map will be printed when page printing has finished. The font used for the page labels on the page map' + ' can be changed by selecting the PROGRAM > PRINTER FONT + MARGINS... menu item on the PROGRAM PANEL window.)' + '||If the page margins do not conveniently fit the paper size or grid spacings being used, the trim margins can be changed. Return to the trackpad (F12) and then click the PRINT > TRIM MARGINS > ?ï¿½TRIM MARGINS HELP menu item for more information.' + '||If the drawing is not conveniently placed between the page margins, the page origin can be moved. Return to the trackpad (F12) and then click either the PRINT > PAGE ORIENTATION / ORIGIN > SET PAGE ORIGIN... menu item' + ' to enter the new page origin position directly, or the ACTION > MOUSE ACTIONS:PAD > MOVE PAGE ORIGIN menu item (SHIFT+CTRL-F10) to move the page origin with the mouse.' + '||Likewise when printing the entire trackpad at a reduced size, the print size can be changed by mouse action to achieve a convenient fit to the pages. Click the ACTION > MOUSE ACTIONS:PAD > ADJUST PRINT SIZE menu item.' + ' The page outlines on the trackpad will change accordingly.' + '|--------------' + '||There are four OPTIONS > tickboxes:' + '||If INFORMATION PAGE is ticked, a page containing the INFO details from the information panel will be printed to accompany the control template.' + '||This is useful when printing final construction templates as a permanent written record, but you will probably want to untick the box when doing trial templates to save paper.' + ' Any MEMO notes for the control template will also be added.' + '||This option box has no effect when the entire trackpad is being printed, even if the control template is included.' + ' The text font used for this page can be changed - select the PROGRAM > PRINTER FONT + MARGINS... menu item on the PROGRAM PANEL window.' + '||If BLACK RAIL-EDGES is ticked, all rail edges will be printed in black regardless of any other colour, print-intensity or grey-shade settings which you may have made.' + '||This option is useful when the print intensity has been reduced (see below),' + ' or when printing the background templates in their mapping colours, or in a single non-black colour ( PRINT > PRINTED DRAWING OPTIONS > CLOLOUR OPTIONS > PRINT ALL TEMPLATES IN A SINGLE COLOUR menu item),' + ' but you want to retain a full black for the rail edge lines.' + '||If WARNINGS is ticked, a warning will be printed on each page if the printer is uncalibrated, or if data distortions are in force. For more information about' + ' printer calibration, select the PRINT > PRINTER CALIBRATION > CALIBRATE PRINTER... menu item.' + '||For information about data distortions, select the PROGRAM > EXPERT menu items on the PROGRAM PANEL menus.' + '||When printing on single sheets of paper Templot ignores any empty (blank) pages and prints only the pages of your drawing which actually contain track.' + '||If BANNER FILL is ticked, any such empty pages will be included in the print run when printing on banner or roll paper, so that no lengthwise page joins are needed. Bear in mind that for some track plans' + ' this could mean printing a great many blank pages (e.g. for a circular layout you would be printing blank pages to fill the whole of the centre space).' + ' In such cases you will probably want to untick the box and separate out the individual pages from the banner print run.' + ' This option box has no effect when printing on single sheets.' + '||The PRINT INTENSITY adjuster is useful to darken trial templates when using the printer''s Draft/Fast print-quality mode, without upsetting your colour settings for final templates using the Best/Letter-Quality mode.' + '||Change the setting by sliding the adjuster, or by clicking the LIGHT and DARK labels. The RESET button restores the normal print intensity setting.' + '||The setting is also reset to normal after changing any of the print colours (PRINT > PRINTED DRAWING OPTIONS menu items).' + '||The intensity setting modifies the print colours, not the line thicknesses (line widths) which can be set separately using the PRINT > PRINTED LINE THICKNESS menu items.' + '||When using a reduced print intensity, you can ensure that the rail edges remain a full black by ticking the BLACK RAIL-EDGES option box (see above).' + '||The print intensity adjustment is not available when printing in black && white only. Select GREY-SHADE PRINTING instead.' + '||Printers vary considerably in performance and you may need to experiment to achieve the optimum results from your particular printer.' + '||This print intensity setting is internal to Templot. Many printers also include setup options to vary the ink intensity and to print' + ' in grey-shades (gray-scale). You can compare the results from these hardware options with those from changing the settings here in Templot.' + '||For some additional notes about colour options for printing, click the ABOUT MAPPING COLOURS button below.' + '|-----------------' + '||N.B. If PRINT ALL REMAINING PAGES has been selected you can abort the sending of pages to the printer by pressing the F12 or Esc keys, but any already sent will continue to be printed.' + '||After all the pages have been sent, Templot returns to the trackpad so that you can continue working while the pages are being printed. To abort printing at this stage you must use the Windows' + ' printer controls (double-click on the printer icon in the taskbar, in the window which appears click the TEMPLOT PAGES entry, then in the DOCUMENT menu, select CANCEL PRINTING).' + '||When printing all the pages of a complete track plan at full-size, you may be printing several dozen pages of graphics. If your system memory or disk space is limited, the Windows' + ' printer spooler and/or your printer driver software may have problems. Try changing the spooler settings, or printing directly to the printer.' + ' To make these changes, from the Windows taskbar click Start > Settings > Printers > File menu > Properties > Details tab > Spool Settings, or consult Windows Help and your printer documentation for further details.' + '||If you print directly to the printer Templot sends pages for printing one at a time, so you will be able to abort printing after each page by pressing F12 or Esc,' + ' but you will not be able to continue working in Templot until all of the required pages have been printed.' + '||( The difference between pressing F12 or Esc is that F12 additionally unlocks the trackpad redraw if you have been printing with the redraw locked. For more information about locking the redraw, see' + ' the help notes in the REAL > TIMBERING > TIMBERING DATA... menu item. Locking the redraw is unnecessary when timber randomizing is switched off, or when printing only background templates between rebuilds.' + ' If you have not locked the redraw, there is no difference between F12 and Esc.)' + '||Handy Hints :' + '||When printing the entire trackpad the control template is normally omitted and only the templates comprising the background drawing are printed. To include the control template,' + ' select the PRINT > ENTIRE TRACKPAD OPTIONS > INCLUDE CONTROL TEMPLATE menu item.' + '||If your background contains a great many templates, it could take up to a minute or more before the printer starts printing. This is true even if you are printing only the control template on a single page.' + ' To speed up printing, temporarily wipe unwanted background templates from the trackpad.' + '||If your printer is capable of printing continuous banners on Z-fold or roll paper this can usefully eliminate most (or all) of the page-joins for a large template.' + ' It is important to make the correct settings for the printer. Click the PRINT > BANNER / ROLL PAPER menu item, and read the help notes.';
 
   picture_help_str: string = '      Printing  Background  Picture  Shapes' +
-    '||The background picture shapes are intended mainly for use on the screen. It is recommended that you normally print them as rectangle outlines only on your track templates.' + '||Including large bitmap images in the printed pages may significantly increase printing time, and is not supported on all printers.' + '||If possible the STRETCH option should be used to print them. However, this is a Windows function which may fail at high magnifications of the original image, and is not available on some printers.' + ' If you are using Windows NT, 2000 or XP, see also the PROGRAM > EXPERT > GRAPHICS LIMITS > ? GRAPHICS LIMITS - HELP menu item on the PROGRAM PANEL window.' + '||The DOTS option will work at all magnifications and on most printers, but is extremely slow, and should be regarded as a last resort. It is significantly faster for images scanned in black and white only.' + ' In many cases the DOTS method will work better if you change the printer spooler setting to RAW data (see below).' + '||For the STRETCH method, if the TRANSPARENT option is set for a picture shape (in the BACKGROUND SHAPES window) it will be printed with underlying detail showing through (if the printer supports raster functions).' + ' Otherwise underlying detail will be covered over, including the grid lines and page trim margins.' + ' To avoid this, ensure that the GRID IN FRONT tickbox is selected.' + '||For the DOTS method the TRANSPARENT option does not apply and is ignored. However, any white areas of the image will always be printed as transparent.' + '||Both methods adjust the intensity of the image according to the current PRINT INTENSITY setting.' + '||Printing large bitmaps makes great demands on your system''s memory and resources. Don''t have more picture shapes on the trackpad than you need,' + ' and keep bitmap files as small as possible by cropping off unwanted areas or by scanning at a lower resolution or in grey-scale instead of colour.' + ' Close any other applications which you have running. If lengthy disk drive activity takes place - please be patient.' + ' If you experience problems, quit Templot, restart Windows, restart Templot and try again.' + '||Printing performance may also be improved by changing from EMF to RAW data, or by printing directly to the printer instead of via the Windows spooler.' + ' To make these changes, from the Windows taskbar click Start > Settings > Printers > select printer > File menu > Properties > Details tab > Spool Settings, or consult Windows Help and your printer documentation for further details.' + '||If problems persist, restart Templot and print background picture shapes as outlines only.' + '||N.B. PLEASE BE AWARE that printing scanned images may require the permission of the copyright owner.' + '||For more information about using Background Shapes and bitmap images, click MORE ABOUT PICTURE SHAPES below.';
+    '||The background picture shapes are intended mainly for use on the screen. It is recommended that you normally print them as rectangle outlines only on your track templates.' + '||Including large bitmap images in the printed pages may significantly increase printing time, and is not supported on all printers.' + '||If possible the STRETCH option should be used to print them. However, this is a Windows function which may fail at high magnifications of the original image, and is not available on some printers.' + ' If you are using Windows NT, 2000 or XP, see also the PROGRAM > EXPERT > GRAPHICS LIMITS > ?ï¿½GRAPHICS LIMITS - HELP menu item on the PROGRAM PANEL window.' + '||The DOTS option will work at all magnifications and on most printers, but is extremely slow, and should be regarded as a last resort. It is significantly faster for images scanned in black and white only.' + ' In many cases the DOTS method will work better if you change the printer spooler setting to RAW data (see below).' + '||For the STRETCH method, if the TRANSPARENT option is set for a picture shape (in the BACKGROUND SHAPES window) it will be printed with underlying detail showing through (if the printer supports raster functions).' + ' Otherwise underlying detail will be covered over, including the grid lines and page trim margins.' + ' To avoid this, ensure that the GRID IN FRONT tickbox is selected.' + '||For the DOTS method the TRANSPARENT option does not apply and is ignored. However, any white areas of the image will always be printed as transparent.' + '||Both methods adjust the intensity of the image according to the current PRINT INTENSITY setting.' + '||Printing large bitmaps makes great demands on your system''s memory and resources. Don''t have more picture shapes on the trackpad than you need,' + ' and keep bitmap files as small as possible by cropping off unwanted areas or by scanning at a lower resolution or in grey-scale instead of colour.' + ' Close any other applications which you have running. If lengthy disk drive activity takes place - please be patient.' + ' If you experience problems, quit Templot, restart Windows, restart Templot and try again.' + '||Printing performance may also be improved by changing from EMF to RAW data, or by printing directly to the printer instead of via the Windows spooler.' + ' To make these changes, from the Windows taskbar click Start > Settings > Printers > select printer > File menu > Properties > Details tab > Spool Settings, or consult Windows Help and your printer documentation for further details.' + '||If problems persist, restart Templot and print background picture shapes as outlines only.' + '||N.B. PLEASE BE AWARE that printing scanned images may require the permission of the copyright owner.' + '||For more information about using Background Shapes and bitmap images, click MORE ABOUT PICTURE SHAPES below.';
 
   pen_color: Integer = -1;
 
@@ -481,27 +481,27 @@ begin
 end;
 //__________________________________________________________________________________________
 
-function switch_label_text(code: Integer): String;
+function switch_label_text(code: EmarkCode): String;
 begin
   case code of
-    601:
+    eMC_601_TipsLabel:
       Result := 'tips';
-    602:
+    eMC_602_SetLabel:
       Result := 'set (bend)';
-    603:
+    eMC_603_PlaningLabel:
       Result := 'planing';
-    604:
+    eMC_604_StockGaugeLabel:
       Result := 'stock gauge';
-    605:
+    eMC_605_JoggleLabel:
       Result := 'joggles';
-    701:
+    eMC_701_XingIntersectionFP:
       Result := 'intersection FP';
-    702:
+    eMC_702_XingBluntNose:
       Result := 'blunt nose';
-    703:
+    eMC_703_XingBluntTips:
       Result := 'blunt tips';
     else
-      Result := 'code ' + IntToStr(code) + ' mark';
+      Result := 'code ' + IntToStr(Ord(code)) + ' mark';
   end;//case
 end;
 //__________________________________________________________________________________________
@@ -533,7 +533,7 @@ begin
 end;
 //______________________________________________________________________________
 
-function wanted_mark(code: Integer): Boolean;     // decide if a particular mark is wanted
+function wanted_mark(code: eMarkCode): Boolean;     // decide if a particular mark is wanted
 
   // This function determines whether a particular mark (indicated by it's code)
   // is required on the output as determined by the corresponding user settings
@@ -546,80 +546,99 @@ begin
   with print_settings_form do begin
     ;
     case code of
-      -5 .. 0: // no name label, timber selector, curve rad or peg centre, blank
+      //-5 .. 0: // no name label, timber selector, curve rad or peg centre, blank
+      eMC__5_Label .. eMC_0_Ignore:
+        // no name label, timber selector, curve rad or peg centre, blank
         Result := False;
-      1:
+      eMC_1_GuideMark:
         Result := output_guide_marks_checkbox.Checked;
-      2:
+      eMC_2_RadialEnd:
         Result := output_radial_ends_checkbox.Checked;
-      3:
+      eMC_3_TimberOutline:
         Result := output_timbering_checkbox.Checked;
-      4:
+      eMC_4_TimberCL:
         Result := output_timbering_checkbox.Checked and
           output_timber_centres_checkbox.Checked;
-      5:
+      eMC_5_TimberReducedEnd:
         Result := output_timbering_checkbox.Checked;
-      6:
+      eMC_6_RailJoint:
         Result := output_rail_joints_checkbox.Checked;
-      7:
+      eMC_7_TransitionAndSlewing:
         Result := output_radial_ends_checkbox.Checked;
-      8, 9, 10: // no peg arms, plain-track end marks
+      eMC_8_PegArm_1,
+      eMC_9_PegArm_2,
+      eMC_10_PlainTrackStart:
         Result := False;
-      14:
+      eMC_14_TimberCLSolid:
         Result := output_timbering_checkbox.Checked and
           output_timber_centres_checkbox.Checked;
-      33:
+      eMC_33_ShovingTimberOutline:
         Result := output_timbering_checkbox.Checked;
-      44, 54:
+      eMC_44_ShovingTimberCL_1,
+      eMC_54_ShovingTimberCL_2:
         Result := output_timbering_checkbox.Checked and
           output_timber_centres_checkbox.Checked;
-      55, 93, 95, 99:
+      eMC_55_ReducedEnd,
+      eMC_93_Infill_1,
+      eMC_95_Infill_2,
+      eMC_99_TimberNumber:
         Result := output_timbering_checkbox.Checked;
-      101:
+      eMC_101_SwitchDrive:
         Result := output_switch_drive_checkbox.Checked;
-      203, 233, 293:
+      eMC_203_TimberInfill,
+      eMC_233_Infill_3,
+      eMC_293_Infill_4:
         Result := output_timbering_checkbox.Checked;
-      480..499:
+      eMC_480_ChairStart .. eMC_499_ChairEnd:
         Result := output_chairs_checkbox.Checked;
-      501..508: // no check-rail labels
+      eMC_501_MSWorkingEnd .. eMC_508_DSWingRail:
         Result := False;
-      600, 601..605:
+      eMC_600_LongMark .. eMC_605_SwitchLabelEnd:
         Result := output_switch_labels_checkbox.Checked;
-      700..703:
+      eMC_700_XingLabelStart .. eMC_703_XingLabelEnd:
         Result := output_xing_labels_checkbox.Checked;
       else
-        show_modal_message('Unhandled code ' + IntToStr(code) + 'in pdf_unit.wanted_mark().');
+        show_modal_message('Unhandled code ' + IntToStr(Ord(code)) + 'in pdf_unit.wanted_mark().');
     end;
   end;
 
 end;
 //______________________________________________________________________________
 
-function choose_mark_linestyle(pdf_page: TPDF_page; code: Integer;
+function choose_mark_linestyle(pdf_page: TPDF_page; code: EmarkCode;
   control: boolean): Tpdf_LineStyle; overload;
   // return the line style for a particular mark code
 
 begin
   case code of
-    -2, -3:                   // curving rad centres
+    eMC__3_CurvingRadiusCentre_2,
+    eMC__2_CurvingRadiusCentre_1:
       Result := lsMark_CurvingRadCentre;
-    1, 101:                   // guide marks. switch drive
+    eMC_1_GuideMark,
+    eMC_101_SwitchDrive:
       Result := lsMark_Guide;
-    2:                        // rad end marks
+    eMC_2_RadialEnd:
       Result := lsMark_RadialEnd;
-    3, 33, 93:                // timber outlines
+    eMC_3_TimberOutline,
+    eMC_33_ShovingTimberOutline,
+    eMC_93_Infill_1:
       Result := lsMark_TimberOutline;
-    4, 44:                     // timber centre-lines
+    eMC_4_TimberCL,
+    eMC_44_ShovingTimberCL_1:
       Result := lsMark_TimberCentreline;
-    5, 55, 95:                  // timber reduced ends.
+    eMC_5_TimberReducedEnd,
+    eMC_55_ReducedEnd,
+    eMC_95_Infill_2:
       Result := lsMark_TimberReducedEnd;
-    6:                        // rail joint marks.
+    eMC_6_RailJoint:
       Result := lsMArk_RailJoint;
-    7:                        // transition & slewing ends
+    eMC_7_TransitionAndSlewing:
       Result := lsMark_Slewing;
-    14:                       // timber centre-lines with rail centre-lines (for rivet locations?).
+    eMC_14_TimberCLSolid:
       Result := lsMark_TimberRivetCentreline;
-    600, 700:                 //  long marks
+    eMC_600_LongMark,
+    eMC_700_XingLabelStart:                  // TODO: this does not seem to make sense :-/
+      //    600, 700:                 //  long marks
       Result := lsMark_TimberLongmarks;
     else
       Result := lsMark_Default;
@@ -631,19 +650,22 @@ begin
   // do fill colours
   with pdf_page do begin
     case code of
-      99: begin                             // timber numbering
+      eMC_99_TimberNumber: begin
         set_fill_colour(clBlack);
         if not control and (mapping_colours_print < 0) then
           set_pen_colour(printbg_single_colour);
       end;
-      203, 233, 293: begin                  // timber infill
+      eMC_203_TimberInfill,
+      eMC_233_Infill_3,
+      eMC_293_Infill_4: begin
         set_pen_colour(clwhite);             // so don't overdraw timber outlines.
         if pdf_black_white then
           set_fill_colour(clBlack)
         else
           set_fill_colour(printtimber_infill_colour);
       end;
-      600..605, 700..703:                   // timber numbers
+      eMC_600_LongMark ..  eMC_605_SWitchLabelEnd,
+      eMC_700_XingLabelStart ..  eMC_703_XingLabelEnd:
         set_fill_colour(printguide_colour);
       else                                  // -- DEFAULT --
         set_fill_colour(clRed);       // Let's make it obvious when we mess up!
@@ -652,7 +674,7 @@ begin
 
 end;
 
-function choose_mark_linestyle(pdf_page: TPDF_page; code: Integer): Tpdf_LineStyle; overload;
+function choose_mark_linestyle(pdf_page: TPDF_page; code: EmarkCode): Tpdf_LineStyle; overload;
 begin
   Result := choose_mark_linestyle(pdf_page, code, True);
 end;
@@ -682,8 +704,9 @@ var
   grid_now_dots: integer;
 
   aq, rail: ERailData;
+  mark_code: EmarkCode;
 
-  i, now, now_max, dots_index, mark_code: integer;
+  i, now, now_max, dots_index: integer;
 
   w_dots, l_dots, w_dots1, l_dots1, w_dots2, l_dots2: integer;
 
@@ -1103,16 +1126,18 @@ var
           CONTINUE;     // skip this mark.
 
         // do only the rail joints if rail_joints=True and ignore them otherwise.
-        if rail_joints = (mark_code <> 6) then
+        if rail_joints = (mark_code <> eMC_6_RailJoint) then
           CONTINUE;
 
         linestyle := choose_mark_linestyle(pdf_page, mark_code);
 
         case mark_code of  // Process based on mark type .....
 
-          1..7, 11..98, 100..199, 600, 700: begin
-
-            p1 := ptr_1st^.p1;      // x1,y1 in  1/100ths mm
+          eMC_1_GuideMark .. eMC_7_TransitionAndSlewing,
+          eMC_11_placeholder .. eMC_98_placeholder,
+          eMC_100_placeholder .. eMC_199_placeholder,
+          eMC_600_LongMark,
+          eMC_700_XingLabelStart: begin
             p2 := ptr_1st^.p2;      // x2,y2 in  1/100ths mm
 
             move_to := page_locate(p1, grid_left, grid_top, [ypd, 0]);
@@ -1123,7 +1148,7 @@ var
 
           end;
 
-          99: begin                         // Timber numbering...
+          eMC_99_TimberNumber: begin
             p1 := ptr_1st^.p1;              // x1,y1 in  1/100ths mm
 
             if (pad_form.print_timber_numbering_menu_entry.Checked or
@@ -1173,8 +1198,9 @@ var
               end;
             end;
           end;
-          -2, -3: begin                        // curving rad centres...
 
+          eMC__3_CurvingRadiusCentre_2,
+          eMC__2_CurvingRadiusCentre_1: begin                        // curving rad centres...
             p1 := ptr_1st^.p1;        // x1,y1 in  1/100ths mm
             radcen_arm := 400 * scale;
             // 4ft scale arbitrary (scale is for control template).
@@ -1193,7 +1219,9 @@ var
               draw_line_style(move_to, line_to, linestyle);
           end;
 
-          203, 233, 293: begin                 // timber infill
+          eMC_203_TimberInfill,
+          eMC_233_Infill_3,
+          eMC_293_Infill_4: begin
             if i >= (mark_index - 1) then
               BREAK; // Is this really needed???
             ptr_2nd := @marks_list_ptr[i + 1];
@@ -1254,7 +1282,8 @@ var
           end;
 
 
-          601..605, 701..703: begin
+          eMC_601_TipsLabel .. eMC_605_SWitchLabelEnd,
+          eMC_701_XingIntersectionFP .. eMC_703_XingLabelEnd: begin
 
             if out_factor <> 1.0 then
               CONTINUE;     // on full size prints only
@@ -2187,7 +2216,7 @@ begin
 
           top_str := ' TEMPLOT  v:' + round_str(program_version / 100, 2) +
             version_build +
-            '  templot.com  This drawing contains design elements and data © Martin Wynne.';
+            '  templot.com  This drawing contains design elements and data ï¿½ Martin Wynne.';
           if box_project_title_str <> '' then
             top_str := top_str + '   Project : ' + box_project_title_str;
 
@@ -3609,7 +3638,7 @@ var
   now_keep: Tbgnd_keep;
 
   array_max: integer;
-  code: integer;
+  code: EmarkCode;
 
   radcen_arm: double;
 
@@ -3692,10 +3721,14 @@ begin
             CONTINUE;     // skip this mark.
 
           // do only the rail joints if rail_joints=True and ignore them otherwise.
-          if rail_joints = (code <> 6) then
+          if rail_joints = (code <> eMC_6_RailJoint) then
             CONTINUE;
 
-          if ((code = 5) or (code = 55) or (code = 95) or (code = 600) or (code = 700)) and
+          if ((code = eMC_5_TimberReducedEnd)
+            or (code = eMC_55_ReducedEnd)
+            or (code = eMC_95_Infill_2)
+            or (code = eMC_600_LongMark)
+            or (code = eMC_700_XingLabelStart)) and
             (out_factor <> 1.0) then
             CONTINUE;
           // reduced ends are meaningless if not full-size.   206b 600 added. 211b 700 added
@@ -3703,8 +3736,11 @@ begin
           line_style := choose_mark_linestyle(pdf_page, code, False);
 
           case code of
-            1..98, 100.. 199, 600, 700: begin
-              write_comment('Mark ' + IntToStr(code) + ' using ' + line_style.str());
+            eMC_1_GuideMark .. eMC_98_placeholder,
+            eMC_100_placeholder .. eMC_199_placeholder,
+            eMC_600_LongMark,
+            eMC_700_XingLabelStart: begin
+              write_comment('Mark ' + IntToStr(Ord(code)) + ' using ' + line_style.str());
               p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
               p2 := list_bgnd_marks[i].p2;    // x2,y2 in  1/100ths mm
 
@@ -3729,7 +3765,9 @@ begin
               if check_limits(move_to, line_to) then
                 draw_line_style(move_to, line_to, line_style);
             end;
-            -2, -3: begin
+
+            eMC__3_CurvingRadiusCentre_2,
+            eMC__2_CurvingRadiusCentre_1: begin
               //if pdf_black_white=True
               //   then Pen.Color:=clBlack  // overide.
               //   else begin
@@ -3770,7 +3808,10 @@ begin
 
             //if (code = 203) or (code = 233) or (code = 293)       // timber infill...
             //then begin
-            203, 233, 293: begin              // timber infill...
+
+            eMC_203_TimberInfill,
+            eMC_233_Infill_3,
+            eMC_293_Infill_4: begin
 
               if i < array_max then begin
                 p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
@@ -3846,10 +3887,13 @@ begin
               end;
             end;
 
-            99: begin                           // Timber Labels
-              if (pad_form.print_timber_numbering_menu_entry.Checked or
-                ((out_factor > 0.99) and pad_form.numbering_fullsize_only_menu_entry.Checked))
-                and print_settings_form.output_timber_numbers_checkbox.Checked then begin
+            eMC_99_TimberNumber: begin                           // Timber Labels
+              if (pad_form.print_timber_numbering_menu_entry.Checked
+                or ((out_factor > 0.99)
+                and pad_form.numbering_fullsize_only_menu_entry.Checked))
+                and print_settings_form.output_timber_numbers_checkbox.Checked
+
+              then begin
                 p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
                 p2 := list_bgnd_marks[i].p2;
 
@@ -3918,7 +3962,8 @@ begin
             end;//numbering
 
 
-            601..605, 701..703: begin
+            eMC_601_TipsLabel .. eMC_605_SWitchLabelEnd,
+            eMC_701_XingIntersectionFP .. eMC_703_XingLabelEnd: begin
 
               if out_factor <> 1.0 then
                 CONTINUE;     // on full size prints only
@@ -4458,7 +4503,14 @@ var
           // and trackbed ends  206b
 
           if rail in [eRD_StraightStockGaugeFace, eRD_CurvedStockGaugeFace,
-            eRD_AdjTrackTurnoutSideFarGaugeFace, eRD_AdjTrackMainSideFarGaugeFace]   // 18,22 added 206b
+            eRD_AdjTrackTurnoutSideFarGaugeFace, eRD_AdjTrackMainSideFarGaugeFace]
+          // 18,22 added 206b
+
+
+
+
+
+
           then begin
             pbg_modify_rail_end(
               0, dots_index, edge_colour, blanking_colour);  // toe or approach end.

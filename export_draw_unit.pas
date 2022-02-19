@@ -22,7 +22,7 @@
 ====================================================================================
 *)
 
-
+{ }
 unit export_draw_unit;
 
 {$mode delphi}
@@ -340,7 +340,8 @@ var
   grid_now_dots: integer;
 
   aq, rail: ERailData;
-  now, dots_index, mark_code: integer;
+  mark_code: EmarkCode;
+  now, dots_index: integer;
 
   p1, p2, p3, p4: Tpoint;
   radcen_arm: double;
@@ -395,26 +396,39 @@ var
 
         mark_code := ptr_1st^.code;              // check this mark wanted.
 
-        if mark_code = 0 then
+        if mark_code = eMC_0_Ignore then
           CONTINUE;
         // ignore mark entries with code zero (might be the second or third of a multi-mark entry, e.g. for timber infill).
 
         if print_settings_form.output_rail_joints_checkbox.Checked = False    // 223d
         then begin
           case mark_code of
-            6:
+            eMC_6_RailJoint:
               CONTINUE;     // rail joints not wanted.
           end;//case
         end;
 
         // overwrite rail joints on rails..
 
-        if rail_joints = (mark_code <> 6) then
+        if rail_joints = (mark_code <> eMC_6_RailJoint) then
           CONTINUE;  // do only the rail joints if rail_joints=True and ignore them otherwise.
 
         if print_settings_form.output_timbering_checkbox.Checked = False then begin
           case mark_code of
-            3, 4, 5, 14, 33, 44, 54, 55, 93, 95, 99, 203, 233, 293:
+            eMC_3_TimberOutline,
+            eMC_4_TimberCL,
+            eMC_5_TimberReducedEnd,
+            eMC_14_TimberCLSolid,
+            eMC_33_ShovingTimberOutline,
+            eMC_44_ShovingTimberCL_1,
+            eMC_54_ShovingTimberCL_2,
+            eMC_55_ReducedEnd,
+            eMC_93_Infill_1,
+            eMC_95_Infill_2,
+            eMC_99_TimberNumber,
+            eMC_203_TimberInfill,
+            eMC_233_Infill_3,
+            eMC_293_Infill_4:
               CONTINUE;     // no timbering wanted.
           end;//case
         end;
@@ -422,7 +436,10 @@ var
         if print_settings_form.output_timber_centres_checkbox.Checked = False    // 223d
         then begin
           case mark_code of
-            4, 14, 44, 54:
+            eMC_4_TimberCL,
+            eMC_14_TimberCLSolid,
+            eMC_44_ShovingTimberCL_1,
+            eMC_54_ShovingTimberCL_2:
               CONTINUE;     // timber centre-lines not wanted.
           end;//case
         end;
@@ -430,7 +447,7 @@ var
         if print_settings_form.output_guide_marks_checkbox.Checked = False    // 223d
         then begin
           case mark_code of
-            1:
+            eMC_1_GuideMark:
               CONTINUE;     // guide marks not wanted.
           end;//case
         end;
@@ -438,26 +455,30 @@ var
         if print_settings_form.output_switch_drive_checkbox.Checked = False    // 223d
         then begin
           case mark_code of
-            101:
+            eMC_101_SwitchDrive:
               CONTINUE;     // switch drive not wanted.
           end;//case
         end;
 
         if print_settings_form.output_chairs_checkbox.Checked = False then begin
           case mark_code of
-            480..499:
+            eMC_480_ChairStart .. eMC_499_ChairEnd:
               CONTINUE;     // no chair outlines wanted  221a
           end;//case
         end;
 
         if print_settings_form.output_radial_ends_checkbox.Checked = False then begin
           case mark_code of
-            2, 7:
+            eMC_2_RadialEnd,
+            eMC_7_TransitionAndSlewing:
               CONTINUE;     // no radial ends wanted  206a
           end;//case
         end;
 
-        if ((mark_code = 203) or (mark_code = 233) or (mark_code = 293)) and
+        if ((mark_code = eMC_203_TimberInfill)
+          or (mark_code = eMC_233_Infill_3)
+          or (mark_code = eMC_293_Infill_4))
+          and
           (i < (mark_index - 1))      // timber infill
         then begin
           ptr_2nd := @marks_list_ptr[i + 1];
@@ -473,18 +494,23 @@ var
         else
           ptr_2nd := nil;    // keep compiler happy.
 
-        if (mark_code > 0) and (mark_code < 200) and (mark_code <> 8) and
-          (mark_code <> 9) and (mark_code <> 10)
+        if (mark_code > eMC_0_Ignore)
+          and (mark_code < eMC_200_placeholder)
+          and (mark_code <> eMC_8_PegArm_1)
+          and (mark_code <> eMC_9_PegArm_2)
+          and (mark_code <> eMC_10_PlainTrackStart)
         // ignore peg, rad centres, timber selector and peg arms, plain track start, label.
         then begin
 
-          if ((mark_code = 5) or (mark_code = 55) or (mark_code = 95)) and
-            (out_factor <> 1.0) then
+          if ((mark_code = eMC_5_TimberReducedEnd)
+            or (mark_code = eMC_55_ReducedEnd)
+            or (mark_code = eMC_95_Infill_2))
+            and (out_factor <> 1.0) then
             CONTINUE;   // reduced ends are meaningless if not full-size.
 
           p1 := ptr_1st^.p1;              // x1,y1 in  1/100ths mm
 
-          if mark_code <> 99 then begin
+          if mark_code <> eMC_99_TimberNumber then begin
             p2 := ptr_1st^.p2;    // x2,y2 in  1/100ths mm
 
             Brush.Color := clWhite;  // 0.93.a gaps in dotted lines.
@@ -495,18 +521,21 @@ var
               Pen.Color := clBlack
             else
               case mark_code of
-                1, 101:
+                eMC_1_GuideMark,
+                eMC_101_SwitchDrive:
                   Pen.Color := printguide_colour;  // guide marks. switch drive
-                2:
+                eMC_2_RadialEnd:
                   Pen.Color := printalign_colour;  // rad end marks.
-                3, 33, 93:
+                eMC_3_TimberOutline,
+                eMC_33_ShovingTimberOutline,
+                eMC_93_Infill_1:
                   Pen.Color := printtimber_colour; // timber outlines.
-                6:
+                eMC_6_RailJoint:
                   Pen.Color := printjoint_colour;  // rail joint marks.
-                7:
-                  Pen.Color := printalign_colour;         // transition/slewing ends.
+                eMC_7_TransitionAndSlewing:
+                  Pen.Color := printalign_colour;  // transition/slewing ends.
                 else
-                  Pen.Color := calc_intensity(clBlack);   // thin dotted lines in black only.
+                  Pen.Color := calc_intensity(clBlack); // thin dotted lines in black only.
               end;//case
 
             Pen.Mode := pmCopy;
@@ -514,25 +543,32 @@ var
             Pen.Style := psSolid; // default init.
 
             case mark_code of
-              1, 101:
+              eMC_1_GuideMark,
+              eMC_101_SwitchDrive:
                 Pen.Width := printmark_wide;    // guide marks.   switch drive
-              2:
+              eMC_2_RadialEnd:
                 Pen.Width := printmark_wide;    // rad end marks.
-              3, 33, 93:
+              eMC_3_TimberOutline,
+              eMC_33_ShovingTimberOutline,
+              eMC_93_Infill_1:
                 Pen.Width := printtimber_wide;  // timber outlines.
 
-              4, 44:
+              eMC_4_TimberCL,
+              eMC_44_ShovingTimberCL_1:
                 Pen.Style := psDash;    // timber centre-lines.
 
-              5, 55, 95:
+              eMC_5_TimberReducedEnd,
+              eMC_55_ReducedEnd,
+              eMC_95_Infill_2:
                 Pen.Style := psDot;                   // timber reduced ends.
 
-              6:
+              eMC_6_RailJoint:
                 Pen.Width := printmark_wide;    // rail joint marks.
-              7:
+              eMC_7_TransitionAndSlewing:
                 Pen.Width := printmark_wide;    // transition ends.
 
-              14, 54:
+              eMC_14_TimberCLSolid,
+              eMC_54_ShovingTimberCL_2:
                 Pen.Width := printrail_wide;
                 // timber centre-lines with rail centre-lines (for rivet locations?).
 
@@ -571,7 +607,8 @@ var
         end
         else begin   // other codes...
 
-          if ((mark_code = -2) or (mark_code = -3)) and
+          if ((mark_code = eMC__2_CurvingRadiusCentre_1) or
+            (mark_code = eMC__3_CurvingRadiusCentre_2)) and
             (print_settings_form.output_radial_centres_checkbox.Checked = True)
 
           // draw curving rad centres...
@@ -619,7 +656,9 @@ var
             end;
           end;
 
-          if ((mark_code = 203) or (mark_code = 233) or (mark_code = 293)) and
+          if ((mark_code = eMC_203_TimberInfill)
+            or (mark_code = eMC_233_Infill_3)
+            or (mark_code = eMC_293_Infill_4)) and
             (ptr_2nd <> nil)        // timber infill...
           then begin
             infill_points[0].X :=
@@ -2318,7 +2357,7 @@ var
   now_keep: Tbgnd_keep;
 
   array_max: integer;
-  code: integer;
+  code: EmarkCode;
 
   radcen_arm: double;
 
@@ -2387,7 +2426,14 @@ begin
           code := list_bgnd_marks[i].code;
 
           case code of
-            -5, -4, -1, 0, 8, 9, 10, 501..508, 600..607:
+            eMC__5_Label,
+            eMC__4_TimberSelector,
+            eMC_0_Ignore,
+            eMC_8_PegArm_1,
+            eMC_9_PegArm_2,
+            eMC_10_PlainTrackStart,
+            eMC_501_MSWorkingEnd .. eMC_508_DSWingRail,
+            eMC_600_LongMark .. eMC_607_placeholder:
               CONTINUE;
             // no name label, timber selector, peg centre, blank, peg arms, plain-track end marks.    // 0.94.a no check-rail labels
           end;//case
@@ -2395,19 +2441,32 @@ begin
           if print_settings_form.output_rail_joints_checkbox.Checked = False    // 223d
           then begin
             case code of
-              6:
+              eMC_6_RailJoint:
                 CONTINUE;     // rail joints not wanted.
             end;//case
           end;
 
           // overwrite rail joints on rails..
 
-          if rail_joints = (code <> 6) then
+          if rail_joints = (code <> eMC_6_RailJoint) then
             CONTINUE;  // do only the rail joints if rail_joints=True and ignore them otherwise.
 
           if print_settings_form.output_timbering_checkbox.Checked = False then begin
             case code of
-              3, 4, 5, 14, 33, 44, 54, 55, 93, 95, 99, 203, 233, 293:
+              eMC_3_TimberOutline,
+              eMC_4_TimberCL,
+              eMC_5_TimberReducedEnd,
+              eMC_14_TimberCLSolid,
+              eMC_33_ShovingTimberOutline,
+              eMC_44_ShovingTimberCL_1,
+              eMC_54_ShovingTimberCL_2,
+              eMC_55_ReducedEnd,
+              eMC_93_Infill_1,
+              eMC_95_Infill_2,
+              eMC_99_TimberNumber,
+              eMC_203_TimberInfill,
+              eMC_233_Infill_3,
+              eMC_293_Infill_4:
                 CONTINUE;     // no timbering wanted.
             end;//case
           end;
@@ -2415,7 +2474,10 @@ begin
           if print_settings_form.output_timber_centres_checkbox.Checked = False    // 223d
           then begin
             case code of
-              4, 14, 44, 54:
+              eMC_4_TimberCL,
+              eMC_14_TimberCLSolid,
+              eMC_44_ShovingTimberCL_1,
+              eMC_54_ShovingTimberCL_2:
                 CONTINUE;     // timber centre-lines not wanted.
             end;//case
           end;
@@ -2423,7 +2485,7 @@ begin
           if print_settings_form.output_guide_marks_checkbox.Checked = False    // 223d
           then begin
             case code of
-              1:
+              eMC_1_GuideMark:
                 CONTINUE;     // guide marks not wanted.
             end;//case
           end;
@@ -2431,29 +2493,36 @@ begin
           if print_settings_form.output_switch_drive_checkbox.Checked = False    // 223d
           then begin
             case code of
-              101:
+              eMC_101_SwitchDrive:
                 CONTINUE;     // switch drive not wanted.
             end;//case
           end;
 
           if print_settings_form.output_chairs_checkbox.Checked = False then begin
             case code of
-              480..499:
+              eMC_480_ChairStart.. eMC_499_ChairEnd:
                 CONTINUE;     // no chair outlines wanted  221a
             end;//case
           end;
 
           if print_settings_form.output_radial_ends_checkbox.Checked = False then begin
             case code of
-              2, 7:
+              eMC_2_RadialEnd,
+              eMC_7_TransitionAndSlewing:
                 CONTINUE;     // no radial ends wanted  206a
             end;//case
           end;
 
-          if ((code = 5) or (code = 55) or (code = 95)) and (out_factor <> 1.0) then
+          if ((code = eMC_5_TimberReducedEnd)
+            or (code = eMC_55_ReducedEnd)
+            or (code = eMC_95_Infill_2))
+            and (out_factor <> 1.0) then
             CONTINUE;   // reduced ends are meaningless if not full-size.
 
-          if ((code = 203) or (code = 233) or (code = 293)) and (i < array_max)
+          if ((code = eMC_203_TimberInfill)
+            or (code = eMC_233_Infill_3)
+            or (code = eMC_293_Infill_4))
+            and (i < array_max)
           // timber infill
           then begin
             p1 := list_bgnd_marks[i].p1;    // x1,y1 in  1/100ths mm
@@ -2476,7 +2545,9 @@ begin
             p4.Y := 0;
           end;
 
-          if ((code > 0) and (code < 200) and (code <> 99))  // 223d
+          if ((code > eMC_0_Ignore)
+            and (code < eMC_200_placeholder)
+            and (code <> eMC_99_TimberNumber))  // 223d
           then begin
             Brush.Color := clWhite;  // 0.93.a gaps in dotted lines.
             Brush.Style := bsClear;
@@ -2489,21 +2560,28 @@ begin
             {if impact>0 then Pen.Width:=1        // impact printer or plotter.
                                  else begin}
             case code of
-              1, 101:
+              eMC_1_GuideMark,
+              eMC_101_SwitchDrive:
                 Pen.Width := printmark_wide;    // guide marks.  switch drive
-              2:
+              eMC_2_RadialEnd:
                 Pen.Width := printmark_wide;    // rad end marks.
-              3, 33, 93:
+              eMC_3_TimberOutline,
+              eMC_33_ShovingTimberOutline,
+              eMC_93_Infill_1:
                 Pen.Width := printtimber_wide;  // timber outlines.
-              4, 44:
+              eMC_4_TimberCL,
+              eMC_44_ShovingTimberCL_1:
                 Pen.Width := 1;                  // timber centre-lines.
-              5, 55, 95:
+              eMC_5_TimberReducedEnd,
+              eMC_55_ReducedEnd,
+              eMC_95_Infill_2:
                 Pen.Width := 1;                  // timber reduced ends.
-              6:
+              eMC_6_RailJoint:
                 Pen.Width := printmark_wide;    // rail joint marks.
-              7:
+              eMC_7_TransitionAndSlewing:
                 Pen.Width := printmark_wide;    // transition ends.
-              14, 54:
+              eMC_14_TimberCLSolid,
+              eMC_54_ShovingTimberCL_2:
                 Pen.Width := printrail_wide;
                 // timber centre-lines with rail centre-lines (for rivet locations?).
 
@@ -2517,9 +2595,12 @@ begin
             {end;}
 
             case code of
-              4, 44:
+              eMC_4_TimberCL,
+              eMC_44_ShovingTimberCL_1:
                 Pen.Style := psDash;    // timber centre-lines (not for rivets).
-              5, 55, 95:
+              eMC_5_TimberReducedEnd,
+              eMC_55_ReducedEnd,
+              eMC_95_Infill_2:
                 Pen.Style := psDot;     // timber reduced ends.
               else
                 Pen.Style := psSolid;   // all the rest.
@@ -2542,15 +2623,18 @@ begin
                 // single colour for all of background templates.
                 else begin
                   case code of
-                    1, 101:
+                    eMC_1_GuideMark,
+                    eMC_101_SwitchDrive:
                       Pen.Color := printguide_colour;  // guide marks.  switch drive
-                    2:
+                    eMC_2_RadialEnd:
                       Pen.Color := printalign_colour;  // rad end marks.
-                    3, 33, 93:
+                    eMC_3_TimberOutline,
+                    eMC_33_ShovingTimberOutline,
+                    eMC_93_Infill_1:
                       Pen.Color := printtimber_colour; // timber outlines.
-                    6:
+                    eMC_6_RailJoint:
                       Pen.Color := printjoint_colour;  // rail joints.
-                    7:
+                    eMC_7_TransitionAndSlewing:
                       Pen.Color := printalign_colour;        // transition ends.
                     else
                       Pen.Color := calc_intensity(clBlack);
@@ -2573,7 +2657,8 @@ begin
             end;
           end
           else begin
-            if ((code = -2) or (code = -3)) and
+            if ((code = eMC__2_CurvingRadiusCentre_1)
+              or (code = eMC__3_CurvingRadiusCentre_2)) and
               {(pad_form.print_radial_centres_menu_entry.Checked=True)}// 0.82.b
               (print_settings_form.output_radial_centres_checkbox.Checked = True)
 
@@ -2630,7 +2715,9 @@ begin
               end;
             end;
 
-            if (code = 203) or (code = 233) or (code = 293)       // timber infill...
+            if (code = eMC_203_TimberInfill)
+              or (code = eMC_233_Infill_3)
+              or (code = eMC_293_Infill_4)       // timber infill...
             then begin
               infill_points[0].X := Round((p1.Y - grid_left) * scaw_out) + page_left_dots;
               infill_points[0].Y := Round((p1.X - grid_top) * scal_out) + page_top_dots;
@@ -3140,7 +3227,8 @@ var
           // and trackbed ends  206b
 
           if (rail = eRD_StraightStockGaugeFace) or (rail = eRD_CurvedStockGaugeFace) or
-            (rail = eRD_AdjTrackTurnoutSideFarGaugeFace) or (rail = eRD_AdjTrackMainSideFarGaugeFace)
+            (rail = eRD_AdjTrackTurnoutSideFarGaugeFace) or
+            (rail = eRD_AdjTrackMainSideFarGaugeFace)
           // 18,22 added 206b
           then begin
             pbg_modify_rail_end(

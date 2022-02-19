@@ -202,7 +202,8 @@ var
 procedure Tshove_timber_form.size_updownClick(Sender: TObject; Button: TUDBtnType);
 
 begin
-  window_scaling := True;        // otherwise ScrollInView on resize prevents form rescaling properly.
+  window_scaling := True;
+  // otherwise ScrollInView on resize prevents form rescaling properly.
 
   if size_updown.Position > size_updown.Tag       // ! position goes up, size goes down.
   then
@@ -699,7 +700,10 @@ end;
 procedure Tshove_timber_form.data_buttonClick(Sender: TObject);
 
 const
-  mod_str: string = '||Enter a dimension by which the normal size and position of this timber should be modified.' + '||To return this timber to its normal size and position, enter 0 (zero).' + '||Handy hints:' + '||It is usually much easier to position a timber by using the buttons and mouse actions, instead of direct entry of data here.' + '||These dimensions are relative to the normal size and position of the timber, not the present size and position if it has been shoved previously.' + '||Instead of these relative dimensions, you can enter the actual timber centre dimension, timber length, width or twist angle, by clicking the relevant read-out panel.';
+  mod_str: string =
+    '||Enter a dimension by which the normal size and position of this timber should be modified.' +
+    '||To return this timber to its normal size and position, enter 0 (zero).' +
+    '||Handy hints:' + '||It is usually much easier to position a timber by using the buttons and mouse actions, instead of direct entry of data here.' + '||These dimensions are relative to the normal size and position of the timber, not the present size and position if it has been shoved previously.' + '||Instead of these relative dimensions, you can enter the actual timber centre dimension, timber length, width or twist angle, by clicking the relevant read-out panel.';
 
 var
   n, i: integer;
@@ -718,7 +722,8 @@ begin
     putdim(help_str, 1, 'shove  timber  along  by', shove.sv_x,
       False, True, False, False); // neg ok, no preset, 0 ok, don't terminate on zero.
     putdim(help_str, 3, 'twist  timber  by', shove.sv_k *
-      180 / Pi * hand_i, False, True, False, False); // neg ok, no preset, 0 ok, don't terminate on zero.
+      180 / Pi * hand_i, False, True, False, False);
+    // neg ok, no preset, 0 ok, don't terminate on zero.
     putdim(help_str, 1, 'crab  timber  sideways  by', shove.sv_c,
       False, True, False, False); // neg ok, no preset, 0 ok, don't terminate on zero.
     putdim(help_str, 1, 'throw  timber  endways  by', shove.sv_o,
@@ -824,7 +829,8 @@ begin
   if shovetimbx_zero = 0    // already on datum?
   then begin                                   // yes, toggle to rail-joint.
     if plain_track = False then
-      shovetimbx_zero := xorg                                               // Ctrl-1 for a turnout.
+      shovetimbx_zero := xorg
+    // Ctrl-1 for a turnout.
     else
       shovetimbx_zero := turnoutx - tb_roll_percent * railen[pt_i] * inscale / 100;
     // rolled rail joint for plain track.
@@ -955,7 +961,9 @@ end;
 procedure shove_crab_panel_click;
 
 const
-  mod_str: string = '||Enter a dimension for the amount by which this timber is to be shoved sideways after any twisting.' + '||N.B If this timber has not been twisted, i.e. it is SQUARE-ON to the main road, the effect of a crab sideways shove will be visually the same as shoving its centre ALONG.' + ' However, any crab sideways shove will not be reflected in the CENTRE read-out for this timber, nor in setting a ZERO datum on it.' + ' To avoid confusion, it is recommended that crab shoves should only be applied to timbers which have been twisted or are EQUALIZED.' + ' To shove SQUARE-ON timbers sideways, instead use the ALONG mouse action or the FORWARD and BACKWARD buttons, or click the CENTRE read-out.' + '||Handy hints:' + '||You can change between using model sizes (in mm) and full-size prototype dimensions (in inches) by clicking the MODEL MM or FULL-SIZE INCHES option buttons.' + '||It is usually much easier to shove a timber by using the buttons and mouse actions, instead of direct entry of data here.';
+  mod_str: string =
+    '||Enter a dimension for the amount by which this timber is to be shoved sideways after any twisting.'
+    + '||N.B If this timber has not been twisted, i.e. it is SQUARE-ON to the main road, the effect of a crab sideways shove will be visually the same as shoving its centre ALONG.' + ' However, any crab sideways shove will not be reflected in the CENTRE read-out for this timber, nor in setting a ZERO datum on it.' + ' To avoid confusion, it is recommended that crab shoves should only be applied to timbers which have been twisted or are EQUALIZED.' + ' To shove SQUARE-ON timbers sideways, instead use the ALONG mouse action or the FORWARD and BACKWARD buttons, or click the CENTRE read-out.' + '||Handy hints:' + '||You can change between using model sizes (in mm) and full-size prototype dimensions (in inches) by clicking the MODEL MM or FULL-SIZE INCHES option buttons.' + '||It is usually much easier to shove a timber by using the buttons and mouse actions, instead of direct entry of data here.';
 
 var
   n, i: integer;
@@ -1105,7 +1113,8 @@ begin
 
     i := putdim('    Set Twist Angle for Timber ' + current_shove_str +
       mod_str1 + opt_str + mod_str2, 3, 'timber  ' + current_shove_str + '  twist  angle  ' +
-      code_str, shovetimb_keq * 180 / Pi, False, True, False, False); // neg ok, no preset, 0 ok, don't terminate.
+      code_str, shovetimb_keq * 180 / Pi, False, True, False, False);
+    // neg ok, no preset, 0 ok, don't terminate.
     if i <> 0 then
       EXIT;
 
@@ -1130,7 +1139,9 @@ end;
 procedure shove_throw_panel_click;
 
 const
-  mod_str: string = '||Enter a dimension for the amount by which this timber is to be thrown endways after any twisting.' + '||N.B If this timber has been twisted to lie parallel to the rails, i.e. twisted 90 degress from SQUARE-ON, the effect of a endwways throw will be visually the same as shoving its centre ALONG.' + ' However, any endways throw will not be reflected in the CENTRE read-out for this timber, nor in setting a ZERO datum on it.' + ' To avoid confusion, it is recommended that end throws should not be applied to timbers which have been so twisted.' + ' To shove such timbers endways, instead use the ALONG mouse action or the FORWARD and BACKWARD buttons, or click the CENTRE read-out.' + '||Handy hints:' + '||You can change between using model sizes (in mm) and full-size prototype dimensions (in inches) by clicking the MODEL MM or FULL-SIZE INCHES option buttons.' + '||It may be easier to throw a timber endways by lengthening it at one end and then shortening it at the other using the buttons (hold down the SHIFT key to modify the numbered end), or by using the THROW mouse action,' + ' instead of direct entry of data here.';
+  mod_str: string =
+    '||Enter a dimension for the amount by which this timber is to be thrown endways after any twisting.'
+    + '||N.B If this timber has been twisted to lie parallel to the rails, i.e. twisted 90 degress from SQUARE-ON, the effect of a endwways throw will be visually the same as shoving its centre ALONG.' + ' However, any endways throw will not be reflected in the CENTRE read-out for this timber, nor in setting a ZERO datum on it.' + ' To avoid confusion, it is recommended that end throws should not be applied to timbers which have been so twisted.' + ' To shove such timbers endways, instead use the ALONG mouse action or the FORWARD and BACKWARD buttons, or click the CENTRE read-out.' + '||Handy hints:' + '||You can change between using model sizes (in mm) and full-size prototype dimensions (in inches) by clicking the MODEL MM or FULL-SIZE INCHES option buttons.' + '||It may be easier to throw a timber endways by lengthening it at one end and then shortening it at the other using the buttons (hold down the SHIFT key to modify the numbered end), or by using the THROW mouse action,' + ' instead of direct entry of data here.';
 
 var
   n, i: integer;
@@ -1245,7 +1256,7 @@ procedure Tshove_timber_form.omit_all_buttonClick(Sender: TObject);
 var
   i, n: integer;
 
-  code: integer;
+  code: EmarkCode;
   ptr_1st: ^Tmark;         // pointer to a Tmark record..
   markmax: integer;
   num_str, tbnum_str: string;
@@ -1292,7 +1303,7 @@ begin
 
       code := ptr_1st^.code;
 
-      if code <> 99 then
+      if code <> eMC_99_TimberNumber then
         CONTINUE;   // we are only looking for timber number entries.
 
       num_str := timb_num_strip(extract_tbnumber_str(tbnum_str));

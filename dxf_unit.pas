@@ -23,7 +23,7 @@
 ====================================================================================
 *)
 
-
+{ }
 unit dxf_unit;
 
 {$MODE Delphi}
@@ -643,7 +643,7 @@ procedure dxf_background_keeps(var dxf_file: TextFile);  //  all the background 
 
 var
   i, n: integer;
-  code: integer;
+  code: EmarkCode;
 
   move_to, line_to: TPoint;
   x1, y1, x2, y2, x3, y3, x4, y4: double;
@@ -701,7 +701,10 @@ var
     if colour(layer) <> '0|'       // does he want this in the file ?
     then begin
 
-      if (_3d = False) or ((code <> 3) and (code <> 33) and (code <> 93))
+      if (_3d = False)
+        or ((code <> eMC_3_TimberOutline)
+        and (code <> eMC_33_ShovingTimberOutline)
+        and (code <> eMC_93_Infill_1))
       // not 3-D timber edges.
       then begin
         x1 := move_to.x / 100;
@@ -956,50 +959,66 @@ begin
         code := list_bgnd_marks[i].code;   // check this mark wanted.
 
         case code of
-          -5:
+          eMC__5_Label:
             layer := 12;   // keep labels
 
-          -3, -2:
+          eMC__3_CurvingRadiusCentre_2,
+          eMC__2_CurvingRadiusCentre_1:
             layer := 8;    // curving rad centres.
 
-          -4, -1, 0, 8, 9, 10:
+          eMC__4_TimberSelector,
+          eMC__1_PegCentre,
+          eMC_0_Ignore,
+          eMC_8_PegArm_1,
+          eMC_9_PegArm_2,
+          eMC_10_PlainTrackStart:
             CONTINUE;
           // timber selector, fixing peg, blank entries, peg arms, plain track start marks.  not in DXF.
 
-          1:
+          eMC_1_GuideMark:
             layer := 6;    // guide marks.
 
-          2, 7:
+          eMC_2_RadialEnd,
+          eMC_7_TransitionAndSlewing:
             layer := 7;    // radial end marks.  transition marks.
 
-          3, 33, 93:
+          eMC_3_TimberOutline,
+          eMC_33_ShovingTimberOutline,
+          eMC_93_Infill_1:
             layer := 3;    // timber outlines.
 
-          4, 14, 44, 54: begin
+          eMC_4_TimberCL,
+          eMC_14_TimberCLSolid,
+          eMC_44_ShovingTimberCL_1,
+          eMC_54_ShovingTimberCL_2: begin
             if _3d = True then
               CONTINUE
             else
               layer := 5;    // timber centre-lines.
           end;
 
-          5, 55, 95: begin
+          eMC_5_TimberReducedEnd,
+          eMC_55_ReducedEnd,
+          eMC_95_Infill_2: begin
             if _3d = True then
               CONTINUE
             else
               layer := 4;    // timber reduced ends.
           end;
 
-          6:
+          eMC_6_RailJoint:
             layer := 9;    // rail joints.
 
-          99: begin
+          eMC_99_TimberNumber: begin
             if _3d = True then
               CONTINUE
             else
               layer := 13;   // timber numbering.
           end;
 
-          203, 233, 293: begin
+          eMC_203_TimberInfill,
+          eMC_233_Infill_3,
+          eMC_293_Infill_4: begin
             if _3d = False then
               CONTINUE
             else
@@ -1013,7 +1032,8 @@ begin
         move_to.x := list_bgnd_marks[i].p1.X;    // x1,y1 in  1/100ths mm
         move_to.y := list_bgnd_marks[i].p1.Y;
 
-        if (code = 99) or (code = -5)  // text
+        if (code = eMC_99_TimberNumber)
+          or (code = eMC__5_Label)  // text
         then begin
           line_to.x := 0;    // x2,y2  not used.
           line_to.y := 0;
@@ -1024,7 +1044,13 @@ begin
         end;
 
 
-        if ((code = 203) or (code = 233) or (code = 293)) and (i < array_max)      // timber infill
+        if ((code = eMC_203_TimberInfill)
+          or (code = eMC_233_Infill_3)
+          or (code = eMC_293_Infill_4))
+
+
+
+          and (i < array_max)      // timber infill
           and (_3d = True) and (wire_frame = False) and (colour(layer) <> '0|') then begin
           x1 := move_to.x / 100;
           y1 := move_to.y / 100;  // to mm.
@@ -1044,10 +1070,11 @@ begin
           CONTINUE;
         end;
 
-        if (code > 0) and (code <> 99) then
+        if (code > eMC_0_Ignore) and (code <> eMC_99_TimberNumber) then
           dxf_mark                // put it in the file
         else begin
-          if (code = -2) or (code = -3)    // curving rad centres...
+          if (code = eMC__2_CurvingRadiusCentre_1)
+            or (code = eMC__3_CurvingRadiusCentre_2)    // curving rad centres...
           then begin
             cen_point := move_to;            // temp save rad centre point.
             radcen_dim := Round(screenx / 2);
@@ -1068,7 +1095,7 @@ begin
             dxf_mark;  // vertical part.
           end;
 
-          if code = -5       // keep name labels
+          if code = eMC__5_Label       // keep name labels
           then begin
             text_str :=
               Trim(Copy(Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.reference_string, 1, 99));
@@ -1091,7 +1118,7 @@ begin
             dxf_text;
           end;
 
-          if code = 99     // timber numbering
+          if code = eMC_99_TimberNumber     // timber numbering
           then begin
             move_to.x := move_to.x - 200;
             // 2mm arbitrary, because width of CAD font not known.

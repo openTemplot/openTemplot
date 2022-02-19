@@ -10,7 +10,6 @@ object math_form: Tmath_form
   ClientHeight = 440
   ClientWidth = 542
   Color = 14215400
-  DesignTimePPI = 120
   Font.Color = clBlack
   Font.Height = -13
   Font.Name = 'Arial'
@@ -20,7 +19,7 @@ object math_form: Tmath_form
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.10.0'
   Scaled = False
   object datestamp_label: TLabel
     Left = 0
@@ -84,7 +83,7 @@ object math_form: Tmath_form
     end
     object math_editbox: TEdit
       Left = 2
-      Height = 27
+      Height = 29
       Top = 398
       Width = 429
       AutoSelect = False
@@ -229,7 +228,7 @@ object math_form: Tmath_form
     Enabled = False
     Interval = 500
     OnTimer = reveal_timerTimer
-    left = 28
-    top = 176
+    Left = 28
+    Top = 176
   end
 end

@@ -9,7 +9,6 @@ object shove_timber_form: Tshove_timber_form
   ClientHeight = 260
   ClientWidth = 552
   Color = 15852503
-  DesignTimePPI = 120
   Font.Color = clBlack
   Font.Height = -13
   Font.Name = 'Arial'
@@ -18,7 +17,7 @@ object shove_timber_form: Tshove_timber_form
   OnCreate = FormCreate
   OnResize = FormResize
   OnShow = FormShow
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.0.10.0'
   Scaled = False
   object timbering_length_label: TLabel
     Left = 240
@@ -99,7 +98,6 @@ object shove_timber_form: Tshove_timber_form
       OnClick = size_updownClick
       Position = 4
       TabOrder = 1
-      Wrap = False
     end
     object colour_panel: TPanel
       Left = 1
@@ -235,7 +233,7 @@ object shove_timber_form: Tshove_timber_form
     Top = 156
     Width = 548
     Caption = ' shove  timber  by  mouse  action :   '
-    ClientHeight = 30
+    ClientHeight = 34
     ClientWidth = 544
     Color = 15268088
     Font.Color = 12582912
@@ -331,9 +329,9 @@ object shove_timber_form: Tshove_timber_form
     end
     object normal_radio: TRadioButton
       Left = 363
-      Height = 23
+      Height = 21
       Top = 1
-      Width = 40
+      Width = 39
       Caption = '    '
       Checked = True
       Font.Color = clBlack
@@ -347,9 +345,9 @@ object shove_timber_form: Tshove_timber_form
     end
     object fine_radio: TRadioButton
       Left = 419
-      Height = 23
+      Height = 21
       Top = 1
-      Width = 40
+      Width = 39
       Caption = '    '
       Font.Color = clBlack
       Font.Height = -13
@@ -362,9 +360,9 @@ object shove_timber_form: Tshove_timber_form
     end
     object extra_fine_radio: TRadioButton
       Left = 475
-      Height = 23
+      Height = 21
       Top = 1
-      Width = 40
+      Width = 39
       Caption = '    '
       Font.Color = clBlack
       Font.Height = -13
@@ -568,9 +566,9 @@ object shove_timber_form: Tshove_timber_form
   end
   object show_all_blue_checkbox: TCheckBox
     Left = 32
-    Height = 23
+    Height = 21
     Top = 4
-    Width = 177
+    Width = 175
     Caption = 'show all shoved timbers'
     Checked = True
     OnClick = show_all_blue_checkboxClick
@@ -755,10 +753,10 @@ object shove_timber_form: Tshove_timber_form
   end
   object inches_radio_buton: TRadioButton
     Left = 188
-    Height = 23
+    Height = 21
     Hint = ' show  or  set  dimensions  in  full-size  prototype  inches '
     Top = 104
-    Width = 122
+    Width = 121
     Caption = 'full-size  inches'
     OnClick = inches_radio_butonClick
     ParentShowHint = False
@@ -767,10 +765,10 @@ object shove_timber_form: Tshove_timber_form
   end
   object mm_radio_button: TRadioButton
     Left = 188
-    Height = 23
+    Height = 21
     Hint = ' show  or  set  dimensions  in  model  mm '
     Top = 82
-    Width = 96
+    Width = 94
     Caption = 'model  mm'
     Checked = True
     OnClick = mm_radio_buttonClick
@@ -781,10 +779,10 @@ object shove_timber_form: Tshove_timber_form
   end
   object retain_shoves_on_mint_checkbox: TCheckBox
     Left = 388
-    Height = 23
+    Height = 21
     Hint = ' retain shoved timbers when minting a new template '
     Top = 84
-    Width = 144
+    Width = 139
     Caption = 'retain on new mint'
     OnClick = retain_shoves_on_mint_checkboxClick
     ParentShowHint = False
@@ -793,10 +791,10 @@ object shove_timber_form: Tshove_timber_form
   end
   object retain_shoves_on_make_checkbox: TCheckBox
     Left = 388
-    Height = 23
+    Height = 21
     Hint = ' retain shoved timbers when using the tools > make --- functions '
     Top = 104
-    Width = 154
+    Width = 150
     Caption = 'retain on tools:make'
     OnClick = retain_shoves_on_make_checkboxClick
     ParentShowHint = False
