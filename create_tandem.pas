@@ -81,7 +81,8 @@ implementation
 {$R *.lfm}
 
 uses
-  point_ex, pad_unit, math_unit, math2_unit, keep_select, alert_unit, info_unit, control_room, shove_timber,
+  point_ex, pad_unit, math_unit, math2_unit, keep_select, alert_unit, info_unit,
+  control_room, shove_timber,
   switch_select, { OT-FIRST web_browser_unit,} wait_message, help_sheet,
   shoved_timber, template;
 
@@ -330,7 +331,8 @@ begin
     // straight switch, correct stagger for 4" toe to S1 instead of REA 3.5"
 
     if turnoutx < (mvjpx + stagger) then
-      turnoutx := mvjpx + stagger;  // lengthen if nec. to allow exit track space for the second turnout
+      turnoutx := mvjpx + stagger;
+    // lengthen if nec. to allow exit track space for the second turnout
     turnout_i := 1;
     // length locked at turnoutx.
 
@@ -345,7 +347,8 @@ begin
     first_atx := atx;             // x to "A" timber centre
 
     trad_1st := calculate_turnout_radius(clrad1, first_heel_notch,
-      first_mid_notch, first_xing_notch);  // get turnout rad and 3 points on it     globals for re-entry
+      first_mid_notch, first_xing_notch);
+    // get turnout rad and 3 points on it     globals for re-entry
 
     store_and_background(False, False);     // first turnout  copy to background.
 
@@ -545,8 +548,7 @@ begin
 
   if keeps_list.Count > 0 then begin
     for n := 0 to (keeps_list.Count - 1) do begin
-      if keeps_list[n].this_is_tandem_first = True then
-      begin
+      if keeps_list[n].this_is_tandem_first = True then begin
         first_bgnd_template := n;
         BREAK;
       end;
@@ -588,7 +590,8 @@ begin
 
   gocalc(0, 0);
 
-  trad_2nd := calculate_turnout_radius(clrad1, second_heel_notch, second_mid_notch, second_xing_notch);
+  trad_2nd := calculate_turnout_radius(clrad1, second_heel_notch, second_mid_notch,
+    second_xing_notch);
   // get turnout rad and 3 points on it
 
   if hand_i = 1 then begin
@@ -650,7 +653,8 @@ begin
     end;
 
     if get_circle_intersections(centre_1.x, centre_1.y, ABS(trad_1st + g / 2),
-      centre_2.x, centre_2.y, ABS(trad_2nd + g / 2), qx1, qy1, k1_r1, k1_r2, qx2, qy2, k2_r1, k2_r2) <> 2
+      centre_2.x, centre_2.y, ABS(trad_2nd + g / 2), qx1, qy1, k1_r1, k1_r2,
+      qx2, qy2, k2_r1, k2_r2) <> 2
     // return code: 2 = OK, two usable intersections
     then begin
       ShowMessage('Sorry, it has not been possible to create a tandem turnout.');  // debug
@@ -722,7 +726,8 @@ begin
 
     omit_wj_marks := True;    // no wing rail joints
 
-    fix_radius(0 - trad_1st, False);     // main road curving for middle xing  (double-sided tandem)
+    fix_radius(0 - trad_1st, False);
+    // main road curving for middle xing  (double-sided tandem)
 
     gocalc(0, 0);
 
@@ -856,7 +861,8 @@ begin
 
     startx := heelx + onfrom;   // blank up to MMINP
     gocalc(0, 0);
-    store_and_background(False, False);     // put first back again with only crossing rail, far end
+    store_and_background(False, False);
+    // put first back again with only crossing rail, far end
 
     startx := 0;
 
@@ -952,8 +958,7 @@ begin
       k3n_1, 2) + '   1:' + round_str(k3n_2, 2) + '|||Left-side turnout radius :   ' +
       left_rad_str + '||Middle-road radius :         ' + middle_rad_str
       + '||Right-side turnout radius :  ' + right_rad_str,
-      '', '', '', '', 'no  -  cancel  tandem  turnout', 'yes  -  continue', 0) = 5 then
-    begin
+      '', '', '', '', 'no  -  cancel  tandem  turnout', 'yes  -  continue', 0) = 5 then begin
       delete_tandem;
       restore_current;
       Result := False;
@@ -1387,7 +1392,8 @@ begin
     first_trad := tradius - g;
 
     trad_1st := calculate_turnout_radius(clrad1, first_heel_notch,
-      first_mid_notch, first_xing_notch);  // get turnout rad and 3 points on it     globals for re-entry
+      first_mid_notch, first_xing_notch);
+    // get turnout rad and 3 points on it     globals for re-entry
 
     far_notch := get_snap_peg_xy_data(18);  // TVJP
 
@@ -1464,8 +1470,10 @@ begin
       gocalc(0, 0);
 
       if (fpx > first_fpx) or
-        (get_circle_intersections(first_torgx, first_torgy, ABS(first_trad), torgx, torgy, ABS(tradius),
-        qx1, qy1, k1_r1, k1_r2, qx2, qy2, k2_r1, k2_r2) <> 2)   // return code: 2 = OK, two usable intersections
+        (get_circle_intersections(first_torgx, first_torgy, ABS(first_trad),
+        torgx, torgy, ABS(tradius),
+        qx1, qy1, k1_r1, k1_r2, qx2, qy2, k2_r1, k2_r2) <> 2)
+      // return code: 2 = OK, two usable intersections
       then begin
         ShowMessage(
           'Sorry, it has not been possible to create a single-sided tandem turnout from the current starting turnout.'
@@ -1574,8 +1582,7 @@ begin
 
   if keeps_list.Count > 0 then begin
     for n := 0 to (keeps_list.Count - 1) do begin
-      if keeps_list[n].this_is_tandem_first = True then
-      begin
+      if keeps_list[n].this_is_tandem_first = True then begin
         first_bgnd_template := n;
         BREAK;
       end;
@@ -1658,7 +1665,8 @@ begin
 
   // find corresponding splice intersection ...
 
-  if get_circle_intersections(first_torgx, first_torgy, ABS(first_trad - j), torgx, torgy, ABS(tradius + j),
+  if get_circle_intersections(first_torgx, first_torgy, ABS(first_trad - j),
+    torgx, torgy, ABS(tradius + j),
     qx1, qy1, k1_r1, k1_r2, qx2, qy2, k2_r1, k2_r2) <> 2 then begin
     ShowMessage(
       'Sorry, it has not been possible to create a single-sided tandem turnout from the current starting turnout.'
@@ -1787,7 +1795,8 @@ begin
     end;
 
     if get_circle_intersections(centre_1.x, centre_1.y, ABS(trad_1st - g / 2),
-      centre_2.x, centre_2.y, ABS(trad_2nd + g / 2), qx1, qy1, k1_r1, k1_r2, qx2, qy2, k2_r1, k2_r2) <> 2
+      centre_2.x, centre_2.y, ABS(trad_2nd + g / 2), qx1, qy1, k1_r1, k1_r2,
+      qx2, qy2, k2_r1, k2_r2) <> 2
     // return code: 2 = OK, two usable intersections
     then begin
       ShowMessage(
@@ -1967,7 +1976,8 @@ begin
 
     fpx_notch := get_snap_peg_xy_data(4);
 
-    startx := fpx - get_notch_distance(second_xing_notch, fpx_notch) + 45 * inscale;     // 45" arbitrary
+    startx := fpx - get_notch_distance(second_xing_notch, fpx_notch) + 45 * inscale;
+    // 45" arbitrary
 
     gocalc(0, 0);
 

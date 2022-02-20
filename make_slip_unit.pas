@@ -363,7 +363,8 @@ begin
       case mod_double_slip of
         1:
           if g < (56 * inscale) then
-            hd_vcheck_rails := 0;   // not P4 etc.     switch moved so shortened check rails not needed
+            hd_vcheck_rails := 0;
+        // not P4 etc.     switch moved so shortened check rails not needed
         2:
           hd_vcheck_rails := 0;                          // for all gauges
       end;//case
@@ -415,9 +416,11 @@ begin
     end;
 
     if k3n > 10.125 then
-      switch_mid_inches := switch_mid_inches + 28;     // adding some extra approach track   1 timber space
+      switch_mid_inches := switch_mid_inches + 28;
+    // adding some extra approach track   1 timber space
     if k3n > 15.125 then
-      switch_mid_inches := switch_mid_inches + 28;     // adding more extra approach track   2 timber space
+      switch_mid_inches := switch_mid_inches + 28;
+    // adding more extra approach track   2 timber space
 
     if (sides = 0) and (k3n > 6.51)
     // double-slip - move switch forward
@@ -441,10 +444,12 @@ begin
 
     111:
 
-      omit_wj_marks := True;  // and omit the wing rail joint marks      // restored in retain_on_make
+      omit_wj_marks := True;
+    // and omit the wing rail joint marks      // restored in retain_on_make
 
     if spiral = True then
-      switch_mid_rad1 := clrad_at_x(mcpx - switch_mid_mm)  // back from MCP-1 to middle of switch location
+      switch_mid_rad1 := clrad_at_x(mcpx - switch_mid_mm)
+    // back from MCP-1 to middle of switch location
     else
       switch_mid_rad1 := nomrad;
 
@@ -459,7 +464,8 @@ begin
     omit_wj_marks := True;  // and omit the wing rail joint marks      // restored in retain_on_make
 
     if spiral = True then
-      switch_mid_rad2 := clrad_at_x(mcpx - switch_mid_mm)  // back from MCP-2 to middle of switch location
+      switch_mid_rad2 := clrad_at_x(mcpx - switch_mid_mm)
+    // back from MCP-2 to middle of switch location
     else
       switch_mid_rad2 := nomrad;
 
@@ -541,7 +547,8 @@ begin
       case mod_double_slip of
         1:
           if g < (56 * inscale) then
-            xorg := xorg + 28 * inscale;   // not P4 etc.    greater tip clearance.  28" typical fill spacing
+            xorg := xorg + 28 * inscale;
+        // not P4 etc.    greater tip clearance.  28" typical fill spacing
         2:
           xorg := xorg + 28 * inscale;                          // for all gauges
       end;//case
@@ -824,7 +831,8 @@ begin
 
     second_sw_index := keeps_list.Count - 1;
 
-    slip_road_pos2 := keeps_list[second_sw_index].snap_peg_positions.ctrl_planing_pos;    // location of end of planing on pad
+    slip_road_pos2 := keeps_list[second_sw_index].snap_peg_positions.ctrl_planing_pos;
+    // location of end of planing on pad
 
     gocalc(0, 0);
 
@@ -858,7 +866,8 @@ begin
     // get location of opposite end  x3,y3
 
     normalize_transforms;
-    docurving(True, True, turnoutx, g / 2, x3, temp, dummy1, dummy2);   // get pad location data for end.
+    docurving(True, True, turnoutx, g / 2, x3, temp, dummy1, dummy2);
+    // get pad location data for end.
     y3 := temp * hand_i + y_datum;
 
     temp := SQR(x3 - x1) + SQR(y3 - y1);
@@ -898,7 +907,8 @@ begin
     // get location of end  x3,y3
 
     normalize_transforms;
-    docurving(True, True, turnoutx, g / 2, x3, temp, dummy1, dummy2);   // get pad location data for end.
+    docurving(True, True, turnoutx, g / 2, x3, temp, dummy1, dummy2);
+    // get pad location data for end.
     y3 := temp * hand_i + y_datum;
 
     offset_pos_sq := SQR(x3 - x1) + SQR(y3 - y1);
@@ -911,7 +921,8 @@ begin
     // get location of end  x3,y3
 
     normalize_transforms;
-    docurving(True, True, turnoutx, g / 2, x3, temp, dummy1, dummy2);   // get pad location data for end.
+    docurving(True, True, turnoutx, g / 2, x3, temp, dummy1, dummy2);
+    // get pad location data for end.
     y3 := temp * hand_i + y_datum;
 
     offset_neg_sq := SQR(x3 - x1) + SQR(y3 - y1);
@@ -925,7 +936,8 @@ begin
     if doing_2nd_side = True
     // get rads for end report
     then
-      slip_rad2_str := '||        ' + round_str(ABS(nomrad), 0) + ' mm   ( ' + round_str(ABS(nomrad) / 25.4, 1) + '" )'
+      slip_rad2_str := '||        ' + round_str(ABS(nomrad), 0) + ' mm   ( ' +
+        round_str(ABS(nomrad) / 25.4, 1) + '" )'
     else
       slip_rad1_str := '||        ' + round_str(ABS(nomrad), 0) + ' mm   ( ' + round_str(
         ABS(nomrad) / 25.4, 1) + '" )';

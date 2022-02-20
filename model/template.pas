@@ -24,1215 +24,1206 @@ const
 
 type
 
-Tnotch = record      //  a notch position.
-  notch_x: double;
-  notch_y: double;
-  notch_k: double;
-end;
+  Tnotch = record      //  a notch position.
+    notch_x: double;
+    notch_y: double;
+    notch_k: double;
+  end;
 
 
+  Tsnap_peg_positions = record
+    // snapping positions for F7 shift mouse action  0.79.a  27-05-06
+    // and background popup snap options.
 
-Tsnap_peg_positions = record
-  // snapping positions for F7 shift mouse action  0.79.a  27-05-06
-  // and background popup snap options.
+    ctrl_peg_now_pos: Tnotch;
+    ctrl_0_pos: Tnotch;
+    ctrl_1_pos: Tnotch;
 
-  ctrl_peg_now_pos: Tnotch;
-  ctrl_0_pos: Tnotch;
-  ctrl_1_pos: Tnotch;
+    ctrl_2_pos: Tnotch;  // added 205c
 
-  ctrl_2_pos: Tnotch;  // added 205c
+    ctrl_planing_pos: Tnotch;
+    // added 205e for obtain turnout radius to control
+    ctrl_heel_pos: Tnotch;
+    // added 205e for obtain turnout radius to control
 
-  ctrl_planing_pos: Tnotch;
-  // added 205e for obtain turnout radius to control
-  ctrl_heel_pos: Tnotch;
-  // added 205e for obtain turnout radius to control
+    ctrl_3_pos: Tnotch;
 
-  ctrl_3_pos: Tnotch;
+    ctrl_cesp_pos: Tnotch;
+    // added 205e for obtain turnout radius to control
 
-  ctrl_cesp_pos: Tnotch;
-  // added 205e for obtain turnout radius to control
+    ctrl_4_pos: Tnotch;
+    ctrl_5_pos: Tnotch;
+    ctrl_6_pos: Tnotch;
+    ctrl_7_pos: Tnotch;
+    ctrl_8_pos: Tnotch;
+    ctrl_9_pos: Tnotch;
+    ctrl_tcp_pos: Tnotch;   // TCP
+    ctrl_mcp_pos: Tnotch;   // MCP
+    ctrl_tolp_pos: Tnotch;  // TOLP
 
-  ctrl_4_pos: Tnotch;
-  ctrl_5_pos: Tnotch;
-  ctrl_6_pos: Tnotch;
-  ctrl_7_pos: Tnotch;
-  ctrl_8_pos: Tnotch;
-  ctrl_9_pos: Tnotch;
-  ctrl_tcp_pos: Tnotch;   // TCP
-  ctrl_mcp_pos: Tnotch;   // MCP
-  ctrl_tolp_pos: Tnotch;  // TOLP
+    ctrl_tminp_pos: Tnotch;     // TMINP     // 213b
+    ctrl_texitp_pos: Tnotch;    // TEXITP    // 213b
 
-  ctrl_tminp_pos: Tnotch;     // TMINP     // 213b
-  ctrl_texitp_pos: Tnotch;    // TEXITP    // 213b
+    ctrl_mminp_pos: Tnotch;     // MMINP     // 217a
+    ctrl_mexitp_pos: Tnotch;    // MEXITP    // 217a
 
-  ctrl_mminp_pos: Tnotch;     // MMINP     // 217a
-  ctrl_mexitp_pos: Tnotch;    // MEXITP    // 217a
+    ctrl_tsmidp_pos: Tnotch;    // TS curve mid-point  218a
 
-  ctrl_tsmidp_pos: Tnotch;    // TS curve mid-point  218a
+    ctrl_knucklebend_pos: Tnotch;  // start of knuckle bend  218a
 
-  ctrl_knucklebend_pos: Tnotch;  // start of knuckle bend  218a
+    ctrl_atimb_pos: Tnotch;     // "A" timber 218a
 
-  ctrl_atimb_pos: Tnotch;     // "A" timber 218a
+    ctrl_mid_pos: Tnotch;      // mid-length  216a
 
-  ctrl_mid_pos: Tnotch;      // mid-length  216a
+    ctrl_user_pos: Tnotch;  // user-defined peg pos    added 205c
 
-  ctrl_user_pos: Tnotch;  // user-defined peg pos    added 205c
+  end;//record
 
-end;//record
+  Tboundary_info = record            // 213b  for extend to boundary function
 
-Tboundary_info = record            // 213b  for extend to boundary function
+    loc_0: Tnotch;     // CTRL-0
+    loc_6: Tnotch;     // CTRL-6
+    loc_9: Tnotch;     // CTRL-9
+    loc_240: Tnotch;   // TMINP
+    loc_241: Tnotch;   // TEXITP
+    loc_260: Tnotch;   // MMINP     // 217a
+    loc_261: Tnotch;   // MEXITP    // 217a
+    loc_600: Tnotch;   // TOLP
 
-  loc_0: Tnotch;     // CTRL-0
-  loc_6: Tnotch;     // CTRL-6
-  loc_9: Tnotch;     // CTRL-9
-  loc_240: Tnotch;   // TMINP
-  loc_241: Tnotch;   // TEXITP
-  loc_260: Tnotch;   // MMINP     // 217a
-  loc_261: Tnotch;   // MEXITP    // 217a
-  loc_600: Tnotch;   // TOLP
+    boundary_diag: double; // diagonal length between boundaries
+  end;
 
-  boundary_diag: double; // diagonal length between boundaries
-end;
 
+  Tproto_info = record              // was Tgauge_info.
 
-Tproto_info = record              // was Tgauge_info.
+    name_str_pi: string[15];       // gauge designation: 9 chars max actually used
 
-  name_str_pi: string[15];       // gauge designation: 9 chars max actually used
+    spare_str_pi: string[75];      // now spares 215a   was  list_str_pi
 
-  spare_str_pi: string[75];      // now spares 215a   was  list_str_pi
+    scale_pi: double;       // mm per ft.
+    gauge_pi: double;       // mm.
+    fw_pi: double;       // mm flangeway.
+    fwe_pi: double;       // mm flangeway end (flangeway+flare).
+    xing_fl_pi: double;       // mm length of flares (not h-d).
+    railtop_pi: double;       // mm width of rail top (and bottom if bullhead).
+    trtscent_pi: double;       // mm track centres, turnout side.
+    trmscent_pi: double;       // mm ditto, main side.
+    retcent_pi: double;       // mm ditto, return curve.
+    min_radius_pi: double;       // mm minimum radius for check.
 
-  scale_pi: double;       // mm per ft.
-  gauge_pi: double;       // mm.
-  fw_pi: double;       // mm flangeway.
-  fwe_pi: double;       // mm flangeway end (flangeway+flare).
-  xing_fl_pi: double;       // mm length of flares (not h-d).
-  railtop_pi: double;       // mm width of rail top (and bottom if bullhead).
-  trtscent_pi: double;       // mm track centres, turnout side.
-  trmscent_pi: double;       // mm ditto, main side.
-  retcent_pi: double;       // mm ditto, return curve.
-  min_radius_pi: double;       // mm minimum radius for check.
 
+    // these 6 wing/check rail lengths used only in pre 0.71.a versions...
 
-  // these 6 wing/check rail lengths used only in pre 0.71.a versions...
+    old_winglongs_pi: double;
+    // inches full-size length of short wing rail from centre of timber A.
+    old_winglongl_pi: double;
+    // inches full-size length of long wing rail from centre of timber A.
 
-  old_winglongs_pi: double;
-  // inches full-size length of short wing rail from centre of timber A.
-  old_winglongl_pi: double;
-  // inches full-size length of long wing rail from centre of timber A.
+    old_cklongs_pi: double;
+    // inches full-size length of short check rails.
+    old_cklongm_pi: double;
+    // inches full-size length of medium check rails.
+    old_cklongl_pi: double;
+    // inches full-size length of long check rails.
+    old_cklongxl_pi: double;
+    // inches full_size length of extra long check rails.
 
-  old_cklongs_pi: double;
-  // inches full-size length of short check rails.
-  old_cklongm_pi: double;
-  // inches full-size length of medium check rails.
-  old_cklongl_pi: double;
-  // inches full-size length of long check rails.
-  old_cklongxl_pi: double;
-  // inches full_size length of extra long check rails.
+    tbwide_pi: double;       // inches full-size width of turnout timbers.
+    slwide_pi: double;
+    // inches full-size width of plain sleepers (not at rail joints 212a).
 
-  tbwide_pi: double;       // inches full-size width of turnout timbers.
-  slwide_pi: double;
-  // inches full-size width of plain sleepers (not at rail joints 212a).
+    xtimbsp_pi: double;
+    // !!! disused in 0.75.a 14-10-01. inches full-size timber-spacing at crossing.
+    // retained in files when loaded by versions prior to 0.75.a
 
-  xtimbsp_pi: double;
-  // !!! disused in 0.75.a 14-10-01. inches full-size timber-spacing at crossing.
-  // retained in files when loaded by versions prior to 0.75.a
+    ftimbspmax_pi: double;
+    // inches full-size max timber-spacing for closure space.
 
-  ftimbspmax_pi: double;
-  // inches full-size max timber-spacing for closure space.
+    tb_pi: double;       // plain sleeper length mm.
 
-  tb_pi: double;       // plain sleeper length mm.
+    // added in version 0.71.a 11-5-01...
 
-  // added in version 0.71.a 11-5-01...
+    // !!! 11-5-01 - v:0.71.a
+    // !!! exhaustive testing done to get file match with previous version.
+    // !!! Due to Delphi aligning boundaries. Don't change anything!!! ...
 
-  // !!! 11-5-01 - v:0.71.a
-  // !!! exhaustive testing done to get file match with previous version.
-  // !!! Due to Delphi aligning boundaries. Don't change anything!!! ...
+    mainside_ends_pi: boolean;    //  True=main side ends in line,
+    //  False=ends centralized.
 
-  mainside_ends_pi: boolean;    //  True=main side ends in line,
-  //  False=ends centralized.
 
+    jt_slwide_pi: single;
+    // !!! single. inches full-size width of plain sleepers at rail joints. // 212a
 
-  jt_slwide_pi: single;
-  // !!! single. inches full-size width of plain sleepers at rail joints. // 212a
 
+    alignment_byte_1: byte;   // D5 0.81 12-06-05
 
-  alignment_byte_1: byte;   // D5 0.81 12-06-05
+    random_end_pi: double;    //  amount of timber-end randomising.
+    timber_thick_pi: double;    //  timber thickness (for DXF 3D).
+    random_angle_pi: double;    //  amount of timber_angle randomising.
 
-  random_end_pi: double;    //  amount of timber-end randomising.
-  timber_thick_pi: double;    //  timber thickness (for DXF 3D).
-  random_angle_pi: double;    //  amount of timber_angle randomising.
+    // new check and wing dimensioning : v:0.71.a 24-5-01...
 
-  // new check and wing dimensioning : v:0.71.a 24-5-01...
+    ck_ms_working1_pi: double;
+    // full-size inches - size 1 MS check rail working length (back from "A").
+    ck_ms_working2_pi: double;
+    // full-size inches - size 2 MS check rail working length (back from "A").
+    ck_ms_working3_pi: double;
+    // full-size inches - size 3 MS check rail working length (back from "A").
 
-  ck_ms_working1_pi: double;
-  // full-size inches - size 1 MS check rail working length (back from "A").
-  ck_ms_working2_pi: double;
-  // full-size inches - size 2 MS check rail working length (back from "A").
-  ck_ms_working3_pi: double;
-  // full-size inches - size 3 MS check rail working length (back from "A").
+    ck_ts_working_mod_pi: double;
+    // full-size inches - TS check rail working length modifier.
+    // out of use 0.94.a but loaded in old files.
 
-  ck_ts_working_mod_pi: double;
-  // full-size inches - TS check rail working length modifier.
-  // out of use 0.94.a but loaded in old files.
+    ck_ms_ext1_pi: double;
+    // full-size inches - size 1 MS check rail extension length (forward from "A").
+    ck_ms_ext2_pi: double;
+    // full-size inches - size 2 MS check rail extension length (forward from "A").
 
-  ck_ms_ext1_pi: double;
-  // full-size inches - size 1 MS check rail extension length (forward from "A").
-  ck_ms_ext2_pi: double;
-  // full-size inches - size 2 MS check rail extension length (forward from "A").
+    ck_ts_ext_mod_pi: double;
+    // full-size inches - TS check rail extension length modifier.
+    // out of use 0.94.a but loaded in old files.
 
-  ck_ts_ext_mod_pi: double;
-  // full-size inches - TS check rail extension length modifier.
-  // out of use 0.94.a but loaded in old files.
+    wing_ms_reach1_pi: double;
+    // full-size inches - size 1 MS wing rail reach length (forward from "A").
+    wing_ms_reach2_pi: double;
+    // full-size inches - size 2 MS wing rail reach length (forward from "A").
 
-  wing_ms_reach1_pi: double;
-  // full-size inches - size 1 MS wing rail reach length (forward from "A").
-  wing_ms_reach2_pi: double;
-  // full-size inches - size 2 MS wing rail reach length (forward from "A").
+    wing_ts_reach_mod_pi: double;
+    // full-size inches - TS wing rail reach length modifier.
+    // out of use 0.94.a but loaded in old files.
 
-  wing_ts_reach_mod_pi: double;
-  // full-size inches - TS wing rail reach length modifier.
-  // out of use 0.94.a but loaded in old files.
+    // new rail section dims 0.71.a...
 
-  // new rail section dims 0.71.a...
+    railbottom_pi: double;
+    // mm width of railfoot (FB).                                   // spare_float4:double;
 
-  railbottom_pi: double;
-  // mm width of railfoot (FB).                                   // spare_float4:double;
+    // these are for 3-D in DXF...
 
-  // these are for 3-D in DXF...
+    rail_height_pi: double;
+    // full-size inches rail height (for 3D in DXF).
+    seat_thick_pi: double;
+    // full-size inches chair seating thickness (for 3D in DXF).
 
-  rail_height_pi: double;
-  // full-size inches rail height (for 3D in DXF).
-  seat_thick_pi: double;
-  // full-size inches chair seating thickness (for 3D in DXF).
+    old_tb_pi: double;
+    // inches full-size (unlike tb_pi which is mm). used internally for gauge changes (no meaning in file).
 
-  old_tb_pi: double;
-  // inches full-size (unlike tb_pi which is mm). used internally for gauge changes (no meaning in file).
+    rail_inclination_pi: double;    // radians.
+    foot_height_pi: double;    // inches full-size  edge thickness.
+    chair_outlen_pi: double;    // inches full-size  from rail gauge-face
+    chair_inlen_pi: double;    // inches full-size
+    chair_width_pi: double;    // inches full-size
+    chair_corner_pi: double;    // inches full-size  corner rad.
 
-  rail_inclination_pi: double;    // radians.
-  foot_height_pi: double;    // inches full-size  edge thickness.
-  chair_outlen_pi: double;    // inches full-size  from rail gauge-face
-  chair_inlen_pi: double;    // inches full-size
-  chair_width_pi: double;    // inches full-size
-  chair_corner_pi: double;    // inches full-size  corner rad.
+    spare_byte1: byte;   //  !!! don't replace these an integer !!!
+    spare_byte2: byte;
+    //  !!! Delphi will upset the align boundaries for proto_info within template_info. !!!
+    spare_byte3: byte;
+    spare_byte4: byte;
+    spare_byte5: byte;
 
-  spare_byte1: byte;   //  !!! don't replace these an integer !!!
-  spare_byte2: byte;
-  //  !!! Delphi will upset the align boundaries for proto_info within template_info. !!!
-  spare_byte3: byte;
-  spare_byte4: byte;
-  spare_byte5: byte;
+    alignment_byte_2: byte;   // D5 0.81 12-06-05
 
-  alignment_byte_2: byte;   // D5 0.81 12-06-05
+  end;
 
-end;
 
+  Tbgnd_keep = record
 
-Tbgnd_keep = record
+    xlist_max: integer;     // max and min list values for printing calcs and DXF,
+    xlist_min: integer;     // and pad reset...
+    ylist_max: integer;
+    ylist_min: integer;
 
-  xlist_max: integer;     // max and min list values for printing calcs and DXF,
-  xlist_min: integer;     // and pad reset...
-  ylist_max: integer;
-  ylist_min: integer;
+    planing_end_aq1: integer;   // list index for these locations for printing.
+    planing_end_aq2: integer;
 
-  planing_end_aq1: integer;   // list index for these locations for printing.
-  planing_end_aq2: integer;
+    text_begin_X: integer;
+    // name label text locations for mouse select (screen pixels).
+    text_begin_Y: integer;
 
-  text_begin_X: integer;
-  // name label text locations for mouse select (screen pixels).
-  text_begin_Y: integer;
+    text_end_X: integer;      // rectangle for mouse hover detect.
+    text_end_Y: integer;
 
-  text_end_X: integer;      // rectangle for mouse hover detect.
-  text_end_Y: integer;
+    requested_label_string: string;   // his settings.
+    full_label_string: string;        // full number+name.
+    showing_label_string: string;     // actual string showing.
 
-  requested_label_string: string;   // his settings.
-  full_label_string: string;        // full number+name.
-  showing_label_string: string;     // actual string showing.
+    text_font_height: integer;   // 211b was textfontsize:integer;
 
-  text_font_height: integer;   // 211b was textfontsize:integer;
+    timber_numbers_string: string;
+    // the complete numbers sequence, separated by ESC ($1B) characters.
 
-  timber_numbers_string: string;
-  // the complete numbers sequence, separated by ESC ($1B) characters.
+    list_bgnd_marks: Tmark_array;
+    // pointers only, so can't save this data in a file (of Tbgnd_keep).
+    list_bgnd_rails: array[ERailData] of TPoint_array;
 
-  list_bgnd_marks: Tmark_array;
-  // pointers only, so can't save this data in a file (of Tbgnd_keep).
-  list_bgnd_rails: array[ERailData] of TPoint_array;
+    bgnd_endmarks: array[ERailData, 0..1] of TPoint;
+    // rail end mark points. 1/100th mm , curved ready for drawing.
+    bgnd_endmarks_yn: array[ERailData, 0..1] of boolean; // flag end points exist.
+  end;
 
-  bgnd_endmarks: array[ERailData, 0..1] of TPoint;
-  // rail end mark points. 1/100th mm , curved ready for drawing.
-  bgnd_endmarks_yn: array[ERailData, 0..1] of boolean; // flag end points exist.
-end;
+  //-----------------------
 
-//-----------------------
+  Tspares = record         // some spare slots for patching future changes...
 
-Tspares = record         // some spare slots for patching future changes...
+    spare_int1: integer;
+    spare_int2: integer;
 
-  spare_int1: integer;
-  spare_int2: integer;
+    spare_flag1: boolean;
+    spare_flag2: boolean;
+    spare_flag3: boolean;
+    spare_flag4: boolean;
 
-  spare_flag1: boolean;
-  spare_flag2: boolean;
-  spare_flag3: boolean;
-  spare_flag4: boolean;
+    spare_float1: double;
+    spare_float2: double;
+    spare_float3: double;
 
-  spare_float1: double;
-  spare_float2: double;
-  spare_float3: double;
+    spare_str: string[250];
 
-  spare_str: string[250];
+    alignment_byte_1: byte;   // D5 0.81 12-06-05
+    alignment_byte_2: byte;   // D5 0.81 12-06-05
+    alignment_byte_3: byte;   // D5 0.81 12-06-05
 
-  alignment_byte_1: byte;   // D5 0.81 12-06-05
-  alignment_byte_2: byte;   // D5 0.81 12-06-05
-  alignment_byte_3: byte;   // D5 0.81 12-06-05
+  end;//record
 
-end;//record
+  Tgauge_scale = record              // was part of Tgauge_info.
+    // now used only for the list, not in file. 0.71.a
 
-Tgauge_scale = record              // was part of Tgauge_info.
-  // now used only for the list, not in file. 0.71.a
 
+    name_str_glist: string;           // 215a gauge designation.
 
-  name_str_glist: string;           // 215a gauge designation.
 
+    scale_glist: double;       // mm per ft.
+    gauge_glist: double;       // mm.
+    fw_glist: double;       // mm flangeway.
+    fwe_glist: double;       // mm flangeway end gap (flangeway+flare).
 
-  scale_glist: double;       // mm per ft.
-  gauge_glist: double;       // mm.
-  fw_glist: double;       // mm flangeway.
-  fwe_glist: double;       // mm flangeway end gap (flangeway+flare).
+    old_fwe_glist: double;       // old pre-215a flangeway end gap.
 
-  old_fwe_glist: double;       // old pre-215a flangeway end gap.
+    trtscent_glist: double;       // mm track centres, turnout side.
+    trmscent_glist: double;       // mm ditto, main side.
+    min_radius_glist: double;       // mm minimum radius for check.
+  end;
 
-  trtscent_glist: double;       // mm track centres, turnout side.
-  trmscent_glist: double;       // mm ditto, main side.
-  min_radius_glist: double;       // mm minimum radius for check.
-end;
 
+  Ttransform_info = record             //  datums, shifts and rotations ...
+    //  (yes I know the plural of datum is data !)
 
+    datum_y: double;  // y_datum, y datum point (green dot).
 
-Ttransform_info = record             //  datums, shifts and rotations ...
-  //  (yes I know the plural of datum is data !)
+    x_go_limit: double;  // (nyi) print cropping limits (paper inches)...
+    x_stop_limit: double;
 
-  datum_y: double;  // y_datum, y datum point (green dot).
+    transforms_apply: boolean; // !!! no longer used.  // False = ignore transform data.
 
-  x_go_limit: double;  // (nyi) print cropping limits (paper inches)...
-  x_stop_limit: double;
+    alignment_byte_1: byte;   // D5 0.81 12-06-05
 
-  transforms_apply: boolean; // !!! no longer used.  // False = ignore transform data.
+    x1_shift: double;  //  mm    shift info...
+    y1_shift: double;  //  mm
+    k_shift: double;  //  radians.
+    x2_shift: double;  //  mm
+    y2_shift: double;  //  mm
 
-  alignment_byte_1: byte;   // D5 0.81 12-06-05
+    peg_pos: Tpex;      //  mm  peg position.
 
-  x1_shift: double;  //  mm    shift info...
-  y1_shift: double;  //  mm
-  k_shift: double;  //  radians.
-  x2_shift: double;  //  mm
-  y2_shift: double;  //  mm
+    alignment_byte_2: byte;   // D5 0.81 12-06-05
+    alignment_byte_3: byte;   // D5 0.81 12-06-05
 
-  peg_pos: Tpex;      //  mm  peg position.
+    peg_point_code: integer;   //  peg_code.
+    peg_point_rail: integer;   //  peg_rail.
 
-  alignment_byte_2: byte;   // D5 0.81 12-06-05
-  alignment_byte_3: byte;   // D5 0.81 12-06-05
+    mirror_on_x: boolean;   //  True= invert on x.
+    mirror_on_y: boolean;   //  True= invert on y. (swap hand).
 
-  peg_point_code: integer;   //  peg_code.
-  peg_point_rail: integer;   //  peg_rail.
+    alignment_byte_4: byte;   // D5 0.81 12-06-05
+    alignment_byte_5: byte;   // D5 0.81 12-06-05
 
-  mirror_on_x: boolean;   //  True= invert on x.
-  mirror_on_y: boolean;   //  True= invert on y. (swap hand).
+    spare_int1: integer;
+    spare_int2: integer;
 
-  alignment_byte_4: byte;   // D5 0.81 12-06-05
-  alignment_byte_5: byte;   // D5 0.81 12-06-05
+    spare_flag1: boolean;
+    spare_flag2: boolean;
+    spare_flag3: boolean;
+    spare_flag4: boolean;
 
-  spare_int1: integer;
-  spare_int2: integer;
+    notch_info: Tnotch;      {spare_float1:double;}    // 11-4-00 version 0.53
+    {spare_float2:double;}
+    {spare_float3:double;}
 
-  spare_flag1: boolean;
-  spare_flag2: boolean;
-  spare_flag3: boolean;
-  spare_flag4: boolean;
+    spare_str: string[10];
 
-  notch_info: Tnotch;      {spare_float1:double;}    // 11-4-00 version 0.53
-  {spare_float2:double;}
-  {spare_float3:double;}
+    alignment_byte_6: byte;   // D5 0.81 12-06-05
+    alignment_byte_7: byte;   // D5 0.81 12-06-05
+    alignment_byte_8: byte;   // D5 0.81 12-06-05
 
-  spare_str: string[10];
+  end;//record
 
-  alignment_byte_6: byte;   // D5 0.81 12-06-05
-  alignment_byte_7: byte;   // D5 0.81 12-06-05
-  alignment_byte_8: byte;   // D5 0.81 12-06-05
+  Tplatform_trackbed_info = record   // 0.93.a was  Tcheck_rail_mints=record
 
-end;//record
+    adjacent_edges_keep: boolean;
+    // False=adjacent tracks,  True=trackbed edges and platform edges.
 
-Tplatform_trackbed_info = record   // 0.93.a was  Tcheck_rail_mints=record
+    draw_ms_trackbed_edge_keep: boolean;
+    draw_ts_trackbed_edge_keep: boolean;
 
-  adjacent_edges_keep: boolean;
-  // False=adjacent tracks,  True=trackbed edges and platform edges.
+    spare_bool1: boolean;
 
-  draw_ms_trackbed_edge_keep: boolean;
-  draw_ts_trackbed_edge_keep: boolean;
+    OUT_OF_USE_trackbed_width_ins_keep: double;
+    // 180 inches full-size 15ft.  // not used 215a  TS and MS separated, see below
 
-  spare_bool1: boolean;
+    draw_ts_platform_keep: boolean;
+    draw_ts_platform_start_edge_keep: boolean;
+    draw_ts_platform_end_edge_keep: boolean;
+    draw_ts_platform_rear_edge_keep: boolean;
 
-  OUT_OF_USE_trackbed_width_ins_keep: double;
-  // 180 inches full-size 15ft.  // not used 215a  TS and MS separated, see below
+    platform_ts_front_edge_ins_keep: double;
+    // centre-line to platform front edge 57 inches   4ft-9in  215a
+    platform_ts_start_width_ins_keep: double;
+    platform_ts_end_width_ins_keep: double;
 
-  draw_ts_platform_keep: boolean;
-  draw_ts_platform_start_edge_keep: boolean;
-  draw_ts_platform_end_edge_keep: boolean;
-  draw_ts_platform_rear_edge_keep: boolean;
+    platform_ts_start_mm_keep: double;
+    platform_ts_length_mm_keep: double;
 
-  platform_ts_front_edge_ins_keep: double;
-  // centre-line to platform front edge 57 inches   4ft-9in  215a
-  platform_ts_start_width_ins_keep: double;
-  platform_ts_end_width_ins_keep: double;
 
-  platform_ts_start_mm_keep: double;
-  platform_ts_length_mm_keep: double;
+    draw_ms_platform_keep: boolean;
+    draw_ms_platform_start_edge_keep: boolean;
+    draw_ms_platform_end_edge_keep: boolean;
+    draw_ms_platform_rear_edge_keep: boolean;
 
+    platform_ms_front_edge_ins_keep: double;
+    // centre-line to platform front edge 57 inches   4ft-9in  215a
+    platform_ms_start_width_ins_keep: double;
+    platform_ms_end_width_ins_keep: double;
 
-  draw_ms_platform_keep: boolean;
-  draw_ms_platform_start_edge_keep: boolean;
-  draw_ms_platform_end_edge_keep: boolean;
-  draw_ms_platform_rear_edge_keep: boolean;
+    platform_ms_start_mm_keep: double;
+    platform_ms_length_mm_keep: double;
 
-  platform_ms_front_edge_ins_keep: double;
-  // centre-line to platform front edge 57 inches   4ft-9in  215a
-  platform_ms_start_width_ins_keep: double;
-  platform_ms_end_width_ins_keep: double;
+    OUT_OF_USE_cess_width_ins_keep: double;
+    // 206a     // not used 215a  TS and MS separated, see below
+    OUT_OF_USE_draw_trackbed_cess_edge_keep: boolean;
+    // 206a     // not used 215a  TS and MS separated, see below
 
-  platform_ms_start_mm_keep: double;
-  platform_ms_length_mm_keep: double;
+    // platform skews added 207a...
 
-  OUT_OF_USE_cess_width_ins_keep: double;
-  // 206a     // not used 215a  TS and MS separated, see below
-  OUT_OF_USE_draw_trackbed_cess_edge_keep: boolean;
-  // 206a     // not used 215a  TS and MS separated, see below
+    platform_ms_start_skew_mm_keep: double;      // 207a
+    platform_ms_end_skew_mm_keep: double;        // 207a
 
-  // platform skews added 207a...
+    platform_ts_start_skew_mm_keep: double;      // 207a
+    platform_ts_end_skew_mm_keep: double;        // 207a
 
-  platform_ms_start_skew_mm_keep: double;      // 207a
-  platform_ms_end_skew_mm_keep: double;        // 207a
 
-  platform_ts_start_skew_mm_keep: double;      // 207a
-  platform_ts_end_skew_mm_keep: double;        // 207a
+    spare_bool2: boolean;
+    spare_bool3: boolean;
+    spare_bool4: boolean;
+    spare_bool5: boolean;
+    spare_bool6: boolean;
+    spare_bool7: boolean;
+    spare_bool8: boolean;
 
 
-  spare_bool2: boolean;
-  spare_bool3: boolean;
-  spare_bool4: boolean;
-  spare_bool5: boolean;
-  spare_bool6: boolean;
-  spare_bool7: boolean;
-  spare_bool8: boolean;
+    // new trackbed edge functions 215a ...   split MS and TS settings  -  using Single floats to fit available file space ...
 
+    trackbed_ms_width_ins_keep: Single;
+    trackbed_ts_width_ins_keep: Single;
 
-  // new trackbed edge functions 215a ...   split MS and TS settings  -  using Single floats to fit available file space ...
+    cess_ms_width_ins_keep: Single;
+    cess_ts_width_ins_keep: Single;
 
-  trackbed_ms_width_ins_keep: Single;
-  trackbed_ts_width_ins_keep: Single;
+    draw_ms_trackbed_cess_edge_keep: boolean;
+    draw_ts_trackbed_cess_edge_keep: boolean;
 
-  cess_ms_width_ins_keep: Single;
-  cess_ts_width_ins_keep: Single;
+    spare1: boolean;
+    spare2: boolean;
+    // 215a spare_extended1:double; spare_extended2:double;
 
-  draw_ms_trackbed_cess_edge_keep: boolean;
-  draw_ts_trackbed_cess_edge_keep: boolean;
+    trackbed_ms_start_mm_keep: double;
+    // 215a spare_extended3:double;    // need to be extendeds for def_req
+    trackbed_ms_length_mm_keep: double;   // 215a spare_extended4:double;
 
-  spare1: boolean;
-  spare2: boolean;
-  // 215a spare_extended1:double; spare_extended2:double;
+    trackbed_ts_start_mm_keep: double;    // 215a spare_extended5:double;
+    trackbed_ts_length_mm_keep: double;   // 215a spare_extended6:double;
 
-  trackbed_ms_start_mm_keep: double;
-  // 215a spare_extended3:double;    // need to be extendeds for def_req
-  trackbed_ms_length_mm_keep: double;   // 215a spare_extended4:double;
+  end;
 
-  trackbed_ts_start_mm_keep: double;    // 215a spare_extended5:double;
-  trackbed_ts_length_mm_keep: double;   // 215a spare_extended6:double;
 
-end;
+  Talignment_info = record              //  curving and transition info...
 
+    curving_flag: boolean;
+    // !!! no longer used 0.77.a !!! True=curved, False=straight.
+    // but needed for check on loading older files.
+    // - all templates now curved (straight=max_rad).
 
-Talignment_info = record              //  curving and transition info...
+    trans_flag: boolean;    // True=transition, False=fixed radius curving.
 
-  curving_flag: boolean;
-  // !!! no longer used 0.77.a !!! True=curved, False=straight.
-  // but needed for check on loading older files.
-  // - all templates now curved (straight=max_rad).
+    fixed_rad: double;   // fixed radius mm.
+    trans_rad1: double;   // first transition radius mm.
+    trans_rad2: double;   // second transition radius mm.
+    trans_length: double;   // length of transition mm.
+    trans_start: double;   // start of transition mm.
+    rad_offset: double;   // curving line offset mm. no longer used
 
-  trans_flag: boolean;    // True=transition, False=fixed radius curving.
+    alignment_byte_1: byte;   // D5 0.81 12-06-05
+    alignment_byte_2: byte;   // D5 0.81 12-06-05
 
-  fixed_rad: double;   // fixed radius mm.
-  trans_rad1: double;   // first transition radius mm.
-  trans_rad2: double;   // second transition radius mm.
-  trans_length: double;   // length of transition mm.
-  trans_start: double;   // start of transition mm.
-  rad_offset: double;   // curving line offset mm. no longer used
+    tanh_kmax: double;          {spare_int1:integer;}   // factor for mode 2 slews.
+    {spare_int2:integer;}
+    // !!! double used because only 8 bytes available in existing file format (2 integers).
 
-  alignment_byte_1: byte;   // D5 0.81 12-06-05
-  alignment_byte_2: byte;   // D5 0.81 12-06-05
+    slewing_flag: boolean;   {spare_flag1:boolean;}  // slewing flag.
+    cl_only_flag: boolean;
+    {spare_flag2:boolean;}// draw track centre-line only for bgnd
 
-  tanh_kmax: double;          {spare_int1:integer;}   // factor for mode 2 slews.
-  {spare_int2:integer;}
-  // !!! double used because only 8 bytes available in existing file format (2 integers).
+    slew_type: byte;            {spare_flag3:boolean;}
+    // !!! byte used because only 1 byte available in existing file format 1-11-99.
 
-  slewing_flag: boolean;   {spare_flag1:boolean;}  // slewing flag.
-  cl_only_flag: boolean;
-  {spare_flag2:boolean;}// draw track centre-line only for bgnd
+    dummy_template_flag: boolean;  // 212a       //spare_flag4:boolean;
 
-  slew_type: byte;            {spare_flag3:boolean;}
-  // !!! byte used because only 1 byte available in existing file format 1-11-99.
+    slew_start: double;  {spare_float1:double;}  // slewing zone start mm.
+    slew_length: double;  {spare_float2:double;}  // slewing zone length mm.
+    slew_amount: double;  {spare_float3:double;}  // amount of slew mm.
 
-  dummy_template_flag: boolean;  // 212a       //spare_flag4:boolean;
 
-  slew_start: double;  {spare_float1:double;}  // slewing zone start mm.
-  slew_length: double;  {spare_float2:double;}  // slewing zone length mm.
-  slew_amount: double;  {spare_float3:double;}  // amount of slew mm.
+    cl_options_code_int: integer;            // 206a
+    cl_options_custom_offset_ext: double;  // 206a
 
+    // 216a ...
 
-  cl_options_code_int: integer;            // 206a
-  cl_options_custom_offset_ext: double;  // 206a
+    reminder_flag: boolean;
+    reminder_colour: integer;
 
-  // 216a ...
+    reminder_str: string[200];
 
-  reminder_flag: boolean;
-  reminder_colour: integer;
 
-  reminder_str: string[200];
+    spare_float1: double;
+    spare_float2: double;
+    spare_float3: double;
 
+    spare_int: integer;
 
-  spare_float1: double;
-  spare_float2: double;
-  spare_float3: double;
+  end;//record
 
-  spare_int: integer;
 
-end;//record
+  Trail_info = record     // rail switch settings.  23-5-01.
 
+    // !!! 17-1-00 - exhaustive testing done to get file match with previous version.
+    // !!! with both same file size and correct reading of bgnd_flag.
+    // !!! Due to Delphi2 aligning boundaries. Don't change anything!!! ...
 
+    flared_ends_ri: integer;  // 0=straight bent, 1=straight machined
 
+    // spares..
 
-Trail_info = record     // rail switch settings.  23-5-01.
+    spare_int1: integer;
 
-  // !!! 17-1-00 - exhaustive testing done to get file match with previous version.
-  // !!! with both same file size and correct reading of bgnd_flag.
-  // !!! Due to Delphi2 aligning boundaries. Don't change anything!!! ...
+    knuckle_code_ri: integer;
+    // 214a spare_int2:integer;     0=normal, -1=sharp, 1=use custom knuckle_radius_ri
+    knuckle_radius_ri: double;
+    // 214a spare_float1:double;  custom setting - inches full-size
 
-  flared_ends_ri: integer;  // 0=straight bent, 1=straight machined
+    spare_float2: double;
 
-  // spares..
+    spare_bool1: boolean;
+    spare_bool2: boolean;
 
-  spare_int1: integer;
+    isolated_crossing_sw: boolean;            //  217a   spare_bool3:boolean;
 
-  knuckle_code_ri: integer;
-  // 214a spare_int2:integer;     0=normal, -1=sharp, 1=use custom knuckle_radius_ri
-  knuckle_radius_ri: double;
-  // 214a spare_float1:double;  custom setting - inches full-size
+    // rail switches ..
 
-  spare_float2: double;
+    k_diagonal_side_check_rail_sw: boolean;    // added 0.93.a
+    k_main_side_check_rail_sw: boolean;        // added 0.93.a
 
-  spare_bool1: boolean;
-  spare_bool2: boolean;
+    switch_drive_sw: boolean;   // 0.82.a  13-10-06
 
-  isolated_crossing_sw: boolean;            //  217a   spare_bool3:boolean;
+    // rail switches...
 
-  // rail switches ..
+    track_centre_lines_sw: boolean;
+    turnout_road_stock_rail_sw: boolean;
+    turnout_road_check_rail_sw: boolean;
+    turnout_road_crossing_rail_sw: boolean;
+    crossing_vee_sw: boolean;
+    main_road_crossing_rail_sw: boolean;
+    main_road_check_rail_sw: boolean;
+    main_road_stock_rail_sw: boolean;
 
-  k_diagonal_side_check_rail_sw: boolean;    // added 0.93.a
-  k_main_side_check_rail_sw: boolean;        // added 0.93.a
+    alignment_byte_1: byte;   // D5 0.81 12-06-05
+    alignment_byte_2: byte;   // D5 0.81 12-06-05
 
-  switch_drive_sw: boolean;   // 0.82.a  13-10-06
 
-  // rail switches...
+  end;
 
-  track_centre_lines_sw: boolean;
-  turnout_road_stock_rail_sw: boolean;
-  turnout_road_check_rail_sw: boolean;
-  turnout_road_crossing_rail_sw: boolean;
-  crossing_vee_sw: boolean;
-  main_road_crossing_rail_sw: boolean;
-  main_road_check_rail_sw: boolean;
-  main_road_stock_rail_sw: boolean;
 
-  alignment_byte_1: byte;   // D5 0.81 12-06-05
-  alignment_byte_2: byte;   // D5 0.81 12-06-05
+  // plain-track record includes user-defined peg data...
 
+  Tplain_track_info = record
 
-end;
+    pt_custom: boolean;        // custom plain track flag.
 
+    alignment_byte_1: byte;   // D5 0.81 12-06-05
+    alignment_byte_2: byte;   // D5 0.81 12-06-05
+    alignment_byte_3: byte;   // D5 0.81 12-06-05
 
+    list_index: integer;
+    rail_length: double;         // rail length in inches.
 
+    alignment_byte_4: byte;   // D5 0.81 12-06-05
+    alignment_byte_5: byte;   // D5 0.81 12-06-05
 
-// plain-track record includes user-defined peg data...
+    sleepers_per_length: integer;                     // number of sleepers per length.
+    sleeper_centres: array[0..psleep_c] of double;  // spacings in inches for custom.
 
-Tplain_track_info = record
+    rail_joints_code: integer;   // 0=normal, 1=staggered, -1=none (cwr).
 
-  pt_custom: boolean;        // custom plain track flag.
+    user_peg_rail: integer;   // was pt_spare_int2:integer; 13-3-01.
 
-  alignment_byte_1: byte;   // D5 0.81 12-06-05
-  alignment_byte_2: byte;   // D5 0.81 12-06-05
-  alignment_byte_3: byte;   // D5 0.81 12-06-05
+    pt_spare_flag1: boolean;
+    pt_spare_flag2: boolean;
+    pt_spare_flag3: boolean;
 
-  list_index: integer;
-  rail_length: double;         // rail length in inches.
+    user_peg_data_valid: boolean;    // was pt_spare_flag4:boolean;  13-3-01
 
-  alignment_byte_4: byte;   // D5 0.81 12-06-05
-  alignment_byte_5: byte;   // D5 0.81 12-06-05
+    user_pegx: double;          // was pt_spare_float1:double;  13-3-01
+    user_pegy: double;          // was pt_spare_float2:double;  13-3-01
+    user_pegk: double;          // was pt_spare_float3:double;  13-3-01
 
-  sleepers_per_length: integer;                     // number of sleepers per length.
-  sleeper_centres: array[0..psleep_c] of double;  // spacings in inches for custom.
+    pt_spacing_name_str: string[200];     // was spare_str:string[250];   17-1-01.
 
-  rail_joints_code: integer;   // 0=normal, 1=staggered, -1=none (cwr).
+    alignment_byte_6: byte;   // D5 0.81 12-06-05
 
-  user_peg_rail: integer;   // was pt_spare_int2:integer; 13-3-01.
+    pt_tb_rolling_percent: double;      // 0.76.a  17-5-02.
 
-  pt_spare_flag1: boolean;
-  pt_spare_flag2: boolean;
-  pt_spare_flag3: boolean;
+    gaunt_sleeper_mod_inches: double;       // 0.93.a ex 0.81 pt_spare_ext4:double;
 
-  user_peg_data_valid: boolean;    // was pt_spare_flag4:boolean;  13-3-01
+    pt_spare_ext3: double;
+    pt_spare_ext2: double;
+    pt_spare_ext1: double;
 
-  user_pegx: double;          // was pt_spare_float1:double;  13-3-01
-  user_pegy: double;          // was pt_spare_float2:double;  13-3-01
-  user_pegk: double;          // was pt_spare_float3:double;  13-3-01
+    alignment_byte_7: byte;   // D5 0.81 12-06-05
+    alignment_byte_8: byte;   // D5 0.81 12-06-05
 
-  pt_spacing_name_str: string[200];     // was spare_str:string[250];   17-1-01.
+  end;//record
 
-  alignment_byte_6: byte;   // D5 0.81 12-06-05
+  //________________________________________________
 
-  pt_tb_rolling_percent: double;      // 0.76.a  17-5-02.
+  //  these record types apply to turnouts only...
 
-  gaunt_sleeper_mod_inches: double;       // 0.93.a ex 0.81 pt_spare_ext4:double;
+  Tswitch_info = record      // switch stuff...
 
-  pt_spare_ext3: double;
-  pt_spare_ext2: double;
-  pt_spare_ext1: double;
+    old_size: integer;       // old index into list of switches (pre 0.77.a).
+    sw_name_str: string[100];   // name of switch.
 
-  alignment_byte_7: byte;   // D5 0.81 12-06-05
-  alignment_byte_8: byte;   // D5 0.81 12-06-05
+    alignment_byte_1: byte;   // D5 0.81 12-06-05
+    alignment_byte_2: byte;   // D5 0.81 12-06-05
+    alignment_byte_3: byte;   // D5 0.81 12-06-05
 
-end;//record
+    sw_pattern: integer;    // type of switch.
+    planing: double;   // (B) planing length (inches).
+    planing_angle: double;   // unit planing angle.
+    switch_radius_inchormax: double;
+    // switch radius (inches!) (or max_rad (in mm) for straight switch).
+    switch_rail: double;   // (C) length of switch rail (inches).
+    stock_rail: double;   // (S) length of stock rail (inches).
+    heel_lead_inches: double;   // (L) lead to heel (incl. planing) (inches).
+    heel_offset_inches: double;   // (H) heel-offset (inches).
+    switch_front_inches: double;   // stock-rail-end to toe (inches).
+    planing_radius: double;   // planing radius for double-curved switch.
+    sleeper_j1: double;
+    // first switch-front sleeper spacing back from TOE (NEGATIVE inches).
+    sleeper_j2: double;
+    // second switch-front sleeper spacing back from the first (NEGATIVE inches).
 
-//________________________________________________
+    timber_centres: array[0..swtimbco_c] of double;
+    // list of timber centres (in inches).
 
-//  these record types apply to turnouts only...
+    group_code: integer;    //  which group of switches.        0.77.a  7-6-02.
+    size_code: integer;    //  size within group (1=shortest). 0.77.a  7-6-02.
 
-Tswitch_info = record      // switch stuff...
+    joggle_depth: double;   //  depth of joggle. 0.71.a 13-4-01.
+    joggle_length: double;   //  length of joggle in front of toe (+ve). 0.71.a 13-4-01.
 
-  old_size: integer;       // old index into list of switches (pre 0.77.a).
-  sw_name_str: string[100];   // name of switch.
+    group_count: integer;
+    // number of switches in this group (max size_code in this group, min size is always 1).
 
-  alignment_byte_1: byte;   // D5 0.81 12-06-05
-  alignment_byte_2: byte;   // D5 0.81 12-06-05
-  alignment_byte_3: byte;   // D5 0.81 12-06-05
+    joggled_stock_rail: boolean;    //  True = joggled stock rail.
 
-  sw_pattern: integer;    // type of switch.
-  planing: double;   // (B) planing length (inches).
-  planing_angle: double;   // unit planing angle.
-  switch_radius_inchormax: double;
-  // switch radius (inches!) (or max_rad (in mm) for straight switch).
-  switch_rail: double;   // (C) length of switch rail (inches).
-  stock_rail: double;   // (S) length of stock rail (inches).
-  heel_lead_inches: double;   // (L) lead to heel (incl. planing) (inches).
-  heel_offset_inches: double;   // (H) heel-offset (inches).
-  switch_front_inches: double;   // stock-rail-end to toe (inches).
-  planing_radius: double;   // planing radius for double-curved switch.
-  sleeper_j1: double;
-  // first switch-front sleeper spacing back from TOE (NEGATIVE inches).
-  sleeper_j2: double;
-  // second switch-front sleeper spacing back from the first (NEGATIVE inches).
+    alignment_byte_4: byte;   // D5 0.81 12-06-05
+    alignment_byte_5: byte;   // D5 0.81 12-06-05
+    alignment_byte_6: byte;   // D5 0.81 12-06-05
 
-  timber_centres: array[0..swtimbco_c] of double;
-  // list of timber centres (in inches).
+    spare_int2: integer;
+    spare_int1: integer;
 
-  group_code: integer;    //  which group of switches.        0.77.a  7-6-02.
-  size_code: integer;    //  size within group (1=shortest). 0.77.a  7-6-02.
+    valid_data: boolean;    // True = valid data here. 0.77.a 9-6-02...
+    front_timbered: boolean;    // True = switch front sleepers are timber width.
 
-  joggle_depth: double;   //  depth of joggle. 0.71.a 13-4-01.
-  joggle_length: double;   //  length of joggle in front of toe (+ve). 0.71.a 13-4-01.
+    num_bridge_chairs_main_rail: byte;
+    // not used in experimental chairing   // 214a              spare_byte
+    num_bridge_chairs_turnout_rail: byte;
+    // not used in experimental chairing   // 214a              spare_byte
 
-  group_count: integer;
-  // number of switches in this group (max size_code in this group, min size is always 1).
+    fb_tip_offset: double;
+    // 0.76.a  2-1-02. fbtip dimension (FB foot from gauge-face at tip).
 
-  joggled_stock_rail: boolean;    //  True = joggled stock rail.
+    sleeper_j3: double;
+    //  third switch-front sleeper spacing back from the second (NEGATIVE inches).
+    sleeper_j4: double;
+    //  fourth switch-front sleeper spacing back from the third (NEGATIVE inches).
+    sleeper_j5: double;
+    //  fifth switch-front sleeper spacing back from the fourth (NEGATIVE inches).
 
-  alignment_byte_4: byte;   // D5 0.81 12-06-05
-  alignment_byte_5: byte;   // D5 0.81 12-06-05
-  alignment_byte_6: byte;   // D5 0.81 12-06-05
+    spare_float4: double;
+    spare_float3: double;
+    spare_float2: double;
+    spare_float1: double;
 
-  spare_int2: integer;
-  spare_int1: integer;
+    spare_str: string[200];
 
-  valid_data: boolean;    // True = valid data here. 0.77.a 9-6-02...
-  front_timbered: boolean;    // True = switch front sleepers are timber width.
+    num_slide_chairs: byte;           // 214a alignment_byte_7:byte;   // D5 0.81 12-06-05
+    num_block_slide_chairs: byte;     // 214a alignment_byte_8:byte;   // D5 0.81 12-06-05
+    num_block_heel_chairs: byte;      // 214a alignment_byte_9:byte;   // D5 0.81 12-06-05
 
-  num_bridge_chairs_main_rail: byte;
-  // not used in experimental chairing   // 214a              spare_byte
-  num_bridge_chairs_turnout_rail: byte;
-  // not used in experimental chairing   // 214a              spare_byte
+  end;//record
 
-  fb_tip_offset: double;
-  // 0.76.a  2-1-02. fbtip dimension (FB foot from gauge-face at tip).
+  Tcheck_flare_info_081 = record
+    // not used 0.93.a
 
-  sleeper_j3: double;
-  //  third switch-front sleeper spacing back from the second (NEGATIVE inches).
-  sleeper_j4: double;
-  //  fourth switch-front sleeper spacing back from the third (NEGATIVE inches).
-  sleeper_j5: double;
-  //  fifth switch-front sleeper spacing back from the fourth (NEGATIVE inches).
+    // 0.81 new flare lengths.  04-08-03.
 
-  spare_float4: double;
-  spare_float3: double;
-  spare_float2: double;
-  spare_float1: double;
+    check_flare_ext_ms: double;
+    // flare length (inches), MS check rail extension end.
+    check_flare_ext_ts: double;
+    // flare length (inches), TS check rail extension end.
+    check_flare_work_ms: double;
+    // flare length (inches), MS check rail working end.
+    check_flare_work_ts: double;
+    // flare length (inches), TS check rail working end.
+    wing_flare_ms: double;           // flare length (inches), MS wing rail.
+    wing_flare_ts: double;           // flare length (inches), TS wing rail.
+    check_flare_k_ms: double;        // flare length (inches), MS K-crossing check rail.
+    check_flare_k_ds: double;        // flare length (inches), DS K-crossing check rail.
 
-  spare_str: string[200];
+    // 0.81 new flare offsets (flangeway end gap).  04-08-03.
 
-  num_slide_chairs: byte;           // 214a alignment_byte_7:byte;   // D5 0.81 12-06-05
-  num_block_slide_chairs: byte;     // 214a alignment_byte_8:byte;   // D5 0.81 12-06-05
-  num_block_heel_chairs: byte;      // 214a alignment_byte_9:byte;   // D5 0.81 12-06-05
+    check_fwe_ext_ms: double;
+    // flangeway end gap (mm), MS check rail extension end.
+    check_fwe_ext_ts: double;
+    // flangeway end gap (mm), TS check rail extension end.
+    check_fwe_work_ms: double;     // flangeway end gap (mm), MS check rail working end.
+    check_fwe_work_ts: double;     // flangeway end gap (mm), TS check rail working end.
+    wing_fwe_ms: double;           // flangeway end gap (mm), MS wing rail.
+    wing_fwe_ts: double;           // flangeway end gap (mm), TS wing rail.
+    check_fwe_k_ms: double;        // flangeway end gap (mm), MS K-crossing check rail.
+    check_fwe_k_ds: double;        // flangeway end gap (mm), DS K-crossing check rail.
 
-end;//record
+  end;//record
 
-Tcheck_flare_info_081 = record
-  // not used 0.93.a
+  Tcrossing_info = record        // crossing stuff...
 
-  // 0.81 new flare lengths.  04-08-03.
+    pattern: integer;     // 0=straight, 1=curviform, 2=parallel, -1=generic.
 
-  check_flare_ext_ms: double;
-  // flare length (inches), MS check rail extension end.
-  check_flare_ext_ts: double;
-  // flare length (inches), TS check rail extension end.
-  check_flare_work_ms: double;
-  // flare length (inches), MS check rail working end.
-  check_flare_work_ts: double;
-  // flare length (inches), TS check rail working end.
-  wing_flare_ms: double;           // flare length (inches), MS wing rail.
-  wing_flare_ts: double;           // flare length (inches), TS wing rail.
-  check_flare_k_ms: double;        // flare length (inches), MS K-crossing check rail.
-  check_flare_k_ds: double;        // flare length (inches), DS K-crossing check rail.
+    sl_mode: integer;     // 0=auto_fit, 1=use fixed_sl.
+    retcent_mode: integer;
+    // 0=return centres as adjacent track, 1=use custom centres.
+    k3n_unit_angle: double;    // k3n angle in units.
+    fixed_st: double;    // length of knuckle straight. mm.
 
-  // 0.81 new flare offsets (flangeway end gap).  04-08-03.
+    spare_int3: integer;
 
-  check_fwe_ext_ms: double;
-  // flangeway end gap (mm), MS check rail extension end.
-  check_fwe_ext_ts: double;
-  // flangeway end gap (mm), TS check rail extension end.
-  check_fwe_work_ms: double;     // flangeway end gap (mm), MS check rail working end.
-  check_fwe_work_ts: double;     // flangeway end gap (mm), TS check rail working end.
-  wing_fwe_ms: double;           // flangeway end gap (mm), MS wing rail.
-  wing_fwe_ts: double;           // flangeway end gap (mm), TS wing rail.
-  check_fwe_k_ms: double;        // flangeway end gap (mm), MS K-crossing check rail.
-  check_fwe_k_ds: double;        // flangeway end gap (mm), DS K-crossing check rail.
+    hd_timbers_code: integer;     // extended half-diamond timbers for slip road.
+    hd_vchecks_code: integer;
+    // shortening code for half-diamond v-crossing check rails.
 
-end;//record
+    k_check_length_1: double;    // length of size 1 k-crossing check rail (inches).
+    k_check_length_2: double;    // length of size 2 k-crossing check rail (inches).
+    k_check_mod_ms: double;    // main side modifer.
+    k_check_mod_ds: double;    // diamond side modifer.
+    k_check_flare: double;    // length of flare on k-crossing check rails.
 
-Tcrossing_info = record        // crossing stuff...
+    curviform_timbering_keep: boolean;
+    // 215a                           alignment_byte_1:byte;   // D5 0.81 12-06-05
 
-  pattern: integer;     // 0=straight, 1=curviform, 2=parallel, -1=generic.
+    alignment_byte_2: byte;   // D5 0.81 12-06-05
 
-  sl_mode: integer;     // 0=auto_fit, 1=use fixed_sl.
-  retcent_mode: integer;
-  // 0=return centres as adjacent track, 1=use custom centres.
-  k3n_unit_angle: double;    // k3n angle in units.
-  fixed_st: double;    // length of knuckle straight. mm.
+    main_road_code: integer;
+    //  length of main-side exit road.      //  217a  spare_int2:integer;
 
-  spare_int3: integer;
+    tandem_timber_code: integer;   //   218a      spare_int1:        integer;
 
-  hd_timbers_code: integer;     // extended half-diamond timbers for slip road.
-  hd_vchecks_code: integer;
-  // shortening code for half-diamond v-crossing check rails.
+    // 0.75.a  9-10-01...
 
-  k_check_length_1: double;    // length of size 1 k-crossing check rail (inches).
-  k_check_length_2: double;    // length of size 2 k-crossing check rail (inches).
-  k_check_mod_ms: double;    // main side modifer.
-  k_check_mod_ds: double;    // diamond side modifer.
-  k_check_flare: double;    // length of flare on k-crossing check rails.
+    blunt_nose_width: double;    // full-size inches.
+    blunt_nose_to_timb: double;    // full-size inches - to "A" timber centre.
 
-  curviform_timbering_keep: boolean;
-  // 215a                           alignment_byte_1:byte;   // D5 0.81 12-06-05
+    vee_joint_half_spacing: double;
+    // full-size inches - rail overlap at vee point rail joint.
+    wing_joint_spacing: double;
+    // full-size inches - timber spacing at wing rail joint.
 
-  alignment_byte_2: byte;   // D5 0.81 12-06-05
+    wing_timber_spacing: double;
+    // full-size inches - timber spacing for wing rail front part of crossing (up to "A").
+    vee_timber_spacing: double;
+    // full-size inches - timber spacing for vee point rail part of crossing (on from "A").
 
-  main_road_code: integer;
-  //  length of main-side exit road.      //  217a  spare_int2:integer;
+    // number of timbers spanned by vee rail incl. "A" timber.
 
-  tandem_timber_code: integer;   //   218a      spare_int1:        integer;
+    vee_joint_space_co1: byte;
+    vee_joint_space_co2: byte;
+    vee_joint_space_co3: byte;
+    vee_joint_space_co4: byte;
+    vee_joint_space_co5: byte;
+    vee_joint_space_co6: byte;
 
-  // 0.75.a  9-10-01...
+    // number of timbers spanned by wing rail front excl. "A" timber...
 
-  blunt_nose_width: double;    // full-size inches.
-  blunt_nose_to_timb: double;    // full-size inches - to "A" timber centre.
+    wing_joint_space_co1: byte;
+    wing_joint_space_co2: byte;
+    wing_joint_space_co3: byte;
+    wing_joint_space_co4: byte;
+    wing_joint_space_co5: byte;
+    wing_joint_space_co6: byte;
 
-  vee_joint_half_spacing: double;
-  // full-size inches - rail overlap at vee point rail joint.
-  wing_joint_spacing: double;
-  // full-size inches - timber spacing at wing rail joint.
+    spare_flag1: boolean;
+    spare_flag2: boolean;
 
-  wing_timber_spacing: double;
-  // full-size inches - timber spacing for wing rail front part of crossing (up to "A").
-  vee_timber_spacing: double;
-  // full-size inches - timber spacing for vee point rail part of crossing (on from "A").
+    main_road_endx_infile: double;  // 217a
 
-  // number of timbers spanned by vee rail incl. "A" timber.
+    hdkn_unit_angle: double;    // half-diamond hdkn angle in units.
 
-  vee_joint_space_co1: byte;
-  vee_joint_space_co2: byte;
-  vee_joint_space_co3: byte;
-  vee_joint_space_co4: byte;
-  vee_joint_space_co5: byte;
-  vee_joint_space_co6: byte;
+    check_flare_info_081: Tcheck_flare_info_081;   // not used 0.93.a
 
-  // number of timbers spanned by wing rail front excl. "A" timber...
+    k_custom_wing_long_keep: double;   // 0.95.a inches full-size k-crossing wing rails
+    k_custom_point_long_keep: double;
+    // 0.95.a inches full-size k-crossing point rails   NYI
 
-  wing_joint_space_co1: byte;
-  wing_joint_space_co2: byte;
-  wing_joint_space_co3: byte;
-  wing_joint_space_co4: byte;
-  wing_joint_space_co5: byte;
-  wing_joint_space_co6: byte;
+    use_k_custom_wing_rails_keep: boolean;   // 0.95.a
+    use_k_custom_point_rails_keep: boolean;  // 0.95.a  NYI
 
-  spare_flag1: boolean;
-  spare_flag2: boolean;
+    spare_str: string[10];    // 0.95.a was 30
 
-  main_road_endx_infile: double;  // 217a
+    alignment_byte_3: byte;   // D5 0.81 12-06-05
 
-  hdkn_unit_angle: double;    // half-diamond hdkn angle in units.
+  end;//record
 
-  check_flare_info_081: Tcheck_flare_info_081;   // not used 0.93.a
+  Tturnout_info1 = record          // data for the turnout size...
 
-  k_custom_wing_long_keep: double;   // 0.95.a inches full-size k-crossing wing rails
-  k_custom_point_long_keep: double;
-  // 0.95.a inches full-size k-crossing point rails   NYI
+    plain_track_flag: boolean;      //  True=plain track only.
 
-  use_k_custom_wing_rails_keep: boolean;   // 0.95.a
-  use_k_custom_point_rails_keep: boolean;  // 0.95.a  NYI
+    rolled_in_sleepered_flag: boolean;
+    // 223a  alignment_byte_1:byte;   // D5 0.81 12-06-05
 
-  spare_str: string[10];    // 0.95.a was 30
+    front_timbers_flag: boolean;
+    //  218a    alignment_byte_2:byte;   // D5 0.81 12-06-05
 
-  alignment_byte_3: byte;   // D5 0.81 12-06-05
+    approach_rails_only_flag: boolean;
+    //  218a    alignment_byte_3:byte;   // D5 0.81 12-06-05
 
-end;//record
+    hand: integer;      //  hand of turnout.
+    timbering_flag: boolean;      //  True = equalized timbering.
 
-Tturnout_info1 = record          // data for the turnout size...
+    switch_timbers_flag: boolean;
+    //  218a    alignment_byte_4:byte;   // D5 0.81 12-06-05
+    closure_timbers_flag: boolean;
+    //  218a    alignment_byte_5:byte;   // D5 0.81 12-06-05
+    xing_timbers_flag: boolean;
+    //  218a    alignment_byte_6:byte;   // D5 0.81 12-06-05
 
-  plain_track_flag: boolean;      //  True=plain track only.
+    exit_timbering: integer;      //  exit timbering style.
+    turnout_road_code: integer;      //  length of turnout exit road.
 
-  rolled_in_sleepered_flag: boolean;
-  // 223a  alignment_byte_1:byte;   // D5 0.81 12-06-05
+    turnout_length: double;     //  turnoutx.
+    origin_to_toe: double;     //  xorg.
+    step_size: double;
+    //  incx. (use saved step-size on reloading - not default).
 
-  front_timbers_flag: boolean;
-  //  218a    alignment_byte_2:byte;   // D5 0.81 12-06-05
+    turnout_road_is_adjustable: boolean;
+    // 211a    alignment_byte_7:byte;   // D5 0.81 12-06-05
 
-  approach_rails_only_flag: boolean;
-  //  218a    alignment_byte_3:byte;   // D5 0.81 12-06-05
+    turnout_road_is_minimum: boolean;
+    // 217a    alignment_byte_8:byte;   // D5 0.81 12-06-05
 
-  hand: integer;      //  hand of turnout.
-  timbering_flag: boolean;      //  True = equalized timbering.
+  end;//tturnout_info1 record
 
-  switch_timbers_flag: boolean;
-  //  218a    alignment_byte_4:byte;   // D5 0.81 12-06-05
-  closure_timbers_flag: boolean;
-  //  218a    alignment_byte_5:byte;   // D5 0.81 12-06-05
-  xing_timbers_flag: boolean;
-  //  218a    alignment_byte_6:byte;   // D5 0.81 12-06-05
+  Thdk_check_rail_info = record         // K-crossing check and wing rail lengths. 0.79.a
 
-  exit_timbering: integer;      //  exit timbering style.
-  turnout_road_code: integer;      //  length of turnout exit road.
+    k_check_ms_1: double;
+    // full-size inches - size 1 MS k-crossing check rail length.
+    k_check_ms_2: double;
+    // full-size inches - size 2 MS k-crossing check rail length.
 
-  turnout_length: double;     //  turnoutx.
-  origin_to_toe: double;     //  xorg.
-  step_size: double;
-  //  incx. (use saved step-size on reloading - not default).
+    k_check_ds_1: double;
+    // full-size inches - size 1 DS k-crossing check rail length.
+    k_check_ds_2: double;
+    // full-size inches - size 2 DS k-crossing check rail length.
+  end;
 
-  turnout_road_is_adjustable: boolean;
-  // 211a    alignment_byte_7:byte;   // D5 0.81 12-06-05
+  Tvee_check_rail_info = record         // V-crossing check and wing rail lengths. 0.79.a
 
-  turnout_road_is_minimum: boolean;
-  // 217a    alignment_byte_8:byte;   // D5 0.81 12-06-05
+    v_check_ms_working1: double;
+    // full-size inches - size 1 MS check rail working length (back from "A").
+    v_check_ms_working2: double;
+    // full-size inches - size 2 MS check rail working length (back from "A").
+    v_check_ms_working3: double;
+    // full-size inches - size 3 MS check rail working length (back from "A").
 
-end;//tturnout_info1 record
+    v_check_ts_working1: double;
+    // full-size inches - size 1 TS check rail working length (back from "A").
+    v_check_ts_working2: double;
+    // full-size inches - size 2 TS check rail working length (back from "A").
+    v_check_ts_working3: double;
+    // full-size inches - size 3 TS check rail working length (back from "A").
 
-Thdk_check_rail_info = record         // K-crossing check and wing rail lengths. 0.79.a
+    v_check_ms_ext1: double;
+    // full-size inches - size 1 MS check rail extension length (forward from "A").
+    v_check_ms_ext2: double;
+    // full-size inches - size 2 MS check rail extension length (forward from "A").
 
-  k_check_ms_1: double;
-  // full-size inches - size 1 MS k-crossing check rail length.
-  k_check_ms_2: double;
-  // full-size inches - size 2 MS k-crossing check rail length.
+    v_check_ts_ext1: double;
+    // full-size inches - size 1 TS check rail extension length (forward from "A").
+    v_check_ts_ext2: double;
+    // full-size inches - size 2 TS check rail extension length (forward from "A").
 
-  k_check_ds_1: double;
-  // full-size inches - size 1 DS k-crossing check rail length.
-  k_check_ds_2: double;
-  // full-size inches - size 2 DS k-crossing check rail length.
-end;
+    v_wing_ms_reach1: double;
+    // full-size inches - size 1 MS wing rail reach length (forward from "A").
+    v_wing_ms_reach2: double;
+    // full-size inches - size 2 MS wing rail reach length (forward from "A").
 
-Tvee_check_rail_info = record         // V-crossing check and wing rail lengths. 0.79.a
+    v_wing_ts_reach1: double;
+    // full-size inches - size 1 TS wing rail reach length (forward from "A").
+    v_wing_ts_reach2: double;
+    // full-size inches - size 2 TS wing rail reach length (forward from "A").
+  end;
 
-  v_check_ms_working1: double;
-  // full-size inches - size 1 MS check rail working length (back from "A").
-  v_check_ms_working2: double;
-  // full-size inches - size 2 MS check rail working length (back from "A").
-  v_check_ms_working3: double;
-  // full-size inches - size 3 MS check rail working length (back from "A").
+  Tcheck_end_diff = record    // 0.94.a
+    len_diff: double;   // length differ  inches f-s
+    flr_diff: double;   // flare length   inches f-s
+    gap_diff: double;   // end gap        model mm
 
-  v_check_ts_working1: double;
-  // full-size inches - size 1 TS check rail working length (back from "A").
-  v_check_ts_working2: double;
-  // full-size inches - size 2 TS check rail working length (back from "A").
-  v_check_ts_working3: double;
-  // full-size inches - size 3 TS check rail working length (back from "A").
+    type_diff: byte;
+    // 0=no diff   1=change to bent flare    2=change to machined flare   3= change to no flare
+  end;
 
-  v_check_ms_ext1: double;
-  // full-size inches - size 1 MS check rail extension length (forward from "A").
-  v_check_ms_ext2: double;
-  // full-size inches - size 2 MS check rail extension length (forward from "A").
+  Tcheck_diffs = record    // 0.94.a
+    end_diff_mw: Tcheck_end_diff;
+    end_diff_me: Tcheck_end_diff;
+    end_diff_mr: Tcheck_end_diff;
+    end_diff_tw: Tcheck_end_diff;
+    end_diff_te: Tcheck_end_diff;
+    end_diff_tr: Tcheck_end_diff;
+    end_diff_mk: Tcheck_end_diff;
+    end_diff_dk: Tcheck_end_diff;
+  end;
 
-  v_check_ts_ext1: double;
-  // full-size inches - size 1 TS check rail extension length (forward from "A").
-  v_check_ts_ext2: double;
-  // full-size inches - size 2 TS check rail extension length (forward from "A").
 
-  v_wing_ms_reach1: double;
-  // full-size inches - size 1 MS wing rail reach length (forward from "A").
-  v_wing_ms_reach2: double;
-  // full-size inches - size 2 MS wing rail reach length (forward from "A").
+  // but is not used in the program.
+  Tturnout_info2 = record
+    switch_info: Tswitch_info;      //  all the switch dimensions.
+    crossing_info: Tcrossing_info;    //  all the crossing dimensions.
+    plain_track_info: Tplain_track_info;
+    //  need the plain track info for approach and exit tracks.
 
-  v_wing_ts_reach1: double;
-  // full-size inches - size 1 TS wing rail reach length (forward from "A").
-  v_wing_ts_reach2: double;
-  // full-size inches - size 2 TS wing rail reach length (forward from "A").
-end;
+    diamond_auto_code: integer;
+    // 0.77.a 0=auto, 1=fixed diamond, 2=switch diamond.
 
-Tcheck_end_diff = record    // 0.94.a
-  len_diff: double;   // length differ  inches f-s
-  flr_diff: double;   // flare length   inches f-s
-  gap_diff: double;   // end gap        model mm
+    bonus_timber_count: integer;     // 0.76.a number of bonus timbers.
 
-  type_diff: byte;
-  // 0=no diff   1=change to bent flare    2=change to machined flare   3= change to no flare
-end;
+    equalizing_fixed_flag: boolean;
+    {spare_flag1:boolean;}// equalizing style 1-4-00
+    no_timbering_flag: boolean;
+    {spare_flag2:boolean;}// no timbering option 7-9-00
 
-Tcheck_diffs = record    // 0.94.a
-  end_diff_mw: Tcheck_end_diff;
-  end_diff_me: Tcheck_end_diff;
-  end_diff_mr: Tcheck_end_diff;
-  end_diff_tw: Tcheck_end_diff;
-  end_diff_te: Tcheck_end_diff;
-  end_diff_tr: Tcheck_end_diff;
-  end_diff_mk: Tcheck_end_diff;
-  end_diff_dk: Tcheck_end_diff;
-end;
+    angled_on_flag: boolean;
+    {spare_flag3:boolean;}// angled-on style 29-7-01.
 
+    chairing_flag: boolean;          // 214a    //spare_flag2:boolean;
 
+    start_draw_x: double;          {spare_float3:double;}   // startx.
 
-// but is not used in the program.
-Tturnout_info2 = record
-  switch_info: Tswitch_info;      //  all the switch dimensions.
-  crossing_info: Tcrossing_info;    //  all the crossing dimensions.
-  plain_track_info: Tplain_track_info;
-  //  need the plain track info for approach and exit tracks.
+    timber_length_inc: double;     // timbinc timber length step size.
 
-  diamond_auto_code: integer;
-  // 0.77.a 0=auto, 1=fixed diamond, 2=switch diamond.
+    //------
+    omit_switch_front_joints: boolean;  // 0.79.a spare_float1:double;...
+    omit_switch_rail_joints: boolean;
+    omit_stock_rail_joints: boolean;
+    omit_wing_rail_joints: boolean;
+    omit_vee_rail_joints: boolean;
+    omit_k_crossing_stock_rail_joints: boolean;
 
-  bonus_timber_count: integer;     // 0.76.a number of bonus timbers.
+    spare_flag14: boolean;
+    spare_flag13: boolean;
+    spare_flag12: boolean;
 
-  equalizing_fixed_flag: boolean;
-  {spare_flag1:boolean;}// equalizing style 1-4-00
-  no_timbering_flag: boolean;
-  {spare_flag2:boolean;}// no timbering option 7-9-00
+    diamond_switch_timbering_flag: boolean;  // 213a spare_flag11:boolean;
 
-  angled_on_flag: boolean;
-  {spare_flag3:boolean;}// angled-on style 29-7-01.
+    //------
 
-  chairing_flag: boolean;          // 214a    //spare_flag2:boolean;
 
-  start_draw_x: double;          {spare_float3:double;}   // startx.
+    gaunt_flag: boolean;    // True = gaunt template 0.81.a   //spare_flag10:boolean;
 
-  timber_length_inc: double;     // timbinc timber length step size.
+    diamond_proto_timbering_flag: boolean;    // 0.77.b
 
-  //------
-  omit_switch_front_joints: boolean;  // 0.79.a spare_float1:double;...
-  omit_switch_rail_joints: boolean;
-  omit_stock_rail_joints: boolean;
-  omit_wing_rail_joints: boolean;
-  omit_vee_rail_joints: boolean;
-  omit_k_crossing_stock_rail_joints: boolean;
+    semi_diamond_flag: boolean;      // True = half-diamond template.
+    diamond_fixed_flag: boolean;     // True = fixed-diamond.
 
-  spare_flag14: boolean;
-  spare_flag13: boolean;
-  spare_flag12: boolean;
 
-  diamond_switch_timbering_flag: boolean;  // 213a spare_flag11:boolean;
+    hdk_check_rail_info: Thdk_check_rail_info;
 
-  //------
+    vee_check_rail_info: Tvee_check_rail_info;
 
+    turnout_road_endx_infile: double;
+    // 209a length of turnout road from CTRL-1   //spare_float:double;
 
-  gaunt_flag: boolean;    // True = gaunt template 0.81.a   //spare_flag10:boolean;
+    // 208c added to aid debugging of box files in text editor (never read):
 
-  diamond_proto_timbering_flag: boolean;    // 0.77.b
+    template_type_str: string[6];
+    // 208c was spare_str[16]        208a was spare_str:string[56]
 
-  semi_diamond_flag: boolean;      // True = half-diamond template.
-  diamond_fixed_flag: boolean;     // True = fixed-diamond.
+    smallest_radius_stored: double;
+    // 208a needed for box data -- not loaded to the control
 
+    dpx_stored: double;
+    // 208a needed for ID number creation -- not loaded to the control
+    ipx_stored: double;
+    // 208a needed for ID number creation -- not loaded to the control
+    fpx_stored: double;
+    // 208a needed for ID number creation -- not loaded to the control
 
-  hdk_check_rail_info: Thdk_check_rail_info;
 
-  vee_check_rail_info: Tvee_check_rail_info;
+    gaunt_offset_inches: double;  // 0.81
 
-  turnout_road_endx_infile: double;
-  // 209a length of turnout road from CTRL-1   //spare_float:double;
+    // 219a  include connectors for XTrackCAD in export DXF file  -- not loaded to the control  ...
 
-  // 208c added to aid debugging of box files in text editor (never read):
+    dxf_connector_0: boolean;
+    // CTRL-0   // alignment_byte_1:byte;   // D5 0.81 12-06-05
+    dxf_connector_t: boolean;
+    // TEXITP   // alignment_byte_2:byte;   // D5 0.81 12-06-05
+    dxf_connector_9: boolean;
+    // CTRL-9   // alignment_byte_3:byte;   // D5 0.81 12-06-05
 
-  template_type_str: string[6];
-  // 208c was spare_str[16]        208a was spare_str:string[56]
+  end;//Tturnout_info2 record
 
-  smallest_radius_stored: double;
-  // 208a needed for box data -- not loaded to the control
 
-  dpx_stored: double;
-  // 208a needed for ID number creation -- not loaded to the control
-  ipx_stored: double;
-  // 208a needed for ID number creation -- not loaded to the control
-  fpx_stored: double;
-  // 208a needed for ID number creation -- not loaded to the control
+  //!!!  was Tkeep_data=record  , Tkeep_dims has the shove timber data omitted.  v:0.71.a  29-4-01.
 
+  Tbox_dims1 = record
 
-  gaunt_offset_inches: double;  // 0.81
+    box_ident: string[10];   // first 11 bytes. in BOX3,   (string[11], 12 bytes in BOX)
 
-  // 219a  include connectors for XTrackCAD in export DXF file  -- not loaded to the control  ...
+    id_byte: byte;          // set to 255  $FF in BOX3 files - not read.
 
-  dxf_connector_0: boolean;
-  // CTRL-0   // alignment_byte_1:byte;   // D5 0.81 12-06-05
-  dxf_connector_t: boolean;
-  // TEXITP   // alignment_byte_2:byte;   // D5 0.81 12-06-05
-  dxf_connector_9: boolean;
-  // CTRL-9   // alignment_byte_3:byte;   // D5 0.81 12-06-05
+    now_time: integer;
+    // date/time/random code at which template added to keep box. (from Delphi float format - fractional days since 1-1-1900).
+    // this is used to detect duplicates on loading.
 
-end;//Tturnout_info2 record
+    keep_date: string[20];   // ditto as conventional strings.
+    keep_time: string[20];
 
+    top_label: string[100];  // template info label.
+    project_for: string[50];
+    // his project title string for the boxful. (only read from the last template in the box).
 
+    reference_string: string[100];  // template name.
 
-//!!!  was Tkeep_data=record  , Tkeep_dims has the shove timber data omitted.  v:0.71.a  29-4-01.
+    this_was_control_template: boolean;
+    // 0.93.a // alignment_byte_2:byte;   // D5 0.81 12-06-05
 
-Tbox_dims1 = record
+    rail_info: Trail_info;  // 23-5-01.
 
-  box_ident: string[10];   // first 11 bytes. in BOX3,   (string[11], 12 bytes in BOX)
+    auto_restore_on_startup: boolean;
+    // these two only read from the first keep in the file..
+    ask_restore_on_startup: boolean;
 
-  id_byte: byte;          // set to 255  $FF in BOX3 files - not read.
+    //---------------------
 
-  now_time: integer;
-  // date/time/random code at which template added to keep box. (from Delphi float format - fractional days since 1-1-1900).
-  // this is used to detect duplicates on loading.
+    pre077_bgnd_flag: boolean;
+    // no longer used, 0.77.a 2-sep-02. When true, this keep is to be drawn on the background.
 
-  keep_date: string[20];   // ditto as conventional strings.
-  keep_time: string[20];
+    alignment_byte_3: byte;   // D5 0.81 12-06-05
 
-  top_label: string[100];  // template info label.
-  project_for: string[50];
-  // his project title string for the boxful. (only read from the last template in the box).
+    templot_version: integer;
+    // program version number (*100, e.g Templot0 v:1.3 = 130).
 
-  reference_string: string[100];  // template name.
+    file_format_code: integer;  // 0= D5 format,    1= OT format  //spare_int1
 
-  this_was_control_template: boolean;
-  // 0.93.a // alignment_byte_2:byte;   // D5 0.81 12-06-05
+    gauge_index: integer;      // current index into the gauge list.
 
-  rail_info: Trail_info;  // 23-5-01.
+    gauge_exact: Boolean;      // nyi  // If true this is an exact-scale template.
+    gauge_custom: Boolean;
+    // nyi  // If true this is (or was when saved) a custom gauge setting.
 
-  auto_restore_on_startup: boolean;
-  // these two only read from the first keep in the file..
-  ask_restore_on_startup: boolean;
+    proto_info: Tproto_info;
+    // !!! modified for 0.71.a 11-5-01. was Tgauge_info.
 
-  //---------------------
+    railtop_inches: double;
+    // full-size inches railtop width - was spare_float1:double;
+    railbottom_inches: double;
+    // full-size inches railbottom width - was spare_float2:double;
 
-  pre077_bgnd_flag: boolean;
-  // no longer used, 0.77.a 2-sep-02. When true, this keep is to be drawn on the background.
+    alignment_byte_4: byte;   // D5 0.81 12-06-05
+    alignment_byte_5: byte;   // D5 0.81 12-06-05
 
-  alignment_byte_3: byte;   // D5 0.81 12-06-05
+    version_as_loaded: integer;
+    // mod 0.78.d  14-Feb-2003. the version number as loaded.
 
-  templot_version: integer;
-  // program version number (*100, e.g Templot0 v:1.3 = 130).
+    bgnd_code_077: integer;          // 0=unused, 1=bgnd, -1=library   0.77.a  2-Sep-02.
 
-  file_format_code: integer;  // 0= D5 format,    1= OT format  //spare_int1
+    print_mapping_colour: integer;   // 0.76.a  27-10-01 //spare_inta:integer;
+    pad_marker_colour: integer;      // 0.76.a  27-10-01 //spare_intb:integer;
 
-  gauge_index: integer;      // current index into the gauge list.
+    use_print_mapping_colour: boolean;  //spare_boola:boolean;
+    use_pad_marker_colour: boolean;     //spare_boolb:boolean;
 
-  gauge_exact: Boolean;      // nyi  // If true this is an exact-scale template.
-  gauge_custom: Boolean;
-  // nyi  // If true this is (or was when saved) a custom gauge setting.
+    //-------------------------
 
-  proto_info: Tproto_info;
-  // !!! modified for 0.71.a 11-5-01. was Tgauge_info.
+    //  0.79.a 20-05-06  -- saved grid info -- read from last template only...
 
-  railtop_inches: double;
-  // full-size inches railtop width - was spare_float1:double;
-  railbottom_inches: double;
-  // full-size inches railbottom width - was spare_float2:double;
+    spare_bool1: boolean;
 
-  alignment_byte_4: byte;   // D5 0.81 12-06-05
-  alignment_byte_5: byte;   // D5 0.81 12-06-05
+    spare_bool2: boolean;  // out 0.93.a   was show_page_margins_on_pad:boolean;
 
-  version_as_loaded: integer;
-  // mod 0.78.d  14-Feb-2003. the version number as loaded.
+    spare_int2: integer;
 
-  bgnd_code_077: integer;          // 0=unused, 1=bgnd, -1=library   0.77.a  2-Sep-02.
+    grid_units_code: integer;
 
-  print_mapping_colour: integer;   // 0.76.a  27-10-01 //spare_inta:integer;
-  pad_marker_colour: integer;      // 0.76.a  27-10-01 //spare_intb:integer;
+    x_grid_spacing: double;
+    y_grid_spacing: double;
 
-  use_print_mapping_colour: boolean;  //spare_boola:boolean;
-  use_pad_marker_colour: boolean;     //spare_boolb:boolean;
+    total_length_of_timbering: double;  // 0.96.a
 
-  //-------------------------
 
-  //  0.79.a 20-05-06  -- saved grid info -- read from last template only...
+    id_number: integer;         // 208a
+    id_number_str: string[7];   // 208a     -N00000
 
-  spare_bool1: boolean;
+    spare_boolean1: boolean;    // 208a
+    spare_boolean2: boolean;    // 208a      //spare_str:string[13];
 
-  spare_bool2: boolean;  // out 0.93.a   was show_page_margins_on_pad:boolean;
 
-  spare_int2: integer;
+    transform_info: Ttransform_info;
 
-  grid_units_code: integer;
+    platform_trackbed_info: Tplatform_trackbed_info;
+    // 0.93.a  was check_rail_mints:Tcheck_rail_mints;
 
-  x_grid_spacing: double;
-  y_grid_spacing: double;
+    align_info: Talignment_info;
 
-  total_length_of_timbering: double;  // 0.96.a
 
+    rail_type: integer;
+    // 0=no rails, 1=head only (bullhead), 2=head+foot (flatbottom).   // spare_int1:integer
 
-  id_number: integer;         // 208a
-  id_number_str: string[7];   // 208a     -N00000
+    fb_kludge_template_code: integer;
+    // 0.94.a   0=normal template, 1=inner foot lines, 2=outer foot lines   //spare_int3:integer;
 
-  spare_boolean1: boolean;    // 208a
-  spare_boolean2: boolean;    // 208a      //spare_str:string[13];
+    box_save_done: boolean;
+    // read only from first keep on restore previous contents. 23-6-00 v:0.62.a      //spare_flag1:boolean;
 
+    uninclined_rails: boolean;      // True = rails vertical.
 
-  transform_info: Ttransform_info;
+    disable_f7_snap: boolean;       //  0.82.a  spare_bool3:boolean;
 
-  platform_trackbed_info: Tplatform_trackbed_info;
-  // 0.93.a  was check_rail_mints:Tcheck_rail_mints;
+    spare_bool4: boolean;
 
-  align_info: Talignment_info;
+    mod_text_x: double;
+    // (mm) label position modifiers..   //spare_float1:double;
+    mod_text_y: double;
+    //spare_float2:double;
 
+    flatbottom_width: double;
+    // width of flatbottom rail base (mm).    //spare_float3:double;
 
-  rail_type: integer;
-  // 0=no rails, 1=head only (bullhead), 2=head+foot (flatbottom).   // spare_int1:integer
+    check_diffs: Tcheck_diffs;      // 0.94.a check rail end modifiers - 248 bytes
 
-  fb_kludge_template_code: integer;
-  // 0.94.a   0=normal template, 1=inner foot lines, 2=outer foot lines   //spare_int3:integer;
 
-  box_save_done: boolean;
-  // read only from first keep on restore previous contents. 23-6-00 v:0.62.a      //spare_flag1:boolean;
+    retain_diffs_on_make_flag: boolean;    // 0.94.a check rail diffs
+    retain_diffs_on_mint_flag: boolean;    // 0.94.a check rail diffs
 
-  uninclined_rails: boolean;      // True = rails vertical.
+    retain_entry_straight_on_make_flag: boolean;
+    // 213a  spare_byte1:byte;   // 0.94.a
+    retain_entry_straight_on_mint_flag: boolean;
+    // 213a  spare_byte2:byte;   // 0.94.a
 
-  disable_f7_snap: boolean;       //  0.82.a  spare_bool3:boolean;
+    // 0.94.a timber shoving mods..
 
-  spare_bool4: boolean;
+    retain_shoves_on_make_flag: boolean;
+    retain_shoves_on_mint_flag: boolean;
 
-  mod_text_x: double;
-  // (mm) label position modifiers..   //spare_float1:double;
-  mod_text_y: double;
-  //spare_float2:double;
+    turnout_info1: Tturnout_info1;
 
-  flatbottom_width: double;
-  // width of flatbottom rail base (mm).    //spare_float3:double;
+  end;//record
 
-  check_diffs: Tcheck_diffs;      // 0.94.a check rail end modifiers - 248 bytes
 
+  Tkeep_dims = record
 
-  retain_diffs_on_make_flag: boolean;    // 0.94.a check rail diffs
-  retain_diffs_on_mint_flag: boolean;    // 0.94.a check rail diffs
+    box_dims1: Tbox_dims1;
+    turnout_info2: Tturnout_info2;
 
-  retain_entry_straight_on_make_flag: boolean;
-  // 213a  spare_byte1:byte;   // 0.94.a
-  retain_entry_straight_on_mint_flag: boolean;
-  // 213a  spare_byte2:byte;   // 0.94.a
+  end;//record
 
-  // 0.94.a timber shoving mods..
+  Ttemplate_info = record       // template data.
 
-  retain_shoves_on_make_flag: boolean;
-  retain_shoves_on_mint_flag: boolean;
+    keep_dims: Tkeep_dims;           // all the template dimemsions.
+    keep_shove_list: Tshoved_timber_list;
+    // the list of shoved timbers. (v:0.71.a  27-4-01).
+  end;//record
 
-  turnout_info1: Tturnout_info1;
 
-end;//record
+  TTemplate = class       // a whole stored template
 
+  public
+    Name: String;
 
-Tkeep_dims = record
+    // True=has been copied to the background. (not included in file).
+    bg_copied: boolean;
+    group_selected: boolean;    // True=selected as one of a group.
+    // True=has been shifted/rotated/mirrored, needs a new timestamp on rebuilding.
+    new_stamp_wanted: boolean;
 
-  box_dims1: Tbox_dims1;
-  turnout_info2: Tturnout_info2;
+    // snapping positions for F7 shift mouse action  0.79.a  27-05-06
+    snap_peg_positions: Tsnap_peg_positions;
+    boundary_info: Tboundary_info;              // 213b for extend to boundary
 
-end;//record
+    // used for peg snapping checks. (also in the template_info for file).  0.79.a  27-05-06
+    bgnd_half_diamond: boolean;
+    bgnd_plain_track: boolean;         // ditto
+    bgnd_retpar: boolean;              // ditto parallel crossing
+    bgnd_peg_on_zero: boolean;         // ditto Ctrl-0 or not.
 
-Ttemplate_info = record       // template data.
+    // added 205e for obtain tradius to control...
 
-  keep_dims: Tkeep_dims;           // all the template dimemsions.
-  keep_shove_list: Tshoved_timber_list;
-  // the list of shoved timbers. (v:0.71.a  27-4-01).
-end;//record
+    bgnd_xing_type: integer;
+    bgnd_spiral: boolean;
+    bgnd_turnout_radius: double;
 
+    bgnd_gaunt: boolean;               // 218a
 
+    sort_swap_memo_str: string;
 
+    // 218d   temp flag   template is within a rectangle (e.g. on screen)
+    bgnd_is_in_rect: boolean;
 
-TTemplate = class       // a whole stored template
+    // 211b position of name label...
 
-public
-  name: String;
+    bgnd_label_x: double;   // mm
+    bgnd_label_y: double;   // mm
 
-  // True=has been copied to the background. (not included in file).
-  bg_copied: boolean;
-  group_selected: boolean;    // True=selected as one of a group.
-  // True=has been shifted/rotated/mirrored, needs a new timestamp on rebuilding.
-  new_stamp_wanted: boolean;
+    bgnd_blanked: boolean;        // 215a
+    bgnd_no_xing: boolean;        // 215a
 
-  // snapping positions for F7 shift mouse action  0.79.a  27-05-06
-  snap_peg_positions: Tsnap_peg_positions;
-  boundary_info: Tboundary_info;              // 213b for extend to boundary
+    this_is_tandem_first: boolean;  // 218a
 
-  // used for peg snapping checks. (also in the template_info for file).  0.79.a  27-05-06
-  bgnd_half_diamond: boolean;
-  bgnd_plain_track: boolean;         // ditto
-  bgnd_retpar: boolean;              // ditto parallel crossing
-  bgnd_peg_on_zero: boolean;         // ditto Ctrl-0 or not.
+    template_info: Ttemplate_info;    // the template data.
 
-  // added 205e for obtain tradius to control...
+    bgnd_keep: Tbgnd_keep;    // drawn data for a background template.
 
-  bgnd_xing_type: integer;
-  bgnd_spiral: boolean;
-  bgnd_turnout_radius: double;
 
-  bgnd_gaunt: boolean;               // 218a
+    constructor Create(AName: string);
+  end;//class
 
-  sort_swap_memo_str: string;
 
-  // 218d   temp flag   template is within a rectangle (e.g. on screen)
-  bgnd_is_in_rect: boolean;
-
-  // 211b position of name label...
-
-  bgnd_label_x: double;   // mm
-  bgnd_label_y: double;   // mm
-
-  bgnd_blanked: boolean;        // 215a
-  bgnd_no_xing: boolean;        // 215a
-
-  this_is_tandem_first: boolean;  // 218a
-
-  template_info: Ttemplate_info;    // the template data.
-
-  bgnd_keep: Tbgnd_keep;    // drawn data for a background template.
-
-
-  constructor Create(AName: string);
-end;//class
-
-
-TTemplateList = class(TObjectList<TTemplate>)
+  TTemplateList = class(TObjectList<TTemplate>)
   private
     FOnChange: TNotifyEvent;
-protected
-  procedure Notify(constref AValue: TTemplate; ACollectionNotification: TCollectionNotification); override;
-published
-  property OnChange: TNotifyEvent read FOnChange write FOnChange;
-end;
+  protected
+    procedure Notify(constref AValue: TTemplate; ACollectionNotification: TCollectionNotification);
+      override;
+  published
+    property OnChange: TNotifyEvent Read FOnChange Write FOnChange;
+  end;
 
 
 implementation
@@ -1241,11 +1232,12 @@ constructor TTemplate.Create(AName: String);
 begin
   inherited Create;
 
-  name := AName;
+  Name := AName;
 end;
 
 
-procedure TTemplateList.Notify(constref AValue: TTemplate; ACollectionNotification: TCollectionNotification);
+procedure TTemplateList.Notify(constref AValue: TTemplate;
+  ACollectionNotification: TCollectionNotification);
 begin
   inherited Notify(AValue, ACollectionNotification);
 
@@ -1254,4 +1246,12 @@ begin
 end;
 
 end.
+
+
+
+
+
+
+
+
 

@@ -188,7 +188,8 @@ begin
   ClientHeight := VertScrollBar.Range;
   // do this twice, as each affects the other.
 
-  size_updown.Tag := size_updown.Position;                           // and save for the next click.
+  size_updown.Tag := size_updown.Position;
+  // and save for the next click.
 end;
 //___________________________________________________________________________
 
@@ -325,7 +326,8 @@ begin
     for n := 0 to n_max do begin
       if (keeps_list[n].bg_copied = True)
         // bgnd template
-        and (keeps_list[n].template_info.keep_dims.box_dims1.align_info.cl_only_flag = False)  // template has rails   212a
+        and (keeps_list[n].template_info.keep_dims.box_dims1.align_info.cl_only_flag =
+        False)  // template has rails   212a
         and (keeps_list[n].template_info.keep_dims.box_dims1.rail_type =
         2)                    // FB rail
         and (keeps_list[n].template_info.keep_dims.box_dims1.fb_kludge_template_code = 0)
@@ -354,8 +356,7 @@ begin
 
         railedges(gauge_faces, outer_edges, centre_lines);   // use these switches.
 
-        if pad_form.gen_inner_foot_edges_menu_entry.Checked = True then
-        begin
+        if pad_form.gen_inner_foot_edges_menu_entry.Checked = True then begin
           fb_kludge := 1;     // template for inner edge
           gocalc(1, 0);
           store_and_background(False, False);
@@ -368,8 +369,7 @@ begin
           Inc(Count);
         end;
 
-        if pad_form.gen_outer_foot_edges_menu_entry.Checked = True then
-        begin
+        if pad_form.gen_outer_foot_edges_menu_entry.Checked = True then begin
           fb_kludge := 2;      // template for outer edge
           gocalc(1, 0);
           store_and_background(False, False);

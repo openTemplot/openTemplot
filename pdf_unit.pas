@@ -4509,10 +4509,6 @@ var
           // 18,22 added 206b
 
 
-
-
-
-
           then begin
             pbg_modify_rail_end(
               0, dots_index, edge_colour, blanking_colour);  // toe or approach end.
@@ -5106,9 +5102,13 @@ var
         if output_show_points_mark  // mark position of points
         then begin
 
-          if (not keeps_list[n].template_info.keep_dims.box_dims1.turnout_info1.plain_track_flag)   // not for plain track
-            and (not keeps_list[n].template_info.keep_dims.turnout_info2.semi_diamond_flag)            // not for half-diamond
-            and (not keeps_list[n].template_info.keep_dims.turnout_info2.gaunt_flag)                   // not for gaunt turnout
+          if (not keeps_list[n].template_info.keep_dims.box_dims1.turnout_info1.plain_track_flag)
+            // not for plain track
+            and (not keeps_list[n].template_info.keep_dims.turnout_info2.semi_diamond_flag)
+            // not for half-diamond
+            and (not keeps_list[n].template_info.keep_dims.turnout_info2.gaunt_flag)
+            // not for gaunt turnout
+
 
             and (Length(list_bgnd_rails[eRD_StraightTurnoutWingGaugeFace]) <>
             0)    // data for straight switch rail

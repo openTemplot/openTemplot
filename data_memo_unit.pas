@@ -139,7 +139,8 @@ begin
   if list_position = -1 then // Box is empty
   begin
     if (template_showing = True) and (Visible = True) then
-      data_memo.Text := insert_crlf_str(' ||      box  empty');  //  replace embedded | chars with a CR.
+      data_memo.Text := insert_crlf_str(' ||      box  empty');
+    //  replace embedded | chars with a CR.
   end
 
   else                       // Box has keeps
@@ -151,7 +152,7 @@ begin
         id_number_str + '||  ' + top_label +
         '||--------------------------------------------------------------' +
         '||      Information  about  this  template :' + '||( all dimensions in millimetres )'
-        + '||' + keeps_list[list_position].name +
+        + '||' + keeps_list[list_position].Name +
         '||--------------------------------------------------------------' +
         '||      Your  memo  notes  for  this  template :' + '||' + memo_text_str;
     end;//with

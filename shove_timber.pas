@@ -701,7 +701,8 @@ procedure Tshove_timber_form.data_buttonClick(Sender: TObject);
 
 const
   mod_str: string =
-    '||Enter a dimension by which the normal size and position of this timber should be modified.' +
+    '||Enter a dimension by which the normal size and position of this timber should be modified.'
+    +
     '||To return this timber to its normal size and position, enter 0 (zero).' +
     '||Handy hints:' + '||It is usually much easier to position a timber by using the buttons and mouse actions, instead of direct entry of data here.' + '||These dimensions are relative to the normal size and position of the timber, not the present size and position if it has been shoved previously.' + '||Instead of these relative dimensions, you can enter the actual timber centre dimension, timber length, width or twist angle, by clicking the relevant read-out panel.';
 

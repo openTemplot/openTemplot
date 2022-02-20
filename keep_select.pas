@@ -1246,7 +1246,7 @@ begin
       then begin
         copy_template_info_from_to(False, ti, deleted_keep);
         // save for undo delete.
-        deleted_keep_string := keeps_list[n].name;
+        deleted_keep_string := keeps_list[n].Name;
         deleted_memo_string := memo_list.Strings[n];
         keep_form.undo_delete_menu_entry.Enabled := True;
       end;
@@ -2299,7 +2299,8 @@ var
     n := 0;
     while n < keeps_list.Count do begin
 
-      if keeps_list[n].template_info.keep_dims.box_dims1.this_was_control_template = False  // normal template
+      if keeps_list[n].template_info.keep_dims.box_dims1.this_was_control_template =
+        False  // normal template
       then begin
         Inc(n);
         CONTINUE;
@@ -2671,7 +2672,7 @@ begin
                   CONTINUE;   // library only, ignore others.
             end;//case
 
-            s := remove_esc_str(keeps_list[i].name) + Char($1B) + remove_esc_str(
+            s := remove_esc_str(keeps_list[i].Name) + Char($1B) + remove_esc_str(
               memo_list.Strings[i]) + Char($1B) + Char($1B);
             // use ESC chars as terminators, plus one for luck on the end.
 
@@ -3015,8 +3016,7 @@ var
       then begin
         st := 0;    // keep compiler happy.
 
-        with keeps_list[t_index].template_info.keep_shove_list do
-        begin
+        with keeps_list[t_index].template_info.keep_shove_list do begin
 
           if Count <> 0 then
             EXIT;   // !!! shove list should be empty (created in init_ttemplate).
@@ -3117,7 +3117,8 @@ var
 
           this_ti.keep_dims := Tkeep_dims(old_next_data);
 
-          copy_template_info_from_to(True, this_ti, keeps_list[n].template_info);  // True = free the shove list.
+          copy_template_info_from_to(True, this_ti, keeps_list[n].template_info);
+          // True = free the shove list.
 
           if (append = True) and (make_lib = False) and
             (keep_form.add_ignore_group_menu_entry.Checked = False) then
@@ -3216,7 +3217,7 @@ var
 
             // we don't change either unless we've got both..
 
-            keeps_list[n].name := remove_esc_str(info_string);
+            keeps_list[n].Name := remove_esc_str(info_string);
             // remove any ESC is belt and braces...
             memo_list.Strings[n] := remove_esc_str(memo_string);
           end;
@@ -3384,7 +3385,8 @@ var
         n := old_count;
         while n < keeps_list.Count do begin
           if (keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 =
-            0) and (keeps_list[n].template_info.keep_dims.box_dims1.this_was_control_template = False)  // 0.93.a
+            0) and (keeps_list[n].template_info.keep_dims.box_dims1.this_was_control_template =
+            False)  // 0.93.a
 
           then
             clear_keep(n)
@@ -4282,8 +4284,7 @@ begin
       //end;//with
 
 
-      with keeps_list[n].template_info.keep_dims.box_dims1.align_info do
-      begin   // 216a ...
+      with keeps_list[n].template_info.keep_dims.box_dims1.align_info do begin   // 216a ...
 
         if reminder_flag = True then begin
           rem_memo.Color := reminder_colour;
@@ -4543,7 +4544,7 @@ begin
         list_position + 1) + '  ' + bg_str + '   ' + ref_str + '||  ' +
         gauge_panel.Caption + '||--------------------------------------------------------------'
         + '||      Information  about  this  template :' +
-        '||( all dimensions in millimetres )' + '||' + keeps_list[list_position].name +
+        '||( all dimensions in millimetres )' + '||' + keeps_list[list_position].Name +
         '||--------------------------------------------------------------'
         //+'||      Your  memo  notes  for  this  template :'
         + '||Memo:  ' + memo_text_str{) out 0.91.b};
@@ -4905,8 +4906,7 @@ begin
 
     copy_keep(keeps_list[index].template_info);    // get the current keep.
 
-    with keeps_list[index].template_info.keep_dims.box_dims1 do
-    begin      // 213b
+    with keeps_list[index].template_info.keep_dims.box_dims1 do begin      // 213b
 
       marcol := pad_marker_colour;
       marcol_used := use_pad_marker_colour;  // using it
@@ -6031,7 +6031,8 @@ begin
 
 
     html_str := html_str + #13 + '<TR><TD>' + IntToStr(line_now + 1) +
-      '</TD>' + '<TD>' + type_str + '</TD>' + '<TD>' + keeps_list[line_now].template_info.keep_dims.box_dims1.id_number_str +
+      '</TD>' + '<TD>' + type_str + '</TD>' + '<TD>' +
+      keeps_list[line_now].template_info.keep_dims.box_dims1.id_number_str +
       '</TD>' // 208b
       + '<TD>' + Trim(keepform_listbox.Items.Strings[line_now]) + '</TD>';
 
@@ -6594,7 +6595,7 @@ begin
       // re-write the info (e.g. for mirror tools = swapped hand, shift data, etc.)..
       // (no need to change the memo or ref_label - won't have changed)
 
-      keeps_list[list_index].name := si;
+      keeps_list[list_index].Name := si;
       keeps_list[list_index].template_info.
         keep_dims.box_dims1.top_label := Copy(info_form.gauge_label.Caption, 1, 99);
       // (in case change of hand on mirror-rebuild.)
@@ -8359,7 +8360,7 @@ begin
 
 
     if info = True then begin
-      full_string := StringReplace(keeps_list[n].name, '  ', ' &nbsp;',
+      full_string := StringReplace(keeps_list[n].Name, '  ', ' &nbsp;',
         [rfReplaceAll, rfIgnoreCase]);  // allow multiple spaces.
 
       full_string := StringReplace(full_string, ' > ', ' &gt; ', [rfReplaceAll, rfIgnoreCase]);
@@ -9335,7 +9336,8 @@ begin
   if (list_position < 0) or (memo_list.Count < 1) or (list_position > (memo_list.Count - 1)) then
     EXIT;
 
-  new_str := edit_memo_str(memo_list.Strings[list_position], keeps_list[list_position].template_info.keep_dims.box_dims1.reference_string);
+  new_str := edit_memo_str(memo_list.Strings[list_position],
+    keeps_list[list_position].template_info.keep_dims.box_dims1.reference_string);
 
   memo_list.Strings[list_position] := new_str;
 
@@ -9741,8 +9743,8 @@ begin
     append := False;
     if load_storage_box(True, False, pb_str, False, False, append, hl) = True then begin
       if keeps_list.Count > 0 then begin
-        with keeps_list[0].template_info.keep_dims.box_dims1 do
-        begin   // read only from first keep.
+        with keeps_list[0].template_info.keep_dims.box_dims1 do begin
+          // read only from first keep.
           if version_as_loaded > 62 then
             save_done := box_save_done      // mods 23-6-00 for version 0.63
           else
@@ -9793,8 +9795,8 @@ begin
     append := False;
     if load_storage_box(True, False, pbo_str, False, False, append, hl) = True then begin
       if keeps_list.Count > 0 then begin
-        with keeps_list[0].template_info.keep_dims.box_dims1 do
-        begin   // read only from first keep.
+        with keeps_list[0].template_info.keep_dims.box_dims1 do begin
+          // read only from first keep.
           if version_as_loaded > 62 then
             save_done := box_save_done      // mods 23-6-00 for version 0.63
           else
@@ -10295,8 +10297,7 @@ begin
 
     while n < Count do begin
 
-      with keeps_list[0].template_info.keep_dims.box_dims1 do
-      begin    // always top of list
+      with keeps_list[0].template_info.keep_dims.box_dims1 do begin    // always top of list
         bgnd := bgnd_code_077;
         // remember if it's on bgnd.
 
@@ -10323,8 +10324,8 @@ begin
         EXIT;
       end;
 
-      with keeps_list[Count - 1].template_info.keep_dims.box_dims1 do
-      begin    // always bottom of list
+      with keeps_list[Count - 1].template_info.keep_dims.box_dims1 do begin
+        // always bottom of list
 
         // 0.82.d  restore label position...
 
@@ -11041,22 +11042,25 @@ begin
   LeftS := LowerCase(Left.template_info.keep_dims.box_dims1.reference_string);
   RightS := LowerCase(Right.template_info.keep_dims.box_dims1.reference_string);
 
-  result := TComparer<string>.Default.Compare(LeftS, RightS);
+  Result := TComparer<string>.Default.Compare(LeftS, RightS);
 end;
 
 function CompareTemplateByIDNumber(constref Left, Right: TTemplate): Integer;
 begin
-  result := TComparer<integer>.Default.Compare(Left.template_info.keep_dims.box_dims1.id_number, Right.template_info.keep_dims.box_dims1.id_number);
+  Result := TComparer<integer>.Default.Compare(Left.template_info.keep_dims.box_dims1.id_number,
+    Right.template_info.keep_dims.box_dims1.id_number);
 end;
 
 function CompareTemplateByTemplateType(constref Left, Right: TTemplate): Integer;
 begin
-  result := TComparer<string>.Default.Compare(Left.template_info.keep_dims.box_dims1.id_number_str, Right.template_info.keep_dims.box_dims1.id_number_str);
+  Result := TComparer<string>.Default.Compare(Left.template_info.keep_dims.box_dims1.id_number_str,
+    Right.template_info.keep_dims.box_dims1.id_number_str);
 end;
 
 function CompareTemplateByInfo(constref Left, Right: TTemplate): Integer;
 begin
-  result := TComparer<string>.Default.Compare(Left.template_info.keep_dims.box_dims1.top_label, Right.template_info.keep_dims.box_dims1.top_label);
+  Result := TComparer<string>.Default.Compare(Left.template_info.keep_dims.box_dims1.top_label,
+    Right.template_info.keep_dims.box_dims1.top_label);
 end;
 
 procedure sort_box(code: integer);

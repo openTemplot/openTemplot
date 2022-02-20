@@ -14787,8 +14787,7 @@ begin
     if Length(menu_caption_str) > 20 then
       menu_caption_str := Copy(menu_caption_str, 1, 18) + '...';  // 20 arbitrary.
 
-    with keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1 do
-    begin
+    with keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1 do begin
 
       pad_form.align_current_popup_entry.Enabled := (ABS(proto_info.gauge_pi - g) < minfp);
       // 205d disabled for mixed-gauge templates
@@ -15266,8 +15265,7 @@ begin
       if Length(menu_caption_str) > 20 then
         menu_caption_str := Copy(menu_caption_str, 1, 18) + '...';  // 20 arbitrary.
 
-      with keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1 do
-      begin
+      with keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1 do begin
 
         pad_form.align_current_popup_entry.Enabled :=
           (ABS(proto_info.gauge_pi - g) < minfp);  // 205d disabled for mixed-gauge templates
@@ -21077,7 +21075,8 @@ begin
   if check_control_template_is_valid('transition') = False then
     EXIT;  // zero length
 
-  if keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1.align_info.slewing_flag = True then begin
+  if keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1.align_info.slewing_flag =
+    True then begin
     alert(6, 'php/201    make  transition',
       'The selected background template contains a slew.' +
       '||It is not possible to make a transition curve from a slewed template.' +
@@ -21099,7 +21098,8 @@ begin
   control_loc := 0;   // init for fixed curve..  212a
   bgnd_loc := 0;
 
-  if keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1.align_info.trans_flag = True then begin
+  if keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1.align_info.trans_flag =
+    True then begin
     repeat
       i := alert(4, 'php/201    make  transition',
         'The selected background template contains a transition curve.' +
@@ -34143,8 +34143,7 @@ begin
   if (keeps_list.Count < 1) or (n < 0) or (n > (keeps_list.Count - 1)) then
     EXIT;
 
-  with keeps_list[n].template_info.keep_dims.turnout_info2.plain_track_info do
-  begin
+  with keeps_list[n].template_info.keep_dims.turnout_info2.plain_track_info do begin
 
     if (pt_custom = True) or (list_index > 4)  // put data in bottom slot.
     then begin
@@ -36540,6 +36539,7 @@ begin
 
   fill_mark(convert_point(pp3), convert_point(pp4), eMC_700_XingLabelStart, '');
   // into marks list.
+
 
 
 

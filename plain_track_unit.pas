@@ -163,7 +163,9 @@ begin
 
       if cpt < 5 then begin
         alert(6, '    no  custom  slot  selected',
-          'Please click one of the custom slots in the list to select the one (1-6) for which you wish to enter custom settings.' + '||It is not possible to change the settings for the standard slots.',
+          'Please click one of the custom slots in the list to select the one (1-6) for which you wish to enter custom settings.'
+          +
+          '||It is not possible to change the settings for the standard slots.',
           '', '', '', '', '', 'O K', 0);
         EXIT;
       end;
@@ -184,7 +186,10 @@ begin
 
       repeat
         i := alert(4, '    adopt  control  template  settings ?',
-          'Do you want to adopt the plain track rail length and sleeper spacings from the control template as a custom setting?' + '||Or enter new data?', '', '', '?  help', 'adopt  control  template  data  for  slot  ' + str, 'cancel  -  no  change', 'enter  new  data  for  slot  ' + str, 3);
+          'Do you want to adopt the plain track rail length and sleeper spacings from the control template as a custom setting?'
+          +
+          '||Or enter new data?', '', '', '?  help', 'adopt  control  template  data  for  slot  ' +
+          str, 'cancel  -  no  change', 'enter  new  data  for  slot  ' + str, 3);
 
         if i = 3 then
           alert_help(0, adopt_help_str, '');
@@ -213,7 +218,8 @@ begin
       end;//with
 
       putdim(railen_help_str, 2, 'custom rail length in full-size INCHES',
-        railen[cpt], True, False, True, False);      // no neg, preset ok, no zero, don't terminate on zero.
+        railen[cpt], True, False, True, False);
+      // no neg, preset ok, no zero, don't terminate on zero.
       n := putdim('The first spacing dimension required is from the rail joint to the centre of the first sleeper. For bullhead standard gauge this dimension is normally 12 inches.', 2, 'spacing from rail joint to first sleeper', psleep[cpt, 0], True, False, False, False);  // no neg, preset ok, zero ok, but don't terminate on zero.
 
       if n <> 1 then
@@ -237,7 +243,8 @@ begin
 
             n := putdim('Terminate this list of spacings by entering a zero.',
               2, 'spacing to next sleeper : number ' + IntToStr(
-              i + m + 1), psleep[cpt, (i + m)], True, True, False, True);  // zero ok - terminates the list.
+              i + m + 1), psleep[cpt, (i + m)], True, True, False, True);
+            // zero ok - terminates the list.
           end;//for
 
           if n <> 7 then

@@ -97,7 +97,6 @@ type
     );
 
 
-
   Tmark = record                     // mark from p1 to p2.
     p1: TPoint;
     p2: TPoint;
@@ -109,5 +108,6 @@ type
 implementation
 
 end.
+
 
 

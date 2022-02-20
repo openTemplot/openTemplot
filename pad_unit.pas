@@ -3322,7 +3322,6 @@ type
   end;
 
 
-
   Tpad_view_data = record                 // 0.91.c  a zoom/pan setting.
     offset_x: double;
     offset_y: double;
@@ -14898,7 +14897,8 @@ begin
   end;//group_selected
 
 
-  new_notch(keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1.transform_info.notch_info, True);
+  new_notch(keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1.
+    transform_info.notch_info, True);
 
   // now switch on group linking if wanted...
 
@@ -17815,8 +17815,7 @@ begin
         if Length(menu_caption_str) > 20 then
           menu_caption_str := Copy(menu_caption_str, 1, 18) + '...';  // 20 arbitrary.
 
-        with keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1 do
-        begin
+        with keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1 do begin
 
           pad_form.align_current_popup_entry.Enabled :=
             (ABS(proto_info.gauge_pi - g) < minfp);  // 205d disabled for mixed-gauge templates
@@ -18609,8 +18608,7 @@ begin
 
   // 219a include connectors for XTrackCAD in export DXF -- file only, not loaded to the control  ...
 
-  with keeps_list[clicked_keep_index].template_info.keep_dims.turnout_info2 do
-  begin
+  with keeps_list[clicked_keep_index].template_info.keep_dims.turnout_info2 do begin
 
     xtc_form.zero_checkbox.Checked := dxf_connector_0;    // CTRL-0
     xtc_form.texit_checkbox.Checked := dxf_connector_t;   // TEXITP
@@ -25414,7 +25412,8 @@ begin
   else
     normal_colours_popup_entry.Checked := True;   // radio items.
 
-  if keeps_list[list_position].template_info.keep_dims.box_dims1.use_print_mapping_colour = True then
+  if keeps_list[list_position].template_info.keep_dims.box_dims1.use_print_mapping_colour =
+    True then
     print_mapping_colour_popup_entry.Checked := True
   else
     normal_print_colours_popup_entry.Checked := True;   // radio items.
@@ -25439,7 +25438,8 @@ begin
 
   bg_regular := (keeps_list[clicked_keep_index].bgnd_xing_type = 0);
 
-  old_peg_code := keeps_list[clicked_keep_index].template_info.keep_dims.box_dims1.transform_info.peg_point_code;
+  old_peg_code := keeps_list[clicked_keep_index].template_info.keep_dims.
+    box_dims1.transform_info.peg_point_code;
 
   if bg_pt = True then
     move_to_ctrl1_popup_entry.Caption := '1   to  CTRL-&1   rail  joint'
@@ -27243,8 +27243,7 @@ begin
     do_show_modal(math_form);    // 212a
 
     if ModalResult = mrOk then begin
-      with keeps_list[index].template_info.keep_dims.box_dims1.align_info do
-      begin
+      with keeps_list[index].template_info.keep_dims.box_dims1.align_info do begin
 
         reminder_str := Trim(math_editbox.Text);
         reminder_flag := (Trim(math_editbox.Text) <> '');
@@ -27287,13 +27286,14 @@ begin
       '||If you leave the reminder message blank, the reminder will be removed.' +
       '||Reminder messages are limited to 200 characters maximum.');
 
-    math_editbox.Text := keeps_list[index].template_info.keep_dims.box_dims1.align_info.reminder_str;
+    math_editbox.Text := keeps_list[index].template_info.keep_dims.box_dims1.
+      align_info.reminder_str;
 
     do_show_modal(math_form);    // 212a
 
     if ModalResult = mrOk then begin
-      with keeps_list[index].template_info.keep_dims.box_dims1.align_info do
-      begin
+      with keeps_list[index].template_info.keep_dims.box_dims1.align_info do begin
+
 
         reminder_str := Trim(math_editbox.Text);
         reminder_flag := (Trim(math_editbox.Text) <> '');

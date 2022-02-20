@@ -3869,7 +3869,8 @@ var
         if output_show_points_mark = True  // mark position of points
         then begin
 
-          if (keeps_list[n].template_info.keep_dims.box_dims1.turnout_info1.plain_track_flag = False)   // not for plain track
+          if (keeps_list[n].template_info.keep_dims.box_dims1.turnout_info1.plain_track_flag =
+            False)   // not for plain track
             and (keeps_list[n].template_info.keep_dims.turnout_info2.semi_diamond_flag =
             False)            // not for half-diamond
             and (keeps_list[n].template_info.keep_dims.turnout_info2.gaunt_flag
@@ -3962,7 +3963,8 @@ begin          // export background templates...
           if keeps_list[n].template_info.keep_dims.box_dims1.fb_kludge_template_code > 0 then
             CONTINUE;  // 209c no track background for fb_kludge templates
 
-          if keeps_list[n].template_info.keep_dims.box_dims1.align_info.dummy_template_flag = True then
+          if keeps_list[n].template_info.keep_dims.box_dims1.align_info.dummy_template_flag =
+            True then
             CONTINUE;  // 212a dummy templates not part of track plan
 
           with keeps_list[n].template_info.keep_dims do begin
