@@ -117,7 +117,7 @@ implementation
 {$R *.lfm}
 
 uses pad_unit, control_room, entry_sheet, colour_unit, alert_unit, help_sheet, chat_unit,
-  math_unit, data_memo_unit, make_slip_unit, curve;
+  math_unit, data_memo_unit, make_slip_unit, curve, template;
 
 var
   switch_index: integer = 0;
@@ -201,7 +201,8 @@ begin
 
   listed_str := switch_selector_listbox.Items[switch_index];
 
-  if ((Pos('REA', listed_str) > 0) or (Pos('GWR', listed_str) > 0)) and (rail_section = 2) then begin
+  if ((Pos('REA', listed_str) > 0) or (Pos('GWR', listed_str) > 0)) and (rail_section = 2) then
+  begin
     i := alert(4, 'php/702    bullhead  switch  selected',
       'green_panel_begintree.gif  The switch which you have selected:||`0'
       + Trim(listed_str) +
@@ -440,7 +441,8 @@ begin
           'Do you want to adopt the switch from the control template as this custom switch?',
           '', '', '?  help', 'yes  -  adopt  switch  from  control  template  for  slot  ' +
           IntToStr(ABS(list_switch_info.group_code)) + '      ', 'cancel  -  no  change',
-          'no  -  enter  new  custom  switch  for  slot  ' + IntToStr(ABS(list_switch_info.group_code)), 3);
+          'no  -  enter  new  custom  switch  for  slot  ' +
+          IntToStr(ABS(list_switch_info.group_code)), 3);
 
         if i = 3 then
           alert_help(0, adopt_help_str, '');
@@ -758,7 +760,8 @@ begin
             new_switch_info.joggle_depth, True, True, True, False);
           // no neg, no preset, no zero, don't terminate on zero.
           n := putdim(joggle_length_help_str, 2,
-            'joggle length in front of blade tips (full-size inches)', new_switch_info.joggle_length,
+            'joggle length in front of blade tips (full-size inches)',
+            new_switch_info.joggle_length,
             True, True, True, False);   // no neg, no preset, no zero, don't terminate on zero.
 
           if n <> 1 then
@@ -1318,7 +1321,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;       // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;           // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
   // switch timbers centre to centre in inches. [first from toe].
   //  9ft Standard Straight Switch - first timber 4" from toe...
@@ -1368,7 +1372,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;       // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;           // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
   sw_init_info.timber_centres[0] := 4;
   //  12ft Standard Straight Switch - first timber 4" from toe.
@@ -1422,7 +1427,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;         // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;            // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
   //  15ft Standard Straight Switch - first timber 4" from toe.
   sw_init_info.timber_centres[0] := 4;
@@ -1476,7 +1482,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;         // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;            // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
   //  18ft Standard Straight Switch - first timber 4" from toe.
   sw_init_info.timber_centres[0] := 4;
@@ -1537,7 +1544,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;         // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;            // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
   //  24ft Standard Straight Switch - first timber 4" from toe.
   sw_init_info.timber_centres[0] := 4;
@@ -1600,7 +1608,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;         // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;            // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
   //  30ft Standard Straight Switch - first timber 4" from toe.
   sw_init_info.timber_centres[0] := 4;
@@ -2777,7 +2786,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;     // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;           // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
 
   sw_init_info.timber_centres[0] := 3.5;
@@ -2946,7 +2956,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;         // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;            // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
   sw_init_info.timber_centres[0] := 3.5;
   sw_init_info.timber_centres[1] := 28.5;
@@ -3153,7 +3164,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;   // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;            // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
 
   sw_init_info.timber_centres[0] := 3.5;
@@ -3622,7 +3634,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;       // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;           // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
   // switch timbers centre to centre in inches. [first from toe].
   // same as 9ft Standard Straight Switch - first timber 4" from toe...
@@ -3674,7 +3687,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;       // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;           // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
   sw_init_info.timber_centres[0] := 4;
   //  same as 12ft Standard Straight Switch - first timber 4" from toe.
@@ -3730,7 +3744,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;         // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;            // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
   //  same as 15ft Standard Straight Switch - first timber 4" from toe.
   sw_init_info.timber_centres[0] := 4;
@@ -3794,7 +3809,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;  // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;           // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
   sw_init_info.timber_centres[0] := 120;     // 1st timber beyond heel (will be blanked).
   sw_init_info.timber_centres[1] := 0;       // list terminator.
@@ -3836,7 +3852,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;  // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;           // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
   sw_init_info.timber_centres[0] := 150;     // 1st timber beyond heel (will be blanked).
   sw_init_info.timber_centres[1] := 0;       // list terminator.
@@ -3879,7 +3896,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;  // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;           // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
   sw_init_info.timber_centres[0] := 150;     // 1st timber beyond heel (will be blanked).
   sw_init_info.timber_centres[1] := 0;       // list terminator.
@@ -3922,7 +3940,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;  // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;           // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
 
   sw_init_info.timber_centres[0] := 200;     // 1st timber beyond heel (will be blanked).
@@ -3979,7 +3998,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;       // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;           // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
   // switch timbers centre to centre in inches. [first from toe].
   // same as 9ft Standard Straight Switch - except first timber 3.5" from toe...
@@ -3995,7 +4015,8 @@ begin
 
   // group 9, size 1 of 3, ...
 
-  add_to_list(9, 1, 3, '  BH  or  FB    1:24  ( A )  switch  for  tandem', ' 1:24  tandem  switch');
+  add_to_list(9, 1, 3, '  BH  or  FB    1:24  ( A )  switch  for  tandem',
+    ' 1:24  tandem  switch');
 
   // ----------------------------------
   // 1:32 Tandem Switch:
@@ -4048,7 +4069,8 @@ begin
 
   // group 9, size 2 of 3, ...
 
-  add_to_list(9, 2, 3, '  BH  or  FB    1:32  ( B )  switch  for  tandem', ' 1:32  tandem  switch');
+  add_to_list(9, 2, 3, '  BH  or  FB    1:32  ( B )  switch  for  tandem',
+    ' 1:32  tandem  switch');
 
   // ----------------------------------
   // 1:40 Tandem Switch:
@@ -4083,7 +4105,8 @@ begin
   sw_init_info.joggle_length := 6;
   // joggle length (from toe, +ve) (to be used only if joggled).
   sw_init_info.joggled_stock_rail := False;         // joggled stock rails?
-  sw_init_info.fb_tip_offset := 2.75;            // fbtip dimension (FB foot from gauge-face at tip).
+  sw_init_info.fb_tip_offset := 2.75;
+  // fbtip dimension (FB foot from gauge-face at tip).
 
   //  same as 15ft Standard Straight Switch - except first timber 3.5" from toe.
 
@@ -4104,7 +4127,8 @@ begin
 
   // group 9, size 3 of 3, ...
 
-  add_to_list(9, 3, 3, '  BH  or  FB    1:40  ( C )  switch  for  tandem', ' 1:40  tandem  switch');
+  add_to_list(9, 3, 3, '  BH  or  FB    1:40  ( C )  switch  for  tandem',
+    ' 1:40  tandem  switch');
 
   //--------------------------------------------------------
 

@@ -158,7 +158,9 @@ uses
   rail_options_unit, platform_unit, check_diffs_unit, data_memo_unit,
   trackbed_unit, make_slip_unit,
   curve,
-  rail_data_unit;
+  rail_data_unit,
+  mark_unit,
+  template;
 
 const
   pdf_help_str: string = '      Printing  Pages' +
@@ -3668,18 +3670,18 @@ begin
 
     for n := 0 to maxbg_index do begin
 
-      if not Ttemplate(keeps_list.Objects[n]).bg_copied then
+      if not keeps_list[n].bg_copied then
         CONTINUE;  // no data, not on background.
 
-      if (not Ttemplate(keeps_list.Objects[n]).group_selected) and
+      if (not keeps_list[n].group_selected) and
         print_group_only_flag then
         CONTINUE;  // not in group. 0.78.b 10-12-02.
 
-      if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.fb_kludge_template_code
+      if keeps_list[n].template_info.keep_dims.box_dims1.fb_kludge_template_code
         > 0 then
         CONTINUE;  // 209c no marks for fb_kludge templates
 
-      now_keep := Ttemplate(keeps_list.Objects[n]).bgnd_keep;    // next background keep.
+      now_keep := keeps_list[n].bgnd_keep;    // next background keep.
 
       with now_keep do begin
 
@@ -3688,7 +3690,7 @@ begin
         using_mapping_colour := False;  // default init.
         mapping_colour := clBlack;      // init - keep compiler happy.
 
-        with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do begin
+        with keeps_list[n].template_info.keep_dims.box_dims1 do begin
 
           idnum_str := id_number_str;  // 208a
 
@@ -4507,10 +4509,6 @@ var
           // 18,22 added 206b
 
 
-
-
-
-
           then begin
             pbg_modify_rail_end(
               0, dots_index, edge_colour, blanking_colour);  // toe or approach end.
@@ -4521,7 +4519,7 @@ var
 
           // 0.93.a blank platform edges ...
 
-          with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.platform_trackbed_info do begin
+          with keeps_list[n].template_info.keep_dims.box_dims1.platform_trackbed_info do begin
 
             if adjacent_edges_keep  // platforms
             then begin
@@ -5104,9 +5102,13 @@ var
         if output_show_points_mark  // mark position of points
         then begin
 
-          if (not Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.turnout_info1.plain_track_flag)   // not for plain track
-            and (not Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.turnout_info2.semi_diamond_flag)            // not for half-diamond
-            and (not Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.turnout_info2.gaunt_flag)                   // not for gaunt turnout
+          if (not keeps_list[n].template_info.keep_dims.box_dims1.turnout_info1.plain_track_flag)
+            // not for plain track
+            and (not keeps_list[n].template_info.keep_dims.turnout_info2.semi_diamond_flag)
+            // not for half-diamond
+            and (not keeps_list[n].template_info.keep_dims.turnout_info2.gaunt_flag)
+            // not for gaunt turnout
+
 
             and (Length(list_bgnd_rails[eRD_StraightTurnoutWingGaugeFace]) <>
             0)    // data for straight switch rail
@@ -5159,7 +5161,7 @@ begin          // print background templates...
     //  now print bgnd track centre-lines and turnout rails...
 
     for n := 0 to max_list_index do begin         // step through templates
-      this_template := Ttemplate(keeps_list.Objects[n]);
+      this_template := keeps_list[n];
       if not this_template.bg_copied then
         CONTINUE;  // no data, not on background.
 

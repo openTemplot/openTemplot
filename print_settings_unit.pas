@@ -167,7 +167,7 @@ implementation
 {$R *.lfm}
 
 uses control_room, pad_unit, math_unit, keep_select, help_sheet, shove_timber, wait_message,
-  shoved_timber;
+  shoved_timber, template;
 
 //______________________________________________________________________________
 
@@ -188,7 +188,8 @@ begin
   ClientHeight := VertScrollBar.Range;
   // do this twice, as each affects the other.
 
-  size_updown.Tag := size_updown.Position;                           // and save for the next click.
+  size_updown.Tag := size_updown.Position;
+  // and save for the next click.
 end;
 //___________________________________________________________________________
 
@@ -220,7 +221,7 @@ begin
     EXIT;
 
   for n := (keeps_list.Count - 1) downto 0 do begin
-    if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.fb_kludge_template_code >
+    if keeps_list[n].template_info.keep_dims.box_dims1.fb_kludge_template_code >
       0 then begin
       Result := n;   // return index.
       EXIT;
@@ -241,7 +242,7 @@ begin
     EXIT;
 
   for n := 0 to (keeps_list.Count - 1) do begin
-    if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.fb_kludge_template_code =
+    if keeps_list[n].template_info.keep_dims.box_dims1.fb_kludge_template_code =
       0 then begin
       Result := n;   // return index.
       EXIT;
@@ -261,11 +262,11 @@ begin
     EXIT;
 
   for n := 0 to (keeps_list.Count - 1) do begin
-    if Ttemplate(keeps_list.Objects[n]).bg_copied = False then
+    if keeps_list[n].bg_copied = False then
       CONTINUE;
-    if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.align_info.cl_only_flag = True then
+    if keeps_list[n].template_info.keep_dims.box_dims1.align_info.cl_only_flag = True then
       CONTINUE;    // 212a
-    if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.rail_type = 2 then
+    if keeps_list[n].template_info.keep_dims.box_dims1.rail_type = 2 then
       Result := Result + 1;             // return count.
   end;//next keep
 end;
@@ -323,16 +324,17 @@ begin
     n_max := keeps_list.Count - 1;
 
     for n := 0 to n_max do begin
-      if (Ttemplate(keeps_list.Objects[n]).bg_copied = True)
+      if (keeps_list[n].bg_copied = True)
         // bgnd template
-        and (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.align_info.cl_only_flag = False)  // template has rails   212a
-        and (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.rail_type =
+        and (keeps_list[n].template_info.keep_dims.box_dims1.align_info.cl_only_flag =
+        False)  // template has rails   212a
+        and (keeps_list[n].template_info.keep_dims.box_dims1.rail_type =
         2)                    // FB rail
-        and (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.fb_kludge_template_code = 0)
+        and (keeps_list[n].template_info.keep_dims.box_dims1.fb_kludge_template_code = 0)
       // not if already a kludge template
       then begin
         copy_template_info_from_to(False,
-          Ttemplate(keeps_list.Objects[n]).template_info, ti);
+          keeps_list[n].template_info, ti);
         // get the keep data.
 
         copy_keep(ti);    // to the control template
@@ -354,30 +356,28 @@ begin
 
         railedges(gauge_faces, outer_edges, centre_lines);   // use these switches.
 
-        if pad_form.gen_inner_foot_edges_menu_entry.Checked = True then
-        begin
+        if pad_form.gen_inner_foot_edges_menu_entry.Checked = True then begin
           fb_kludge := 1;     // template for inner edge
           gocalc(1, 0);
           store_and_background(False, False);
 
           // put it in the group if original is in group (for printing group only)  206e  27-02-2013 ...
 
-          Ttemplate(keeps_list.Objects[keeps_list.Count - 1]).group_selected :=
-            Ttemplate(keeps_list.Objects[n]).group_selected;
+          keeps_list[keeps_list.Count - 1].group_selected :=
+            keeps_list[n].group_selected;
 
           Inc(Count);
         end;
 
-        if pad_form.gen_outer_foot_edges_menu_entry.Checked = True then
-        begin
+        if pad_form.gen_outer_foot_edges_menu_entry.Checked = True then begin
           fb_kludge := 2;      // template for outer edge
           gocalc(1, 0);
           store_and_background(False, False);
 
           // put it in the group if original is in group (for printing group only)  206e  27-02-2013 ...
 
-          Ttemplate(keeps_list.Objects[keeps_list.Count - 1]).group_selected :=
-            Ttemplate(keeps_list.Objects[n]).group_selected;
+          keeps_list[keeps_list.Count - 1].group_selected :=
+            keeps_list[n].group_selected;
 
           Inc(Count);
         end;
@@ -437,7 +437,7 @@ begin
   n := 0;
   while n < keeps_list.Count do begin
 
-    with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do begin
+    with keeps_list[n].template_info.keep_dims.box_dims1 do begin
 
       if fb_kludge_template_code = 0     // not a kludge template
       then begin
@@ -446,12 +446,11 @@ begin
       end;
     end;//with
 
-    if Ttemplate(keeps_list.Objects[n]).bg_copied = True then
+    if keeps_list[n].bg_copied = True then
       wipe_it(n);  // any data on background
 
-    Ttemplate(keeps_list.Objects[n]).template_info.keep_shove_list.Free;
+    keeps_list[n].template_info.keep_shove_list.Free;
 
-    Ttemplate(keeps_list.Objects[n]).Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
 

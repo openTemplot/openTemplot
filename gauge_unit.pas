@@ -165,7 +165,8 @@ uses
   Printers, Clipbrd, control_room, pad_unit, entry_sheet, help_sheet, chat_unit,
   math_unit, alert_unit,
   colour_unit, keep_select, info_unit, print_unit, shove_timber, print_settings_unit,
-  shoved_timber;
+  shoved_timber,
+  template;
 
 const
 
@@ -273,12 +274,12 @@ begin
 
     while n < Count do begin
 
-      if Ttemplate(keeps_list.Objects[n]).group_selected = False then begin
+      if keeps_list[n].group_selected = False then begin
         Inc(n);
         CONTINUE;     // don't change this one.
       end;
 
-      bgnd := Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077;
+      bgnd := keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077;
       // remember if it's on bgnd.
 
       list_position := n;
@@ -308,7 +309,7 @@ begin
     n := 0;
     while n < keeps_list.Count do begin
 
-      if Ttemplate(keeps_list.Objects[n]).group_selected = False then begin
+      if keeps_list[n].group_selected = False then begin
         Inc(n);
         CONTINUE;  // leave this one.
       end;
@@ -347,7 +348,8 @@ var
 
 begin
   with gauge_form do begin
-    if (gauge_select_i < (gauge_listbox.Items.Count - 5)) and (gauge[gauge_select_i].scale_glist = 0)
+    if (gauge_select_i < (gauge_listbox.Items.Count - 5)) and
+      (gauge[gauge_select_i].scale_glist = 0)
     then begin
       if alert(2, '    ' + gauge[gauge_select_i].name_str_glist + '  not  yet  implemented',
         ok_large_panel.Caption + sorry_str,
@@ -356,7 +358,8 @@ begin
       EXIT;// form remains showing
     end;
 
-    if (gauge_select_i < (gauge_listbox.Items.Count - 1)) and (gauge[gauge_select_i].scale_glist = 0)
+    if (gauge_select_i < (gauge_listbox.Items.Count - 1)) and
+      (gauge[gauge_select_i].scale_glist = 0)
     then begin
       if alert(2, '                         ' + gauge[gauge_select_i].name_str_glist,
         '|No dimensions for this custom setting have yet been entered.'
@@ -367,12 +370,13 @@ begin
       EXIT;// form remains showing
     end;
 
-    if (gauge_select_i = (gauge_listbox.Items.Count - 1)) and (gauge[gauge_select_i].scale_glist = 0)
+    if (gauge_select_i = (gauge_listbox.Items.Count - 1)) and
+      (gauge[gauge_select_i].scale_glist = 0)
     then begin
       if alert(2, '                         exact  scale',
         '|No scale has yet been entered for this setting.'
         +
-        '||Click below or the `0SET EXACT SCALE`1 button to enter the required scale.'  ,
+        '||Click below or the `0SET EXACT SCALE`1 button to enter the required scale.',
         '', '', '', '', 'cancel', 'enter  EXACT  SCALE  data', 0) = 6 then
         exact_scale_button.Click;
       EXIT; // form remains showing
@@ -449,7 +453,8 @@ begin
       gauge_listbox.SetFocus;  // in case come here from data entry (CUSTOM / EXACT).
     gauge_select_i := gauge_listbox.ItemIndex;
 
-    ok_panel.Caption := '   ' + Copy(gauge_listbox.Items.Strings[gauge_select_i], 11, 200);   //  215a
+    ok_panel.Caption := '   ' + Copy(gauge_listbox.Items.Strings[gauge_select_i], 11, 200);
+    //  215a
 
     ok_large_panel.Caption := gauge[gauge_select_i].name_str_glist;
 
@@ -618,7 +623,8 @@ begin
         alert_help(0, scale_help_str, '');
 
       4: begin
-        n := putdim(help_str, 0, 'EXACT  SCALE  ratio  1 :', 304.8 / scale, True, True, True, False);
+        n := putdim(help_str, 0, 'EXACT  SCALE  ratio  1 :', 304.8 / scale,
+          True, True, True, False);
         // no negative, no pre-set, no zero, don't terminate on zero.
         if n <> 0 then
           EXIT;
@@ -727,7 +733,8 @@ begin
   ClientHeight := VertScrollBar.Range;
   // do this twice, as each affects the other.
 
-  size_updown.Tag := size_updown.Position;                           // and save for the next click.
+  size_updown.Tag := size_updown.Position;
+  // and save for the next click.
 
   no_onresize := False;
   Resize;
@@ -1974,7 +1981,8 @@ begin
       then begin
         init_gauge_defaults(index);
         listbox_str :=
-          ' CUSTOM-' + dummy_str + '                                custom settings (' + dummy_str + ')';
+          ' CUSTOM-' + dummy_str + '                                custom settings (' +
+          dummy_str + ')';
         gauge_form.gauge_listbox.Items.Strings[index] := listbox_str;
       end;
 
@@ -2295,7 +2303,8 @@ begin
             +
             '|| For more information please click the [ ? help ] button.')
         else
-          no_data_str := insert_crlf_str(ok_large_panel.Caption + '|| No EXACT scale size has yet been entered.'
+          no_data_str := insert_crlf_str(ok_large_panel.Caption +
+            '|| No EXACT scale size has yet been entered.'
             +
             '| Click the [ set exact scale... ] button to enter your'
             +

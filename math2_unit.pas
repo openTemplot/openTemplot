@@ -33,7 +33,8 @@ interface
 uses
   Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls, MaskEdit, FileCtrl, Math,
-  pad_unit;      //  need Tpex declaration in this part for parameters to routines.
+  pad_unit,
+  template;      //  need Tpex declaration in this part for parameters to routines.
 
 function do_notch_on_intersection(making_diamond, move_notch: boolean;
   rail_offset_control, rail_offset_bgnd: integer; top_str, next_str: string): boolean;
@@ -688,8 +689,10 @@ begin
           i := alert(4, 'php/109    notch  on  intersection',
             'There are two places where the templates intersect, or would intersect if sufficiently extended in length.'
             +
-            '||Is the notch on the required intersection, now showing at the centre of the trackpad?' +
-            '||The intersection angle is  ' + angle_str + '.| ', '', '_2a_+  zoom in_2b_-  zoom out',
+            '||Is the notch on the required intersection, now showing at the centre of the trackpad?'
+            +
+            '||The intersection angle is  ' + angle_str + '.| ', '',
+            '_2a_+  zoom in_2b_-  zoom out',
             'more  information', 'no  -  try  other  intersection  instead',
             'cancel  -  reset  notch', 'yes  -  continue', 3);
         end;
@@ -1303,9 +1306,9 @@ begin
       grow_str := 'Shortening the control template to meet --' + #13 + #13;
   end;
 
-  bg_pt := Ttemplate(keeps_list.Objects[index]).bgnd_plain_track;
-  bg_hd := Ttemplate(keeps_list.Objects[index]).bgnd_half_diamond;
-  bg_rp := Ttemplate(keeps_list.Objects[index]).bgnd_retpar;        // parallel crossing
+  bg_pt := keeps_list[index].bgnd_plain_track;
+  bg_hd := keeps_list[index].bgnd_half_diamond;
+  bg_rp := keeps_list[index].bgnd_retpar;        // parallel crossing
 
   was_end_swapped := False;  // init
   been_here_before := 0;     // init
@@ -1326,7 +1329,7 @@ begin
   mod_dir := 1;              // init   1=extend  -1=shorten
 
 
-  with Ttemplate(keeps_list.Objects[index]).boundary_info do begin
+  with keeps_list[index].boundary_info do begin
 
     try
 
@@ -1343,7 +1346,8 @@ begin
 
             if boundary = -1 then
               ShowMessage(grow_str +
-              'Sorry, unable to find a matching MS (main-side) boundary on the selected background template.' +
+              'Sorry, unable to find a matching MS (main-side) boundary on the selected background template.'
+              +
               try_manual_str)
             else
               ShowMessage('Sorry, unable to find the required boundary on the selected background template.'
@@ -1756,7 +1760,8 @@ begin
         xorg := old_xorg;
 
         ShowMessage(grow_str +
-          'Sorry, the control template would exceed the maximum template length.' + try_manual_str);
+          'Sorry, the control template would exceed the maximum template length.' +
+          try_manual_str);
         EXIT;
       end;
 
@@ -1879,7 +1884,8 @@ begin
 
         if boundary = -1 then
           ShowMessage(grow_str +
-            'Sorry, unable to find a matching MS (main-side) boundary on the selected background template.' +
+            'Sorry, unable to find a matching MS (main-side) boundary on the selected background template.'
+            +
             try_manual_str)
         else
           ShowMessage('The control template does not align with the background template at that boundary.'
@@ -2010,7 +2016,7 @@ begin
 
   for n := 0 to (keeps_list.Count - 1) do begin
 
-    with Ttemplate(keeps_list.Objects[n]) do begin
+    with keeps_list[n] do begin
 
       if bg_copied = False then
         CONTINUE;  // not on background.
@@ -2121,7 +2127,7 @@ begin
 
         for n := 0 to (keeps_list.Count - 1) do begin
 
-          with Ttemplate(keeps_list.Objects[n]) do begin
+          with keeps_list[n] do begin
 
             if bg_copied = False then
               CONTINUE;  // not on background.

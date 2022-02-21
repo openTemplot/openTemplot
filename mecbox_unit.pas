@@ -59,7 +59,7 @@ uses
   config_unit,
   keep_select, wait_message, pad_unit, info_unit, control_room, alert_unit,
   math_unit, shove_timber, rail_options_unit,
-  shoved_timber;
+  shoved_timber, template;
 
 {$R *.lfm}
 
@@ -294,7 +294,8 @@ var
         Values['1645-e'] :=
           force_dot_decimal(box_dims1.platform_trackbed_info.OUT_OF_USE_cess_width_ins_keep);
         Values['1650-b'] :=
-          IntToStr(integer(box_dims1.platform_trackbed_info.OUT_OF_USE_draw_trackbed_cess_edge_keep));
+          IntToStr(integer(box_dims1.platform_trackbed_info.
+          OUT_OF_USE_draw_trackbed_cess_edge_keep));
         Values['1655-e'] :=
           force_dot_decimal(box_dims1.platform_trackbed_info.platform_ms_start_skew_mm_keep);
         Values['1660-e'] :=
@@ -446,7 +447,8 @@ var
           IntToStr(integer(box_dims1.turnout_info1.turnout_road_is_minimum));
         Values['2140-i'] := IntToStr(turnout_info2.switch_info.old_size);
         Values['2145-s'] :=
-          StringReplace(turnout_info2.switch_info.sw_name_str, '`', '_', [rfReplaceAll, rfIgnoreCase]);
+          StringReplace(turnout_info2.switch_info.sw_name_str, '`', '_',
+          [rfReplaceAll, rfIgnoreCase]);
         Values['2150-i'] := IntToStr(turnout_info2.switch_info.sw_pattern);
         Values['2155-e'] := force_dot_decimal(turnout_info2.switch_info.planing);
         Values['2160-e'] := force_dot_decimal(turnout_info2.switch_info.planing_angle);
@@ -923,7 +925,7 @@ var
       Add(' ');  // spacer
       Add('`!`!`');      // mark start of info text
 
-      Add(StringReplace(keeps_list.Strings[i], '`', '_', [rfReplaceAll, rfIgnoreCase]));
+      Add(StringReplace(keeps_list[i].Name, '`', '_', [rfReplaceAll, rfIgnoreCase]));
 
       Add(' ');  // spacer
       Add('`@`@`');      // mark start of memo text
@@ -965,7 +967,8 @@ begin
       Filter := ' storage  box  contents  in  transfer  format  (*.mecbox)|*.mecbox';
 
       Filename := remove_invalid_str(Copy(Trim(box_project_title_str), 1, 20) +
-        FormatDateTime(' yyyy_mm_dd_hhmm_ss', Date + Time)) + '.mecbox';   // 0.79.a  20 chars was 15
+        FormatDateTime(' yyyy_mm_dd_hhmm_ss', Date + Time)) + '.mecbox';
+      // 0.79.a  20 chars was 15
 
       Title := '    export  all  templates  as ...';
 
@@ -1014,7 +1017,7 @@ begin
 
     next_ti.keep_shove_list.Clear;
 
-    copy_template_info_from_to(False, Ttemplate(keeps_list.Objects[i]).template_info, next_ti);
+    copy_template_info_from_to(False, keeps_list[i].template_info, next_ti);
     // next template in list.
 
     if i = keeps_list.Count - 1 then
@@ -1050,7 +1053,8 @@ begin
   Screen.Cursor := crDefault;
 
   if show_export_result = True then
-    ShowMessage(IntToStr(num_templates) + ' templates have been exported to' + #13 + #13 + mecbox_str);
+    ShowMessage(IntToStr(num_templates) + ' templates have been exported to' +
+      #13 + #13 + mecbox_str);
 
 end;
 //______________________________________________________________________________
@@ -1504,148 +1508,183 @@ var
             if Values['1535-b'] <> '' then
               box_dims1.platform_trackbed_info.adjacent_edges_keep := (Values['1535-b'] = '1');
             if Values['1540-b'] <> '' then
-              box_dims1.platform_trackbed_info.draw_ms_trackbed_edge_keep := (Values['1540-b'] = '1');
+              box_dims1.platform_trackbed_info.draw_ms_trackbed_edge_keep :=
+                (Values['1540-b'] = '1');
             if Values['1545-b'] <> '' then
-              box_dims1.platform_trackbed_info.draw_ts_trackbed_edge_keep := (Values['1545-b'] = '1');
+              box_dims1.platform_trackbed_info.draw_ts_trackbed_edge_keep :=
+                (Values['1545-b'] = '1');
             if Values['1550-e'] <> '' then begin
-              VAL(Values['1550-e'], box_dims1.platform_trackbed_info.OUT_OF_USE_trackbed_width_ins_keep, val_code);
+              VAL(Values['1550-e'],
+                box_dims1.platform_trackbed_info.OUT_OF_USE_trackbed_width_ins_keep, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1555-b'] <> '' then
               box_dims1.platform_trackbed_info.draw_ts_platform_keep := (Values['1555-b'] = '1');
             if Values['1560-b'] <> '' then
-              box_dims1.platform_trackbed_info.draw_ts_platform_start_edge_keep := (Values['1560-b'] = '1');
+              box_dims1.platform_trackbed_info.draw_ts_platform_start_edge_keep :=
+                (Values['1560-b'] = '1');
             if Values['1565-b'] <> '' then
-              box_dims1.platform_trackbed_info.draw_ts_platform_end_edge_keep := (Values['1565-b'] = '1');
+              box_dims1.platform_trackbed_info.draw_ts_platform_end_edge_keep :=
+                (Values['1565-b'] = '1');
             if Values['1570-b'] <> '' then
-              box_dims1.platform_trackbed_info.draw_ts_platform_rear_edge_keep := (Values['1570-b'] = '1');
+              box_dims1.platform_trackbed_info.draw_ts_platform_rear_edge_keep :=
+                (Values['1570-b'] = '1');
             if Values['1575-e'] <> '' then begin
-              VAL(Values['1575-e'], box_dims1.platform_trackbed_info.platform_ts_front_edge_ins_keep, val_code);
+              VAL(Values['1575-e'],
+                box_dims1.platform_trackbed_info.platform_ts_front_edge_ins_keep, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1580-e'] <> '' then begin
-              VAL(Values['1580-e'], box_dims1.platform_trackbed_info.platform_ts_start_width_ins_keep, val_code);
+              VAL(Values['1580-e'],
+                box_dims1.platform_trackbed_info.platform_ts_start_width_ins_keep, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1585-e'] <> '' then begin
-              VAL(Values['1585-e'], box_dims1.platform_trackbed_info.platform_ts_end_width_ins_keep, val_code);
+              VAL(Values['1585-e'],
+                box_dims1.platform_trackbed_info.platform_ts_end_width_ins_keep, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1590-e'] <> '' then begin
-              VAL(Values['1590-e'], box_dims1.platform_trackbed_info.platform_ts_start_mm_keep, val_code);
+              VAL(Values['1590-e'], box_dims1.platform_trackbed_info.platform_ts_start_mm_keep,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1595-e'] <> '' then begin
-              VAL(Values['1595-e'], box_dims1.platform_trackbed_info.platform_ts_length_mm_keep, val_code);
+              VAL(Values['1595-e'], box_dims1.platform_trackbed_info.platform_ts_length_mm_keep,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1600-b'] <> '' then
               box_dims1.platform_trackbed_info.draw_ms_platform_keep := (Values['1600-b'] = '1');
             if Values['1605-b'] <> '' then
-              box_dims1.platform_trackbed_info.draw_ms_platform_start_edge_keep := (Values['1605-b'] = '1');
+              box_dims1.platform_trackbed_info.draw_ms_platform_start_edge_keep :=
+                (Values['1605-b'] = '1');
             if Values['1610-b'] <> '' then
-              box_dims1.platform_trackbed_info.draw_ms_platform_end_edge_keep := (Values['1610-b'] = '1');
+              box_dims1.platform_trackbed_info.draw_ms_platform_end_edge_keep :=
+                (Values['1610-b'] = '1');
             if Values['1615-b'] <> '' then
-              box_dims1.platform_trackbed_info.draw_ms_platform_rear_edge_keep := (Values['1615-b'] = '1');
+              box_dims1.platform_trackbed_info.draw_ms_platform_rear_edge_keep :=
+                (Values['1615-b'] = '1');
             if Values['1620-e'] <> '' then begin
-              VAL(Values['1620-e'], box_dims1.platform_trackbed_info.platform_ms_front_edge_ins_keep, val_code);
+              VAL(Values['1620-e'],
+                box_dims1.platform_trackbed_info.platform_ms_front_edge_ins_keep, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1625-e'] <> '' then begin
-              VAL(Values['1625-e'], box_dims1.platform_trackbed_info.platform_ms_start_width_ins_keep, val_code);
+              VAL(Values['1625-e'],
+                box_dims1.platform_trackbed_info.platform_ms_start_width_ins_keep, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1630-e'] <> '' then begin
-              VAL(Values['1630-e'], box_dims1.platform_trackbed_info.platform_ms_end_width_ins_keep, val_code);
+              VAL(Values['1630-e'],
+                box_dims1.platform_trackbed_info.platform_ms_end_width_ins_keep, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1635-e'] <> '' then begin
-              VAL(Values['1635-e'], box_dims1.platform_trackbed_info.platform_ms_start_mm_keep, val_code);
+              VAL(Values['1635-e'], box_dims1.platform_trackbed_info.platform_ms_start_mm_keep,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1640-e'] <> '' then begin
-              VAL(Values['1640-e'], box_dims1.platform_trackbed_info.platform_ms_length_mm_keep, val_code);
+              VAL(Values['1640-e'], box_dims1.platform_trackbed_info.platform_ms_length_mm_keep,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1645-e'] <> '' then begin
-              VAL(Values['1645-e'], box_dims1.platform_trackbed_info.OUT_OF_USE_cess_width_ins_keep, val_code);
+              VAL(Values['1645-e'],
+                box_dims1.platform_trackbed_info.OUT_OF_USE_cess_width_ins_keep, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1650-b'] <> '' then
-              box_dims1.platform_trackbed_info.OUT_OF_USE_draw_trackbed_cess_edge_keep := (Values['1650-b'] = '1');
+              box_dims1.platform_trackbed_info.OUT_OF_USE_draw_trackbed_cess_edge_keep :=
+                (Values['1650-b'] = '1');
             if Values['1655-e'] <> '' then begin
-              VAL(Values['1655-e'], box_dims1.platform_trackbed_info.platform_ms_start_skew_mm_keep, val_code);
+              VAL(Values['1655-e'],
+                box_dims1.platform_trackbed_info.platform_ms_start_skew_mm_keep, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1660-e'] <> '' then begin
-              VAL(Values['1660-e'], box_dims1.platform_trackbed_info.platform_ms_end_skew_mm_keep, val_code);
+              VAL(Values['1660-e'], box_dims1.platform_trackbed_info.platform_ms_end_skew_mm_keep,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1665-e'] <> '' then begin
-              VAL(Values['1665-e'], box_dims1.platform_trackbed_info.platform_ts_start_skew_mm_keep, val_code);
+              VAL(Values['1665-e'],
+                box_dims1.platform_trackbed_info.platform_ts_start_skew_mm_keep, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1670-e'] <> '' then begin
-              VAL(Values['1670-e'], box_dims1.platform_trackbed_info.platform_ts_end_skew_mm_keep, val_code);
+              VAL(Values['1670-e'], box_dims1.platform_trackbed_info.platform_ts_end_skew_mm_keep,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1675-g'] <> '' then begin
-              VAL(Values['1675-g'], box_dims1.platform_trackbed_info.trackbed_ms_width_ins_keep, val_code);
+              VAL(Values['1675-g'], box_dims1.platform_trackbed_info.trackbed_ms_width_ins_keep,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1680-g'] <> '' then begin
-              VAL(Values['1680-g'], box_dims1.platform_trackbed_info.trackbed_ts_width_ins_keep, val_code);
+              VAL(Values['1680-g'], box_dims1.platform_trackbed_info.trackbed_ts_width_ins_keep,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1685-g'] <> '' then begin
-              VAL(Values['1685-g'], box_dims1.platform_trackbed_info.cess_ms_width_ins_keep, val_code);
+              VAL(Values['1685-g'], box_dims1.platform_trackbed_info.cess_ms_width_ins_keep,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1690-g'] <> '' then begin
-              VAL(Values['1690-g'], box_dims1.platform_trackbed_info.cess_ts_width_ins_keep, val_code);
+              VAL(Values['1690-g'], box_dims1.platform_trackbed_info.cess_ts_width_ins_keep,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1695-b'] <> '' then
-              box_dims1.platform_trackbed_info.draw_ms_trackbed_cess_edge_keep := (Values['1695-b'] = '1');
+              box_dims1.platform_trackbed_info.draw_ms_trackbed_cess_edge_keep :=
+                (Values['1695-b'] = '1');
             if Values['1700-b'] <> '' then
-              box_dims1.platform_trackbed_info.draw_ts_trackbed_cess_edge_keep := (Values['1700-b'] = '1');
+              box_dims1.platform_trackbed_info.draw_ts_trackbed_cess_edge_keep :=
+                (Values['1700-b'] = '1');
             if Values['1705-e'] <> '' then begin
-              VAL(Values['1705-e'], box_dims1.platform_trackbed_info.trackbed_ms_start_mm_keep, val_code);
+              VAL(Values['1705-e'], box_dims1.platform_trackbed_info.trackbed_ms_start_mm_keep,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1710-e'] <> '' then begin
-              VAL(Values['1710-e'], box_dims1.platform_trackbed_info.trackbed_ms_length_mm_keep, val_code);
+              VAL(Values['1710-e'], box_dims1.platform_trackbed_info.trackbed_ms_length_mm_keep,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1715-e'] <> '' then begin
-              VAL(Values['1715-e'], box_dims1.platform_trackbed_info.trackbed_ts_start_mm_keep, val_code);
+              VAL(Values['1715-e'], box_dims1.platform_trackbed_info.trackbed_ts_start_mm_keep,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['1720-e'] <> '' then begin
-              VAL(Values['1720-e'], box_dims1.platform_trackbed_info.trackbed_ts_length_mm_keep, val_code);
+              VAL(Values['1720-e'], box_dims1.platform_trackbed_info.trackbed_ts_length_mm_keep,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
@@ -2239,7 +2278,8 @@ var
             if Values['2465-y'] <> '' then
               turnout_info2.switch_info.num_bridge_chairs_main_rail := StrToInt(Values['2465-y']);
             if Values['2470-y'] <> '' then
-              turnout_info2.switch_info.num_bridge_chairs_turnout_rail := StrToInt(Values['2470-y']);
+              turnout_info2.switch_info.num_bridge_chairs_turnout_rail :=
+                StrToInt(Values['2470-y']);
             if Values['2475-e'] <> '' then begin
               VAL(Values['2475-e'], turnout_info2.switch_info.fb_tip_offset, val_code);
               if val_code <> 0 then
@@ -2382,84 +2422,100 @@ var
                 BREAK;
             end;
             if Values['2685-e'] <> '' then begin
-              VAL(Values['2685-e'], turnout_info2.crossing_info.check_flare_info_081.check_flare_ext_ms, val_code);
+              VAL(Values['2685-e'],
+                turnout_info2.crossing_info.check_flare_info_081.check_flare_ext_ms, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2690-e'] <> '' then begin
-              VAL(Values['2690-e'], turnout_info2.crossing_info.check_flare_info_081.check_flare_ext_ts, val_code);
+              VAL(Values['2690-e'],
+                turnout_info2.crossing_info.check_flare_info_081.check_flare_ext_ts, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2695-e'] <> '' then begin
-              VAL(Values['2695-e'], turnout_info2.crossing_info.check_flare_info_081.check_flare_work_ms,
+              VAL(Values['2695-e'],
+                turnout_info2.crossing_info.check_flare_info_081.check_flare_work_ms,
                 val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2700-e'] <> '' then begin
-              VAL(Values['2700-e'], turnout_info2.crossing_info.check_flare_info_081.check_flare_work_ts,
+              VAL(Values['2700-e'],
+                turnout_info2.crossing_info.check_flare_info_081.check_flare_work_ts,
                 val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2705-e'] <> '' then begin
-              VAL(Values['2705-e'], turnout_info2.crossing_info.check_flare_info_081.wing_flare_ms, val_code);
+              VAL(Values['2705-e'], turnout_info2.crossing_info.check_flare_info_081.wing_flare_ms,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2710-e'] <> '' then begin
-              VAL(Values['2710-e'], turnout_info2.crossing_info.check_flare_info_081.wing_flare_ts, val_code);
+              VAL(Values['2710-e'], turnout_info2.crossing_info.check_flare_info_081.wing_flare_ts,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2715-e'] <> '' then begin
-              VAL(Values['2715-e'], turnout_info2.crossing_info.check_flare_info_081.check_flare_k_ms, val_code);
+              VAL(Values['2715-e'],
+                turnout_info2.crossing_info.check_flare_info_081.check_flare_k_ms, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2720-e'] <> '' then begin
-              VAL(Values['2720-e'], turnout_info2.crossing_info.check_flare_info_081.check_flare_k_ds, val_code);
+              VAL(Values['2720-e'],
+                turnout_info2.crossing_info.check_flare_info_081.check_flare_k_ds, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2725-e'] <> '' then begin
-              VAL(Values['2725-e'], turnout_info2.crossing_info.check_flare_info_081.check_fwe_ext_ms, val_code);
+              VAL(Values['2725-e'],
+                turnout_info2.crossing_info.check_flare_info_081.check_fwe_ext_ms, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2730-e'] <> '' then begin
-              VAL(Values['2730-e'], turnout_info2.crossing_info.check_flare_info_081.check_fwe_ext_ts, val_code);
+              VAL(Values['2730-e'],
+                turnout_info2.crossing_info.check_flare_info_081.check_fwe_ext_ts, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2735-e'] <> '' then begin
-              VAL(Values['2735-e'], turnout_info2.crossing_info.check_flare_info_081.check_fwe_work_ms, val_code);
+              VAL(Values['2735-e'],
+                turnout_info2.crossing_info.check_flare_info_081.check_fwe_work_ms, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2740-e'] <> '' then begin
-              VAL(Values['2740-e'], turnout_info2.crossing_info.check_flare_info_081.check_fwe_work_ts, val_code);
+              VAL(Values['2740-e'],
+                turnout_info2.crossing_info.check_flare_info_081.check_fwe_work_ts, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2745-e'] <> '' then begin
-              VAL(Values['2745-e'], turnout_info2.crossing_info.check_flare_info_081.wing_fwe_ms, val_code);
+              VAL(Values['2745-e'], turnout_info2.crossing_info.check_flare_info_081.wing_fwe_ms,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2750-e'] <> '' then begin
-              VAL(Values['2750-e'], turnout_info2.crossing_info.check_flare_info_081.wing_fwe_ts, val_code);
+              VAL(Values['2750-e'], turnout_info2.crossing_info.check_flare_info_081.wing_fwe_ts,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2755-e'] <> '' then begin
-              VAL(Values['2755-e'], turnout_info2.crossing_info.check_flare_info_081.check_fwe_k_ms, val_code);
+              VAL(Values['2755-e'],
+                turnout_info2.crossing_info.check_flare_info_081.check_fwe_k_ms, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2760-e'] <> '' then begin
-              VAL(Values['2760-e'], turnout_info2.crossing_info.check_flare_info_081.check_fwe_k_ds, val_code);
+              VAL(Values['2760-e'],
+                turnout_info2.crossing_info.check_flare_info_081.check_fwe_k_ds, val_code);
               if val_code <> 0 then
                 BREAK;
             end;
@@ -2469,14 +2525,16 @@ var
                 BREAK;
             end;
             if Values['2770-e'] <> '' then begin
-              VAL(Values['2770-e'], turnout_info2.crossing_info.k_custom_point_long_keep, val_code);
+              VAL(Values['2770-e'], turnout_info2.crossing_info.k_custom_point_long_keep,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['2775-b'] <> '' then
               turnout_info2.crossing_info.use_k_custom_wing_rails_keep := (Values['2775-b'] = '1');
             if Values['2780-b'] <> '' then
-              turnout_info2.crossing_info.use_k_custom_point_rails_keep := (Values['2780-b'] = '1');
+              turnout_info2.crossing_info.use_k_custom_point_rails_keep :=
+                (Values['2780-b'] = '1');
             if Values['2785-b'] <> '' then
               turnout_info2.plain_track_info.pt_custom := (Values['2785-b'] = '1');
             if Values['2790-i'] <> '' then
@@ -2774,12 +2832,14 @@ var
             if Values['3100-y'] <> '' then
               turnout_info2.plain_track_info.alignment_byte_6 := StrToInt(Values['3100-y']);
             if Values['3105-e'] <> '' then begin
-              VAL(Values['3105-e'], turnout_info2.plain_track_info.pt_tb_rolling_percent, val_code);
+              VAL(Values['3105-e'], turnout_info2.plain_track_info.pt_tb_rolling_percent,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['3110-e'] <> '' then begin
-              VAL(Values['3110-e'], turnout_info2.plain_track_info.gaunt_sleeper_mod_inches, val_code);
+              VAL(Values['3110-e'], turnout_info2.plain_track_info.gaunt_sleeper_mod_inches,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
@@ -2848,32 +2908,38 @@ var
                 BREAK;
             end;
             if Values['3230-e'] <> '' then begin
-              VAL(Values['3230-e'], turnout_info2.vee_check_rail_info.v_check_ms_working1, val_code);
+              VAL(Values['3230-e'], turnout_info2.vee_check_rail_info.v_check_ms_working1,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['3235-e'] <> '' then begin
-              VAL(Values['3235-e'], turnout_info2.vee_check_rail_info.v_check_ms_working2, val_code);
+              VAL(Values['3235-e'], turnout_info2.vee_check_rail_info.v_check_ms_working2,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['3240-e'] <> '' then begin
-              VAL(Values['3240-e'], turnout_info2.vee_check_rail_info.v_check_ms_working3, val_code);
+              VAL(Values['3240-e'], turnout_info2.vee_check_rail_info.v_check_ms_working3,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['3245-e'] <> '' then begin
-              VAL(Values['3245-e'], turnout_info2.vee_check_rail_info.v_check_ts_working1, val_code);
+              VAL(Values['3245-e'], turnout_info2.vee_check_rail_info.v_check_ts_working1,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['3250-e'] <> '' then begin
-              VAL(Values['3250-e'], turnout_info2.vee_check_rail_info.v_check_ts_working2, val_code);
+              VAL(Values['3250-e'], turnout_info2.vee_check_rail_info.v_check_ts_working2,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
             if Values['3255-e'] <> '' then begin
-              VAL(Values['3255-e'], turnout_info2.vee_check_rail_info.v_check_ts_working3, val_code);
+              VAL(Values['3255-e'], turnout_info2.vee_check_rail_info.v_check_ts_working3,
+                val_code);
               if val_code <> 0 then
                 BREAK;
             end;
@@ -2993,19 +3059,26 @@ var
               if Values['9900-i'] <> '' then
                 next_ti.keep_shove_list[st].sv_code := Tshove_code(StrToInt(Values['9900-i']));
               if Values['9905-e'] <> '' then
-                next_ti.keep_shove_list[st].sv_x := StrToFloat(Values['9905-e'], decimal_dot_format);
+                next_ti.keep_shove_list[st].sv_x :=
+                  StrToFloat(Values['9905-e'], decimal_dot_format);
               if Values['9910-e'] <> '' then
-                next_ti.keep_shove_list[st].sv_k := StrToFloat(Values['9910-e'], decimal_dot_format);
+                next_ti.keep_shove_list[st].sv_k :=
+                  StrToFloat(Values['9910-e'], decimal_dot_format);
               if Values['9915-e'] <> '' then
-                next_ti.keep_shove_list[st].sv_o := StrToFloat(Values['9915-e'], decimal_dot_format);
+                next_ti.keep_shove_list[st].sv_o :=
+                  StrToFloat(Values['9915-e'], decimal_dot_format);
               if Values['9920-e'] <> '' then
-                next_ti.keep_shove_list[st].sv_l := StrToFloat(Values['9920-e'], decimal_dot_format);
+                next_ti.keep_shove_list[st].sv_l :=
+                  StrToFloat(Values['9920-e'], decimal_dot_format);
               if Values['9925-e'] <> '' then
-                next_ti.keep_shove_list[st].sv_w := StrToFloat(Values['9925-e'], decimal_dot_format);
+                next_ti.keep_shove_list[st].sv_w :=
+                  StrToFloat(Values['9925-e'], decimal_dot_format);
               if Values['9930-e'] <> '' then
-                next_ti.keep_shove_list[st].sv_c := StrToFloat(Values['9930-e'], decimal_dot_format);
+                next_ti.keep_shove_list[st].sv_c :=
+                  StrToFloat(Values['9930-e'], decimal_dot_format);
               if Values['9935-e'] <> '' then
-                next_ti.keep_shove_list[st].sv_t := StrToFloat(Values['9935-e'], decimal_dot_format);
+                next_ti.keep_shove_list[st].sv_t :=
+                  StrToFloat(Values['9935-e'], decimal_dot_format);
               if Values['9940-i'] <> '' then
                 next_ti.keep_shove_list[st].sv_sp_int := StrToInt(Values['9940-i']);
 
@@ -3125,7 +3198,8 @@ begin
 
       test_str := next_ti.keep_dims.box_dims1.box_ident;      // double check...
 
-      if not ((test_str = ('N ' + IntToStr(m))) or (test_str = ('NX' + IntToStr(num_templates - 1))))
+      if not ((test_str = ('N ' + IntToStr(m))) or
+        (test_str = ('NX' + IntToStr(num_templates - 1))))
       // error reading, or this is not a template.
       then begin
         clear_keeps(False, False);   // first clear any loaded, don't save it for undo
@@ -3135,7 +3209,7 @@ begin
       end;
 
       try
-        n := keeps_list.AddObject(info_str, Ttemplate.Create);
+        n := keeps_list.Add(Ttemplate.Create(info_str));
         // create and append a new line in keeps list
         if memo_list.Add(memo_str) <> n then
           run_error(197);    // and memo list. Ensure indices correspond
@@ -3164,7 +3238,7 @@ begin
 
       // data updated if needed - now can copy it into the box list..
 
-      copy_template_info_from_to(True, next_ti, Ttemplate(keeps_list.Objects[n]).template_info);
+      copy_template_info_from_to(True, next_ti, keeps_list[n].template_info);
       // True = free next_ti shovelist and its data objects
 
       // and recreate shove list for next template..
@@ -3219,7 +3293,7 @@ begin
       EXIT;  // cleared on error or nothing loaded.
 
     for n := 0 to (keeps_list.Count - 1) do begin
-      if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.bgnd_code_077 = 1
+      if keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 = 1
       then begin
         list_position := n;                       // put new keep on background.
         copy_keep_to_background(n, False, True);  // don't update info, reloading=True.
@@ -3256,7 +3330,10 @@ begin
   then begin
     i := alert(7, '    import  MECBOX  into  storage  box  -  save  first ?',
       'Your storage box contains one or more templates which have not yet been saved.'
-      + '||Importing a MECBOX file into your storage box will replace all of the existing templates and background track plan.' + '||These existing templates can be restored later by clicking the `0FILES > UNDO�RELOAD / UNDO CLEAR`1 menu item.' + ' But if any of these templates may be needed again, you should first save them in a named data file.', '', '', '', 'replace  existing  contents  without  saving', 'cancel  import', 'save  existing  contents  before  importing', 0);
+      + '||Importing a MECBOX file into your storage box will replace all of the existing templates and background track plan.'
+      + '||These existing templates can be restored later by clicking the `0FILES > UNDO�RELOAD / UNDO CLEAR`1 menu item.'
+      + ' But if any of these templates may be needed again, you should first save them in a named data file.', '', '', '', 'replace  existing  contents  without  saving', 'cancel  import',
+      'save  existing  contents  before  importing', 0);
     case i of
       5:
         EXIT;
@@ -3338,7 +3415,12 @@ begin
   if later_file = True then begin
     alert(1, 'php/980    later  file   -   ( from  version  ' + FormatFloat(
       '0.00', loaded_version / 100) + ' )',
-      'The file which you just reloaded contained one or more templates from a later version of Templot than this one.' + ' Some features may not be available or may be drawn differently.' + '||The earliest loaded template was from version  ' + FormatFloat('0.00', loaded_version / 100) + '|This version of Templot is  ' + GetVersionString(voShort) + '||Please refer to the Templot web site at  templot.com  for information about upgrading to the latest version, or click| <A HREF="online_ref980.85a">more information online</A> .',
+      'The file which you just reloaded contained one or more templates from a later version of Templot than this one.'
+      +
+      ' Some features may not be available or may be drawn differently.' +
+      '||The earliest loaded template was from version  ' + FormatFloat('0.00', loaded_version / 100) +
+      '|This version of Templot is  ' + GetVersionString(voShort) +
+      '||Please refer to the Templot web site at  templot.com  for information about upgrading to the latest version, or click| <A HREF="online_ref980.85a">more information online</A> .',
       '', '', '', '', '', 'continue', 0);
   end;
 

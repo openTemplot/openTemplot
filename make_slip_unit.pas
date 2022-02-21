@@ -77,7 +77,8 @@ uses
   pad_unit, math_unit, keep_select, alert_unit, info_unit, control_room, shove_timber,
   switch_select,
   shoved_timber,
-  curve{ OT-FIRST , web_browser_unit};
+  curve,
+  template{ OT-FIRST , web_browser_unit};
 
 //______________________________________________________________________________
 
@@ -177,18 +178,17 @@ var
     if keeps_list.Count > first_bgnd_template then begin
       for z := first_bgnd_template to keeps_list.Count - 1 do begin
 
-        if Ttemplate(keeps_list.Objects[z]).bgnd_half_diamond =
+        if keeps_list[z].bgnd_half_diamond =
           True then
           str := ' slip half-diamond'
         else
-        if Ttemplate(keeps_list.Objects[z]).bgnd_plain_track = True
+        if keeps_list[z].bgnd_plain_track = True
         then
           str := ' slip road'
         else
           str := ' slip switch';
 
-        Ttemplate(
-          keeps_list.Objects[z]).template_info.keep_dims.box_dims1.reference_string := id_str + ' ' + str;
+        keeps_list[z].template_info.keep_dims.box_dims1.reference_string := id_str + ' ' + str;
       end;//next
     end;
   end;
@@ -363,7 +363,8 @@ begin
       case mod_double_slip of
         1:
           if g < (56 * inscale) then
-            hd_vcheck_rails := 0;   // not P4 etc.     switch moved so shortened check rails not needed
+            hd_vcheck_rails := 0;
+        // not P4 etc.     switch moved so shortened check rails not needed
         2:
           hd_vcheck_rails := 0;                          // for all gauges
       end;//case
@@ -415,9 +416,11 @@ begin
     end;
 
     if k3n > 10.125 then
-      switch_mid_inches := switch_mid_inches + 28;     // adding some extra approach track   1 timber space
+      switch_mid_inches := switch_mid_inches + 28;
+    // adding some extra approach track   1 timber space
     if k3n > 15.125 then
-      switch_mid_inches := switch_mid_inches + 28;     // adding more extra approach track   2 timber space
+      switch_mid_inches := switch_mid_inches + 28;
+    // adding more extra approach track   2 timber space
 
     if (sides = 0) and (k3n > 6.51)
     // double-slip - move switch forward
@@ -441,10 +444,12 @@ begin
 
     111:
 
-      omit_wj_marks := True;  // and omit the wing rail joint marks      // restored in retain_on_make
+      omit_wj_marks := True;
+    // and omit the wing rail joint marks      // restored in retain_on_make
 
     if spiral = True then
-      switch_mid_rad1 := clrad_at_x(mcpx - switch_mid_mm)  // back from MCP-1 to middle of switch location
+      switch_mid_rad1 := clrad_at_x(mcpx - switch_mid_mm)
+    // back from MCP-1 to middle of switch location
     else
       switch_mid_rad1 := nomrad;
 
@@ -459,7 +464,8 @@ begin
     omit_wj_marks := True;  // and omit the wing rail joint marks      // restored in retain_on_make
 
     if spiral = True then
-      switch_mid_rad2 := clrad_at_x(mcpx - switch_mid_mm)  // back from MCP-2 to middle of switch location
+      switch_mid_rad2 := clrad_at_x(mcpx - switch_mid_mm)
+    // back from MCP-2 to middle of switch location
     else
       switch_mid_rad2 := nomrad;
 
@@ -541,7 +547,8 @@ begin
       case mod_double_slip of
         1:
           if g < (56 * inscale) then
-            xorg := xorg + 28 * inscale;   // not P4 etc.    greater tip clearance.  28" typical fill spacing
+            xorg := xorg + 28 * inscale;
+        // not P4 etc.    greater tip clearance.  28" typical fill spacing
         2:
           xorg := xorg + 28 * inscale;                          // for all gauges
       end;//case
@@ -692,10 +699,10 @@ begin
 
     first_sw_index := keeps_list.Count - 1;
 
-    slip_road_pos1 := Ttemplate(keeps_list.Objects[first_sw_index]).snap_peg_positions.ctrl_planing_pos;
+    slip_road_pos1 := keeps_list[first_sw_index].snap_peg_positions.ctrl_planing_pos;
     // location of end of planing on pad
 
-    copy_template_info_from_to(False, Ttemplate(keeps_list.Objects[first_sw_index]).template_info, ti);
+    copy_template_info_from_to(False, keeps_list[first_sw_index].template_info, ti);
     // get the switch back
     copy_keep(ti);
     // and make it the control (discard the slip road)
@@ -824,7 +831,8 @@ begin
 
     second_sw_index := keeps_list.Count - 1;
 
-    slip_road_pos2 := Ttemplate(keeps_list.Objects[second_sw_index]).snap_peg_positions.ctrl_planing_pos;    // location of end of planing on pad
+    slip_road_pos2 := keeps_list[second_sw_index].snap_peg_positions.ctrl_planing_pos;
+    // location of end of planing on pad
 
     gocalc(0, 0);
 
@@ -858,7 +866,8 @@ begin
     // get location of opposite end  x3,y3
 
     normalize_transforms;
-    docurving(True, True, turnoutx, g / 2, x3, temp, dummy1, dummy2);   // get pad location data for end.
+    docurving(True, True, turnoutx, g / 2, x3, temp, dummy1, dummy2);
+    // get pad location data for end.
     y3 := temp * hand_i + y_datum;
 
     temp := SQR(x3 - x1) + SQR(y3 - y1);
@@ -898,7 +907,8 @@ begin
     // get location of end  x3,y3
 
     normalize_transforms;
-    docurving(True, True, turnoutx, g / 2, x3, temp, dummy1, dummy2);   // get pad location data for end.
+    docurving(True, True, turnoutx, g / 2, x3, temp, dummy1, dummy2);
+    // get pad location data for end.
     y3 := temp * hand_i + y_datum;
 
     offset_pos_sq := SQR(x3 - x1) + SQR(y3 - y1);
@@ -911,7 +921,8 @@ begin
     // get location of end  x3,y3
 
     normalize_transforms;
-    docurving(True, True, turnoutx, g / 2, x3, temp, dummy1, dummy2);   // get pad location data for end.
+    docurving(True, True, turnoutx, g / 2, x3, temp, dummy1, dummy2);
+    // get pad location data for end.
     y3 := temp * hand_i + y_datum;
 
     offset_neg_sq := SQR(x3 - x1) + SQR(y3 - y1);
@@ -925,7 +936,8 @@ begin
     if doing_2nd_side = True
     // get rads for end report
     then
-      slip_rad2_str := '||        ' + round_str(ABS(nomrad), 0) + ' mm   ( ' + round_str(ABS(nomrad) / 25.4, 1) + '" )'
+      slip_rad2_str := '||        ' + round_str(ABS(nomrad), 0) + ' mm   ( ' +
+        round_str(ABS(nomrad) / 25.4, 1) + '" )'
     else
       slip_rad1_str := '||        ' + round_str(ABS(nomrad), 0) + ' mm   ( ' + round_str(
         ABS(nomrad) / 25.4, 1) + '" )';
@@ -957,7 +969,7 @@ begin
     if (first_bgnd_template < max_index) and (max_index > 1)   // if not, why not ???
     then begin
 
-      if Ttemplate(keeps_list.Objects[max_index - 2]).bgnd_half_diamond =
+      if keeps_list[max_index - 2].bgnd_half_diamond =
         True   // if not, why not ???
       then begin
         keeps_list.Exchange(first_bgnd_template + 1, max_index - 2);
@@ -969,7 +981,7 @@ begin
 
     if ((max_index - first_bgnd_template) > 4) and (max_index > 3)   // must be double slip
     then begin
-      if Ttemplate(keeps_list.Objects[max_index - 4]).bgnd_half_diamond =
+      if keeps_list[max_index - 4].bgnd_half_diamond =
         True   // if not, why not ???
       then begin
         keeps_list.Exchange(first_bgnd_template, max_index - 4);

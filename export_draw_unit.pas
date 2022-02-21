@@ -56,7 +56,7 @@ implementation
 uses
   control_room, pad_unit, math_unit, export_unit, print_settings_unit,
   preview_unit, print_unit, background_shapes, bgnd_unit,
-  rail_data_unit;
+  rail_data_unit, mark_unit, template;
 
 
 //______________________________________________________________________________
@@ -2378,18 +2378,18 @@ begin
 
     for n := 0 to maxbg_index do begin
 
-      if Ttemplate(keeps_list.Objects[n]).bg_copied = False then
+      if keeps_list[n].bg_copied = False then
         CONTINUE;  // no data, not on background.
 
-      if (Ttemplate(keeps_list.Objects[n]).group_selected = False) and
+      if (keeps_list[n].group_selected = False) and
         (print_group_only_flag = True) then
         CONTINUE;  // not in group. 0.78.b 10-12-02.
 
-      if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.fb_kludge_template_code
+      if keeps_list[n].template_info.keep_dims.box_dims1.fb_kludge_template_code
         > 0 then
         CONTINUE;  // 209c no marks for fb_kludge templates
 
-      now_keep := Ttemplate(keeps_list.Objects[n]).bgnd_keep;    // next background keep.
+      now_keep := keeps_list[n].bgnd_keep;    // next background keep.
 
       with now_keep do begin
 
@@ -2398,7 +2398,7 @@ begin
         using_mapping_colour := False;  // default init.
         mapping_colour := clBlack;      // init - keep compiler happy.
 
-        with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1 do begin
+        with keeps_list[n].template_info.keep_dims.box_dims1 do begin
 
           if (use_print_mapping_colour = True) and
             ((mapping_colours_print = 2) or (mapping_colours_print = 3)) and
@@ -3240,7 +3240,7 @@ var
 
           // 093a blank platform edges ...
 
-          with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.platform_trackbed_info do begin
+          with keeps_list[n].template_info.keep_dims.box_dims1.platform_trackbed_info do begin
 
             if adjacent_edges_keep = True  // platforms
             then begin
@@ -3869,10 +3869,11 @@ var
         if output_show_points_mark = True  // mark position of points
         then begin
 
-          if (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.turnout_info1.plain_track_flag = False)   // not for plain track
-            and (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.turnout_info2.semi_diamond_flag =
+          if (keeps_list[n].template_info.keep_dims.box_dims1.turnout_info1.plain_track_flag =
+            False)   // not for plain track
+            and (keeps_list[n].template_info.keep_dims.turnout_info2.semi_diamond_flag =
             False)            // not for half-diamond
-            and (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.turnout_info2.gaunt_flag
+            and (keeps_list[n].template_info.keep_dims.turnout_info2.gaunt_flag
             = False)                   // not for gaunt turnout
 
             and (Length(list_bgnd_rails[eRD_StraightTurnoutWingGaugeFace]) <>
@@ -3952,20 +3953,21 @@ begin          // export background templates...
 
         for n := 0 to max_list_index do begin
 
-          if Ttemplate(keeps_list.Objects[n]).bg_copied = False then
+          if keeps_list[n].bg_copied = False then
             CONTINUE;  // no data, not on background.
 
-          if (Ttemplate(keeps_list.Objects[n]).group_selected = False) and
+          if (keeps_list[n].group_selected = False) and
             (print_group_only_flag = True) then
             CONTINUE;  // not in group. 0.78.b 10-12-02.
 
-          if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.fb_kludge_template_code > 0 then
+          if keeps_list[n].template_info.keep_dims.box_dims1.fb_kludge_template_code > 0 then
             CONTINUE;  // 209c no track background for fb_kludge templates
 
-          if Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.align_info.dummy_template_flag = True then
+          if keeps_list[n].template_info.keep_dims.box_dims1.align_info.dummy_template_flag =
+            True then
             CONTINUE;  // 212a dummy templates not part of track plan
 
-          with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims do begin
+          with keeps_list[n].template_info.keep_dims do begin
 
             if box_dims1.bgnd_code_077 <> 1 then
               CONTINUE;    // 0.77.b BUG???
@@ -3978,7 +3980,7 @@ begin          // export background templates...
 
           end;//with
 
-          now_keep := Ttemplate(keeps_list.Objects[n]).bgnd_keep;
+          now_keep := keeps_list[n].bgnd_keep;
           // next background keep.
 
           with now_keep do begin
@@ -4037,39 +4039,39 @@ begin          // export background templates...
 
     for n := 0 to max_list_index do begin
 
-      if Ttemplate(keeps_list.Objects[n]).bg_copied = False then
+      if keeps_list[n].bg_copied = False then
         CONTINUE;  // no data, not on background.
 
-      if (Ttemplate(keeps_list.Objects[n]).group_selected = False) and
+      if (keeps_list[n].group_selected = False) and
         (print_group_only_flag = True) then
         CONTINUE;  // not in group. 0.78.b 10-12-02.
 
-      if (Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.fb_kludge_template_code > 0)  // 209c
+      if (keeps_list[n].template_info.keep_dims.box_dims1.fb_kludge_template_code > 0)  // 209c
         and (print_settings_form.output_fb_foot_lines_checkbox.Checked = False) then
         CONTINUE;                                                      // foot lines not wanted.
 
       this_one_platforms_trackbed :=
-        Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.
+        keeps_list[n].template_info.keep_dims.box_dims1.
         platform_trackbed_info.adjacent_edges_keep;
       // True = platforms and trackbed edges   206b
 
       this_one_trackbed_cess_ms :=
-        Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.
+        keeps_list[n].template_info.keep_dims.box_dims1.
         platform_trackbed_info.draw_ms_trackbed_cess_edge_keep;
       // True = cess width instead of trackbed cutting line 215a
       this_one_trackbed_cess_ts :=
-        Ttemplate(keeps_list.Objects[n]).template_info.keep_dims.box_dims1.
+        keeps_list[n].template_info.keep_dims.box_dims1.
         platform_trackbed_info.draw_ts_trackbed_cess_edge_keep;
       // True = cess width instead of trackbed cutting line 215a
 
 
-      now_keep := Ttemplate(keeps_list.Objects[n]).bgnd_keep;    // next background keep.
+      now_keep := keeps_list[n].bgnd_keep;    // next background keep.
 
       with now_keep do begin
 
         using_mapping_colour := False;  // default init.
 
-        with Ttemplate(keeps_list.Objects[n]).template_info.keep_dims do begin
+        with keeps_list[n].template_info.keep_dims do begin
 
           if box_dims1.bgnd_code_077 <> 1 then
             CONTINUE;    // 0.77.b BUG???
