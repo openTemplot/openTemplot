@@ -733,7 +733,7 @@ var
   park_name_str: array[0..2] of string;        // template names in parking bay.
   park_memo_str: array[0..2] of string;        // template memo notes in parking bay.
 
-  current_diff_code: EmarkCode = eMC_0_Ignore;  // 0.94.a check rails ...
+  current_diff_code: EMarkCode = eMC_0_Ignore;  // 0.94.a check rails ...
   null_diff: Tcheck_end_diff;    // used for errors
   mouse_diff: Tcheck_end_diff;   // current diff for mouse action
 
@@ -1222,9 +1222,9 @@ procedure debug(str: string; abc: double); // 0.93.a
 
 function make_curviform_ladder: boolean; // 0.93.a
 
-function get_checkrail_diff(code: EmarkCode): Tcheck_end_diff;    // 0.94.a
+function get_checkrail_diff(code: EMarkCode): Tcheck_end_diff;    // 0.94.a
 
-procedure set_checkrail_diff(code: EmarkCode; this_diff: Tcheck_end_diff); // 0.94.a
+procedure set_checkrail_diff(code: EMarkCode; this_diff: Tcheck_end_diff); // 0.94.a
 
 procedure draw_dummy_vehicle_on_control_template(on_canvas: TCanvas);   // 0.98.a
 
@@ -2141,7 +2141,7 @@ begin
 end;
 //______________________________________________________________________________
 
-function get_checkrail_diff(code: EmarkCode): Tcheck_end_diff;    // 0.94.a
+function get_checkrail_diff(code: EMarkCode): Tcheck_end_diff;    // 0.94.a
 
 begin
   with null_diff do begin   // return for invalid code
@@ -2179,7 +2179,7 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure set_checkrail_diff(code: EmarkCode; this_diff: Tcheck_end_diff);
+procedure set_checkrail_diff(code: EMarkCode; this_diff: Tcheck_end_diff);
 
 begin
 
@@ -3754,7 +3754,7 @@ var
 
   this_diff: Tcheck_end_diff;
 
-  code, code_max: EmarkCode;
+  code, code_max: EMarkCode;
 
 begin
   if check_diffs_form.Showing = True then begin
@@ -21761,7 +21761,7 @@ begin
 end;
 //_______________________________________________________________________________________
 
-procedure fill_mark(p1, p2: TPoint; code: EmarkCode; num_str: string);
+procedure fill_mark(p1, p2: TPoint; code: EMarkCode; num_str: string);
 // enter this mark in list.
 
 var
@@ -21784,16 +21784,6 @@ begin
     EXIT;
 
   ptr^.code := code;                     // code for this entry :
-
-  // -1=p1 is fixing peg centre (p2=0) (pad only),
-  // -2=p1 is curving rad 1 centre (p2=0),
-  // -3=p1 is curving rad 2 centre (p2=0),
-  // {-4=p1 is timber selector mark (p2=0) (pad only). !!! removed 5-6-00}
-
-
-  // 0=ignore, 1=guide mark,  2=rad end mark, 3=timber outline, 4=timber centre-line,
-  // 5=timber reduced end,    6=rail joint mark,   7=transition marks,  8,9=peg arms,
-  // 99=timber number string.
 
   ptr^.p1.X := p1.X;             // fill the MoveTo data.
   ptr^.p1.Y := p1.Y;
@@ -21837,7 +21827,7 @@ begin
 end;
 //_______________________________________________________________________________________________________________________________
 
-procedure enter_mark(track: boolean; p1, p2: Tpex; code: EmarkCode; num_str: string);
+procedure enter_mark(track: boolean; p1, p2: Tpex; code: EMarkCode; num_str: string);
 //  main mark entry point. dims in mm (floats)
 
 //  enter with points p1 and p2 in mm floats.
@@ -21921,15 +21911,15 @@ begin
         eMC_44_ShovingTimberCL_1,
         eMC_54_ShovingTimberCL_2,
         eMC_55_ReducedEnd,
-        eMC_93_Infill_1,
-        eMC_95_Infill_2,
+        eMC_93_ShovedTimberInfill,
+        eMC_95_ReducedEndInfill,
         eMC_203_TimberInfill,
-        eMC_233_Infill_3,
-        eMC_293_Infill_4,
+        eMC_233_ShovedTimberInfill,
+        eMC_293_ShovedTimberInfill,
         eMC_493_Chair,
         eMC_501_MSWorkingEnd .. eMC_508_DSWingRail,
         eMC_600_LongMark .. eMC_605_JoggleLabel,
-        eMC_700_XingLabelStart .. eMC_703_XingLabelEnd:
+        eMC_700_XingLongMark .. eMC_703_XingLabelEnd:
 
           EXIT;    // blank nearly everything.
       end;//case
@@ -21945,7 +21935,7 @@ begin
         eMC_6_RailJoint,
         eMC_501_MSWorkingEnd .. eMC_508_DSWingRail,
         eMC_600_LongMark .. eMC_605_JoggleLabel,
-        eMC_700_XingLabelStart .. eMC_703_XingLabelEnd:
+        eMC_700_XingLongMark .. eMC_703_XingLabelEnd:
           EXIT;    // no guide marks or joints.
       end;//case
     end;
@@ -22663,7 +22653,7 @@ begin
       // 211b do long FP marks, and get FP note position
 
       if (p1.x <> 0) and (p1.y <> 0) then
-        fill_mark(convert_point(p1), convert_point(dummy_p), eMC_701_XingIntersectionFP, 'fp');
+        fill_mark(convert_point(p1), convert_point(dummy_p), eMC_701_XingFPLabel, 'fp');
       // label note into marks list ('fp' string ignored, label added for 701 code in print_unit, pdf_unit).
 
     end;
@@ -22677,7 +22667,7 @@ begin
       // 211b do blunt nose marks, and get BN note position
 
       if (p1.x <> 0) and (p1.y <> 0) then
-        fill_mark(convert_point(p1), convert_point(dummy_p), eMC_702_XingBluntNose, 'bn');
+        fill_mark(convert_point(p1), convert_point(dummy_p), eMC_702_XingBluntNoseLabel, 'bn');
       // label note into marks list ('bn' string ignored, label added for 702 code in print_unit, pdf_unit).
 
     end;
@@ -23322,7 +23312,7 @@ function pad_marks_current(on_canvas: TCanvas; ink: boolean): boolean;
   // on the specified canvas.
 var
   i: integer;
-  code: EmarkCode;
+  code: EMarkCode;
   p1, p2, p3, p4: Tpoint;
 
   move_to, line_to: TPoint;
@@ -23396,8 +23386,8 @@ begin
         // 206b 211b ignore long marks and switch/xing labels for control template on trackpad  600,601-605, 700,701-703
 
         if ((code = eMC_203_TimberInfill)
-          or (code = eMC_233_Infill_3)
-          or (code = eMC_293_Infill_4)
+          or (code = eMC_233_ShovedTimberInfill)
+          or (code = eMC_293_ShovedTimberInfill)
           or (code = eMC_493_Chair))
           and (i < (mark_index - 1))
         // timber infill, chair outlines
@@ -23504,15 +23494,15 @@ begin
 
               eMC_33_ShovingTimberOutline,
               eMC_55_ReducedEnd,
-              eMC_233_Infill_3:
+              eMC_233_ShovedTimberInfill:
                 if paper_colour <> clRed then
                   Pen.Color := clRed        // selected for shoving timber outline and infill.
                 else
                   Pen.Color := clYellow;
 
-              eMC_93_Infill_1,
-              eMC_95_Infill_2,
-              eMC_293_Infill_4:
+              eMC_93_ShovedTimberInfill,
+              eMC_95_ReducedEndInfill,
+              eMC_293_ShovedTimberInfill:
                 if paper_colour <> clBlue then
                   Pen.Color := clBlue      // other shoved timbers outline and infill.
                 else
@@ -23731,8 +23721,8 @@ begin
             end;
 
             if ((code = eMC_203_TimberInfill)
-              or (code = eMC_233_Infill_3)
-              or (code = eMC_293_Infill_4)
+              or (code = eMC_233_ShovedTimberInfill)
+              or (code = eMC_293_ShovedTimberInfill)
               or (code = eMC_493_Chair))
               and (ptr_2nd <> nil)   // timber infill, chair outlines...
               and (pad_timb_infill_style > 0) then begin
@@ -23794,7 +23784,7 @@ begin
 
                   // shoved timber overides...
 
-                  if code = eMC_293_Infill_4        // shoved but not selected.
+                  if code = eMC_293_ShovedTimberInfill        // shoved but not selected.
                   then begin
                     if paper_colour <> clBlue then
                       Brush.Color := clBlue
@@ -23802,7 +23792,7 @@ begin
                       Brush.Color := clWhite;
                   end;
 
-                  if code = eMC_233_Infill_3        // currently selected for shoving.
+                  if code = eMC_233_ShovedTimberInfill        // currently selected for shoving.
                   then begin
                     if paper_colour <> clRed then
                       Brush.Color := clRed
@@ -25127,7 +25117,7 @@ var                                // enter with xtb, yns, yfs, tbq
 
   ////////////////////////////////////////////////////////////
 
-  procedure calc_fill_timber_mark(code: EmarkCode);
+  procedure calc_fill_timber_mark(code: EMarkCode);
 
   // this routine used only if timber outlines are not being drawn.
 
@@ -25314,9 +25304,9 @@ begin
     y_curmod := y_curtimb - yeq;
 
     if midline = False then
-      calc_fill_timber_mark(EmarkCode(4 + shove_this))  // 4 = centre-line,  44 = selected timber.
+      calc_fill_timber_mark(EMarkCode(4 + shove_this))  // 4 = centre-line,  44 = selected timber.
     else
-      calc_fill_timber_mark(EmarkCode(14 + shove_this));
+      calc_fill_timber_mark(EMarkCode(14 + shove_this));
     // 14,54 = timber centre-line, use solid line if drawing rail centrelines. (for rivets?)
   end;
 
@@ -25376,7 +25366,7 @@ var
 
   ////////////////////////////////////////////////////////////
 
-  procedure calc_fill_chair_outline(code: EmarkCode);  // 214a
+  procedure calc_fill_chair_outline(code: EMarkCode);  // 214a
 
   // enter with chair rectangle centred on yeq
 
@@ -25413,7 +25403,7 @@ var
   end;
   ////////////////////////////////////////////////////////////
 
-  procedure calc_fill_timber_mark(code: EmarkCode);
+  procedure calc_fill_timber_mark(code: EMarkCode);
 
   var
     pk1, pk2, ponpad, pp1, pp2: Tpex;
@@ -25619,7 +25609,7 @@ begin
       p1.y := yns + yret;
       p2.x := xns + crab;
       p2.y := yfs + yret;
-      calc_fill_timber_mark(EmarkCode(203 + shove_this));
+      calc_fill_timber_mark(EMarkCode(203 + shove_this));
 
       p1.x := xfs + crab;
       p1.y := yfs + yret;
@@ -25634,7 +25624,7 @@ begin
     p1.y := yns + yret;
     p2.x := xfs + tbl + crab;
     p2.y := yns + yret;
-    calc_fill_timber_mark(EmarkCode(3 + shove_this));
+    calc_fill_timber_mark(EMarkCode(3 + shove_this));
     // mark timber near end. ( 3 = timber outline.)
     // (33 = highlighted timber outline).
 
@@ -25643,7 +25633,7 @@ begin
       p1.y := yfs + yret;
       p2.x := xfs + tbl + crab;
       p2.y := yfs + yret;
-      calc_fill_timber_mark(EmarkCode(3 + shove_this));      // mark timber far end
+      calc_fill_timber_mark(EMarkCode(3 + shove_this));      // mark timber far end
     end;
 
 
@@ -25651,13 +25641,13 @@ begin
     p1.y := yns - tbl + yret;
     p2.x := xns + crab;
     p2.y := yfs + tbl + yret;
-    calc_fill_timber_mark(EmarkCode(3 + shove_this));       // timber toe side.
+    calc_fill_timber_mark(EMarkCode(3 + shove_this));       // timber toe side.
 
     p1.x := xfs + crab;
     p1.y := yns - tbl + yret;
     p2.x := xfs + crab;
     p2.y := yfs + tbl + yret;
-    calc_fill_timber_mark(EmarkCode(3 + shove_this));       // timber heel side.
+    calc_fill_timber_mark(EMarkCode(3 + shove_this));       // timber heel side.
 
     //-------------
 
@@ -25670,7 +25660,7 @@ begin
       p1.y := ynsred + yret;
       p2.x := xfs + tbl + crab;
       p2.y := ynsred + yret;
-      calc_fill_timber_mark(EmarkCode(5 + shove_this)); // 5 =  timber reduced near end
+      calc_fill_timber_mark(EMarkCode(5 + shove_this)); // 5 =  timber reduced near end
       // 55 = highlighted reduced ends (selected, red).
       // 95 = highlighted reduced ends (shoved, blue).
       if full_length = True then begin
@@ -25678,7 +25668,7 @@ begin
         p1.y := yfsred + yret;
         p2.x := xfs + tbl + crab;
         p2.y := yfsred + yret;
-        calc_fill_timber_mark((EmarkCode(5 + shove_this)));       // timber reduced far end
+        calc_fill_timber_mark((EMarkCode(5 + shove_this)));       // timber reduced far end
       end;
     end;
 
@@ -25700,10 +25690,10 @@ begin
       end;//with
 
       if midline = False then
-        calc_fill_timber_mark(EmarkCode(4 + shove_this))
+        calc_fill_timber_mark(EMarkCode(4 + shove_this))
       // 4 = centre-line,  44 = selected timber.
       else
-        calc_fill_timber_mark(EmarkCode(14 + shove_this));
+        calc_fill_timber_mark(EMarkCode(14 + shove_this));
       // 14,54 = timber centre-line, use solid line if drawing rail centrelines. (for rivets?)
 
     end;
@@ -32952,7 +32942,7 @@ function shove_number_clicked(X, Y: integer): boolean;
 
 var
   i, n: integer;
-  code: EmarkCode;
+  code: EMarkCode;
   ptr_1st: ^Tmark;         // pointer to a Tmark record..
   markmax: integer;
   num_str, tbnum_str: string;
@@ -33051,7 +33041,7 @@ procedure mouse_on_timber_number(X, Y: integer);
 
 var
   i: integer;
-  code: EmarkCode;
+  code: EMarkCode;
   ptr_1st: ^Tmark;         // pointer to a Tmark record..
   markmax: integer;
   num_str, tbnum_str: string;
@@ -33201,7 +33191,7 @@ function checkrail_label_clicked(X, Y: integer): boolean;
 
 var
   i, n: integer;
-  code: EmarkCode;
+  code: EMarkCode;
   ptr_1st: ^Tmark;         // pointer to a Tmark record..
   markmax: integer;
   //tbnum_str:string;
@@ -33278,7 +33268,7 @@ procedure mouse_on_check_label(X, Y: integer);
 
 var
   i: integer;
-  code: EmarkCode;
+  code: EMarkCode;
   ptr_1st: ^Tmark;         // pointer to a Tmark record..
   markmax: integer;
   num_str, tbnum_str: string;
@@ -36504,7 +36494,7 @@ begin
   pp2.x := ponpad.x + xshift;
   pp2.y := ponpad.y + yshift;
 
-  fill_mark(convert_point(pp1), convert_point(pp2), eMC_700_XingLabelStart, '');
+  fill_mark(convert_point(pp1), convert_point(pp2), eMC_700_XingLongMark, '');
   // into marks list.
 
   Result := pp1;     // in case label note needed (TS side) (half-diamonds)
@@ -36537,20 +36527,8 @@ begin
   pp4.x := ponpad.x + xshift;
   pp4.y := ponpad.y + yshift;
 
-  fill_mark(convert_point(pp3), convert_point(pp4), eMC_700_XingLabelStart, '');
+  fill_mark(convert_point(pp3), convert_point(pp4), eMC_700_XingLongMark, '');
   // into marks list.
-
-
-
-
-
-
-
-
-
-
-
-
 
   Result := pp4;  // return position for note
 

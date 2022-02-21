@@ -113,7 +113,7 @@ var
   i, n: integer;
   entered_str: string;
 
-  code: eMarkCode;
+  code: EMarkCode;
   ptr_1st: ^Tmark;         // pointer to a Tmark record..
   markmax: integer;
   num_str, tbnum_str: string;
