@@ -25,6 +25,7 @@
 backup/
 *.bak
 lib/
+logs/
 
 # Application bundle for Mac OS
 *.app/
