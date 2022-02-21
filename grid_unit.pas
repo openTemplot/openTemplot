@@ -2012,8 +2012,8 @@ begin
                         CONTINUE;
 
                     eMC_3_TimberOutline,
-                    eMC_33_ShovingTimberOutline,
-                    eMC_93_ShovedTimberInfill:
+                    eMC_33_SelectedTimberOutline,
+                    eMC_93_ShovedTimberOutline:
                       if timber_outlines_checkbox.Checked = True then begin
                         if using_marker_colour = False then
                           Pen.Color := bgkeep_timber_colour  // timber outlines.
@@ -2024,9 +2024,9 @@ begin
                         CONTINUE;
 
                     eMC_4_TimberCL,
-                    eMC_14_TimberCLSolid,
-                    eMC_44_ShovingTimberCL_1,
-                    eMC_54_ShovingTimberCL_2:
+                    eMC_14_TimberCLMidline,
+                    eMC_44_ShovingTimberCL,
+                    eMC_54_ShovingTimberCLMidline:
                       if timber_centres_checkbox.Checked = True then begin
                         if using_marker_colour = False then
                           Pen.Color := bgkeep_timber_colour  // timber centre-lines only on pad.

@@ -86,11 +86,17 @@ type
     { Public declarations }
   end;
 
+  ETimberStatus = (
+    eTS_Normal,
+    eTS_Shoved,
+    eTS_Selected);
+
   Ttimbcentre_wait = record
     pex1: Tpex;
     pex2: Tpex;
     kq: double;
     shove_code: integer;
+    status: ETimberStatus;
     valid: boolean;
   end;//record
 
@@ -2495,7 +2501,7 @@ begin
     pex2.x := 0;
     pex2.y := 0;
     kq := 0;
-    shove_code := 0;
+    status := eTS_Normal;
     valid := False;
   end;//with
 
@@ -21906,12 +21912,12 @@ begin
         eMC_4_TimberCL,
         eMC_5_TimberReducedEnd,
         eMC_6_RailJoint,
-        eMC_14_TimberCLSolid,
-        eMC_33_ShovingTimberOutline,
-        eMC_44_ShovingTimberCL_1,
-        eMC_54_ShovingTimberCL_2,
+        eMC_14_TimberCLMidline,
+        eMC_33_SelectedTimberOutline,
+        eMC_44_ShovingTimberCL,
+        eMC_54_ShovingTimberCLMidline,
         eMC_55_ReducedEnd,
-        eMC_93_ShovedTimberInfill,
+        eMC_93_ShovedTimberOutline,
         eMC_95_ReducedEndInfill,
         eMC_203_TimberInfill,
         eMC_233_ShovedTimberInfill,
@@ -23455,7 +23461,7 @@ begin
                   CONTINUE;
 
               eMC_4_TimberCL,
-              eMC_14_TimberCLSolid:
+              eMC_14_TimberCLMidline:
                 if pad_timber_centres = True then
                   Pen.Color := timber_colour   // timber centre-lines.
                 else
@@ -23492,7 +23498,7 @@ begin
                 else
                   CONTINUE;
 
-              eMC_33_ShovingTimberOutline,
+              eMC_33_SelectedTimberOutline,
               eMC_55_ReducedEnd,
               eMC_233_ShovedTimberInfill:
                 if paper_colour <> clRed then
@@ -23500,7 +23506,7 @@ begin
                 else
                   Pen.Color := clYellow;
 
-              eMC_93_ShovedTimberInfill,
+              eMC_93_ShovedTimberOutline,
               eMC_95_ReducedEndInfill,
               eMC_293_ShovedTimberInfill:
                 if paper_colour <> clBlue then
@@ -23508,8 +23514,8 @@ begin
                 else
                   Pen.Color := clWhite;
 
-              eMC_44_ShovingTimberCL_1,
-              eMC_54_ShovingTimberCL_2:
+              eMC_44_ShovingTimberCL,
+              eMC_54_ShovingTimberCLMidline:
                 if check_dark_paper = False then
                   Pen.Color := clBlack   // shoved timber centre-line.
                 else
@@ -25097,10 +25103,18 @@ end;
 
 procedure drawtimbcl(retcurve: boolean);       // mark timber centre-line
 
+// This procedure is called when (and only when) drawtimber is about to be called.
+// This procedure should probably be called as the first (or at least an early)
+// action of drawtimber
+
+// The centreline calculations must be done first, even though the centreline
+// itself are actually drawn last.
+
 var                                // enter with xtb, yns, yfs, tbq
   n: integer;
   pnum, p1, p2: Tpex;
-  shove_this: integer;
+  code: EMarkCode;
+  timberStatus: ETimberStatus;
   omit: boolean;
   xtimbcl: double;
   xshove, kshove, oshove, lshove, wshove, cshove: double;
@@ -25108,12 +25122,12 @@ var                                // enter with xtb, yns, yfs, tbq
 
   yret, kret: double;
 
-  str: string;
+  numberStr: string;
 
   dummy: double;
   x_curmod, x_curtimb, y_curmod, y_curtimb, k_curtimb: double;
 
-  shove: Tshoved_timber;
+  shoved: Tshoved_timber;
 
   ////////////////////////////////////////////////////////////
 
@@ -25127,7 +25141,7 @@ var                                // enter with xtb, yns, yfs, tbq
   begin
     // first any blanking? (not bonus timbers or plain track)...
 
-    if (timb_str <> 'B') and (plain_track = False) and
+    if (timb_str <> 'B') and (not plain_track) and
       ((p1.x < (startx - minfp)) or (p2.x < (startx - minfp))) then
       EXIT;
 
@@ -25152,7 +25166,7 @@ var                                // enter with xtb, yns, yfs, tbq
     pp2.x := ponpad.x + xshift;
     pp2.y := ponpad.y + yshift;
 
-    fill_mark(convert_point(pp1), convert_point(pp2), code, str);  // into marks list.
+    fill_mark(convert_point(pp1), convert_point(pp2), code, numberStr);  // into marks list.
   end;
   /////////////////////////////////////////////////////////
 
@@ -25171,40 +25185,40 @@ begin
 
   save_keq := keq;                            // ditto.
 
-  str := timb_str + IntToStr(tbn);              // timber number string.
+  numberStr := timb_str + IntToStr(tbn);              // timber number string.
 
-  shove_this := 0;     // default init - draw in normal centre-line colours.
+  timberStatus := eTS_normal;  // default init - draw in normal centre-line colours
 
   // see if this one gets shoved or omitted...
 
   for n := 0 to current_shove_list.Count - 1 do begin
-    shove := current_shove_list[n];
-    if (str = shove.timber_string) and (shove.sv_code <> svcEmpty)
+    shoved := current_shove_list[n];
+    if (numberStr = shoved.timber_string) and (shoved.sv_code <> svcEmpty)
     // this timber number is in shove list.
     then begin
-      if (shove_timber_form.Showing = True) and
-        (shove_timber_form.show_all_blue_checkbox.Checked = True) then
-        shove_this := 40;  // will be drawn highlighted in blue or red.
-
-      if shove.sv_code = svcOmit     // this value in the list is a flag.
+      if (shove_timber_form.Showing) and
+        (shove_timber_form.show_all_blue_checkbox.Checked) then begin
+          timberStatus := eTS_shoved; // will be highlighted in blue or red.
+        end;
+      if shoved.sv_code = svcOmit     // this value in the list is a flag.
       then
         omit := True       // he wants this timber omitted.
       else begin
-        xshove := shove.sv_x;
-        kshove := shove.sv_k;
-        oshove := shove.sv_o;
-        lshove := shove.sv_l;
-        wshove := shove.sv_w;
-        cshove := shove.sv_c;
+        xshove := shoved.sv_x;
+        kshove := shoved.sv_k;
+        oshove := shoved.sv_o;
+        lshove := shoved.sv_l;
+        wshove := shoved.sv_w;
+        cshove := shoved.sv_c;
 
         xtimbcl := xtb + xshove;   // he wants it shoved.
       end;
       BREAK;
     end;
   end;//for
-  // see if this one is selected for shoving...
 
-  if (str = current_shove_str) and (shove_timber_form.Showing = True) then begin
+  // see if this one is selected for shoving...
+  if (numberStr = current_shove_str) and (shove_timber_form.Showing) then begin
     shovetimbx := xtimbcl;       // centre of shoved timber.
 
     //shove_timber_form.xtb_panel.Caption:='  centre  X :  '+round_str(shovetimbx,2)+' mm';
@@ -25218,7 +25232,7 @@ begin
       twist_panel.Caption := '';
       crab_panel.Caption := '';
 
-      if show_shove_fs = True then
+      if show_shove_fs then
         xtb_panel.Caption := ' centre :  ' + round_str(
           (shovetimbx - shovetimbx_zero) / inscale, 2) + ' ins'
       else
@@ -25234,17 +25248,13 @@ begin
     shovew := wshove;
     shovec := cshove;
 
-    shove_this := 40;                // draw highlighted.
+    timberStatus := eTS_Selected; // will be drawn highlighted.
   end;
-  //     else begin
-  //if omit=True then EXIT;      // omit this timber unless it's selected for shoving.
-  //shove_this:=0;               // draw normal timber.
-  //          end;
 
-  if omit = True then
+  if omit then
     EXIT;      // omit this timber.
 
-  if retcurve = True    // sleepering the return curve..
+  if retcurve    // sleepering the return curve..
   then begin
     yret := aq25offset(xtimbcl, kret) - g / 2;
   end
@@ -25276,23 +25286,28 @@ begin
   // 208a  // save output numbering position in number_point.
 
 
-  if (pad_form.timber_outlines_menu_entry.Checked = True) or (chair_marks = True)
+  if pad_form.timber_outlines_menu_entry.Checked or chair_marks
   // added 213b
   then begin
     with timbcentre_wait do begin
       // save the actual co-ords, to be entered in list after the outlines.
       pex1 := p1;
-      // (this is a fix - we must do the centre-line calcs first for shove timbers,
+      // (this is a fix - we must do the centre-line calcs first for shoved timbers,
       pex2 := p2;
       //  but don't want the centre-lines overdrawn by timber infill.)
       kq := keq;
-      shove_code := shove_this;
+      status := timberStatus;
       valid := True;
     end;//with
   end;
 
-  if pad_form.timber_outlines_menu_entry.Checked = False then begin
+  if not pad_form.timber_outlines_menu_entry.Checked then begin
     // not doing any outlines, so do the timber centres now...
+
+    ///// It is not clear why this is here, since it seems it will be repeated
+    ///// in drawtimber().
+    /////                             TODO: CHECK THIS OUT - gtd
+
 
     // mods for parallel edges - 0.76.a  16-10-01...
 
@@ -25303,11 +25318,18 @@ begin
     // shift required to rotation point, to suit the curving..
     y_curmod := y_curtimb - yeq;
 
-    if midline = False then
-      calc_fill_timber_mark(EMarkCode(4 + shove_this))  // 4 = centre-line,  44 = selected timber.
-    else
-      calc_fill_timber_mark(EMarkCode(14 + shove_this));
-    // 14,54 = timber centre-line, use solid line if drawing rail centrelines. (for rivets?)
+    if midline then
+       case timberStatus of
+         eTS_Normal:
+           code := eMC_14_TimberCLMidline;
+         eTS_Shoved:
+           code := eMC_54_ShovingTimberCLMidline;
+         eTS_Selected:
+           code := eMC_54_ShovingTimberCLMidline;
+       end;
+
+    calc_fill_timber_mark(code);
+
   end;
 
   keq := save_keq;       // restore global, for outlines, etc.
@@ -25321,9 +25343,10 @@ procedure drawtimber(full_length, retcurve: boolean);     // mark timber outline
 var
   n: integer;
   p1, p2: Tpex;
-  shove_this: integer;
+  timberStatus: eTimberStatus;
+  code: EMarkCode;
   save_keq: double;
-  str: string;
+  numberStr: string;
   xtimbcl: double;
 
   yret, kret: double;
@@ -25361,8 +25384,8 @@ var
 
   num_bridge: integer;
 
-  bridge_over_ride: boolean;
-  shove: Tshoved_timber;
+  bridge_override: boolean;
+  shoved: Tshoved_timber;
 
   ////////////////////////////////////////////////////////////
 
@@ -25431,7 +25454,7 @@ var
     pp2.x := ponpad.x + xshift;
     pp2.y := ponpad.y + yshift;
 
-    fill_mark(convert_point(pp1), convert_point(pp2), code, str);  // into marks list.
+    fill_mark(convert_point(pp1), convert_point(pp2), code, numberStr);  // into marks list.
   end;
   /////////////////////////////////////////////////////////
 
@@ -25460,52 +25483,52 @@ var
   /////////////////////////////////////////////////////////
 
 begin
-  shove_this := 0;     // default init - draw in normal timber colours.
+  timberStatus := eTS_Normal; // default init - draw in normal timber colours.
   throw := 0;          // default init.
   crab := 0;
 
   save_keq := keq;                            // save the global.
-  str := timb_str + IntToStr(tbn);              // timber number string.
+  numberStr := timb_str + IntToStr(tbn);      // timber number string.
 
   // see if this one gets shoved or omitted...
 
   for n := 0 to current_shove_list.Count - 1 do begin
-    shove := current_shove_list[n];
-    if (str = shove.timber_string) and (shove.sv_code <> svcEmpty)
-    // this timber number is in shove list.
+    shoved := current_shove_list[n];
+    if (numberStr = shoved.timber_string) and (shoved.sv_code <> svcEmpty)
+    // this timber number is in shoved list.
     then begin
-      if (shove_timber_form.Showing = True) and
-        (shove_timber_form.show_all_blue_checkbox.Checked = True) then
-        shove_this := 90;
-      // draw highlighted blue if required (may be overidden later for red if currently selected).
-
-      if shove.sv_code = svcOmit                         // this value in the list is a flag.
+      if (shove_timber_form.Showing) and
+        (shove_timber_form.show_all_blue_checkbox.Checked) then begin
+        timberStatus := eTS_Shoved; // draw highlighted blue if required
+                                    // (may be overidden later for red if currently selected).
+        end;
+      if shoved.sv_code = svcOmit                         // this value in the list is a flag.
       then
         EXIT//omit:=True              // he wants this timber omitted.
       else begin
-        xns := xns + shove.sv_x - shove.sv_w;
+        xns := xns + shoved.sv_x - shoved.sv_w;
         // he wants it shoved along and/or widened/narrowed.
-        xfs := xfs + shove.sv_x + shove.sv_w;
+        xfs := xfs + shoved.sv_x + shoved.sv_w;
 
         if xfs < (xns - inscale / 2)
         // if shoving produces a negative width (by more than 1/2" scale), average the sides to the centre-line.
         then begin
           xfs := (xfs + xns) / 2;
           xns := xfs;
-          shove.sv_w := 0;
+          shoved.sv_w := 0;
           // reset normal to prevent further narrowing.
         end;
 
-        keq := keq + shove.sv_k;              // and/or twisted.
+        keq := keq + shoved.sv_k;              // and/or twisted.
 
-        yns := yns + shove.sv_o;              // and/or shoved across.
-        ynsred := ynsred + shove.sv_o;
+        yns := yns + shoved.sv_o;              // and/or shoved across.
+        ynsred := ynsred + shoved.sv_o;
 
-        yfs := yfs + shove.sv_o + shove.sv_l;
-        yfsred := yfsred + shove.sv_o + shove.sv_l;
+        yfs := yfs + shoved.sv_o + shoved.sv_l;
+        yfsred := yfsred + shoved.sv_o + shoved.sv_l;
 
-        throw := shove.sv_o;   // for read-out panel..
-        crab := shove.sv_c;
+        throw := shoved.sv_o;   // for read-out panel..
+        crab := shoved.sv_c;
       end;
       BREAK;
     end;
@@ -25515,7 +25538,7 @@ begin
 
   total_template_timber_length := total_template_timber_length + (yfs - yns);  // 0/95.a
 
-  if retcurve = True    // sleepering the return curve..
+  if retcurve    // sleepering the return curve..
   then begin
     yret := aq25offset(xtimbcl, kret) - g / 2;
   end
@@ -25528,14 +25551,14 @@ begin
 
   // see if this one is to be shown selected for shoving...
 
-  if (str = current_shove_str) and (shove_timber_form.Showing = True) then begin
+  if (numberStr = current_shove_str) and (shove_timber_form.Showing) then begin
 
     shovetimb_wide := xfs - xns;
     shovetimb_len := yfs - yns;
     shovetimb_throw := throw;
     shovetimb_crab := crab;
 
-    if show_shove_fs = True then begin
+    if show_shove_fs then begin
       shove_timber_form.width_panel.Caption :=
         ' width :  ' + round_str(shovetimb_wide / inscale, 2) + ' ins';
       shove_timber_form.length_panel.Caption :=
@@ -25556,7 +25579,7 @@ begin
         ' crab :  ' + round_str(shovetimb_crab, 2) + ' mm';
     end;
 
-    if show_origin_k = True then begin
+    if show_origin_k then begin
       docurving(False, True,{xtb}xtimbcl, g / 2, dummy1, dummy2, temp_k, dummy3);
       // curving angle to this xtb.
       shovetimb_keq := (keq + temp_k) * hand_i;
@@ -25581,7 +25604,7 @@ begin
         ' twist :  ' + round_str(shovetimb_keq * 180 / Pi, 2) + deg_str + '¬';
     end;
 
-    shove_this := 30;                 // draw highlighted in red.
+    timberStatus := eTS_Selected;     // draw highlighted in red.
 
   end;
 
@@ -25597,19 +25620,27 @@ begin
   y_curmod := y_curtimb - yeq{ytimbcl};
 
   try
-    // first any blanking? (not bonus timbers)...
+    // Any blanking? (not bonus timbers)...
 
-    if (timb_str <> 'B') and (plain_track = False) and (xfs < startx) then
+    if (timb_str <> 'B') and (not plain_track) and (xfs < startx) then
       EXIT;  //ignore whole timber if heel side is blanked.
 
-    // first do any timber infill, so outlines and reduced ends can can overwrite, possibly in a different colour..
 
-    if timbering_infill = True then begin
+    // Timber Infill ...
+    // Done first so outlines and reduced ends can overwrite,
+    // possibly in a different colour..
+    case timberStatus of
+      eTS_Normal: code := eMC_203_TimberInfill;
+      eTS_Shoved: code := eMC_293_ShovedTimberInfill;
+      eTS_Selected: code := eMC_233_ShovedTimberInfill;
+    end;
+
+    if timbering_infill then begin
       p1.x := xns + crab;
       p1.y := yns + yret;
       p2.x := xns + crab;
       p2.y := yfs + yret;
-      calc_fill_timber_mark(EMarkCode(203 + shove_this));
+      calc_fill_timber_mark(code);
 
       p1.x := xfs + crab;
       p1.y := yfs + yret;
@@ -25618,90 +25649,107 @@ begin
       calc_fill_timber_mark(eMC_0_Ignore);
     end;
 
+
     // then timber outlines..
+    case timberStatus of
+      eTS_Normal: code := eMC_3_TimberOutline;
+      eTS_Shoved: code := eMC_93_ShovedTimberOutline;
+      eTS_Selected: code := eMC_33_SelectedTimberOutline;
+    end;
 
     p1.x := xns - tbl + crab;
     p1.y := yns + yret;
     p2.x := xfs + tbl + crab;
     p2.y := yns + yret;
-    calc_fill_timber_mark(EMarkCode(3 + shove_this));
-    // mark timber near end. ( 3 = timber outline.)
-    // (33 = highlighted timber outline).
+    calc_fill_timber_mark(code);
 
-    if full_length = True then begin
+    if full_length then begin
       p1.x := xns - tbl + crab;
       p1.y := yfs + yret;
       p2.x := xfs + tbl + crab;
       p2.y := yfs + yret;
-      calc_fill_timber_mark(EMarkCode(3 + shove_this));      // mark timber far end
+      calc_fill_timber_mark(code);      // mark timber far end
     end;
-
 
     p1.x := xns + crab;
     p1.y := yns - tbl + yret;
     p2.x := xns + crab;
     p2.y := yfs + tbl + yret;
-    calc_fill_timber_mark(EMarkCode(3 + shove_this));       // timber toe side.
+    calc_fill_timber_mark(code);       // timber toe side.
 
     p1.x := xfs + crab;
     p1.y := yns - tbl + yret;
     p2.x := xfs + crab;
     p2.y := yfs + tbl + yret;
-    calc_fill_timber_mark(EMarkCode(3 + shove_this));       // timber heel side.
+    calc_fill_timber_mark(code);       // timber heel side.
 
-    //-------------
 
-    if (nine_foot = True) and (reduced_ends = True)   // standard 9ft timbering..
+    // then reduced ends ...
+
+    if (nine_foot) and (reduced_ends)   // standard 9ft timbering..
     then begin
-      if shove_this = 30 then
-        shove_this := 50;
+
+    case timberStatus of
+      eTS_Normal: code := eMC_5_TimberReducedEnd;
+      eTS_Shoved: code := eMC_95_ReducedEndInfill;
+      eTS_Selected: code := eMC_55_ReducedEnd;
+    end;
 
       p1.x := xns - tbl + crab;           // draw reduced timber ends (close-dotted) ...
       p1.y := ynsred + yret;
       p2.x := xfs + tbl + crab;
       p2.y := ynsred + yret;
-      calc_fill_timber_mark(EMarkCode(5 + shove_this)); // 5 =  timber reduced near end
-      // 55 = highlighted reduced ends (selected, red).
-      // 95 = highlighted reduced ends (shoved, blue).
-      if full_length = True then begin
+      calc_fill_timber_mark(code);
+
+      if full_length then begin
         p1.x := xns - tbl + crab;
         p1.y := yfsred + yret;
         p2.x := xfs + tbl + crab;
         p2.y := yfsred + yret;
-        calc_fill_timber_mark((EMarkCode(5 + shove_this)));       // timber reduced far end
+        calc_fill_timber_mark(code);       // timber reduced far end
       end;
     end;
 
-    // can now do the timber centre-lines if there is some data...
 
-    if (pad_form.timber_centres_menu_entry.Checked = True) and (timbcentre_wait.valid = True) then
+    // now timber centre-lines if there is some data...
+
+    if (pad_form.timber_centres_menu_entry.Checked) and (timbcentre_wait.valid) then
     begin
 
       with timbcentre_wait do begin
         // saved actual co-ords, to be entered in list after the outlines.
         p1 := pex1;
-        // (this is a fix - we must do the centre-line calcs first for the shove timber select,
+        // (this is a fix - we must do the centre-line calcs first for the shoved timber select,
         p2 := pex2;
         //  but don't want the centre-lines overdrawn by timber infill.)
         keq := kq;
-        shove_this := shove_code;
+        timberStatus := status;
 
         valid := False;       // don't use this data again.
       end;//with
 
-      if midline = False then
-        calc_fill_timber_mark(EMarkCode(4 + shove_this))
-      // 4 = centre-line,  44 = selected timber.
-      else
-        calc_fill_timber_mark(EMarkCode(14 + shove_this));
-      // 14,54 = timber centre-line, use solid line if drawing rail centrelines. (for rivets?)
+      if midline then begin
+        case timberStatus of
+          eTS_Normal: code := eMC_14_TimberCLMidline;
+          eTS_Shoved: code := eMC_54_ShovingTimberCLMidline;
+          eTS_Selected: code := eMC_54_ShovingTimberCLMidline;
+        end;
+      end
+      else begin
+        case timberStatus of
+          eTS_Normal: code := eMC_4_TimberCL;
+          eTS_Shoved: code := eMC_44_ShovingTimberCL;
+          eTS_Selected: code := eMC_44_ShovingTimberCL;
+        end;
+      end;
 
+      calc_fill_timber_mark(code)
     end;
 
     // 214a and finally do the experimental chairs...
     //(*
 
-    if (chair_marks = True) and (exp_chairing = True)    // generator  AND  template option
+    if (chair_marks) and (exp_chairing)    // generator  AND  template option
     then begin
       // add chair outlines and markers  214a ...
 
@@ -25718,7 +25766,7 @@ begin
 
       num_bridge := 0;  // init
 
-      bridge_over_ride := False;    // init
+      bridge_override := False;    // init
 
       S1_chair_outlong := 9.16 * inscale;
       // Standard Railway Equipment 1926  S1 ordinary chairs
@@ -25858,7 +25906,7 @@ begin
 
       if (chair_code = 5) and (num_bridge = 1)  // over-ride bridge chairs?
       then begin
-        bridge_over_ride := True;
+        bridge_override := True;
 
         chair_code := 1;  // S1 ordinary chairs instead
 
@@ -25870,7 +25918,7 @@ begin
         // adjust to chair middle from gauge-face
       end
       else
-        bridge_over_ride := False;
+        bridge_override := False;
 
       chair_k := 0;
       chair_y := 0;  // MS
@@ -25929,7 +25977,7 @@ begin
       end;
 
 
-      if bridge_over_ride = True  // reset bridge chairs for turnout road ?
+      if bridge_override  // reset bridge chairs for turnout road ?
       then begin
         chair_code := 5;  // L1 bridge chairs
 

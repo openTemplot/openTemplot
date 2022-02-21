@@ -669,12 +669,12 @@ var
             eMC_3_TimberOutline,
             eMC_4_TimberCL,
             eMC_5_TimberReducedEnd,
-            eMC_14_TimberCLSolid,
-            eMC_33_ShovingTimberOutline,
-            eMC_44_ShovingTimberCL_1,
-            eMC_54_ShovingTimberCL_2,
+            eMC_14_TimberCLMidline,
+            eMC_33_SelectedTimberOutline,
+            eMC_44_ShovingTimberCL,
+            eMC_54_ShovingTimberCLMidline,
             eMC_55_ReducedEnd,
-            eMC_93_ShovedTimberInfill,
+            eMC_93_ShovedTimberOutline,
             eMC_95_ReducedEndInfill,
             eMC_99_TimberNumber,
             eMC_203_TimberInfill,
@@ -760,11 +760,11 @@ var
               eMC_2_RadialEnd:
                 Pen.Width := printmark_wide;    // rad end marks.
               eMC_3_TimberOutline,
-              eMC_33_ShovingTimberOutline,
-              eMC_93_ShovedTimberInfill:
+              eMC_33_SelectedTimberOutline,
+              eMC_93_ShovedTimberOutline:
                 Pen.Width := printtimber_wide;  // timber outlines.
               eMC_4_TimberCL,
-              eMC_44_ShovingTimberCL_1: begin
+              eMC_44_ShovingTimberCL: begin
                 Pen.Width := 1;
                 // timber centre-lines.
                 Pen.Style := psDash;
@@ -782,8 +782,8 @@ var
                 Pen.Width := printmark_wide;    // transition ends.
 
 
-              eMC_14_TimberCLSolid,
-              eMC_54_ShovingTimberCL_2: begin
+              eMC_14_TimberCLMidline,
+              eMC_54_ShovingTimberCLMidline: begin
                 Pen.Width := printrail_wide;
                 // timber centre-lines with rail centre-lines (for rivet locations?).
                 Pen.Style := psSolid;
@@ -819,8 +819,8 @@ var
                 eMC_2_RadialEnd:
                   Pen.Color := printalign_colour;  // rad end marks.
                 eMC_3_TimberOutline,
-                eMC_33_ShovingTimberOutline,
-                eMC_93_ShovedTimberInfill:
+                eMC_33_SelectedTimberOutline,
+                eMC_93_ShovedTimberOutline:
                   Pen.Color := printtimber_colour; // timber outlines.
                 eMC_6_RailJoint:
                   Pen.Color := printjoint_colour;  // rail joint marks.
@@ -4128,12 +4128,12 @@ begin
               eMC_3_TimberOutline,
               eMC_4_TimberCL,
               eMC_5_TimberReducedEnd,
-              eMC_14_TimberCLSolid,
-              eMC_33_ShovingTimberOutline,
-              eMC_44_ShovingTimberCL_1,
-              eMC_54_ShovingTimberCL_2,
+              eMC_14_TimberCLMidline,
+              eMC_33_SelectedTimberOutline,
+              eMC_44_ShovingTimberCL,
+              eMC_54_ShovingTimberCLMidline,
               eMC_55_ReducedEnd,
-              eMC_93_ShovedTimberInfill,
+              eMC_93_ShovedTimberOutline,
               eMC_95_ReducedEndInfill,
               eMC_99_TimberNumber,
               eMC_203_TimberInfill,
@@ -4223,11 +4223,11 @@ begin
                 eMC_2_RadialEnd:
                   Pen.Width := printmark_wide;    // rad end marks.
                 eMC_3_TimberOutline,
-                eMC_33_ShovingTimberOutline,
-                eMC_93_ShovedTimberInfill:
+                eMC_33_SelectedTimberOutline,
+                eMC_93_ShovedTimberOutline:
                   Pen.Width := printtimber_wide;  // timber outlines.
                 eMC_4_TimberCL,
-                eMC_44_ShovingTimberCL_1:
+                eMC_44_ShovingTimberCL:
                   Pen.Width := 1;                  // timber centre-lines.
                 eMC_5_TimberReducedEnd,
                 eMC_55_ReducedEnd,
@@ -4237,8 +4237,8 @@ begin
                   Pen.Width := printmark_wide;    // rail joint marks.
                 eMC_7_TransitionAndSlewing:
                   Pen.Width := printmark_wide;    // transition ends.
-                eMC_14_TimberCLSolid,
-                eMC_54_ShovingTimberCL_2:
+                eMC_14_TimberCLMidline,
+                eMC_54_ShovingTimberCLMidline:
                   Pen.Width := printrail_wide;
                 // timber centre-lines with rail centre-lines (for rivet locations?).
 
@@ -4257,7 +4257,7 @@ begin
             end;
             case code of
               eMC_4_TimberCL,
-              eMC_44_ShovingTimberCL_1:
+              eMC_44_ShovingTimberCL:
                 Pen.Style := psDash;    // timber centre-lines (not for rivets).
               eMC_5_TimberReducedEnd,
               eMC_55_ReducedEnd,
@@ -4291,8 +4291,8 @@ begin
                     eMC_2_RadialEnd:
                       Pen.Color := printalign_colour;  // rad end marks.
                     eMC_3_TimberOutline,
-                    eMC_33_ShovingTimberOutline,
-                    eMC_93_ShovedTimberInfill:
+                    eMC_33_SelectedTimberOutline,
+                    eMC_93_ShovedTimberOutline:
                       Pen.Color := printtimber_colour; // timber outlines.
                     eMC_6_RailJoint:
                       Pen.Color := printjoint_colour;  // rail joints.
