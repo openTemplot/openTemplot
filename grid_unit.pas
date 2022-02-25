@@ -1744,7 +1744,7 @@ var
 
   i, n: integer;
   bgk: integer;
-  code: EmarkCode;
+  code: EMarkCode;
 
   numb_str, tbnum_str: string;
 
@@ -1974,7 +1974,7 @@ begin
                     eMC_0_Ignore,
                     eMC_501_MSWorkingEnd..eMC_508_DSWingRail,
                     eMC_600_LongMark..eMC_605_SWitchLabelEnd,
-                    eMC_700_XingLabelStart..eMC_703_XingLabelEnd:
+                    eMC_700_XingLongMark..eMC_703_XingLabelEnd:
                       CONTINUE;
                     // ignore timber selector mark, blank lines. // 0.94.a ignore check-rail labels
                     // 206b  600..605, 700..703 ignore long marks and switch/xing labels on trackpad
@@ -2013,7 +2013,7 @@ begin
 
                     eMC_3_TimberOutline,
                     eMC_33_ShovingTimberOutline,
-                    eMC_93_Infill_1:
+                    eMC_93_ShovedTimberInfill:
                       if timber_outlines_checkbox.Checked = True then begin
                         if using_marker_colour = False then
                           Pen.Color := bgkeep_timber_colour  // timber outlines.
@@ -2038,7 +2038,7 @@ begin
 
                     eMC_5_TimberReducedEnd,
                     eMC_55_ReducedEnd,
-                    eMC_95_Infill_2:
+                    eMC_95_ReducedEndInfill:
                       if reduced_ends_checkbox.Checked = True  // timber reduced ends.
                       then begin
                         if using_marker_colour = False then
@@ -2065,8 +2065,8 @@ begin
                         CONTINUE;  // text.
 
                     eMC_203_TimberInfill,
-                    eMC_233_Infill_3,
-                    eMC_293_Infill_4:
+                    eMC_233_ShovedTimberInfill,
+                    eMC_293_ShovedTimberInfill:
                       if (timber_infill_checkbox.Checked = True) and
                         ((screenx < 200 * scale) or (bgpad_timb_infill_style > 2))
                       // infill on pad if solid/blank fill or large enough to see hatching.
@@ -2118,8 +2118,8 @@ begin
                 check_int2y := limits(h_minint, h_maxint, p2.Y * sy + by - gy, dummy_i);
 
                 if ((code = eMC_203_TimberInfill)
-                  or (code = eMC_233_Infill_3)
-                  or (code = eMC_293_Infill_4))
+                  or (code = eMC_233_ShovedTimberInfill)
+                  or (code = eMC_293_ShovedTimberInfill))
                   and (i < array_max)    // timber infill
                 then begin
                   p3 := list_bgnd_marks[i + 1].p1;  // x3,y3 in  1/100ths mm
@@ -2174,8 +2174,8 @@ begin
                   end;
 
                   if (code = eMC_203_TimberInfill)
-                    or (code = eMC_233_Infill_3)
-                    or (code = eMC_293_Infill_4)   // timber infill...
+                    or (code = eMC_233_ShovedTimberInfill)
+                    or (code = eMC_293_ShovedTimberInfill)   // timber infill...
                   then begin
                     infill_points[0] := move_to;
                     infill_points[1] := line_to;

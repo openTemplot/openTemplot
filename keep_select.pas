@@ -4799,7 +4799,7 @@ var
   peg_linex, peg_liney: double;
 
   i: integer;
-  code: EmarkCode;
+  code: EMarkCode;
   p1, p2: TPoint;
 
   move_to: Tpoint;
@@ -5206,7 +5206,7 @@ begin
 
               eMC_3_TimberOutline,
               eMC_33_ShovingTimberOutline,
-              eMC_93_Infill_1:
+              eMC_93_ShovedTimberInfill:
                 if timber_outlines_checkbox.Checked = True then
                   Pen.Color := box_timber_col   // timber outlines.
                 else
@@ -5225,10 +5225,10 @@ begin
               eMC_8_PegArm_1,
               eMC_9_PegArm_2,
               eMC_55_ReducedEnd,
-              eMC_95_Infill_2,
+              eMC_95_ReducedEndInfill,
               eMC_203_TimberInfill,
-              eMC_233_Infill_3,
-              eMC_293_Infill_4,
+              eMC_233_ShovedTimberInfill,
+              eMC_293_ShovedTimberInfill,
               eMC_493_Chair:
                 CONTINUE;        // ignore timber reduced ends, peg arms, timber infill, chairs
 
@@ -7247,7 +7247,7 @@ procedure highlight_bgkeep(index: integer);
 
 var
   i, array_max: integer;
-  code: EmarkCode;
+  code: EMarkCode;
   now_keep: Tbgnd_keep;
   peg_dim, bg_pegx, bg_pegy: integer;
 

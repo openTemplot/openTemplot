@@ -257,7 +257,9 @@
       <Unit33>
         <Filename Value="rail_options_unit.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="rail_options_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit33>
       <Unit34>
         <Filename Value="print_settings_unit.pas"/>

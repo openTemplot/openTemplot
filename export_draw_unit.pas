@@ -340,7 +340,7 @@ var
   grid_now_dots: integer;
 
   aq, rail: ERailData;
-  mark_code: EmarkCode;
+  mark_code: EMarkCode;
   now, dots_index: integer;
 
   p1, p2, p3, p4: Tpoint;
@@ -423,12 +423,12 @@ var
             eMC_44_ShovingTimberCL_1,
             eMC_54_ShovingTimberCL_2,
             eMC_55_ReducedEnd,
-            eMC_93_Infill_1,
-            eMC_95_Infill_2,
+            eMC_93_ShovedTimberInfill,
+            eMC_95_ReducedEndInfill,
             eMC_99_TimberNumber,
             eMC_203_TimberInfill,
-            eMC_233_Infill_3,
-            eMC_293_Infill_4:
+            eMC_233_ShovedTimberInfill,
+            eMC_293_ShovedTimberInfill:
               CONTINUE;     // no timbering wanted.
           end;//case
         end;
@@ -476,8 +476,8 @@ var
         end;
 
         if ((mark_code = eMC_203_TimberInfill)
-          or (mark_code = eMC_233_Infill_3)
-          or (mark_code = eMC_293_Infill_4))
+          or (mark_code = eMC_233_ShovedTimberInfill)
+          or (mark_code = eMC_293_ShovedTimberInfill))
           and
           (i < (mark_index - 1))      // timber infill
         then begin
@@ -504,7 +504,7 @@ var
 
           if ((mark_code = eMC_5_TimberReducedEnd)
             or (mark_code = eMC_55_ReducedEnd)
-            or (mark_code = eMC_95_Infill_2))
+            or (mark_code = eMC_95_ReducedEndInfill))
             and (out_factor <> 1.0) then
             CONTINUE;   // reduced ends are meaningless if not full-size.
 
@@ -528,7 +528,7 @@ var
                   Pen.Color := printalign_colour;  // rad end marks.
                 eMC_3_TimberOutline,
                 eMC_33_ShovingTimberOutline,
-                eMC_93_Infill_1:
+                eMC_93_ShovedTimberInfill:
                   Pen.Color := printtimber_colour; // timber outlines.
                 eMC_6_RailJoint:
                   Pen.Color := printjoint_colour;  // rail joint marks.
@@ -550,7 +550,7 @@ var
                 Pen.Width := printmark_wide;    // rad end marks.
               eMC_3_TimberOutline,
               eMC_33_ShovingTimberOutline,
-              eMC_93_Infill_1:
+              eMC_93_ShovedTimberInfill:
                 Pen.Width := printtimber_wide;  // timber outlines.
 
               eMC_4_TimberCL,
@@ -559,7 +559,7 @@ var
 
               eMC_5_TimberReducedEnd,
               eMC_55_ReducedEnd,
-              eMC_95_Infill_2:
+              eMC_95_ReducedEndInfill:
                 Pen.Style := psDot;                   // timber reduced ends.
 
               eMC_6_RailJoint:
@@ -657,8 +657,8 @@ var
           end;
 
           if ((mark_code = eMC_203_TimberInfill)
-            or (mark_code = eMC_233_Infill_3)
-            or (mark_code = eMC_293_Infill_4)) and
+            or (mark_code = eMC_233_ShovedTimberInfill)
+            or (mark_code = eMC_293_ShovedTimberInfill)) and
             (ptr_2nd <> nil)        // timber infill...
           then begin
             infill_points[0].X :=
@@ -2357,7 +2357,7 @@ var
   now_keep: Tbgnd_keep;
 
   array_max: integer;
-  code: EmarkCode;
+  code: EMarkCode;
 
   radcen_arm: double;
 
@@ -2461,12 +2461,12 @@ begin
               eMC_44_ShovingTimberCL_1,
               eMC_54_ShovingTimberCL_2,
               eMC_55_ReducedEnd,
-              eMC_93_Infill_1,
-              eMC_95_Infill_2,
+              eMC_93_ShovedTimberInfill,
+              eMC_95_ReducedEndInfill,
               eMC_99_TimberNumber,
               eMC_203_TimberInfill,
-              eMC_233_Infill_3,
-              eMC_293_Infill_4:
+              eMC_233_ShovedTimberInfill,
+              eMC_293_ShovedTimberInfill:
                 CONTINUE;     // no timbering wanted.
             end;//case
           end;
@@ -2515,13 +2515,13 @@ begin
 
           if ((code = eMC_5_TimberReducedEnd)
             or (code = eMC_55_ReducedEnd)
-            or (code = eMC_95_Infill_2))
+            or (code = eMC_95_ReducedEndInfill))
             and (out_factor <> 1.0) then
             CONTINUE;   // reduced ends are meaningless if not full-size.
 
           if ((code = eMC_203_TimberInfill)
-            or (code = eMC_233_Infill_3)
-            or (code = eMC_293_Infill_4))
+            or (code = eMC_233_ShovedTimberInfill)
+            or (code = eMC_293_ShovedTimberInfill))
             and (i < array_max)
           // timber infill
           then begin
@@ -2567,14 +2567,14 @@ begin
                 Pen.Width := printmark_wide;    // rad end marks.
               eMC_3_TimberOutline,
               eMC_33_ShovingTimberOutline,
-              eMC_93_Infill_1:
+              eMC_93_ShovedTimberInfill:
                 Pen.Width := printtimber_wide;  // timber outlines.
               eMC_4_TimberCL,
               eMC_44_ShovingTimberCL_1:
                 Pen.Width := 1;                  // timber centre-lines.
               eMC_5_TimberReducedEnd,
               eMC_55_ReducedEnd,
-              eMC_95_Infill_2:
+              eMC_95_ReducedEndInfill:
                 Pen.Width := 1;                  // timber reduced ends.
               eMC_6_RailJoint:
                 Pen.Width := printmark_wide;    // rail joint marks.
@@ -2600,7 +2600,7 @@ begin
                 Pen.Style := psDash;    // timber centre-lines (not for rivets).
               eMC_5_TimberReducedEnd,
               eMC_55_ReducedEnd,
-              eMC_95_Infill_2:
+              eMC_95_ReducedEndInfill:
                 Pen.Style := psDot;     // timber reduced ends.
               else
                 Pen.Style := psSolid;   // all the rest.
@@ -2630,7 +2630,7 @@ begin
                       Pen.Color := printalign_colour;  // rad end marks.
                     eMC_3_TimberOutline,
                     eMC_33_ShovingTimberOutline,
-                    eMC_93_Infill_1:
+                    eMC_93_ShovedTimberInfill:
                       Pen.Color := printtimber_colour; // timber outlines.
                     eMC_6_RailJoint:
                       Pen.Color := printjoint_colour;  // rail joints.
@@ -2716,8 +2716,8 @@ begin
             end;
 
             if (code = eMC_203_TimberInfill)
-              or (code = eMC_233_Infill_3)
-              or (code = eMC_293_Infill_4)       // timber infill...
+              or (code = eMC_233_ShovedTimberInfill)
+              or (code = eMC_293_ShovedTimberInfill)       // timber infill...
             then begin
               infill_points[0].X := Round((p1.Y - grid_left) * scaw_out) + page_left_dots;
               infill_points[0].Y := Round((p1.X - grid_top) * scal_out) + page_top_dots;

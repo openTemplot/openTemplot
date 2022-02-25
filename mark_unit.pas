@@ -24,8 +24,9 @@ type
   //    - arithmetic performed on the codes
   // You have been warned!
 
-  EmarkCode = (
+  EMarkCode = (
 
+    //-493  chair block insert location (DXF)
     eMC__493_DXFblock = -493,         // -493
     eMC__5_Label = -5,                // -5
     eMC__4_TimberSelector,            // -4
@@ -46,14 +47,15 @@ type
     eMC_9_PegArm_2,                   // 9
     eMC_10_PlainTrackStart,           // 10
     eMC_11_placeholder,               // 11 - placeholder
+
     eMC_14_TimberCLSolid = 14,        // 14
     eMC_33_ShovingTimberOutline = 33, // 33
     eMC_44_ShovingTimberCL_1 = 44,    // 44
     eMC_54_ShovingTimberCL_2 = 54,    // 54
     eMC_55_ReducedEnd,                // 55
 
-    eMC_93_Infill_1 = 93,             // 93
-    eMC_95_Infill_2 = 95,             // 95
+    eMC_93_ShovedTimberInfill = 93,   // 93 - Guessed name - this value is never set
+    eMC_95_ReducedEndInfill = 95,     // 95 - Guessed name - this value is never set
     eMC_98_placeholder = 98,          // 98 - placeholder
     eMC_99_TimberNumber,              // 99
 
@@ -63,13 +65,14 @@ type
 
     eMC_200_placeholder,              // 200 - placeholder
     eMC_203_TimberInfill = 203,       // 203
-    eMC_233_Infill_3 = 233,           // 233
-    eMC_293_Infill_4 = 293,           // 293
+    eMC_233_ShovedTimberInfill = 233, // 233 - Shoved but not selected
+    eMC_293_ShovedTimberInfill = 293, // 293 - Shoved but not selected
 
     eMC_480_ChairStart = 480,         // 480
     eMC_493_Chair = 493,              // 493
     eMC_499_ChairEnd = 499,           // 499
 
+    // code 501..508 = check rail labels
     eMC_501_MSWorkingEnd = 501,       // 501
     eMC_502_MSExtensionEnd,           // 502
     eMC_503_MSWingRail,               // 503
@@ -88,10 +91,10 @@ type
     eMC_605_SWitchLabelEnd,           // 605
     eMC_607_placeholder = 607,        // 607
 
-    eMC_700_XingLabelStart = 700,     // 700 - What's the real use of this field?
-    eMC_701_XingIntersectionFP,       // 701
-    eMC_702_XingBluntNose,            // 702
-    eMC_703_XingBluntTips,            // 703
+    eMC_700_XingLongMark = 700,       // 700
+    eMC_701_XingFPLabel,              // 701
+    eMC_702_XingBluntNoseLabel,       // 702
+    eMC_703_XingTipsLabel,            // 703
     eMC_703_XingLabelEnd              // 703
 
     );
@@ -100,8 +103,9 @@ type
   Tmark = record                     // mark from p1 to p2.
     p1: TPoint;
     p2: TPoint;
-    code: eMarkCode;
+    code: EMarkCode;
   end;
+
   Tmark_array = array of Tmark;
 
 

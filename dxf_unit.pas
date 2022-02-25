@@ -643,7 +643,7 @@ procedure dxf_background_keeps(var dxf_file: TextFile);  //  all the background 
 
 var
   i, n: integer;
-  code: EmarkCode;
+  code: EMarkCode;
 
   move_to, line_to: TPoint;
   x1, y1, x2, y2, x3, y3, x4, y4: double;
@@ -704,7 +704,7 @@ var
       if (_3d = False)
         or ((code <> eMC_3_TimberOutline)
         and (code <> eMC_33_ShovingTimberOutline)
-        and (code <> eMC_93_Infill_1))
+        and (code <> eMC_93_ShovedTimberInfill))
       // not 3-D timber edges.
       then begin
         x1 := move_to.x / 100;
@@ -984,7 +984,7 @@ begin
 
           eMC_3_TimberOutline,
           eMC_33_ShovingTimberOutline,
-          eMC_93_Infill_1:
+          eMC_93_ShovedTimberInfill:
             layer := 3;    // timber outlines.
 
           eMC_4_TimberCL,
@@ -999,7 +999,7 @@ begin
 
           eMC_5_TimberReducedEnd,
           eMC_55_ReducedEnd,
-          eMC_95_Infill_2: begin
+          eMC_95_ReducedEndInfill: begin
             if _3d = True then
               CONTINUE
             else
@@ -1017,8 +1017,8 @@ begin
           end;
 
           eMC_203_TimberInfill,
-          eMC_233_Infill_3,
-          eMC_293_Infill_4: begin
+          eMC_233_ShovedTimberInfill,
+          eMC_293_ShovedTimberInfill: begin
             if _3d = False then
               CONTINUE
             else
@@ -1045,8 +1045,8 @@ begin
 
 
         if ((code = eMC_203_TimberInfill)
-          or (code = eMC_233_Infill_3)
-          or (code = eMC_293_Infill_4))
+          or (code = eMC_233_ShovedTimberInfill)
+          or (code = eMC_293_ShovedTimberInfill))
 
 
 

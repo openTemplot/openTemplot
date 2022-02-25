@@ -1257,7 +1257,7 @@ procedure Tshove_timber_form.omit_all_buttonClick(Sender: TObject);
 var
   i, n: integer;
 
-  code: EmarkCode;
+  code: EMarkCode;
   ptr_1st: ^Tmark;         // pointer to a Tmark record..
   markmax: integer;
   num_str, tbnum_str: string;
