@@ -398,7 +398,6 @@ begin
         // not if none there or already at the start
         then begin
           keeps_list.Move(h_g, 0);     // move it to start
-          memo_list.Move(h_g, 0);      // and any memo
         end
         else
           BREAK;
@@ -431,9 +430,6 @@ begin
   if keeps_list.Count < 1 then
     EXIT;
 
-  if keeps_list.Count <> memo_list.Count then
-    run_error(220);
-
   n := 0;
   while n < keeps_list.Count do begin
 
@@ -450,7 +446,6 @@ begin
       wipe_it(n);  // any data on background
 
     keeps_list.Delete(n);
-    memo_list.Delete(n);
 
     //save_done:=False;
 

@@ -129,7 +129,7 @@ var
   info_str, memo_text_str: string;
 
 begin
-  if (keeps_list.Count < 1) or (memo_list.Count < 1) or (list_position < 0) or
+  if (keeps_list.Count < 1) or (list_position < 0) or
     (list_position > (keeps_list.Count - 1)) then
     EXIT;
 
@@ -145,7 +145,7 @@ begin
 
   else                       // Box has keeps
   begin
-    memo_text_str := memo_list.Strings[list_position];
+    memo_text_str := keeps_list[list_position].Memo;
 
     with keeps_list[list_position].template_info.keep_dims.box_dims1 do begin
       info_str := '    ' + IntToStr(list_position + 1) + '  ' + reference_string + '   ' +

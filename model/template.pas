@@ -1167,6 +1167,7 @@ type
 
   public
     Name: String;
+    Memo: String;
 
     // True=has been copied to the background. (not included in file).
     bg_copied: boolean;
@@ -1191,8 +1192,6 @@ type
     bgnd_turnout_radius: double;
 
     bgnd_gaunt: boolean;               // 218a
-
-    sort_swap_memo_str: string;
 
     // 218d   temp flag   template is within a rectangle (e.g. on screen)
     bgnd_is_in_rect: boolean;

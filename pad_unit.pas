@@ -14918,7 +14918,7 @@ var
   info_str, memo_text_str: string;
 
 begin
-  if (keeps_list.Count < 1) or (memo_list.Count < 1) or (clicked_keep_index < 0) or
+  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or
     (clicked_keep_index > (keeps_list.Count - 1)) then
     EXIT;
 
@@ -14936,7 +14936,7 @@ end;
 procedure Tpad_form.edit_memo_popup_entryClick(Sender: TObject);
 
 begin
-  if (keeps_list.Count < 1) or (memo_list.Count < 1) or (clicked_keep_index < 0) or
+  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or
     (clicked_keep_index > (keeps_list.Count - 1)) then
     EXIT;
 
@@ -14953,7 +14953,7 @@ end;
 procedure Tpad_form.jotter_to_memo_popup_entryClick(Sender: TObject);
 
 begin
-  if (keeps_list.Count < 1) or (memo_list.Count < 1) or (clicked_keep_index < 0) or
+  if (keeps_list.Count < 1) or (clicked_keep_index < 0) or
     (clicked_keep_index > (keeps_list.Count - 1)) then
     EXIT;
 
