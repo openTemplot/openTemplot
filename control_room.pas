@@ -2901,9 +2901,6 @@ begin
 
           end;//with bgnd_keep
         end;
-
-        template_info.keep_shove_list.Free;
-
       end;//with template.
     end;//next n
   end;//if any

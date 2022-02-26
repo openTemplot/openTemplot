@@ -1288,7 +1288,6 @@ begin
       end;
     end;
 
-    keeps_list[n].template_info.keep_shove_list.Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
     save_done := False;
@@ -2309,7 +2308,6 @@ var
 
       // delete it...
 
-      keeps_list[n].template_info.keep_shove_list.Free;
       keeps_list.Delete(n);
       memo_list.Delete(n);
 
@@ -5809,12 +5807,7 @@ begin
 
   wipe_all_background;  //bgkeeps_form.clear_button.Click;     // first clear all the background data.
 
-  for n := 0 to keeps_list.Count - 1 do begin
-    keeps_list[n].template_info.keep_shove_list.Free;
-  end;//next n
-
   keeps_list.Clear;
-
   memo_list.Clear;
   keep_canvas_clear;
 
@@ -5839,7 +5832,6 @@ begin
     run_error(220);
 
   if (n >= 0) and (n < keeps_list.Count) then begin
-    keeps_list[n].template_info.keep_shove_list.Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
     save_done := False;
@@ -7224,9 +7216,7 @@ begin
         ident    // found a duplicate
       then begin
 
-        keeps_list[i].template_info.keep_shove_list.Free;
-        keeps_list.Delete(i);
-        // delete it. i now points to next line so no need to inc.
+        keeps_list.Delete(i);        // delete it. i now points to next line so no need to inc.
         memo_list.Delete(i);
         save_done := False;
         backup_wanted := True;
@@ -7396,7 +7386,6 @@ begin
     if keeps_list[n].bg_copied = True then
       wipe_it(n);  // ??? not a background template but data on background!
 
-    keeps_list[n].template_info.keep_shove_list.Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
 
@@ -7471,7 +7460,6 @@ begin
     if keeps_list[n].bg_copied = True then
       wipe_it(n);  // ??? library template but data on background!
 
-    keeps_list[n].template_info.keep_shove_list.Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
 
@@ -7544,7 +7532,6 @@ begin
     if keeps_list[n].bg_copied = True then
       wipe_it(n);  // any data on background
 
-    keeps_list[n].template_info.keep_shove_list.Free;
     keeps_list.Delete(n);
     memo_list.Delete(n);
 

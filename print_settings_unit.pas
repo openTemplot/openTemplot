@@ -449,8 +449,6 @@ begin
     if keeps_list[n].bg_copied = True then
       wipe_it(n);  // any data on background
 
-    keeps_list[n].template_info.keep_shove_list.Free;
-
     keeps_list.Delete(n);
     memo_list.Delete(n);
 

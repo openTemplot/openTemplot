@@ -1157,8 +1157,9 @@ type
   Ttemplate_info = record       // template data.
 
     keep_dims: Tkeep_dims;           // all the template dimemsions.
-    keep_shove_list: Tshoved_timber_list;
+
     // the list of shoved timbers. (v:0.71.a  27-4-01).
+    keep_shove_list: Tshoved_timber_list;
   end;//record
 
 
@@ -1212,6 +1213,7 @@ type
 
 
     constructor Create(AName: string);
+    destructor Destroy; override;
   end;//class
 
 
@@ -1235,6 +1237,13 @@ begin
   Name := AName;
 end;
 
+
+destructor TTemplate.Destroy;
+begin
+  template_info.keep_shove_list.Free;
+
+  inherited;
+end;
 
 procedure TTemplateList.Notify(constref AValue: TTemplate;
   ACollectionNotification: TCollectionNotification);
