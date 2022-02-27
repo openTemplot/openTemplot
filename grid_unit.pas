@@ -1420,7 +1420,7 @@ end;
 procedure draw_reminders(canv: TCanvas);      // 216a
 
 var
-  memo: TMemo;
+  reminder_memo: TMemo;
   n: integer;
   memo_count: integer;
 
@@ -1495,29 +1495,29 @@ begin
           case memo_count of
 
             1:
-              memo := reminder_memo1;
+              reminder_memo := reminder_memo1;
             2:
-              memo := reminder_memo2;
+              reminder_memo := reminder_memo2;
             3:
-              memo := reminder_memo3;
+              reminder_memo := reminder_memo3;
             4:
-              memo := reminder_memo4;
+              reminder_memo := reminder_memo4;
             else
-              memo := reminder_memo5;
+              reminder_memo := reminder_memo5;
 
           end;//case
 
-          memo.Tag := n;
-          memo.Color := reminder_colour;
-          memo.Lines.Text := reminder_str;
-          memo.Hint := reminder_str + '  -  click to zoom template  -  right-click for options ';
+          reminder_memo.Tag := n;
+          reminder_memo.Color := reminder_colour;
+          reminder_memo.Lines.Text := reminder_str;
+          reminder_memo.Hint := reminder_str + '  -  click to zoom template  -  right-click for options ';
 
-          memo.Visible := True;
+          reminder_memo.Visible := True;
 
           // draw call-out line ...
 
-          line_to.X := memo.Left + 2; //+memo.Width DIV 2;
-          line_to.Y := memo.Top + memo.Height div 2;
+          line_to.X := reminder_memo.Left + 2; //+memo.Width DIV 2;
+          line_to.Y := reminder_memo.Top + reminder_memo.Height div 2;
 
           if check_limits(move_to, line_to) = True then begin
             with canv do begin

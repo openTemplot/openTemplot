@@ -448,7 +448,6 @@ var
   html_path_str: string = '';        // for html viewer. 0.91
 
   keeps_list: TTemplateList;                    // 8-2-99
-  memo_list: TStringList;
 
   tag_list: TStringList;                  // 206b
 
@@ -2901,9 +2900,6 @@ begin
 
           end;//with bgnd_keep
         end;
-
-        template_info.keep_shove_list.Free;
-
       end;//with template.
     end;//next n
   end;//if any
@@ -2917,7 +2913,6 @@ begin
   info_text_list.Free;
   printer_list.Free;
   keeps_list.Free;
-  memo_list.Free;
 
   tag_list.Free;     // 206b
 
@@ -3709,8 +3704,6 @@ begin
   info_text_list := TStringList.Create;            // 0.78.a  15-11-02.
   printer_list := TStringList.Create;
   keeps_list := TTemplateList.Create;
-  memo_list := TStringList.Create;
-
 
   tag_list := TStringList.Create;                  // 206b
 

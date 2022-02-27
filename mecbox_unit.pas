@@ -930,7 +930,7 @@ var
       Add(' ');  // spacer
       Add('`@`@`');      // mark start of memo text
 
-      Add(StringReplace(memo_list.Strings[i], '`', '_', [rfReplaceAll, rfIgnoreCase]));
+      Add(StringReplace(keeps_list[i].Memo, '`', '_', [rfReplaceAll, rfIgnoreCase]));
 
       Add(' ');  // spacer
       Add('`~`~`');      // mark end of memo text
@@ -3210,10 +3210,6 @@ begin
 
       try
         n := keeps_list.Add(Ttemplate.Create(info_str));
-        // create and append a new line in keeps list
-        if memo_list.Add(memo_str) <> n then
-          run_error(197);    // and memo list. Ensure indices correspond
-
       except
         alert(1, '      memory  problem',
           'Unable to import templates from the file into your storage box because of memory problems.'

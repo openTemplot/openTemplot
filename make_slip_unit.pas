@@ -973,7 +973,6 @@ begin
         True   // if not, why not ???
       then begin
         keeps_list.Exchange(first_bgnd_template + 1, max_index - 2);
-        memo_list.Exchange(first_bgnd_template + 1, max_index - 2);
       end;
     end;
 
@@ -985,7 +984,6 @@ begin
         True   // if not, why not ???
       then begin
         keeps_list.Exchange(first_bgnd_template, max_index - 4);
-        memo_list.Exchange(first_bgnd_template, max_index - 4);
       end;
     end;
 

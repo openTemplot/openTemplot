@@ -1193,8 +1193,6 @@ var
 begin
   if keeps_list.Count < 1 then
     EXIT;
-  if keeps_list.Count <> memo_list.Count then
-    run_error(220);
 
   n := list_position;
   if (n >= keeps_list.Count) or (n < 0) then
@@ -1247,7 +1245,7 @@ begin
         copy_template_info_from_to(False, ti, deleted_keep);
         // save for undo delete.
         deleted_keep_string := keeps_list[n].Name;
-        deleted_memo_string := memo_list.Strings[n];
+        deleted_memo_string := keeps_list[n].Memo;
         keep_form.undo_delete_menu_entry.Enabled := True;
       end;
     end
@@ -1288,9 +1286,7 @@ begin
       end;
     end;
 
-    keeps_list[n].template_info.keep_shove_list.Free;
     keeps_list.Delete(n);
-    memo_list.Delete(n);
     save_done := False;
     backup_wanted := True;
 
@@ -2308,11 +2304,7 @@ var
       end;
 
       // delete it...
-
-      keeps_list[n].template_info.keep_shove_list.Free;
       keeps_list.Delete(n);
-      memo_list.Delete(n);
-
     end;
     //while    // no need to increment n, it is now pointing to the next keep.
 
@@ -2673,7 +2665,7 @@ begin
             end;//case
 
             s := remove_esc_str(keeps_list[i].Name) + Char($1B) + remove_esc_str(
-              memo_list.Strings[i]) + Char($1B) + Char($1B);
+              keeps_list[i].Memo) + Char($1B) + Char($1B);
             // use ESC chars as terminators, plus one for luck on the end.
 
             UniqueString(s);  // make sure it's in continuous memory.
@@ -3067,9 +3059,6 @@ var
             n_valid := False;   // default for error exits.
 
             n := keeps_list.Add(TTemplate.Create('no information available'));
-            // create and append a new line in keeps list (temporary strings).
-            if memo_list.Add('no memo notes available') <> n then
-              run_error(197);     // and memo list. Ensure indices correspond.
           except
             alert(1, '      memory  problem',
               '|||Unable to load templates from the file into your storage box because of memory problems.'
@@ -3219,7 +3208,7 @@ var
 
             keeps_list[n].Name := remove_esc_str(info_string);
             // remove any ESC is belt and braces...
-            memo_list.Strings[n] := remove_esc_str(memo_string);
+            keeps_list[n].Memo := remove_esc_str(memo_string);
           end;
         end;
       end;//next n
@@ -3979,7 +3968,7 @@ begin
 
     keep_copied_from_index := n;  // make a note of the index we got it from.
 
-    current_memo_str := memo_list.Strings[n];
+    current_memo_str := keeps_list[n].Memo;
 
     ti.keep_shove_list := Tshoved_timber_list.Create;
 
@@ -4538,7 +4527,7 @@ begin
       // new strings for the read info...
 
 
-      memo_text_str := memo_list.Strings[list_position];
+      memo_text_str := keeps_list[list_position].Memo;
 
       info_str :={insert_cr_str( out 0.91.b}'   ' + group_str + '  ' + IntToStr(
         list_position + 1) + '  ' + bg_str + '   ' + ref_str + '||  ' +
@@ -5688,11 +5677,8 @@ begin
     end;
 
     try
-      n := keeps_list.Add(TTemplate.Create(si));
       // create and append a new line in keeps list.
-      if memo_list.Add(current_memo_str) <> n then
-        run_error(199);    // and memo list. Ensure indices correspond.
-
+      n := keeps_list.Add(TTemplate.Create(si));
     except
       if control_template_on_save = False           // 0.93.a
       then
@@ -5749,8 +5735,6 @@ end;
 procedure exchange_keeps(n1, n2: integer);     // swap the position of 2 keeps in the box.
 
 begin
-  if keeps_list.Count <> memo_list.Count then
-    EXIT;
   if keeps_list.Count < 2 then
     EXIT;
   if (n1 > keeps_list.Count - 1) or (n2 > keeps_list.Count - 1) or (n1 < 0) or (n2 < 0) then
@@ -5759,7 +5743,6 @@ begin
     EXIT;
 
   keeps_list.Exchange(n1, n2);
-  memo_list.Exchange(n1, n2);
   list_position := n1;        // make the first index current.
   current_state(1);
 end;
@@ -5809,13 +5792,7 @@ begin
 
   wipe_all_background;  //bgkeeps_form.clear_button.Click;     // first clear all the background data.
 
-  for n := 0 to keeps_list.Count - 1 do begin
-    keeps_list[n].template_info.keep_shove_list.Free;
-  end;//next n
-
   keeps_list.Clear;
-
-  memo_list.Clear;
   keep_canvas_clear;
 
 
@@ -5835,13 +5812,9 @@ begin
 
   if keeps_list.Count < 1 then
     EXIT;
-  if keeps_list.Count <> memo_list.Count then
-    run_error(220);
 
   if (n >= 0) and (n < keeps_list.Count) then begin
-    keeps_list[n].template_info.keep_shove_list.Free;
     keeps_list.Delete(n);
-    memo_list.Delete(n);
     save_done := False;
     backup_wanted := True;
   end;
@@ -5947,7 +5920,6 @@ var
 
 begin
   if (keep_form.keepform_listbox.Items.Count <> keeps_list.Count) // then EXIT;  //??
-    or (memo_list.Count <> keeps_list.Count)                        // then EXIT;  //??
     or (keep_form.keepform_listbox.Items.Count < 1)                 // then EXIT;
   then begin
     ShowMessage('The storage box is empty. There is nothing to list.');
@@ -7224,10 +7196,7 @@ begin
         ident    // found a duplicate
       then begin
 
-        keeps_list[i].template_info.keep_shove_list.Free;
-        keeps_list.Delete(i);
-        // delete it. i now points to next line so no need to inc.
-        memo_list.Delete(i);
+        keeps_list.Delete(i);        // delete it. i now points to next line so no need to inc.
         save_done := False;
         backup_wanted := True;
         Result := True;
@@ -7323,7 +7292,7 @@ end;
 procedure Tkeep_form.read_info_buttonClick(Sender: TObject);
 
 begin
-  if (keeps_list.Count < 1) or (memo_list.Count < 1) then
+  if (keeps_list.Count < 1) then
     EXIT;
 
   // mods 0.93.a help(-2,info_str,'');
@@ -7380,9 +7349,6 @@ begin
       EXIT;
   end;
 
-  if keeps_list.Count <> memo_list.Count then
-    run_error(220);
-
   n := 0;
   while n < keeps_list.Count do begin
 
@@ -7396,9 +7362,7 @@ begin
     if keeps_list[n].bg_copied = True then
       wipe_it(n);  // ??? not a background template but data on background!
 
-    keeps_list[n].template_info.keep_shove_list.Free;
     keeps_list.Delete(n);
-    memo_list.Delete(n);
 
     save_done := False;
   end;//while              // no need to increment n, it is now pointing to the next keep.
@@ -7455,9 +7419,6 @@ begin
       EXIT;
   end;
 
-  if keeps_list.Count <> memo_list.Count then
-    run_error(220);
-
   n := 0;
   while n < keeps_list.Count do begin
 
@@ -7471,9 +7432,7 @@ begin
     if keeps_list[n].bg_copied = True then
       wipe_it(n);  // ??? library template but data on background!
 
-    keeps_list[n].template_info.keep_shove_list.Free;
     keeps_list.Delete(n);
-    memo_list.Delete(n);
 
     save_done := False;
   end;//while              // no need to increment n, it is now pointing to the next keep.
@@ -7521,9 +7480,6 @@ begin
     '||It is not possible to restore the templates which are deleted. If you think you may need them again you should first save a data file before deleting them.' + '||Are you sure you want to delete all T-55 templates ?', '', '', '', '', 'no   -   cancel', 'yes   -   delete  all  T-55  templates', 0) = 5 then
     EXIT;
 
-  if keeps_list.Count <> memo_list.Count then
-    run_error(220);
-
   keep_count := keeps_list.Count;
 
   n := 0;
@@ -7544,9 +7500,7 @@ begin
     if keeps_list[n].bg_copied = True then
       wipe_it(n);  // any data on background
 
-    keeps_list[n].template_info.keep_shove_list.Free;
     keeps_list.Delete(n);
-    memo_list.Delete(n);
 
     save_done := False;
 
@@ -7592,7 +7546,6 @@ begin
 
     if (l_lib <> -1) and (h_nlib <> -1) and (l_lib < h_nlib) then begin
       keeps_list.Move(l_lib, keeps_list.Count - 1);     // move it to end
-      memo_list.Move(l_lib, keeps_list.Count - 1);      // and any memo
     end
     else
       BREAK;
@@ -7627,7 +7580,6 @@ begin
 
     if (l_ng <> -1) and (h_g <> -1) and (l_ng < h_g) then begin
       keeps_list.Move(h_g, 0);     // move it to start
-      memo_list.Move(h_g, 0);      // and any memo
     end
     else
       BREAK;
@@ -7662,7 +7614,6 @@ begin
 
     if (l_g <> -1) and (h_ng <> -1) and (h_ng > l_g) then begin
       keeps_list.Move(l_g, keeps_list.Count - 1);     // move it to end
-      memo_list.Move(l_g, keeps_list.Count - 1);      // and any memo
     end
     else
       BREAK;
@@ -8231,7 +8182,6 @@ var
 
 begin
   if (keep_form.keepform_listbox.Items.Count <> keeps_list.Count) // then EXIT;  //??
-    or (memo_list.Count <> keeps_list.Count)                        // then EXIT;  //??
     or (keep_form.keepform_listbox.Items.Count < 1)                 // then EXIT;
   then begin
     ShowMessage('The storage box is empty. There is no information for stored templates.');
@@ -8340,7 +8290,7 @@ begin
     html_str := html_str + '<TD>' + show_str + '</TD></TR>';
 
     if memo = True then begin
-      full_string := StringReplace(memo_list.Strings[n], '  ', ' &nbsp;',
+      full_string := StringReplace(keeps_list[n].Memo, '  ', ' &nbsp;',
         [rfReplaceAll, rfIgnoreCase]);  // allow multiple spaces.
 
       full_string := StringReplace(full_string, ' > ', ' &gt; ', [rfReplaceAll, rfIgnoreCase]);
@@ -8689,13 +8639,12 @@ end;
 procedure Tkeep_form.undo_delete_menu_entryClick(Sender: TObject);
 
 var
-  n, m: integer;
+  n: integer;
   str: string;
 
 begin     // menu is not enabled until there is something there.
 
   n := -1;   // keep compiler happy
-  m := -1;
 
   try
     n := keeps_list.Add(TTemplate.Create(deleted_keep_string));        // add line to info.
@@ -8706,28 +8655,7 @@ begin     // menu is not enabled until there is something there.
     EXIT;
   end;//try
 
-  try
-    m := memo_list.Add(deleted_memo_string);         // add line to memo.
-  except
-    alert(5, '    undo  delete  error',
-      '|||There is an internal problem with undo.' + '||Please quote fail code 902.',
-      '', '', '', '', 'cancel  undo', '', 0);
-    if n > -1 then
-      keeps_list.Delete(n);
-    EXIT;
-  end;//try
-
-  if (m <> n) or (m < 0) or (m > (keeps_list.Count - 1)) then begin
-    alert(5, '    undo  delete  error',
-      '|||There is an internal problem with undo.' + '||Please quote fail code 903.',
-      '', '', '', '', 'cancel  undo', '', 0);
-    if n > -1 then
-      keeps_list.Delete(n);
-    if m > -1 then
-      memo_list.Delete(m);
-
-    EXIT;
-  end;
+  keeps_list[n].Memo := deleted_memo_string;
 
   save_done := False;
   // need a fresh save.
@@ -9333,13 +9261,13 @@ var
   new_str: string;
 
 begin
-  if (list_position < 0) or (memo_list.Count < 1) or (list_position > (memo_list.Count - 1)) then
+  if (list_position < 0) or (keeps_list.Count < 1) or (list_position > (keeps_list.Count - 1)) then
     EXIT;
 
-  new_str := edit_memo_str(memo_list.Strings[list_position],
+  new_str := edit_memo_str(keeps_list[list_position].Memo,
     keeps_list[list_position].template_info.keep_dims.box_dims1.reference_string);
 
-  memo_list.Strings[list_position] := new_str;
+  keeps_list[list_position].Memo := new_str;
 
   current_state(-1);       // to update the info string.
   backup_wanted := True;
@@ -9353,10 +9281,10 @@ var
   su: string;
 
 begin
-  if memo_list.Count < 1 then
+  if keeps_list.Count < 1 then
     EXIT;
 
-  su := memo_list.Strings[list_position];
+  su := keeps_list[list_position].Memo;
 
   with jotter_form do begin
     if jotter_memo.Lines.Count > 0 then
@@ -9364,7 +9292,7 @@ begin
         su := su + jotter_memo.Lines.Strings[i] + '|'; // add line separators.
   end;//with
 
-  memo_list.Strings[list_position] := remove_esc_str(su);
+  keeps_list[list_position].Memo := remove_esc_str(su);
   // remove ESC is belt and braces for new file format.
   current_state(-1);                                     // to update the info string.
   backup_wanted := True;
@@ -9385,7 +9313,6 @@ begin
     EXIT;
 
   keeps_list.Move(list_position, 0);
-  memo_list.Move(list_position, 0);
   list_position := 0;
 
   current_state(-1);
@@ -9399,7 +9326,6 @@ begin
     EXIT;
 
   keeps_list.Move(list_position, keeps_list.Count - 1);
-  memo_list.Move(list_position, keeps_list.Count - 1);
   list_position := keeps_list.Count - 1;
 
   current_state(-1);
@@ -9420,7 +9346,6 @@ begin
     EXIT;  // ???
 
   keeps_list.Exchange(list_position - 1, list_position);
-  memo_list.Exchange(list_position - 1, list_position);
   list_position := list_position - 1;
 
   with keep_form.keepform_listbox do begin
@@ -9475,7 +9400,6 @@ begin
     EXIT;  // ???
 
   keeps_list.Exchange(list_position, list_position + 1);
-  memo_list.Exchange(list_position, list_position + 1);
 
   list_position := list_position + 1;
 
@@ -11077,11 +11001,6 @@ begin
   if keeps_list.Count < 1 then
     EXIT;
 
-  for n := 0 to (keeps_list.Count - 1) do begin
-    keeps_list[n].sort_swap_memo_str := memo_list.Strings[n];
-  end;//next
-
-
   case code of
     1:
       comparer := TComparer<TTemplate>.Construct(CompareTemplateByName);
@@ -11096,14 +11015,6 @@ begin
   end;
 
   keeps_list.Sort(comparer);
-
-  // swap back
-
-  for n := 0 to (keeps_list.Count - 1) do begin
-
-    memo_list.Strings[n] := keeps_list[n].sort_swap_memo_str;
-
-  end;//next
 
   save_done := False;
   backup_wanted := True;
@@ -11295,10 +11206,6 @@ begin
 
   if keeps_list.Count < 1 then
     EXIT;
-  if keeps_list.Count <> memo_list.Count then begin
-    run_error(220);
-    EXIT;
-  end;
 
   for n := 0 to keeps_list.Count - 1 do begin
 
@@ -11311,7 +11218,7 @@ begin
 
     if (name_str = 'read me') or (name_str = 'readme') or (name_str = 'read-me') or
       (name_str = 'read_me') then begin
-      Result := memo_list.Strings[n];
+      Result := keeps_list[n].Memo;
       BREAK;
     end;
 
@@ -11378,7 +11285,6 @@ begin
 
     if (l_nhd <> -1) and (h_hd <> -1) and (l_nhd < h_hd) then begin
       keeps_list.Move(h_hd, 0);     // move it to start
-      memo_list.Move(h_hd, 0);      // and any memo
     end
     else
       BREAK;
