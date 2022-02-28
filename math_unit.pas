@@ -25234,7 +25234,7 @@ begin
     shovew := wshove;
     shovec := cshove;
 
-    shove_this := 40;                // draw highlighted.
+    shove_this := 50;                // draw highlighted.
   end;
   //     else begin
   //if omit=True then EXIT;      // omit this timber unless it's selected for shoving.
