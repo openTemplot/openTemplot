@@ -25326,8 +25326,13 @@ begin
            code := eMC_54_ShovingTimberCLMidline;
          eTS_Selected:
            code := eMC_54_ShovingTimberCLMidline;
-       end;
-
+       end
+    else
+       case timberStatus of
+         eTS_Normal: code := eMC_4_TimberCL;
+         eTS_Shoved: code := eMC_44_ShovingTimberCL;
+         eTS_Selected: code := eMC_44_ShovingTimberCL;
+     end;
     calc_fill_timber_mark(code);
 
   end;
