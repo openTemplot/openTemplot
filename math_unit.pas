@@ -25198,8 +25198,8 @@ begin
     then begin
       if (shove_timber_form.Showing) and
         (shove_timber_form.show_all_blue_checkbox.Checked) then begin
-          timberStatus := eTS_shoved; // will be highlighted in blue or red.
-        end;
+        timberStatus := eTS_shoved; // will be highlighted in blue or red.
+      end;
       if shoved.sv_code = svcOmit     // this value in the list is a flag.
       then
         omit := True       // he wants this timber omitted.
@@ -25319,20 +25319,23 @@ begin
     y_curmod := y_curtimb - yeq;
 
     if midline then
-       case timberStatus of
-         eTS_Normal:
-           code := eMC_14_TimberCLMidline;
-         eTS_Shoved:
-           code := eMC_54_ShovingTimberCLMidline;
-         eTS_Selected:
-           code := eMC_54_ShovingTimberCLMidline;
-       end
+      case timberStatus of
+        eTS_Normal:
+          code := eMC_14_TimberCLMidline;
+        eTS_Shoved:
+          code := eMC_54_ShovingTimberCLMidline;
+        eTS_Selected:
+          code := eMC_54_ShovingTimberCLMidline;
+      end
     else
-       case timberStatus of
-         eTS_Normal: code := eMC_4_TimberCL;
-         eTS_Shoved: code := eMC_44_ShovingTimberCL;
-         eTS_Selected: code := eMC_44_ShovingTimberCL;
-     end;
+      case timberStatus of
+        eTS_Normal:
+          code := eMC_4_TimberCL;
+        eTS_Shoved:
+          code := eMC_44_ShovingTimberCL;
+        eTS_Selected:
+          code := eMC_44_ShovingTimberCL;
+      end;
     calc_fill_timber_mark(code);
 
   end;
@@ -25505,8 +25508,8 @@ begin
       if (shove_timber_form.Showing) and
         (shove_timber_form.show_all_blue_checkbox.Checked) then begin
         timberStatus := eTS_Shoved; // draw highlighted blue if required
-                                    // (may be overidden later for red if currently selected).
-        end;
+        // (may be overidden later for red if currently selected).
+      end;
       if shoved.sv_code = svcOmit                         // this value in the list is a flag.
       then
         EXIT//omit:=True              // he wants this timber omitted.
@@ -25635,9 +25638,12 @@ begin
     // Done first so outlines and reduced ends can overwrite,
     // possibly in a different colour..
     case timberStatus of
-      eTS_Normal: code := eMC_203_TimberInfill;
-      eTS_Shoved: code := eMC_293_ShovedTimberInfill;
-      eTS_Selected: code := eMC_233_ShovedTimberInfill;
+      eTS_Normal:
+        code := eMC_203_TimberInfill;
+      eTS_Shoved:
+        code := eMC_293_ShovedTimberInfill;
+      eTS_Selected:
+        code := eMC_233_ShovedTimberInfill;
     end;
 
     if timbering_infill then begin
@@ -25657,9 +25663,12 @@ begin
 
     // then timber outlines..
     case timberStatus of
-      eTS_Normal: code := eMC_3_TimberOutline;
-      eTS_Shoved: code := eMC_93_ShovedTimberOutline;
-      eTS_Selected: code := eMC_33_SelectedTimberOutline;
+      eTS_Normal:
+        code := eMC_3_TimberOutline;
+      eTS_Shoved:
+        code := eMC_93_ShovedTimberOutline;
+      eTS_Selected:
+        code := eMC_33_SelectedTimberOutline;
     end;
 
     p1.x := xns - tbl + crab;
@@ -25694,11 +25703,14 @@ begin
     if (nine_foot) and (reduced_ends)   // standard 9ft timbering..
     then begin
 
-    case timberStatus of
-      eTS_Normal: code := eMC_5_TimberReducedEnd;
-      eTS_Shoved: code := eMC_95_ReducedEndInfill;
-      eTS_Selected: code := eMC_55_ReducedEnd;
-    end;
+      case timberStatus of
+        eTS_Normal:
+          code := eMC_5_TimberReducedEnd;
+        eTS_Shoved:
+          code := eMC_95_ReducedEndInfill;
+        eTS_Selected:
+          code := eMC_55_ReducedEnd;
+      end;
 
       p1.x := xns - tbl + crab;           // draw reduced timber ends (close-dotted) ...
       p1.y := ynsred + yret;
@@ -25718,8 +25730,7 @@ begin
 
     // now timber centre-lines if there is some data...
 
-    if (pad_form.timber_centres_menu_entry.Checked) and (timbcentre_wait.valid) then
-    begin
+    if (pad_form.timber_centres_menu_entry.Checked) and (timbcentre_wait.valid) then begin
 
       with timbcentre_wait do begin
         // saved actual co-ords, to be entered in list after the outlines.
@@ -25735,20 +25746,26 @@ begin
 
       if midline then begin
         case timberStatus of
-          eTS_Normal: code := eMC_14_TimberCLMidline;
-          eTS_Shoved: code := eMC_54_ShovingTimberCLMidline;
-          eTS_Selected: code := eMC_54_ShovingTimberCLMidline;
+          eTS_Normal:
+            code := eMC_14_TimberCLMidline;
+          eTS_Shoved:
+            code := eMC_54_ShovingTimberCLMidline;
+          eTS_Selected:
+            code := eMC_54_ShovingTimberCLMidline;
         end;
       end
       else begin
         case timberStatus of
-          eTS_Normal: code := eMC_4_TimberCL;
-          eTS_Shoved: code := eMC_44_ShovingTimberCL;
-          eTS_Selected: code := eMC_44_ShovingTimberCL;
+          eTS_Normal:
+            code := eMC_4_TimberCL;
+          eTS_Shoved:
+            code := eMC_44_ShovingTimberCL;
+          eTS_Selected:
+            code := eMC_44_ShovingTimberCL;
         end;
       end;
 
-      calc_fill_timber_mark(code)
+      calc_fill_timber_mark(code);
     end;
 
     // 214a and finally do the experimental chairs...
