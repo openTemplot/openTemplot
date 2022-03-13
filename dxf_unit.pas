@@ -703,8 +703,8 @@ var
 
       if (_3d = False)
         or ((code <> eMC_3_TimberOutline)
-        and (code <> eMC_33_ShovingTimberOutline)
-        and (code <> eMC_93_ShovedTimberInfill))
+        and (code <> eMC_33_SelectedTimberOutline)
+        and (code <> eMC_93_ShovedTimberOutline))
       // not 3-D timber edges.
       then begin
         x1 := move_to.x / 100;
@@ -983,14 +983,14 @@ begin
             layer := 7;    // radial end marks.  transition marks.
 
           eMC_3_TimberOutline,
-          eMC_33_ShovingTimberOutline,
-          eMC_93_ShovedTimberInfill:
+          eMC_33_SelectedTimberOutline,
+          eMC_93_ShovedTimberOutline:
             layer := 3;    // timber outlines.
 
           eMC_4_TimberCL,
-          eMC_14_TimberCLSolid,
-          eMC_44_ShovingTimberCL_1,
-          eMC_54_ShovingTimberCL_2: begin
+          eMC_14_TimberCLMidline,
+          eMC_44_ShovingTimberCL,
+          eMC_54_ShovingTimberCLMidline: begin
             if _3d = True then
               CONTINUE
             else

@@ -14,15 +14,13 @@ type
   // 1. These names contain the values of the codes. This is a temporary step to help avoid
   //    mistakes as I deploy the enumeration into the code. Later, the names can be refactored
   //    to remove the values from them.
-  // 2. Also later, the values themselves can be changed, once it is confirmed that they are
-  //    transient - i.e. not written to files (which I think is true)
+  // 2. Also later, the values themselves can be changed
 
   // !!! BEWARE !!!
-  // When the time comes to allow the values to be derived by the compiler ... all sorts
-  // of shonky stuff is going on with these 'codes', including:
-  //    - dependency on the order of the values
-  //    - arithmetic performed on the codes
-  // You have been warned!
+  // The next change here is to allow the values to be derived by the compiler.
+  // This work will need to take account of the fact that there is a dependency
+  // in many places on the order of the values, namely 'case' and 'if' statements
+  // which test for ranges of values.
 
   EMarkCode = (
 
@@ -48,14 +46,19 @@ type
     eMC_10_PlainTrackStart,           // 10
     eMC_11_placeholder,               // 11 - placeholder
 
-    eMC_14_TimberCLSolid = 14,        // 14
-    eMC_33_ShovingTimberOutline = 33, // 33
-    eMC_44_ShovingTimberCL_1 = 44,    // 44
-    eMC_54_ShovingTimberCL_2 = 54,    // 54
-    eMC_55_ReducedEnd,                // 55
+    // It seems wrong that most mark codes represent what TYPE of thing is being
+    // drawn, but the following few also contain aspects of HOW it is drawn.
+    // This should be derived at the point of drawing, as for the other codes
+    // TODO: Untangle these two ideas. Move 'pen' selection to the point of drawing.
+    eMC_14_TimberCLMidline = 14,      // 14 - 'midline' = 'rails as midlines' selected
+    eMC_33_SelectedTimberOutline = 33, // 33
+    eMC_44_ShovingTimberCL = 44,      // 44 - shov'ing' implies shoved OR selected
+    eMC_54_ShovingTimberCLMidline = 54,// 54 - shov'ing' implies shoved OR selected
 
-    eMC_93_ShovedTimberInfill = 93,   // 93 - Guessed name - this value is never set
-    eMC_95_ReducedEndInfill = 95,     // 95 - Guessed name - this value is never set
+    eMC_55_ReducedEnd = 55,           // 55
+
+    eMC_93_ShovedTimberOutline = 93,  // 93
+    eMC_95_ReducedEndInfill = 95,     // 95
     eMC_98_placeholder = 98,          // 98 - placeholder
     eMC_99_TimberNumber,              // 99
 

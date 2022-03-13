@@ -571,17 +571,17 @@ begin
       eMC_9_PegArm_2,
       eMC_10_PlainTrackStart:
         Result := False;
-      eMC_14_TimberCLSolid:
+      eMC_14_TimberCLMidline:
         Result := output_timbering_checkbox.Checked and
           output_timber_centres_checkbox.Checked;
-      eMC_33_ShovingTimberOutline:
+      eMC_33_SelectedTimberOutline:
         Result := output_timbering_checkbox.Checked;
-      eMC_44_ShovingTimberCL_1,
-      eMC_54_ShovingTimberCL_2:
+      eMC_44_ShovingTimberCL,
+      eMC_54_ShovingTimberCLMidline:
         Result := output_timbering_checkbox.Checked and
           output_timber_centres_checkbox.Checked;
       eMC_55_ReducedEnd,
-      eMC_93_ShovedTimberInfill,
+      eMC_93_ShovedTimberOutline,
       eMC_95_ReducedEndInfill,
       eMC_99_TimberNumber:
         Result := output_timbering_checkbox.Checked;
@@ -622,11 +622,11 @@ begin
     eMC_2_RadialEnd:
       Result := lsMark_RadialEnd;
     eMC_3_TimberOutline,
-    eMC_33_ShovingTimberOutline,
-    eMC_93_ShovedTimberInfill:
+    eMC_33_SelectedTimberOutline,
+    eMC_93_ShovedTimberOutline:
       Result := lsMark_TimberOutline;
     eMC_4_TimberCL,
-    eMC_44_ShovingTimberCL_1:
+    eMC_44_ShovingTimberCL:
       Result := lsMark_TimberCentreline;
     eMC_5_TimberReducedEnd,
     eMC_55_ReducedEnd,
@@ -636,7 +636,7 @@ begin
       Result := lsMArk_RailJoint;
     eMC_7_TransitionAndSlewing:
       Result := lsMark_Slewing;
-    eMC_14_TimberCLSolid:
+    eMC_14_TimberCLMidline:
       Result := lsMark_TimberRivetCentreline;
     eMC_600_LongMark,
     eMC_700_XingLongMark:                  // TODO: this does not seem to make sense :-/
