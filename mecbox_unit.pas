@@ -59,7 +59,7 @@ uses
   config_unit,
   keep_select, wait_message, pad_unit, info_unit, control_room, alert_unit,
   math_unit, shove_timber, rail_options_unit,
-  shoved_timber, template;
+  shoved_timber, template, box_file_unit;
 
 {$R *.lfm}
 
@@ -3414,7 +3414,8 @@ begin
       'The file which you just reloaded contained one or more templates from a later version of Templot than this one.'
       +
       ' Some features may not be available or may be drawn differently.' +
-      '||The earliest loaded template was from version  ' + FormatFloat('0.00', loaded_version / 100) +
+      '||The earliest loaded template was from version  ' +
+      FormatFloat('0.00', loaded_version / 100) +
       '|This version of Templot is  ' + GetVersionString(voShort) +
       '||Please refer to the Templot web site at  templot.com  for information about upgrading to the latest version, or click| <A HREF="online_ref980.85a">more information online</A> .',
       '', '', '', '', '', 'continue', 0);

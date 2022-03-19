@@ -136,10 +136,25 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLType, LCLIntf,
-  config_unit, control_room, pad_unit, grid_unit, math_unit, panning_unit,
-  shove_timber, rail_options_unit, platform_unit, check_diffs_unit,
-  data_memo_unit, stay_visible_unit, info_unit, keep_select, help_sheet, alert_unit;
+  LCLType,
+  LCLIntf,
+  config_unit,
+  control_room,
+  pad_unit,
+  grid_unit,
+  math_unit,
+  panning_unit,
+  shove_timber,
+  rail_options_unit,
+  platform_unit,
+  check_diffs_unit,
+  data_memo_unit,
+  stay_visible_unit,
+  info_unit,
+  keep_select,
+  box_file_unit,
+  help_sheet,
+  alert_unit;
 
 var
 
@@ -789,7 +804,8 @@ end;
 procedure Tfile_viewer_form.fv_read_me();
 
 begin
-  help(-7, box_file_list.Strings[0] + '||' + readme_list.Strings[0], '');    // -7 caption = 'read me'
+  help(-7, box_file_list.Strings[0] + '||' + readme_list.Strings[0], '');
+  // -7 caption = 'read me'
 end;
 
 //______________________________________________________________________________
@@ -970,7 +986,8 @@ var
   n: integer;
   temp: TObject;
 begin
-  if (control_room_form.viewer_png_menu_entry.Checked = True) or (use_bmp_image_streams = False) then
+  if (control_room_form.viewer_png_menu_entry.Checked = True) or
+    (use_bmp_image_streams = False) then
     EXIT;
 
   try
@@ -1117,7 +1134,8 @@ begin
 
   size_updown.Tag := size_updown.Position;        // and save for the next click.
 
-  no_onresize := False;                           // can now resize the contents again if he wants to.
+  no_onresize := False;
+  // can now resize the contents again if he wants to.
 end;
 //______________________________________________________________________________
 
@@ -1216,8 +1234,9 @@ begin
 
   if box_file_list.Count > 0 then
     html_str := '<TR><TD COLSPAN="3" ALIGN="CENTER"><IMG SRC="'
-    + Config.GetFilePath(csfiWaitSignalTrans) + '"> &nbsp; please wait while the images are generated'
-    + '<BR><BR>&nbsp; &nbsp; you can stop the process by pressing the <SPAN STYLE="COLOR:BLUE; FONT-FAMILY:''COURIER NEW''; FONT-SIZE:17PX;"><B>ESC</B></SPAN> key</TD></TR>'
+      + Config.GetFilePath(csfiWaitSignalTrans) +
+      '"> &nbsp; please wait while the images are generated'
+      + '<BR><BR>&nbsp; &nbsp; you can stop the process by pressing the <SPAN STYLE="COLOR:BLUE; FONT-FAMILY:''COURIER NEW''; FONT-SIZE:17PX;"><B>ESC</B></SPAN> key</TD></TR>'
   else
     html_str := '';
 
@@ -1327,7 +1346,8 @@ begin
           Font.Style := [fsBold];
           Font.Name := 'Arial';
 
-          TextOut(0, 0, ' ' + IntToStr(n + 1) + ': ' + fv_gauge_str + ' ' + box_project_title_str + ' ');
+          TextOut(0, 0, ' ' + IntToStr(n + 1) + ': ' + fv_gauge_str + ' ' +
+            box_project_title_str + ' ');
           // add the short gauge label
 
         end;//with
@@ -1387,13 +1407,15 @@ begin
     else
       num_files_str := ' files';
 
-    html_str := html_str + '<TR><TD COLSPAN="3" STYLE="FONT-SIZE:4PX;"><A NAME="#file0">&nbsp;</A></TD></TR>';
+    html_str := html_str +
+      '<TR><TD COLSPAN="3" STYLE="FONT-SIZE:4PX;"><A NAME="#file0">&nbsp;</A></TD></TR>';
 
     for n := 0 to readme_list.Count - 1 do begin
       // add each image (if cancelled, this list may be shorter than the box list)
 
       if readme_list.Strings[n] = '' then
-        readme_str := '<SPAN STYLE="COLOR:GRAY;">read me</SPAN><A HREF="fv_no_readme.85a">&nbsp;?&nbsp;</A>'
+        readme_str :=
+          '<SPAN STYLE="COLOR:GRAY;">read me</SPAN><A HREF="fv_no_readme.85a">&nbsp;?&nbsp;</A>'
       else
         readme_str := '<A HREF="fv_readme.85a">read me</A>&nbsp; &nbsp;';
 
@@ -1405,7 +1427,8 @@ begin
       next_str := '<TR><TD COLSPAN="3" STYLE="PADDING-TOP:0PX;">';
 
       if images_clickable_checkbox.Checked = True then
-        next_str := next_str + '<A HREF="fv_reload.85a"><IMG SRC="' + IntToStr(n) + '" BORDER="1"></A>'
+        next_str := next_str + '<A HREF="fv_reload.85a"><IMG SRC="' + IntToStr(n) +
+          '" BORDER="1"></A>'
       else
         next_str := next_str + '<IMG SRC="' + IntToStr(n) + '" BORDER="1">';
 
@@ -1425,7 +1448,8 @@ begin
       html_str := html_str + next_str +
         '<TR><TD COLSPAN="3"><HR NOSHADE STYLE="COLOR:GRAY; HEIGHT:6PX;"></TD></TR>'
         +
-        '<TR><TD COLSPAN="3" STYLE="FONT-SIZE:4PX;"><A NAME="#file' + IntToStr(n + 1) + '">&nbsp;</A></TD></TR>';
+        '<TR><TD COLSPAN="3" STYLE="FONT-SIZE:4PX;"><A NAME="#file' +
+        IntToStr(n + 1) + '">&nbsp;</A></TD></TR>';
 
       next_html_list.Add(next_str);  // keep this string part for possible delete / replace
 
