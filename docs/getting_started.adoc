@@ -14,7 +14,7 @@ indicate here which of the pieces you will need.
 We will not describe the installation of all components in detail, since the projects which 
 maintain them already have thorough documentation to which you can refer.
 
-The processes described here has been developed and teted using a clean install of Xubuntu, 
+The processes described here has been developed and tested using a clean install of Xubuntu, 
 so it is known to work on that platform. However, it is entirely possible that
 other operating systems, and even other Linux distributions, may differ in detail.
 
