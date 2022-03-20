@@ -872,7 +872,7 @@ begin
 
         case i of
           6:
-            save_box(0, eSB_SaveAll, 0, '');   //  go do the save.
+            save_box(0, eSB_SaveAll, eSO_Normal, '');   //  go do the save.
         end;//case
       end;
 
@@ -980,7 +980,7 @@ begin
             Result := False;
           6:
             if save_done = False then
-              Result := save_box(0, eSB_SaveAll, 0, '')  //  go do the save.
+              Result := save_box(0, eSB_SaveAll, eSO_Normal, '')  //  go do the save.
             else
               Result := True;
         end;//case
@@ -3836,18 +3836,18 @@ end;
 procedure create_backup_file(final: boolean);
 
 var
-  code: integer;
+  backupOption: ESaveOption;
 
 begin
   if loading_in_progress = True then
     EXIT;  // 208c
 
   if final = True then
-    code := -1       // final backup on exit
+    backupOption := eSO_BackupOnExit       // final backup on exit
   else
-    code := 1;       // normal rolling backup.
+    backupOption := eSO_RollingBackup;       // normal rolling backup.
 
-  save_box(0, eSB_SaveAll, code, '');
+  save_box(0, eSB_SaveAll, backupOption, '');
   // create a new emergency backup file.  Including the control
 
   backup_wanted := False;             // backup has been updated.

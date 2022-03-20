@@ -19622,7 +19622,7 @@ end;
 procedure Tpad_form.pad_save_all_menu_entryClick(Sender: TObject);
 
 begin
-  save_box(0, eSB_SaveAll, 0, '');         // don't need result flag.
+  save_box(0, eSB_SaveAll, eSO_Normal, '');         // don't need result flag.
 end;
 //____________________________________________________________________________________________
 
@@ -26555,7 +26555,7 @@ var
           5:
             EXIT;
           6:
-            if save_box(0, eSB_SaveAll, 0, '') = False then
+            if save_box(0, eSB_SaveAll, eSO_Normal, '') = False then
               EXIT;     // go save all the keeps box.
         end;//case
       end

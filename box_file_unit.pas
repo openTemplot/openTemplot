@@ -44,8 +44,13 @@ type
     eSB_SaveGroup,         // 3
     eSB_SaveLibrary);      // 4
 
+  ESaveOption = (
+    eSO_Normal,            // 0
+    eSO_RollingBackup,     // 1
+    eSO_BackupOnExit);     // -1
 
-function save_box(this_one: integer; which_ones: ESaveBox; rolling_backup: integer;
+
+function save_box(this_one: integer; which_ones: ESaveBox; save_option: ESaveOption;
   save_str: string): boolean;
 function load_storage_box(normal_load, old_templot_folder: boolean; file_str: string;
   load_backup, make_lib: boolean; var append: boolean;
@@ -107,7 +112,7 @@ begin
 end;
 
 
-function save_box(this_one: integer; which_ones: ESaveBox; rolling_backup: integer;
+function save_box(this_one: integer; which_ones: ESaveBox; save_option: ESaveOption;
   save_str: string): boolean;
 
   // new file format including text 17-2-00. (v:0.48 on).
@@ -212,7 +217,7 @@ var
       on EInOutError do
     end;  // close file if it's open.
     DeleteFile(box_str);
-    if rolling_backup = 0 then
+    if save_option = eSO_Normal then
       file_error(box_str);
   end;
   /////////////////////////////////////////////////////////////
@@ -314,7 +319,7 @@ begin
       end;
     end;//case
 
-    if rolling_backup <> 0 then begin
+    if save_option <> eSO_Normal then begin
       // set up to create alternate backup files..
 
       if FileExists(ebk1_str) = False then begin
@@ -414,7 +419,7 @@ begin
     next_ti.keep_shove_list := Tshoved_timber_list.Create;
 
     try
-      if rolling_backup = 0 then
+      if save_option = eSO_Normal then
         Screen.Cursor := crHourGlass;   // 0.93.a test added     // could take a while if big file.
       if Application.Terminated = False then
         Application.ProcessMessages;
@@ -475,8 +480,8 @@ begin
             // identify file as BOX3 rather than BOX      290a
 
 
-            case rolling_backup of
-              -1: begin    // final backup on exit ..
+            case save_option of
+              eSO_BackupOnExit: begin    // final backup on exit ..
                 next_ti.keep_dims.box_dims1.auto_restore_on_startup := False;
                 // these three only read from the first keep in the file,
                 next_ti.keep_dims.box_dims1.ask_restore_on_startup := True;
@@ -484,7 +489,7 @@ begin
                 next_ti.keep_dims.box_dims1.box_save_done := save_done;
               end;
 
-              0: begin    // normal box save (these are never read) ..
+              eSO_Normal: begin    // normal box save (these are never read) ..
                 next_ti.keep_dims.box_dims1.auto_restore_on_startup := False;
                 // not used for normal file save/reload
                 next_ti.keep_dims.box_dims1.ask_restore_on_startup := False;
@@ -492,7 +497,7 @@ begin
                 next_ti.keep_dims.box_dims1.box_save_done := False;
               end;
 
-              1: begin    // rolling backup..
+              eSO_RollingBackup: begin    // rolling backup..
                 next_ti.keep_dims.box_dims1.auto_restore_on_startup := True;
                 // if both True on loading = abnormal termination.
                 next_ti.keep_dims.box_dims1.ask_restore_on_startup := True;
@@ -740,7 +745,7 @@ begin
 
       // file now exists and something in it...
 
-      if (which_ones = eSB_SaveAll) and (rolling_backup = 0) and (save_str = '')
+      if (which_ones = eSB_SaveAll) and (save_option = eSO_Normal) and (save_str = '')
       // normal save of all templates..
       then begin
         keep_form.box_file_label.Caption := ' last saved to :  ' + box_str;
@@ -755,12 +760,12 @@ begin
         save_done := True;  // this boxful has been saved.
       end;
 
-      if (which_ones <> eSB_SaveOne) and (rolling_backup = 0) and (save_str = '')
+      if (which_ones <> eSB_SaveOne) and (save_option = eSO_Normal) and (save_str = '')
       // normal save of any templates..
       then
         boxmru_update(box_str);                                 // 0.82.a  update the mru list.
 
-      if rolling_backup <> 0 then
+      if save_option <> eSO_Normal then
         DeleteFile(backup_del_str);   // delete the previous backup file.
 
       Result := True;
@@ -1305,7 +1310,7 @@ begin
         5:
           EXIT;
         6:
-          if save_box(0, eSB_SaveAll, 0, '') = False then
+          if save_box(0, eSB_SaveAll, eSO_Normal, '') = False then
             EXIT;     // go save all the keeps box.
       end;//case
     end
