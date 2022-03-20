@@ -1,0 +1,191 @@
+= Developer 'Getting Started' Guide
+
+== Introduction
+
+This document is intended to help those wishing to work with the OpenTemplot software, 
+whether it be coding, documenting, testing or just perusing the code.
+
+There are a number of components required to set up the environment, and we will describe 
+each of them here. 
+
+You may not require all of these components. It will depend on what you wish to do, and we will
+indicate here which of the pieces you will need.
+
+We will not describe the installation of all components in detail, since the projects which 
+maintain them already have thorough documentation to which you can refer.
+
+The processes described here has been developed and tested using a clean install of Xubuntu, 
+so it is known to work on that platform. However, it is entirely possible that
+other operating systems, and even other Linux distributions, may differ in detail.
+
+If you find that slight variations from what is described here are required in your environment,
+we would be grateful if you could let us know so that this document can be updated. 
+(Or, better still, edit the document yourself and raise a Pull Request!)
+
+
+== 1. Lazarus
+==== What is it?
+
+Lazarus is an Integrated Development Environment (IDE) for the FreePascal compiler (FPC), 
+the combination of which is used in the the development of OpenTemplot. 
+Lazarus and FPC are available for most platforms.
+
+==== Do I need it?
+
+If you plan to run the code, either to enhance or for testing, then you will need Lazarus.
+
+Strictly speaking, it is possible to run FPC stand-alone from the command line, but if 
+you know enough to do this you will probably get very little from this document!
+
+==== How do I get it it?
+Installing Lazarus is well described at:
+
+    https://www.lazarus-ide.org/index.php?page=downloads
+
+There are versions for a number of different Windows releases, MacOS X, and Linux in DEB and RPM formats.
+You will need to pick the one suitable for you, and follow the instructions.
+
+Note that YouTube is a good resource if you prefer the video-tutorial style of instruction.
+
+== 2. HtmlViewer
+==== What is it?
+HtmlViewer is one of the optional packages which the project uses. 
+
+==== Do I need it?
+If you intend to run OpenTemplot via Lazarus (e.g. for developing or testing) you will need this additional module.
+
+==== How do I get it it?
+Additional modules are easily installed using Lazarus' built-in package manager.
+Install HtmlViewer as follows:
+
+** Start Lazarus
+** Go to menu Packages/Online Package Manager
+** In the package manager look for HtmlViewer, select it and click 'Install'
+and rebuild the IDE when prompted
+
+== 2. Git
+==== What is it?
+
+Git is the source tracking system used by the project. The source for OpenTemplot
+is kept in a git repository, currently hosted on Github, so you will need a working copy
+of git in your environment. Again, versions of git are available to run pretty much anywhere.
+
+==== Do I need it?
+If you wish to contribute to the code itself or the documentation, then yes, you will need git to do so.
+
+If you just wish to test or peruse the code, then strictly speaking you do not need git, 
+since github provides a way to download the sources in the form of a zip file. 
+See the next section (OpenTemplot Sources) for details 
+
+==== How do I get it?
+Git may be installed in your environment already. If it is not, the instructions at
+https://git-scm.com/book/en/v2/Getting-Started-Installing-Git are comprehensive
+for Linux, MacOS and Windows.
+
+Again, this should be easy enough, but YouTube has many videos and may be
+a good place to check if you have problems.
+
+== 3. OpenTemplot sources
+==== What is it?
+The source code is the code used to build OpenTemplot - but if you plan to work with it you knew that already. ;-) 
+
+==== Do I need it?
+
+Yes. If you plan to work with the code, then you will need the code. :-)
+
+==== How do I get it it?
+
+===== Using Git (recommended)
+To pull a copy of the project sources, simply open a command line,
+go to the folder in which you wish to install the project and enter the command:
+
+    git clone https://github.com/openTemplot/templot3.git
+
+If you prefer not to use the command line, the version of git loaded on your platform
+may have a GUI in front of it, in which case you will need to find the facility which
+corresponds to the git 'clone' command.
+
+This will create a folder called 'templot3' and copy the project sources into it.
+
+===== Alternative method without using Git
+If you do not wish to push changes to github (perhaps you just want to browse the sources
+or pull down a copy for testing purposes, etc.) you can get a copy of the source from github
+ as follows:
+
+* go to https://github.com/openTemplot/templot3
+* click on the green 'Code' button
+* click on 'Download ZIP
+
+This will allow you to download a normal zip archive which contains all the project sources
+This zip file can then be unzipped in the usual way in a location of your choosing.
+
+== 4. jcfsetting.cfg
+==== What is it?
+jcfsetting.cfg is a file which holds the standard code formatting settings for the project.
+If you intend to submit code changes they should be formatted as per these settings.
+
+==== Do I need it?
+You will need it if you plan to submit code changes.
+
+==== How do I get it it?
+Actually, if you have copied the sources you have it already. 
+It is in the root directory of the project called OT-jcfsettings.cfg.
+
+However, you need to copy this into the appropriate Lazarus directory, which may vary from system to system.
+
+To find the correct directory for your system,
+
+** Start Lazarus
+** Go to menu Source/JEDI Code Format/Format Settings
+** Note the current value of 'Settings File Is:'
+
+This shows the directory as well as the file name. Copy the OT-jcfsettings.cfg file mentioned
+above to this directory. You can either rename it to replace the current file,
+or (probably better) copy it under its OT-jcf..... name and change Lazarus to make use of it.
+
+
+== 4. pasdoc
+==== What is it?
+PasDoc is a utility which extracts documentation from within pascal source code, 
+and is a standard tool of the OpenTemplot project
+
+The root directory of the project contains a script (gendocs) which will run the pasdoc utility 
+with appropriate parameters.
+
+==== Do I need it?
+If you plan to develop enhancements to the project you will need this for your own documentation and that of others.
+
+==== How do I get it it?
+PasDoc may be downloaded from https://pasdoc.github.io/
+
+
+== 4. asciidoctor
+==== What is it?
+The OpenTemplot documentation not embedded in the source is written in a format known as 'asciidoc'. 
+Files have an '.adoc' suffix.
+
+Asciidoctor provides for the generation of documentation in pdf, html and a number of other formats
+from the same adoc sources.
+
+==== Do I need it?
+If you intend to write documentation you will need asciidoctor.
+
+==== How do I get it it?
+asciidoctor is written in ruby, so you will need the ruby language installed as a prerequisite.
+
+Ruby is available for virtually all platforms and its installation is well documented on 
+the ruby web site (https://www.ruby-lang.org/en/downloads/)
+
+Once ruby is installed, asciidoctor may be installed as a ruby 'gem'. 
+A link is given on the asciidoctor home page (https://asciidoctor.org/)
+
+
+== Next Steps
+
+If you have installed all the neccessary components, you should now be able to run OpenTemplot by
+
+* starting Lazarus, 
+* opening the menu File/Open... 
+* navigating to the templot3 directory 
+* opening "templotmec.lpi", and 
+* running OpenTemplot via either menu run/run or by pressing F9.
