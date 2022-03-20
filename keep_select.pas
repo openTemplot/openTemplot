@@ -2193,7 +2193,7 @@ begin
       5:
         EXIT;
       6:
-        if save_box(0, 0, 0, '') = False then
+        if save_box(0, eSB_SaveAll, 0, '') = False then
           EXIT;     // go save all the keeps box.
     end;//case
   end;
@@ -4111,7 +4111,7 @@ begin
   if (keeps_list.Count > 0) and (save_for_undo = True) then begin
     sfu_str := Config.GetFilePath(csfiSaveForUndo);
     DeleteFile(sfu_str);        // delete any previous undo file.
-    save_box(0, 0, 0, sfu_str);    // save existing contents for possible undo later.
+    save_box(0, eSB_SaveAll, 0, sfu_str);    // save existing contents for possible undo later.
   end;
 
   wipe_all_background;  //bgkeeps_form.clear_button.Click;     // first clear all the background data.
@@ -5163,7 +5163,7 @@ begin
       5:
         EXIT;
       6:
-        if save_box(0, 0, 0, '') = False then
+        if save_box(0, eSB_SaveAll, 0, '') = False then
           EXIT;    // save all.
     end;//case
   end
@@ -5189,27 +5189,27 @@ end;
 procedure Tkeep_form.save_all_menu_entryClick(Sender: TObject);
 
 begin
-  save_box(0, 0, 0, '');         // don't need result flag.
+  save_box(0, eSB_SaveAll, 0, '');         // don't need result flag.
 end;
 //________________________________________________________________________________________
 
 procedure Tkeep_form.save_bgnd_menu_entryClick(Sender: TObject);
 begin
-  save_box(0, 1, 0, '');         // don't need result flag.
+  save_box(0, eSB_SaveBackground, 0, '');         // don't need result flag.
 end;
 //_________________________________________________________________________________________
 
 procedure Tkeep_form.save_unused_menu_entryClick(Sender: TObject);
 
 begin
-  save_box(0, 2, 0, '');         // don't need result flag.
+  save_box(0, eSB_SaveUnused, 0, '');         // don't need result flag.
 end;
 //________________________________________________________________________________________
 
 procedure Tkeep_form.save_library_menu_entryClick(Sender: TObject);
 
 begin
-  save_box(0, 4, 0, '');         // don't need result flag.
+  save_box(0, eSB_SaveLibrary, 0, '');         // don't need result flag.
 end;
 //______________________________________________________________________________________
 
@@ -5222,7 +5222,7 @@ begin
       EXIT;
   end;
 
-  save_box(0, 3, 0, '');        // don't need result flag.
+  save_box(0, eSB_SaveGroup, 0, '');        // don't need result flag.
 end;
 //____________________________________________________________________________________________
 
@@ -7964,7 +7964,7 @@ begin
         5:
           EXIT;
         6:
-          if save_box(0, 0, 0, '') = False then
+          if save_box(0, eSB_SaveAll, 0, '') = False then
             EXIT;     // go save all the keeps box.
       end;//case
     end;
@@ -8016,7 +8016,7 @@ begin
         5:
           EXIT;
         6:
-          if save_box(0, 0, 0, '') = False then
+          if save_box(0, eSB_SaveAll, 0, '') = False then
             EXIT;     // go save all the keeps box.
       end;//case
     end;
@@ -8575,7 +8575,7 @@ begin
     do_rollback := False;
     redraw(False);              // show background again before the save dialog.
 
-    save_box(0, 0, 0, '');   // don't need result flag.
+    save_box(0, eSB_SaveAll, 0, '');   // don't need result flag.
 
   finally
     copy_keep(save_current);                                         // restore control template.

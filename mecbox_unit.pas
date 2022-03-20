@@ -3334,7 +3334,7 @@ begin
       5:
         EXIT;
       6:
-        if save_box(0, 0, 0, '') = False then
+        if save_box(0, eSB_SaveAll, 0, '') = False then
           EXIT;     // go save all the keeps box.
     end;//case
   end;

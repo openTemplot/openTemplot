@@ -872,7 +872,7 @@ begin
 
         case i of
           6:
-            save_box(0, 0, 0, '');   //  go do the save.
+            save_box(0, eSB_SaveAll, 0, '');   //  go do the save.
         end;//case
       end;
 
@@ -980,7 +980,7 @@ begin
             Result := False;
           6:
             if save_done = False then
-              Result := save_box(0, 0, 0, '')  //  go do the save.
+              Result := save_box(0, eSB_SaveAll, 0, '')  //  go do the save.
             else
               Result := True;
         end;//case
@@ -3847,7 +3847,7 @@ begin
   else
     code := 1;       // normal rolling backup.
 
-  save_box(0, 0, code, '');
+  save_box(0, eSB_SaveAll, code, '');
   // create a new emergency backup file.  Including the control
 
   backup_wanted := False;             // backup has been updated.

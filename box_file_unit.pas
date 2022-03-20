@@ -36,8 +36,17 @@ type
 
   end;//record.
 
+  ESaveBox = (
+    eSB_SaveOne,           // -1 !
+    eSB_SaveAll,           // 0
+    eSB_SaveBackground,    // 1
+    eSB_SaveUnused,        // 2
+    eSB_SaveGroup,         // 3
+    eSB_SaveLibrary);      // 4
 
-function save_box(this_one, which_ones, rolling_backup: integer; save_str: string): boolean;
+
+function save_box(this_one: integer; which_ones: ESaveBox; rolling_backup: integer;
+  save_str: string): boolean;
 function load_storage_box(normal_load, old_templot_folder: boolean; file_str: string;
   load_backup, make_lib: boolean; var append: boolean;
   var last_bgnd_loaded_index: integer): boolean;
@@ -98,7 +107,8 @@ begin
 end;
 
 
-function save_box(this_one, which_ones, rolling_backup: integer; save_str: string): boolean;
+function save_box(this_one: integer; which_ones: ESaveBox; rolling_backup: integer;
+  save_str: string): boolean;
 
   // new file format including text 17-2-00. (v:0.48 on).
   // newer file format including unlimited shoves in StringList 1-5-01 (v:0.71.a on).
@@ -216,7 +226,8 @@ begin
 
   // put it in the box to save file, then delete it after saving...
 
-  if (which_ones = 0) and (turnoutx > 0) and ({check_if_abandoned=-1}abandon_calcs = False)
+  if (which_ones = eSB_SaveAll) and (turnoutx > 0) and
+    ({check_if_abandoned=-1}abandon_calcs = False)
   // check not zero-length
   then begin
     save_bw := backup_wanted;     // don't let this action change backup flag (list.OnChange)
@@ -237,7 +248,7 @@ begin
     end;
 
     case which_ones of
-      -1:
+      eSB_SaveOne:
         if (this_one >= 0) and (this_one < keeps_list.Count)   // index of only one to be saved.
         then
           group_count := 1
@@ -246,10 +257,10 @@ begin
           EXIT;
         end;
 
-      0:
+      eSB_SaveAll:
         group_count := keeps_list.Count;      // save all.
 
-      1: begin
+      eSB_SaveBackground: begin
         group_count := any_bgnd;            // save bgnd templates only.
         if group_count = 0 then begin
           alert_no_bgnd;
@@ -260,7 +271,7 @@ begin
           EXIT; // ???
       end;
 
-      2: begin
+      eSB_SaveUnused: begin
         group_count := any_unused;        // save unused templates only.
         if group_count = 0 then begin
           alert_no_unused;
@@ -271,7 +282,7 @@ begin
           EXIT; // ???
       end;
 
-      3: begin
+      eSB_SaveGroup: begin
         group_count := any_selected;        // save group members only.
         if group_count = 0 then begin
           if alert_no_group = True    // alert him, and does he want all?
@@ -285,7 +296,7 @@ begin
           EXIT; // ???
       end;
 
-      4: begin
+      eSB_SaveLibrary: begin
         group_count := any_library;        // save library templates only.
         if group_count = 0 then begin
           alert_no_library;
@@ -330,14 +341,14 @@ begin
           Filter := ' storage  box  contents  (*.box3)|*.box3';
 
           case which_ones of
-            -1: begin                             // echo one only
+            eSB_SaveOne: begin                             // echo one only
               box_str := Config.GetFilePath(csfiE071Box);
               // echo goes in the folder we started in.
             end;
 
             // 0.79.a  yy_mm_dd  was yy-mm-dd
 
-            0: begin
+            eSB_SaveAll: begin
               Filename :=
                 remove_invalid_str(Copy(Trim(box_project_title_str), 1, 20) +
                 FormatDateTime(' yyyy_mm_dd_hhmm_ss', Date + Time)) + '.box3';
@@ -345,28 +356,28 @@ begin
               Title := '    save  all  templates  as ...';
             end;
 
-            1: begin
+            eSB_SaveBackground: begin
               Filename :=
                 remove_invalid_str('background' +
                 FormatDateTime(' yyyy_mm_dd_hhmm_ss', Date + Time)) + '.box3';
               Title := '    save  background  templates  as ...';
             end;
 
-            2: begin
+            eSB_SaveUnused: begin
               Filename :=
                 remove_invalid_str('unused' + FormatDateTime(' yyyy_mm_dd_hhmm_ss',
                 Date + Time)) + '.box3';
               Title := '    save  unused  templates  as ...';
             end;
 
-            3: begin
+            eSB_SaveGroup: begin
               Filename :=
                 remove_invalid_str('group' + FormatDateTime(' yyyy_mm_dd_hhmm_ss',
                 Date + Time)) + '.box3';
               Title := '    save  selected  group  of  templates  as ...';
             end;
 
-            4: begin
+            eSB_SaveLibrary: begin
               Filename :=
                 remove_invalid_str('library' + FormatDateTime(' yyyy_mm_dd_hhmm_ss',
                 Date + Time)) + '.box3';
@@ -380,7 +391,7 @@ begin
           Filename := lower_case_filename(Filename);
           // 0.79.a   to underscores and lower case.
 
-          if which_ones <> -1 then begin
+          if which_ones <> eSB_SaveOne then begin
             if Execute = False then
               EXIT;        // get his file name.
             box_str := FileName;
@@ -431,21 +442,21 @@ begin
 
 
             case which_ones of
-              -1:
+              eSB_SaveOne:
                 if i <> this_one then
                   CONTINUE;
-              1:
+              eSB_SaveBackground:
                 if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> 1 then
                   CONTINUE;  // bgnd only, ignore unused and library.
-              2:
+              eSB_SaveUnused:
                 if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> 0 then
                   CONTINUE;  // unused only, ignore others.
-              3:
+              eSB_SaveGroup:
                 if keeps_list[i].group_selected = False then
                   CONTINUE;  // group only, ignore unselected.
-              4:
+              eSB_SaveLibrary:
                 if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> -1 then
                   CONTINUE;  // library only, ignore others.
@@ -525,21 +536,21 @@ begin
               CONTINUE;
 
             case which_ones of
-              -1:
+              eSB_SaveOne:
                 if i <> this_one then
                   CONTINUE;
-              1:
+              eSB_SaveBackground:
                 if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> 1 then
                   CONTINUE;   // bgnd only, ignore unused and library.
-              2:
+              eSB_SaveUnused:
                 if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> 0 then
                   CONTINUE;   // unused, ignore others
-              3:
+              eSB_SaveGroup:
                 if keeps_list[i].group_selected = False then
                   CONTINUE;   // group only, ignore unselected.
-              4:
+              eSB_SaveLibrary:
                 if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> -1 then
                   CONTINUE;   // library only, ignore others.
@@ -608,21 +619,21 @@ begin
               CONTINUE;
 
             case which_ones of
-              -1:
+              eSB_SaveOne:
                 if i <> this_one then
                   CONTINUE;
-              1:
+              eSB_SaveBackground:
                 if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> 1 then
                   CONTINUE;   // bgnd only, ignore unused and library.
-              2:
+              eSB_SaveUnused:
                 if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> 0 then
                   CONTINUE;   // unused only.
-              3:
+              eSB_SaveGroup:
                 if keeps_list[i].group_selected = False then
                   CONTINUE;   // group only, ignore unselected.
-              4:
+              eSB_SaveLibrary:
                 if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
                   <> -1 then
                   CONTINUE;   // library only.
@@ -729,7 +740,7 @@ begin
 
       // file now exists and something in it...
 
-      if (which_ones = 0) and (rolling_backup = 0) and (save_str = '')
+      if (which_ones = eSB_SaveAll) and (rolling_backup = 0) and (save_str = '')
       // normal save of all templates..
       then begin
         keep_form.box_file_label.Caption := ' last saved to :  ' + box_str;
@@ -744,7 +755,7 @@ begin
         save_done := True;  // this boxful has been saved.
       end;
 
-      if (which_ones <> -1) and (rolling_backup = 0) and (save_str = '')
+      if (which_ones <> eSB_SaveOne) and (rolling_backup = 0) and (save_str = '')
       // normal save of any templates..
       then
         boxmru_update(box_str);                                 // 0.82.a  update the mru list.
@@ -1294,7 +1305,7 @@ begin
         5:
           EXIT;
         6:
-          if save_box(0, 0, 0, '') = False then
+          if save_box(0, eSB_SaveAll, 0, '') = False then
             EXIT;     // go save all the keeps box.
       end;//case
     end
@@ -1729,7 +1740,4 @@ end;
 
 
 end.
-
-
-
 

@@ -1268,7 +1268,7 @@ begin
 
     oldbox_str := Config.GetFilePath(csfiFileViewBkp);  // save existing box
     DeleteFile(oldbox_str);        // delete any previous file.
-    save_box(0, 0, 0, oldbox_str);    // save existing contents for restore later.
+    save_box(0, eSB_SaveAll, 0, oldbox_str);    // save existing contents for restore later.
 
     saved_pad_width := pad_form.ClientWidth;
     saved_pad_height := pad_form.ClientHeight;
