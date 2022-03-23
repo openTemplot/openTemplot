@@ -1129,11 +1129,6 @@ procedure update_radius_warning(var box_kd: Tkeep_dims);
 procedure copy_template_info_from_to(delete_shoves: boolean;
   var from_info, to_info: Ttemplate_info);
 
-procedure alert_no_bgnd;
-procedure alert_no_unused;
-procedure alert_no_library;
-function alert_no_group: boolean;    // return False if any get selected.
-
 procedure mint_new_current(locked_length: integer);  // 208d locked_length added
 
 procedure normalize_transforms;     // update shifts so that xform, yform can be zero,
@@ -28238,68 +28233,6 @@ begin
   normalize_kform;
   if draw = True then
     redraw(True);
-end;
-//________________________________________________________________________________________
-
-function alert_no_group: boolean;    // return False if any get selected.
-
-const
-  nosel_help_str: string = '      Selecting  Group  Templates' +
-    '||Before a group of stored templates can be subject to shift, rotate, save, or other group operations, they must first be selected.' + '||To select all background templates as a group, click the GROUP > GROUP SELECT ALL menu item (or press CTRL+A).' + '||To add or remove individual templates to or from a group, click anywhere on each template and then click the GROUP SELECT (TOGGLE) menu item on the pop-up menu which appears for that template.' + '||Or to quickly select multiple background templates with the mouse, click the GROUP > GROUP SELECT > CLICK BACKGND TO GROUP menu item and then click on their name labels.' + '||A group of templates can also be selected by clicking the GROUP-SELECTION FENCE toolbutton at the top of the pad, and then drawing a rectangle around them.' + '||Group templates can also be selected or de-selected in the Storage Box, and the group can then also include unused stored templates. Click the ? HELP button on the Storage Box for more information.';
-
-var
-  i: integer;
-
-begin
-  Result := True;       // default init, no group.
-  repeat
-
-    i := alert(3, '        no  group',
-      'There are no stored templates currently selected for group operations.',
-      '', '', '', '?  help', 'cancel', 'group  select  all', 4);
-    case i of
-      4:
-        alert_help(0, nosel_help_str, '');
-      6: begin
-        pad_form.select_all_keeps_menu_entry.Click;
-        if any_selected <> 0 then
-          Result := False;
-      end;
-    end;//case
-  until i <> 4;
-end;
-//____________________________________________________________________________________________
-
-procedure alert_no_bgnd;      // mod 0.93.a
-
-begin
-  alert(3, '    no  templates  currently  on  background',
-    '||There are no stored templates currently on the background drawing on the trackpad.' +
-    '||The template which you can see on the trackpad is the control template.' +
-    '||Many functions in Templot0 apply to background templates only, for example setting a marker colour, exporting a DXF file, selecting a group of templates.' + '||And some control template functions require a background template to be present, for example make transition curve, extend template to meet.' + '||To place a copy of the current control template on the background, click the `0PROGRAM > STORE & BACKGROUND`1 menu item or press the `0INSERT`2 key.' + '||To make an unused stored template appear on the background, click the `0COPY TO BACKGROUND`1 button on the storage box.| ',
-    '', '', '', '', '', 'continue', 0);
-end;
-//____________________________________________________________________________________________
-
-procedure alert_no_unused;
-
-begin
-  alert(3, '    no  templates  currently  unused',
-    'There are currently no unused stored templates.' +
-    '||To store an unused copy of the control template, click the|`0PROGRAM > STORE AS UNUSED`1 menu item.'
-    + '||To remove a stored template from the background, so making it an unused stored template, click the|`0WIPE FROM BACKGROUND`1 button in the storage box.',
-    '', '', '', '', '', 'continue', 0);
-end;
-//____________________________________________________________________________________________
-
-procedure alert_no_library;
-
-begin
-  alert(3, '    no  library  templates',
-    'There are currently no library templates in your storage box.' +
-    '||To store a library copy of the control template, click the|`0MAIN > STORE AS LIBRARY`1 menu item.'
-    + '||To add library templates from a file, click the `0ADD LIBRARY...`1 button on the storage box.',
-    '', '', '', '', '', 'continue', 0);
 end;
 //____________________________________________________________________________________________
 

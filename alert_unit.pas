@@ -164,6 +164,12 @@ function alert(head_i: integer;
 
 //___________________________________
 
+procedure alert_no_bgnd;
+procedure alert_no_unused;
+procedure alert_no_library;
+function alert_no_group: boolean;    // return False if any get selected.
+
+
 implementation
 
 {$BOOLEVAL ON}
@@ -175,8 +181,16 @@ implementation
 //  6 buttons: 6 is always default accept.
 //             5 is always cancel (on ESC key or close form).
 uses
-  LCLType, LCLIntf, math_unit, control_room, help_sheet, colour_unit, chat_unit,
-  pad_unit, panning_unit;
+  LCLType,
+  LCLIntf,
+  math_unit,
+  keep_select,
+  control_room,
+  help_sheet,
+  colour_unit,
+  chat_unit,
+  pad_unit,
+  panning_unit;
 
 var
   colour_index: integer = 0;
@@ -632,7 +646,8 @@ begin
       alert_box.Top := 0;
 
     if Showing = False then
-      do_show_modal(alert_box);  // 212a   ShowModal          //  show the form and wait for a click.
+      do_show_modal(alert_box);
+    // 212a   ShowModal          //  show the form and wait for a click.
 
   end;//with
 
@@ -806,14 +821,20 @@ begin
   if size_updown.Position < size_updown.Tag then
     ScaleBy(10, 9);                                           // scale the form contents up.
 
-  size_updown.Tag := size_updown.Position;                           // and save for the next click.
+  size_updown.Tag := size_updown.Position;
+  // and save for the next click.
 end;
 //_____________________________________________________________________________________
 
 procedure Talert_box.chat_panelClick(Sender: TObject);
 
 const
-  chat_str: string = '|This multiple choice panel contains lengthier explanations than the usual Windows dialog boxes,' + ' and some attractive coloured click bars with detailed captions.' + '||The purpose of the additional buttons is to receive the focus if you prefer to tab to them.' + '||What do you mean, you don''t like it ?';
+  chat_str: string =
+    '|This multiple choice panel contains lengthier explanations than the usual Windows dialog boxes,'
+    +
+    ' and some attractive coloured click bars with detailed captions.' +
+    '||The purpose of the additional buttons is to receive the focus if you prefer to tab to them.' +
+    '||What do you mean, you don''t like it ?';
 begin
   chat(chat_str);
 end;
@@ -1196,6 +1217,68 @@ procedure Talert_box.FormShow(Sender: TObject);
 
 begin
   alert_box.BringToFront;
+end;
+//________________________________________________________________________________________
+
+function alert_no_group: boolean;    // return False if any get selected.
+
+const
+  nosel_help_str: string = '      Selecting  Group  Templates' +
+    '||Before a group of stored templates can be subject to shift, rotate, save, or other group operations, they must first be selected.' + '||To select all background templates as a group, click the GROUP > GROUP SELECT ALL menu item (or press CTRL+A).' + '||To add or remove individual templates to or from a group, click anywhere on each template and then click the GROUP SELECT (TOGGLE) menu item on the pop-up menu which appears for that template.' + '||Or to quickly select multiple background templates with the mouse, click the GROUP > GROUP SELECT > CLICK BACKGND TO GROUP menu item and then click on their name labels.' + '||A group of templates can also be selected by clicking the GROUP-SELECTION FENCE toolbutton at the top of the pad, and then drawing a rectangle around them.' + '||Group templates can also be selected or de-selected in the Storage Box, and the group can then also include unused stored templates. Click the ? HELP button on the Storage Box for more information.';
+
+var
+  i: integer;
+
+begin
+  Result := True;       // default init, no group.
+  repeat
+
+    i := alert(3, '        no  group',
+      'There are no stored templates currently selected for group operations.',
+      '', '', '', '?  help', 'cancel', 'group  select  all', 4);
+    case i of
+      4:
+        alert_help(0, nosel_help_str, '');
+      6: begin
+        pad_form.select_all_keeps_menu_entry.Click;
+        if any_selected <> 0 then
+          Result := False;
+      end;
+    end;//case
+  until i <> 4;
+end;
+//____________________________________________________________________________________________
+
+procedure alert_no_bgnd;      // mod 0.93.a
+
+begin
+  alert(3, '    no  templates  currently  on  background',
+    '||There are no stored templates currently on the background drawing on the trackpad.' +
+    '||The template which you can see on the trackpad is the control template.' +
+    '||Many functions in Templot0 apply to background templates only, for example setting a marker colour, exporting a DXF file, selecting a group of templates.' + '||And some control template functions require a background template to be present, for example make transition curve, extend template to meet.' + '||To place a copy of the current control template on the background, click the `0PROGRAM > STORE & BACKGROUND`1 menu item or press the `0INSERT`2 key.' + '||To make an unused stored template appear on the background, click the `0COPY TO BACKGROUND`1 button on the storage box.| ',
+    '', '', '', '', '', 'continue', 0);
+end;
+//____________________________________________________________________________________________
+
+procedure alert_no_unused;
+
+begin
+  alert(3, '    no  templates  currently  unused',
+    'There are currently no unused stored templates.' +
+    '||To store an unused copy of the control template, click the|`0PROGRAM > STORE AS UNUSED`1 menu item.'
+    + '||To remove a stored template from the background, so making it an unused stored template, click the|`0WIPE FROM BACKGROUND`1 button in the storage box.',
+    '', '', '', '', '', 'continue', 0);
+end;
+//____________________________________________________________________________________________
+
+procedure alert_no_library;
+
+begin
+  alert(3, '    no  library  templates',
+    'There are currently no library templates in your storage box.' +
+    '||To store a library copy of the control template, click the|`0MAIN > STORE AS LIBRARY`1 menu item.'
+    + '||To add library templates from a file, click the `0ADD LIBRARY...`1 button on the storage box.',
+    '', '', '', '', '', 'continue', 0);
 end;
 //______________________________________________________________________________
 
