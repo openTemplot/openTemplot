@@ -576,8 +576,6 @@
         <Filename Value="box_file_unit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit101>
-<<<<<<< HEAD
-=======
       <Unit102>
         <Filename Value="t2box_parser_functions.inc"/>
         <IsPartOfProject Value="True"/>
@@ -586,7 +584,6 @@
         <Filename Value="t2box_parsers_unit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit103>
->>>>>>> 5fd2bf1 (feat:T2: Add basic load capability for Templot2 box files)
     </Units>
   </ProjectOptions>
   <CompilerOptions>
