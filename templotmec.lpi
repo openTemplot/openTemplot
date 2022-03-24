@@ -51,7 +51,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="102">
+    <Units Count="104">
       <Unit0>
         <Filename Value="templotmec.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -576,6 +576,17 @@
         <Filename Value="box_file_unit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit101>
+<<<<<<< HEAD
+=======
+      <Unit102>
+        <Filename Value="t2box_parser_functions.inc"/>
+        <IsPartOfProject Value="True"/>
+      </Unit102>
+      <Unit103>
+        <Filename Value="t2box_parsers_unit.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit103>
+>>>>>>> 5fd2bf1 (feat:T2: Add basic load capability for Templot2 box files)
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -1,0 +1,55 @@
+= Dumper
+
+
+=== Purpose
+
+This directory contains a small suite of programs to allow T2 'box' files to be
+read and, initially, printed in a (semi-)readable format.
+
+The goal ultimately is to feed into providing OT with the ability to read T2 box files.
+
+Note that some of these are written in Python,
+so you will need the Python3 interpreter installed.
+
+The files consist of the following:
+
+=== Files
+
+[options=header,cols="^1,<2,<30,<20"]
+|======
+| # | Name|Purpose|Status
+| 1 | pas2sqlite.py | extracts record and field definitions to a sqlite database |  Complete. Could use refactoring.
+| 2 | pad_unit.292a.pas | pascal source from the Templot sources |
+| 3 | records.sqlite | records and fields definitions created by pas2sqlite.py |
+| 4 | sqlite2adoc.py | reads the database and writes an adoc description | Working. Possibly complete
+| 5 | sqlite2json.py | reads the sqlite database and creates a JSON file
+        representing the structure of a given record | Working. Possibly complete
+| 6* | sqlite2py.py | reads the database and writes python source code for copying into dumper |
+| 7* | sqlite2pas.py | reads the database and writes pascal source code for copying into boxparse.pas |
+|  |  |  |
+|  |  |  |
+|99 | box_dump.py | early, proof-of-concept dumper in python | slightly rough, but can optionally read 8-byte floats
+|======
+
+=== Work in Progress
+
+- Create json2pas.py to read the JSON file and create a pascal include file
+    with a table listing the fields representing the top level record
+    with all embedded records expanded into their constituent fields.
+    The other programs then all read the resulting JSON file.
+
+[NOTE]
+====
+Originally, we used to read the sqlite database and generate executable python or pascal code
+to be inserted into a printer program.
+
+This was OK for the PoC, but moving forward the best way to go will be to
+generate an include file containing a table which holds the record data,
+with all the executable code removed to the program that includes it.
+
+This latter will be more easily incorporated into OT as a facility to read T2 box files,
+or perhaps a stand-alone box file converter program.
+====
+
+=== Futures
+- Replace pas2sqlite.py with pas2sqlite.pas, using the fcl_passrc library ?

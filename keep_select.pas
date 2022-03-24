@@ -9667,7 +9667,10 @@ end;
 
 procedure Tkeep_form.import_t2box_menu_entryClick(Sender: TObject);
 begin
-  import_t2box('');    // in t2box_unit
+  {xxx import_t2box('');    // in t2box_unit}
+  import_t2box(True, {old_templot_folder,} ''
+    {load_backup, make_lib: boolean; var append: boolean;
+    var last_bgnd_loaded_index: integer});
 end;
 
 procedure Tkeep_form.keep_html_viewHotSpotClick(Sender: TObject; const SRC: ThtString;
