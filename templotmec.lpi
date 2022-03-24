@@ -576,13 +576,6 @@
         <Filename Value="box_file_unit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit101>
-      <Unit102>
-        <Filename Value="t2box_unit.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="t2box_form"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-      </Unit102>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
