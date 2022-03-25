@@ -71,7 +71,8 @@ uses
   math_unit,
   pad_unit,
   shoved_timber,
-  wait_message;
+  wait_message,
+  box3_file_unit;
 
 type
   Tnew_keep_data = record           // this matches Tkeep_dims used in prog - see below.
@@ -115,52 +116,10 @@ end;
 function save_box(this_one: integer; which_ones: ESaveBox; save_option: ESaveOption;
   save_str: string): boolean;
 
-  // new file format including text 17-2-00. (v:0.48 on).
-  // newer file format including unlimited shoves in StringList 1-5-01 (v:0.71.a on).
-
-  // this_one       = if which_ones=-1, save only this index (echo, etc.)
-  // which_ones     = -1 = this_one index only, 0=all templates  1=bgnd templates only  2=unused only  3=selected group only  4=library only.
-  // rolling_backup = 0=normal save, 1=running backup,  -1=final backup on exit.
-  // save_str       = if not '', is the path and file name to use, so don't ask him. (0.76.a 20-5-02).
-
-  // The 071 file format is the same as the 048 format with the addition of "Data Blocks" at the end of the file.
-
-  // The Data Blocks section commences with a byte containing an underscore character '_',
-  // Then 7 more bytes containing '85A_|.x' , where x is the version build letter  (ASCII single-byte characters).
-  // Then a 16-byte starter record containing the version info and 12 bytes of zeroes (spares):
-
-  //        Tblock_start=record
-  //                       version_number:integer; // the Templot0 version number.
-  //                       zero1:integer;          // 12 spares (zero)...
-  //                       zero2:integer;
-  //                       zero3:integer;
-  //                     end;
-
-  // Each DATA BLOCK comprises:
-
-  // 16 byte Tblock_ident comprising...
-
-  // 4 bytes = length of data segment x.
-  // 4 bytes = template index count.
-  // 4 bytes = code indicating content of block.
-  // 4 bytes = spare - set to zero.
-
-  // then x bytes = data segment.
-
-  // DATA BLOCKS are repeated until the END BLOCK, which comprises
-
-  // 16 byte Tblock_ident comprising all zeroes (segment length=0).
-
 var
-  fsize: integer;
   box_str, backup_del_str: string;
 
-  next_ti: Ttemplate_info;    // new 071 data type.
   group_count: integer;
-  file_index: integer;
-
-  box_file: file;               // untyped file.
-  number_written: integer;
   i, len: integer;
   s: string;
   saved_cursor: TCursor;
@@ -172,6 +131,9 @@ var
   shove_timber_data: Tshove_for_file;
 
   save_bw: boolean; // 0.93.a
+
+  templatesToSave: TTemplateList;
+  gridInfo: TGridInfo;
 
   /////////////////////////////////////////////////////////////
 
@@ -205,20 +167,6 @@ var
     //while    // no need to increment n, it is now pointing to the next keep.
 
     backup_wanted := save_backw;   // restore backup flag
-  end;
-  /////////////////////////////////////////////////////////////
-
-  procedure file_write_error;
-
-  begin
-    try
-      CloseFile(box_file);
-    except
-      on EInOutError do
-    end;  // close file if it's open.
-    DeleteFile(box_str);
-    if save_option = eSO_Normal then
-      file_error(box_str);
   end;
   /////////////////////////////////////////////////////////////
 
@@ -416,8 +364,6 @@ begin
 
     saved_cursor := Screen.Cursor;
 
-    next_ti.keep_shove_list := Tshoved_timber_list.Create;
-
     try
       if save_option = eSO_Normal then
         Screen.Cursor := crHourGlass;   // 0.93.a test added     // could take a while if big file.
@@ -425,325 +371,52 @@ begin
         Application.ProcessMessages;
       // so let the form repaint (if not called from quit_alert).
 
+      gridInfo.unitsCode := grid_labels_code_i;
+      gridInfo.spaceX := grid_spacex;
+      gridInfo.spaceY := grid_spacey;
 
-      fsize := 0;         // default init..
-      file_index := 0;
-
+      // create a non-owning list of templates that we want to save
+      templatesToSave := TTemplateList.Create(False);
       try
-
-        try
-          AssignFile(box_file, box_str);
-          Rewrite(box_file, 1);               // open for writing, record size = 1 byte.
-
-          for i := 0 to keeps_list.Count - 1 do begin     // first write the template data.
-
-            keeps_list[i].template_info.keep_dims.box_dims1.file_format_code := 1;
-            // OT format      // put format in file
-
-            // 0.94.a  fb_kludge templates are created on output/printing, and destroyed afterwards. Don't save any remaining..
-
-            if keeps_list[i].template_info.keep_dims.box_dims1.fb_kludge_template_code <> 0 then
-              CONTINUE;  // 0.94.a don't save kludge templates, if any found (error in print?)
-
-
-            case which_ones of
-              eSB_SaveOne:
-                if i <> this_one then
-                  CONTINUE;
-              eSB_SaveBackground:
-                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
-                  <> 1 then
-                  CONTINUE;  // bgnd only, ignore unused and library.
-              eSB_SaveUnused:
-                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
-                  <> 0 then
-                  CONTINUE;  // unused only, ignore others.
-              eSB_SaveGroup:
-                if keeps_list[i].group_selected = False then
-                  CONTINUE;  // group only, ignore unselected.
-              eSB_SaveLibrary:
-                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
-                  <> -1 then
-                  CONTINUE;  // library only, ignore others.
-            end;//case
-
-            copy_template_info_from_to(False, keeps_list[i].template_info, next_ti);
-            // next template.
-
-            if file_index = (group_count - 1) then
-              next_ti.keep_dims.box_dims1.box_ident := 'NX' + IntToStr(file_index)
-            // last one in file. (string[10])
-            else
-              next_ti.keep_dims.box_dims1.box_ident := 'N ' + IntToStr(file_index);
-
-            next_ti.keep_dims.box_dims1.id_byte := 255;
-            // identify file as BOX3 rather than BOX      290a
-
-
-            case save_option of
-              eSO_BackupOnExit: begin    // final backup on exit ..
-                next_ti.keep_dims.box_dims1.auto_restore_on_startup := False;
-                // these three only read from the first keep in the file,
-                next_ti.keep_dims.box_dims1.ask_restore_on_startup := True;
-                // but go in every one.
-                next_ti.keep_dims.box_dims1.box_save_done := save_done;
-              end;
-
-              eSO_Normal: begin    // normal box save (these are never read) ..
-                next_ti.keep_dims.box_dims1.auto_restore_on_startup := False;
-                // not used for normal file save/reload
-                next_ti.keep_dims.box_dims1.ask_restore_on_startup := False;
-                // not used for normal file save/reload
-                next_ti.keep_dims.box_dims1.box_save_done := False;
-              end;
-
-              eSO_RollingBackup: begin    // rolling backup..
-                next_ti.keep_dims.box_dims1.auto_restore_on_startup := True;
-                // if both True on loading = abnormal termination.
-                next_ti.keep_dims.box_dims1.ask_restore_on_startup := True;
-                next_ti.keep_dims.box_dims1.box_save_done := False;
-              end;
-
-            end;//case
-
-            //  these go in every template but only the first or last in is read back...
-
-            next_ti.keep_dims.box_dims1.project_for := Copy(box_project_title_str, 1, 49);
-            // goes in every template but only the last in is read back.
-
-            // 0.79.a  20-05-06  save grid info -- to be read from final template...
-
-            //%%%% 0.91.d -- now also in user preferences, these used only if not prefs.
-
-            next_ti.keep_dims.box_dims1.grid_units_code := grid_labels_code_i;
-            next_ti.keep_dims.box_dims1.x_grid_spacing := grid_spacex;
-            next_ti.keep_dims.box_dims1.y_grid_spacing := grid_spacey;
-
-            //--------------------
-
-            BlockWrite(box_file, next_ti.keep_dims, SizeOf(Tkeep_dims), number_written);
-            // write all the data.
-
-            if number_written <> SizeOf(Tkeep_dims) then begin
-              file_write_error;
-              Result := False;
-              EXIT;
-            end;
-
-            Inc(file_index);     // first one = 0.
-          end;//next i
-
-          for i := 0 to keeps_list.Count - 1 do begin        // now add the texts.
-
-            // 0.94.a  fb_kludge templates are created on printing, and destroyed afterwards. Don't save any remaining..
-
-            if keeps_list[i].template_info.keep_dims.box_dims1.fb_kludge_template_code <> 0 then
-              CONTINUE;
-
-            case which_ones of
-              eSB_SaveOne:
-                if i <> this_one then
-                  CONTINUE;
-              eSB_SaveBackground:
-                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
-                  <> 1 then
-                  CONTINUE;   // bgnd only, ignore unused and library.
-              eSB_SaveUnused:
-                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
-                  <> 0 then
-                  CONTINUE;   // unused, ignore others
-              eSB_SaveGroup:
-                if keeps_list[i].group_selected = False then
-                  CONTINUE;   // group only, ignore unselected.
-              eSB_SaveLibrary:
-                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
-                  <> -1 then
-                  CONTINUE;   // library only, ignore others.
-            end;//case
-
-            s := remove_esc_str(keeps_list[i].Name) + Char($1B) + remove_esc_str(
-              keeps_list[i].Memo) + Char($1B) + Char($1B);
-            // use ESC chars as terminators, plus one for luck on the end.
-
-            UniqueString(s);  // make sure it's in continuous memory.
-
-            len := Length(s) * SizeOf(Char);
-
-            BlockWrite(box_file, len, SizeOf(integer), number_written);
-            // first the length as an integer (4 bytes)
-            if number_written <> SizeOf(integer) then begin
-              file_write_error;
-              Result := False;
-              EXIT;
-            end;
-
-            BlockWrite(box_file, s[1], len, number_written);   // then the text.
-            if number_written <> len then begin
-              file_write_error;
-              Result := False;
-              EXIT;
-            end;
-
-          end;//next i
-          // now add the DATA BLOCKS section...
-
-          s := '_85A_|    ';  // start marker.
-
-          UniqueString(s);  // make sure it's in continuous memory.
-
-          BlockWrite(box_file, s[1], 8, number_written);
-          // 8 bytes of '_85A_|  ' as a DATA BLOCKS start marker.
-          if number_written <> 8 then begin
-            file_write_error;
-            Result := False;
-            EXIT;
-          end;
-
-          with block_start do begin
-            version_number := file_version;
-            zero1 := 0;
-            zero2 := 0;
-            zero3 := 0;
-          end;//with
-
-          BlockWrite(box_file, block_start, SizeOf(Tblock_start), number_written);
-          // 16 bytes = version number + 12 bytes of zero (spares).
-          if number_written <> SizeOf(Tblock_start) then begin
-            file_write_error;
-            Result := False;
-            EXIT;
-          end;
-
-          // now the data blocks for each of the loaded templates...
-
-          file_index := 0;     // re-init for the index count.
-
-          for i := 0 to keeps_list.Count - 1 do begin
-
-            if keeps_list[i].template_info.keep_dims.box_dims1.fb_kludge_template_code <> 0 then
-              CONTINUE;
-
-            case which_ones of
-              eSB_SaveOne:
-                if i <> this_one then
-                  CONTINUE;
-              eSB_SaveBackground:
-                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
-                  <> 1 then
-                  CONTINUE;   // bgnd only, ignore unused and library.
-              eSB_SaveUnused:
-                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
-                  <> 0 then
-                  CONTINUE;   // unused only.
-              eSB_SaveGroup:
-                if keeps_list[i].group_selected = False then
-                  CONTINUE;   // group only, ignore unselected.
-              eSB_SaveLibrary:
-                if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077
-                  <> -1 then
-                  CONTINUE;   // library only.
-            end;//case
-
-            copy_template_info_from_to(False, keeps_list[i].template_info, next_ti);
-            // next template.
-
-            // first block is the shove timber data...
-
-            // shove data = code 10. 4 bytes containing the count of shoved timbers,
-            //                       + a series of Tshove_for_file data records for each one.
-
-            shove_count := next_ti.keep_shove_list.Count;
-
-            with block_ident do begin
-
-              segment_length := SizeOf(integer) + shove_count * SizeOf(Tshove_for_file);
-              f_index := file_index;
-              block_code := 10;         // = timber shove data.
-              spare_zeroes := 0;
-
-            end;//with
-
-            BlockWrite(box_file, block_ident, SizeOf(Tblock_ident), number_written);
-            // the data block ident.
-            if number_written <> SizeOf(Tblock_ident) then begin
-              file_write_error;
-              Result := False;
-              EXIT;
-            end;
-
-            // now the shove data segment itself..
-
-            BlockWrite(box_file, shove_count, SizeOf(integer), number_written);
-            // first the count of shoved timbers.
-            if number_written <> SizeOf(integer) then begin
-              file_write_error;
-              Result := False;
-              EXIT;
-            end;
-
-            if shove_count > 0 then begin
-
-              for st := 0 to shove_count - 1 do begin
-                shove_timber_data.copy_from(next_ti.keep_shove_list[st]);
-
-                BlockWrite(box_file, shove_timber_data, SizeOf(Tshove_for_file),
-                  number_written);      // first the count of shoved timbers.
-                if number_written <> SizeOf(Tshove_for_file) then begin
-                  file_write_error;
-                  Result := False;
-                  EXIT;
-                end;
-              end;//next st
-            end;
-
-            // no more DATA BLOCKS yet defined for this template, so on to the next..
-
-            Inc(file_index);     // first one = 0.
-          end;//next i
-
-          // all templates done, so add the end zeroes ident (zero-length data segment).
-
-          with block_ident do begin
-            segment_length := 0;
-            f_index := 0;
-            block_code := 0;
-            spare_zeroes := 0;
-          end;//with
-
-          BlockWrite(box_file, block_ident, SizeOf(Tblock_ident), number_written);
-          // finally the end zeroes.
-          if number_written <> SizeOf(Tblock_ident) then begin
-            file_write_error;
-            Result := False;
-            EXIT;
-          end;
-
-        except
-          on EInOutError do begin
-            file_write_error;
-            Result := False;
-            EXIT;
-          end;
-        end;//try-except
-
-        fsize := FileSize(box_file);      // (file must be open to get the size).
-
-        if (FileExists(box_str) = False) or (fsize = 0)                  // ???
-        then begin
-          file_write_error;
-          Result := False;
-          EXIT;
+        for i := 0 to keeps_list.Count - 1 do begin
+          // 0.94.a  fb_kludge templates are created on output/printing, and destroyed afterwards. Don't save any remaining..
+          if keeps_list[i].template_info.keep_dims.box_dims1.fb_kludge_template_code <> 0 then
+            CONTINUE;  // 0.94.a don't save kludge templates, if any found (error in print?)
+
+          case which_ones of
+            eSB_SaveOne:
+              if i <> this_one then
+                CONTINUE;
+            eSB_SaveBackground:
+              if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077 <> 1 then
+                CONTINUE;  // bgnd only, ignore unused and library.
+            eSB_SaveUnused:
+              if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077 <> 0 then
+                CONTINUE;  // unused only, ignore others.
+            eSB_SaveGroup:
+              if not keeps_list[i].group_selected then
+                CONTINUE;  // group only, ignore unselected.
+            eSB_SaveLibrary:
+              if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077 <> -1 then
+                CONTINUE;  // library only, ignore others.
+          end;//case
+
+          templatesToSave.Add(keeps_list[i]);
         end;
 
-      finally
         try
-          CloseFile(box_file);
+          SaveBox3(templatesToSave, save_option, save_done, box_str,
+            box_project_title_str, gridInfo);
         except
-          on EInOutError do
-        end;  // close file if it's open.
-      end;//try
-
-      // file now exists and something in it...
+          on ExSaveBox do begin
+            if save_option = eSO_Normal then
+              file_error(box_str);
+            Result := False;
+          end;
+        end;
+      finally
+        templatesToSave.Free;
+      end;
 
       if (which_ones = eSB_SaveAll) and (save_option = eSO_Normal) and (save_str = '')
       // normal save of all templates..
@@ -771,7 +444,6 @@ begin
       Result := True;
 
     finally
-      next_ti.keep_shove_list.Free;
       Screen.Cursor := saved_cursor;
     end;//try
 

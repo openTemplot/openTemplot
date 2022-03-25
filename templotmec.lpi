@@ -51,7 +51,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="102">
+    <Units Count="103">
       <Unit0>
         <Filename Value="templotmec.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -574,6 +574,10 @@
         <Filename Value="box_file_unit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit101>
+      <Unit102>
+        <Filename Value="box3_file_unit.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit102>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
