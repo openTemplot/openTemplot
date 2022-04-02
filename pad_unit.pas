@@ -1563,7 +1563,6 @@ type
     radius_warning_help_menu_entry: TMenuItem;
     modify_radius_warning_popup_entry: TMenuItem;
     N359: TMenuItem;
-    old_pre_templot2_files_menu_entry: TMenuItem;
     do_nothing_menu_entry: TMenuItem;
     get_colour_at_mouse_menu_entry: TMenuItem;
     timber_numbering_on_plain_track_menu_entry: TMenuItem;
@@ -3055,7 +3054,6 @@ type
     procedure rail_infill_style_menu_entryClick(Sender: TObject);
     procedure print_timber_infill_menu_entryClick(Sender: TObject);
     procedure print_platform_infill_menu_entryClick(Sender: TObject);
-    procedure old_pre_templot2_files_menu_entryClick(Sender: TObject);
     procedure do_nothing_menu_entryClick(Sender: TObject);
     procedure get_colour_at_mouse_menu_entryClick(Sender: TObject);
     procedure timber_numbering_on_plain_track_menu_entryClick(Sender: TObject);
@@ -19626,7 +19624,7 @@ begin
 end;
 //____________________________________________________________________________________________
 
-procedure reload_add_file(old_templot_folder: boolean);     // old folder option added 207a
+procedure reload_add_file;     // old folder option added 207a
 
 var
   append: boolean;
@@ -19637,7 +19635,7 @@ begin
 
   try   // 208d
     // he might change it.
-    if load_storage_box(True, old_templot_folder, '', False, False, append, hl) = False then
+    if load_storage_box(True, '', False, False, append, hl) = False then
       EXIT;   // nothing was loaded.
 
     // 0.93.a ...
@@ -19667,14 +19665,7 @@ end;
 procedure Tpad_form.pad_reload_menu_entryClick(Sender: TObject);
 
 begin
-  reload_add_file(False);
-end;
-//______________________________________________________________________________
-
-procedure Tpad_form.old_pre_templot2_files_menu_entryClick(Sender: TObject);
-
-begin
-  reload_add_file(True);
+  reload_add_file;
 end;
 //______________________________________________________________________________
 
@@ -26576,7 +26567,7 @@ var
 
     try
 
-      if load_storage_box(True, False, dropped_file_name_str, False, False, append, hl) =
+      if load_storage_box(True, dropped_file_name_str, False, False, append, hl) =
         True  // hl= highest loaded index
       then begin
         if keeps_list.Count > 0 then begin

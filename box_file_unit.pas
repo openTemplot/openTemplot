@@ -52,7 +52,7 @@ type
 
 function save_box(this_one: integer; which_ones: ESaveBox; save_option: ESaveOption;
   save_str: string): boolean;
-function load_storage_box(normal_load, old_templot_folder: boolean; file_str: string;
+function load_storage_box(normal_load: boolean; file_str: string;
   load_backup, make_lib: boolean; var append: boolean;
   var last_bgnd_loaded_index: integer): boolean;
 
@@ -451,7 +451,7 @@ begin
 end;
 //______________________________________________________________________________________
 
-function load_storage_box(normal_load, old_templot_folder: boolean; file_str: string;
+function load_storage_box(normal_load: boolean; file_str: string;
   load_backup, make_lib: boolean; var append: boolean;
   var last_bgnd_loaded_index: integer): boolean;
   // load a file of templates into the keeps box.
@@ -1360,28 +1360,6 @@ begin
         '|This version of Templot0 is  ' + GetVersionString(voShort) +
         '||Please refer to the Templot web site at  templot.com  for information about upgrading to the latest version, or click| <A HREF="online_ref980.85a">more information online</A> .',
         '', '', '', '', '', 'continue', 0);
-    end;
-
-    if (loaded_version < 200) and (normal_load = True)   // normal_load 208d (off for file viewer)
-    then begin
-      i := alert(2, 'php/980    old  file   -   ( from  version  ' +
-        FormatFloat('0.00', loaded_version / 100) + ' )',
-        'The file which you just reloaded contained one or more templates from an earlier version of Templot0.'
-        + '||These have been modified to make them compatible with this version, but some features may now be drawn differently or require adjustment.'
-        //+'||To re-create the templates from scratch in line with this version, click the blue bar below or select the PROGRAM > NORMALIZE ALL TEMPLATES menu item on the PROGRAM PANEL window.'
-        + '||The earliest loaded template was from version  ' +
-        FormatFloat('0.00', loaded_version / 100) + '|This version of Templot0 is  ' +
-        GetVersionString(voShort) +
-        '||Click for <A HREF="online_ref980.85a">more information online</A> about the differences between these two versions.'
-        //+'||Please refer to the Templot web site at  templot.com  for information about the differences between these two versions.'
-        + '||green_panel_begin tree.gif The template name labels are now shown in the boxed style by default.'
-        + ' To revert to the previous style click the `0trackpad > trackpad background options > background name labels > transparent`1 menu item,|or click below.' + '||To hide the name labels, press the `0END`2 key on the keyboard, or the `0SHIFT+ENTER`2 keys, or click the `0trackpad > hide name labels`1 menu item, or click below.green_panel_end', '', '', 'hide  name  labels', 'change  to  transparent  name  labels', '', 'continue', 0);
-
-      if i = 3 then
-        hide_name_labels := True;
-
-      if i = 4 then
-        pad_form.transparent_names_menu_entry.Checked := True;    // radio item.
     end;
 
   finally

@@ -1755,11 +1755,6 @@ object pad_form: Tpad_form
         GroupIndex = 250
         OnClick = undo_clear_or_reload_menu_entryClick
       end
-      object old_pre_templot2_files_menu_entry: TMenuItem
-        Caption = '    &old  pre-Templot2  files ...'
-        GroupIndex = 250
-        OnClick = old_pre_templot2_files_menu_entryClick
-      end
       object N400: TMenuItem
         Caption = '-'
         GroupIndex = 250
