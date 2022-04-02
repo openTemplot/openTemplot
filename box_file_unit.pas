@@ -124,12 +124,6 @@ var
   s: string;
   saved_cursor: TCursor;
 
-  block_start: Tblock_start;
-  block_ident: Tblock_ident;
-
-  st, shove_count: integer;
-  shove_timber_data: Tshove_for_file;
-
   save_bw: boolean; // 0.93.a
 
   templatesToSave: TTemplateList;
