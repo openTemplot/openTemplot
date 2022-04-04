@@ -1294,9 +1294,7 @@ begin
         file_name := file_name + '.box3';  // in case his system hides extensions.
       end;
 
-      //function load_storage_box(normal_load:boolean; file_str:string; load_backup,make_lib:boolean; var append:boolean; var last_bgnd_loaded_index:integer):boolean;    // load a file of templates into the keeps box.
-
-      if load_storage_box(False, file_name, False, False, append, hl) = True then begin
+      if load_storage_box(eLB_FileViewer, file_name, append, hl) = True then begin
         if keeps_list.Count > 0 then begin
           if (loaded_version < 93) and (hl > -1) and (hl < keeps_list.Count) then
             mint_final_or_copy_control(hl);
@@ -1372,7 +1370,7 @@ begin
     clear_keeps(False, False);    // clear all templates
     append := False;
 
-    if load_storage_box(False, oldbox_str, False, False, append, hl) = True then begin
+    if load_storage_box(eLB_FileViewer, oldbox_str, append, hl) = True then begin
       if keeps_list.Count > 0 then begin
         if (loaded_version < 93) and (hl > -1) and (hl < keeps_list.Count) then
           mint_final_or_copy_control(hl);

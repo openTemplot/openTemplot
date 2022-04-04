@@ -49,11 +49,18 @@ type
     eSO_RollingBackup,     // 1
     eSO_BackupOnExit);     // -1
 
+  ELoadBox = (
+    eLB_Normal,
+    eLB_FileViewer,
+    eLB_Backup,
+    eLB_Library);
+
 
 function save_box(this_one: integer; which_ones: ESaveBox; save_option: ESaveOption;
   save_str: string): boolean;
-function load_storage_box(normal_load: boolean; file_str: string;
-  load_backup, make_lib: boolean; var append: boolean;
+function load_storage_box(load_options: ELoadBox;
+  file_str: string;
+  var append: boolean;
   var last_bgnd_loaded_index: integer): boolean;
 
 
@@ -451,8 +458,8 @@ begin
 end;
 //______________________________________________________________________________________
 
-function load_storage_box(normal_load: boolean; file_str: string;
-  load_backup, make_lib: boolean; var append: boolean;
+function load_storage_box(load_options: ELoadBox; file_str: string;
+  var append: boolean;
   var last_bgnd_loaded_index: integer): boolean;
   // load a file of templates into the keeps box.
 
@@ -524,7 +531,7 @@ var
       else
         clear_keep(n);               // error adding, we already created the list entry for it.
 
-      if load_backup = False then
+      if load_options <> eLB_Backup then
         file_error(box_str);
     end;
     /////////////////////////////////
@@ -555,7 +562,7 @@ var
         except
           on EInOutError do
         end;  // close file if it's open.
-        if load_backup = False then
+        if load_options <> eLB_Backup then
           file_error(box_str);
         EXIT;
       end;
@@ -590,7 +597,7 @@ var
               except
                 on EInOutError do
               end;  // close file if it's open.
-              if load_backup = False then
+              if load_options <> eLB_Backup then
                 file_error(box_str);
               EXIT;
             end;
@@ -661,7 +668,7 @@ var
 
           // !!! version_mismatch must be done first - sets bgnd_code_077...
 
-          if make_lib = True then
+          if load_options = eLB_Library then
             old_next_data.old_keep_dims1.box_dims1.bgnd_code_077 := -1;
           // make it a library template.
 
@@ -672,7 +679,7 @@ var
           copy_template_info_from_to(True, this_ti, keeps_list[n].template_info);
           // True = free the shove list.
 
-          if (append = True) and (make_lib = False) and
+          if (append = True) and (load_options <> eLB_Library) and
             (keep_form.add_ignore_group_menu_entry.Checked = False) then
             keeps_list[n].group_selected := True;
           // group select added template.
@@ -698,7 +705,7 @@ var
           except
             on EInOutError do
           end;  // close file if it's open.
-          if load_backup = False then
+          if load_options <> eLB_Backup then
             file_error(box_str);
 
           if append = False then
@@ -724,7 +731,7 @@ var
           except
             on EInOutError do
           end;  // close file if it's open.
-          if load_backup = False then
+          if load_options <> eLB_Backup then
             file_error(box_str);
           EXIT;
         end;
@@ -748,7 +755,7 @@ var
           except
             on EInOutError do
           end;  // close file if it's open.
-          if load_backup = False then
+          if load_options <> eLB_Backup then
             file_error(box_str);
           EXIT;
         end;
@@ -821,7 +828,7 @@ var
             except
               on EInOutError do
             end;  // close file if it's open.
-            if load_backup = False then
+            if load_options <> eLB_Backup then
               file_error(box_str);
             EXIT;
           end;
@@ -841,7 +848,7 @@ var
           except
             on EInOutError do
           end;  // close file if it's open.
-          if load_backup = False then
+          if load_options <> eLB_Backup then
             file_error(box_str);
           EXIT;
         end;
@@ -858,7 +865,7 @@ var
           except
             on EInOutError do
           end;  // close file if it's open.
-          if load_backup = False then
+          if load_options <> eLB_Backup then
             file_error(box_str);
           EXIT;
         end;
@@ -881,7 +888,7 @@ var
             except
               on EInOutError do
             end;  // close file if it's open.
-            if load_backup = False then
+            if load_options <> eLB_Backup then
               file_error(box_str);
             EXIT;
           end;
@@ -911,7 +918,7 @@ var
                   except
                     on EInOutError do
                   end;  // close file if it's open.
-                  if load_backup = False then
+                  if load_options <> eLB_Backup then
                     file_error(box_str);
                   EXIT;
                 end;
@@ -955,7 +962,7 @@ begin
   Result := False;               // init.
   last_bgnd_loaded_index := -1;  // init.
 
-  if (append = False) and (keeps_list.Count > 0) and (load_backup = False) and
+  if (append = False) and (keeps_list.Count > 0) and (load_options <> eLB_Backup) and
     (file_str = '') // something already there ?
   then begin
     if save_done = False                 // and not saved...
@@ -998,7 +1005,7 @@ begin
     end;
   end;
 
-  if load_backup = True then begin
+  if load_options = eLB_Backup then begin
     box_str := '';
     if FileExists(ebk1_str) = True then
       box_str := ebk1_str;
@@ -1014,7 +1021,7 @@ begin
         if append = False then
           Title := '    load  or  reload  storage  box  from  file ..'
         else begin
-          if make_lib = True then
+          if load_options = eLB_Library then
             Title := '    add  library  templates  from  file ..'
           else
             Title := '    add  templates  from  file ..';
@@ -1103,7 +1110,7 @@ begin
           except
             on EInOutError do
           end;  // close file if it's open.
-          if load_backup = False then
+          if load_options <> eLB_Backup then
             file_error(box_str);
           EXIT;
         end;
@@ -1111,7 +1118,7 @@ begin
         CloseFile(test_box_file);    // and close the file. (Re-open later.)
       except
         on EInOutError do begin
-          if load_backup = False then
+          if load_options <> eLB_Backup then
             file_error(box_str);
           if append = False then
             clear_keeps(False, False);
@@ -1131,7 +1138,7 @@ begin
           else
             _071_format := False;
 
-          if load_backup = True then begin
+          if load_options = eLB_Backup then begin
 
             if templot_version > 62 then
               restored_save_done := box_save_done;     // mods 23-6-00 for version 0.63
@@ -1203,7 +1210,7 @@ begin
           wait_form.waiting_label.Width :=
             wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);  // 205b bug fix for Wine
 
-          if normal_load = True then
+          if load_options <> eLB_FileViewer then
             wait_form.Show;  // 208d version warnings off for file viewer
 
           if Application.Terminated = False then
@@ -1224,7 +1231,7 @@ begin
           loaded_str := 'data file';        // don't confuse him with internal file names.
       end;
 
-      if (ExtractFileExt(loaded_str) = '.box3') and (normal_load = True)
+      if (ExtractFileExt(loaded_str) = '.box3') and (load_options <> eLB_FileViewer)
       // 208d not for file viewer
       then
         boxmru_update(loaded_str);                              // 0.82.a  update the mru list.
@@ -1256,7 +1263,7 @@ begin
         end;//with old_next_data.old_keep_dims1
 
         save_done := not resave_needed;        // this boxful matches file.
-        if load_backup = False then begin
+        if load_options <> eLB_Backup then begin
           keep_form.box_file_label.Caption := ' last reloaded from :  ' + loaded_str;
           keep_form.box_file_label.Hint := keep_form.box_file_label.Caption;
           // in case too long for caption
@@ -1348,7 +1355,7 @@ begin
 
     end;//try
 
-    if (later_file = True) and (normal_load = True)   // normal_load 208d (off for file viewer)
+    if (later_file = True) and (load_options <> eLB_FileViewer)   // normal_load 208d (off for file viewer)
     then begin
       alert(1, 'php/980    later  file   -   ( from  version  ' + FormatFloat(
         '0.00', loaded_version / 100) + ' )',

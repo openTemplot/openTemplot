@@ -19635,7 +19635,7 @@ begin
 
   try   // 208d
     // he might change it.
-    if load_storage_box(True, '', False, False, append, hl) = False then
+    if load_storage_box(eLB_Normal, '', append, hl) = False then
       EXIT;   // nothing was loaded.
 
     // 0.93.a ...
@@ -26567,7 +26567,7 @@ var
 
     try
 
-      if load_storage_box(True, dropped_file_name_str, False, False, append, hl) =
+      if load_storage_box(eLB_Normal, dropped_file_name_str, append, hl) =
         True  // hl= highest loaded index
       then begin
         if keeps_list.Count > 0 then begin
