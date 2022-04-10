@@ -34,7 +34,8 @@ interface
 uses
   Classes,
   Dialogs,
-  Forms;
+  Forms,
+  TLoggerUnit;
 
 type
   Tt2box_form = class(TForm)
@@ -48,8 +49,12 @@ type
 
 var
   t2box_form: Tt2box_form;
+  t2box_log: ILogger;
 
-function import_t2box(file_str: string): boolean; // 290a
+//function import_t2box(file_name: string): boolean; // 290a
+function import_t2box(normal_load: boolean; file_name: string;
+  make_lib: boolean; var append: boolean;
+  var last_bgnd_loaded_index: integer): boolean;
 
 //______________________________________________________________________________
 
@@ -70,6 +75,7 @@ uses
   rail_options_unit,
   shove_timber,
   shoved_timber,
+  t2box_parsers_unit,
   template,
   wait_message;
 
@@ -87,13 +93,13 @@ uses
 //
 // These will all be reviewed when the basic import is working satisfactorily.
 
-function import_t2box(normal_load{, old_templot_folder}: boolean; file_str: string;
-  load_backup{, make_lib}: boolean{; var append: boolean;
-  var last_bgnd_loaded_index: integer}): boolean;
+function import_t2box(normal_load: boolean; file_name: string;
+  make_lib: boolean; var append: boolean;
+  var last_bgnd_loaded_index: integer): boolean;
   // load a file of templates into the keeps box.
 
   // normal_load True = for use. False = for file viewer.
-  // if file_str not empty it is the file name to load.
+  // if file_name not empty it is the file name to load.
   // return True any templates loaded/added.
   // also return any change to append.
   // also return last_bgnd_loaded_index, highest bgnd template loaded (for minting).
@@ -106,6 +112,8 @@ const
     +
     '||This is done independently of any saving to data files which you may have performed.' +
     '||If you answer "no thanks" the previous data can be restored later by selecting the `0FILES > RESTORE PREVIOUS`1 menu item on the storage box menus.' + '||tree.gif The restore feature works correctly even if your previous session terminated abnormally as a result of a power failure or system malfunction, so there is no need to perform repeated saves as a precaution against these events.' + '||rp.gif The restore feature does not include your Background Shapes or Sketchboard files, which must be saved and reloaded separately as required.' + '||rp.gif If you run two instances of Templot0 concurrently (not recommended for Windows 95/98/ME) from the same `0\TEMPLOT\`2 folder,' + ' the restore data will be held in common between the two. To prevent this happening, create and run the second instance from a different folder (directory).';
+
+  shovedim_c_048:integer = 29;
 
 var
   test_box_file: file;                 // untyped file for testing format.
@@ -139,7 +147,7 @@ var
 
   var
     box_file: file;                // new format untyped file.
-    n, i, len: integer;
+    n, i, len, ix: integer;
     n_valid: boolean;
     block_start: Tblock_start;
     block_ident: Tblock_ident;
@@ -190,7 +198,7 @@ var
         except
           on EInOutError do
         end;  // close file if it's open.
-        if load_backup = False then
+{xxx        if load_backup = False then}
           file_error(box_str);
         EXIT;
       end;
@@ -225,8 +233,8 @@ var
               except
                 on EInOutError do
               end;  // close file if it's open.
-              if load_backup = False then
-                file_error(box_str);
+{              if load_backup = False then}
+              file_error(box_str);
               EXIT;
             end;
 
@@ -279,14 +287,14 @@ var
 
           //BlockRead(box_file, old_next_data, SizeOf(Told_keep_data), number_read);
           with old_next_data do begin
-            {$I load_t1keep_data}
+            {$I load_t2keep_data}
           end;
           // read bytes.
 
 
           s := old_next_data.old_keep_dims1.box_dims1.box_ident;
 
-          if (number_read <> SizeOf(Told_keep_data)) or
+          if {xxx (number_read <> SizeOf(Told_keep_data)) or}
             ((s <> ('N ' + IntToStr(n - old_count))) and (s <> ('NX' + IntToStr(n - old_count))))
           // error reading, or this is not a template.
           then begin
@@ -336,7 +344,7 @@ var
           except
             on EInOutError do
           end;  // close file if it's open.
-          if load_backup = False then
+{xxx          if load_backup = False then}
             file_error(box_str);
 
 {xxx          if append = False then}
@@ -362,7 +370,7 @@ var
           except
             on EInOutError do
           end;  // close file if it's open.
-          if load_backup = False then
+{xxx          if load_backup = False then}
             file_error(box_str);
           EXIT;
         end;
@@ -386,7 +394,7 @@ var
           except
             on EInOutError do
           end;  // close file if it's open.
-          if load_backup = False then
+{xxx          if load_backup = False then}
             file_error(box_str);
           EXIT;
         end;
@@ -459,7 +467,7 @@ var
             except
               on EInOutError do
             end;  // close file if it's open.
-            if load_backup = False then
+{xxx            if load_backup = False then}
               file_error(box_str);
             EXIT;
           end;
@@ -479,7 +487,7 @@ var
           except
             on EInOutError do
           end;  // close file if it's open.
-          if load_backup = False then
+{xxx          if load_backup = False then}
             file_error(box_str);
           EXIT;
         end;
@@ -496,7 +504,7 @@ var
           except
             on EInOutError do
           end;  // close file if it's open.
-          if load_backup = False then
+{xxx          if load_backup = False then}
             file_error(box_str);
           EXIT;
         end;
@@ -519,7 +527,7 @@ var
             except
               on EInOutError do
             end;  // close file if it's open.
-            if load_backup = False then
+{xxx            if load_backup = False then}
               file_error(box_str);
             EXIT;
           end;
@@ -549,7 +557,7 @@ var
                   except
                     on EInOutError do
                   end;  // close file if it's open.
-                  if load_backup = False then
+{xxx                  if load_backup = False then}
                     file_error(box_str);
                   EXIT;
                 end;
@@ -590,11 +598,13 @@ var
 
 begin
 
+  t2box_log := Logger.GetInstance('T2-box');
+
   Result := False;               // init.
   last_bgnd_loaded_index := -1;  // init.
 
-  if (append = False) and (keeps_list.Count > 0) and (load_backup = False) and
-    (file_str = '') // something already there ?
+  if (append = False) and (keeps_list.Count > 0) {xxx and (load_backup = False)} and
+    (file_name = '') // something already there ?
   then begin
     if save_done = False                 // and not saved...
     then begin
@@ -636,7 +646,7 @@ begin
     end;
   end;
 
-  if load_backup = True then begin
+{xxx  if load_backup = True then begin
     box_str := '';
     if FileExists(ebk1_str) = True then
       box_str := ebk1_str;
@@ -646,8 +656,8 @@ begin
     if box_str = '' then
       EXIT;    // no file to load.
   end
-  else begin
-    if file_str = '' then begin
+  else} begin
+    if file_name = '' then begin
       with keep_form.load_dialog do begin
         if append = False then
           Title := '    load  or  reload  storage  box  from  file ..'
@@ -664,8 +674,8 @@ begin
         else
           InitialDir := Config.GetDir(cudiBoxes);
 
-        Filter := ' storage  box  contents  (*.box3)|*.box3';
-        Filename := '*.box3';
+        Filter := ' storage  box  contents  (*.box)|*.box';
+        Filename := '*.box';
 
         if Execute = False then
           EXIT;          // get the file name.
@@ -677,7 +687,7 @@ begin
       end;//with
     end
     else
-      box_str := file_str;                       // file name supplied by caller.
+      box_str := file_name;                       // file name supplied by caller.
 
     ixt_str := ChangeFileExt(box_str, '.ixt');
 
@@ -734,12 +744,12 @@ begin
         //  Tkeep_dims1=record      // first part of a Tkeep_dims record.
 
         //BlockRead(test_box_file, old_next_data.old_keep_dims1, SizeOf(Tkeep_dims1), number_read);
-        with old_next_data.old_keep_dims1 do begin
-          {$I load_t1keep_dims1}
+        with old_next_data do begin
+          {$I load_t2keep_dims1}
         end;
 
         // read bytes.
-        if number_read <> SizeOf(Tkeep_dims1) then begin
+{xxx        if number_read <> SizeOf(Tkeep_dims1) then begin
           try
             CloseFile(test_box_file);
           except
@@ -749,11 +759,11 @@ begin
             file_error(box_str);
           EXIT;
         end;
-
+}
         CloseFile(test_box_file);    // and close the file. (Re-open later.)
       except
         on EInOutError do begin
-          if load_backup = False then
+{xxx          if load_backup = False then}
             file_error(box_str);
           if append = False then
             clear_keeps(False, False);
@@ -773,7 +783,7 @@ begin
           else
             _071_format := False;
 
-          if load_backup = True then begin
+{xxx          if load_backup = True then begin
 
             if templot_version > 62 then
               restored_save_done := box_save_done;     // mods 23-6-00 for version 0.63
@@ -835,7 +845,7 @@ begin
 
               end;// ask startup pref
             end;//not abnormal termination
-          end;//reload backup
+          end;//reload backup   }
 
           // load the file...
 
@@ -857,16 +867,16 @@ begin
       end;//with
       // file loaded...
 
-      if (file_str = '') then
+      if (file_name = '') then
         loaded_str := box_str     // file name from the "open" dialog.
       else begin
-        if ExtractFileExt(file_str) = '.box3' then
-          loaded_str := file_str
+        if ExtractFileExt(file_name) = '.box' then
+          loaded_str := file_name
         else
           loaded_str := 'data file';        // don't confuse him with internal file names.
       end;
 
-      if (ExtractFileExt(loaded_str) = '.box3') and (normal_load = True)
+      if (ExtractFileExt(loaded_str) = '.box') and (normal_load = True)
       // 208d not for file viewer
       then
         boxmru_update(loaded_str);                              // 0.82.a  update the mru list.
@@ -898,7 +908,7 @@ begin
         end;//with old_next_data.old_keep_dims1
 
         save_done := not resave_needed;        // this boxful matches file.
-        if load_backup = False then begin
+{xxx        if load_backup = False then} begin
           keep_form.box_file_label.Caption := ' last reloaded from :  ' + loaded_str;
           keep_form.box_file_label.Hint := keep_form.box_file_label.Caption;
           // in case too long for caption
@@ -908,7 +918,7 @@ begin
           reloaded_box_str := '|    ' + loaded_str;
           // ditto.
         end
-        else begin
+{xxx        else begin
           save_done := restored_save_done;
           // had it been saved?
           keep_form.box_file_label.Caption := ' restored on startup';
@@ -918,7 +928,7 @@ begin
           saved_box_str := 'startup restore';
           // for print of box contents list.
           reloaded_box_str := '|    startup restore';               // ditto.
-        end;
+        end; }
       end
       else begin                 // appending...
         //save_done:=False;

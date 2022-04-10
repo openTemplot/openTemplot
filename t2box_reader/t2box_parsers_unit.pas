@@ -23,8 +23,8 @@ function parse_float(var box_file: file; fldname: string): single;
 function parse_integer(var box_file: file; fldname: string): integer;
 function parse_string(var box_file: file; fldname: string; strlen: integer): string;
 
-function extendedToDouble(bytes: TextBytes): double;
-function doubleToExtended(Value: double): TExtBytes;
+function extendedToDouble(bytes: TExtBytes): double;
+function doubleToExtended(value: double): TExtBytes;
 
 var
   logging: boolean = false;
@@ -36,101 +36,101 @@ uses
 
 function parse_blob(var box_file: file; fldname: string; size: integer): Tbytes;
 var
-  Value: Tbytes;
+  value: Tbytes;
   number_read: integer;
 begin
-  setlength(Value, size);
-  BlockRead(box_file, Value, 255, number_read);
+  setlength(value, size);
+  BlockRead(box_file, value, 255, number_read);
   //need to use hexdump here
   //if logging then
-  //  showmessage('Parsed bool : ' + fldname + ' : ' + booltostr(Value));
-  Result := Value;
+  //  showmessage('Parsed bool : ' + fldname + ' : ' + booltostr(value));
+  Result := value;
 end;
 
 function parse_boolean(var box_file: file; fldname: string): boolean;
 var
-  Value: boolean;
+  value: boolean;
   number_read: integer;
 begin
-  BlockRead(box_file, Value, SizeOf(Value), number_read);
+  BlockRead(box_file, value, SizeOf(value), number_read);
   if logging then
-    T2box_log.Info('Parsed bool : ' + fldname + ' : ' + booltostr(Value));
-  Result := Value;
+    t2box_log.Info('Parsed bool : ' + fldname + ' : ' + booltostr(value));
+  Result := value;
 end;
 
 function parse_byte(var box_file: file; fldname: string): byte;
 var
-  Value: byte;
+  value: byte;
   number_read: integer;
 begin
-  BlockRead(box_file, Value, SizeOf(Value), number_read);
+  BlockRead(box_file, value, SizeOf(value), number_read);
   if logging then
-    T2box_log.Info('Parsed byte : ' + fldname + ' : ' + inttostr(Value));
-  Result := Value;
+    t2box_log.Info('Parsed byte : ' + fldname + ' : ' + inttostr(value));
+  Result := value;
 end;
 
 function parse_double(var box_file: file; fldname: string): double;
 var
-  Value: double;
+  value: double;
   number_read: integer;
 begin
-  BlockRead(box_file, Value, SizeOf(Value), number_read);
+  BlockRead(box_file, value, SizeOf(value), number_read);
   if logging then
-    T2box_log.Info('Parsed double : ' + fldname + ' : ' + floattostr(Value));
-  Result := Value;
+    t2box_log.Info('Parsed double : ' + fldname + ' : ' + floattostr(value));
+  Result := value;
 end;
 
 function parse_extended(var box_file: file; fldname: string): double;
 var
-  bytes: TextBytes;
+  bytes: TExtBytes;
   value: double;
   number_read: integer;
 begin
   BlockRead(box_file, bytes, SizeOf(bytes), number_read);
-  Value := ExtendedToDouble(bytes);
+  value := ExtendedToDouble(bytes);
   if logging then
-    T2box_log.Info('Parsed extended : ' + fldname + ' : ' + floattostr(Value));
-  Result := Value;
+    t2box_log.Info('Parsed extended : ' + fldname + ' : ' + floattostr(value));
+  Result := value;
 end;
 
 function parse_float(var box_file: file; fldname: string): single;
 var
-  Value: single;
+  value: single;
   number_read: integer;
 begin
-  BlockRead(box_file, Value, SizeOf(Value), number_read);
+  BlockRead(box_file, value, SizeOf(value), number_read);
   if logging then
-    T2box_log.Info('Parsed float : ' + fldname + ' : ' + floattostr(Value));
-  Result := Value;
+    t2box_log.Info('Parsed float : ' + fldname + ' : ' + floattostr(value));
+  Result := value;
 end;
 
 function parse_integer(var box_file: file; fldname: string): integer;
 var
-  Value: int32;                      // integers are 32 bits in T2 box files
+  value: int32;                      // integers are 32 bits in T2 box files
   number_read: integer;
 begin
-  BlockRead(box_file, Value, SizeOf(Value), number_read);
+  BlockRead(box_file, value, SizeOf(value), number_read);
   if logging then
-    T2box_log.Info('Parsed integer : ' + fldname + ' : ' + inttostr(Value));
-  Result := Value;
+    t2box_log.Info('Parsed integer : ' + fldname + ' : ' + inttostr(value));
+  Result := value;
 end;
 
 function parse_string(var box_file: file; fldname: string; strlen: integer): string;
 var
-  Value: string[255];
+  value: string[255];
   number_read: integer;
 begin
-  BlockRead(box_file, Value, strlen+1, number_read);
+  BlockRead(box_file, value, strlen+1, number_read);
   if logging then
-    T2box_log.Info('Parsed string : ' + fldname + ' : ' + Value);
-  Result := Value;
+    t2box_log.Info('Parsed string : ' + fldname + ' : ' + value);
+  Result := value;
 end;
 
 // This function takes an array of bytes containing a bit pattern representing
 // an 'extended' float value.
 // The extended number is expected to be little-endian since it is assumed
 // to be produced by Templot2 on an Intel processor.
-function extendedToDouble(bytes: TextBytes): double;
+function extendedToDouble(bytes: TExtBytes): double;
   //const
 var
   rslt: double;
@@ -191,7 +191,7 @@ begin
 end;
 
 
-function doubleToExtended(Value: double): TExtBytes;
+function doubleToExtended(value: double): TExtBytes;
   //const
 var
   dBytes: Qword;
@@ -201,7 +201,7 @@ var
   exponent: smallint;
   sign: byte;
 begin
-  move(Value, dBytes, 8);               // first get the value as bytes
+  move(value, dBytes, 8);               // first get the value as bytes
   mantissa := dBytes and $fffffffffffff; //first get the mantissa
   mantissa := mantissa shl 11;          // ... move it into place
   mantissa := mantissa or $8000000000000000; // ... and add the integer bit

@@ -9666,11 +9666,22 @@ begin
 end;
 
 procedure Tkeep_form.import_t2box_menu_entryClick(Sender: TObject);
+var
+    last_bgnd_loaded: integer;
+    append: boolean = false;
+
 begin
   {xxx import_t2box('');    // in t2box_unit}
-  import_t2box(True, {old_templot_folder,} ''
-    {load_backup, make_lib: boolean; var append: boolean;
-    var last_bgnd_loaded_index: integer});
+{ import_t2box(True,
+    file_name: string,
+    make_lib: boolean;
+    var append: boolean;
+    var last_bgnd_loaded_index: integer);}
+  import_t2box(True,
+        '',
+    false,
+    append,
+    last_bgnd_loaded);
 end;
 
 procedure Tkeep_form.keep_html_viewHotSpotClick(Sender: TObject; const SRC: ThtString;
