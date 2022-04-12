@@ -49,8 +49,9 @@ are a useful guide.
 
 === Scripts
 
-The *scripts* directory contains a numbeer of scripts which are useful in the
-developent process.
+The *scripts* directory contains a number of scripts which are useful in the
+developent process. In general we use python for such scripts, so it is useful for developers
+to have python3 installed.
 
 ==== gendoc & gendoc.bat
 These scripts run the docuentation generator to extract embedded documentation from
@@ -63,6 +64,21 @@ This python script adds the license reference comment at the top of each module.
 It is recommended to run this script each time a new module is added to ensure consistency of
 the leading comment.
 
-Note that this script also contains a list of directories containing project source code, so
-it must also be updated when a new sub-directory is added which contains pascal modules
-belonging to the project.
+The script is run via the command **'python3 scripts/addComment.py'**, issued from the root
+directory of the project.
+
+
+The copyright notices in the comment vary between modules, and currently the script recognises
+three different situations:
+
+- Modules which are largely derived from Templot2 source. These have the Templot2 copyright
+	notice inserted, in addition to the OpenTemplot copyright notice
+- Modules which are new to OpenTemplot and have only the OpenTemplot copyright notice added
+- Modules which are already under a different license/copyright and will not have the comment
+	added at all
+
+This script gets a list of these directories from the included file **'scripts/units-list.py'**.
+
+Whenever modules of the first or third type are added or created, it is important that
+units-list.py source be updated appropriately.
+
