@@ -6,6 +6,8 @@ uses
   Classes,
   consoletestrunner,
   dummy_vehicle_test,
+  extended_utils,
+  extended_utils_test,
   path_interface,
   matrix_2d,
   matrix_2d_test,

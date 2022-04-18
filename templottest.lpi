@@ -26,7 +26,7 @@
         <PackageName Value="FCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="51">
+    <Units Count="53">
       <Unit0>
         <Filename Value="templottest.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -232,6 +232,14 @@
         <Filename Value="test\curve\curve_segment_calculator_test.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit50>
+      <Unit51>
+        <Filename Value="test\extended_utils_test.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit51>
+      <Unit52>
+        <Filename Value="t2box_reader\extended_utils.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit52>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -242,7 +250,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="model;test;log4delphi\util;log4delphi;model\curve;test\curve"/>
+      <OtherUnitFiles Value="model;test;log4delphi\util;log4delphi;model\curve;test\curve;t2box_reader"/>
       <UnitOutputDirectory Value="libtest\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
   </CompilerOptions>
