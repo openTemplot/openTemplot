@@ -15,10 +15,19 @@ type
   ExSaveBox = class(Exception)
   end;
 
+  ExLoadBox = class(Exception)
+  end;
+
   TGridInfo = record
     unitsCode: integer;
     spaceX: double;
     spaceY: double;
+  end;
+
+  TBackupRestoreOptions = record
+    autoRestoreOnStartup: boolean;
+    askRestoreOnStartup: boolean;
+    saveDone: boolean;
   end;
 
 procedure SaveBox3(templatesToSave: TTemplateList;
@@ -27,6 +36,14 @@ procedure SaveBox3(templatesToSave: TTemplateList;
   const boxFilename: string;
   const projectTitle: string;
   const gridInfo: TGridInfo);
+
+procedure LoadBox3(
+  const boxFilename: string;
+  var projectTitle: string;
+  var gridInfo: TGridInfo;
+  out loadedTemplates: TTemplateList);
+
+function LoadBox3BackupRestoreOptions(const boxFilename: string): TBackupRestoreOptions;
 
 implementation
 
@@ -1129,6 +1146,7 @@ type
     sf_shove_data: Tshove_data;  // all the data.
 
     procedure CopyFrom(src: Tshoved_timber);
+    procedure CopyTo(dest: Tshoved_timber);
   end;//record
 
 
@@ -1144,14 +1162,14 @@ type
 
 
   // start record for trailing data blocks...
-  TBlockStart = record
+  TBox3BlockStart = record
     versionNumber: integer; // the Templot0 version number.
     zero1: integer;          // 12 spares (zero)...
     zero2: integer;
     zero3: integer;
   end;
 
-  TBlockIdent = record
+  TBox3BlockIdent = record
     segmentLength: integer;
     templateIndex: integer;
     blockCode: integer;   // 10 = timber shove data.
@@ -1170,6 +1188,20 @@ begin
   sf_shove_data.sv_c := src.sv_c;
   sf_shove_data.sv_t := src.sv_t;
   sf_shove_data.sv_sp_int := src.sv_sp_int;
+end;
+
+procedure TBox3ShoveForFile.CopyTo(dest: Tshoved_timber);
+begin
+  dest.timber_string := sf_str;
+  dest.sv_code := sf_shove_data.sv_code;
+  dest.sv_x := sf_shove_data.sv_x;
+  dest.sv_k := sf_shove_data.sv_k;
+  dest.sv_o := sf_shove_data.sv_o;
+  dest.sv_l := sf_shove_data.sv_l;
+  dest.sv_w := sf_shove_data.sv_w;
+  dest.sv_c := sf_shove_data.sv_c;
+  dest.sv_t := sf_shove_data.sv_t;
+  dest.sv_sp_int := sf_shove_data.sv_sp_int;
 end;
 
 procedure ConvertShovedTimberToBox3(shoveList: Tshoved_timber_list; box3Template: TBox3Template);
@@ -1213,6 +1245,61 @@ begin
     Result.Free;
     raise;
   end;
+end;
+
+
+procedure ConvertBox3ToShovedTimbers(const box3Timbers: array of TBox3ShoveForFile;
+  template: TTemplate);
+var
+  i: integer;
+  timbers: Tshoved_timber_list;
+  t: Tshoved_timber;
+begin
+  timbers := Tshoved_timber_list.Create;
+  try
+    for i := 0 to High(box3Timbers) do begin
+      t := Tshoved_timber.Create;
+      box3Timbers[i].CopyTo(t);
+      timbers.Add(t);
+    end;
+  except
+    timbers.Free;
+    raise;
+  end;
+  template.template_info.keep_shove_list := timbers;
+end;
+
+function ConvertBox3ToTemplate(box3Template: TBox3Template): TTemplate;
+begin
+  Result := TTemplate.Create('');
+  try
+    Assert(sizeof(Result.template_info.keep_dims) = sizeof(box3Template.keepDims));
+    Result.Name := box3Template.Name;
+    Result.memo := box3Template.memo;
+    Move(box3Template.keepDims, Result.template_info.keep_dims, sizeof(box3Template.keepDims));
+
+    ConvertBox3ToShovedTimbers(box3Template.shovedTimbers, Result);
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+function ConvertBox3ToTemplates(box3Templates: TBox3TemplateList): TTemplateList;
+var
+  t: TTemplateList;
+  b: TBox3Template;
+begin
+  t := TTemplateList.Create;
+  try
+    for b in box3Templates do begin
+      t.Add(ConvertBox3ToTemplate(b));
+    end;
+  except
+    t.Free;
+    raise;
+  end;
+  Result := t;
 end;
 
 procedure FileWriteError;
@@ -1344,8 +1431,8 @@ var
   numberWritten: integer;
   template: TBox3Template;
 
-  blockStart: TBlockStart;
-  blockIdent: TBlockIdent;
+  blockStart: TBox3BlockStart;
+  blockIdent: TBox3BlockIdent;
 
   shoveCount: integer;
   st: integer;
@@ -1353,9 +1440,6 @@ begin
   // now add the DATA BLOCKS section...
 
   s := '_85A_|    ';  // start marker.
-
-  UniqueString(s);  // make sure it's in continuous memory.
-
   BlockWrite(boxFile, s[1], 8, numberWritten);
   // 8 bytes of '_85A_|  ' as a DATA BLOCKS start marker.
   if numberWritten <> 8 then begin
@@ -1424,9 +1508,9 @@ begin
     spareZeroes := 0;
   end;//with
 
-  BlockWrite(boxFile, blockIdent, SizeOf(TBlockIdent), numberWritten);
+  BlockWrite(boxFile, blockIdent, SizeOf(blockIdent), numberWritten);
   // finally the end zeroes.
-  if numberWritten <> SizeOf(TBlockIdent) then begin
+  if numberWritten <> SizeOf(blockIdent) then begin
     FileWriteError;
   end;
 end;
@@ -1475,6 +1559,252 @@ begin
   finally
     box3ToSave.Free;
   end;//try
+end;
+
+
+procedure ReadFileError;
+begin
+  raise ExLoadBox.Create('Error reading file');
+end;
+
+procedure ReadFirstTemplateRecord(var boxFile: file; var box3KeepDims: TBox3KeepDims);
+var
+  numberRead: integer;
+begin
+  BlockRead(boxFile, box3KeepDims, SizeOf(TBox3KeepDims), numberRead);
+  if (numberRead <> Sizeof(TBox3KeepDims)) then begin
+    ReadFileError;
+  end;
+end;
+
+procedure ReadTemplateRecords(var boxFile: file; var box3Templates: TBox3TemplateList);
+var
+  n: integer;
+  template: TBox3Template;
+  numberRead: integer;
+  s: string;
+begin
+  repeat
+    n := box3Templates.Add(TBox3Template.Create());
+    template := box3Templates[n];
+    BlockRead(boxFile, template.keepDims, SizeOf(TBox3KeepDims), numberRead);
+    s := template.keepDims.box_dims1.box_ident;
+    if (numberRead <> SizeOf(TBox3KeepDims)) or
+      ((s <> ('N ' + IntToStr(n))) and (s <> ('NX' + IntToStr(n)))) then begin
+      // error reading, or this is not a template.
+      ReadFileError;
+    end;
+  until Copy(s, 1, 2) = 'NX';      // last template marker.
+end;
+
+
+procedure ReadStrings(var boxFile: file; var box3Templates: TBox3TemplateList);
+var
+  n: integer;
+  numberRead: integer;
+  stringLength: integer;
+  s: string;
+  i: integer;
+  infoString: string;
+  memoString: string;
+begin
+  for n := 0 to box3Templates.Count - 1 do begin
+    // now get the proper texts.
+
+    // first get the length as an integer (4 bytes)
+    BlockRead(boxFile, stringLength, SizeOf(integer), numberRead);
+    if numberRead <> SizeOf(integer) then begin
+      ReadFileError;
+    end;
+
+    // read len bytes into string s...
+
+    s := StringOfChar('0', stringLength);
+    BlockRead(boxFile, s[1], stringLength, numberRead);
+
+    if numberRead <> stringLength then begin
+      ReadFileError;
+    end;
+
+    i := Pos(Char($1B), s);          // find info part terminator.
+
+    if i <> 0 then begin
+      infoString := Copy(s, 1, i - 1); // info string (don't include the ESC).
+      Delete(s, 1, i);          // remove info string and terminator from input.
+
+      i := Pos(Char($1B), s);             // find memo part terminator.
+
+      if i <> 0 then begin
+        memoString := Copy(s, 1, i - 1); // memo string (don't incude the ESC).
+
+        // we don't change either unless we've got both..
+        box3Templates[n].Name := remove_esc_str(infoString);
+        // remove any ESC is belt and braces...
+        box3Templates[n].Memo := remove_esc_str(memoString);
+      end;
+    end;
+  end;//next n
+end;
+
+procedure ReadShoveBlock(var boxFile: file; box3Template: TBox3Template; segmentLength: integer);
+var
+  numberRead: integer;
+  shoveCount: integer;
+begin
+  // first get the count of shoved timbers for this template...
+  BlockRead(boxFile, shoveCount,
+    SizeOf(integer), numberRead);
+  if (numberRead <> SizeOf(integer)) then begin
+    ReadFileError;
+  end;
+
+  if segmentLength <> (SizeOf(integer) + shoveCount * SizeOf(TBox3ShoveForFile)) then
+    ReadFileError;  // the integer is the shove count just read.
+
+  if shoveCount > 0 then begin
+    // now get the data for all the shoved timbers...
+    SetLength(box3Template.shovedTimbers, shoveCount);
+
+    BlockRead(boxFile, box3Template.shovedTimbers[0], SizeOf(TBox3ShoveForFile) *
+      shoveCount, numberRead);
+    if (numberRead <> SizeOf(TBox3ShoveForFile) * shoveCount) then begin
+      ReadFileError;
+    end;
+  end;
+end;
+
+procedure ReadDataBlocks(var boxFile: file; var box3Templates: TBox3TemplateList);
+var
+  s: string;
+  numberRead: integer;
+  blockStart: TBox3BlockStart;
+  blockIdent: TBox3BlockIdent;
+begin
+  s := StringOfChar(' ', 8);
+  BlockRead(boxFile, s[1], 8, numberRead);
+  if numberRead <> 8 then begin
+    ReadFileError;
+  end;
+
+  if Copy(s, 1, 6) <> '_85A_|' then begin
+    ReadFileError;
+  end;
+
+  BlockRead(boxFile, blockStart, SizeOf(TBox3BlockStart), numberRead);
+  if numberRead <> SizeOf(TBox3BlockStart) then begin
+    ReadFileError;
+  end;
+
+  // get all the data blocks
+  while not EOF(boxFile) do begin
+    // get the ident for the next data block..
+
+    BlockRead(boxFile, blockIdent, SizeOf(TBox3BlockIdent), numberRead);
+    if numberRead <> SizeOf(TBox3BlockIdent) then begin
+      ReadFileError;
+    end;
+
+    if blockIdent.segmentLength = 0 then
+      Exit;    // end of data blocks.
+
+    if (blockIdent.templateIndex < 0) or (blockIdent.templateIndex >= box3Templates.Count) then
+    begin
+      ReadFileError;
+    end;
+
+    case blockIdent.blockCode of
+
+      10:
+        ReadShoveBlock(boxFile, box3Templates[blockIdent.templateIndex], blockIdent.segmentLength);
+      else begin    // no other codes defined for version 071. 6-5-01.
+        Seek(boxFile, FilePos(boxFile) + blockIdent.segmentLength);
+      end;
+    end;//case  // no other codes defined for version 071. 6-5-01.
+  end;
+  // shouldn't get here, EXITs on a zero segment length.
+end;
+
+function ExtractProjectTitle(box3: TBox3TemplateList): string;
+begin
+  if box3.Count > 0 then
+    Result := box3[0].keepDims.box_dims1.project_for
+  else
+    Result := '';
+end;
+
+function ExtractGridInfo(box3: TBox3TemplateList): TGridInfo;
+var
+  b: TBox3Template;
+begin
+  if box3.Count > 0 then begin
+    b := box3[0];
+    Result.unitsCode := b.keepDims.box_dims1.grid_units_code;
+    Result.spaceX := b.keepDims.box_dims1.x_grid_spacing;
+    Result.spaceY := b.keepDims.box_dims1.y_grid_spacing;
+  end
+  else begin
+    Result.unitsCode := 0; // this means the following will not be used..
+    Result.spaceX := 50;
+    Result.spaceY := 50;
+  end;
+
+end;
+
+procedure LoadBox3(
+  const boxFilename: string;
+  var projectTitle: string;
+  var gridInfo: TGridInfo;
+  out loadedTemplates: TTemplateList);
+var
+  boxFile: file;                // new format untyped file.
+  n, i, len: integer;
+  box3Templates: TBox3TemplateList;
+begin
+  loadedTemplates := nil;
+  box3Templates := nil;
+  try
+    try
+      AssignFile(boxFile, boxFilename);
+      Reset(boxFile, 1);              // open for reading, record size = 1 byte.
+      try
+        box3Templates := TBox3TemplateList.Create;
+
+        ReadTemplateRecords(boxFile, box3Templates);
+        ReadStrings(boxFile, box3Templates);
+        ReadDataBlocks(boxFile, box3Templates);
+      finally
+        CloseFile(boxFile);
+      end;
+
+      projectTitle := ExtractProjectTitle(box3Templates);
+      gridInfo := ExtractGridInfo(box3Templates);
+      loadedTemplates := ConvertBox3ToTemplates(box3Templates);
+    except
+      loadedTemplates.Free;
+      raise;
+    end
+  finally
+    box3Templates.Free;
+  end;
+end;
+
+function LoadBox3BackupRestoreOptions(const boxFilename: string): TBackupRestoreOptions;
+var
+  boxFile: file;                // new format untyped file.
+  box3KeepDims: TBox3KeepDims;
+  n, i, len: integer;
+begin
+  AssignFile(boxFile, boxFilename);
+  Reset(boxFile, 1);              // open for reading, record size = 1 byte.
+  try
+    ReadFirstTemplateRecord(boxFile, box3KeepDims);
+  finally
+    CloseFile(boxFile);
+  end;
+
+  Result.askRestoreOnStartup:= box3KeepDims.box_dims1.ask_restore_on_startup;
+  Result.autoRestoreOnStartup:= box3KeepDims.box_dims1.auto_restore_on_startup;
+  Result.saveDone:= box3KeepDims.box_dims1.box_save_done;
 end;
 
 end.

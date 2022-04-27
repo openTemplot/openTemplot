@@ -65,7 +65,6 @@ type
     MenuItem5: TMenuItem;
     transfer_menu: TMenuItem;
     save_dialog: TSaveDialog;
-    load_dialog: TOpenDialog;
     colour_panel: TPanel;
     colour_patch: TImage;
     size_updown: TUpDown;

@@ -10,10 +10,9 @@ object keep_form: Tkeep_form
   AutoScroll = True
   BorderIcons = [biSystemMenu]
   Caption = '                       storage   box'
-  ClientHeight = 435
+  ClientHeight = 440
   ClientWidth = 656
   Color = 12632240
-  DesignTimePPI = 120
   Font.Color = clBlack
   Font.Height = -13
   Font.Name = 'Arial'
@@ -29,7 +28,7 @@ object keep_form: Tkeep_form
   OnKeyPress = FormKeyPress
   OnResize = FormResize
   OnShow = FormShow
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.10.0'
   Scaled = False
   object keep_form_datestamp_label: TLabel
     Left = 0
@@ -168,9 +167,9 @@ object keep_form: Tkeep_form
   end
   object delete_to_control_radiobutton: TRadioButton
     Left = 510
-    Height = 23
+    Height = 20
     Top = 376
-    Width = 64
+    Width = 60
     Caption = 'delete'
     TabOrder = 3
     Visible = False
@@ -468,9 +467,9 @@ object keep_form: Tkeep_form
     end
     object fit_radio_button: TRadioButton
       Left = 88
-      Height = 23
+      Height = 20
       Top = 1
-      Width = 56
+      Width = 52
       Caption = 'to  &fit'
       Checked = True
       OnClick = fit_radio_buttonClick
@@ -479,9 +478,9 @@ object keep_form: Tkeep_form
     end
     object lock_radio_button: TRadioButton
       Left = 162
-      Height = 23
+      Height = 20
       Top = 1
-      Width = 50
+      Width = 46
       Caption = 'loc&k'
       OnClick = lock_radio_buttonClick
       TabOrder = 1
@@ -1183,18 +1182,18 @@ object keep_form: Tkeep_form
   end
   object copy_to_control_radiobutton: TRadioButton
     Left = 510
-    Height = 23
+    Height = 20
     Top = 328
-    Width = 54
+    Width = 50
     Caption = 'copy'
     TabOrder = 1
     Visible = False
   end
   object wipe_to_control_radiobutton: TRadioButton
     Left = 510
-    Height = 23
+    Height = 20
     Top = 352
-    Width = 55
+    Width = 51
     Caption = 'wipe'
     Checked = True
     TabOrder = 2
@@ -1224,20 +1223,12 @@ object keep_form: Tkeep_form
     DefaultExt = '.box3'
     FileName = '*.box3'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofShowHelp, ofEnableSizing]
-    left = 128
-    top = 160
-  end
-  object load_dialog: TOpenDialog
-    Title = '    reload  storage  box  from  file ..'
-    DefaultExt = '.box3'
-    FileName = '*.box3'
-    Options = [ofHideReadOnly, ofShowHelp, ofFileMustExist, ofEnableSizing]
-    left = 230
-    top = 112
+    Left = 128
+    Top = 160
   end
   object keeps_menu_bar: TMainMenu
-    left = 112
-    top = 96
+    Left = 112
+    Top = 96
     object box_menu: TMenuItem
       Caption = '&box'
       object clear_menu_entry: TMenuItem
@@ -2204,8 +2195,8 @@ object keep_form: Tkeep_form
   end
   object recent_popup_menu: TPopupMenu
     AutoPopup = False
-    left = 80
-    top = 180
+    Left = 80
+    Top = 180
     object mru_caption_popup_entry: TMenuItem
       Caption = 'recent  box  files:'
       Enabled = False
@@ -2296,7 +2287,7 @@ object keep_form: Tkeep_form
     DefaultExt = '.pdf'
     Filter = 'PDF documents  (*.pdf)|*.pdf'
     Options = [ofReadOnly, ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
-    left = 388
-    top = 192
+    Left = 388
+    Top = 192
   end
 end
