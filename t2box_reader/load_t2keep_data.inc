@@ -1,11 +1,11 @@
 {
                           ===== WARNING =====
 
-    This include file is generated.
+                  This include file is generated.
     It should not be edited by hand unless the idea of generating it is being
-    abandoned for good. Once the generation process is discarded
-    there will probably be no going back.
-    This may be fine - just make sure.  ;-)
+                       abandoned for good. 
+  Once the generation process is discarded there will probably be no going back.
+        This may be fine - just make sure that is what you want.  ;-)
 }
 // 0 0  >>>  
   // 1 1  >>>  old_keep_dims1
@@ -24,7 +24,8 @@
         old_keep_dims1.box_dims1.rail_info.spare_int1 := parse_integer(box_file, 'spare_int1');
         old_keep_dims1.box_dims1.rail_info.knuckle_code_ri := parse_integer(box_file, 'knuckle_code_ri');
         old_keep_dims1.box_dims1.rail_info.knuckle_radius_ri := parse_extended(box_file, 'knuckle_radius_ri');
-        old_keep_dims1.box_dims1.rail_info.spare_float2 := parse_extended(box_file, 'spare_float2');
+        old_keep_dims1.box_dims1.rail_info.spare_float2 := 0;   // spare_float2
+         parse_skip(box_file,  10 );
         old_keep_dims1.box_dims1.rail_info.spare_bool1 := parse_boolean(box_file, 'spare_bool1');
         old_keep_dims1.box_dims1.rail_info.spare_bool2 := parse_boolean(box_file, 'spare_bool2');
         old_keep_dims1.box_dims1.rail_info.isolated_crossing_sw := parse_boolean(box_file, 'isolated_crossing_sw');
@@ -242,9 +243,12 @@
         old_keep_dims1.box_dims1.align_info.reminder_flag := parse_boolean(box_file, 'reminder_flag');
         old_keep_dims1.box_dims1.align_info.reminder_colour := parse_integer(box_file, 'reminder_colour');
         old_keep_dims1.box_dims1.align_info.reminder_str := parse_string(box_file, 'reminder_str', 200);
-        old_keep_dims1.box_dims1.align_info.spare_float1 := parse_extended(box_file, 'spare_float1');
-        old_keep_dims1.box_dims1.align_info.spare_float2 := parse_extended(box_file, 'spare_float2');
-        old_keep_dims1.box_dims1.align_info.spare_float3 := parse_extended(box_file, 'spare_float3');
+        old_keep_dims1.box_dims1.align_info.spare_float1 := 0;   // spare_float1
+         parse_skip(box_file,  10 );
+        old_keep_dims1.box_dims1.align_info.spare_float2 := 0;   // spare_float2
+         parse_skip(box_file,  10 );
+        old_keep_dims1.box_dims1.align_info.spare_float3 := 0;   // spare_float3
+         parse_skip(box_file,  10 );
         old_keep_dims1.box_dims1.align_info.spare_int := parse_integer(box_file, 'spare_int');
       // 3 44  <<<  align_info
       old_keep_dims1.box_dims1.rail_type := parse_integer(box_file, 'rail_type');
@@ -333,7 +337,7 @@
     // 2 1  <<<  box_dims1
   // 1 1  <<<  old_keep_dims1
   // 1 2  >>>  old_keep_shoves
-     for ix := 0 to shovedim_c_048 do begin
+    for ix := 0 to shovedim_c_048 do begin
        parse_integer(box_file, 'sv_code['+inttostr(ix)+']');;     // 0=empty slot, -1=omit this timber,  1=shove this timber.
        parse_string(box_file, 'sv_str['+inttostr(ix)+']',8);   // timber number string.
        parse_byte(box_file, 'sv_alignment_byte['+inttostr(ix)+']');   // D5 0.81 12-06-05
@@ -343,7 +347,7 @@
        parse_extended(box_file, 'sv_l['+inttostr(ix)+']');;    // length modifier (far end).
        parse_extended(box_file, 'sv_w['+inttostr(ix)+']');;    // width modifier (per side).
        parse_integer(box_file, 'sv_t['+inttostr(ix)+']');;     // nyi - thickness modifier in 1000ths of mm. (was spare integer).
-     end;
+    end;
   // 1 2  <<<  old_keep_shoves
   // 1 3  >>>  old_keep_dims2
     // 2 1  >>>  turnout_info2
@@ -365,13 +369,14 @@
         old_keep_dims2.turnout_info2.switch_info.planing_radius := parse_extended(box_file, 'planing_radius');
         old_keep_dims2.turnout_info2.switch_info.sleeper_j1 := parse_extended(box_file, 'sleeper_j1');
         old_keep_dims2.turnout_info2.switch_info.sleeper_j2 := parse_extended(box_file, 'sleeper_j2');
-         for ix := 0 to swtimbco_c-1 do begin
+        for ix := 0 to swtimbco_c-1 do begin
           old_keep_dims2.turnout_info2.switch_info.timber_centres[ix] := parse_extended(box_file, 'timber_centres['+inttostr(ix)+']');
            if old_keep_dims2.turnout_info2.switch_info. timber_centres[ix] = 0 then break;
          end;
-         for ix := ix to swtimbco_c-1 do begin
-          old_keep_dims2.turnout_info2.switch_info.timber_centres[ix] := parse_extended(box_file, 'timber_centres['+inttostr(ix)+']');
-         end;
+        for ix := ix to swtimbco_c-1 do begin
+          old_keep_dims2.turnout_info2.switch_info.timber_centres[ix] := 0;   // timber_centres
+         parse_skip(box_file,  10 );
+        end;
         old_keep_dims2.turnout_info2.switch_info.group_code := parse_integer(box_file, 'group_code');
         old_keep_dims2.turnout_info2.switch_info.size_code := parse_integer(box_file, 'size_code');
         old_keep_dims2.turnout_info2.switch_info.joggle_depth := parse_extended(box_file, 'joggle_depth');
@@ -391,10 +396,14 @@
         old_keep_dims2.turnout_info2.switch_info.sleeper_j3 := parse_extended(box_file, 'sleeper_j3');
         old_keep_dims2.turnout_info2.switch_info.sleeper_j4 := parse_extended(box_file, 'sleeper_j4');
         old_keep_dims2.turnout_info2.switch_info.sleeper_j5 := parse_extended(box_file, 'sleeper_j5');
-        old_keep_dims2.turnout_info2.switch_info.spare_float4 := parse_extended(box_file, 'spare_float4');
-        old_keep_dims2.turnout_info2.switch_info.spare_float3 := parse_extended(box_file, 'spare_float3');
-        old_keep_dims2.turnout_info2.switch_info.spare_float2 := parse_extended(box_file, 'spare_float2');
-        old_keep_dims2.turnout_info2.switch_info.spare_float1 := parse_extended(box_file, 'spare_float1');
+        old_keep_dims2.turnout_info2.switch_info.spare_float4 := 0;   // spare_float4
+         parse_skip(box_file,  10 );
+        old_keep_dims2.turnout_info2.switch_info.spare_float3 := 0;   // spare_float3
+         parse_skip(box_file,  10 );
+        old_keep_dims2.turnout_info2.switch_info.spare_float2 := 0;   // spare_float2
+         parse_skip(box_file,  10 );
+        old_keep_dims2.turnout_info2.switch_info.spare_float1 := 0;   // spare_float1
+         parse_skip(box_file,  10 );
         old_keep_dims2.turnout_info2.switch_info.spare_str := parse_string(box_file, 'spare_str', 200);
         old_keep_dims2.turnout_info2.switch_info.num_slide_chairs := parse_byte(box_file, 'num_slide_chairs');
         old_keep_dims2.turnout_info2.switch_info.num_block_slide_chairs := parse_byte(box_file, 'num_block_slide_chairs');
@@ -475,13 +484,14 @@
         old_keep_dims2.turnout_info2.plain_track_info.alignment_byte_4 := parse_byte(box_file, 'alignment_byte_4');
         old_keep_dims2.turnout_info2.plain_track_info.alignment_byte_5 := parse_byte(box_file, 'alignment_byte_5');
         old_keep_dims2.turnout_info2.plain_track_info.sleepers_per_length := parse_integer(box_file, 'sleepers_per_length');
-         for ix := 0 to psleep_c-1 do begin
+        for ix := 0 to psleep_c-1 do begin
           old_keep_dims2.turnout_info2.plain_track_info.sleeper_centres[ix] := parse_extended(box_file, 'sleeper_centres['+inttostr(ix)+']');
            if old_keep_dims2.turnout_info2.plain_track_info. sleeper_centres[ix] = 0 then break;
          end;
-         for ix := ix to psleep_c-1 do begin
-          old_keep_dims2.turnout_info2.plain_track_info.sleeper_centres[ix] := parse_extended(box_file, 'sleeper_centres['+inttostr(ix)+']');
-         end;
+        for ix := ix to psleep_c-1 do begin
+          old_keep_dims2.turnout_info2.plain_track_info.sleeper_centres[ix] := 0;   // sleeper_centres
+         parse_skip(box_file,  10 );
+        end;
         old_keep_dims2.turnout_info2.plain_track_info.rail_joints_code := parse_integer(box_file, 'rail_joints_code');
         old_keep_dims2.turnout_info2.plain_track_info.user_peg_rail := parse_integer(box_file, 'user_peg_rail');
         old_keep_dims2.turnout_info2.plain_track_info.pt_spare_flag1 := parse_boolean(box_file, 'pt_spare_flag1');

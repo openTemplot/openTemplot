@@ -18,11 +18,11 @@ types= {
 prelude = """{
                           ===== WARNING =====
 
-    This include file is generated.
+                  This include file is generated.
     It should not be edited by hand unless the idea of generating it is being
-    abandoned for good. Once the generation process is discarded
-    there will probably be no going back.
-    This may be fine - just make sure.  ;-)
+                       abandoned for good. 
+  Once the generation process is discarded there will probably be no going back.
+        This may be fine - just make sure that is what you want.  ;-)
 }"""
 
 
@@ -62,9 +62,15 @@ class pasgen_handler(jsonreader.handler):
             print(self.prefix(level) + '.'.join(path)+'.'+fldname+" := parse_"+fldtype+"(box_file, '"+fldname+"');", file=data['outfile'])
         return(data)
 
+    def printzero(self, level, path, fldname, fldtype):
+        print(self.prefix(level) + '.'.join(path)+'.'+fldname+" := 0;   //", fldname, file=data['outfile'])
+
+    def printskip(self, level, path, fldname, fldtype, extra = 0):
+            print(self.prefix(data['level']), "parse_skip(box_file, ", extra, ");", file=data['outfile'])
+
     def do_array(self, field, data):
         if field['basetype'] != "Told_shove":
-            print(self.prefix(data['level']), "for ix :=", field['lower'], "to", field['upper']+"-1", "do begin", file=data['outfile'])
+            print(self.prefix(data['level']) + "for ix :=", field['lower'], "to", field['upper']+"-1", "do begin", file=data['outfile'])
             if field['basetype'] in types:
                 self.printit(data['level']+1, data['path'], field['name'], types[field['basetype']], -1)
             else:
@@ -72,15 +78,17 @@ class pasgen_handler(jsonreader.handler):
             print(self.prefix(data['level']+1), "if",  '.'.join(data['path'])+'.', field['name']+"[ix]", "= 0 then break;", file=data['outfile']),
             print(self.prefix(data['level']), "end;", file=data['outfile']),
 
-            print(self.prefix(data['level']), "for ix := ix to", field['upper']+"-1", "do begin", file=data['outfile']),
+            print(self.prefix(data['level']) + "for ix := ix to", field['upper']+"-1", "do begin", file=data['outfile']),
             if field['basetype'] in types:
-                self.printit(data['level']+1, data['path'], field['name'], types[field['basetype']], -1)
+                # self.printit(data['level']+1, data['path'], field['name'], types[field['basetype']], -1)
+                self.printzero(data['level']+1, data['path'], field['name'], "extended")
+                self.printskip(data['level']+1, data['path'], field['name'], "skip", 10)
             else:
                 self.printit(data['level']+1, data['path'], field['name'], field['basetype'], -1)
-            print(self.prefix(data['level']), "end;", file=data['outfile'])
+            print(self.prefix(data['level']) + "end;", file=data['outfile'])
 
         else:
-            print(self.prefix(data['level']), "for ix :=", field['lower'], "to", field['upper'], "do begin", file=data['outfile'])
+            print(self.prefix(data['level']) + "for ix :=", field['lower'], "to", field['upper'], "do begin", file=data['outfile'])
              # //      parse_Told_shove(box_file, 'shoves['+inttostr(ix)+']');
             print(self.prefix(data['level']+1), "parse_integer(box_file, 'sv_code['+inttostr(ix)+']');;     // 0=empty slot, -1=omit this timber,  1=shove this timber.", file=data['outfile'])
             print(self.prefix(data['level']+1), "parse_string(box_file, 'sv_str['+inttostr(ix)+']',8);   // timber number string.", file=data['outfile'])
@@ -91,7 +99,7 @@ class pasgen_handler(jsonreader.handler):
             print(self.prefix(data['level']+1), "parse_extended(box_file, 'sv_l['+inttostr(ix)+']');;    // length modifier (far end).", file=data['outfile'])
             print(self.prefix(data['level']+1), "parse_extended(box_file, 'sv_w['+inttostr(ix)+']');;    // width modifier (per side).", file=data['outfile'])
             print(self.prefix(data['level']+1), "parse_integer(box_file, 'sv_t['+inttostr(ix)+']');;     // nyi - thickness modifier in 1000ths of mm. (was spare integer).", file=data['outfile'])
-            print(self.prefix(data['level']), "end;", file=data['outfile']),
+            print(self.prefix(data['level']) + "end;", file=data['outfile']),
 
         return(data)
 
@@ -106,7 +114,12 @@ class pasgen_handler(jsonreader.handler):
         self.printit(data['level'], data['path'], field['name'], "double")
         return(data)
     def do_extended(self, field, data):
-        self.printit(data['level'], data['path'], field['name'], "extended")
+        name = field['name']
+        if name[:6] == "spare_":
+            self.printzero(data['level'], data['path'], field['name'], "extended")
+            self.printskip(data['level'], data['path'], field['name'], "skip", 10)
+        else:
+            self.printit(data['level'], data['path'], field['name'], "extended")
         return(data)
     def do_float(self, field, data):
         self.printit(data['level'], data['path'], field['name'], "float")
