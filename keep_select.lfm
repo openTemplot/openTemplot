@@ -29,7 +29,7 @@ object keep_form: Tkeep_form
   OnKeyPress = FormKeyPress
   OnResize = FormResize
   OnShow = FormShow
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.10.0'
   Scaled = False
   object keep_form_datestamp_label: TLabel
     Left = 0
@@ -1583,6 +1583,19 @@ object keep_form: Tkeep_form
         Caption = ' '
         Enabled = False
       end
+      object import_t2box_menu_entry: TMenuItem
+        Caption = '&import Templot2 box file ..'
+        OnClick = import_t2box_menu_entryClick
+      end
+      object MenuItem8: TMenuItem
+        Caption = ' '
+      end
+      object N54: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem6: TMenuItem
+        Caption = ' '
+      end
       object import_mecbox_menu_entry: TMenuItem
         Caption = 'i&mport  MECBOX  file ...'
         OnClick = import_mecbox_menu_entryClick
@@ -2298,5 +2311,9 @@ object keep_form: Tkeep_form
     Options = [ofReadOnly, ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     left = 388
     top = 192
+  end
+  object MainMenu1: TMainMenu
+    Left = 8
+    Top = 8
   end
 end

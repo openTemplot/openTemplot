@@ -1,0 +1,21 @@
+object t2box_form: Tt2box_form
+  Left = 979
+  Height = 288
+  Top = 411
+  Width = 507
+  Caption = '    TEMPLOT2 BOX'
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -13
+  Font.Name = 'MS Sans Serif'
+  LCLVersion = '2.0.10.0'
+  Scaled = False
+  object load_t2box_dialog: TOpenDialog
+    Title = 'Open Templot2 box file'
+    DefaultExt = '.box'
+    FileName = '*.box'
+    Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
+    Left = 252
+    Top = 84
+  end
+end

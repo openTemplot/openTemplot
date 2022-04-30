@@ -56,6 +56,9 @@ type
     chat_panel: TPanel;
     keep_form_datestamp_label: TLabel;
     keep_image: TImage;
+    load_t2box_dialog: TOpenDialog;
+    import_t2box_menu_entry: TMenuItem;
+    MainMenu1: TMainMenu;
     MenuItem1: TMenuItem;
     import_mecbox_menu_entry: TMenuItem;
     MenuItem2: TMenuItem;
@@ -63,6 +66,9 @@ type
     MenuItem4: TMenuItem;
     export_mecbox_menu_entry: TMenuItem;
     MenuItem5: TMenuItem;
+    MenuItem6: TMenuItem;
+    N54: TMenuItem;
+    MenuItem8: TMenuItem;
     transfer_menu: TMenuItem;
     save_dialog: TSaveDialog;
     load_dialog: TOpenDialog;
@@ -371,6 +377,7 @@ type
     procedure FormActivate(Sender: TObject);
     procedure colour_patchClick(Sender: TObject);
     procedure import_mecbox_menu_entryClick(Sender: TObject);
+    procedure import_t2box_menu_entryClick(Sender: TObject);
     procedure keep_html_viewHotSpotClick(Sender: TObject; const SRC: ThtString;
       var Handled: Boolean);
     procedure size_updownClick(Sender: TObject; Button: TUDBtnType);
@@ -700,6 +707,7 @@ uses
   dxf_unit, bgkeeps_unit, grid_unit, Clipbrd, edit_memo_unit, wait_message, shove_timber,
   jotter_unit, print_settings_unit, data_memo_unit,
   MetaFilePrinter, { OT-FIRST file_viewer,} panning_unit, mecbox_unit,
+  t2box_unit,
   curve,
   rail_data_unit,
   mark_unit;
@@ -9655,6 +9663,25 @@ procedure Tkeep_form.import_mecbox_menu_entryClick(Sender: TObject);
 
 begin
   import_mecbox('');    // in mecbox_unit
+end;
+
+procedure Tkeep_form.import_t2box_menu_entryClick(Sender: TObject);
+var
+    last_bgnd_loaded: integer;
+    append: boolean = false;
+
+begin
+  {xxx import_t2box('');    // in t2box_unit}
+{ import_t2box(True,
+    file_name: string,
+    make_lib: boolean;
+    var append: boolean;
+    var last_bgnd_loaded_index: integer);}
+  import_t2box(True,
+        '',
+    false,
+    append,
+    last_bgnd_loaded);
 end;
 
 procedure Tkeep_form.keep_html_viewHotSpotClick(Sender: TObject; const SRC: ThtString;

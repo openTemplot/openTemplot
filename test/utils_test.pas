@@ -44,12 +44,9 @@ var
   testRslt: TnumberCheckRslt;
   testInt: integer;
 begin
-  WriteLn('Into the test for ', msg);
   testInt := INITIAL;
 
   testRslt := CheckInt(str, lower, upper, testInt);
-  WriteLn('--- and the result is ', testRslt);
-  WriteLn('--- and the value is ', testInt);
 
   AssertEquals(msg, ord(expectRslt), ord(testRslt));
   if expectRslt = ncValid then
