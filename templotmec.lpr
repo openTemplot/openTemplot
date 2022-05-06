@@ -96,6 +96,7 @@ uses
   xtc_unit in 'xtc_unit.pas',
 
   mecbox_unit in 'mecbox_unit.pas',
+  t2box_unit in 't2box_unit.pas',
 
   file_viewer in 'file_viewer.pas' {file_viewer_form},
   TLoggerUnit in 'TLoggerUnit.pas',
@@ -237,6 +238,7 @@ begin
   Application.CreateForm(Txtc_form, xtc_form);
 
   Application.CreateForm(Tmecbox_form, mecbox_form);
+  Application.CreateForm(Tt2box_form, t2box_form);
 
   Application.CreateForm(Tfile_viewer_form, file_viewer_form);
 

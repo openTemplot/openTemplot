@@ -1,0 +1,58 @@
+= T2box Generator
+
+
+=== Purpose
+
+This directory contains a small suite of programs which generate code to assist in the reading of T2 'box' files,
+both to print them in a (semi-)readable format and to help in providing OT with the ability to read such files.
+
+It is expected that over time, changes will be made to both Templot2 and OpenTemplot. 
+
+Handling the former is the reason that this generator capability was created. Changes are not expected to be dramatic. 
+
+Handling the latter, however is likely to present greater challenges, and take the data structures of T2 and OT further and further apart.
+
+As a result, generation is likely to  become more difficult than simply maintaining the include files by hand, 
+at which point this whole suite can be discarded.
+
+Note that for better productivity (and because I needed the practice) some of these are written in Python, 
+so you will need the Python3 interpreter installed.
+
+The files consist of the following:
+
+=== Files
+
+[options=header,cols="^1,<2,<30,<20"]
+|======
+| # | Name|Purpose|Status
+| 1 | 292a.pad_unit.pas | pascal source from the Templot sources |
+| 2 | 292a.keep_unit.pas | pascal source from the Templot sources |
+| 3 | 292a.types.pas | types from the above 2 file cut'n'pasted into one for easier handling |
+|
+3+|
+| 4 | pas2sqlite.py | Reads 292a.types and extracts record and field definitions to sqlite database 'records.sqlite'  |  Complete. Could use refactoring.
+| 5 | records.sqlite | records and fields definitions created by 'pas2sqlite.py' |
+| 
+3+| The next group of programs read the sqlite database created by the above. 
+| 6 | sqlite2adoc.py | reads the database and writes an adoc description | Working. Possibly complete
+| 7 | sqlite2json.py | reads the sqlite database and creates a JSON file
+        representing the structure of a given record | Working. Possibly complete
+| 
+3+| The next group of programs read the JSON file created by the above. 
+| 8 | json2py.py | reads the json and writes python  |
+| 9 | json2pas.py | reads the json and writes pascal include file 'load_t2box_data.inc' |
+|
+3+| The file 'load_t2box_data.inc' created above is the ultimate goal. It is copied into the directory above ('t2box_reader').
+	A second copy is edited, retaining only the 'dims1' section, to create 'load_t2box_keep_dims1.inc'.
+|  |  |  |
+|99 | box_dump.py | early, proof-of-concept dumper in python | slightly rough, but can optionally read 8-byte floats
+|======
+
+=== Work in Progress
+
+- This is all pretty much functionally complete, but it could all no doubt use a thorough review and refactor. +
+	However, given its (hopefully) temporary nature it is probably not worth the effort.
+
+=== Futures
+- Replace pas2sqlite.py with pas2sqlite.pas, using the fcl_passrc library ? + 
+	Again, probably not worth the effort.

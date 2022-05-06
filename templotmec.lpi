@@ -25,7 +25,7 @@
       <MajorVersionNr Value="2"/>
       <MinorVersionNr Value="92"/>
       <RevisionNr Value="1"/>
-      <BuildNr Value="173"/>
+      <BuildNr Value="174"/>
       <StringTable InternalName="Templot3" LegalCopyright="(c) Martin Wynne 2019" ProductName="Templot3/TemplotMEC" ProductVersion="2.92.a"/>
     </VersionInfo>
     <BuildModes Count="1">
@@ -51,7 +51,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="103">
+    <Units Count="108">
       <Unit0>
         <Filename Value="templotmec.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -575,9 +575,32 @@
         <IsPartOfProject Value="True"/>
       </Unit101>
       <Unit102>
-        <Filename Value="box3_file_unit.pas"/>
+        <Filename Value="t2box_parser_functions.inc"/>
         <IsPartOfProject Value="True"/>
       </Unit102>
+      <Unit103>
+        <Filename Value="t2box_parsers_unit.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit103>
+      <Unit104>
+        <Filename Value="t2box_reader\t2box_unit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="t2box_form"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit104>
+      <Unit105>
+        <Filename Value="t2box_reader\load_t2keep_data.inc"/>
+        <IsPartOfProject Value="True"/>
+      </Unit105>
+      <Unit106>
+        <Filename Value="t2box_reader\load_t2keep_dims1.inc"/>
+        <IsPartOfProject Value="True"/>
+      </Unit106>
+      <Unit107>
+        <Filename Value="box3_file_unit.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit107>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -587,7 +610,8 @@
       <Filename Value="output\templotmec"/>
     </Target>
     <SearchPaths>
-      <OtherUnitFiles Value="synapse_units;html_viewer_units;xml_units;model;log4delphi;log4delphi\util;model\curve"/>
+      <IncludeFiles Value="t2box_reader"/>
+      <OtherUnitFiles Value="synapse_units;html_viewer_units;xml_units;model;log4delphi;log4delphi\util;model\curve;t2box_reader"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
