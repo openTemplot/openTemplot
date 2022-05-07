@@ -36,6 +36,29 @@ type
 
   end;//record.
 
+  Tnew_keep_data = record           // this matches Tkeep_dims used in prog - see below.
+
+    new_keep_dims1: Tkeep_dims1;
+    new_keep_dims2: Tkeep_dims2;
+
+  end;//record
+
+  // start record for trailing data blocks...
+
+  Tblock_start = record
+    version_number: integer; // the Templot0 version number.
+    zero1: integer;          // 12 spares (zero)...
+    zero2: integer;
+    zero3: integer;
+  end;
+
+  Tblock_ident = record
+    segment_length: integer;
+    f_index: integer;
+    block_code: integer;   // 10 = timber shove data.
+    spare_zeroes: integer;
+  end;
+
   ESaveBox = (
     eSB_SaveOne,           // -1 !
     eSB_SaveAll,           // 0
@@ -63,6 +86,10 @@ function load_storage_box(load_options: ELoadBox;
   var append: boolean;
   var last_bgnd_loaded_index: integer): boolean;
 
+procedure file_error(str: string);     // generic error message.
+// clear a single keep without asking - this is for errors on loading.
+procedure clear_keep(n: integer);
+
 
 implementation
 
@@ -82,98 +109,8 @@ uses
   wait_message,
   box3_file_unit;
 
-type
-  Tnew_keep_data = record           // this matches Tkeep_dims used in prog - see below.
-
-    new_keep_dims1: Tkeep_dims1;
-    new_keep_dims2: Tkeep_dims2;
-
-  end;//record
-
-  // start record for trailing data blocks...
-
-  Tblock_start = record
-    version_number: integer; // the Templot0 version number.
-    zero1: integer;          // 12 spares (zero)...
-    zero2: integer;
-    zero3: integer;
-  end;
-
-  Tblock_ident = record
-    segment_length: integer;
-    f_index: integer;
-    block_code: integer;   // 10 = timber shove data.
-    spare_zeroes: integer;
-  end;
-
-
-// clear a single keep without asking - this is for errors on loading.
-procedure clear_keep(n: integer); forward;
 
 //________________________________________________________________________________________
-
-function save_box(this_one: integer; which_ones: ESaveBox; save_option: ESaveOption;
-  save_str: string): boolean;
-function load_storage_box(normal_load, old_templot_folder: boolean; file_str: string;
-  load_backup, make_lib: boolean; var append: boolean;
-  var last_bgnd_loaded_index: integer): boolean;
-
-procedure file_error(str: string);     // generic error message.
-
-
-implementation
-
-uses
-  Controls,
-  Forms,
-  alert_unit,
-  config_unit,
-  control_room,
-  help_sheet,
-  info_unit,
-  keep_select,
-  math_unit,
-  pad_unit,
-  shoved_timber,
-  wait_message;
-
-//type
-//  Tnew_keep_data = record           // this matches Tkeep_dims used in prog - see below.
-//
-//    new_keep_dims1: Tkeep_dims1;
-//    new_keep_dims2: Tkeep_dims2;
-//
-//  end;//record
-//
-//  // start record for trailing data blocks...
-//
-//  Tblock_start = record
-//    version_number: integer; // the Templot0 version number.
-//    zero1: integer;          // 12 spares (zero)...
-//    zero2: integer;
-//    zero3: integer;
-//  end;
-//
-//  Tblock_ident = record
-//    segment_length: integer;
-//    f_index: integer;
-//    block_code: integer;   // 10 = timber shove data.
-//    spare_zeroes: integer;
-//  end;
-//
-//
-//// clear a single keep without asking - this is for errors on loading.
-//procedure clear_keep(n: integer); forward;
-//
-////________________________________________________________________________________________
-//
-//procedure file_error(str: string);     // generic error message.
-//
-//begin
-//  alert(5, '     file  error',
-//    str + '||Sorry, the requested operation on this file has failed. Please check the file and folder names.' + '||If this is a save operation, check the available disk space,' + ' and if saving to a floppy disk, check that it is not write-protected.' + '||If this is a reload operation, check that the named file exists in the named folder.',
-//    '', '', '', '', '', 'O K', 0);
-//end;
 
 procedure file_error(str: string);     // generic error message.
 
