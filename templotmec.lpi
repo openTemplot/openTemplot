@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="11"/>
+    <Version Value="12"/>
     <PathDelim Value="\"/>
     <General>
       <Flags>
         <SaveClosedFiles Value="False"/>
         <MainUnitHasUsesSectionForAllUnits Value="False"/>
         <LRSInOutputDirectory Value="False"/>
+        <CompatibilityMode Value="True"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <MainUnit Value="0"/>
       <Title Value="Templot3"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
@@ -51,7 +51,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="107">
+    <Units Count="108">
       <Unit0>
         <Filename Value="templotmec.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -238,9 +238,7 @@
       <Unit30>
         <Filename Value="wait_message.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="wait_form"/>
         <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
       </Unit30>
       <Unit31>
         <Filename Value="enter_timber.pas"/>
@@ -599,6 +597,10 @@
         <Filename Value="t2box_reader\load_t2keep_dims1.inc"/>
         <IsPartOfProject Value="True"/>
       </Unit106>
+      <Unit107>
+        <Filename Value="box3_file_unit.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit107>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

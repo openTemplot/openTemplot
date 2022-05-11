@@ -71,7 +71,6 @@ type
     MenuItem8: TMenuItem;
     transfer_menu: TMenuItem;
     save_dialog: TSaveDialog;
-    load_dialog: TOpenDialog;
     colour_panel: TPanel;
     colour_patch: TImage;
     size_updown: TUpDown;
@@ -2208,7 +2207,7 @@ begin
 
   try  // 208d
 
-    if load_storage_box(True, False, file_str, False, False, append, hl) = True
+    if load_storage_box(eLB_Normal, file_str, append, hl) = True
     // hl= highest loaded index
     then begin
       if keeps_list.Count > 0 then begin
@@ -2263,7 +2262,7 @@ var
 
 begin
   append := False;
-  if load_storage_box(True, False, '', True, False, append, hl) = True then begin
+  if load_storage_box(eLB_Backup, '', append, hl) = True then begin
     if append = True then
       EXIT;
     if (loaded_version < 93) and (hl > -1) and (hl < keeps_list.Count) then
@@ -5295,7 +5294,7 @@ var
 
 begin
   append := False;                                                           // he might change it.
-  if load_storage_box(True, False, '', False, False, append, hl) = False then
+  if load_storage_box(eLB_Normal, '', append, hl) = False then
     EXIT;     // nothing was loaded.
 
   if list_panel.Visible = True then
@@ -5321,7 +5320,7 @@ var
 
 begin
   append := True;
-  if load_storage_box(True, False, '', False, False, append, dummy) = False then
+  if load_storage_box(eLB_Normal, '', append, dummy) = False then
     EXIT;        // nothing was appended.
   if list_panel.Visible = True then
     show_list_button.Click;                  // update the list.
@@ -5336,7 +5335,7 @@ var
 
 begin
   append := True;
-  if load_storage_box(True, False, '', False, True, append, dummy) = False then
+  if load_storage_box(eLB_Library, '', append, dummy) = False then
     EXIT;         // nothing was appended.
   if list_panel.Visible = True then
     show_list_button.Click;                  // update the list.
@@ -7978,7 +7977,7 @@ begin
     end;
 
     append := False;
-    if load_storage_box(True, False, pb_str, False, False, append, hl) = True then begin
+    if load_storage_box(eLB_Normal, pb_str, append, hl) = True then begin
       if keeps_list.Count > 0 then begin
         with keeps_list[0].template_info.keep_dims.box_dims1 do begin
           // read only from first keep.
@@ -8030,7 +8029,7 @@ begin
     end;
 
     append := False;
-    if load_storage_box(True, False, pbo_str, False, False, append, hl) = True then begin
+    if load_storage_box(eLB_Normal, pbo_str, append, hl) = True then begin
       if keeps_list.Count > 0 then begin
         with keeps_list[0].template_info.keep_dims.box_dims1 do begin
           // read only from first keep.
@@ -8647,8 +8646,7 @@ begin
     then begin
       append := False;
       // var parameter.
-      if not load_storage_box(True, False, Config.GetFilePath(csfiSaveForUndoZ),
-        False, False, append, hl) then
+      if not load_storage_box(eLB_Normal, Config.GetFilePath(csfiSaveForUndoZ), append, hl) then
         EXIT;     // nothing was loaded.
 
       if list_panel.Visible = True then

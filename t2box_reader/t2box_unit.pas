@@ -141,6 +141,8 @@ var
   saved_control_name_str: string;
   saved_control_memo_str: string;
 
+  loadDialog: TOpenDialog;
+
   ///////////////////////////////////////////////////////////////
 
   function load_new_format: boolean;
@@ -658,33 +660,34 @@ begin
   end
   else} begin
     if file_name = '' then begin
-      with keep_form.load_dialog do begin
-        if append = False then
-          Title := '    load  or  reload  storage  box  from  file ..'
+      loadDialog := TOpenDialog.Create(nil);
+      try
+        if not append then
+          loadDialog.Title := '    load  or  reload  storage  box  from  file ..'
         else begin
-          if make_lib = True then
-            Title := '    add  library  templates  from  file ..'
+          if make_lib = true then
+            loadDialog.Title := '    add  library  templates  from  file ..'
           else
-            Title := '    add  templates  from  file ..';
+            loadDialog.Title := '    add  templates  from  file ..';
         end;
 
-
         if his_load_file_name <> '' then
-          InitialDir := ExtractFilePath(his_load_file_name)
+          loadDialog.InitialDir := ExtractFilePath(his_load_file_name)
         else
-          InitialDir := Config.GetDir(cudiBoxes);
+          loadDialog.InitialDir := Config.GetDir(cudiBoxes);
 
-        Filter := ' storage  box  contents  (*.box)|*.box';
-        Filename := '*.box';
+        loadDialog.Filter := ' storage  box  contents  (*.box)|*.box';
+        loadDialog.Filename := '*.box';
 
-        if Execute = False then
+        if not loadDialog.Execute then
           EXIT;          // get the file name.
 
-        box_str := FileName;
+        box_str := loadDialog.FileName;
         his_load_file_name := box_str;
-        // so we can use the same folder next time.
 
-      end;//with
+      finally
+        loadDialog.Free;
+      end
     end
     else
       box_str := file_name;                       // file name supplied by caller.
