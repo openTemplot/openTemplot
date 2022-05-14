@@ -146,6 +146,8 @@ begin
 end;
 
 procedure TTestSlewCalculator.do_test_slew_cosine;
+const
+  smallTolerance = 1e-6;
 var
   curveSegmentCalculator: TCurveSegmentCalculator;
   distance: double;
@@ -165,11 +167,11 @@ begin
     slew.CalculateCurveAt(distance, pt, direction, radius);
 
     if distance < distanceToStartOfSlew then begin
-      CheckEquals(0, pt.y);
-      CheckEquals(distance, pt.x);
-      CheckEquals(max_rad, radius);
-      CheckEquals(1, direction.x, format('expectedDirection.x at %f', [distance]));
-      CheckEquals(0, direction.y, format('expectedDirection.y at %f', [distance]));
+      CheckEquals(0, pt.y, smallTolerance, format('before slew: pt.y at %f', [distance]));
+      CheckEquals(distance, pt.x, smallTolerance, format('before slew: pt.x at %f', [distance]));
+      CheckEquals(max_rad, radius, smallTolerance, format('before slew: radius at %f', [distance]));
+      CheckEquals(1, direction.x, smallTolerance, format('before slew: expectedDirection.x at %f', [distance]));
+      CheckEquals(0, direction.y, smallTolerance, format('before slew: expectedDirection.y at %f', [distance]));
     end
     else
     if distance < distanceToStartOfSlew + slewLength then begin
@@ -178,21 +180,21 @@ begin
       expectedSlope := (Pi() * slewAmount * sin(angle)) / (2 * slewLength);
       expectedDirection := Tpex.xy(1, expectedSlope).normalise();
 
-      CheckEquals(expectedOffset, pt.y);
-      CheckEquals(distance, pt.x);
-      CheckEquals(max_rad, radius);
-      CheckEquals(expectedDirection.x, direction.x,
-        format('expectedDirection.x at %f', [distance]));
-      CheckEquals(expectedDirection.y, direction.y,
-        format('expectedDirection.y at %f', [distance]));
+      CheckEquals(expectedOffset, pt.y, smallTolerance, format('in slew: pt.y at %f', [distance]));
+      CheckEquals(distance, pt.x, smallTolerance, format('in slew: pt.x at %f', [distance]));
+      CheckEquals(max_rad, radius, smallTolerance, format('in slew: radius at %f', [distance]));
+      CheckEquals(expectedDirection.x, direction.x, smallTolerance,
+        format('in slew: expectedDirection.x at %f', [distance]));
+      CheckEquals(expectedDirection.y, direction.y, smallTolerance,
+        format('in slew: expectedDirection.y at %f', [distance]));
 
     end
     else begin
-      CheckEquals(slewAmount, pt.y);
-      CheckEquals(distance, pt.x);
-      CheckEquals(max_rad, radius);
-      CheckEquals(1, direction.x, format('expectedDirection.x at %f', [distance]));
-      CheckEquals(0, direction.y, format('expectedDirection.y at %f', [distance]));
+      CheckEquals(slewAmount, pt.y, smallTolerance, format('after slew: pt.y at %f', [distance]));
+      CheckEquals(distance, pt.x, smallTolerance, format('after slew: pt.x at %f', [distance]));
+      CheckEquals(max_rad, radius, smallTolerance, format('after slew: radius at %f', [distance]));
+      CheckEquals(1, direction.x, smallTolerance, format('after slew: expectedDirection.x at %f', [distance]));
+      CheckEquals(0, direction.y, smallTolerance, format('after slew: expectedDirection.y at %f', [distance]));
     end;
 
     distance := distance + 5;
@@ -200,6 +202,8 @@ begin
 end;
 
 procedure TTestSlewCalculator.do_test_slew_tanh;
+const
+  smallTolerance = 1e-6;
 var
   curveSegmentCalculator: TCurveSegmentCalculator;
   distance: double;
@@ -229,11 +233,11 @@ begin
     slew.CalculateCurveAt(distance, pt, direction, radius);
 
     if distance < distanceToStartOfSlew then begin
-      CheckEquals(0, pt.y);
-      CheckEquals(distance, pt.x);
-      CheckEquals(max_rad, radius);
-      CheckEquals(1, direction.x, format('expectedDirection.x at %f', [distance]));
-      CheckEquals(0, direction.y, format('expectedDirection.y at %f', [distance]));
+      CheckEquals(0, pt.y, smallTolerance, format('before slew: pt.y at %f', [distance]));
+      CheckEquals(distance, pt.x, smallTolerance, format('before slew: pt.x at %f', [distance]));
+      CheckEquals(max_rad, radius, smallTolerance, format('before slew: radius at %f', [distance]));
+      CheckEquals(1, direction.x, smallTolerance, format('before slew: expectedDirection.x at %f', [distance]));
+      CheckEquals(0, direction.y, smallTolerance, format('before slew: expectedDirection.y at %f', [distance]));
     end
     else
     if distance <= distanceToStartOfSlew + slewLength then begin
@@ -246,23 +250,21 @@ begin
 
       expectedDirection := Tpex.xy(1, expectedSlope).normalise();
 
-      CheckEquals(expectedOffset, pt.y);
-      CheckEquals(distance, pt.x);
-      CheckEquals(max_rad, radius);
-      CheckEquals(expectedDirection.x, direction.x, 1e-6,
-        format('expectedDirection.x at %f', [distance]));
-      CheckEquals(expectedDirection.y, direction.y, 1e-6,
-        format('expectedDirection.y at %f', [distance]));
-
-      //writeln(format('%f :  %f,  %f', [distance, expectedOffset, expectedSlope]));
+      CheckEquals(expectedOffset, pt.y, smallTolerance, format('in slew: pt.y at %f', [distance]));
+      CheckEquals(distance, pt.x, smallTolerance, format('in slew: pt.x at %f', [distance]));
+      CheckEquals(max_rad, radius, smallTolerance, format('in slew: radius at %f', [distance]));
+      CheckEquals(expectedDirection.x, direction.x, smallTolerance,
+        format('in slew: expectedDirection.x at %f', [distance]));
+      CheckEquals(expectedDirection.y, direction.y, smallTolerance,
+        format('in slew: expectedDirection.y at %f', [distance]));
 
     end
     else begin
-      CheckEquals(slewAmount, pt.y);
-      CheckEquals(distance, pt.x);
-      CheckEquals(max_rad, radius);
-      CheckEquals(1, direction.x, format('expectedDirection.x at %f', [distance]));
-      CheckEquals(0, direction.y, format('expectedDirection.y at %f', [distance]));
+      CheckEquals(slewAmount, pt.y, smallTolerance, format('after slew: pt.y at %f', [distance]));
+      CheckEquals(distance, pt.x, smallTolerance, format('after slew: pt.x at %f', [distance]));
+      CheckEquals(max_rad, radius, smallTolerance, format('after slew: radius at %f', [distance]));
+      CheckEquals(1, direction.x, smallTolerance, format('after slew: expectedDirection.x at %f', [distance]));
+      CheckEquals(0, direction.y, smallTolerance, format('after slew: expectedDirection.y at %f', [distance]));
     end;
 
     distance := distance + 1;
