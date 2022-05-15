@@ -381,30 +381,30 @@ begin
       templatesToSave := TTemplateList.Create(False);
       try
         for i := 0 to keeps_list.Count - 1 do begin
-            // 0.94.a  fb_kludge templates are created on output/printing, and destroyed afterwards. Don't save any remaining..
-            if keeps_list[i].template_info.keep_dims.box_dims1.fb_kludge_template_code <> 0 then
-              CONTINUE;  // 0.94.a don't save kludge templates, if any found (error in print?)
+          // 0.94.a  fb_kludge templates are created on output/printing, and destroyed afterwards. Don't save any remaining..
+          if keeps_list[i].template_info.keep_dims.box_dims1.fb_kludge_template_code <> 0 then
+            CONTINUE;  // 0.94.a don't save kludge templates, if any found (error in print?)
 
-            case which_ones of
-              eSB_SaveOne:
-                if i <> this_one then
-                  CONTINUE;
-              eSB_SaveBackground:
+          case which_ones of
+            eSB_SaveOne:
+              if i <> this_one then
+                CONTINUE;
+            eSB_SaveBackground:
               if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077 <> 1 then
-                  CONTINUE;  // bgnd only, ignore unused and library.
-              eSB_SaveUnused:
+                CONTINUE;  // bgnd only, ignore unused and library.
+            eSB_SaveUnused:
               if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077 <> 0 then
-                  CONTINUE;  // unused only, ignore others.
-              eSB_SaveGroup:
+                CONTINUE;  // unused only, ignore others.
+            eSB_SaveGroup:
               if not keeps_list[i].group_selected then
-                  CONTINUE;  // group only, ignore unselected.
-              eSB_SaveLibrary:
+                CONTINUE;  // group only, ignore unselected.
+            eSB_SaveLibrary:
               if keeps_list[i].template_info.keep_dims.box_dims1.bgnd_code_077 <> -1 then
-                  CONTINUE;  // library only, ignore others.
-            end;//case
+                CONTINUE;  // library only, ignore others.
+          end;//case
 
           templatesToSave.Add(keeps_list[i]);
-          end;
+        end;
 
         try
           SaveBox3(templatesToSave, save_option, save_done, box_str,
@@ -511,8 +511,8 @@ begin
 
   if load_options = eLB_FileViewer then begin
     // FileViewer will call LoadBox3() directly
-          EXIT;
-        end;
+    EXIT;
+  end;
 
 
   if (load_options = eLB_Normal) and not append and (keeps_list.Count > 0) and
@@ -629,84 +629,84 @@ begin
 
 
       if load_options = eLB_Backup then begin
-          try
+        try
           backupRestoreOptions := LoadBox3BackupRestoreOptions(box_str);
-          except
+        except
           on ExLoadBox do begin
             Exit;
-        end;
+          end;
         end;
 
         restored_save_done := backupRestoreOptions.saveDone;     // mods 23-6-00 for version 0.63
 
-            if startup_restore_pref = 1 then
-              EXIT;   //%%%%   0=ask, 1=don't restore, 2=restore without asking
+        if startup_restore_pref = 1 then
+          EXIT;   //%%%%   0=ask, 1=don't restore, 2=restore without asking
 
         if (not backupRestoreOptions.autoRestoreOnStartup) or
           (not backupRestoreOptions.askRestoreOnStartup) then begin
-            // if both True??? - must have been abnormal termination, so reload without asking.
+          // if both True??? - must have been abnormal termination, so reload without asking.
 
-              if startup_restore_pref = 0
-              //%%%%   0=ask, 1=don't restore, 2=restore without asking
-              then begin
+          if startup_restore_pref = 0
+          //%%%%   0=ask, 1=don't restore, 2=restore without asking
+          then begin
             if not backupRestoreOptions.autoRestoreOnStartup then begin
-                // these two only read from the first keep in the file..
+              // these two only read from the first keep in the file..
               if backupRestoreOptions.askRestoreOnStartup then begin
-                  // he wanted to be asked first.
+                // he wanted to be asked first.
 
-                    alert_box.
-                      preferences_checkbox.Checked := False;       //%%%%
-                    if user_prefs_in_use = True then
-                      alert_box.preferences_checkbox.Show;
+                alert_box.
+                  preferences_checkbox.Checked := False;       //%%%%
+                if user_prefs_in_use = True then
+                  alert_box.preferences_checkbox.Show;
 
-                    repeat
-                      i :=
-                        alert(4, '    restore  previous  work ?',
-                        ' |Do you want to restore your work in progress from your previous Templot0 session?| ',
-                        '', '', '', 'more  information', 'no  thanks',
-                        'yes  please  -  restore  previous  work', 4);
-                      case i of
-                        4:
-                          alert_help(0, ask_restore_str, '');
-                        //%%%%% 5: EXIT;
-                      end;//case
-                    until i <> 4;
+                repeat
+                  i :=
+                    alert(4, '    restore  previous  work ?',
+                    ' |Do you want to restore your work in progress from your previous Templot0 session?| ',
+                    '', '', '', 'more  information', 'no  thanks',
+                    'yes  please  -  restore  previous  work', 4);
+                  case i of
+                    4:
+                      alert_help(0, ask_restore_str, '');
+                    //%%%%% 5: EXIT;
+                  end;//case
+                until i <> 4;
 
-                    //%%%%   0=ask, 1=don't restore, 2=restore without asking
+                //%%%%   0=ask, 1=don't restore, 2=restore without asking
 
-                    if alert_box.preferences_checkbox.Checked   //%%%%
-                    then
-                      startup_restore_pref := (i - 4)         // 5 or 6 = 1 or 2
-                    else
-                      startup_restore_pref := 0;
+                if alert_box.preferences_checkbox.Checked   //%%%%
+                then
+                  startup_restore_pref := (i - 4)         // 5 or 6 = 1 or 2
+                else
+                  startup_restore_pref := 0;
 
-                    alert_box.
-                      preferences_checkbox.Hide;
+                alert_box.
+                  preferences_checkbox.Hide;
 
-                    if i = 5 then
-                      EXIT;  //%%%%
+                if i = 5 then
+                  EXIT;  //%%%%
 
-                  end
-                  else
-                    EXIT;     // restore not wanted.
-                end;
-                // 0.93.a else keep_form.auto_ebk_load_menu_entry.Checked:=True;      // radio item (maintain this option only for next time).
+              end
+              else
+                EXIT;     // restore not wanted.
+            end;
+            // 0.93.a else keep_form.auto_ebk_load_menu_entry.Checked:=True;      // radio item (maintain this option only for next time).
 
-              end;// ask startup pref
-            end;//not abnormal termination
+          end;// ask startup pref
+        end;//not abnormal termination
 
       end;
 
-          wait_form.cancel_button.Hide;
-          wait_form.waiting_label.Caption := 'loading  templates ...';
+      wait_form.cancel_button.Hide;
+      wait_form.waiting_label.Caption := 'loading  templates ...';
 
-          wait_form.waiting_label.Width :=
-            wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);  // 205b bug fix for Wine
+      wait_form.waiting_label.Width :=
+        wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);  // 205b bug fix for Wine
 
       wait_form.Show;
 
       if not Application.Terminated then
-            Application.ProcessMessages;           // let the wait form fully paint.
+        Application.ProcessMessages;           // let the wait form fully paint.
 
       try
         LoadBox3(box_str, project_title, grid_info, loaded_templates);
@@ -717,7 +717,7 @@ begin
             file_error(box_str);
           Exit;
         end;
-        end;
+      end;
 
       // file loaded...
 
@@ -767,22 +767,22 @@ begin
       if not append then begin
         box_project_title_str := project_title;  // change the title to the one loaded last.
 
-          //     0.79.a 20-05-06  -- saved grid info -- read from last template only...
-          //     0.91.d -- read these only if prefs not being used on startup.
+        //     0.79.a 20-05-06  -- saved grid info -- read from last template only...
+        //     0.91.d -- read these only if prefs not being used on startup.
 
         if (grid_info.unitsCode <> 0) and (not user_prefs_in_use)
-          // 0.79 file or later --- change grid to as loaded...
-          then begin
+        // 0.79 file or later --- change grid to as loaded...
+        then begin
 
           grid_labels_code_i := grid_info.unitsCode;
 
           grid_spacex := grid_info.spaceX;
           grid_spacey := grid_info.spaceY;
 
-            if ruler_units = 0 then
-              update_ruler_div;   // 0.93.a ruler as grid option
+          if ruler_units = 0 then
+            update_ruler_div;   // 0.93.a ruler as grid option
 
-          end;// if 0.79 or later
+        end;// if 0.79 or later
 
         save_done := not resave_needed;        // this boxful matches file.
         if load_options <> eLB_Backup then begin
@@ -919,5 +919,3 @@ end;
 
 
 end.
-
-
