@@ -53,6 +53,7 @@ type
     class operator * (a: TPex; b: double): TPex;
     class operator / (a: TPex; b: double): TPex;
   end;
+  Ppex = ^Tpex;
 
   Textents = record           // 0.93.a
     min: Tpex;

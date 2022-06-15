@@ -501,6 +501,7 @@ var
   loadDialog: TOpenDialog;
   backupRestoreOptions: TBackupRestoreOptions;
   t: TTemplate;
+  waitMessage: IAutoWaitMessage;
 
   ///////////////////////////////////////////////////////////////
 
@@ -697,14 +698,7 @@ begin
 
       end;
 
-      wait_form.cancel_button.Hide;
-      wait_form.waiting_label.Caption := 'loading  templates ...';
-
-      wait_form.waiting_label.Width :=
-        wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);  // 205b bug fix for Wine
-
-      wait_form.Show;
-
+      waitMessage := TWaitForm.ShowWaitMessage('loading  templates ...');
       if not Application.Terminated then
         Application.ProcessMessages;           // let the wait form fully paint.
 
@@ -864,7 +858,8 @@ begin
       Result := True;                           // file loaded.
 
     finally
-      wait_form.Close;
+      // hide wait message before it goes out of scope normally
+      waitMessage := nil;
       Screen.Cursor := saved_cursor;
       current_state(-1);                   // tidy up after any error exits.
 

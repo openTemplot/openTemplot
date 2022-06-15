@@ -152,6 +152,7 @@ var
 
   rcurv_heel: double;
   dummy_notch1, dummy_notch2, dummy_notch3: Tnotch;
+  waitMessage: IAutoWaitMessage;
 
 
   ////////////////////////////////////////////////////////////////
@@ -446,14 +447,7 @@ begin
       EXIT;
     end;
 
-    wait_form.waiting_label.Caption := 'please  wait ...';
-    wait_form.waiting_label.Width :=
-      wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);  // bug fix for Wine
-
-    wait_form.wait_progressbar.Visible := False;
-    wait_form.cancel_button.Visible := False;
-    wait_form.Show;
-
+    waitMessage := TWaitForm.ShowWaitMessage('please  wait ...');
     Application.ProcessMessages;
 
     check_count := 0;    // safety loop escape
@@ -482,7 +476,7 @@ begin
       Inc(check_count);
     until atx >= new_atx;
 
-    wait_form.Hide;
+    waitMessage := nil;
 
     Application.ProcessMessages;
 
@@ -751,14 +745,7 @@ begin
 
     gocalc(0, 0);
 
-    wait_form.waiting_label.Caption := 'please  wait ...';
-    wait_form.waiting_label.Width := wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);
-    // bug fix for Wine
-
-    wait_form.wait_progressbar.Visible := False;
-    wait_form.cancel_button.Visible := False;
-    wait_form.Show;
-
+    waitMessage := TWaitForm.ShowWaitMessage('please  wait ...');
     Application.ProcessMessages;
 
     // find xing angle k3n which fits at FP and at splice ...
@@ -786,7 +773,7 @@ begin
     if try_gaunt = True then
       re_do_for_k3n      // one last time
     else begin              // or no joy
-      wait_form.Hide;
+      waitMessage := nil;
 
       Application.ProcessMessages;
 
@@ -799,8 +786,7 @@ begin
       EXIT;
     end;
 
-    wait_form.Hide;
-
+    waitMessage := nil;
     Application.ProcessMessages;
 
     pad_form.peg_on_mcp_menu_entry.Click;   // move peg to centre-line MCP
@@ -1071,6 +1057,7 @@ var
 
   rcurv_heel: double;
   dummy_notch1, dummy_notch2, dummy_notch3: Tnotch;
+  waitMessage: IAutoWaitMessage;
 
 
   ////////////////////////////////////////////////////////////////
@@ -1444,14 +1431,7 @@ begin
     // match first turnout exit  arbitrary temporary to show him
     gocalc(0, 0);
 
-    wait_form.waiting_label.Caption := 'please  wait ...';
-    wait_form.waiting_label.Width :=
-      wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);  // bug fix for Wine
-
-    wait_form.wait_progressbar.Visible := False;
-    wait_form.cancel_button.Visible := False;
-    wait_form.Show;
-
+    waitMessage := TWaitForm.ShowWaitMessage('please  wait ...');
     Application.ProcessMessages;
 
     creating_tandem := True;   // prevent pad warning and modify calcs
@@ -1475,6 +1455,7 @@ begin
         qx1, qy1, k1_r1, k1_r2, qx2, qy2, k2_r1, k2_r2) <> 2)
       // return code: 2 = OK, two usable intersections
       then begin
+        waitMessage := nil;
         ShowMessage(
           'Sorry, it has not been possible to create a single-sided tandem turnout from the current starting turnout.'
           + #13 + #13 + 'It may be possible to create a tandem turnout manually.');
@@ -1517,8 +1498,7 @@ begin
 
     until midx > ((first_fpx + fpx) / 2);   // gone past mid-way between them, so stop
 
-    wait_form.Hide;
-
+    waitMessage := nil;
     Application.ProcessMessages;
 
     show_and_redraw(False, False);
@@ -1850,14 +1830,7 @@ begin
 
     gocalc(0, 0);
 
-    wait_form.waiting_label.Caption := 'please  wait ...';
-    wait_form.waiting_label.Width := wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);
-    // bug fix for Wine
-
-    wait_form.wait_progressbar.Visible := False;
-    wait_form.cancel_button.Visible := False;
-    wait_form.Show;
-
+    waitMessage := TWaitForm.ShowWaitMessage('please  wait ...');
     Application.ProcessMessages;
 
     // find xing angle k3n which fits at FP and at splice ...
@@ -1938,7 +1911,7 @@ begin
       if try_gaunt = True then
         re_do_for_k3n_gaunt      // one last time
       else begin                    // or no joy
-        wait_form.Hide;
+        waitMessage := nil;
 
         Application.ProcessMessages;
 
@@ -1953,8 +1926,7 @@ begin
       end;
     end;
 
-    wait_form.Hide;
-
+    waitMessage := nil;
     Application.ProcessMessages;
 
     main_road_i := 3;   // minimum

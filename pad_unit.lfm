@@ -7,7 +7,7 @@ object pad_form: Tpad_form
   VertScrollBar.Tracking = True
   AllowDropFiles = True
   Caption = '          trackpad'
-  ClientHeight = 727
+  ClientHeight = 728
   ClientWidth = 1268
   Color = clSilver
   Font.Color = clNavy
@@ -33,7 +33,7 @@ object pad_form: Tpad_form
   OnPaint = FormPaint
   OnResize = FormResize
   ShowHint = True
-  LCLVersion = '2.0.10.0'
+  LCLVersion = '2.2.0.4'
   Scaled = False
   object pad_timber_font_label: TLabel
     Left = 156
@@ -45,7 +45,6 @@ object pad_form: Tpad_form
     Font.Color = clBlue
     Font.Height = -13
     Font.Name = 'Trebuchet MS'
-    ParentColor = False
     ParentFont = False
     Visible = False
   end
@@ -60,7 +59,6 @@ object pad_form: Tpad_form
     Font.Height = -15
     Font.Name = 'Trebuchet MS'
     Font.Style = [fsBold]
-    ParentColor = False
     ParentFont = False
     Visible = False
   end
@@ -74,7 +72,7 @@ object pad_form: Tpad_form
   object time_now_panel: TPanel
     Left = 1138
     Height = 29
-    Top = 695
+    Top = 696
     Width = 88
     Anchors = [akRight, akBottom]
     BevelOuter = bvNone
@@ -98,8 +96,8 @@ object pad_form: Tpad_form
     Alignment = taLeftJustify
     BevelOuter = bvNone
     BorderStyle = bsSingle
-    ClientHeight = 18
-    ClientWidth = 107
+    ClientHeight = 16
+    ClientWidth = 105
     Color = clAqua
     Font.Color = clBlack
     Font.Height = -13
@@ -124,7 +122,6 @@ object pad_form: Tpad_form
       Font.Height = -27
       Font.Name = 'Arial'
       Font.Style = [fsBold]
-      ParentColor = False
       ParentFont = False
       Transparent = False
       OnMouseDown = dummy_label_panelMouseDown
@@ -142,7 +139,6 @@ object pad_form: Tpad_form
       Font.Height = -17
       Font.Name = 'Arial'
       Font.Style = [fsBold]
-      ParentColor = False
       ParentFont = False
       OnMouseDown = dummy_label_panelMouseDown
       OnMouseMove = dummy_label_panelMouseMove
@@ -178,7 +174,6 @@ object pad_form: Tpad_form
       Font.Height = -13
       Font.Name = 'Arial'
       Font.Style = [fsBold]
-      ParentColor = False
       ParentFont = False
     end
     object program_button: TButton
@@ -864,7 +859,6 @@ object pad_form: Tpad_form
       Font.Name = 'Verdana'
       Font.Style = [fsBold]
       Layout = tlCenter
-      ParentColor = False
       ParentFont = False
       Transparent = False
     end
@@ -1002,18 +996,18 @@ object pad_form: Tpad_form
       Width = 19
       BevelOuter = bvNone
       BorderStyle = bsSingle
-      ClientHeight = 20
-      ClientWidth = 17
+      ClientHeight = 18
+      ClientWidth = 15
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
       OnClick = colour_panelClick
       object colour_patch: TImage
         Left = 0
-        Height = 20
+        Height = 18
         Hint = ' change  trackpad  colour  scheme '
         Top = 0
-        Width = 17
+        Width = 15
         Align = alClient
         OnClick = colour_panelClick
         Picture.Data = {
@@ -1291,7 +1285,7 @@ object pad_form: Tpad_form
     Left = 1244
     Height = 160
     Hint = ' change program size to suit your screen '
-    Top = 567
+    Top = 568
     Width = 24
     Max = 7
     Min = 1
@@ -1311,7 +1305,7 @@ object pad_form: Tpad_form
     Left = 1244
     Height = 20
     Hint = 'whats this?'
-    Top = 547
+    Top = 548
     Width = 24
     Alignment = taCenter
     Anchors = [akRight, akBottom]
@@ -1516,7 +1510,7 @@ object pad_form: Tpad_form
   object scaling_labels_panel: TPanel
     Left = 1072
     Height = 160
-    Top = 567
+    Top = 568
     Width = 172
     Anchors = [akRight, akBottom]
     BevelOuter = bvNone
@@ -1541,7 +1535,6 @@ object pad_form: Tpad_form
       AutoSize = False
       Caption = 'largest'
       Layout = tlCenter
-      ParentColor = False
       OnClick = Label1Click
     end
     object Label2: TLabel
@@ -1553,7 +1546,6 @@ object pad_form: Tpad_form
       AutoSize = False
       Caption = 'larger'
       Layout = tlCenter
-      ParentColor = False
       OnClick = Label2Click
     end
     object Label3: TLabel
@@ -1565,7 +1557,6 @@ object pad_form: Tpad_form
       AutoSize = False
       Caption = 'large'
       Layout = tlCenter
-      ParentColor = False
       OnClick = Label3Click
     end
     object Label4: TLabel
@@ -1577,7 +1568,6 @@ object pad_form: Tpad_form
       AutoSize = False
       Caption = 'medium'
       Layout = tlCenter
-      ParentColor = False
       OnClick = Label4Click
     end
     object Label5: TLabel
@@ -1589,7 +1579,6 @@ object pad_form: Tpad_form
       AutoSize = False
       Caption = 'small'
       Layout = tlCenter
-      ParentColor = False
       OnClick = Label5Click
     end
     object Label6: TLabel
@@ -1601,7 +1590,6 @@ object pad_form: Tpad_form
       AutoSize = False
       Caption = 'smaller'
       Layout = tlCenter
-      ParentColor = False
       OnClick = Label6Click
     end
     object Label7: TLabel
@@ -1613,7 +1601,6 @@ object pad_form: Tpad_form
       AutoSize = False
       Caption = 'smallest'
       Layout = tlCenter
-      ParentColor = False
       OnClick = Label7Click
     end
     object Label9: TLabel
@@ -1628,7 +1615,6 @@ object pad_form: Tpad_form
       Font.Height = -17
       Font.Name = 'Arial'
       Font.Style = [fsBold]
-      ParentColor = False
       ParentFont = False
       WordWrap = True
     end
@@ -1646,7 +1632,6 @@ object pad_form: Tpad_form
       Font.Name = 'Arial'
       Font.Style = [fsBold]
       Layout = tlCenter
-      ParentColor = False
       ParentFont = False
       Transparent = False
       OnClick = Label8Click
@@ -11209,14 +11194,6 @@ object pad_form: Tpad_form
       OnClick = info_popup_entryClick
     end
   end
-  object trans_calc_timer: TTimer
-    Tag = 1
-    Enabled = False
-    Interval = 100
-    OnTimer = trans_calc_timerTimer
-    Left = 740
-    Top = 144
-  end
   object save_screenshot_dialog: TSavePictureDialog
     Title = '    create  screenshot  image  file ...'
     FileName = 'imagefile.png'
@@ -11224,13 +11201,6 @@ object pad_form: Tpad_form
     Options = [ofOverwritePrompt, ofHideReadOnly, ofExtensionDifferent, ofPathMustExist, ofEnableSizing]
     Left = 724
     Top = 228
-  end
-  object http_timer: TTimer
-    Enabled = False
-    Interval = 200
-    OnTimer = http_timerTimer
-    Left = 720
-    Top = 296
   end
   object reminder_popup_menu: TPopupMenu
     Left = 600

@@ -1,15 +1,14 @@
-object wait_form: Twait_form
+object WaitForm: TWaitForm
   Left = 608
   Height = 64
   Top = 186
-  Width = 234
+  Width = 296
   BorderIcons = []
   BorderStyle = bsSingle
   Caption = '  please  wait ...'
   ClientHeight = 64
-  ClientWidth = 234
+  ClientWidth = 296
   Color = clWhite
-  DesignTimePPI = 120
   Font.Color = clBlue
   Font.Height = -15
   Font.Name = 'Arial'
@@ -17,18 +16,17 @@ object wait_form: Twait_form
   FormStyle = fsStayOnTop
   OnCreate = FormCreate
   OnShow = FormShow
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.2.0.4'
   Scaled = False
-  object waiting_label: TLabel
+  object waitingLabel: TLabel
     Left = 80
     Height = 18
     Top = 12
     Width = 152
     AutoSize = False
     Caption = 'loading  templates ...'
-    ParentColor = False
   end
-  object signal_image: TImage
+  object signalImage: TImage
     Left = 12
     Height = 61
     Top = 6
@@ -307,7 +305,7 @@ object wait_form: Twait_form
       FFFFFFFFFFFFFFFFFF00
     }
   end
-  object cancel_button: TButton
+  object cancelButton: TButton
     Cursor = crArrow
     Left = 170
     Height = 21
@@ -320,11 +318,11 @@ object wait_form: Twait_form
     Font.Name = 'Arial'
     Font.Style = [fsBold]
     ModalResult = 2
-    OnClick = cancel_buttonClick
+    OnClick = cancelButtonClick
     ParentFont = False
     TabOrder = 0
   end
-  object wait_progressbar: TProgressBar
+  object waitProgressBar: TProgressBar
     Left = 72
     Height = 16
     Top = 40
@@ -333,5 +331,12 @@ object wait_form: Twait_form
     Step = 1
     TabOrder = 1
     Visible = False
+  end
+  object triggerTimer: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = triggerTimerTimer
+    Left = 248
+    Top = 3
   end
 end

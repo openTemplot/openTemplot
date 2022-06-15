@@ -688,7 +688,6 @@ type
     pad_reload_menu_entry: TMenuItem;
     pad_fit_shapes_popup_entry: TMenuItem;
     N146: TMenuItem;
-    trans_calc_timer: TTimer;
     zone_rollout_menu_entry: TMenuItem;
     zone_normal_menu_entry: TMenuItem;
     transitionradiusoptions1: TMenuItem;
@@ -1578,7 +1577,6 @@ type
     N149: TMenuItem;
     N364: TMenuItem;
     trackbededges1: TMenuItem;
-    http_timer: TTimer;
     N366: TMenuItem;
     show_group_templates_menu_entry: TMenuItem;
     hide_group_templates_menu_entry: TMenuItem;
@@ -2532,7 +2530,6 @@ type
     procedure toggle_bgnd_menu_entryClick(Sender: TObject);
     procedure toggle_group_menu_entryClick(Sender: TObject);
     procedure pad_reload_menu_entryClick(Sender: TObject);
-    procedure trans_calc_timerTimer(Sender: TObject);
     procedure zone_normal_menu_entryClick(Sender: TObject);
     procedure zone_rollout_menu_entryClick(Sender: TObject);
     procedure grey_shade_printing_menu_entryClick(Sender: TObject);
@@ -3065,7 +3062,6 @@ type
     procedure show_margin_coordinates_menu_entryClick(Sender: TObject);
     procedure adjustable_turnout_road_menu_entryClick(Sender: TObject);
     procedure adjust_turnout_road_exit_menu_entryClick(Sender: TObject);
-    procedure http_timerTimer(Sender: TObject);
     procedure pad_wipe_group_menu_entryClick(Sender: TObject);
     procedure show_group_templates_menu_entryClick(Sender: TObject);
     procedure hide_group_templates_menu_entryClick(Sender: TObject);
@@ -3837,8 +3833,6 @@ var
 
   backdrop_bmp: TBitmap;             // backdrop.
   offdraw_bmp: TBitmap;              // for off-screen refresh.
-
-  wait_cancel_clicked: boolean = False;
 
   outline_extensions: boolean = True;  // outline extensions. (needed here for DXF 3-D).
 
@@ -5304,6 +5298,9 @@ begin
      then web_browser_form.Caption:='    '+Application.Title+'  map  viewer :  '+web_browser_form.web_browser.LocationURL;      // 215b
   }
 
+  { Commented out as part of "WaitForm tidy up #99"
+    really don't know what the usage here was
+    attempting to do, so removing it for the moment.
   if (wait_form.Showing = True) and (wait_form.Tag > 0)  // 214a
   then begin
     if (running_counter - wait_form.Tag) > 50
@@ -5313,6 +5310,7 @@ begin
       wait_form.Hide;
     end;
   end;
+  }
 
   { OT-FIRST
   if (companion_load_form.Showing=True) and (companion_load_form.Tag>0)  // 214a
@@ -9120,40 +9118,6 @@ begin
     pad_form.make_trans_help_popup_entry.Click;
 end;
 //_________________________________________________________________________________________
-
-procedure Tpad_form.trans_calc_timerTimer(Sender: TObject);
-
-// do calcs while the wait message shows modal.
-var
-  code: integer;
-
-begin
-  trans_calc_timer.Enabled := False;   // one-shot only.
-
-  code := trans_calc_timer.Tag;        // required action code.
-
-  case code of
-
-    0:
-      trans_calc_timer.Tag := make_transition_from_current_calcs;
-    // return error code the same way.
-
-    -1, 1:
-      make_double_track_calcs(trans_calc_timer.Tag);  // code is +1 or -1 for side of track.
-
-    9:
-      trans_calc_timer.Tag := do_auto_trans_swing_adjust(make_trans_data.old_rad2_orgx,
-        make_trans_data.old_rad2_orgy);    // return error code the same way.
-
-    15:
-      trans_calc_timer.Tag := do_degs_length_adjust(length_in_degs, length_in_mm);
-    // return error code the same way.
-
-  end;//case
-
-  wait_form.Close;        // calculating done.
-end;
-//_______________________________________________________________________________________
 
 procedure Tpad_form.lock_switch_popup_entryClick(Sender: TObject);
 
@@ -15375,6 +15339,7 @@ var
   dir, mis_match, prev_mis_match, curvature: double;
 
   temp1, temp2, temp3, trans_trp_rad: double;
+  waitMessage: IAutoWaitMessage;
 
 begin
   if check_control_template_is_valid('return  curve') = False then
@@ -15556,14 +15521,7 @@ begin
   if mis_match >= 0.005    // arbitrary
   then begin
 
-    wait_form.waiting_label.Caption := 'please  wait ...';
-    wait_form.waiting_label.Width :=
-      wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);  // bug fix for Wine
-
-    wait_form.wait_progressbar.Visible := False;
-    wait_form.cancel_button.Visible := False;
-    wait_form.Show;
-
+    waitMessage := TWaitForm.ShowWaitMessage('please  wait ...');
     Application.ProcessMessages;
 
     curvature := 1 / ABS(nomrad);
@@ -15597,7 +15555,7 @@ begin
 
     until mis_match < 0.005;    // or break
 
-    wait_form.Hide;
+    waitMessage := nil;
 
     Application.ProcessMessages;
 
@@ -25934,13 +25892,6 @@ begin
       '', '', '', '', '', 'continue', 0);
   end;
 
-end;
-//______________________________________________________________________________
-
-procedure Tpad_form.http_timerTimer(Sender: TObject);
-
-begin
-  wait_form.wait_progressbar.StepIt;
 end;
 //______________________________________________________________________________
 
