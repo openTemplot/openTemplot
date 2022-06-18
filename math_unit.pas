@@ -100,8 +100,8 @@ type
     valid: boolean;
   end;//record
 
+  // data record for the make transition from current function.
   Tmake_trans_data = record
-    // data record for the make transition from current function.
     old_rad1_orgx: double;
     old_rad1_orgy: double;
     rad_1st: double;
@@ -249,7 +249,8 @@ var
 
   mouse_labels: boolean;
 
-  peg_rail: integer = 8;               // move peg along rail 8 = main-road centre-line (aq=24).
+  // move peg along rail 8 = main-road centre-line (aq=24).
+  peg_rail: integer = 8;
 
   pegx: double = 0;
   pegy: double = 0;
@@ -331,30 +332,38 @@ var
   pegy_now: double = 0;
   udpegx_now: double = 0;
 
-  k3n: double = 6.0;     // V-crossing unit angle
-  hdkn: double = 6.0;    // K-crossing unit angle  //^^^ 0.93.a
+  // V-crossing unit angle
+  k3n: double = 6.0;
+  // K-crossing unit angle  //^^^ 0.93.a
+  hdkn: double = 6.0;
 
-  sl: double = 12; // 1mm flangeway 1:6
+  // 1mm flangeway 1:6
+  sl: double = 12;
 
 
   hide_current_flag: boolean = False;
   current_is_showing: boolean = False;
 
-  trace_mouse: boolean = True;         // trace mouse actions with redraws.
+  // trace mouse actions with redraws.
+  trace_mouse: boolean = True;
 
   min_rad_warn: integer = 0;
 
   // 0.75.a 14-10-01...
 
-  bn_wide: double = 0.75;      // full-size inches.  3/4" blunt nose BH default.
-  bn_to_a: double = 4.0;       // full-size inches - 4" to A timber centre.
-  wingj_sp: double = 25;       // full-size inches - 25" timber spacing at wing rail joint.
-  mvj_sp: double = 12.5;       // full-size inches - 12.5" spacing to vee point rail joint.
+  // full-size inches.  3/4" blunt nose BH default.
+  bn_wide: double = 0.75;
+  // full-size inches - 4" to A timber centre.
+  bn_to_a: double = 4.0;
+  // full-size inches - 25" timber spacing at wing rail joint.
+  wingj_sp: double = 25;
+  // full-size inches - 12.5" spacing to vee point rail joint.
+  mvj_sp: double = 12.5;
 
-  wingtimb_sp: double = 30;
   // full-size inches - 30" timber spacing for wing rail front part of crossing (up to "A").
-  veetimb_sp: double = 30;
+  wingtimb_sp: double = 30;
   // full-size inches - 30" timber spacing for vee point rail part of crossing (on from "A").
+  veetimb_sp: double = 30;
 
   // number of timbers spanned by vee rail including the "A" timber...
 
@@ -377,14 +386,17 @@ var
 
   // for half-diamond, 0.77.a 28-08-02...
 
-  kck1_long: double = 185;   // inches full-size 15'5" k-crossing check rails, BH 1:6 and shorter.
-  kck2_long: double = 197;   // 16'5" over 1:6
+  // inches full-size 15'5" k-crossing check rails, BH 1:6 and shorter.
+  kck1_long: double = 185;
+  // 16'5" over 1:6
+  kck2_long: double = 197;
 
   // 0.95.a K wing rails ..
 
-  k_custom_wing_long: double = 185;
   // inches full-size 15'5" k-crossing wing rails, BH 1:6.5 - 1:8
-  k_custom_point_long: double = 144;  // inches full-size 12' k-crossing point rails   NYI
+  k_custom_wing_long: double = 185;
+  // inches full-size 12' k-crossing point rails   NYI
+  k_custom_point_long: double = 144;
   use_k_custom_wing_rails: boolean = False;
   use_k_custom_point_rails: boolean = False;
 
@@ -436,8 +448,8 @@ var
   fw_end          // mm  // 0.94.a  was fwe,
   : double;
 
-  flare_type: integer = 0;
   // 0.94.a was flared_ends:integer=0;        // 0=straight bent  1=straight machined.
+  flare_type: integer = 0;
 
   knuckle_code: integer = 0;         // 214a   0=normal, -1=sharp, 1=use knuckle_radius
   knuckle_radius: double = 72.0;   // 214a   custom setting - default to 72 inches full size
@@ -505,10 +517,11 @@ var
 
   // was turnout_road  208g mod for easier searching..
 
-  turnout_road_i: integer = 0;       // -1=crossover,  0=normal, 1=long, 2=adjustable,  3=minimum
+  // -1=crossover,  0=normal, 1=long, 2=adjustable,  3=minimu
+  turnout_road_i: integer = 0;
 
-  main_road_i: integer = 0;
   // -1=crossover,  0=normal,         2=adjustable,  3=minimum     // 217a
+  main_road_i: integer = 0;
 
 
   centre_lines: boolean = True;                // track centre-lines on.
@@ -540,18 +553,24 @@ var
   rad2_orgx: double = 0;
   rad2_orgy: double = 0;
 
-  slew_s: double = 0;           // slewing dims 7-7-99...
-  slew_l: double = 600;         // 600 mm default startup slew length
-  slew_t: double = 0;
+  // slewing dims 7-7-99...
+  slew_s: double = 0;
+  // 600 mm default startup slew length
+  slew_l: double = 600;
   // slewing angle at centre of slewing zone (used to mark slewed over rad centres).
-  slew: double = 0;             // total amount of slew
+  slew_t: double = 0;
+  // total amount of slew
+  slew: double = 0;
 
-  slew2_kmax: double = 2.0;    // kmax radians for slew mode 2 (tanh).
-  slew2_rot: double = 0;       // rotation needed to straighten tanh curve (in trig units).
+  // kmax radians for slew mode 2 (tanh).
+  slew2_kmax: double = 2.0;
+  // rotation needed to straighten tanh curve (in trig units).
+  slew2_rot: double = 0;
   slew2_ymax: double = 0;
   slew2_ymin: double = 0;
 
-  slew_angle: double = 0;       // twist introduced by the slew.
+  // twist introduced by the slew.
+  slew_angle: double = 0;
 
   saved_pegging_shiftx: double = 0;
   saved_pegging_shifty: double = 0;
@@ -571,14 +590,16 @@ var
   examined_peg_y: double = 0;
   examined_peg_screen: double = 0;
 
-  snap_proximity_limit: double = 36;   // F7 snap limit 36" prototype  0.79.a  29-05-06
+  // F7 snap limit 36" prototype  0.79.a  29-05-06
+  snap_proximity_limit: double = 36;
 
-  gen_platforms: boolean = True;     // 0.93.a  generator switch for trackbed and platforms
+  // 0.93.a  generator switch for trackbed and platforms
+  gen_platforms: boolean = True;
 
   //adjacent_lines_code:integer=0;    // 0.82.d   0=no, 1=adjacent tracks,  2=trackbed edges.
 
-  adjacent_edges: boolean = True;
   // 0.93.a   False=adjacent tracks,  True=trackbed edges and platform edges.
+  adjacent_edges: boolean = True;
 
   // trackbed ...
 
@@ -593,17 +614,17 @@ var
   // 215a ...
 
   trackbed_ms_start_mm: double = 0;            // 215a
-  trackbed_ms_length_mm: double = 0 - 1.0E300;
   // 215a   (def_req)    // set to template end in strails()
+  trackbed_ms_length_mm: double = -1.0E300;
 
   trackbed_ts_start_mm: double = 0;            // 215a
-  trackbed_ts_length_mm: double = 0 - 1.0E300;
   // 215a   (def_req)    // set to template end in strails()
+  trackbed_ts_length_mm: double = -1.0E300;
 
-  trackbed_ms_width_ins: Single = 90;
   // Single   215a  7ft-6in full-size  half-trackbed width  MS
-  trackbed_ts_width_ins: Single = 90;
+  trackbed_ms_width_ins: Single = 90;
   // Single   215a  7ft-6in full-size  half-trackbed width  TS
+  trackbed_ts_width_ins: Single = 90;
 
   cess_ms_width_ins: Single = 27;         // Single   215a  2ft-3in full-size cess width MS
   cess_ts_width_ins: Single = 27;         // Single   215a  2ft-3in full-size cess width TS
@@ -613,10 +634,10 @@ var
 
   // platforms ...
 
+  //  215a  from centre       was 2ft-4.3/4in from rail
   platform_ms_front_edge_ins: double = 57;
   //  215a  from centre       was 2ft-4.3/4in from rail
   platform_ts_front_edge_ins: double = 57;
-  //  215a  from centre       was 2ft-4.3/4in from rail
 
   platform_ms_start_width_ins: double = 144;             // 12ft defaults
   platform_ms_end_width_ins: double = 144;               // 12ft
@@ -657,15 +678,20 @@ var
   xing_free: boolean = True;
   generate_nearest: boolean = False;   // 0.76.a 29-4-02.
 
-  timbers_equalized: boolean = False;  // 0.93.a    was True  // False=square-on,   True=equalized.
-  equalizing_fixed: boolean = False;   // False=incremental, True=constant.
-  square_on_angled: boolean = False;
+  // 0.93.a    was True  // False=square-on,   True=equalized.
+  timbers_equalized: boolean = False;
+  // False=incremental, True=constant.
+  equalizing_fixed: boolean = False;
   // False=square-on to main road, True=square-on to turnout road.
-  no_timbering: boolean = False;       // True = omit all timbering.
+  square_on_angled: boolean = False;
+  // True = omit all timbering.
+  no_timbering: boolean = False;
 
-  exp_chairing: boolean = False;           // 214a  True = draw experimental chairing
+  // 214a  True = draw experimental chairing
+  exp_chairing: boolean = False;
 
-  make_trans_data: Tmake_trans_data;  // data for make transition from current function.
+  // data for make transition from current function.
+  make_trans_data: Tmake_trans_data;
 
   exittb_i: integer;
 
@@ -704,10 +730,10 @@ var
   f9_quarter_steps: boolean = False;   // F9 mouse action any V-crossing angle.
   f10_quarter_steps: boolean = False;  // F10 mouse action any K-crossing angle.
 
-  f9_gaunt_rad: boolean = True;
   //  217a  F9 keeps gaunt radius fixed (modify offset)               (for tandem inserted crossings).
-  f9_hd_rad: boolean = False;
+  f9_gaunt_rad: boolean = True;
   //  218b  F9 keeps half_diamond radius fixed (modify K-xing angle)  (for tandem inserted crossings).
+  f9_hd_rad: boolean = False;
 
   f6_swing_fixed: boolean = False;     // 0.91.b   F6 curving option.
 
@@ -749,19 +775,19 @@ var
   retain_entry_straight_on_mint: boolean = False;  // 212b
   retain_entry_straight_on_make: boolean = False;  // 212b
 
-  hidden_on_store: integer = 0;
   // 205c  >0 = control template was hidden on storing to background - delay wanted
+  hidden_on_store: integer = 0;
 
   reveal_limit_count: integer = 0; // 206a  0=time limit - abandon slide and jump it back
-  slide_on_store: integer = 0;
   // 206a  >0 = control template was shifted on storing to background - slide wanted
+  slide_on_store: integer = 0;
   stored_xshift: double = 0;     // 206a
   stored_yshift: double = 0;     // 206a
   slide_inc: double = 0;         // 206a
 
 
-  wheel_zoom_code: integer = 0;
   // 0.97.d  0=zoom on centre  1=zoom on mouse location  2=jump mouse location (and mouse cursor) to centre, then zoom on centre
+  wheel_zoom_code: integer = 0;
 
   // init current dummy vehicle dims, prototype inches  0.98.a ...
 
@@ -797,8 +823,8 @@ var
   no_spacings_confirm: boolean = False;   // 215b
 
 
-function xy_to_dwg100(pin: Tpex): TPex;
 // this function and next prepare x,y data for lists.
+function xy_to_dwg100(pin: Tpex): TPex;
 function xy_to_list(pin: Tpex): TPoint;        // prepare x,y data for list.
 function blank_start(x: double): double;   // 17-10-02 0,76.a  blanking mods.
 
@@ -819,27 +845,27 @@ function min(a, b: double): double;              // return smallest of 2 floats.
 
 function remove_esc_str(msg_str: string): string;
 function insert_crlf_str(msg_str: string): string;
-function remove_invalid_str(msg_str: string): string;
 // remove characters invalid in filenames.
+function remove_invalid_str(msg_str: string): string;
 
-function lower_case_filename(name_str: string): string;
 // 0.79.a lower case all filenames and change spaces to underscores.
+function lower_case_filename(name_str: string): string;
 
 function invalid_85a_file_name(str: string): boolean;
 
-function space_lead(s: string): string;
 // replace any leading 0 chars in string with a space.
-function remove_space_str(msg_str: string): string;
+function space_lead(s: string): string;
 // remove all space characters from string.
-function remove_multispace_str(msg_str: string): string;
+function remove_space_str(msg_str: string): string;
 // reduce multiple spaces in string to singles.
+function remove_multispace_str(msg_str: string): string;
 function captext(d: double): string;
 
 function fact(a: integer): double;        // return (a! = a factorial)
 
+//  Transition equations.
 function transcalcs(draw_in_progress, auto_terms: boolean; k, tsn: double;
   var xn, yn, tn, rn: double): boolean;
-//  Transition equations.
 function calc_transition(rad1, rad2, zonel: double;
   var cen1x, cen1y, cen2x, cen2y, apartl, kval: double): boolean;
 
@@ -847,20 +873,20 @@ function set_font(fname: string; fsize: integer; fstyle: TFontStyles; fcolour: i
 
 function time_now_modified(def: integer): integer; // modify Delphi float time format to integer;
 
-function check_limit(bunch, shear: boolean; var p: TPoint): boolean;
 // safety check on one pair of drawing co-ordinates.
-function check_limits(var p1, p2: TPoint): boolean;
+function check_limit(bunch, shear: boolean; var p: TPoint): boolean;
 // safety check on both pairs of drawing co-ordinates.
+function check_limits(var p1, p2: TPoint): boolean;
 
 function check_draw_dim_l(d: integer): boolean;         // check on a single drawing dimension.
 function check_draw_dim_w(d: integer): boolean;         // 0.93.a mods
 
-function extract_tbnumber_str(var tbnum_str: string): string;
 // return next timber numbering string from the acummulated string.
+function extract_tbnumber_str(var tbnum_str: string): string;
 
 procedure normalize_angle(var k: double);
-function k_ram_str(k: double): string;
 // get k angle as 1:n RAM string (up to 1:1)
+function k_ram_str(k: double): string;
 procedure dotransform(krot, xrot, yrot: double; pin: Tpex; var pout: Tpex);
 
 function rad_tanp1_p2(p1, p2: Tpex; tn: double; var rad, swing: double): boolean;    // 15-9-99.
@@ -918,11 +944,11 @@ procedure docurving(transform_flag, slew_flag: boolean; xs, ys: double;
   var xc, yc, tn, rn: double);
 
 procedure rotate_turnout(k: double; draw: boolean);    // rotate turnout k radians around peg.
-procedure peg_curve;
 // do curving calcs for the current peg position.
+procedure peg_curve;
 
-function check_radius(warn: boolean; var r: double): boolean;
 // return true if curving radius was within limits.
+function check_radius(warn: boolean; var r: double): boolean;
 
 procedure clear_transform_data;
 
@@ -954,8 +980,8 @@ procedure quick_gauge_click(i: integer);   // quick change of gauge and scale.
 
 procedure lengths_click(degs: boolean);
 
-function check_black_white: boolean;
 // return True if he cancels (called from change printer colours).
+function check_black_white: boolean;
 
 procedure fix_radius(rad: double; click: boolean);     // set up fixed-radius curving.
 
@@ -968,8 +994,8 @@ function set_black_and_white: boolean;
 
 procedure pt_convert;   // convert turnout to plain track on same alignment.
 
-function check_infill_ok(str: string): boolean;
 // ensure generator is on if he wants timber infill.
+function check_infill_ok(str: string): boolean;
 
 procedure adjacent_redraw;     //  do a re-draw after selecting/deselecting adjacent rails.
 procedure normalize_kform;
@@ -984,8 +1010,8 @@ procedure no_rails_warn;
 
 procedure pad_view_fit_bgnd(group_only: boolean);  // zoom to fit background templates.
 
-procedure explode_shrink(new_screenx: double; loop, wheel: boolean);
 // mouse wheel mode added 0.97.d
+procedure explode_shrink(new_screenx: double; loop, wheel: boolean);
 
 procedure calc_peg_pad_pos;    // calculate position of peg on screen.
 
@@ -1005,8 +1031,8 @@ procedure peg_indicator_click;
 
 procedure normal_adjust_menu_entry_click;
 
-procedure make_double_track(side: integer);
 // change to plain track in place of the current adjacent track.
+procedure make_double_track(side: integer);
 
 procedure make_pt_geo_rad(int_ext: integer; click: boolean);
 
@@ -1016,31 +1042,31 @@ function normalize_transition: boolean; // normalize to template extents if zone
 
 procedure set_plain_track(pt, new_label: boolean);
 
-function shove_number_clicked(X, Y: integer): boolean;
 // screen co-ords of a click, is it on a timber number?
-procedure mouse_on_timber_number(X, Y: integer);
+function shove_number_clicked(X, Y: integer): boolean;
 // highlight timber number if mouse currently over it.
+procedure mouse_on_timber_number(X, Y: integer);
 
-function checkrail_label_clicked(X, Y: integer): boolean;
 // 0.94.a screen co-ords of a click, is it on a check-rail label?
-procedure mouse_on_check_label(X, Y: integer);
+function checkrail_label_clicked(X, Y: integer): boolean;
 // 0.94.a highlight check-rail label if mouse currently over it.
+procedure mouse_on_check_label(X, Y: integer);
 
 
 procedure clear_current_name;
 
 function snake_onto_this_peg(keep_dims: Tkeep_dims; facing_facing, alerts: boolean): boolean;
 
-function aq25offset(xs: double; var k: double): double;
 // return offset at xs on turnout road centre-line.
+function aq25offset(xs: double; var k: double): double;
 
 function curved_onto_calc(org_rad, onto_rad: double): double;
 function equiv_rad_calc(curved_rad, onto_rad: double): double;    // 217a
 
-function aq3offset(xtb: double; var k: double): double;
 //  general utility - return offset at any xtb on aq=3 (curved stock rail).
-function aq2offset(xtb: double; var k: double): double;
+function aq3offset(xtb: double; var k: double): double;
 //  general utility - return offset at any xtb on aq=2 (curved turnout rail).
+function aq2offset(xtb: double; var k: double): double;
 
 procedure shift_all_group;  // add current xshift_keeps, yshift_keeps to all group templates.
 procedure twist_all_group;  // rotate all group templates.
@@ -1067,14 +1093,14 @@ procedure match_rolled_lengths(ctrl: integer);
 
 procedure show_switch_info(full_size_mm, already_showing: boolean);  // 208a
 
-function calc_switch(sw_info: Tswitch_info; h_diamond, current_calc: boolean): integer;
 // calculate switch - return error code,
+function calc_switch(sw_info: Tswitch_info; h_diamond, current_calc: boolean): integer;
 
-function set_csi_from_switch_info(sw_info: Tswitch_info): boolean;
 // set current switch from supplied info.
+function set_csi_from_switch_info(sw_info: Tswitch_info): boolean;
 
-function find_shove(str: string; create_new: boolean): integer;
 // find str in current shove list, or create an empty slot for it.
+function find_shove(str: string; create_new: boolean): integer;
 
 procedure show_and_redraw(on_idle, allow_rollback_to_this: boolean);  // F12 reset.
 procedure redraw_pad(on_idle, allow_rollback_to_this: boolean);
@@ -1094,26 +1120,28 @@ procedure shove_length_mouse_action;
 procedure shove_width_mouse_action;
 procedure shove_twist_mouse_action;
 
-procedure fill_kd(var keep_info: Ttemplate_info);
 // copy control template data to the keep record.
-procedure copy_keep(keep_info: Ttemplate_info);    // get control template data from a keep.
+procedure fill_kd(var keep_info: Ttemplate_info);
 
-procedure update_lengths(var box_kd: Tkeep_dims);
+// get control template data from a keep.
+procedure copy_keep(keep_info: Ttemplate_info);
+
 // update stored plain track settings to match the control template.
-procedure update_timbering(var box_kd: Tkeep_dims);
+procedure update_lengths(var box_kd: Tkeep_dims);
 // update stored timbering to match the control template.
-procedure update_customize_xing(var box_kd: Tkeep_dims);
+procedure update_timbering(var box_kd: Tkeep_dims);
 // 214b  update V-crossing customizing
-procedure update_trackbed_edges(var box_kd: Tkeep_dims);
+procedure update_customize_xing(var box_kd: Tkeep_dims);
 // update stored trackbed edges settings to match the control template.
-procedure update_centre_lines(var box_kd: Tkeep_dims);
+procedure update_trackbed_edges(var box_kd: Tkeep_dims);
 // update stored track centre-line settings to match the control template.
-procedure update_centre_line_offset_options(var box_kd: Tkeep_dims);
+procedure update_centre_lines(var box_kd: Tkeep_dims);
 // update stored centre-line offset options to match the control template.
-procedure update_rail_section(var box_kd: Tkeep_dims);
+procedure update_centre_line_offset_options(var box_kd: Tkeep_dims);
 // update stored rail-section data to match the control template.
-procedure update_radius_warning(var box_kd: Tkeep_dims);
+procedure update_rail_section(var box_kd: Tkeep_dims);
 // update stored radius warning limit to match the control template.
+procedure update_radius_warning(var box_kd: Tkeep_dims);
 
 
 procedure copy_template_info_from_to(delete_shoves: boolean;
@@ -1140,13 +1168,13 @@ procedure caption_add(Text: string);       // replace '...' in pad caption with 
 
 procedure redraw(on_idle: boolean);           // do a screen redraw.
 
-procedure obtain_switch(n: integer);
 // obtain control template switch from template in list.
-procedure obtain_plain_track(n: integer);
+procedure obtain_switch(n: integer);
 // obtain control template plain-track settings from template in list.
+procedure obtain_plain_track(n: integer);
 
-function gauge_dims(from_list, mod_rads, mod_gauge_data: boolean): double;
 // set up gauge and scale from selected item in list.
+function gauge_dims(from_list, mod_rads, mod_gauge_data: boolean): double;
 
 procedure set_y_datum;          // set up default y position.
 
@@ -1154,8 +1182,8 @@ procedure rescale_notch(ratio: double);
 
 procedure printer_setup(cal_in_progress, black_white_setup: boolean);
 
-function ask_impact_matrix(prindex: integer; prstr: string): boolean;
 // ask if printer is dot-matrix impact type.
+function ask_impact_matrix(prindex: integer; prstr: string): boolean;
 
 procedure mouse_symbol_click;  // symbol clicked on action form.
 
@@ -1204,8 +1232,8 @@ procedure update_ruler_div;   // 0.93.a
 
 function check_control_template_is_valid(cancel_str: string): boolean;   // 0.93.a
 
-function store_and_background(click, zero_it: boolean): boolean;
 // 0.93.a click=True means direct click by user.
+function store_and_background(click, zero_it: boolean): boolean;
 
 procedure extend_template_from_zero;  // 0.93.a
 
@@ -1243,16 +1271,16 @@ procedure companion_help(topic_url_str: string);     // 214a
 
 function count_substrings(sub_str, text_str: string): integer;      // 215a
 
+// 218a
 function calculate_turnout_radius(curving_rad: double;
   var heel_notch, mid_notch, xing_notch: Tnotch): double;
-// 218a
 function calculate_turnout_radius_beyond(curving_rad: double;
   var xing_notch, mid_notch, end_notch: Tnotch): double;  // 218b
-function calculate_return_curve_radius(var exit_notch, mid_notch, trp_notch: Tnotch): double;
 // 218d
+function calculate_return_curve_radius(var exit_notch, mid_notch, trp_notch: Tnotch): double;
 
-function calc_peg_dims(code: integer; var pegx, pegy, pegangle: double): Tpeg_indicator_string;
 // 218a moved to interface for make tandem
+function calc_peg_dims(code: integer; var pegx, pegy, pegangle: double): Tpeg_indicator_string;
 
 function tpex_from_tnotch(notch: Tnotch): Tpex;
 function get_nearer_pex(p0, p1, p2: Tpex): Tpex;
