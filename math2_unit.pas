@@ -1958,6 +1958,7 @@ var
   k_diff, nearest_bgnd: double;
 
   temp1, temp2: double;
+  waitMessage: IAutoWaitMessage;
 
 label
   100;
@@ -1983,23 +1984,7 @@ begin
 
   Result := True;   // temp
 
-  wait_cancel_clicked := False;
-  wait_form.cancel_button.Visible := True;
-
-  wait_form.waiting_label.Caption := 'growing  template ...';
-
-  wait_form.waiting_label.Width := wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);
-  // 205b bug fix for Wine
-
-  wait_form.wait_progressbar.Max := 100;
-  wait_form.wait_progressbar.Min := 0;
-  wait_form.wait_progressbar.Position := 0;
-  wait_form.wait_progressbar.Step := 1;
-  wait_form.wait_progressbar.Visible := True;
-
-  wait_form.Show;
-
-
+  waitMessage := TWaitForm.ShowWaitMessageWithProgressAndCancel('growing  template ...', 0, 100, 0, 1);
   approach_length := xorg;
 
   // first find distance from CTRL-0 to nearest bgnd boundary (which might be the target)..
@@ -2074,8 +2059,6 @@ begin
   step_count := 0;
   calc_count := 0;
 
-  try
-
     // start close to zero (plain track), or at CTRL-1 (turnout)
 
     if plain_track = True then begin
@@ -2095,15 +2078,10 @@ begin
 
       repeat
 
-        if wait_cancel_clicked = True then
+        if waitMessage.IsCancelled then
           EXIT;
 
-        wait_form.wait_progressbar.StepIt;
-        if wait_form.wait_progressbar.Position = wait_form.wait_progressbar.Max then
-          wait_form.wait_progressbar.Position := wait_form.wait_progressbar.Min;
-        // wrap if necessary
-
-        Application.ProcessMessages;  // to show the wait form updating
+        waitMessage.StepItWithWraparound;
 
         Inc(calc_count);
 
@@ -2226,20 +2204,11 @@ begin
 
     if proximity < 1  //  1mm arbitrary
     then begin
-      wait_form.waiting_label.Caption := 'precision  fitting,  please  wait ...';
-      wait_form_onshow;
+      waitMessage.UpdateMessage('precision  fitting,  please  wait ...');
     end;
 
     goto 100;
 
-  finally
-
-    wait_form.Hide;
-    wait_cancel_clicked := False;
-    wait_form.wait_progressbar.Visible := False;
-    wait_form.cancel_button.Visible := False;
-
-  end;//try
 end;
 //______________________________________________________________________________
 

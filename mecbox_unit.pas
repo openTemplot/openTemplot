@@ -3316,8 +3316,8 @@ function import_mecbox(file_str: string): boolean; // 290a
 
 var
   mecbox_str: string;
-
   i: integer;
+  waitMessage: IAutoWaitMessage;
 
 begin
   Result := False;  // init
@@ -3383,12 +3383,7 @@ begin
   loading_in_progress := True;
   // lock out any auto backups while loading -- in case any dialogs get shown and OnIdle fires
 
-  wait_form.cancel_button.Hide;
-  wait_form.waiting_label.Caption := 'importing  MECBOX  templates ...';
-  wait_form.waiting_label.Width := wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);
-  // bug fix for Wine
-  wait_form.Show;
-
+  waitMessage := TWaitForm.ShowWaitMessage('importing  MECBOX  templates ...');
   if Application.Terminated = False then
     Application.ProcessMessages;           // let the wait form fully paint.
 
@@ -3435,7 +3430,7 @@ begin
       pad_form.transparent_names_menu_entry.Checked := True;    // radio item.
   end;
 
-  wait_form.Close;
+  waitMessage := nil;
   current_state(-1);
 
   loading_in_progress := False;  // allow backups only after dialogs

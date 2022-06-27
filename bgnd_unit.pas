@@ -3863,6 +3863,7 @@ var
   p: Pointer;
 
   failed: boolean;
+  waitMessage: IAutoWaitMessage;
 
   ////////////////////////////////////////////////////////////////////
 
@@ -3878,11 +3879,7 @@ begin
   Result := False; // init
   failed := False;
 
-  wait_form.cancel_button.Hide;
-  wait_form.waiting_label.Caption := 'saving  background  shapes ...';
-  wait_form.waiting_label.Width := wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);
-  // bug fix for Wine
-  wait_form.Show;
+  waitMessage := TWaitForm.ShowWaitMessage('saving  background  shapes ...');
 
   if Application.Terminated = False then
     Application.ProcessMessages;     // let the wait form fully paint.
@@ -4042,8 +4039,6 @@ begin
       xml_doc.SaveToFile(file_str);
 
     Result := not failed;
-
-    wait_form.Close;
     xml_doc.Free;
   end;//try
 end;
@@ -4125,15 +4120,12 @@ var
   next_shape: Tbgnd_shape;
 
   load_stream: TMemoryStream;
+  waitMessage: IAutoWaitMessage;
 
 begin
   Result := False;         // init
 
-  wait_form.cancel_button.Hide;
-  wait_form.waiting_label.Caption := 'loading  background  shapes ...';
-  wait_form.waiting_label.Width := wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);
-  // bug fix for Wine
-  wait_form.Show;
+  waitMessage := TWaitForm.ShowWaitMessage('loading  background  shapes ...');
 
   Screen.Cursor := crHourGlass;  // might be slow if bitmaps
 
@@ -4268,7 +4260,6 @@ begin
 
   finally
     Screen.Cursor := crDefault;
-    wait_form.Close;
     xml_doc.Free;
   end;//try
 end;
@@ -6740,6 +6731,7 @@ var
   new_shapewidth, new_shapeheight: double;
 
   meta_str: string;
+  waitMessage: IAutoWaitMessage;
 
 begin
 
@@ -6813,19 +6805,8 @@ begin
         inheight := image_bitmap.Height;
 
         if sync = False then begin
-          wait_form.cancel_button.Visible := False;
-          wait_form.wait_progressbar.Max := Round(inheight);
-          wait_form.wait_progressbar.Min := 0;
-          wait_form.wait_progressbar.Position := 0;
-          wait_form.wait_progressbar.Step := 1;
-          wait_form.wait_progressbar.Visible := True;
-
-          wait_form.waiting_label.Caption := 'twisting  image  ' + IntToStr(i) + ' ...';
-
-          wait_form.waiting_label.Width :=
-            wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);  // 205b bug fix for Wine
-
-          wait_form.Show;
+          waitMessage := TWaitForm.ShowWaitMessageWithProgress('twisting  image  ' +
+            IntToStr(i) + ' ...', 0, Round(inheight), 0, 1);
         end
         else
           action_form.action_label.Caption := 'twisting  image  ' + IntToStr(i) + ' ...';
@@ -6889,10 +6870,10 @@ begin
               end;//with
             end;//for
 
-            if sync = False then
-              wait_form.wait_progressbar.StepIt;
-            if sync = False then
+            if sync = False then begin
+              waitMessage.StepIt;
               Application.ProcessMessages;
+            end;
 
           end;//for
 
@@ -6955,8 +6936,6 @@ begin
           rotated_bitmap.Free;             // release memory.
           rotated_bitmap := TBitmap.Create;  // and re-create for next time.
 
-          if sync = False then
-            wait_form.Hide;
           Application.ProcessMessages;
           alert(5, 'twist  bitmap  error',
             'Sorry, the twist bitmap function failed because of memory or resources limitations on your system.'
@@ -6966,10 +6945,6 @@ begin
       end;//with image
     finally
       Screen.Cursor := saved_screen_cursor;
-      if sync = False then
-        wait_form.wait_progressbar.Visible := False;
-      if sync = False then
-        wait_form.Hide;
       Application.ProcessMessages;
     end;//try-finally
   end;//with shape
@@ -7682,7 +7657,7 @@ var
   ms_limit_mm, ts_limit_mm: double;
 
   destination_bitmap: TBitmap;
-
+  waitMessage: IAutoWaitMessage;
 
   //////////////////////////////////////////////////////////
 
@@ -7831,21 +7806,8 @@ begin
         picture_scale_width := inwidth_dots / old_shapewidth_mm;     // dots per model mm.
         picture_scale_height := inheight_dots / old_shapeheight_mm;  // dots per model mm.
 
-        wait_form.cancel_button.Hide;
-
-        wait_form.wait_progressbar.Max := Round(inwidth_dots * 2);    // 2 runs through
-        wait_form.wait_progressbar.Min := 0;
-        wait_form.wait_progressbar.Position := 0;
-        wait_form.wait_progressbar.Step := 1;
-        wait_form.wait_progressbar.Show;
-
-        wait_form.waiting_label.Caption := 'straightening  bitmap ...';
-
-        wait_form.waiting_label.Width := wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);
-        // 205b bug fix for Wine
-
-        wait_form.Show;
-
+        waitMessage := TWaitForm.ShowWaitMessageWithProgress('straightening  bitmap ...', 0,
+          Round(inwidth_dots * 2), 0, 1);
         Application.ProcessMessages;  // allow some repaints before we start.
 
         xs_step := ABS(old_shapewidth_mm / inwidth_dots);   // mm
@@ -7905,7 +7867,7 @@ begin
 
           xs_on_control := xs_on_control + xs_step;
 
-          wait_form.wait_progressbar.StepIt;  // 1st half of bar
+          waitMessage.StepIt;  // 1st half of bar
 
         until xs_on_control > turnoutx;
 
@@ -8034,7 +7996,7 @@ begin
 
             xs_on_control := xs_on_control + xs_step;
 
-            wait_form.wait_progressbar.StepIt;  // 2nd half of bar
+            waitMessage.StepIt;  // 2nd half of bar
 
           until xs_on_control > turnoutx;
 
@@ -8089,12 +8051,8 @@ begin
       end;//with image
 
     finally
-
       destination_bitmap.Free;
-
       Screen.Cursor := saved_screen_cursor;
-      wait_form.wait_progressbar.Hide;
-      wait_form.Close;
 
     end;//try-finally
   end;//with shape
@@ -8137,6 +8095,7 @@ var
   destination_bitmap_height: integer;
 
   destination_bitmap: TBitmap;
+  waitMessage: IAutoWaitMessage;
 
 begin
 
@@ -8181,21 +8140,8 @@ begin
         picture_scale_width := inwidth / old_shapewidth;
         picture_scale_height := inheight / old_shapeheight;  // dots per model mm.
 
-        wait_form.cancel_button.Hide;
-
-        wait_form.wait_progressbar.Max := Round(inheight * 2);    // 2 runs through
-        wait_form.wait_progressbar.Min := 0;
-        wait_form.wait_progressbar.Position := 0;
-        wait_form.wait_progressbar.Step := 1;
-        wait_form.wait_progressbar.Show;
-
-        wait_form.waiting_label.Caption := 'wrapping  bitmap ...';
-
-        wait_form.waiting_label.Width := wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);
-        // 205b bug fix for Wine
-
-        wait_form.Show;
-
+        waitMessage := TWaitForm.ShowWaitMessageWithProgress('wrapping  bitmap ...',
+          0, Round(inheight * 2), 0, 1);
         Application.ProcessMessages;  // allow some repaints we start.
 
         max_extent_x := 0 - maxfp;   //init
@@ -8234,7 +8180,7 @@ begin
 
           end;//next col
 
-          wait_form.wait_progressbar.StepIt;  // 1st half of bar
+          waitMessage.StepIt;  // 1st half of bar
           Application.ProcessMessages;
 
         end;//next row
@@ -8302,7 +8248,7 @@ begin
               end;//with
             end;//for
 
-            wait_form.wait_progressbar.StepIt;  // 2nd half of bar
+            waitMessage.StepIt;  // 2nd half of bar
             Application.ProcessMessages;
 
           end;//for
@@ -8346,8 +8292,6 @@ begin
       destination_bitmap.Free;
 
       Screen.Cursor := saved_screen_cursor;
-      wait_form.wait_progressbar.Hide;
-      wait_form.Close;
     end;//try-finally
   end;//with shape
 

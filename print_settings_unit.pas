@@ -282,6 +282,7 @@ var
   l_ng, h_g: integer;
 
   save_bgnd_option: boolean;
+  waitMessage: IAutoWaitMessage;
 
 begin
   Count := 0;
@@ -297,16 +298,8 @@ begin
   if any_bgnd_fb = 0 then
     EXIT;     // no background FB templates to kludge
 
-  wait_form.cancel_button.Hide;
-  wait_form.waiting_label.Caption := 'preparing  rail - foot  edges ...';
-
-  wait_form.waiting_label.Width := wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);
-  // 205b bug fix for Wine
-
-  wait_form.Show;
-
+  waitMessage := TWaitForm.ShowWaitMessage('preparing  rail - foot  edges ...');
   Screen.Cursor := crHourGlass;        // might take a while.
-
   Application.ProcessMessages;
 
   save_current.keep_shove_list := Tshoved_timber_list.Create;
@@ -412,7 +405,6 @@ begin
     ti.keep_shove_list.Free;
     Screen.Cursor := crDefault;
 
-    wait_form.Close;
   end;//try
 
   Result := Count;

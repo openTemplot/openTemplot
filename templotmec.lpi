@@ -238,7 +238,9 @@
       <Unit30>
         <Filename Value="wait_message.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="WaitForm"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit30>
       <Unit31>
         <Filename Value="enter_timber.pas"/>

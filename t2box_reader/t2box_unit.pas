@@ -142,6 +142,7 @@ var
   saved_control_memo_str: string;
 
   loadDialog: TOpenDialog;
+  waitMessage: IAutoWaitMessage;
 
   ///////////////////////////////////////////////////////////////
 
@@ -852,14 +853,8 @@ begin
 
           // load the file...
 
-          wait_form.cancel_button.Hide;
-          wait_form.waiting_label.Caption := 'loading  templates ...';
-
-          wait_form.waiting_label.Width :=
-            wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);  // 205b bug fix for Wine
-
           if normal_load = True then
-            wait_form.Show;  // 208d version warnings off for file viewer
+            waitMessage := TWaitForm.ShowWaitMessage('loading  templates ...');
 
           if Application.Terminated = False then
             Application.ProcessMessages;           // let the wait form fully paint.
@@ -990,7 +985,7 @@ begin
       Result := True;                           // file loaded.
 
     finally
-      wait_form.Close;
+      waitMessage := nil;
       Screen.Cursor := saved_cursor;
       current_state(-1);                   // tidy up after any error exits.
 

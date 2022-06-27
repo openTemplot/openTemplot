@@ -35,38 +35,158 @@ uses
   StdCtrls, ExtCtrls, ComCtrls;
 
 type
-  Twait_form = class(TForm)
-    waiting_label: TLabel;
-    signal_image: TImage;
-    cancel_button: TButton;
-    wait_progressbar: TProgressBar;
+  {$interfaces COM}
+  {
+    This is an interface to the basic methods required for working
+    with a WaitMessage dialog.
+
+    IAutoWaitMessage is explicit declared as a COM Interface, so that
+    the compiler will generate automatic reference counting for any
+    instance of this interface.
+
+    See the TWaitForm class functions to ShowWaitMessage...() which
+    return instances of this interface.
+
+    Using the interface (with automatic reference counting) means that
+    the WaitMessage form will automatically be hidden when the variable
+    goes out of scope.
+
+    To hide the WaitMessage earlier, set the interface variable to nil.
+  }
+  IAutoWaitMessage = interface
+    ['{629D827B-A704-4848-9C64-834B8F5E57B4}']
+    procedure StepIt;
+    procedure StepItWithWraparound;
+    procedure UpdateMessage(newMessage: String);
+    function IsCancelled: Boolean;
+  end;
+
+  TWaitComputeProc = function(Data: Pointer; waitMessage: IAutoWaitMessage): Integer;
+
+  { TWaitForm }
+
+  TWaitForm = class(TForm)
+    triggerTimer: TTimer;
+    waitingLabel: TLabel;
+    signalImage: TImage;
+    cancelButton: TButton;
+    waitProgressBar: TProgressBar;
     procedure FormCreate(Sender: TObject);
-    procedure cancel_buttonClick(Sender: TObject);
+    procedure cancelButtonClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure triggerTimerTimer(Sender: TObject);
   private
     { Private declarations }
+    FWaitCancelClicked: boolean;
+    FComputeFunction: TWaitComputeProc;
+    FComputeData: Pointer;
+    FComputeResult: Integer;
+
+    procedure StepIt;
+    procedure StepItWithWraparound;
+
+    procedure SetupCaption(Caption: String);
+    procedure SetupProgressBar(min, max, position, step: Integer);
+    procedure SetupCancel;
+
+    function ShowModalAndCompute(computeFunction: TWaitComputeProc; Data: Pointer): Integer;
+
   public
     { Public declarations }
+
+    {
+      Show the WaitMessage form (non-modal) with the specified caption.
+
+      @returns an IAutoWaitMessage instance to control the display of the wait message form.
+
+      The WaitMessage form will be hidden when the interface variable is set to nil,
+      or goes out of scope.
+    }
+    class function ShowWaitMessage(Caption: String): IAutoWaitMessage;
+
+    {
+      Show the WaitMessage form (non-modal) with the specified caption and a progress bar.
+
+      @returns an IAutoWaitMessage instance to control the display of the wait message form.
+
+      The WaitMessage form will be hidden when the interface variable is set to nil,
+      or goes out of scope.
+
+      Use the StepIt or StepItWithWrapAround methods to advance the progress bar. Ensure
+      Application.ProcessMessages is called regularly to update the WaitMessage form.
+    }
+    class function ShowWaitMessageWithProgress(Caption: String;
+      min, max, position, step: Integer): IAutoWaitMessage;
+
+    {
+      Show the WaitMessage form (non-modal) with the specified caption, a progress bar and
+      a Cancel button.
+
+      @returns an IAutoWaitMessage instance to control the display of the wait message form.
+
+      The WaitMessage form will be hidden when the interface variable is set to nil,
+      or goes out of scope.
+
+      Use the StepIt or StepItWithWrapAround methods to advance the progress bar.
+
+      Check the IsCancelled method regularly and abandon the calculation if it returns True.
+
+      Ensure Application.ProcessMessages is called regularly to update the WaitMessage form.
+    }
+    class function ShowWaitMessageWithProgressAndCancel(Caption: String;
+      min, max, position, step: Integer): IAutoWaitMessage;
+
+    {
+      Show the WaitMessage form (modal) with the specified caption, and then calls
+      the given computeFunction with the Data as provided.
+
+      @returns -1 if Cancelled, otherwise the return value of computeFunction.
+
+      The computeFunction needs to call Application.ProcessMessages regularly, and
+      check the IsCancelled method of the IAutoWaitMessage instance.
+    }
+    class function ShowWaitMessageAndCompute(Caption: String; computeFunction: TWaitComputeProc;
+      Data: Pointer): Integer;
+
+    {
+      Show the WaitMessage form (modal) with the specified caption and a Progress Bar,
+      and then calls the given computeFunction with the Data as provided.
+
+      @returns -1 if Cancelled, otherwise the return value of computeFunction.
+
+      The computeFunction needs to call Application.ProcessMessages regularly, and
+      check the IsCancelled method of the IAutoWaitMessage instance.
+
+      Call the StepIt or StepItWithWraparound methods of the IAutoWaitMessage instance
+      to advance the Progress Bar.
+    }
+    class function ShowWaitMessageWithProgressAndCompute(Caption: String;
+      min, max, position, step: Integer; computeFunction: TWaitComputeProc;
+      Data: Pointer): Integer;
   end;
 
 var
-  wait_form: Twait_form;
-
-procedure wait_form_onshow;
+  WaitForm: TWaitForm;
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
-uses
-  pad_unit;
+type
+  TWaitFormWrapper = class(TInterfacedObject, IAutoWaitMessage)
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure StepIt;
+    procedure StepItWithWraparound;
+    procedure UpdateMessage(newMessage: String);
+    function IsCancelled: Boolean;
+  end;
 
 //__________________________________________________________________________________________
 
-procedure Twait_form.FormCreate(Sender: TObject);
+procedure TWaitForm.FormCreate(Sender: TObject);
 
 begin
   if Screen.DesktopWidth < 1000 then begin
@@ -80,48 +200,195 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure Twait_form.cancel_buttonClick(Sender: TObject);
+procedure TWaitForm.cancelButtonClick(Sender: TObject);
 
 begin
-  wait_cancel_clicked := True;
-  Close;
+  FWaitCancelClicked := True;
 end;
 //______________________________________________________________________________
 
-procedure wait_form_onshow;
+procedure TWaitForm.FormShow(Sender: TObject);
 
 var
-  new_width, min_width: integer;
+  newWidth: Integer;
+  minWidth: Integer;
 
   // 0.95.a      // 205b  label_width bug fix in Wine
 begin
-  with wait_form do begin
-    waiting_label.Width := Canvas.TextWidth(waiting_label.Caption) + 10;
+  waitingLabel.Width := Canvas.TextWidth(waitingLabel.Caption) + 10;
 
-    new_width := waiting_label.Left + waiting_label.Width + 2;  // make sure it is all visible
+  newWidth := waitingLabel.Left + waitingLabel.Width + 2;  // make sure it is all visible
 
-    min_width := cancel_button.Left + cancel_button.Width + 12;
+  minWidth := cancelButton.Left + cancelButton.Width + 12;
 
-    if cancel_button.Visible = True        // bug-fix 208d
-    then begin
-      if new_width < min_width then
-        new_width := min_width;  // ensure cancel button is visible.
-    end
-    else begin
-      if new_width < cancel_button.Left then
-        new_width := cancel_button.Left;  // minimum width.
-    end;
+  if cancelButton.Visible then begin
+    // bug-fix 208d
+    if newWidth < minWidth then
+      newWidth := minWidth;  // ensure cancel button is visible.
+  end
+  else begin
+    if newWidth < cancelButton.Left then
+      newWidth := cancelButton.Left;  // minimum width.
+  end;
 
-    ClientWidth := new_width;
-  end;//with
+  ClientWidth := newWidth;
 end;
-//______________________________________________________________________________
 
-procedure Twait_form.FormShow(Sender: TObject);
-
+procedure TWaitForm.triggerTimerTimer(Sender: TObject);
+var
+  waitMessage: IAutoWaitMessage;
 begin
-  wait_form_onshow;
+  triggerTimer.Enabled := False;
+
+  waitMessage := TWaitFormWrapper.Create;
+  FComputeResult := FComputeFunction(FComputeData, waitMessage);
+
+  if FWaitCancelClicked then
+    modalResult := mrCancel
+  else
+    modalResult := mrOk;
 end;
+
 //______________________________________________________________________________
+
+procedure TWaitForm.StepIt;
+begin
+  waitProgressBar.StepIt;
+end;
+
+procedure TWaitForm.StepItWithWrapAround;
+begin
+  waitProgressBar.StepIt;
+  if waitProgressBar.Position >= waitProgressBar.Max then
+    waitProgressBar.Position := waitProgressBar.Min;
+end;
+
+procedure TWaitForm.SetupCaption(Caption: String);
+begin
+  FWaitCancelClicked := False;
+  cancelButton.Visible := False;
+  waitProgressBar.Visible := False;
+  waitingLabel.Caption := Caption;
+  waitingLabel.Width := WaitForm.Canvas.TextWidth(Caption);
+end;
+
+procedure TWaitForm.SetupProgressBar(min, max, position, step: Integer);
+begin
+  waitProgressBar.Min := min;
+  waitProgressBar.Max := max;
+  waitProgressBar.Position := position;
+  waitProgressBar.Step := step;
+  waitProgressBar.Visible := True;
+end;
+
+procedure TWaitForm.SetupCancel;
+begin
+  cancelButton.Visible := True;
+end;
+
+function TWaitForm.ShowModalAndCompute(computeFunction: TWaitComputeProc; Data: Pointer): Integer;
+var
+  mr: Integer;
+begin
+  FComputeFunction := computeFunction;
+  FComputeData := Data;
+  triggerTimer.Enabled := True;
+
+  mr := ShowModal;
+
+  if mr = mrOk then
+    Result := WaitForm.FComputeResult
+  else
+    Result := -1;
+
+end;
+
+class function TWaitForm.ShowWaitMessage(Caption: String): IAutoWaitMessage;
+begin
+  Result := TWaitFormWrapper.Create;
+
+  WaitForm.SetupCaption(Caption);
+  WaitForm.Show;
+end;
+
+class function TWaitForm.ShowWaitMessageWithProgress(Caption: String;
+  min, max, position, step: Integer): IAutoWaitMessage;
+begin
+  Result := TWaitFormWrapper.Create;
+
+  WaitForm.SetupCaption(Caption);
+  WaitForm.SetupProgressBar(min, max, position, step);
+  WaitForm.Show;
+end;
+
+class function TWaitForm.ShowWaitMessageWithProgressAndCancel(Caption: String;
+  min, max, position, step: Integer): IAutoWaitMessage;
+begin
+  Result := TWaitFormWrapper.Create;
+
+  WaitForm.SetupCaption(Caption);
+  WaitForm.SetupProgressBar(min, max, position, step);
+  WaitForm.SetupCancel;
+  WaitForm.Show;
+end;
+
+class function TWaitForm.ShowWaitMessageAndCompute(Caption: String;
+  computeFunction: TWaitComputeProc; Data: Pointer): Integer;
+var
+  mr: Integer;
+begin
+  WaitForm.SetupCaption(Caption);
+  WaitForm.SetupCancel;
+
+  Result := WaitForm.ShowModalAndCompute(computeFunction, Data);
+end;
+
+class function TWaitForm.ShowWaitMessageWithProgressAndCompute(Caption: String;
+  min, max, position, step: Integer; computeFunction: TWaitComputeProc; Data: Pointer): Integer;
+var
+  mr: Integer;
+begin
+  WaitForm.SetupCaption(Caption);
+  WaitForm.SetupProgressBar(min, max, position, step);
+  WaitForm.SetupCancel;
+
+  WaitForm.FComputeFunction := computeFunction;
+  WaitForm.FComputeData := Data;
+  WaitForm.triggerTimer.Enabled := True;
+
+  Result := WaitForm.ShowModalAndCompute(computeFunction, Data);
+end;
+
+constructor TWaitFormWrapper.Create;
+begin
+  inherited;
+end;
+
+destructor TWaitFormWrapper.Destroy;
+begin
+  WaitForm.Hide;
+  inherited;
+end;
+
+procedure TWaitFormWrapper.StepIt;
+begin
+  WaitForm.StepIt;
+  Application.ProcessMessages;
+end;
+
+procedure TWaitFormWrapper.StepItWithWraparound;
+begin
+  WaitForm.StepItWithWraparound;
+  Application.ProcessMessages;
+end;
+
+procedure TWaitFormWrapper.UpdateMessage(newMessage: String);
+begin
+end;
+
+function TWaitFormWrapper.IsCancelled: Boolean;
+begin
+  Result := WaitForm.FWaitCancelClicked;
+end;
 
 end.

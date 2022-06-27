@@ -195,7 +195,7 @@ begin
   Application.CreateForm(Taction_form, action_form);
   Application.CreateForm(Tedit_memo_form, edit_memo_form);
   Application.CreateForm(Tmint_form, mint_form);
-  Application.CreateForm(Twait_form, wait_form);
+  Application.CreateForm(TWaitForm, WaitForm);
   Application.CreateForm(Tenter_timber_form, enter_timber_form);
   Application.CreateForm(Tpanning_form, panning_form);
   Application.CreateForm(Tjotter_form, jotter_form);

@@ -553,9 +553,6 @@ var
 
   slew_angle: double = 0;       // twist introduced by the slew.
 
-  length_in_degs: double = 0;
-  length_in_mm: double = 0;
-
   saved_pegging_shiftx: double = 0;
   saved_pegging_shifty: double = 0;
   saved_pegging_rot: double = 0;
@@ -935,8 +932,6 @@ procedure swap_end_for_end;
 
 procedure crop_approach;
 
-procedure make_double_track_calcs(side: integer);
-
 procedure enable_slewing(mode: integer; do_peg_calcs_first: boolean);
 
 procedure insert_half_diamond;
@@ -968,11 +963,6 @@ function clrad_at_x(x: double): double;      // return the track centre-line rad
 
 procedure transition_clicked(trans_code: integer);
 procedure make_transition_click(trans_hand: integer);
-function make_transition_from_current_calcs: integer;
-
-function do_auto_trans_swing_adjust(old_rad2_orgx, old_rad2_orgy: double): integer;
-
-function do_degs_length_adjust(length_in_degs: double; var length_in_mm: double): integer;
 
 function set_black_and_white: boolean;
 
@@ -1277,9 +1267,6 @@ function title_swap(str: string): string;      // OT-FIRST
 //______________________________________________________________________________
 
 implementation
-
-{$BOOLEVAL ON}
-
 
 {$R *.lfm}
 
@@ -1641,9 +1628,11 @@ function convert_point(p: Tpex): Tpoint; forward;
 // input in mm f.p. , convert to 1/100ths mm. integer.
 
 function do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy, old_rad2_orgx,
-  old_rad2_orgy: double): integer;
+  old_rad2_orgy: double; waitMessage: IAutoWaitMessage): integer;
   forward;
-function do_auto_trans_length_adjust(apart_len_wanted: double): integer; forward;
+function do_auto_trans_length_adjust(apart_len_wanted: double; waitMessage: IAutoWaitMessage): integer; forward;
+function make_double_track_calcs(data: Pointer; waitMessage: IAutoWaitMessage): integer; forward;
+
 
 function pad_marks_current(on_canvas: TCanvas; ink: boolean): boolean; forward;
 // draw all the marks (control template). (not rail ends)
@@ -6850,7 +6839,7 @@ begin
     add_check_labels;    // 0.94.a
 
   if (hide_current_flag = False) and (calcs_code = 2) and (keep_form.Active = False) then begin
-    current_is_showing := current_is_showing or pad_marks_current(on_canvas, True);
+    current_is_showing := pad_marks_current(on_canvas, True) or current_is_showing;
     // then draw them in.
   end;
 
@@ -6971,7 +6960,7 @@ begin
               ink_colour := guide_colour;
 
             current_is_showing :=
-              current_is_showing or show_a_line(on_canvas, aq, pen_width, False);
+              show_a_line(on_canvas, aq, pen_width, False) or current_is_showing;
             //  draw in new line.
           end;
         end;
@@ -19686,59 +19675,18 @@ begin
 end;
 //________________________________________________________________________________________
 
-function get_spiral_length(k_rads: double): double;      // 0.71.a  13-4-01.
-
-  // return length of transition curve template for given k_rads angular swing.
-  // !! length is from template datum, not transition origin.
-
-begin
-  Result := turnoutx;     // default init.
-
-  if (spiral = False) and (slewing = False)      // shouldn't be here by rights!
-  then begin
-    Result := k_rads * nomrad;
-    EXIT;
+type
+  TSwingLengthAdjustData = record
+    swingInRadians: double;
+    lengthInMM: double;
   end;
+  PSwingLengthAdjustData = ^TSwingLengthAdjustData;
 
-  length_in_degs := k_rads;      // init for calc.
 
-  wait_cancel_clicked := False;
-  wait_form.cancel_button.Show;
-  wait_form.waiting_label.Caption := 'calculating ...';
+function do_swing_length_adjust(data: Pointer; waitMessage: IAutoWaitMessage): Integer;
 
-  wait_form.waiting_label.Width := wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);
-  // 205b bug fix for Wine
 
-  pad_form.trans_calc_timer.Tag := 15;       // do the calcs while the wait message shows modal.
-  pad_form.trans_calc_timer.Enabled := True; // one-shot only to start the process.
-
-  do_show_modal(wait_form);  // 212a   ShowModal
-
-  if Application.Terminated = False then
-    Application.ProcessMessages;
-
-  // returns here when the wait form closes...
-
-  case pad_form.trans_calc_timer.Tag of
-    -1:
-      EXIT;  // he cancelled  - leave template as it is.
-
-    0: begin
-      alert(5, '    calculation  failed',
-        'Sorry, the angular swing calculations have failed to produce a result.' +
-        '||The most likely reason is that you entered a swing angle in the wrong direction.' +
-        '||For negative curving or a negative slew (in the opposite direction to the hand of the template), the swing angle is also negative.' + '||Alternatively, your specified swing angle may be invalid for the current transition curve and/or slewing settings.',
-        '', '', '', '', '', 'continue', 0);
-      EXIT;
-    end;
-
-    1:
-      Result := length_in_mm;
-  end;//case
-end;
-//________________________________________________________________________________________
-
-function do_degs_length_adjust(length_in_degs: double; var length_in_mm: double): integer;
+//length_in_degs: double; var length_in_mm: double): integer;
 
   // this code moves the template overall length to and fro in reducing steps
   // until the total angular swing matches length_in_degs.
@@ -19746,6 +19694,7 @@ function do_degs_length_adjust(length_in_degs: double; var length_in_mm: double)
   // Return 1 if valid result, 0 if calc error, or -1 if he clicks cancel.
 
 var
+  ptr: PSwingLengthAdjustData;
   dir, len_step: double;
   saved_turnoutx, saved_xorg: double;
   swing_start, swing_dir: double;
@@ -19753,9 +19702,11 @@ var
 
 begin
   Result := 0;                   // default init..
+  ptr := PSwingLengthAdjustData(data);
+
   saved_turnoutx := turnoutx;
   saved_xorg := xorg;
-  length_in_mm := turnoutx;
+  ptr^.lengthInMM := turnoutx;
   turnout_i := 1;      // length locked at new turnoutx.
 
   try
@@ -19763,7 +19714,7 @@ begin
     gocalc(0, 0);
     swing_start := total_swing;
 
-    if ABS(length_in_degs - total_swing) < minfp   // already there.
+    if ABS(ptr^.swingInRadians - total_swing) < minfp   // already there.
     then begin
       Result := 1;
       EXIT;
@@ -19801,7 +19752,7 @@ begin
     if len_step > (saved_turnoutx / 4) then
       len_step := saved_turnoutx / 4;   // 1/4 arbitrary.
 
-    if ((length_in_degs < swing_start) and (swing_dir = 1))   // or start by going backwards.
+    if ((ptr^.swingInRadians < swing_start) and (swing_dir = 1))   // or start by going backwards.
     then begin
       dir := -1;
       len_step := 0 - len_step;
@@ -19820,25 +19771,24 @@ begin
 
       gocalc(0, 0);                   // fresh calc sets new total swing.
 
-      if ABS(total_swing - length_in_degs) < 0.00001   // arbitrary tolerance.
+      if ABS(total_swing - ptr^.swingInRadians) < 0.00001   // arbitrary tolerance.
       then begin
-        length_in_mm := turnoutx;
+        ptr^.lengthInMM := turnoutx;
         Result := 1;
         EXIT;
       end;
 
-      if ((dir = 1) and (total_swing > length_in_degs))   // gone too far..
-        or ((dir = -1) and (total_swing < length_in_degs)) then begin
+      if ((dir = 1) and (total_swing > ptr^.swingInRadians))   // gone too far..
+        or ((dir = -1) and (total_swing < ptr^.swingInRadians)) then begin
         len_step := 0 - len_step / 10;     // change direction and use smaller steps.
         dir := 0 - dir;
       end;
       // try again..
 
-      if Application.Terminated = False then
+      if not Application.Terminated then
         Application.ProcessMessages;  // allow him to click.
 
-      if wait_cancel_clicked = True   // he cancelled.
-      then begin
+      if waitMessage.IsCancelled then begin
         Result := -1;
         EXIT;
       end;
@@ -19850,7 +19800,7 @@ begin
     if Result = 0         // reset and start again with oppopsite sign of required swing...
     // (this is his most likely error).
     then begin
-      length_in_degs := 0 - length_in_degs;  // required swing
+      ptr^.swingInRadians := -ptr^.swingInRadians;  // required swing
 
       turnoutx := saved_turnoutx;
       xorg := saved_xorg;
@@ -19860,7 +19810,7 @@ begin
       if len_step > (saved_turnoutx / 4) then
         len_step := saved_turnoutx / 4;   // 1/4 arbitrary.
 
-      if ((length_in_degs < swing_start) and (swing_dir = 1))   // or start by going backwards.
+      if ((ptr^.swingInRadians < swing_start) and (swing_dir = 1))   // or start by going backwards.
       then begin
         dir := -1;
         len_step := 0 - len_step;
@@ -19880,25 +19830,24 @@ begin
 
         gocalc(0, 0);                   // fresh calc sets new total swing.
 
-        if ABS(total_swing - length_in_degs) < 0.00001   // arbitrary tolerance.
+        if ABS(total_swing - ptr^.swingInRadians) < 0.00001   // arbitrary tolerance.
         then begin
-          length_in_mm := turnoutx;
+          ptr^.lengthInMM := turnoutx;
           Result := 1;
           EXIT;
         end;
 
-        if ((dir = 1) and (total_swing > length_in_degs))   // gone too far..
-          or ((dir = -1) and (total_swing < length_in_degs)) then begin
+        if ((dir = 1) and (total_swing > ptr^.swingInRadians))   // gone too far..
+          or ((dir = -1) and (total_swing < ptr^.swingInRadians)) then begin
           len_step := 0 - len_step / 10;     // change direction and use smaller steps.
           dir := 0 - dir;
         end;
         // try again..
 
-        if Application.Terminated = False then
+        if not Application.Terminated then
           Application.ProcessMessages;  // allow him to click.
 
-        if wait_cancel_clicked = True   // he cancelled.
-        then begin
+        if waitMessage.IsCancelled then begin
           Result := -1;
           EXIT;
         end;
@@ -19913,6 +19862,45 @@ begin
     turnoutx := saved_turnoutx;     // restore original control template.
     xorg := saved_xorg;
   end;//try
+end;
+
+//________________________________________________________________________________________
+function get_spiral_length(k_rads: double): double;      // 0.71.a  13-4-01.
+
+  // return length of transition curve template for given k_rads angular swing.
+  // !! length is from template datum, not transition origin.
+var
+  calculationResult: Integer;
+  data: TSwingLengthAdjustData;
+begin
+  Result := turnoutx;     // default init.
+
+  if (spiral = False) and (slewing = False)      // shouldn't be here by rights!
+  then begin
+    Result := k_rads * nomrad;
+    EXIT;
+  end;
+
+  data.swingInRadians := k_rads;      // init for calc.
+
+  calculationResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...', do_swing_length_adjust, @data);
+
+  case calculationResult of
+    -1:
+      EXIT;  // he cancelled  - leave template as it is.
+
+    0: begin
+      alert(5, '    calculation  failed',
+        'Sorry, the angular swing calculations have failed to produce a result.' +
+        '||The most likely reason is that you entered a swing angle in the wrong direction.' +
+        '||For negative curving or a negative slew (in the opposite direction to the hand of the template), the swing angle is also negative.' + '||Alternatively, your specified swing angle may be invalid for the current transition curve and/or slewing settings.',
+        '', '', '', '', '', 'continue', 0);
+      EXIT;
+    end;
+
+    1:
+      Result := data.lengthInMM;
+  end;//case
 end;
 //_______________________________________________________________________________________
 
@@ -20481,7 +20469,7 @@ begin
 end;
 //______________________________________________________________________________
 
-function do_auto_trans_swing_adjust(old_rad2_orgx, old_rad2_orgy: double): integer;
+function do_auto_trans_swing_adjust(data: Pointer; waitMessage: IAutoWaitMessage): integer;
 
   // this code swings the transition curve on rad1 to and fro in reducing steps
   // until the new position of the 2nd rad centre co-incides with the old.
@@ -20498,16 +20486,18 @@ var
   prev_diff2_sq, next_diff2_sq: double;
 
   dir, k_step, start_kform: double;
+  oldRad2: Tpex;
 
 begin
+  oldRad2 := Ppex(data)^;
   try
     Result := 0;   // default init
 
     do_rollback := False;
     gocalc(0, 0);     // get new calcs.
 
-    xdiff2 := rad2_orgx - old_rad2_orgx;
-    ydiff2 := rad2_orgy - old_rad2_orgy;
+    xdiff2 := rad2_orgx - oldRad2.x;
+    ydiff2 := rad2_orgy - oldRad2.y;
 
     prev_diff2_sq := SQR(xdiff2) + SQR(ydiff2);
     // square of distance apart of new and old r2 centres.
@@ -20526,15 +20516,15 @@ begin
       kform := kform + k_step;
       gocalc(0, 0);              // fresh calc sets new rad2 radial centre.
 
-      xdiff2 := rad2_orgx - old_rad2_orgx;
       // how far is the rad2 centre off the original position?
-      ydiff2 := rad2_orgy - old_rad2_orgy;
+      xdiff2 := rad2_orgx - oldRad2.x;
+      ydiff2 := rad2_orgy - oldRad2.y;
 
       next_diff2_sq := SQR(xdiff2) + SQR(ydiff2);
 
       if next_diff2_sq < 0.0001 then begin
-        Result := 1;
         // r2 centre now within a radius of .01mm of the original centre (dim is squared).
+        Result := 1;
         EXIT;
       end;
 
@@ -20550,8 +20540,7 @@ begin
       if Application.Terminated = False then
         Application.ProcessMessages;  // allow him to click.
 
-      if wait_cancel_clicked = True   // exit calcs but leave kform where we are.
-      then begin
+      if waitMessage.IsCancelled then begin
         Result := -1;
         EXIT;
       end;
@@ -20564,6 +20553,21 @@ begin
   finally
     normalize_kform;
   end;//try
+end;
+//___________________________________________________________________________________________
+
+function make_transition_from_current_calcs(data: Pointer; waitMessage: IAutoWaitMessage): integer;
+
+  // return  1= ok,   0= error,   -1= he cancelled.
+
+begin
+  Result := 0;  // default init.
+
+  do_rollback := False;
+  gocalc(0, 0);              // first stab at the new transition.
+
+  Result := do_auto_trans_length_adjust(make_trans_data.cen_apart, waitMessage);
+  // adjust transition length to match required rad centre-to-centre distance
 end;
 //_______________________________________________________________________________________
 
@@ -20583,6 +20587,8 @@ var
   got_transition: boolean;
 
   error_allow: double;
+  computeResult : Integer;
+  rad2Origin: Tpex;
 
 
   ///////////////////////////////////////////////////////////////////
@@ -20854,25 +20860,14 @@ begin
       if (ABS(nomrad1) > (g * 2)) and (ABS(nomrad2) > (g * 2))  // min rads (arbitrary).
         and (cen_apart > (ABS(nomrad1) + ABS(nomrad2) - minfp))   // ok to try S-curve
       then begin
-        wait_cancel_clicked := False;
-        wait_form.cancel_button.Show;
-        wait_form.waiting_label.Caption := 'calculating ...';
-
-        wait_form.waiting_label.Width :=
-          wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);  // 205b bug fix for Wine
-
-        pad_form.trans_calc_timer.Tag := 0;
-        // do the calcs while the wait message shows modal.
-        pad_form.trans_calc_timer.Enabled := True; // one-shot only to start the process.
-
-        do_show_modal(wait_form);  // 212a   ShowModal
+        computeResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...', make_transition_from_current_calcs, nil);
 
         if Application.Terminated = False then
           Application.ProcessMessages;
 
         // returns here when the wait form closes...
 
-        case pad_form.trans_calc_timer.Tag of
+        case computeResult of
           -1:
             EXIT;  // he cancelled  - leave transition as is.
           // 0: failed - try C-curve instead, below.
@@ -20890,26 +20885,14 @@ begin
         if (ABS(temp) > minfp) and (cen_apart < (ABS(ABS(nomrad1) - ABS(nomrad2)) + minfp))
         // ok to try C-curve
         then begin
-          wait_cancel_clicked := False;
-          wait_form.cancel_button.Show;
-          wait_form.waiting_label.Caption := 'calculating ...';
-
-          wait_form.waiting_label.Width :=
-            wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);  // 205b bug fix for Wine
-
-          pad_form.trans_calc_timer.Tag := 0;
-          // do the calcs while the wait message shows modal.
-          pad_form.trans_calc_timer.Enabled := True;
-          // one-shot only to start the process.
-
-          do_show_modal(wait_form);  // 212a   ShowModal
+          computeResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...', make_transition_from_current_calcs, nil);
 
           if Application.Terminated = False then
             Application.ProcessMessages;
 
           // returns here when the wait form closes...
 
-          case pad_form.trans_calc_timer.Tag of
+          case computeResult of
             -1:
               EXIT;  // he cancelled - leave transition as is.
             0: begin
@@ -20994,24 +20977,15 @@ begin
 
     // finally swing it on rad1 until rad2 centres co-incide..
 
-    wait_cancel_clicked := False;
-    wait_form.cancel_button.Show;
-    wait_form.waiting_label.Caption := 'calculating ...';
-
-    wait_form.waiting_label.Width := wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);
-    // 205b bug fix for Wine
-
-    pad_form.trans_calc_timer.Tag := 9;        // do the calcs while the wait message shows modal.
-    pad_form.trans_calc_timer.Enabled := True; // one-shot only to start the process.
-
-    do_show_modal(wait_form);  // 212a   ShowModal
+    rad2Origin.set_xy(make_trans_data.old_rad2_orgx, make_trans_data.old_rad2_orgy);
+    computeResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...', do_auto_trans_swing_adjust, @rad2Origin);
 
     if Application.Terminated = False then
       Application.ProcessMessages;
 
     // returns here when the wait form closes...
 
-    case pad_form.trans_calc_timer.Tag of
+    case computeResult of
       -1:
         EXIT;  // he cancelled - leave transition as is.
 
@@ -21032,28 +21006,12 @@ begin
   finally
     set_current_notch(saved_notch);  // restore his notch.
 
-    wait_form.Close;
     clicked_keep_index := -1;          // so can popup again.
     do_rollback := True;
 
     saved_current.keep_shove_list.Free;
     show_and_redraw(True, True);                       // in case copy caused a current hide.
   end;//try
-end;
-//___________________________________________________________________________________________
-
-function make_transition_from_current_calcs: integer;
-
-  // return  1= ok,   0= error,   -1= he cancelled.
-
-begin
-  Result := 0;  // default init.
-
-  do_rollback := False;
-  gocalc(0, 0);              // first stab at the new transition.
-
-  Result := do_auto_trans_length_adjust(make_trans_data.cen_apart);
-  // adjust transition length to match required rad centre-to-centre distance
 end;
 //__________________________________________________________________________________________
 
@@ -21301,7 +21259,7 @@ begin
 end;
 //________________________________________________________________________________________
 
-function do_auto_trans_length_adjust(apart_len_wanted: double): integer;
+function do_auto_trans_length_adjust(apart_len_wanted: double; waitMessage: IAutoWaitMessage): integer;
 
   // adjust transition zone length until the distance between the rad centres is apart_len_wanted.
   // return 1 if achieved, 0 if calc error, -1 if he cancels.
@@ -21370,7 +21328,7 @@ begin
       if Application.Terminated = False then
         Application.ProcessMessages;  // allow him to click.
 
-      if wait_cancel_clicked = True then begin
+      if Assigned(waitMessage) and waitMessage.IsCancelled then begin
         Result := -1;       // he clicked cancel.
         EXIT;
       end;
@@ -21395,7 +21353,7 @@ end;
 //________________________________________________________________________________________
 
 function do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy, old_rad2_orgx,
-  old_rad2_orgy: double): integer;
+  old_rad2_orgy: double; waitMessage: IAutoWaitMessage): integer;
 
   // this code moves the transition start (initial length os) to and fro in reducing steps
   // until the new position of the 2nd rad centre co-incides with the old.
@@ -21498,8 +21456,8 @@ begin
     if Application.Terminated = False then
       Application.ProcessMessages;  // allow him to click.
 
-    if wait_cancel_clicked = True   // exit calcs but leave os where we are.
-    then begin
+    if Assigned(waitMessage) and waitMessage.IsCancelled then begin
+      // exit calcs but leave os where we are.
       Result := -1;
       EXIT;
     end;
@@ -23343,6 +23301,9 @@ var
   pad_timber_centres: boolean;
   pad_timber_numbers: boolean;
 
+  checkLimits1: boolean;
+  checkLimits2: boolean;
+
 begin
   Result := False;  // default init.
 
@@ -23748,8 +23709,9 @@ begin
               infill_points[3].X := Round(check_int4x);
               infill_points[3].Y := Round(check_int4y);
 
-              if (check_limits(infill_points[0], infill_points[1]) = True) and
-                (check_limits(infill_points[2], infill_points[3]) = True) then begin
+              checkLimits1 := check_limits(infill_points[0], infill_points[1]);
+              checkLimits2 := check_limits(infill_points[2], infill_points[3]);
+              if (checkLimits1 and checkLimits2) then begin
                 if Pen.Color = paper_colour then begin                          // erasing...
                   Brush.Color :=
                     paper_colour;
@@ -28606,13 +28568,14 @@ begin
 end;
 //______________________________________________________________________________
 
-procedure make_double_track_calcs(side: integer);
+function make_double_track_calcs(data: Pointer; waitMessage: IAutoWaitMessage): Integer;
 
 var
   old_rad, rad_mod: double;
 
   dummy1, dummy2, dummy3, dummy4, dummy5: double;
 
+  side: integer;
   old_apartl: double;
 
   old_rad2_orgx, old_rad2_orgy: double;
@@ -28627,7 +28590,6 @@ var
     slew_str: string;
 
   begin
-    wait_form.Close;
     if Application.Terminated = False then
       Application.ProcessMessages;
 
@@ -28646,7 +28608,8 @@ var
   //////////////////////////////////////////////////////////////
 
 begin
-  try
+  side := PInteger(data)^;
+
     // keep compiler happy..
 
     old_rad1_orgx := 0;
@@ -28765,7 +28728,7 @@ begin
         nomrad2 := 0 - (nomrad2 - rad_mod);
 
         if auto_spiral_adjust = True then begin
-          case do_auto_trans_length_adjust(old_apartl) of
+          case do_auto_trans_length_adjust(old_apartl, waitMessage) of
             // set the new transition length.
 
             -1:
@@ -28791,7 +28754,7 @@ begin
 
       do_rollback := False;
 
-      if (spiral = True) and (auto_spiral_adjust = True) and (wait_cancel_clicked = False) then
+      if (spiral) and (auto_spiral_adjust) and (not (Assigned(waitMessage) and waitMessage.IsCancelled)) then
         pegy := g / 2                                  //!!! 14-7-00 put peg back on centre-line)
       else
         reset_peg_menu_entry.Click;
@@ -28804,10 +28767,10 @@ begin
 
       //!!! mods 14-7-00 ...
 
-      if (spiral = True) and (auto_spiral_adjust = True) and (wait_cancel_clicked = False) then
+      if (spiral) and (auto_spiral_adjust) and (not (Assigned(waitMessage) and waitMessage.IsCancelled)) then
       begin
         case do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy,
-            old_rad2_orgx, old_rad2_orgy) of
+            old_rad2_orgx, old_rad2_orgy, waitMessage) of
           // set the new transition start.
 
           -1:
@@ -28822,8 +28785,6 @@ begin
         end;//case
 
         reset_peg_menu_entry.Click;  // put peg back in sensible place.
-        wait_form.Close;
-
       end;
 
       reset_notch_menu_entry.Click;     // put notch back on datum.
@@ -28832,9 +28793,6 @@ begin
 
       show_and_redraw(True, True);                // in case hidden.
     end;//with
-  finally
-    wait_form.Close;
-  end;//try
 end;
 //______________________________________________________________________________________
 
@@ -28991,7 +28949,7 @@ begin
     until i <> 4;
   end;
 
-  if spiral = True then begin
+  if spiral then begin
     auto_spiral_adjust := True;    // default init.
 
     if (ABS(nomrad1) < max_rad_test) and (ABS(nomrad2) < max_rad_test) and
@@ -29018,26 +28976,16 @@ begin
       end;//case
     until i <> 3;
 
-    wait_cancel_clicked := False;
-    wait_form.cancel_button.Show;
-    wait_form.waiting_label.Caption := 'calculating ...';
-
-    wait_form.waiting_label.Width :=
-      wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);  // 205b bug fix for Wine
-
-    pad_form.trans_calc_timer.Tag := side;
-    // do the calcs while the wait message shows modal.
-    pad_form.trans_calc_timer.Enabled := True;    // one-shot only.
-
-    if auto_spiral_adjust = True then
-      do_show_modal(wait_form);  // 212a   ShowModal
+    if auto_spiral_adjust then begin
+       TWaitForm.ShowWaitMessageAndCompute('calculating ...', make_double_track_calcs, @side);
+    end;
 
     if Application.Terminated = False then
       Application.ProcessMessages;
 
   end
   else
-    make_double_track_calcs(side);  // not transition, no need to show wait/cancel message.
+    make_double_track_calcs(@side, nil);  // not transition, no need to show wait/cancel message.
 
   rail_options_form.restore_all_button.Click;  // 211c
 

@@ -6703,14 +6703,8 @@ begin
 
             if keep_form.keep_pdf_setup_dialog.Execute=False then EXIT;
 
-            wait_form.cancel_button.Hide;
-            wait_form.waiting_label.Caption:='preparing  PDF  file ...';
-
-            wait_form.waiting_label.Width:=wait_form.Canvas.TextWidth(wait_form.waiting_label.Caption);  // 205b bug fix for Wine
-
-            wait_form.Show;
+            waitMessage := Twait_form.ShowWaitMessage('preparing  PDF  file ...');
             Application.ProcessMessages;
-
 
             metafile_printer:=TMetafilePrinter.Create(nil);
 
@@ -6735,8 +6729,6 @@ begin
             note_str:='||'+IntToStr(num_of_print_pages)+' page(s)'
                      +'||page width: '+IntToStr(metafile_printer.PageWidth)+' dots at '+IntToStr(metafile_printer.PixelsPerInchX)+' dots per inch'
                      +'|page height: '+IntToStr(metafile_printer.PageHeight)+' dots at '+IntToStr(metafile_printer.PixelsPerInchY)+' dots per inch|';
-
-            wait_form.Close;
 
             show_pdf_result(keep_form.keep_pdf_printer.Filename,note_str);     // 205a
 
