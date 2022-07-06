@@ -1123,9 +1123,11 @@ begin
 
 
       snap_to_EGTP_menu_entry.Enabled :=
-        not (plain_track or spiral or slewing or (egpx > (xorg - minfp_big)));
+        not (plain_track or controlTemplate.curve.isSpiral or slewing or
+        (egpx > (xorg - minfp_big)));
       snap_to_IGTP_menu_entry.Enabled :=
-        not (plain_track or spiral or slewing or (igpx > (xorg - minfp_big)));
+        not (plain_track or controlTemplate.curve.isSpiral or slewing or
+        (igpx > (xorg - minfp_big)));
       crop_approach_menu_entry.Enabled := not (plain_track or (xorg < minfp_big));
       shorten_approach_one_menu_entry.Enabled := not (xorg < minfp_big);
       snap_approach_to_nearest_menu_entry.Enabled := not (xorg < minfp_big);
@@ -1141,12 +1143,15 @@ begin
 
       enable_peg_positions;  // update peg menu settings.
 
-      notch_on_radial_centre_menu_entry.Enabled := (ABS(nomrad) < max_rad_test) and (not spiral);
-      notch_on_1st_radial_centre_menu_entry.Enabled := (ABS(nomrad1) < max_rad_test) and spiral;
-      notch_on_2nd_radial_centre_menu_entry.Enabled := (ABS(nomrad2) < max_rad_test) and spiral;
+      notch_on_radial_centre_menu_entry.Enabled :=
+        (ABS(nomrad) < max_rad_test) and (not controlTemplate.curve.isSpiral);
+      notch_on_1st_radial_centre_menu_entry.Enabled :=
+        (ABS(nomrad1) < max_rad_test) and controlTemplate.curve.isSpiral;
+      notch_on_2nd_radial_centre_menu_entry.Enabled :=
+        (ABS(nomrad2) < max_rad_test) and controlTemplate.curve.isSpiral;
 
       make_turnout_road_menu_entry.Enabled :=
-        not (plain_track or spiral or slewing or half_diamond);
+        not (plain_track or controlTemplate.curve.isSpiral or slewing or half_diamond);
 
       if keeps_list.Count < 1 then begin
         toggle_bgnd_menu_entry.Enabled := False;
@@ -1196,7 +1201,7 @@ begin
         adjust_slew2_factor_menu_entry.Enabled := False;
       end;
 
-      if spiral = True then begin
+      if controlTemplate.curve.isSpiral then begin
         transition_template_menu_entry.Checked := True;    // radio item
         info_form.curving_label.Caption := curving_label_prefix_str + 'tr';
         // 213a
@@ -1232,12 +1237,14 @@ begin
       isolate_crossing_menu_entry.Enabled := (plain_track = False);
       // 217a
 
-      swings_in_degs_menu_entry.Enabled := ((ABS(nomrad) < max_rad_test) or spiral or slewing);
+      swings_in_degs_menu_entry.Enabled :=
+        ((ABS(nomrad) < max_rad_test) or controlTemplate.curve.isSpiral or slewing);
 
-      adjust_trans_length_menu_entry.Enabled := spiral;  // transition mouse actions..
-      adjust_trans_start_menu_entry.Enabled := spiral;
+      adjust_trans_length_menu_entry.Enabled := controlTemplate.curve.isSpiral;
+      // transition mouse actions..
+      adjust_trans_start_menu_entry.Enabled := controlTemplate.curve.isSpiral;
 
-      swell_menu_entry.Enabled := not (spiral or slewing);
+      swell_menu_entry.Enabled := not (controlTemplate.curve.isSpiral or slewing);
       // no swell mouse action for transition curves or slews.
 
       if plain_track = True then begin
@@ -1956,8 +1963,10 @@ begin
 
     update_rollback_register;   // so can roll back to the T-55 startup.
 
-    for i := 0 to 2 do
+    for i := 0 to 2 do begin
+      parking_bay[i] := TTemplate.Create('');
       fill_kd(parking_bay[i]);   // ditto initial fill all parking bays per current pad.
+    end;
 
     on_idle_can_run := True;
 
@@ -2975,12 +2984,12 @@ begin
   user_prefs_list.Free;        // 0.91.d
 
   for index := 0 to undo_c do
-    rollback_reg[index].rollback_info.keep_shove_list.Free;
+    rollback_reg[index].rollback_info.Free;
 
   current_shove_list.Free;
 
   for index := 0 to 2 do
-    parking_bay[index].keep_shove_list.Free;
+    parking_bay[index].Free;
 
   offdraw_bmp.Free;
   backdrop_bmp.Free;

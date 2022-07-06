@@ -87,7 +87,7 @@ uses
   shoved_timber, template;
 
 var
-  saved_current: Ttemplate_info;
+  savedCurrent: TTemplate;
   saved_name_str: string;
   saved_memo_str: string;
 
@@ -160,7 +160,7 @@ var
   procedure restore_current;
 
   begin
-    copy_keep(saved_current);
+    copy_keep(savedCurrent);
     // retrieve saved original control template.
     current_name_str := saved_name_str;
     current_memo_str := saved_memo_str;
@@ -300,9 +300,9 @@ begin
     // no re-entry until we are ready ..
     pad_form.ss_tandem_continue_menu_entry.Enabled := False;
 
-    saved_current.keep_shove_list := Tshoved_timber_list.Create;
+    savedCurrent := TTemplate.Create('');
 
-    fill_kd(saved_current);                              // save existing control template
+    fill_kd(savedCurrent);                              // save existing control template
     saved_name_str := current_name_str;
     saved_memo_str := current_memo_str;
 
@@ -433,7 +433,7 @@ begin
 
       //tandem_in_progress_id_str:='';    // tandem finished
 
-      saved_current.keep_shove_list.Free;
+      savedCurrent.Free;
 
       pad_form.ds_tandem_begin_menu_entry.Enabled := True;
       // so can start a new one later
@@ -515,7 +515,7 @@ begin
 
         //tandem_in_progress_id_str:='';    // tandem finished
 
-        saved_current.keep_shove_list.Free;
+        savedCurrent.Free;
 
         pad_form.ds_tandem_begin_menu_entry.Enabled := True;
         // so can start a new one later
@@ -562,7 +562,7 @@ begin
 
     //tandem_in_progress_id_str:='';    // tandem finished
 
-    saved_current.keep_shove_list.Free;
+    savedCurrent.Free;
 
     pad_form.ds_tandem_begin_menu_entry.Enabled := True;     // so can start a new one later
     pad_form.ss_tandem_begin_menu_entry.Enabled := True;     // so can start a new one later
@@ -964,7 +964,7 @@ begin
   finally
     creating_tandem := False;
 
-    saved_current.keep_shove_list.Free;
+    savedCurrent.Free;
 
     pad_form.ds_tandem_begin_menu_entry.Enabled := True;     // so can start a new one later
     pad_form.ss_tandem_begin_menu_entry.Enabled := True;     // so can start a new one later
@@ -1065,7 +1065,7 @@ var
   procedure restore_current;
 
   begin
-    copy_keep(saved_current);
+    copy_keep(savedCurrent);
     // retrieve saved original control template.
     current_name_str := saved_name_str;
     current_memo_str := saved_memo_str;
@@ -1284,9 +1284,9 @@ begin
     pad_form.ss_tandem_continue_menu_entry.Enabled := False;
 
 
-    saved_current.keep_shove_list := Tshoved_timber_list.Create;
+    savedCurrent := TTemplate.Create('');
 
-    fill_kd(saved_current);                              // save existing control template
+    fill_kd(savedCurrent);                              // save existing control template
     saved_name_str := current_name_str;
     saved_memo_str := current_memo_str;
 
@@ -1466,7 +1466,7 @@ begin
 
         //tandem_in_progress_id_str:='';    // tandem finished
 
-        saved_current.keep_shove_list.Free;
+        savedCurrent.Free;
 
         pad_form.ds_tandem_begin_menu_entry.Enabled := True;
         // so can start a new one later
@@ -1535,7 +1535,7 @@ begin
 
         creating_tandem := False;
 
-        saved_current.keep_shove_list.Free;
+        savedCurrent.Free;
 
         pad_form.ds_tandem_begin_menu_entry.Enabled := True;
         // so can start a new one later
@@ -1580,7 +1580,7 @@ begin
 
     creating_tandem := False;
 
-    saved_current.keep_shove_list.Free;
+    savedCurrent.Free;
 
     pad_form.ds_tandem_begin_menu_entry.Enabled := True;     // so can start a new one later
     pad_form.ss_tandem_begin_menu_entry.Enabled := True;     // so can start a new one later
@@ -1614,7 +1614,7 @@ begin
 
     creating_tandem := False;
 
-    saved_current.keep_shove_list.Free;
+    savedCurrent.Free;
 
     pad_form.ds_tandem_begin_menu_entry.Enabled := True;     // so can start a new one later
     pad_form.ss_tandem_begin_menu_entry.Enabled := True;     // so can start a new one later
@@ -1656,7 +1656,7 @@ begin
 
     creating_tandem := False;
 
-    saved_current.keep_shove_list.Free;
+    savedCurrent.Free;
 
     pad_form.ds_tandem_begin_menu_entry.Enabled := True;     // so can start a new one later
     pad_form.ss_tandem_begin_menu_entry.Enabled := True;     // so can start a new one later
@@ -2071,7 +2071,7 @@ begin
 
     creating_tandem := False;
 
-    saved_current.keep_shove_list.Free;
+    savedCurrent.Free;
 
     pad_form.ds_tandem_begin_menu_entry.Enabled := True;     // so can start a new one later
     pad_form.ss_tandem_begin_menu_entry.Enabled := True;     // so can start a new one later

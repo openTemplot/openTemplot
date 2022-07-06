@@ -1188,24 +1188,11 @@ end;
 //____________________________________________________________________________________________
 
 procedure copy_shove_list(delete_list: boolean; var from_list, to_list: Tshoved_timber_list);
-
-var
-  f: integer;
-  t: Tshoved_timber;
-
 begin
   if to_list = nil then
     to_list := Tshoved_timber_list.Create;    // first create or clear the destination...
 
-  to_list.Clear;
-
-  if from_list = nil then
-    EXIT;  // return empty list.
-
-  for f := 0 to from_list.Count - 1 do begin
-    t := Tshoved_timber.CreateFrom(from_list[f]);
-    to_list.Add(t);
-  end;//next
+  to_list.CopyFrom(from_list);
 
   if delete_list then
     from_list.Free;

@@ -94,6 +94,8 @@ type
 
 
   Tshoved_timber_list = class(TObjectList<Tshoved_timber>)
+    public
+      procedure CopyFrom(from: Tshoved_timber_list);
   end;
 
 
@@ -247,6 +249,23 @@ begin
     or (shove_data.sv_sp_int <> 0)  // spare integer.
 
     ) and (shove_data.sv_code = svcShove));
+end;
+
+
+procedure Tshoved_timber_list.CopyFrom(from: Tshoved_timber_list);
+var
+  f: Tshoved_timber;
+  t: Tshoved_timber;
+begin
+  Clear;
+
+  if not Assigned(from) then
+    EXIT;  // return empty list.
+
+  for f in from do begin
+    t := Tshoved_timber.CreateFrom(f);
+    Add(t);
+  end;//next
 end;
 
 end.

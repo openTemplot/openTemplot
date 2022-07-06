@@ -1984,8 +1984,8 @@ begin
                 if plain_track = False then
                   bottom_str := bottom_str + xing_str;
 
-                if (ABS(nomrad) < max_rad_test) or (spiral = True) then begin
-                  if spiral = False then
+                if (ABS(nomrad) < max_rad_test) or (controlTemplate.curve.isSpiral) then begin
+                  if not controlTemplate.curve.isSpiral then
                     bottom_str := bottom_str + '    curved onto ' +
                       round_str(nomrad, 0) + ' mm radius'
                   else

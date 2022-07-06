@@ -492,7 +492,7 @@ var
   grid_info: TGridInfo;
   loaded_templates: TTemplateList;
 
-  saved_control: Ttemplate_info;
+  savedControl: TTemplate;
   saved_notch: Tnotch;
 
   saved_control_name_str: string;
@@ -601,8 +601,8 @@ begin
   end;
 
   // added 0.78.d 19-02-03...
-  saved_control.keep_shove_list := Tshoved_timber_list.Create;
-  fill_kd(saved_control);                             // save control template.
+  savedControl := TTemplate.Create('');
+  fill_kd(savedControl);                             // save control template.
   saved_control_name_str := current_name_str;
   saved_control_memo_str := current_memo_str;
 
@@ -863,12 +863,12 @@ begin
       Screen.Cursor := saved_cursor;
       current_state(-1);                   // tidy up after any error exits.
 
-      copy_keep(saved_control);            // retrieve saved current...
+      copy_keep(savedControl);            // retrieve saved current...
       current_name_str := saved_control_name_str;
       current_memo_str := saved_control_memo_str;
       info_form.ref_name_label.Caption := current_name_str;
 
-      saved_control.keep_shove_list.Free;
+      savedControl.Free;
 
     end;//try
 

@@ -129,13 +129,14 @@ var
   old_next_data: Told_keep_data;
   new_next_data: Tnew_keep_data;
 
-  this_ti: Ttemplate_info;
+  thisTemplate: TTemplate;
+
   _071_format: boolean;
   number_read: integer;
 
   inbyte: byte;
 
-  saved_control: Ttemplate_info;
+  savedControl: TTemplate;
   saved_notch: Tnotch;
 
   saved_control_name_str: string;
@@ -314,12 +315,15 @@ var
             old_next_data.old_keep_dims1.box_dims1.bgnd_code_077 := -1;
           // make it a library template.                               }
 
-          this_ti.keep_shove_list := Tshoved_timber_list.Create;
+          thisTemplate := TTemplate.Create('');
+          try
+            thisTemplate.template_info.keep_dims := Tkeep_dims(old_next_data);
 
-          this_ti.keep_dims := Tkeep_dims(old_next_data);
+            keeps_list[n].CopyFrom(thisTemplate);
 
-          copy_template_info_from_to(True, this_ti, keeps_list[n].template_info);
-          // True = free the shove list.
+          finally
+            FreeAndNil(thisTemplate);
+          end;
 
 {xxx          if (append = True) and (make_lib = False) and
             (keep_form.add_ignore_group_menu_entry.Checked = False) then
@@ -706,8 +710,8 @@ begin
   end;
 
   // added 0.78.d 19-02-03...
-  saved_control.keep_shove_list := Tshoved_timber_list.Create;
-  fill_kd(saved_control);                             // save control template.
+  savedControl := TTemplate.Create('');
+  fill_kd(savedControl);                             // save control template.
   saved_control_name_str := current_name_str;
   saved_control_memo_str := current_memo_str;
 
@@ -989,12 +993,12 @@ begin
       Screen.Cursor := saved_cursor;
       current_state(-1);                   // tidy up after any error exits.
 
-      copy_keep(saved_control);            // retrieve saved current...
+      copy_keep(savedControl);            // retrieve saved current...
       current_name_str := saved_control_name_str;
       current_memo_str := saved_control_memo_str;
       info_form.ref_name_label.Caption := current_name_str;
 
-      saved_control.keep_shove_list.Free;
+      savedControl.Free;
 
     end;//try
 

@@ -2200,8 +2200,8 @@ begin
             if not plain_track then
               bottom_str := bottom_str + xing_str;
 
-            if (ABS(nomrad) < max_rad_test) or spiral then begin
-              if not spiral then
+            if (ABS(nomrad) < max_rad_test) or controlTemplate.curve.isSpiral then begin
+              if not controlTemplate.curve.isSpiral then
                 bottom_str := bottom_str + '    curved onto ' + round_str(nomrad, 0) + ' mm radius'
               else
                 bottom_str := bottom_str + '    spiral transition curve';

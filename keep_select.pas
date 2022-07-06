@@ -720,9 +720,7 @@ const
 
 var
 
-  deleted_keep: Ttemplate_info;
-  deleted_keep_string: string;
-  deleted_memo_string: string;
+  deletedKeep: TTemplate;
 
   valid_calcs: boolean = False;
 
@@ -912,12 +910,12 @@ function rebuild_it(n, move_bgnd_peg_to_code, move_bgnd_peg_to_peg_rail: integer
   // move_bgnd_peg_to_code:integer; move_bgnd_peg:boolean   added 205c
 
 var
-  save_template: Ttemplate_info;
+  saveTemplate: TTemplate;
 
 begin
   Result := False;                                       // default init.
-  save_template.keep_shove_list := Tshoved_timber_list.Create;
-  fill_kd(save_template);
+  saveTemplate := TTemplate.Create('');
+  fill_kd(saveTemplate);
   // temporarily store the existing settings (control template or box).
   try
 
@@ -1051,8 +1049,8 @@ begin
     Result := True;
 
   finally
-    copy_keep(save_template);                       // restore previous settings
-    save_template.keep_shove_list.Free;
+    copy_keep(saveTemplate);                       // restore previous settings
+    saveTemplate.Free;
   end;//try
 end;
 //______________________________________________________________________________________
@@ -1125,7 +1123,7 @@ procedure delete_keep(echo_cut, alerts: boolean);           // delete the curren
 
 var
   n, i: integer;
-  ti: Ttemplate_info;
+  t: TTemplate;
   s, str: string;
   bf: boolean;
 
@@ -1137,22 +1135,20 @@ begin
   if (n >= keeps_list.Count) or (n < 0) then
     EXIT;
 
-  ti.keep_shove_list := Tshoved_timber_list.Create;
-
   try
-    copy_template_info_from_to(False, keeps_list[n].template_info, ti);
+    t := keeps_list[n];
     // current keep data
-    bf := keeps_list[n].bg_copied;
+    bf := t.bg_copied;
     // background flag.
 
-    if bf = True then
+    if bf then
       s := ' and from the background drawing.'
     else
       s := '.';
 
-    if echo_cut = False then begin
-      if (no_delete_msg_pref = False) and (alerts = True) then begin
-        str := ti.keep_dims.box_dims1.reference_string;
+    if not echo_cut then begin
+      if (not no_delete_msg_pref) and (alerts) then begin
+        str := t.template_info.keep_dims.box_dims1.reference_string;
         // Delphi bug? - must be a local string, otherwise limits length of alert string.
 
         alert_box.preferences_checkbox.Checked := False;       //%%%%
@@ -1178,19 +1174,18 @@ begin
           EXIT;
       end;
 
-      if bgnd_clicked_in_quick_mode = False
       // 0.93.a  don't save for undo if background template clicked in Quick Mode
-      then begin
-        copy_template_info_from_to(False, ti, deleted_keep);
+      if not bgnd_clicked_in_quick_mode then begin
+        // clean out any old deletedKee
+        FreeAndNil(deletedKeep);
         // save for undo delete.
-        deleted_keep_string := keeps_list[n].Name;
-        deleted_memo_string := keeps_list[n].Memo;
+        deletedKeep := t;
         keep_form.undo_delete_menu_entry.Enabled := True;
       end;
     end
     else begin
-      if (no_cut_msg_pref = False) and (alerts = True) then begin
-        str := ti.keep_dims.box_dims1.reference_string;
+      if (not no_cut_msg_pref) and (alerts) then begin
+        str := t.template_info.keep_dims.box_dims1.reference_string;
         // Delphi bug? - must be a local string, otherwise limits length of alert string.
 
         alert_box.preferences_checkbox.Checked := False;       //%%%%
@@ -1199,7 +1194,7 @@ begin
         i := alert(7, '      cut  this  template ?', '|' + str +
           ' has been sent as an ECHO.' +
           ' You are now about to delete this template from your storage box' +
-          s + '||It can be only restored by selecting the DISK > FETCH ECHO menu item before another echo is sent.' + '||The remaining templates will be re-numbered.' + '||Are you sure you want to delete this template ?', '', '', '', '', 'no  -  cancel  delete    ', 'yes  -  delete  ' + ti.keep_dims.box_dims1.reference_string + '      ', 0);
+          s + '||It can be only restored by selecting the DISK > FETCH ECHO menu item before another echo is sent.' + '||The remaining templates will be re-numbered.' + '||Are you sure you want to delete this template ?', '', '', '', '', 'no  -  cancel  delete    ', 'yes  -  delete  ' + t.template_info.keep_dims.box_dims1.reference_string + '      ', 0);
 
         //%%%%  was "today"
 
@@ -1212,9 +1207,9 @@ begin
       end;
     end;
 
-    if bf = True       // first remove it from the background and free drawing data...
-    then begin
-      if wipe_it(n) = False then begin
+    if bf then begin
+      // first remove it from the background and free drawing data...
+      if not wipe_it(n) then begin
         alert(5, '    program  error',
           '||Sorry, there is a program error.' +
           '||The background will be cleared and rebuilt.' +
@@ -1225,13 +1220,19 @@ begin
       end;
     end;
 
-    keeps_list.Delete(n);
+    if t = deletedKeep then begin
+      // we're keeping it for undo, so only remove it from the list
+      keeps_list.ExtractIndex(n)
+    end
+    else begin
+      // we're not keep it for undo, so it needs to be removed and Free'd
+      keeps_list.Delete(n);
+    end;
     save_done := False;
     backup_wanted := True;
 
     current_state(-1);
   finally
-    ti.keep_shove_list.Free;
   end;//try
 end;
 //_________________________________________________________________________________________
@@ -2301,12 +2302,9 @@ begin
 
     current_memo_str := keeps_list[n].Memo;
 
-    ti.keep_shove_list := Tshoved_timber_list.Create;
-
     try
-      copy_template_info_from_to(False, keeps_list[n].template_info, ti);
-      copy_keep(ti);
-      // and make it current.
+      // make it current.
+      copy_keep(keeps_list[n]);
 
       copied_ref_str := ti.keep_dims.box_dims1.reference_string;
 
@@ -2372,7 +2370,6 @@ begin
         statusbar_click(False);        // default is to copy the name.
 
     finally
-      ti.keep_shove_list.Free;
     end;//try
   end;//with keep_form.
 
@@ -3095,7 +3092,7 @@ procedure keep_draw(index: integer);              // draw this template on the k
 //!!! mods 16-5-99 to remove grid...
 var
 
-  pad_ti: Ttemplate_info;  // save existing control template on the pad.
+  savedControl: TTemplate;  // save existing control template on the pad.
 
   xrange, yrange: double;
   xmax, ymax: integer;
@@ -3220,11 +3217,11 @@ begin
     EXIT;   // no drawing if the box is closed or the box is empty or the index is out of range.
   // otherwise onActivate code will not have been done.
 
-  pad_ti.keep_shove_list := Tshoved_timber_list.Create;
+  savedControl := TTemplate.Create('');
   try
-    fill_kd(pad_ti);        // fill the keep record with the saved control template.
+    fill_kd(savedControl);        // fill the keep record with the saved control template.
 
-    copy_keep(keeps_list[index].template_info);    // get the current keep.
+    copy_keep(keeps_list[index]);    // get the current keep.
 
     with keeps_list[index].template_info.keep_dims.box_dims1 do begin      // 213b
 
@@ -3875,8 +3872,8 @@ begin
 
     end;//with Canvas
   finally
-    copy_keep(pad_ti);                         // restore the control template on the pad.
-    pad_ti.keep_shove_list.Free;
+    copy_keep(savedControl);                         // restore the control template on the pad.
+    savedControl.Free;
   end;//try
 end;
 //_______________________________________________________________________________________________________________________________
@@ -3938,22 +3935,21 @@ procedure store_unused(library_template, control_template_on_save: boolean);
 var
   n, i: integer;
   si: string;
-  new_ti: Ttemplate_info;
+  newTemplate: TTemplate;
 
 begin
 
-  if (keep_form.Active = True) and (control_template_on_save = False)
-  // the box was opened unchanged.
-  then begin
-    if valid_calcs = False                //  calcs were not valid.
-    then begin
+  if (keep_form.Active) and (not control_template_on_save) then begin
+    // the box was opened unchanged.
+    if not valid_calcs then begin
+      //  calcs were not valid.
       alert(6, '    nothing  to  store',
         '|||    There is no valid template to be stored.',
         '', '', '', '', 'cancel', '', 0);
       EXIT;
     end;
 
-    if check_control_template_is_valid('store') = False then
+    if not check_control_template_is_valid('store') then
       EXIT;  // 0.93.a  zero-length template
 
   end
@@ -3964,10 +3960,10 @@ begin
     normalize_transforms;          // first normalize transform data.
 
 
-    if control_template_on_save = True             // 0.93.a
-    then begin
+    if control_template_on_save then begin
+      // 0.93.a
       gocalc(0, 0);                       // 0.93.a only calcs wanted
-      if {check_if_abandoned<>-1} abandon_calcs = True then
+      if {check_if_abandoned<>-1} abandon_calcs then
         EXIT;
     end
     else begin
@@ -3979,8 +3975,8 @@ begin
       // no rollback wanted.
 
 
-      if calcs_done_and_valid = False        //  calcs not valid.
-      then begin
+      if not calcs_done_and_valid then begin
+        //  calcs not valid.
         alert(6, '    nothing  to  store',
           '|||    There is no valid template to be stored.',
           '', '', '', '', 'cancel', '', 0);
@@ -3989,9 +3985,9 @@ begin
     end;
   end;
 
-  new_ti.keep_shove_list := Tshoved_timber_list.Create;
+  newTemplate := TTemplate.Create('');
   try
-    fill_kd(new_ti);               // fill the keep record with the control template data.
+    fill_kd(newTemplate);               // fill the keep record with the control template data.
 
     n := keeps_list.Count;           // for error message if AddObject fails.
 
@@ -4027,38 +4023,37 @@ begin
     init_ttemplate(n);           // init flags for new keep.
 
     if library_template = True then
-      new_ti.keep_dims.box_dims1.bgnd_code_077 := -1   // make it a library template.
+      newTemplate.template_info.keep_dims.box_dims1.bgnd_code_077 := -1   // make it a library template.
     else
-      new_ti.keep_dims.box_dims1.bgnd_code_077 := 0;   // unused, not yet on background.
-    new_ti.keep_dims.box_dims1.pre077_bgnd_flag := False;
+      newTemplate.template_info.keep_dims.box_dims1.bgnd_code_077 := 0;   // unused, not yet on background.
+    newTemplate.template_info.keep_dims.box_dims1.pre077_bgnd_flag := False;
     // in case reloaded in older version than 0.77.a
 
-    new_ti.keep_dims.box_dims1.this_was_control_template := control_template_on_save;  // 0.93.a
+    newTemplate.template_info.keep_dims.box_dims1.this_was_control_template := control_template_on_save;  // 0.93.a
 
-    if control_template_on_save = True   // 208c
-    then
-      with new_ti.keep_dims.turnout_info2 do
+    if control_template_on_save then begin
+      with newTemplate.template_info.keep_dims.turnout_info2 do
         template_type_str := template_type_str + 'c';  // max 6 chars
+    end;
 
-    copy_template_info_from_to(False, new_ti, keeps_list[n].template_info);
+    keeps_list[n].CopyFrom(newTemplate);
 
-    if control_template_on_save = False           // 0.93.a ...
-    then begin
+    if not control_template_on_save then begin
 
       save_done := False;     // need a fresh save.
       backup_wanted := True;  // update the backup.
 
-      if keep_form.list_panel.Showing = True then
+      if keep_form.list_panel.Showing then
         keep_form.show_list_button.Click;          // update the list.
 
       current_state(0);  // add to listbox and set new current.
 
-      if (keep_form.Active = True) and (keep_form.list_panel.Visible = False) then
+      if (keep_form.Active) and (not keep_form.list_panel.Visible) then
         keep_draw(n);    // draw the control template in the keeps box.
     end;
 
   finally
-    new_ti.keep_shove_list.Free;
+    newTemplate.Free;
   end;//try
 end;
 //____________________________________________________________________________________________
@@ -4528,7 +4523,7 @@ procedure copy_or_wipe_background;
 var
   n: integer;
 
-  saved_current: Ttemplate_info;
+  savedCurrent: TTemplate;
   saved_name_str: string;
   saved_current_memo_str: string;
 
@@ -4543,8 +4538,8 @@ begin
   if keep_form.Active = True then
     keep_form.Cursor := crHourGlass;        // might take a while.
 
-  saved_current.keep_shove_list := Tshoved_timber_list.Create;
-  fill_kd(saved_current);                              // save control template for restore.
+  savedCurrent := TTemplate.Create('');
+  fill_kd(savedCurrent);                              // save control template for restore.
   saved_name_str := current_name_str;
   saved_current_memo_str := current_memo_str;
 
@@ -4566,11 +4561,11 @@ begin
       current_state(-1);
     end;
   finally
-    copy_keep(saved_current);                 // restore his control template.
+    copy_keep(savedCurrent);                 // restore his control template.
     current_name_str := saved_name_str;
     current_memo_str := saved_current_memo_str;
     info_form.ref_name_label.Caption := current_name_str;
-    saved_current.keep_shove_list.Free;
+    savedCurrent.Free;
 
     keep_form.Cursor := crDefault;
   end;//try
@@ -4592,7 +4587,6 @@ var
   i, now: integer;
   aq: ERailData;
   new_bgk: Tbgnd_keep;
-  ti: Ttemplate_info;
   si, name_str: string;
   pt: TPoint;
 
@@ -4641,13 +4635,8 @@ begin
         = -1 then
         EXIT;  // ??? library template.
 
-      ti.keep_shove_list := Tshoved_timber_list.Create;
-
       try
-        copy_template_info_from_to(False,
-          keeps_list[list_index].template_info, ti);  // get the keep data.
-
-        copy_keep(ti);    // make the keep data current.
+        copy_keep(keeps_list[list_index]);    // make the keep data current.
 
         //show_and_redraw(True,False);                 // no rollback.
         pad_form.length_locked_popup_entry.Click;
@@ -4846,7 +4835,7 @@ begin
           // added 205e ...
 
           bgnd_xing_type := xing_type_i;
-          bgnd_spiral := spiral;
+          bgnd_spiral := controlTemplate.curve.isSpiral;
           bgnd_turnout_radius := radius_for_obtain;
 
           bgnd_blanked := (startx > 0);        // 215a
@@ -4858,7 +4847,6 @@ begin
         end;//with Ttemplate
 
       finally
-        ti.keep_shove_list.Free;
       end;//try
     end;//with keep_form
 
@@ -6137,11 +6125,11 @@ procedure rebuild_background(use_modify_options, egg_timer: boolean);
 var
   n, i: integer;
   aq: ERailData;
-  save_current: Ttemplate_info;
+  saveCurrent: TTemplate;
 
 begin
 
-  save_current.keep_shove_list := Tshoved_timber_list.Create;
+  saveCurrent := TTemplate.Create('');
 
   try
     if egg_timer = True then
@@ -6150,7 +6138,7 @@ begin
     pad_form.length_locked_popup_entry.Click;
     //  so that plain track or approach and exit tracks can be drawn.
 
-    fill_kd(save_current);               // temporarily store the control template.
+    fill_kd(saveCurrent);               // temporarily store the control template.
 
     if keeps_list.Count < 1 then
       EXIT;
@@ -6247,11 +6235,11 @@ begin
     end;//for next n
 
   finally
-    copy_keep(save_current);       // restore the control template.
+    copy_keep(saveCurrent);       // restore the control template.
     backup_wanted := True;
     redraw_pad(True, False);
 
-    save_current.keep_shove_list.Free;
+    saveCurrent.Free;
     if egg_timer = True then
       Screen.Cursor := crDefault;
   end;//try
@@ -6772,7 +6760,7 @@ procedure Tkeep_form.all_to_bgnd_menu_entryClick(Sender: TObject);
 // all unused keeps to background.
 var
   n: integer;
-  save_current: Ttemplate_info;
+  saveCurrent: TTemplate;
 
 begin
   if any_unused = 0 then begin
@@ -6783,14 +6771,14 @@ begin
   if keeps_list.Count < 1 then
     EXIT;
 
-  save_current.keep_shove_list := Tshoved_timber_list.Create;
+  saveCurrent := TTemplate.Create('');
 
   try
     Screen.Cursor := crHourGlass;        // might take a while.
     if Application.Terminated = False then
       Application.ProcessMessages;
 
-    fill_kd(save_current);                  // fill with the control template data.
+    fill_kd(saveCurrent);                  // fill with the control template data.
 
     for n := 0 to (keeps_list.Count - 1) do begin
       if keeps_list[n].template_info.keep_dims.box_dims1.bgnd_code_077 =
@@ -6801,13 +6789,13 @@ begin
       end;
     end;//for
 
-    copy_keep(save_current);
+    copy_keep(saveCurrent);
     // reset for pad redraws after copy to background calcs.
     pad_form.fit_bgnd_menu_entry.Click;     // show the new background.
     current_state(-1);
     //]]]if open_bgnd_list_menu_entry.Checked=True then do_bgkeeps;
   finally
-    save_current.keep_shove_list.Free;
+    saveCurrent.Free;
     Screen.Cursor := crDefault;
   end;//try
   backup_wanted := True;
@@ -6847,7 +6835,7 @@ procedure toggle_unused_bgnd(group: boolean);
 // swap all or group of unused keeps to background and vice versa.
 var
   n: integer;
-  save_current: Ttemplate_info;
+  saveCurrent: TTemplate;
 
 begin
   if keeps_list.Count < 1 then
@@ -6857,8 +6845,8 @@ begin
   if Application.Terminated = False then
     Application.ProcessMessages;
 
-  save_current.keep_shove_list := Tshoved_timber_list.Create;
-  fill_kd(save_current);
+  saveCurrent := TTemplate.Create('');
+  fill_kd(saveCurrent);
 
   try
     for n := 0 to (keeps_list.Count - 1) do begin
@@ -6889,8 +6877,8 @@ begin
 
   finally
     current_state(-1);
-    copy_keep(save_current);
-    save_current.keep_shove_list.Free;
+    copy_keep(saveCurrent);
+    saveCurrent.Free;
     Screen.Cursor := crDefault;
   end;//try
 
@@ -6951,7 +6939,7 @@ begin     // menu is not enabled until there is something there.
   n := -1;   // keep compiler happy
 
   try
-    n := keeps_list.Add(TTemplate.Create(deleted_keep_string));        // add line to info.
+    n := keeps_list.Add(TTemplate.Create(deletedKeep.Name));        // add line to info.
   except
     alert(5, '    undo  delete  error',
       '|||There is an internal problem with undo.' + '||Please quote fail code 901.',
@@ -6959,14 +6947,15 @@ begin     // menu is not enabled until there is something there.
     EXIT;
   end;//try
 
-  keeps_list[n].Memo := deleted_memo_string;
+  keeps_list[n].Memo := deletedKeep.Memo;
 
-  save_done := False;
   // need a fresh save.
-  init_ttemplate(n);
+  save_done := False;
   // init flags for new keep.
-  copy_template_info_from_to(False, deleted_keep, keeps_list[n].template_info);
+  init_ttemplate(n);
   // data into list.
+  keeps_list[n].CopyFrom(deletedKeep);
+  FreeAndNil(deletedKeep);
 
   backup_wanted := True;
 
@@ -6979,7 +6968,7 @@ begin     // menu is not enabled until there is something there.
 
   // refresh or clear backgrounds for newly loaded keep...
 
-  if deleted_keep.keep_dims.box_dims1.bgnd_code_077 = 1 then begin
+  if deletedKeep.template_info.keep_dims.box_dims1.bgnd_code_077 = 1 then begin
     if update_background_menu_entry.Checked = True then
       copy_keep_to_background(n, False, False)
     // put it in background.
@@ -8249,13 +8238,13 @@ procedure rebuild_group(use_modify_options, egg_timer: boolean);
 
 var
   n: integer;
-  save_current: Ttemplate_info;
+  saveCurrent: TTemplate;
 
 begin
   if any_selected = 0 then
     EXIT;
 
-  save_current.keep_shove_list := Tshoved_timber_list.Create;
+  saveCurrent := TTemplate.Create('');
 
   try
     if egg_timer = True then
@@ -8264,7 +8253,7 @@ begin
     pad_form.length_locked_popup_entry.Click;
     //  so that plain track or approach and exit tracks can be drawn.
 
-    fill_kd(save_current);                        // temporarily store the control template.
+    fill_kd(saveCurrent);                        // temporarily store the control template.
 
     for n := 0 to (keeps_list.Count - 1) do begin
 
@@ -8360,8 +8349,8 @@ begin
       end;//with template
     end;//next n
   finally
-    copy_keep(save_current);                         // draw the old template on the pad.
-    save_current.keep_shove_list.Free;
+    copy_keep(saveCurrent);                         // draw the old template on the pad.
+    saveCurrent.Free;
     backup_wanted := True;
     redraw_pad(True, False);
     if egg_timer = True then
@@ -8485,7 +8474,7 @@ end;
 procedure normalize_templates;        // update box contents to latest file format.
 
 var
-  save_current: Ttemplate_info;
+  saveCurrent: Ttemplate;
   save_current_memo_str: string;
   n, Count: integer;
   bgnd: integer;
@@ -8516,8 +8505,8 @@ begin
 
   Count := keeps_list.Count;
 
-  save_current.keep_shove_list := Tshoved_timber_list.Create;
-  fill_kd(save_current);
+  saveCurrent := TTemplate.Create('');
+  fill_kd(saveCurrent);
   save_current_memo_str := current_memo_str;
 
   try
@@ -8577,11 +8566,11 @@ begin
     save_box(0, eSB_SaveAll, eSO_Normal, '');   // don't need result flag.
 
   finally
-    copy_keep(save_current);                                         // restore control template.
+    copy_keep(saveCurrent);                                         // restore control template.
     pad_form.show_bgnd_keeps_menu_entry.Checked := save_bgnd_option;   // restore, radio item.
     current_memo_str := save_current_memo_str;
 
-    save_current.keep_shove_list.Free;
+    saveCurrent.Free;
     do_rollback := False;
     redraw(True);
   end;//try
@@ -9248,8 +9237,8 @@ begin
 
   if keep_form.undo_delete_menu_entry.Enabled = True    // 208b
   then begin
-    if Result < deleted_keep.keep_dims.box_dims1.id_number then
-      Result := deleted_keep.keep_dims.box_dims1.id_number;
+    if Assigned(deletedKeep) and (Result < deletedKeep.template_info.keep_dims.box_dims1.id_number) then
+      Result := deletedKeep.template_info.keep_dims.box_dims1.id_number;
   end;
 end;
 //______________________________________________________________________________
@@ -9397,8 +9386,10 @@ var
 
 begin
   Result := False;  // init
+  if not Assigned(deletedKeep) then
+    Exit;
 
-  with deleted_keep.keep_dims do begin
+  with deletedKeep.template_info.keep_dims do begin
 
     with box_dims1.rail_info do begin
 
@@ -9465,7 +9456,7 @@ begin
 
     any_reset := True;
 
-    with deleted_keep.keep_dims do begin
+    with deletedKeep.template_info.keep_dims do begin
 
       box_dims1.id_number := keeps_list.Count + 1;   // next ID
 

@@ -216,7 +216,7 @@ end;
 procedure group_scale_change;        // change a selected group to a new scale/gauge setting.
 
 var
-  save_current: Ttemplate_info;
+  saveCurrent: TTemplate;
   n, Count: integer;
   bgnd: integer;
   save_bgnd_option: boolean;
@@ -264,8 +264,8 @@ begin
 
   Count := keeps_list.Count;
 
-  save_current.keep_shove_list := Tshoved_timber_list.Create;
-  fill_kd(save_current);
+  saveCurrent := TTemplate.Create('');
+  fill_kd(saveCurrent);
   save_name := current_name_str;
 
   try
@@ -325,13 +325,13 @@ begin
     pad_form.show_bgnd_keeps_menu_entry.Checked := save_bgnd_option;   // restore, radio item.
 
   finally
-    copy_keep(save_current);        // restore control template...
+    copy_keep(saveCurrent);        // restore control template...
     current_name_str := save_name;
     info_form.ref_name_label.Caption := current_name_str;
 
     pad_form.show_bgnd_keeps_menu_entry.Checked := save_bgnd_option;   // restore, radio item.
 
-    save_current.keep_shove_list.Free;
+    saveCurrent.Free;
 
     Screen.Cursor := crDefault;
     do_rollback := False;
