@@ -51,20 +51,6 @@ type
     procedure test_transition_curve_negative_to_smaller_positive;
 
     procedure test_slew_creation;
-      (*
-      procedure test_straight_line_slewed_left;
-      procedure test_straight_line_slewed_right;
-      procedure test_single_radius_positive_slewed_left;
-      procedure test_single_radius_positive_slewed_right;
-      procedure test_single_radius_negative_slewed_left;
-      procedure test_single_radius_negative_slewed_right;
-      procedure test_transition_curve_positive_positive_increasing_slewed_left;
-      procedure test_transition_curve_positive_positive_decreasing_slewed_right;
-      procedure test_transition_curve_negative_negative_increasing_slewed_left;
-      procedure test_transition_curve_negative_negative_decreasing_slewed_right;
-      procedure test_transition_curve_positive_negative_slewed_left;
-      procedure test_transition_curve_negative_positive_slewed_right;
-      *)
   end;
 
 implementation
@@ -454,67 +440,6 @@ begin
   Check(curve.curveCalculator is TSlewCalculator, 'curveCalculator not expected class');
 end;
 
-(*
-procedure Ttest_curve.test_straight_line_slewed_left;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_straight_line_slewed_right;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_single_radius_positive_slewed_left;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_single_radius_positive_slewed_right;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_single_radius_negative_slewed_left;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_single_radius_negative_slewed_right;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_transition_curve_positive_positive_increasing_slewed_left;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_transition_curve_positive_positive_decreasing_slewed_right;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_transition_curve_negative_negative_increasing_slewed_left;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_transition_curve_negative_negative_decreasing_slewed_right;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_transition_curve_positive_negative_slewed_left;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_transition_curve_negative_positive_slewed_right;
-begin
- Check(false, 'Not implemented');
-end;
-*)
 
 
 initialization
