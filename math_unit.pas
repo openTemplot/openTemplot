@@ -12339,7 +12339,7 @@ procedure trail_shove_along(X: integer);
 begin
   shovex := shovex_now + (X - shove_now_x) / fx / shove_mouse_factor / 2;
   // /2 arbitrary.
-  current_shove_list[shove_index].sv_x := shovex;
+  current_shove_list[shove_index].xtbModifier := shovex;
 
   shovetimbx := shovetimbx_now + (X - shovetimb_now) / fx / shove_mouse_factor / 2;
 
@@ -12352,7 +12352,7 @@ procedure trail_shove_throw(Y: integer);
 
 begin
   shoveo := shoveo_now + (Y - shove_now_y) * ffy * hand_i / shove_mouse_factor;
-  current_shove_list[shove_index].sv_o := shoveo;
+  current_shove_list[shove_index].offsetModifier := shoveo;
 end;
 //________________________________________________________________________________________
 
@@ -12360,7 +12360,7 @@ procedure trail_shove_crab(X: integer);
 
 begin
   shovec := shovec_now + (X - shove_now_x) / fx / shove_mouse_factor / 2;     // /2 arbitrary.
-  current_shove_list[shove_index].sv_c := shovec;
+  current_shove_list[shove_index].crabModifier  := shovec;
 end;
 //________________________________________________________________________________________
 
@@ -12368,7 +12368,7 @@ procedure trail_shove_length(Y: integer);
 
 begin
   shovel := shovel_now + (Y - shove_now_y) * ffy * hand_i / shove_mouse_factor;
-  current_shove_list[shove_index].sv_l := shovel;
+  current_shove_list[shove_index].lengthModifier := shovel;
 end;
 //________________________________________________________________________________________
 
@@ -12377,7 +12377,7 @@ procedure trail_shove_width(X: integer);
 begin
   shovew := shovew_now + (X - shove_now_x) / fx / shove_mouse_factor / 4;
   // /4 arbitrary.
-  current_shove_list[shove_index].sv_w := shovew;
+  current_shove_list[shove_index].widthModifier := shovew;
 end;
 //________________________________________________________________________________________
 
@@ -12386,7 +12386,7 @@ procedure trail_shove_twist(Y: integer);
 begin
   shovek := shovek_now + (Y - shove_now_y) * ffy * hand_i / (shove_mouse_factor * screenx);
   normalize_angle(shovek);
-  current_shove_list[shove_index].sv_k := shovek;
+  current_shove_list[shove_index].angleModifier := shovek;
 end;
 //________________________________________________________________________________________
 
@@ -24982,15 +24982,15 @@ begin
     if shove_timber_form.Showing = False        // not shoving.
     then begin
       for n := 0 to current_shove_list.Count - 1 do begin
-        if (marktext_str = current_shove_list[n].timber_string) and
-          (current_shove_list[n].sv_code = svcOmit) then
+        if (marktext_str = current_shove_list[n].timberString) and
+          (current_shove_list[n].shoveCode = svcOmit) then
           EXIT; // omit this timber, shove list.
       end;//next
     end
     else begin                             // show numbers for omitted timbers when shoving...
       for n := 0 to current_shove_list.Count - 1 do begin
-        if (marktext_str = current_shove_list[n].timber_string) and
-          (current_shove_list[n].sv_code = svcOmit) then begin
+        if (marktext_str = current_shove_list[n].timberString) and
+          (current_shove_list[n].shoveCode = svcOmit) then begin
           // find somewhere to put it, timber centre-line calcs will be omitted.
           pnum.x := xtb;
           pnum.y := tbnumy_screen / 2;
@@ -25106,7 +25106,7 @@ var                                // enter with xtb, yns, yfs, tbq
   dummy: double;
   x_curmod, x_curtimb, y_curmod, y_curtimb, k_curtimb: double;
 
-  shoved: Tshoved_timber;
+  shoved: TShovedTimber;
 
   ////////////////////////////////////////////////////////////
 
@@ -25172,23 +25172,23 @@ begin
 
   for n := 0 to current_shove_list.Count - 1 do begin
     shoved := current_shove_list[n];
-    if (numberStr = shoved.timber_string) and (shoved.sv_code <> svcEmpty)
+    if (numberStr = shoved.timberString) and (shoved.shoveCode <> svcEmpty)
     // this timber number is in shove list.
     then begin
       if (shove_timber_form.Showing) and
         (shove_timber_form.show_all_blue_checkbox.Checked) then begin
         timberStatus := eTS_shoved; // will be highlighted in blue or red.
       end;
-      if shoved.sv_code = svcOmit     // this value in the list is a flag.
+      if shoved.shoveCode = svcOmit     // this value in the list is a flag.
       then
         omit := True       // he wants this timber omitted.
       else begin
-        xshove := shoved.sv_x;
-        kshove := shoved.sv_k;
-        oshove := shoved.sv_o;
-        lshove := shoved.sv_l;
-        wshove := shoved.sv_w;
-        cshove := shoved.sv_c;
+        xshove := shoved.xtbModifier;
+        kshove := shoved.angleModifier;
+        oshove := shoved.offsetModifier;
+        lshove := shoved.lengthModifier;
+        wshove := shoved.widthModifier;
+        cshove := shoved.crabModifier;
 
         xtimbcl := xtb + xshove;   // he wants it shoved.
       end;
@@ -25372,7 +25372,7 @@ var
   num_bridge: integer;
 
   bridge_override: boolean;
-  shoved: Tshoved_timber;
+  shoved: TShovedTimber;
 
   ////////////////////////////////////////////////////////////
 
@@ -25481,7 +25481,7 @@ begin
 
   for n := 0 to current_shove_list.Count - 1 do begin
     shoved := current_shove_list[n];
-    if (numberStr = shoved.timber_string) and (shoved.sv_code <> svcEmpty)
+    if (numberStr = shoved.timberString) and (shoved.shoveCode <> svcEmpty)
     // this timber number is in shoved list.
     then begin
       if (shove_timber_form.Showing) and
@@ -25489,33 +25489,33 @@ begin
         timberStatus := eTS_Shoved; // draw highlighted blue if required
         // (may be overidden later for red if currently selected).
       end;
-      if shoved.sv_code = svcOmit                         // this value in the list is a flag.
+      if shoved.shoveCode = svcOmit                         // this value in the list is a flag.
       then
         EXIT//omit:=True              // he wants this timber omitted.
       else begin
-        xns := xns + shoved.sv_x - shoved.sv_w;
+        xns := xns + shoved.xtbModifier - shoved.widthModifier;
         // he wants it shoved along and/or widened/narrowed.
-        xfs := xfs + shoved.sv_x + shoved.sv_w;
+        xfs := xfs + shoved.xtbModifier + shoved.widthModifier;
 
         if xfs < (xns - inscale / 2)
         // if shoving produces a negative width (by more than 1/2" scale), average the sides to the centre-line.
         then begin
           xfs := (xfs + xns) / 2;
           xns := xfs;
-          shoved.sv_w := 0;
+          shoved.widthModifier := 0;
           // reset normal to prevent further narrowing.
         end;
 
-        keq := keq + shoved.sv_k;              // and/or twisted.
+        keq := keq + shoved.angleModifier;              // and/or twisted.
 
-        yns := yns + shoved.sv_o;              // and/or shoved across.
-        ynsred := ynsred + shoved.sv_o;
+        yns := yns + shoved.offsetModifier;              // and/or shoved across.
+        ynsred := ynsred + shoved.offsetModifier;
 
-        yfs := yfs + shoved.sv_o + shoved.sv_l;
-        yfsred := yfsred + shoved.sv_o + shoved.sv_l;
+        yfs := yfs + shoved.offsetModifier + shoved.lengthModifier;
+        yfsred := yfsred + shoved.offsetModifier + shoved.lengthModifier;
 
-        throw := shoved.sv_o;   // for read-out panel..
-        crab := shoved.sv_c;
+        throw := shoved.offsetModifier;   // for read-out panel..
+        crab := shoved.crabModifier;
       end;
       BREAK;
     end;
@@ -27388,7 +27388,7 @@ var
 
 begin
   if target.template_info.keep_shove_list = nil then
-    target.template_info.keep_shove_list := Tshoved_timber_list.Create;
+    target.template_info.keep_shove_list := TShovedTimberList.Create;
 
   FillChar(target.template_info.keep_dims, SizeOf(target.template_info.keep_dims), 0);
   // all unused bytes to zero.  26-6-00
@@ -30969,7 +30969,7 @@ begin
 
     n := -1;
     for i := 0 to Count - 1 do begin
-      if Items[i].timber_string = str then begin
+      if Items[i].timberString = str then begin
         n := i;
         break;
       end;
@@ -30982,8 +30982,8 @@ begin
     if create_new = False then
       EXIT;
 
-    n := Add(Tshoved_timber.Create);          // create new entry and return the index.
-    Items[n].timber_string := str;
+    n := Add(TShovedTimber.Create);          // create new entry and return the index.
+    Items[n].timberString := str;
 
   end;//with
 
@@ -32986,8 +32986,8 @@ begin
         // find it or an empty slot, or warn him if no room.
         if n >= 0                                // found a slot.
         then begin
-          if current_shove_list[n].sv_code = svcEmpty then begin
-            current_shove_list[n].sv_code := svcShove;
+          if current_shove_list[n].shoveCode = svcEmpty then begin
+            current_shove_list[n].shoveCode := svcShove;
             // flag to shove this timber if not already in list.
           end;
           shove_buttons(True, n);

@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
-  <ProjectGroup FileVersion="1">
-    <Targets Count="2">
-      <Target0 FileName="templotmec.lpi">
-        <BuildModes Count="1"/>
-        <Mode1 Name="Default"/>
-      </Target0>
-      <Target1 FileName="templottest.lpi">
-        <BuildModes Count="1"/>
-        <Mode1 Name="Default"/>
-      </Target1>
+  <ProjectGroup FileVersion="2">
+    <Targets>
+      <Target FileName="templotmec.lpi">
+        <BuildModes>
+          <Mode Name="Default"/>
+        </BuildModes>
+      </Target>
+      <Target FileName="templottest.lpi">
+        <BuildModes>
+          <Mode Name="Default"/>
+        </BuildModes>
+      </Target>
     </Targets>
   </ProjectGroup>
 </CONFIG>

@@ -452,7 +452,7 @@ var
   tag_list: TStringList;                  // 206b
 
   printer_list: TStringList;
-  current_shove_list: Tshoved_timber_list;
+  current_shove_list: TShovedTimberList;
   info_text_list: TStringList;            // 0.78.a    15-11-02.
 
   custom_colour_list: TStringList;        // 0.91
@@ -3756,7 +3756,7 @@ begin
 
   tag_list := TStringList.Create;                  // 206b
 
-  current_shove_list := Tshoved_timber_list.Create;
+  current_shove_list := TShovedTimberList.Create;
 
   custom_colour_list := TStringList.Create;        // 0.91
 

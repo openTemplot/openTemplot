@@ -82,7 +82,7 @@ begin                          // fill dropdown with shoved timbers.
   shove_combo.Items.Clear;
 
   for n := 0 to current_shove_list.Count - 1 do begin
-    shove_combo.Items.Add(current_shove_list[n].timber_string);
+    shove_combo.Items.Add(current_shove_list[n].timberString);
   end;
 
   if current_shove_str = '' then begin

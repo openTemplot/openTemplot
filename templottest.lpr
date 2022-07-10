@@ -9,7 +9,7 @@ uses
   extended_utils,
   extended_utils_test,
   path_interface,
-  matrix_2d,
+  matrix_2d, shoved_timber,
   matrix_2d_test,
   point_ex_test,
   utils_test,
@@ -27,7 +27,7 @@ uses
   slew_calculator,
   slew_calculator_test,
   curve_parameters_interface,
-  curve_segment_calculator_test;
+  curve_segment_calculator_test, shoved_timber_test;
 
 type
 

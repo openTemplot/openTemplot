@@ -857,7 +857,7 @@ begin
 
     template_info.keep_dims.box_dims1.pre077_bgnd_flag := False;
     // unused template. no longer used 0.77.a but needed in file if reloaded into older version.
-    template_info.keep_shove_list := Tshoved_timber_list.Create;
+    template_info.keep_shove_list := TShovedTimberList.Create;
   end;//with
 end;
 //_________________________________________________________________________________________

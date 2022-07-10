@@ -1160,7 +1160,7 @@ type
     keep_dims: Tkeep_dims;           // all the template dimemsions.
 
     // the list of shoved timbers. (v:0.71.a  27-4-01).
-    keep_shove_list: Tshoved_timber_list;
+    keep_shove_list: TShovedTimberList;
   end;//record
 
 
@@ -1249,7 +1249,7 @@ begin
 
   Name := AName;
 
-  template_info.keep_shove_list := Tshoved_timber_list.Create;
+  template_info.keep_shove_list := TShovedTimberList.Create;
 end;
 
 
