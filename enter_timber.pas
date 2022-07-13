@@ -171,7 +171,7 @@ begin
         n := find_shove(current_shove_str, True);     // find it or create an empty slot.
         if n >= 0                                    // valid slot.
         then begin
-          current_shove_list[n].make_shoved;
+          current_shove_list[n].MakeShoved;
           shove_buttons(True, n);
 
           Result := True;

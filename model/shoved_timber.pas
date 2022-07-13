@@ -26,38 +26,38 @@ type
     FWidthModifier: double;
     FCrabModifier: double;
 
+    procedure SetXtbModifier(shovex: double);
+    procedure SetOffsetModifier(offset: double);
+    procedure SetCrabModifier(crab: double);
+    procedure SetLengthModifier(length: double);
+    procedure SetWidthModifier(Width: double);
+    procedure SetAngleModifier(twist: double);
+
   public
     constructor Create;
     constructor CreateFrom(f: TShovedTimber); overload;
 
     property timberString: string Read FTimberString Write FTimberString;
     property shoveCode: TShoveCode Read FShoveCode Write FShoveCode;
-    property xtbModifier: double Read FXtbModifier Write FXtbModifier;
-    property angleModifier: double Read FAngleModifier Write FAngleModifier;
-    property offsetModifier: double Read FOffsetModifier Write FOffsetModifier;
-    property lengthModifier: double Read FLengthModifier Write FLengthModifier;
-    property widthModifier: double Read FWidthModifier Write FWidthModifier;
-    property crabModifier: double Read FCrabModifier Write FCrabModifier;
+    property xtbModifier: double Read FXtbModifier Write SetXtbModifier;
+    property angleModifier: double Read FAngleModifier Write SetAngleModifier;
+    property offsetModifier: double Read FOffsetModifier Write SetOffsetModifier;
+    property lengthModifier: double Read FLengthModifier Write SetLengthModifier;
+    property widthModifier: double Read FWidthModifier Write SetWidthModifier;
+    property crabModifier: double Read FCrabModifier Write SetCrabModifier;
 
 
-    procedure make_shoved;
-    procedure make_omit;
+    procedure MakeShoved;
+    procedure MakeOmit;
 
-    procedure set_shovex(shovex: double);
-    procedure set_offset(offset: double);
-    procedure set_crab(crab: double);
-    procedure set_length(length: double);
-    procedure set_width(Width: double);
-    procedure set_twist(twist: double);
-
-    procedure adjust_shovex(adjustment: double);
-    procedure adjust_width(adjustment: double);
-    procedure adjust_offset(adjustment: double);
-    procedure adjust_length(adjustment: double);
-    procedure adjust_twist_degrees(adjustment: double);
-    procedure adjust_crab(adjustment: double);
-    procedure rescale(mod_scale_ratio: double);
-    function can_restore: boolean;
+    procedure AdjustXtb(adjustment: double);
+    procedure AdjustWidth(adjustment: double);
+    procedure AdjustOffset(adjustment: double);
+    procedure AdjustLength(adjustment: double);
+    procedure AdjustAngle(adjustment: double);
+    procedure AdjustCrab(adjustment: double);
+    procedure Rescale(scaleRatio: double);
+    function CanRestore: boolean;
 
   end;//class
 
@@ -94,14 +94,14 @@ begin
   FCrabModifier := f.crabModifier;
 end;
 
-procedure TShovedTimber.make_shoved;
+procedure TShovedTimber.MakeShoved;
 begin
   if FShoveCode = svcEmpty then begin
     FShoveCode := svcShove;
   end;
 end;
 
-procedure TShovedTimber.make_omit;
+procedure TShovedTimber.MakeOmit;
 begin
   FShoveCode := svcOmit;
   FXtbModifier := 0;        // xtb modifier.
@@ -112,88 +112,89 @@ begin
   FCrabModifier := 0;        // crab modifier.
 end;
 
-procedure TShovedTimber.set_shovex(shovex: double);
+procedure TShovedTimber.SetXtbModifier(shovex: double);
 begin
   FShoveCode := svcShove;
   FXtbModifier := shovex;
 end;
 
-procedure TShovedTimber.set_offset(offset: double);
+procedure TShovedTimber.SetOffsetModifier(offset: double);
 begin
   FShoveCode := svcShove;
   FOffsetModifier := offset;
 end;
 
-procedure TShovedTimber.set_crab(crab: double);
+procedure TShovedTimber.SetCrabModifier(crab: double);
 begin
   FShoveCode := svcShove;
   FCrabModifier := crab;
 end;
 
-procedure TShovedTimber.set_length(length: double);
+procedure TShovedTimber.SetLengthModifier(length: double);
 begin
   FShoveCode := svcShove;
   FLengthModifier := length;
 end;
 
-procedure TShovedTimber.set_width(Width: double);
+procedure TShovedTimber.SetWidthModifier(Width: double);
 begin
   FShoveCode := svcShove;
   FWidthModifier := Width;
 end;
 
-procedure TShovedTimber.set_twist(twist: double);
+procedure TShovedTimber.SetAngleModifier(twist: double);
 begin
   FShoveCode := svcShove;
   FAngleModifier := twist;
 end;
 
-procedure TShovedTimber.adjust_shovex(adjustment: double);
+procedure TShovedTimber.AdjustXtb(adjustment: double);
 begin
   FShoveCode := svcShove;
   FXtbModifier := FXtbModifier + adjustment;
 end;
 
-procedure TShovedTimber.adjust_width(adjustment: double);
+procedure TShovedTimber.AdjustWidth(adjustment: double);
 begin
   FShoveCode := svcShove;
   FWidthModifier := FWidthModifier + adjustment;
 end;
 
-procedure TShovedTimber.adjust_offset(adjustment: double);
+procedure TShovedTimber.AdjustOffset(adjustment: double);
 begin
   FShoveCode := svcShove;
   FOffsetModifier := FOffsetModifier + adjustment;
 end;
 
-procedure TShovedTimber.adjust_length(adjustment: double);
+procedure TShovedTimber.AdjustLength(adjustment: double);
 begin
   FShoveCode := svcShove;
   FLengthModifier := FLengthModifier + adjustment;
 end;
 
-procedure TShovedTimber.adjust_twist_degrees(adjustment: double);
+procedure TShovedTimber.AdjustAngle(adjustment: double);
 begin
   FShoveCode := svcShove;
-  FAngleModifier := FAngleModifier + adjustment * Pi / 180;
+  FAngleModifier := FAngleModifier + adjustment;
 end;
 
-procedure TShovedTimber.adjust_crab(adjustment: double);
+procedure TShovedTimber.AdjustCrab(adjustment: double);
 begin
   FShoveCode := svcShove;
   FCrabModifier := FCrabModifier + adjustment;
 end;
 
-procedure TShovedTimber.rescale(mod_scale_ratio: double);
+procedure TShovedTimber.Rescale(scaleRatio: double);
 begin
-  FXtbModifier := FXtbModifier * mod_scale_ratio;        // xtb modifier.
-  //sv_k                             // angle modifier (no change).
-  FOffsetModifier := FOffsetModifier * mod_scale_ratio;        // offset modifier (near end).
-  FLengthModifier := FLengthModifier * mod_scale_ratio;        // length modifier (far end).
-  FWidthModifier := FWidthModifier * mod_scale_ratio;        // width modifier (per side).
+  FXtbModifier := FXtbModifier * scaleRatio;
+  // angle modifier (no change).
+  FOffsetModifier := FOffsetModifier * scaleRatio;
+  FLengthModifier := FLengthModifier * scaleRatio;
+  FWidthModifier := FWidthModifier * scaleRatio;
+  FCrabModifier := FCrabModifier * scaleRatio;
 end;
 
-function TShovedTimber.can_restore: boolean;
+function TShovedTimber.CanRestore: boolean;
 begin
   Result := (FShoveCode = svcOmit) or
     (((FXtbModifier <> 0)       // xtb modifier.

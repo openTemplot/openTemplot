@@ -1290,6 +1290,9 @@ procedure shift_group_into_positive_quadrant(warn: boolean);    // 219a
 
 function title_swap(str: string): string;      // OT-FIRST
 
+function DegreesToRadians(deg: double): double;
+function RadiansToDegrees(rad: double): double;
+
 
 //______________________________________________________________________________
 
@@ -1746,6 +1749,16 @@ function pad_Y(y: double): integer; forward;   // return pad Y pixels at this y 
 
 function draw_xing_label(k, xlabel, yms, yts, ymid, xnote, ynote: double): Tpex; forward;
 // 211b mark the crossing labels
+
+function DegreesToRadians(deg: double): double;
+begin
+  Result := deg * Pi / 180;
+end;
+
+function RadiansToDegrees(rad: double): double;
+begin
+  Result := rad * 180 / Pi;
+end;
 
 //______________________________________________________________________________________
 
@@ -19595,8 +19608,8 @@ begin
           get_cpi;      // use these modified values.
 
           for n := 0 to current_shove_list.Count - 1 do begin
-            // rescale (!!! scale ratio, not gauge) the timber shove dims ...
-            current_shove_list[n].rescale(mod_scale_ratio);
+            // Rescale (!!! scale ratio, not gauge) the timber shove dims ...
+            current_shove_list[n].Rescale(mod_scale_ratio);
           end;//for
 
 
@@ -30942,7 +30955,7 @@ var
 begin
   n := 0;
   while n < current_shove_list.Count do begin
-    if current_shove_list[n].can_restore then begin
+    if current_shove_list[n].CanRestore then begin
       Inc(n);
     end
     else begin
@@ -30998,7 +31011,7 @@ begin
   shove_index := find_shove(current_shove_str, True);
 
   if shove_index <> -1 then begin
-    current_shove_list[shove_index].set_shovex(shovex);
+    current_shove_list[shove_index].xtbModifier := shovex;
 
     mouse_action_selected('    shove  timber  along ...',
       'shove  timber  along', current_shove_str + '  along  by : ' + captext(shovex) + ' mm');
@@ -31019,7 +31032,7 @@ begin
   shove_index := find_shove(current_shove_str, True);
 
   if shove_index <> -1 then begin
-    current_shove_list[shove_index].set_offset(shoveo);
+    current_shove_list[shove_index].offsetModifier := shoveo;
 
     mouse_action_selected('    throw  timber  endways ...',
       'throw  timber  endways', current_shove_str + '  throw  by : ' + captext(shoveo) + ' mm');
@@ -31039,7 +31052,7 @@ begin
   shove_index := find_shove(current_shove_str, True);
 
   if shove_index <> -1 then begin
-    current_shove_list[shove_index].set_crab(shovec);
+    current_shove_list[shove_index].crabModifier := shovec;
     mouse_action_selected('    crab  timber  sideways ...',
       'crab  timber  sideways', current_shove_str + '  crab  by : ' + captext(shovec) + ' mm');
     shove_crab_mod := 1;
@@ -31058,7 +31071,7 @@ begin
   shove_index := find_shove(current_shove_str, True);
 
   if shove_index <> -1 then begin
-    current_shove_list[shove_index].set_length(shovel);
+    current_shove_list[shove_index].lengthModifier := shovel;
     mouse_action_selected('    lengthen  timber ...', 'lengthen  timber',
       current_shove_str + '  lengthened  by : ' + captext(shovel) + ' mm');
     shove_length_mod := 1;
@@ -31077,7 +31090,7 @@ begin
   shove_index := find_shove(current_shove_str, True);
 
   if shove_index <> -1 then begin
-    current_shove_list[shove_index].set_width(shovew);
+    current_shove_list[shove_index].widthModifier := shovew;
     mouse_action_selected('    widen  timber ...', 'widen  timber',
       current_shove_str + '  widened  by : ' + captext(shovew * 2) + ' mm');
     shove_width_mod := 1;
@@ -31096,7 +31109,7 @@ begin
   shove_index := find_shove(current_shove_str, True);
 
   if shove_index <> -1 then begin
-    current_shove_list[shove_index].set_twist(shovek);
+    current_shove_list[shove_index].angleModifier := shovek;
 
     mouse_action_selected('    twist  timber ...', 'twist  timber',
       current_shove_str + '  twisted  by : ' + captext(shovek * 180 / Pi) +
