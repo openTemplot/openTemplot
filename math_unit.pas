@@ -1660,8 +1660,9 @@ function convert_point(p: Tpex): Tpoint; forward;
 function do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy, old_rad2_orgx,
   old_rad2_orgy: double; waitMessage: IAutoWaitMessage): integer;
   forward;
-function do_auto_trans_length_adjust(apart_len_wanted: double; waitMessage: IAutoWaitMessage): integer; forward;
-function make_double_track_calcs(data: Pointer; waitMessage: IAutoWaitMessage): integer; forward;
+function do_auto_trans_length_adjust(apart_len_wanted: double;
+  waitMessage: IAutoWaitMessage): integer; forward;
+function make_double_track_calcs(Data: Pointer; waitMessage: IAutoWaitMessage): integer; forward;
 
 
 function pad_marks_current(on_canvas: TCanvas; ink: boolean): boolean; forward;
@@ -5562,7 +5563,7 @@ begin
               rad_str(trans_9rad, 2));
 
             if not controlTemplate.curve.isSpiral then begin
-            // bug fix mods 214a ...  // don't include radius at TOE or HEEL if a short transition is near (confusing result, radius shown may apply to only a few mm)
+              // bug fix mods 214a ...  // don't include radius at TOE or HEEL if a short transition is near (confusing result, radius shown may apply to only a few mm)
               if rmin_mm > ABS(rcurv_toe) then
                 rmin_mm := ABS(rcurv_toe);
               if rmin_mm > ABS(rcurv_heel) then
@@ -5586,7 +5587,7 @@ begin
               rmin_mm := ABS(rcurv_dp);
 
             if (not controlTemplate.curve.isSpiral) or (xing_calc_i = 1) then begin
-            // bug fix mods 214a ...  // don't include radius at CESP or FP if not curviform and a short transition is near (confusing result, radius shown may apply to only a few mm)
+              // bug fix mods 214a ...  // don't include radius at CESP or FP if not curviform and a short transition is near (confusing result, radius shown may apply to only a few mm)
               if (xing_calc_i = 0) and (rmin_mm > ABS(rcurv_tx)) then
                 rmin_mm := ABS(rcurv_tx);   // CESP regular crossing
               if rmin_mm > ABS(rcurv_fp) then
@@ -6223,7 +6224,7 @@ begin
 
       if (not half_diamond) and (not controlTemplate.curve.isSpiral) and (not slewing) and
         (not plain_track) then begin
-      // add geometrical radius info.
+        // add geometrical radius info.
         Add('internal geometrical radius = ' + rad_str(igeo_rad, 2) + '  ( ' +
           rad_str(igeo_rad / 25.4, 2) + ' " )');
         Add('external geometrical radius (substitution radius) = ' +
@@ -12373,7 +12374,7 @@ procedure trail_shove_crab(X: integer);
 
 begin
   shovec := shovec_now + (X - shove_now_x) / fx / shove_mouse_factor / 2;     // /2 arbitrary.
-  current_shove_list[shove_index].crabModifier  := shovec;
+  current_shove_list[shove_index].crabModifier := shovec;
 end;
 //________________________________________________________________________________________
 
@@ -14630,7 +14631,7 @@ begin
 
   if clicked = True then begin
     update_menus;
-      show_and_redraw(False, True);                // might be hidden. (allow rollback).
+    show_and_redraw(False, True);                // might be hidden. (allow rollback).
 
     if pad_form.align_match_length_menu_entry.Checked = True
     //  0.91.b matched overall length.
@@ -19715,10 +19716,9 @@ type
   PSwingLengthAdjustData = ^TSwingLengthAdjustData;
 
 
-function do_swing_length_adjust(data: Pointer; waitMessage: IAutoWaitMessage): Integer;
+function do_swing_length_adjust(Data: Pointer; waitMessage: IAutoWaitMessage): Integer;
 
-
-//length_in_degs: double; var length_in_mm: double): integer;
+  //length_in_degs: double; var length_in_mm: double): integer;
 
   // this code moves the template overall length to and fro in reducing steps
   // until the total angular swing matches length_in_degs.
@@ -19734,7 +19734,7 @@ var
 
 begin
   Result := 0;                   // default init..
-  ptr := PSwingLengthAdjustData(data);
+  ptr := PSwingLengthAdjustData(Data);
 
   saved_turnoutx := turnoutx;
   saved_xorg := xorg;
@@ -19842,7 +19842,8 @@ begin
       if len_step > (saved_turnoutx / 4) then
         len_step := saved_turnoutx / 4;   // 1/4 arbitrary.
 
-      if ((ptr^.swingInRadians < swing_start) and (swing_dir = 1))   // or start by going backwards.
+      if ((ptr^.swingInRadians < swing_start) and (swing_dir = 1))
+      // or start by going backwards.
       then begin
         dir := -1;
         len_step := 0 - len_step;
@@ -19903,7 +19904,7 @@ function get_spiral_length(k_rads: double): double;      // 0.71.a  13-4-01.
   // !! length is from template datum, not transition origin.
 var
   calculationResult: Integer;
-  data: TSwingLengthAdjustData;
+  Data: TSwingLengthAdjustData;
 begin
   Result := turnoutx;     // default init.
 
@@ -19913,9 +19914,10 @@ begin
     EXIT;
   end;
 
-  data.swingInRadians := k_rads;      // init for calc.
+  Data.swingInRadians := k_rads;      // init for calc.
 
-  calculationResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...', do_swing_length_adjust, @data);
+  calculationResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...',
+    do_swing_length_adjust, @Data);
 
   case calculationResult of
     -1:
@@ -19931,7 +19933,7 @@ begin
     end;
 
     1:
-      Result := data.lengthInMM;
+      Result := Data.lengthInMM;
   end;//case
 end;
 //_______________________________________________________________________________________
@@ -20502,7 +20504,7 @@ begin
 end;
 //______________________________________________________________________________
 
-function do_auto_trans_swing_adjust(data: Pointer; waitMessage: IAutoWaitMessage): integer;
+function do_auto_trans_swing_adjust(Data: Pointer; waitMessage: IAutoWaitMessage): integer;
 
   // this code swings the transition curve on rad1 to and fro in reducing steps
   // until the new position of the 2nd rad centre co-incides with the old.
@@ -20522,7 +20524,7 @@ var
   oldRad2: Tpex;
 
 begin
-  oldRad2 := Ppex(data)^;
+  oldRad2 := Ppex(Data)^;
   try
     Result := 0;   // default init
 
@@ -20589,7 +20591,7 @@ begin
 end;
 //___________________________________________________________________________________________
 
-function make_transition_from_current_calcs(data: Pointer; waitMessage: IAutoWaitMessage): integer;
+function make_transition_from_current_calcs(Data: Pointer; waitMessage: IAutoWaitMessage): integer;
 
   // return  1= ok,   0= error,   -1= he cancelled.
 
@@ -20620,7 +20622,7 @@ var
   got_transition: boolean;
 
   error_allow: double;
-  computeResult : Integer;
+  computeResult: Integer;
   rad2Origin: Tpex;
 
 
@@ -20893,7 +20895,8 @@ begin
       if (ABS(nomrad1) > (g * 2)) and (ABS(nomrad2) > (g * 2))  // min rads (arbitrary).
         and (cen_apart > (ABS(nomrad1) + ABS(nomrad2) - minfp))   // ok to try S-curve
       then begin
-        computeResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...', make_transition_from_current_calcs, nil);
+        computeResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...',
+          make_transition_from_current_calcs, nil);
 
         if Application.Terminated = False then
           Application.ProcessMessages;
@@ -20918,7 +20921,8 @@ begin
         if (ABS(temp) > minfp) and (cen_apart < (ABS(ABS(nomrad1) - ABS(nomrad2)) + minfp))
         // ok to try C-curve
         then begin
-          computeResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...', make_transition_from_current_calcs, nil);
+          computeResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...',
+            make_transition_from_current_calcs, nil);
 
           if Application.Terminated = False then
             Application.ProcessMessages;
@@ -21011,7 +21015,8 @@ begin
     // finally swing it on rad1 until rad2 centres co-incide..
 
     rad2Origin.set_xy(make_trans_data.old_rad2_orgx, make_trans_data.old_rad2_orgy);
-    computeResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...', do_auto_trans_swing_adjust, @rad2Origin);
+    computeResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...',
+      do_auto_trans_swing_adjust, @rad2Origin);
 
     if Application.Terminated = False then
       Application.ProcessMessages;
@@ -21292,7 +21297,8 @@ begin
 end;
 //________________________________________________________________________________________
 
-function do_auto_trans_length_adjust(apart_len_wanted: double; waitMessage: IAutoWaitMessage): integer;
+function do_auto_trans_length_adjust(apart_len_wanted: double;
+  waitMessage: IAutoWaitMessage): integer;
 
   // adjust transition zone length until the distance between the rad centres is apart_len_wanted.
   // return 1 if achieved, 0 if calc error, -1 if he cancels.
@@ -28614,7 +28620,7 @@ begin
 end;
 //______________________________________________________________________________
 
-function make_double_track_calcs(data: Pointer; waitMessage: IAutoWaitMessage): Integer;
+function make_double_track_calcs(Data: Pointer; waitMessage: IAutoWaitMessage): Integer;
 
 var
   old_rad, rad_mod: double;
@@ -28654,170 +28660,128 @@ var
   //////////////////////////////////////////////////////////////
 
 begin
-  side := PInteger(data)^;
+  side := PInteger(Data)^;
 
-    // keep compiler happy..
+  // keep compiler happy..
 
-    old_rad1_orgx := 0;
-    old_rad1_orgy := 0;
+  old_rad1_orgx := 0;
+  old_rad1_orgy := 0;
 
-    old_rad2_orgx := 0;
-    old_rad2_orgy := 0;
+  old_rad2_orgx := 0;
+  old_rad2_orgy := 0;
 
-    if (controlTemplate.curve.isSpiral) and (auto_spiral_adjust = True) then begin
+  if (controlTemplate.curve.isSpiral) and (auto_spiral_adjust = True) then begin
 
-      // first get the existing transition data (relative to TRANSITION datum).
-      // (apartl ignores any slewing)
+    // first get the existing transition data (relative to TRANSITION datum).
+    // (apartl ignores any slewing)
 
-      if calc_transition(nomrad1, nomrad2, tst, dummy1, dummy2, dummy3, dummy4,
-        old_apartl, dummy5) = False then begin
-        calc_error;
-        auto_spiral_adjust := False;
-      end;
-
-      old_rad2_orgx := rad2_orgx;       // 2nd rad centres on pad..
-      old_rad2_orgy := rad2_orgy;
-
-      old_rad1_orgx := rad1_orgx;       // 1st rad centres on pad..
-      old_rad1_orgy := rad1_orgy;
-
+    if calc_transition(nomrad1, nomrad2, tst, dummy1, dummy2, dummy3, dummy4,
+      old_apartl, dummy5) = False then begin
+      calc_error;
+      auto_spiral_adjust := False;
     end;
 
-    with pad_form do begin
+    old_rad2_orgx := rad2_orgx;       // 2nd rad centres on pad..
+    old_rad2_orgy := rad2_orgy;
 
-      //if adjacent_lines_code=1 then adjacent_lines_code:=0;   // 0.82.d  cancel any adjacent tracks.
+    old_rad1_orgx := rad1_orgx;       // 1st rad centres on pad..
+    old_rad1_orgy := rad1_orgy;
 
-      do_rollback := False;
-      adjacent_redraw;                         // update rail-edges.
+  end;
 
-      do_rollback := False;
-      store_and_background(False, False);     // first keep it and copy to background.
-      if keep_added = False then
-        EXIT;         // he cancelled.
+  with pad_form do begin
 
-      retain_on_make;    // do blanking, shoves, diffs, crossing entry straight, cancel platforms  213a
+    //if adjacent_lines_code=1 then adjacent_lines_code:=0;   // 0.82.d  cancel any adjacent tracks.
 
-      show_and_redraw(False, False);   // in case copy caused a current hide.
-      // force redraw to remove adjacent track.
+    do_rollback := False;
+    adjacent_redraw;                         // update rail-edges.
 
-      rad_mod := 0;               // keep compiler happy.
+    do_rollback := False;
+    store_and_background(False, False);     // first keep it and copy to background.
+    if keep_added = False then
+      EXIT;         // he cancelled.
 
-      do_rollback := False;
-      case side of
-        -1: begin
-          rad_mod := 0 - trmscent;
-          peg_on_adjacent_ms_menu_entry.Click;
-          // put the peg on the adjacent main-side track.
-        end;
-        1: begin
-          rad_mod := trtscent;
-          peg_on_adjacent_ts_menu_entry.Click;
-          // put the peg on the adjacent turnout-side track.
-        end;
-        else
-          run_error(199);
-      end;//case
+    retain_on_make;    // do blanking, shoves, diffs, crossing entry straight, cancel platforms  213a
 
-      if (controlTemplate.curve.isSpiral) and (auto_spiral_adjust)
-      // !!! 14-7-00 put peg well behind transition start.
-      // (os might be negative and peg must be in rad1 for calcs to work).
-      then begin
+    show_and_redraw(False, False);   // in case copy caused a current hide.
+    // force redraw to remove adjacent track.
 
-        do_rollback := False;
-        gocalc(0, 0);                     // first set pegy for adjacent.
+    rad_mod := 0;               // keep compiler happy.
 
-        peg_code := -1;                    // now make peg free.
-        case side of
-          -1:
-            pegx := os - 10 * trmscent;  // main side.  (10*spacing arbitrary).
-          1:
-            pegx := os - 10 * trtscent;  // turnout side.
-          else
-            run_error(198);
-        end;//case
+    do_rollback := False;
+    case side of
+      -1: begin
+        rad_mod := 0 - trmscent;
+        peg_on_adjacent_ms_menu_entry.Click;
+        // put the peg on the adjacent main-side track.
       end;
-
-      do_rollback := False;
-      gocalc(0, 0);                           // ensure peg calcs done,
-
-      new_notch(get_peg_for_notch, False);    // so can put notch under.
-
-      // now change to plain track...
-
-      plain_track := True;
-      set_plain_track(True, True);
-
-      xorg := turnoutx;           // keep current length for starters.
-
-      hand_i := 0 - hand_i;
-      // swap hand (so turnout-side is to same double-track centre).
-      if slewing = True then
-        slew := 0 - slew;   // need to swap the hand of any slewing also.
-
-      if (ABS(nomrad) < max_rad_test) and (not controlTemplate.curve.isSpiral)
-      // fixed curved template, so must adjust the curving rad...
-      then begin
-        old_rad := nomrad;
-        nomrad := 0 - (nomrad - rad_mod);   // adjust for adjacent track (swapping hand).
-
-        if ABS(old_rad) > minfp   // 0.79.a
-        then begin
-          xorg := xorg * ABS(nomrad / old_rad);
-          // adjust length to maintain swing angle. 0.79.a
-          turnoutx := xorg;
-        end;
+      1: begin
+        rad_mod := trtscent;
+        peg_on_adjacent_ts_menu_entry.Click;
+        // put the peg on the adjacent turnout-side track.
       end;
-
-      if controlTemplate.curve.isSpiral     // transition template, adjust the rads...
-      then begin
-        nomrad1 := 0 - (nomrad1 - rad_mod);     // adjust for adjacent track (swapping hand)...
-        nomrad2 := 0 - (nomrad2 - rad_mod);
-
-        if auto_spiral_adjust = True then begin
-          case do_auto_trans_length_adjust(old_apartl, waitMessage) of
-            // set the new transition length.
-
-            -1:
-              auto_spiral_adjust := False;    // he cancelled.
-
-            0: begin                         // calc error.
-              auto_spiral_adjust := False;
-              calc_error;
-            end;
-
-            //  1: ok
-          end;//case
-        end;
-      end;
-
-      do_rollback := False;
-      turnout_i := 1;      // length locked at turnoutx.
-
-      // so can draw approach track...
-
-      length_free_popup_entry.Enabled := False;
-      length_free_menu_entry.Enabled := False;
-
-      do_rollback := False;
-
-      if (controlTemplate.curve.isSpiral) and (auto_spiral_adjust) and (not (Assigned(waitMessage) and waitMessage.IsCancelled)) then
-        pegy := g / 2                                  //!!! 14-7-00 put peg back on centre-line)
       else
-        reset_peg_menu_entry.Click;
+        run_error(199);
+    end;//case
+
+    if (controlTemplate.curve.isSpiral) and (auto_spiral_adjust)
+    // !!! 14-7-00 put peg well behind transition start.
+    // (os might be negative and peg must be in rad1 for calcs to work).
+    then begin
 
       do_rollback := False;
-      gocalc(0, 0);                   // ensure peg calcs done.
+      gocalc(0, 0);                     // first set pegy for adjacent.
 
-      do_rollback := False;
-      shift_onto_notch(False, False);       // and finally put it on the notch.
+      peg_code := -1;                    // now make peg free.
+      case side of
+        -1:
+          pegx := os - 10 * trmscent;  // main side.  (10*spacing arbitrary).
+        1:
+          pegx := os - 10 * trtscent;  // turnout side.
+        else
+          run_error(198);
+      end;//case
+    end;
 
-      //!!! mods 14-7-00 ...
+    do_rollback := False;
+    gocalc(0, 0);                           // ensure peg calcs done,
 
-      if (controlTemplate.curve.isSpiral) and (auto_spiral_adjust) and (not (Assigned(waitMessage) and waitMessage.IsCancelled)) then
-      begin
-        case do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy,
-            old_rad2_orgx, old_rad2_orgy, waitMessage) of
-          // set the new transition start.
+    new_notch(get_peg_for_notch, False);    // so can put notch under.
+
+    // now change to plain track...
+
+    plain_track := True;
+    set_plain_track(True, True);
+
+    xorg := turnoutx;           // keep current length for starters.
+
+    hand_i := 0 - hand_i;
+    // swap hand (so turnout-side is to same double-track centre).
+    if slewing = True then
+      slew := 0 - slew;   // need to swap the hand of any slewing also.
+
+    if (ABS(nomrad) < max_rad_test) and (not controlTemplate.curve.isSpiral)
+    // fixed curved template, so must adjust the curving rad...
+    then begin
+      old_rad := nomrad;
+      nomrad := 0 - (nomrad - rad_mod);   // adjust for adjacent track (swapping hand).
+
+      if ABS(old_rad) > minfp   // 0.79.a
+      then begin
+        xorg := xorg * ABS(nomrad / old_rad);
+        // adjust length to maintain swing angle. 0.79.a
+        turnoutx := xorg;
+      end;
+    end;
+
+    if controlTemplate.curve.isSpiral     // transition template, adjust the rads...
+    then begin
+      nomrad1 := 0 - (nomrad1 - rad_mod);     // adjust for adjacent track (swapping hand)...
+      nomrad2 := 0 - (nomrad2 - rad_mod);
+
+      if auto_spiral_adjust = True then begin
+        case do_auto_trans_length_adjust(old_apartl, waitMessage) of
+          // set the new transition length.
 
           -1:
             auto_spiral_adjust := False;    // he cancelled.
@@ -28829,16 +28793,59 @@ begin
 
           //  1: ok
         end;//case
-
-        reset_peg_menu_entry.Click;  // put peg back in sensible place.
       end;
+    end;
 
-      reset_notch_menu_entry.Click;     // put notch back on datum.
+    do_rollback := False;
+    turnout_i := 1;      // length locked at turnoutx.
 
-      clear_current_name;
+    // so can draw approach track...
 
-      show_and_redraw(True, True);                // in case hidden.
-    end;//with
+    length_free_popup_entry.Enabled := False;
+    length_free_menu_entry.Enabled := False;
+
+    do_rollback := False;
+
+    if (controlTemplate.curve.isSpiral) and (auto_spiral_adjust) and
+      (not (Assigned(waitMessage) and waitMessage.IsCancelled)) then
+      pegy := g / 2                                  //!!! 14-7-00 put peg back on centre-line)
+    else
+      reset_peg_menu_entry.Click;
+
+    do_rollback := False;
+    gocalc(0, 0);                   // ensure peg calcs done.
+
+    do_rollback := False;
+    shift_onto_notch(False, False);       // and finally put it on the notch.
+
+    //!!! mods 14-7-00 ...
+
+    if (controlTemplate.curve.isSpiral) and (auto_spiral_adjust) and
+      (not (Assigned(waitMessage) and waitMessage.IsCancelled)) then begin
+      case do_auto_trans_start_adjust(old_rad1_orgx, old_rad1_orgy,
+          old_rad2_orgx, old_rad2_orgy, waitMessage) of
+        // set the new transition start.
+
+        -1:
+          auto_spiral_adjust := False;    // he cancelled.
+
+        0: begin                         // calc error.
+          auto_spiral_adjust := False;
+          calc_error;
+        end;
+
+        //  1: ok
+      end;//case
+
+      reset_peg_menu_entry.Click;  // put peg back in sensible place.
+    end;
+
+    reset_notch_menu_entry.Click;     // put notch back on datum.
+
+    clear_current_name;
+
+    show_and_redraw(True, True);                // in case hidden.
+  end;//with
 end;
 //______________________________________________________________________________________
 
@@ -29023,7 +29030,7 @@ begin
     until i <> 3;
 
     if auto_spiral_adjust then begin
-       TWaitForm.ShowWaitMessageAndCompute('calculating ...', make_double_track_calcs, @side);
+      TWaitForm.ShowWaitMessageAndCompute('calculating ...', make_double_track_calcs, @side);
     end;
 
     if Application.Terminated = False then
@@ -29179,7 +29186,7 @@ begin
   end;
 
   if not check_control_template_is_valid('split') = False then
-      EXIT;  // 0.93.a  zero length
+    EXIT;  // 0.93.a  zero length
 
   currentTemplate := TTemplate.Create('');
   try
