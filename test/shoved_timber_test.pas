@@ -57,6 +57,8 @@ type
     procedure TearDown; override;
 
   published
+    procedure TestCopyFromWithNil;
+    procedure TestCopyFromAnotherList;
 
   end;
 
@@ -540,49 +542,49 @@ begin
   // Then CanRestore returns false
   //
 
-  CheckEquals(false,shovedTimber.CanRestore, 'default');
+  CheckEquals(False, shovedTimber.CanRestore, 'default');
 
   shovedTimber.shoveCode := svcOmit;
-  CheckEquals(true,shovedTimber.CanRestore, 'svcOmit');
+  CheckEquals(True, shovedTimber.CanRestore, 'svcOmit');
 
   shovedTimber.shoveCode := svcShove;
-  CheckEquals(false,shovedTimber.CanRestore, 'svcShove');
+  CheckEquals(False, shovedTimber.CanRestore, 'svcShove');
 
   shovedTimber.xtbModifier := 1;
-  CheckEquals(true,shovedTimber.CanRestore, 'xtbModifier Modified');
+  CheckEquals(True, shovedTimber.CanRestore, 'xtbModifier Modified');
 
   shovedTimber.xtbModifier := 0;
-  CheckEquals(false,shovedTimber.CanRestore, 'xtbModifier Restored');
+  CheckEquals(False, shovedTimber.CanRestore, 'xtbModifier Restored');
 
   shovedTimber.angleModifier := 1;
-  CheckEquals(true,shovedTimber.CanRestore, 'angleModifier Modified');
+  CheckEquals(True, shovedTimber.CanRestore, 'angleModifier Modified');
 
   shovedTimber.angleModifier := 0;
-  CheckEquals(false,shovedTimber.CanRestore, 'angleModifier Restored');
+  CheckEquals(False, shovedTimber.CanRestore, 'angleModifier Restored');
 
   shovedTimber.offsetModifier := 1;
-  CheckEquals(true,shovedTimber.CanRestore, 'offsetModifier Modified');
+  CheckEquals(True, shovedTimber.CanRestore, 'offsetModifier Modified');
 
   shovedTimber.offsetModifier := 0;
-  CheckEquals(false,shovedTimber.CanRestore, 'offsetModifier Restored');
+  CheckEquals(False, shovedTimber.CanRestore, 'offsetModifier Restored');
 
   shovedTimber.lengthModifier := 1;
-  CheckEquals(true,shovedTimber.CanRestore, 'lengthModifier Modified');
+  CheckEquals(True, shovedTimber.CanRestore, 'lengthModifier Modified');
 
   shovedTimber.lengthModifier := 0;
-  CheckEquals(false,shovedTimber.CanRestore, 'lengthModifier Restored');
+  CheckEquals(False, shovedTimber.CanRestore, 'lengthModifier Restored');
 
   shovedTimber.widthModifier := 1;
-  CheckEquals(true,shovedTimber.CanRestore, 'widthModifier Modified');
+  CheckEquals(True, shovedTimber.CanRestore, 'widthModifier Modified');
 
   shovedTimber.widthModifier := 0;
-  CheckEquals(false,shovedTimber.CanRestore, 'widthModifier Restored');
+  CheckEquals(False, shovedTimber.CanRestore, 'widthModifier Restored');
 
   shovedTimber.crabModifier := 1;
-  CheckEquals(true,shovedTimber.CanRestore, 'crabModifier Modified');
+  CheckEquals(True, shovedTimber.CanRestore, 'crabModifier Modified');
 
   shovedTimber.crabModifier := 0;
-  CheckEquals(false,shovedTimber.CanRestore, 'crabModifier Restored');
+  CheckEquals(False, shovedTimber.CanRestore, 'crabModifier Restored');
 
 end;
 
@@ -600,6 +602,75 @@ begin
   list.Free;
 
   inherited TearDown;
+end;
+
+procedure TTestShovedTimberList.TestCopyFromWithNil;
+begin
+  //
+  // Given a list containing some items
+  // When CopyFrom is called with nil
+  // Then the list is cleared
+  //
+
+  // Given
+  list.Add(TShovedTimber.Create);
+  list.Add(TShovedTimber.Create);
+
+  // When
+  list.CopyFrom(nil);
+
+  // Then
+  CheckEquals(0, list.Count);
+end;
+
+procedure TTestShovedTimberList.TestCopyFromAnotherList;
+var
+  anotherList: TShovedTimberList;
+  s: TShovedTimber;
+  i: Integer;
+begin
+  //
+  // Given a list containing some items
+  //   and another list containing different items
+  // When CopyFrom is called with the other list of items
+  // Then the list contains copies of all the items from the other list
+  //
+
+  // Given
+  list.Add(TShovedTimber.Create);
+  list.Add(TShovedTimber.Create);
+
+  anotherList := TShovedTimberList.Create;
+  try
+    s := TShovedTimber.Create;
+    anotherList.Add(s);
+
+    s := TShovedTimber.Create;
+    s.MakeOmit;
+    anotherList.Add(s);
+
+    s := TShovedTimber.Create;
+    s.xtbModifier := 1;
+    s.angleModifier := 3;
+    anotherList.Add(s);
+
+    // When
+    list.CopyFrom(anotherList);
+
+    // Then
+    CheckEquals(anotherList.Count, list.Count, 'list.Count');
+    for i := 0 to list.Count - 1 do begin
+      CheckEquals(Ord(anotherList[i].shoveCode), Ord(list[i].shoveCode),
+        format('shoveCode[%d]', [i]));
+      CheckEquals(anotherList[i].xtbModifier, list[i].xtbModifier, format('xtbModifier[%d]', [i]));
+      CheckEquals(anotherList[i].angleModifier, list[i].angleModifier, format('angleModifier[%d]', [i]));
+    end;
+
+
+  finally
+    anotherList.Free;
+  end;
+
 end;
 
 initialization
