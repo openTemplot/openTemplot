@@ -7609,7 +7609,7 @@ begin
   putdim(help_slewl_str, 1, 'length  of  slewing  zone', slew_l,
     True, False, True, False);           // no neg, preset ok, no zero, don't terminate on zero.
   putdim(help_slew_str, 1, 'amount  of  slew',
-    slew, False, False, False, False);
+    controlTemplate.curve.slewAmount, False, False, False, False);
   // neg ok, preset ok, zero ok, don't terminate on zero.
   n := putdim(help_slew_stretch_str, 0, 'slewing  factor  for  mode  2  ( 0  for  mode  1 )',
     slew_factor_value, True, False, False, False);
@@ -7622,7 +7622,7 @@ begin
     pad_form, n, od) = True then begin
     slew_s := od[0];
     slew_l := od[1];
-    slew := od[2];
+    controlTemplate.curve.slewAmount := od[2];
 
     if od[3] = 0 then
       slew_mode := 1       // change to mode 1.
@@ -7635,14 +7635,14 @@ begin
     end;
   end;
 
-  if slew = def_req then
-    slew := trtscent;     // default slew to adjacent track.
+  if controlTemplate.curve.slewAmount = def_req then
+    controlTemplate.curve.slewAmount := trtscent;     // default slew to adjacent track.
   if slew_s = def_req then
     slew_s := 0;
   if slew_l = def_req then begin
     case slew_mode of
       1: begin
-        temp := 500 * scale * ABS(slew) * SQR(Pi) / 2;
+        temp := 500 * scale * ABS(controlTemplate.curve.slewAmount) * SQR(Pi) / 2;
         // set default length for 500ft scale slewing rads.
         if temp > minfp then
           slew_l := SQRT(temp)
@@ -7650,12 +7650,12 @@ begin
           slew_l := 600;          // ???  600 mm otherwise.
       end;
       2:
-        slew_l := ABS(slew) * 10;                      // arbitrary.
+        slew_l := ABS(controlTemplate.curve.slewAmount) * 10;                      // arbitrary.
     end;//case
   end;
 
-  if slew_l < ABS(slew) then
-    slew_l := ABS(slew);   // arbitrary minimum. (can't go neg).
+  if slew_l < ABS(controlTemplate.curve.slewAmount) then
+    slew_l := ABS(controlTemplate.curve.slewAmount);   // arbitrary minimum. (can't go neg).
   if slew_l < 1 then
     slew_l := 1;                   // 1 mm safety minimum (div by zero).
 
@@ -11738,7 +11738,7 @@ procedure Tpad_form.adjust_slew_amount_menu_entryClick(Sender: TObject);
 begin
   cancel_adjusts(True);
   mouse_action_selected('CTRL-F7   adjust  amount  of  slew ...',
-    'CTRL-F7  slew  amount', captext(slew) + ' mm');
+    'CTRL-F7  slew  amount', captext(controlTemplate.curve.slewAmount) + ' mm');
   slew_amount_mod := 1;
 end;
 //_________________________________________________________________________________________

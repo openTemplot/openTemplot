@@ -559,8 +559,6 @@ var
   slew_l: double = 600;
   // slewing angle at centre of slewing zone (used to mark slewed over rad centres).
   slew_t: double = 0;
-  // total amount of slew
-  slew: double = 0;
 
   // kmax radians for slew mode 2 (tanh).
   slew2_kmax: double = 2.0;
@@ -2502,17 +2500,17 @@ begin
   rings[0, 1] := 0;
 
 
-  slew := trtscent;                           // default slew to adjacent track.
+  controlTemplate.curve.slewAmount := trtscent;                           // default slew to adjacent track.
   slew_s := 20 * scale;                         // start slew at 20ft scale.
-  temp := 500 * scale * ABS(slew) * SQR(Pi) / 2;
+  temp := 500 * scale * ABS(controlTemplate.curve.slewAmount) * SQR(Pi) / 2;
   // set default length for 500ft scale slewing rads.
   if temp > minfp then
     slew_l := SQRT(temp)
   else
     slew_l := 600;                // ??? 600 mm otherwise.
 
-  if slew_l < ABS(slew) then
-    slew_l := ABS(slew);    // ??? arbitrary minimum. (can't go neg).
+  if slew_l < ABS(controlTemplate.curve.slewAmount) then
+    slew_l := ABS(controlTemplate.curve.slewAmount);    // ??? arbitrary minimum. (can't go neg).
   if slew_l < 1 then
     slew_l := 1;                    // 1 mm safety minimum (div by zero).
 
@@ -5878,12 +5876,12 @@ begin
         Add('');
         Add('slewing zone start = ' + round_str(slew_s, 2));
         Add('slewing zone length = ' + round_str(slew_l, 2));
-        Add('amount of slew = ' + round_str(slew, 2));
+        Add('amount of slew = ' + round_str(controlTemplate.curve.slewAmount, 2));
         Add('');
 
         if slew_mode = 1 then begin
-          if ABS(slew) > minfp then
-            slew_rad := 2 * SQR(slew_l) / slew / SQR(Pi)
+          if ABS(controlTemplate.curve.slewAmount) > minfp then
+            slew_rad := 2 * SQR(slew_l) / controlTemplate.curve.slewAmount / SQR(Pi)
           // (sign of rad is for start end of slew, slew amount is +ve towards the hand).
           else
             slew_rad := max_rad;                     // shouldn't get here !!!
@@ -10064,7 +10062,7 @@ begin
 
   // first do any slewing required (includes curving calcs if curved=True) ...
 
-  if (slew_flag = True) and (controlTemplate.curve.isSlewing) and (slew <> 0) and (xs > slew_s)
+  if (slew_flag = True) and (controlTemplate.curve.isSlewing) and (controlTemplate.curve.slewAmount <> 0) and (xs > slew_s)
   // into the slewing zone or beyond...
   then begin
     try
@@ -10072,9 +10070,9 @@ begin
       then begin
         do_curve_calcs(xs, ys, xc, yc, tn, rn);  // do the normal curving calcs,
 
-        xc := xc - slew * SIN(slew_t);
+        xc := xc - controlTemplate.curve.slewAmount * SIN(slew_t);
         // and then push over at the slewing angle..
-        yc := yc + slew * COS(slew_t);
+        yc := yc + controlTemplate.curve.slewAmount * COS(slew_t);
 
       end
       else begin         // in slewing zone...
@@ -10082,10 +10080,10 @@ begin
         delta_xs := 0.1;
         // get 3 slew_over values...
 
-        calc_slew(xs - slew_s - delta_xs, slew, slew_l, slew_over1);
+        calc_slew(xs - slew_s - delta_xs, controlTemplate.curve.slewAmount, slew_l, slew_over1);
         // 0.1 mm behind the current xs
-        calc_slew(xs - slew_s, slew, slew_l, slew_over);   // at the current xs
-        calc_slew(xs - slew_s + delta_xs, slew, slew_l, slew_over2);
+        calc_slew(xs - slew_s, controlTemplate.curve.slewAmount, slew_l, slew_over);   // at the current xs
+        calc_slew(xs - slew_s + delta_xs, controlTemplate.curve.slewAmount, slew_l, slew_over2);
         // 0.1 mm in front of the current xs.
 
         do_curve_calcs(xs - delta_xs, g / 2, xc1, yc1, dummy1, dummy2);
@@ -10409,16 +10407,16 @@ begin
 
   if controlTemplate.curve.isSlewing   //!!! 1-11-99
   then begin
-    if (ABS(slew) > slew_l) or (ABS(slew) < minfp)   // safety checks for SQRT, div by zero.
+    if (ABS(controlTemplate.curve.slewAmount) > slew_l) or (ABS(controlTemplate.curve.slewAmount) < minfp)   // safety checks for SQRT, div by zero.
     then begin
       slew_pull_back := 0;
       slew_angle := 0;
     end
     else begin
       try
-        slew_pull_back := (slew_l - SQRT(SQR(slew_l) - SQR(slew))) * 2;
+        slew_pull_back := (slew_l - SQRT(SQR(slew_l) - SQR(controlTemplate.curve.slewAmount))) * 2;
         //!!! 1-11-99  *2 is arbitrary approx for shortening effect of S-curve.
-        slew_angle := ARCTAN(slew_pull_back / slew);
+        slew_angle := ARCTAN(slew_pull_back / controlTemplate.curve.slewAmount);
       except
         slew_pull_back := 0;
         slew_angle := ARCTAN(2.0);
@@ -12306,8 +12304,8 @@ procedure trail_slew_length(X: integer);           // adjust slewing length.
 
 begin
   slew_l := slew_l_now + (X - slew_length_now) / fx;
-  if slew_l < ABS(slew) then
-    slew_l := ABS(slew);     // ??? arbitrary minimum. (can't go neg).
+  if slew_l < ABS(controlTemplate.curve.slewAmount) then
+    slew_l := ABS(controlTemplate.curve.slewAmount);     // ??? arbitrary minimum. (can't go neg).
   if slew_l < 1 then
     slew_l := 1;                     // 1 mm safety minimum (div by zero).
   peg_curve;                                      // keep slew on peg.
@@ -12317,9 +12315,9 @@ end;
 procedure trail_slew_amount(Y: integer);           // adjust amount of slew.
 
 begin
-  slew := slew_now + (Y - slew_amount_now) * hand_i / fy;          // neg OK
-  if ABS(slew) > slew_l then
-    slew := slew_l * SGZ(slew);       // arbitrary limit = slew length.
+  controlTemplate.curve.slewAmount := slew_now + (Y - slew_amount_now) * hand_i / fy;          // neg OK
+  if ABS(controlTemplate.curve.slewAmount) > slew_l then
+    controlTemplate.curve.slewAmount := slew_l * SGZ(controlTemplate.curve.slewAmount);       // arbitrary limit = slew length.
   peg_curve;                                             // keep slew on peg.
 end;
 //________________________________________________________________________________________
@@ -13810,7 +13808,7 @@ begin
 
       if trace_mouse = True then
         gocalc(2, mode{+first_click});
-      trail_str := captext(slew) + ' mm';
+      trail_str := captext(controlTemplate.curve.slewAmount) + ' mm';
     end;
 
     24: begin
@@ -14580,7 +14578,7 @@ begin
       controlTemplate.curve.isSlewing := slewing_flag;   // slewing flag.              // !!! replacing Tspares 10-7-99...
       slew_s := slew_start;      // slewing zone start mm.
       slew_l := slew_length;     // slewing zone length mm.
-      slew := slew_amount;       // amount of slew mm.
+      controlTemplate.curve.slewAmount := slew_amount;       // amount of slew mm.
 
       slew2_kmax := tanh_kmax;           {:double;}  {spare_int1:integer;}
       // stretch factor for mode 2 slews.
@@ -16028,7 +16026,7 @@ begin
       end;
 
       slew_amount_now := Y;                     // save clicked position.
-      slew_now := slew;
+      slew_now := controlTemplate.curve.slewAmount;
 
       kform_now := kform;
       docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy1);
@@ -19480,7 +19478,7 @@ begin
         tst := tst * mod_gauge_ratio;
         slew_s := slew_s * mod_gauge_ratio;
         slew_l := slew_l * mod_gauge_ratio;
-        slew := slew * mod_gauge_ratio;
+        controlTemplate.curve.slewAmount := controlTemplate.curve.slewAmount * mod_gauge_ratio;
 
         xorg := xorg * mod_gauge_ratio;
         turnoutx := turnoutx * mod_gauge_ratio;
@@ -21621,7 +21619,7 @@ begin
   end;
 
   if controlTemplate.curve.isSlewing then
-    slew := 0 - slew;   // need to swap the hand of any slewing also.
+    controlTemplate.curve.slewAmount := 0 - controlTemplate.curve.slewAmount;   // need to swap the hand of any slewing also.
   peg_curve;                           // do curving calcs for the current peg position.
 end;
 //_____________________________________________________________________________________
@@ -22160,8 +22158,8 @@ begin
       if controlTemplate.curve.isSlewing = True     // centre(s) of slewed over portion ...
       then begin
         // slewed rad 1 centre marker...    (p2=0)
-        pin.x := xt1 - slew * SIN(slew_t);
-        pin.y := yt1 + slew * COS(slew_t);
+        pin.x := xt1 - controlTemplate.curve.slewAmount * SIN(slew_t);
+        pin.y := yt1 + controlTemplate.curve.slewAmount * COS(slew_t);
 
         dotransform(kform, xform, yform, pin, pout);
 
@@ -22199,8 +22197,8 @@ begin
 
       if controlTemplate.curve.isSlewing      // slewed rad 2 centre marker ...
       then begin
-        pin.x := xt2 - slew * SIN(slew_t);
-        pin.y := yt2 + slew * COS(slew_t);
+        pin.x := xt2 - controlTemplate.curve.slewAmount * SIN(slew_t);
+        pin.y := yt2 + controlTemplate.curve.slewAmount * COS(slew_t);
 
         dotransform(kform, xform, yform, pin, pout);
 
@@ -26977,7 +26975,7 @@ begin
       controlTemplate.curve.isSlewing := slewing_flag;   // slewing flag.              // !!! replacing Tspares 10-7-99...
       slew_s := slew_start;      // slewing zone start mm.
       slew_l := slew_length;     // slewing zone length mm.
-      slew := slew_amount;       // amount of slew mm.
+      controlTemplate.curve.slewAmount := slew_amount;       // amount of slew mm.
 
       slew2_kmax := tanh_kmax;           {:double;}  {spare_int1:integer;}
       // stretch factor for mode 2 slews.
@@ -27660,7 +27658,7 @@ begin
       slewing_flag := controlTemplate.curve.isSlewing;   // slewing flag.             // !!! replacing Tspares 10-7-99...
       slew_start := slew_s;      // slewing zone start mm.
       slew_length := slew_l;     // slewing zone length mm.
-      slew_amount := slew;       // amount of slew mm.
+      slew_amount := controlTemplate.curve.slewAmount;       // amount of slew mm.
 
       try
         tanh_kmax := slew2_kmax;     // ! double from extended..
@@ -28758,7 +28756,7 @@ begin
     hand_i := 0 - hand_i;
     // swap hand (so turnout-side is to same double-track centre).
     if controlTemplate.curve.isSlewing then
-      slew := 0 - slew;   // need to swap the hand of any slewing also.
+      controlTemplate.curve.slewAmount := 0 - controlTemplate.curve.slewAmount;   // need to swap the hand of any slewing also.
 
     if (ABS(nomrad) < max_rad_test) and (not controlTemplate.curve.isSpiral)
     // fixed curved template, so must adjust the curving rad...
@@ -31487,7 +31485,7 @@ begin
   if controlTemplate.curve.isSlewing       // slewing, swap end positions..
   then begin
     slew_s := turnoutx - (slew_s + slew_l);   // neg slew_s is OK.
-    slew := 0 - slew;
+    controlTemplate.curve.slewAmount := 0 - controlTemplate.curve.slewAmount;
     gocalc(0, 0);
   end;
 
@@ -31554,8 +31552,8 @@ var
   dummy: double;
 
 begin
-  if zone_len < ABS(slew) then
-    zone_len := ABS(slew);    // ??? arbitrary minimum. (can't go neg).
+  if zone_len < ABS(controlTemplate.curve.slewAmount) then
+    zone_len := ABS(controlTemplate.curve.slewAmount);    // ??? arbitrary minimum. (can't go neg).
   if zone_len < 1 then
     zone_len := 1;                    // 1 mm safety minimum (div by zero).
 
