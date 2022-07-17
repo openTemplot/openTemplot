@@ -705,6 +705,7 @@ uses
   make_slip_unit,
   create_tandem,     // 217a
   curve,
+  curve_parameters_interface,
   rail_data_unit;
 
 {$R *.lfm}
@@ -1055,7 +1056,7 @@ begin
       if controlTemplate.curve.isSlewing then begin
         // warn him this template includes a slew.
         with info_form do begin
-          if (plain_track = False) or (slew_mode = 2)
+          if (plain_track = False) or (controlTemplate.curve.slewMode = eSM_TanH)
           // min rad info not available for slewed turnouts or any mode 2.
           then begin
             min_rad_box.Hide;
@@ -1170,22 +1171,22 @@ begin
         adjust_slew_length_menu_entry.Enabled := True;
         adjust_slew_amount_menu_entry.Enabled := True;
 
-        case slew_mode of
-          1: begin
+        case controlTemplate.curve.slewMode of
+          eSM_Cosine: begin
             slew_mode1_menu_entry.Checked := True;            // radio item.
             adjust_slew2_factor_menu_entry.Enabled := False;
             slewing_panel.Caption :=
               'caution :  template  contains  a  SLEW  ( mode  1 )';
             info_form.slew_caution_mode_label.Caption :=
-              'caution :    this  template  contains  a  SLEW  ( mode  1 )';
+              'caution :    this  template  contains  a  SLEW  ( mode  Cosine )';
           end;
-          2: begin
+          eSM_TanH: begin
             slew_mode2_menu_entry.Checked := True;            // radio item.
             adjust_slew2_factor_menu_entry.Enabled := True;
             slewing_panel.Caption :=
               'caution :  template  contains  a  SLEW  ( mode  2 )';
             info_form.slew_caution_mode_label.Caption :=
-              'caution :    this  template  contains  a  SLEW  ( mode  2 )';
+              'caution :    this  template  contains  a  SLEW  ( mode  TanH )';
           end;
         end;//case
 

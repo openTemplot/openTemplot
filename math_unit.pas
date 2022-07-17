@@ -53,7 +53,8 @@ uses
   dummy_vehicle,
   path_interface,
   rail_data_unit,
-  template, mark_unit;
+  template, mark_unit,
+  curve_parameters_interface;
 
 type
   Tmath_form = class(TForm)
@@ -952,7 +953,7 @@ procedure swap_end_for_end;
 
 procedure crop_approach;
 
-procedure enable_slewing(mode: integer; do_peg_calcs_first: boolean);
+procedure enable_slewing(mode: ESlewMode; do_peg_calcs_first: boolean);
 
 procedure insert_half_diamond;
 
@@ -5868,14 +5869,14 @@ begin
       if controlTemplate.curve.isSlewing then begin
 
         Add('------------');
-        Add('slewing data ( slew mode ' + IntToStr(slew_mode) + ' ) :');
+        Add('slewing data ( slew mode ' + IntToStr(Ord(controlTemplate.curve.slewMode)) + ' ) :');
         Add('');
         Add('slewing zone start = ' + round_str(controlTemplate.curve.distanceToStartOfSlew, 2));
         Add('slewing zone length = ' + round_str(controlTemplate.curve.slewLength, 2));
         Add('amount of slew = ' + round_str(controlTemplate.curve.slewAmount, 2));
         Add('');
 
-        if slew_mode = 1 then begin
+        if controlTemplate.curve.slewMode = eSM_Cosine then begin
           if ABS(controlTemplate.curve.slewAmount) > minfp then
             slew_rad := 2 * SQR(controlTemplate.curve.slewLength) / controlTemplate.curve.slewAmount / SQR(Pi)
           // (sign of rad is for start end of slew, slew amount is +ve towards the hand).
@@ -9921,16 +9922,16 @@ begin
   end;
 
   try
-    case slew_mode of
+    case controlTemplate.curve.slewMode of
 
-      1: begin                         // COS curve method.
+      eSM_Cosine: begin                         // COS curve method.
         theta := x * Pi / slew_length;
         // theta is a dummy angle - runs from 0 to pi in the slewing zone.
         y := (1 - COS(theta)) * slew / 2;
         // track follows stretched cosine curve, COS(theta) runs from +1 to -1 in the slewing zone.
       end;
 
-      2: begin         // rotated TANH curve method.
+      eSM_TanH: begin         // rotated TANH curve method.
 
         temp := slew2_ymax - slew2_ymin;
         if ABS(temp) < minfp then begin
@@ -10420,7 +10421,7 @@ begin
     end;
     slew_t := slew_angle;       //  slewing angle is same for straight track.
 
-    if slew_mode = 2 then begin      // calc constants once only...
+    if controlTemplate.curve.slewMode = eSM_TanH then begin      // calc constants once only...
 
       if slew2_kmax < 0.02 then
         slew2_kmax := 0.02;         // safety.
@@ -14580,7 +14581,7 @@ begin
       // stretch factor for mode 2 slews.
       {spare_int2:integer;}
       // !!! double used because only 8 bytes available in existing file format (2 integers).
-      slew_mode := slew_type;             {:byte;}   {spare_flag3:boolean;}
+      controlTemplate.curve.slewMode := ByteToSlewMode(slew_type);             {:byte;}   {spare_flag3:boolean;}
       // !!! byte used because only 1 byte available in existing file format 1-11-99.
 
       //cl_only:=cl_only_flag;   // for bgnd centre-line only.
@@ -26977,7 +26978,7 @@ begin
       // stretch factor for mode 2 slews.
       {spare_int2:integer;}
       // !!! double used because only 8 bytes available in existing file format (2 integers).
-      slew_mode := slew_type;             {:byte;}   {spare_flag3:boolean;}
+      controlTemplate.curve.slewMode := ByteToSlewMode(slew_type);             {:byte;}   {spare_flag3:boolean;}
       // !!! byte used because only 1 byte available in existing file format 1-11-99.
 
       cl_only := cl_only_flag;   // for bgnd centre-line only.
@@ -27658,7 +27659,7 @@ begin
 
       try
         tanh_kmax := slew2_kmax;     // ! double from extended..
-        slew_type := slew_mode;      // ! byte from integer.
+        slew_type := SlewModeToByte(controlTemplate.curve.slewMode);      // ! byte from integer.
       except
         // in case of overflows...
         tanh_kmax := 2;
@@ -30490,7 +30491,7 @@ begin
 end;
 //________________________________________________________________________________________
 
-procedure enable_slewing(mode: integer; do_peg_calcs_first: boolean);
+procedure enable_slewing(mode: ESlewMode; do_peg_calcs_first: boolean);
 
 var
   dummy: double;
@@ -30506,15 +30507,15 @@ begin
   with pad_form do begin
 
     case mode of
-      1: begin
+      eSM_Cosine: begin
         slew_mode1_menu_entry.Checked := True;   // radio item.
-        slew_mode := 1;
+        controlTemplate.curve.slewMode := eSM_Cosine;
         adjust_slew2_factor_menu_entry.Enabled := False;
       end;
 
-      2: begin
+      eSM_TanH: begin
         slew_mode2_menu_entry.Checked := True;   // radio item.
-        slew_mode := 2;
+        controlTemplate.curve.slewMode := eSM_TanH;
         adjust_slew2_factor_menu_entry.Enabled := True;
       end;
 
@@ -30523,11 +30524,11 @@ begin
     end;//case
 
     slewing_panel.Caption := '  caution :  template  contains  a  SLEW  ( mode  ' +
-      IntToStr(slew_mode) + ' )';
+      IntToStr(Ord(controlTemplate.curve.slewMode)) + ' )';
     info_form.slew_caution_mode_label.Caption :=
-      'caution :    this  template  contains  a  SLEW  ( mode  ' + IntToStr(slew_mode) + ' )';
+      'caution :    this  template  contains  a  SLEW  ( mode  ' + IntToStr(Ord(controlTemplate.curve.slewMode)) + ' )';
 
-    if (plain_track = False) or (slew_mode = 2)
+    if (plain_track = False) or (controlTemplate.curve.slewMode = eSM_TanH)
     // min rad info not available for slewed turnouts or any mode 2.
     then begin
       with info_form do begin

@@ -3440,7 +3440,6 @@ var
   xing_calc_i: integer = 0;
 
   pt_i: integer;
-  slew_mode: integer = 1;
 
   joggled: boolean = False;
 
@@ -3978,7 +3977,8 @@ uses
   export_draw_unit,         // 291a
 
   Htmlview,
-  curve;
+  curve,
+  curve_parameters_interface;
 
 const
 
@@ -7597,7 +7597,7 @@ begin
   docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
   // save current peg data for peg_curve calcs.
 
-  if slew_mode = 1 then
+  if controlTemplate.curve.slewMode = eSM_Cosine then
     slew_factor_value := 0                  // mode 1
   else
     slew_factor_value := slew2_kmax * 50;     // mode 2
@@ -7625,9 +7625,9 @@ begin
     controlTemplate.curve.slewAmount := od[2];
 
     if od[3] = 0 then
-      slew_mode := 1       // change to mode 1.
+      controlTemplate.curve.slewMode := eSM_Cosine       // change to mode 1.
     else begin
-      slew_mode := 2;                               // change to mode 2.
+      controlTemplate.curve.slewMode := eSM_TanH;                               // change to mode 2.
       if od[3] = def_req then
         slew2_kmax := 2         // default factor.
       else
@@ -7640,8 +7640,8 @@ begin
   if controlTemplate.curve.distanceToStartOfSlew = def_req then
     controlTemplate.curve.distanceToStartOfSlew := 0;
   if controlTemplate.curve.slewLength = def_req then begin
-    case slew_mode of
-      1: begin
+    case controlTemplate.curve.slewMode of
+      eSM_Cosine: begin
         temp := 500 * scale * ABS(controlTemplate.curve.slewAmount) * SQR(Pi) / 2;
         // set default length for 500ft scale slewing rads.
         if temp > minfp then
@@ -7649,7 +7649,7 @@ begin
         else
           controlTemplate.curve.slewLength := 600;          // ???  600 mm otherwise.
       end;
-      2:
+      eSM_TanH:
         controlTemplate.curve.slewLength := ABS(controlTemplate.curve.slewAmount) * 10;                      // arbitrary.
     end;//case
   end;
@@ -7664,7 +7664,7 @@ begin
   if slew2_kmax < 0.02 then
     slew2_kmax := 0.02;
 
-  enable_slewing(slew_mode, False);   // also does peg_curve and redraw.
+  enable_slewing(controlTemplate.curve.slewMode, False);   // also does peg_curve and redraw.
 end;
 //____________________________________________________________________________________________
 
@@ -16415,14 +16415,14 @@ end;
 procedure Tpad_form.slew_mode1_menu_entryClick(Sender: TObject);
 
 begin
-  enable_slewing(1, True);
+  enable_slewing(eSM_Cosine, True);
 end;
 //_______________________________________________________________________________________
 
 procedure Tpad_form.slew_mode2_menu_entryClick(Sender: TObject);
 
 begin
-  enable_slewing(2, True);
+  enable_slewing(eSM_TanH, True);
 end;
 //________________________________________________________________________________________
 
