@@ -7606,7 +7606,7 @@ begin
   putdim(help_slews_str, 1, 'length  ( along  track )  to  start  of  slew',
     controlTemplate.curve.distanceToStartOfSlew, False, False, False, False);
   // neg ok, preset ok, zero ok, don't terminate on zero.
-  putdim(help_slewl_str, 1, 'length  of  slewing  zone', slew_l,
+  putdim(help_slewl_str, 1, 'length  of  slewing  zone', controlTemplate.curve.slewLength,
     True, False, True, False);           // no neg, preset ok, no zero, don't terminate on zero.
   putdim(help_slew_str, 1, 'amount  of  slew',
     controlTemplate.curve.slewAmount, False, False, False, False);
@@ -7621,7 +7621,7 @@ begin
     '||For more information about the slew settings, click the HELP flag for each one.',
     pad_form, n, od) = True then begin
     controlTemplate.curve.distanceToStartOfSlew := od[0];
-    slew_l := od[1];
+    controlTemplate.curve.slewLength := od[1];
     controlTemplate.curve.slewAmount := od[2];
 
     if od[3] = 0 then
@@ -7639,25 +7639,25 @@ begin
     controlTemplate.curve.slewAmount := trtscent;     // default slew to adjacent track.
   if controlTemplate.curve.distanceToStartOfSlew = def_req then
     controlTemplate.curve.distanceToStartOfSlew := 0;
-  if slew_l = def_req then begin
+  if controlTemplate.curve.slewLength = def_req then begin
     case slew_mode of
       1: begin
         temp := 500 * scale * ABS(controlTemplate.curve.slewAmount) * SQR(Pi) / 2;
         // set default length for 500ft scale slewing rads.
         if temp > minfp then
-          slew_l := SQRT(temp)
+          controlTemplate.curve.slewLength := SQRT(temp)
         else
-          slew_l := 600;          // ???  600 mm otherwise.
+          controlTemplate.curve.slewLength := 600;          // ???  600 mm otherwise.
       end;
       2:
-        slew_l := ABS(controlTemplate.curve.slewAmount) * 10;                      // arbitrary.
+        controlTemplate.curve.slewLength := ABS(controlTemplate.curve.slewAmount) * 10;                      // arbitrary.
     end;//case
   end;
 
-  if slew_l < ABS(controlTemplate.curve.slewAmount) then
-    slew_l := ABS(controlTemplate.curve.slewAmount);   // arbitrary minimum. (can't go neg).
-  if slew_l < 1 then
-    slew_l := 1;                   // 1 mm safety minimum (div by zero).
+  if controlTemplate.curve.slewLength < ABS(controlTemplate.curve.slewAmount) then
+    controlTemplate.curve.slewLength := ABS(controlTemplate.curve.slewAmount);   // arbitrary minimum. (can't go neg).
+  if controlTemplate.curve.slewLength < 1 then
+    controlTemplate.curve.slewLength := 1;                   // 1 mm safety minimum (div by zero).
 
   if slew2_kmax > 10 then
     slew2_kmax := 10;         // sensible max, min...
@@ -11728,7 +11728,7 @@ procedure Tpad_form.adjust_slew_length_menu_entryClick(Sender: TObject);
 begin
   cancel_adjusts(True);
   mouse_action_selected('SHIFT+CTRL-F6   adjust  slewing  length ...',
-    'SHIFT+CTRL-F6  slew  length', captext(slew_l) + ' mm');
+    'SHIFT+CTRL-F6  slew  length', captext(controlTemplate.curve.slewLength) + ' mm');
   slew_length_mod := 1;
 end;
 //________________________________________________________________________________________
@@ -17405,7 +17405,7 @@ end;
 procedure Tpad_form.match_trans_zone_to_slew_menu_entryClick(Sender: TObject);
 
 begin
-  set_trans_position_from_ctrl_0(controlTemplate.curve.distanceToStartOfSlew, slew_l);
+  set_trans_position_from_ctrl_0(controlTemplate.curve.distanceToStartOfSlew, controlTemplate.curve.slewLength);
 end;
 //_________________________________________________________________________________________
 
@@ -17433,35 +17433,35 @@ end;
 procedure Tpad_form.move_slew_start_to_peg_menu_entryClick(Sender: TObject);
 
 begin
-  set_slew_position_from_ctrl_0(pegx, slew_l);
+  set_slew_position_from_ctrl_0(pegx, controlTemplate.curve.slewLength);
 end;
 //__________________________________________________________________________________________
 
 procedure Tpad_form.move_slew_end_to_peg_menu_entryClick(Sender: TObject);
 
 begin
-  set_slew_position_from_ctrl_0(pegx - slew_l, slew_l);
+  set_slew_position_from_ctrl_0(pegx - controlTemplate.curve.slewLength, controlTemplate.curve.slewLength);
 end;
 //______________________________________________________________________________________
 
 procedure Tpad_form.move_slew_start_to_template_menu_entryClick(Sender: TObject);
 
 begin
-  set_slew_position_from_ctrl_0(0, slew_l);
+  set_slew_position_from_ctrl_0(0, controlTemplate.curve.slewLength);
 end;
 //________________________________________________________________________________________
 
 procedure Tpad_form.move_slew_end_to_template_menu_entryClick(Sender: TObject);
 
 begin
-  set_slew_position_from_ctrl_0(turnoutx - slew_l, slew_l);
+  set_slew_position_from_ctrl_0(turnoutx - controlTemplate.curve.slewLength, controlTemplate.curve.slewLength);
 end;
 //_______________________________________________________________________________________
 
 procedure Tpad_form.move_slew_centre_to_template_menu_entryClick(Sender: TObject);
 
 begin
-  set_slew_position_from_ctrl_0((turnoutx - slew_l) / 2, slew_l);
+  set_slew_position_from_ctrl_0((turnoutx - controlTemplate.curve.slewLength) / 2, controlTemplate.curve.slewLength);
 end;
 //__________________________________________________________________________________________
 
@@ -17471,7 +17471,7 @@ var
   new_len: double;
 
 begin
-  new_len := controlTemplate.curve.distanceToStartOfSlew + slew_l - pegx;
+  new_len := controlTemplate.curve.distanceToStartOfSlew + controlTemplate.curve.slewLength - pegx;
   set_slew_position_from_ctrl_0(pegx, new_len);
 end;
 //_______________________________________________________________________________________
@@ -17493,7 +17493,7 @@ var
   new_len: double;
 
 begin
-  new_len := controlTemplate.curve.distanceToStartOfSlew + slew_l;
+  new_len := controlTemplate.curve.distanceToStartOfSlew + controlTemplate.curve.slewLength;
   set_slew_position_from_ctrl_0(0, new_len);
 end;
 //_______________________________________________________________________________________
@@ -17527,9 +17527,9 @@ procedure Tpad_form.change_slewing_zone_menu_entryClick(Sender: TObject);
 
 // enable only if zone end will be beyond or equal to the start...
 begin
-  start_slew_from_peg_menu_entry.Enabled := ((controlTemplate.curve.distanceToStartOfSlew + slew_l) >= (pegx - minfp));
+  start_slew_from_peg_menu_entry.Enabled := ((controlTemplate.curve.distanceToStartOfSlew + controlTemplate.curve.slewLength) >= (pegx - minfp));
   end_slew_at_peg_menu_entry.Enabled := (pegx >= (controlTemplate.curve.distanceToStartOfSlew - minfp));
-  match_slew_start_to_template_menu_entry.Enabled := ((controlTemplate.curve.distanceToStartOfSlew + slew_l) >= (0 - minfp));
+  match_slew_start_to_template_menu_entry.Enabled := ((controlTemplate.curve.distanceToStartOfSlew + controlTemplate.curve.slewLength) >= (0 - minfp));
   match_slew_end_to_template_menu_entry.Enabled := (turnoutx >= (controlTemplate.curve.distanceToStartOfSlew - minfp));
 
   match_slew_zone_to_trans_menu_entry.Enabled := controlTemplate.curve.isSpiral;
