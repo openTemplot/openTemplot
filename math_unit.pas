@@ -5365,7 +5365,7 @@ begin
         Add(tbstyle_str + ' timbering');
       end;
 
-      if slewing = True then begin
+      if controlTemplate.curve.isSlewing then begin
         Add('------------');
         Add('N.B. this template includes SLEWING for all or part of its length');
         Add('the radius figures quoted below do not apply');
@@ -5871,7 +5871,7 @@ begin
         end;//plain track
       end;//not a curved template
 
-      if slewing = True then begin
+      if controlTemplate.curve.isSlewing then begin
 
         Add('------------');
         Add('slewing data ( slew mode ' + IntToStr(slew_mode) + ' ) :');
@@ -6125,7 +6125,7 @@ begin
     with info_text_list do begin
       Add('------------');
 
-      if (slewing = True) and (plain_track = False) then
+      if (controlTemplate.curve.isSlewing) and (plain_track = False) then
         no_zone_str := ' (except within the slewing zone)'
       else
         no_zone_str := '';
@@ -6222,7 +6222,7 @@ begin
       else
         Add('track centre-line radius at peg = n/a (peg off MS centre-line)');
 
-      if (not half_diamond) and (not controlTemplate.curve.isSpiral) and (not slewing) and
+      if (not half_diamond) and (not controlTemplate.curve.isSpiral) and (not controlTemplate.curve.isSlewing) and
         (not plain_track) then begin
         // add geometrical radius info.
         Add('internal geometrical radius = ' + rad_str(igeo_rad, 2) + '  ( ' +
@@ -10064,7 +10064,7 @@ begin
 
   // first do any slewing required (includes curving calcs if curved=True) ...
 
-  if (slew_flag = True) and (slewing = True) and (slew <> 0) and (xs > slew_s)
+  if (slew_flag = True) and (controlTemplate.curve.isSlewing) and (slew <> 0) and (xs > slew_s)
   // into the slewing zone or beyond...
   then begin
     try
@@ -10407,7 +10407,7 @@ var
 begin
   Result := False;                        // in case of error.
 
-  if slewing = True   //!!! 1-11-99
+  if controlTemplate.curve.isSlewing   //!!! 1-11-99
   then begin
     if (ABS(slew) > slew_l) or (ABS(slew) < minfp)   // safety checks for SQRT, div by zero.
     then begin
@@ -10452,7 +10452,7 @@ begin
     xt1 := 0;                 // centre of radius...
     yt1 := r1 + g / 2;            // put straight stock rail gauge-face at datum level.
 
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_t := slew_angle + (slew_s + (slew_l / 2)) / r1;
     // slewing angle at centre of slewing zone.
 
@@ -10509,7 +10509,7 @@ begin
     xt2 := xtrans2 - r2 * SIN(t2);
     yt2 := ytrans2 + r2 * COS(t2);
 
-    if slewing = True    //!!! 1-11-99
+    if controlTemplate.curve.isSlewing    //!!! 1-11-99
     then begin
       docurving(False, False, (slew_s + (slew_l / 2)), g / 2, xn, yn, slew_trans, rn);
       // get slew_trans angle at centre of slewing zone (with slew-flag off, xn,yn,rn ignored).
@@ -11305,7 +11305,7 @@ begin
     pegx := turnoutx;
     if controlTemplate.curve.isSpiral then
       os := os_now - (pegx_now - pegx);            //  keep transition start constant.
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s_now - (pegx_now - pegx);   //  slewing ditto.
     peg_curve;        // keep peg constant.
   end;
@@ -11315,7 +11315,7 @@ begin
     pegx := turnoutx / 2;                                          // get new mid pegx.
     if controlTemplate.curve.isSpiral then
       os := os_now - (pegx_now - pegx);            //  keep transition start constant.
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s_now - (pegx_now - pegx);   //  slewing ditto.
     peg_curve;
   end;
@@ -11363,7 +11363,7 @@ begin
     //  pegx changes with xorg unless peg is reset on rail-end, or at mid-point.
     if controlTemplate.curve.isSpiral then
       os := os_now - xorg_now + xorg;            //  os transition start changes with xorg ditto.
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s_now - xorg_now + xorg;   //  slewing ditto.
   end;
 
@@ -11373,7 +11373,7 @@ begin
     if controlTemplate.curve.isSpiral then
       os := os_now + (pegx_now - pegx) - xorg_now + xorg;
     //  os transition start changes with xorg ditto.
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s_now + (pegx_now - pegx) - xorg_now + xorg;   //  slewing ditto.
   end;
 
@@ -11788,7 +11788,7 @@ begin
   // gocalc runs peg along current rail or centre-line.
   if controlTemplate.curve.isSpiral then
     os := os_now - (X - peg_now_x) * ffx;
-  if slewing = True then
+  if controlTemplate.curve.isSlewing then
     slew_s := slew_s_now - (X - peg_now_x) * ffx;
 
   //gocalc(0,0);    !!! unlike slide (above) we don't need this because snake is always on ms centre-line (pegy and angle constant).
@@ -12631,7 +12631,7 @@ begin
     // increase overall length to keep V-crossing and exit track.
     if controlTemplate.curve.isSpiral then
       os := os - xorg;
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s - xorg;
     xorg := 0;
   end;
@@ -12695,7 +12695,7 @@ begin
     // increase overall length to keep V-crossing and exit track.
     if controlTemplate.curve.isSpiral then
       os := os - xorg;
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s - xorg;
     xorg := 0;
   end;
@@ -12772,7 +12772,7 @@ begin
         // increase overall length to keep V-crossing and exit track.
         if controlTemplate.curve.isSpiral then
           os := os - xorg;
-        if slewing = True then
+        if controlTemplate.curve.isSlewing then
           slew_s := slew_s - xorg;
         xorg := 0;
       end;
@@ -14577,7 +14577,7 @@ begin
       tst := trans_length;                // length of transition mm.
       os := trans_start;                  // start of transition mm.
 
-      slewing := slewing_flag;   // slewing flag.              // !!! replacing Tspares 10-7-99...
+      controlTemplate.curve.isSlewing := slewing_flag;   // slewing flag.              // !!! replacing Tspares 10-7-99...
       slew_s := slew_start;      // slewing zone start mm.
       slew_l := slew_length;     // slewing zone length mm.
       slew := slew_amount;       // amount of slew mm.
@@ -14720,7 +14720,7 @@ begin
   then begin
     if controlTemplate.curve.isSpiral then
       os := os - (this_pegx - pegx);              // maintain transition alignment.
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s - (this_pegx - pegx);     // maintain slewing alignment.
   end
   else begin
@@ -14728,7 +14728,7 @@ begin
     swap_end_for_end;
     if controlTemplate.curve.isSpiral then
       os := os + (this_pegx - (turnoutx - pegx));              // maintain transition alignment.
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s + (this_pegx - (turnoutx - pegx));     // maintain slewing alignment.
   end;
 
@@ -14911,7 +14911,7 @@ begin
       railedges(True, False, centre_lines);   // gauge faces only.
       guide_marks := True;
       // but show the guide marks for alignment with background.
-      rad_ends := controlTemplate.curve.isSpiral or slewing;
+      rad_ends := controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing;
       // show radial ends if transition or slewing.
       timber_marks := False;
       // no timbers or joint marks while adjusting and re-drawing.
@@ -16305,7 +16305,7 @@ begin
 
       if controlTemplate.curve.isSpiral then
         os_now := os;                  // need transition and slewing starts.
-      if slewing = True then
+      if controlTemplate.curve.isSlewing then
         slew_s_now := slew_s;
     end;
 
@@ -18363,7 +18363,7 @@ begin
   then begin
     // first get geometrical rads...
 
-    if (not controlTemplate.curve.isSpiral) and (not slewing) and (not plain_track) then begin
+    if (not controlTemplate.curve.isSpiral) and (not controlTemplate.curve.isSlewing) and (not plain_track) then begin
 
       tvjy := aq25offset(tvjpx, tvjk);   // peg calcs for TVJP (Ctrl-6).
 
@@ -19908,7 +19908,7 @@ var
 begin
   Result := turnoutx;     // default init.
 
-  if (not controlTemplate.curve.isSpiral) and (not slewing)      // shouldn't be here by rights!
+  if (not controlTemplate.curve.isSpiral) and (not controlTemplate.curve.isSlewing)      // shouldn't be here by rights!
   then begin
     Result := k_rads * nomrad;
     EXIT;
@@ -19998,7 +19998,7 @@ begin
   end;
 
 
-  if ((ABS(nomrad) < max_rad_test) and (not controlTemplate.curve.isSpiral) and (not slewing)) or
+  if ((ABS(nomrad) < max_rad_test) and (not controlTemplate.curve.isSpiral) and (not controlTemplate.curve.isSlewing)) or
     (not degs)
   // fixed curve degs, or mm...
   then begin
@@ -20166,7 +20166,7 @@ begin
   if peg_code <> 0 then begin
     if controlTemplate.curve.isSpiral then
       os := os + xorg - old_xorg;           //  os transition start changes with xorg ditto.
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s + xorg - old_xorg;  //  slewing ditto
   end;
 
@@ -20879,7 +20879,7 @@ begin
       got_transition := False;     // init.
       // init for a new control template...
       controlTemplate.curve.isSpiral := True;
-      slewing := False;
+      controlTemplate.curve.isSlewing := False;
       hand_i := trans_hand;     // set hand of his choice (rad1 is +ve).
 
       turnoutx := SQRT(SQR(peg2x - peg1x) + SQR(peg2y - peg1y)) * 1.5;
@@ -21082,7 +21082,7 @@ begin
     EXIT;
   end;
 
-  if slewing = True then begin
+  if controlTemplate.curve.isSlewing then begin
     alert(6, 'php/201    make  transition',
       'The control template contains a slew.' +
       '||It is not possible to make a transition curve from a slewed template.' +
@@ -21620,7 +21620,7 @@ begin
     nomrad2 := clrad2;
   end;
 
-  if slewing = True then
+  if controlTemplate.curve.isSlewing then
     slew := 0 - slew;   // need to swap the hand of any slewing also.
   peg_curve;                           // do curving calcs for the current peg position.
 end;
@@ -21648,7 +21648,7 @@ begin
   hand_i := 1;                                        //  default left-hand turnout.
 
   controlTemplate.curve.isSpiral := False;       // no transition.
-  slewing := False;      // no slew
+  controlTemplate.curve.isSlewing := False;      // no slew
   reset_trans;         // set transition defaults.
 
   incx := def_req;       // increment for x mm.
@@ -22157,7 +22157,7 @@ begin
       fill_mark(convert_point(p1), convert_point(p2), eMC__2_CurvingRadiusCentre_1, '');
       // rad 1 mark location
 
-      if slewing = True     // centre(s) of slewed over portion ...
+      if controlTemplate.curve.isSlewing = True     // centre(s) of slewed over portion ...
       then begin
         // slewed rad 1 centre marker...    (p2=0)
         pin.x := xt1 - slew * SIN(slew_t);
@@ -22197,7 +22197,7 @@ begin
       // rad 2 mark location.
 
 
-      if slewing = True      // slewed rad 2 centre marker ...
+      if controlTemplate.curve.isSlewing      // slewed rad 2 centre marker ...
       then begin
         pin.x := xt2 - slew * SIN(slew_t);
         pin.y := yt2 + slew * COS(slew_t);
@@ -22263,7 +22263,7 @@ begin
 
   // slewing zone...
 
-  if (rad_ends = True) and (slewing = True) and (turnoutx <> 0)  // 0.93.a  (turnoutx<>0) added
+  if (rad_ends = True) and (controlTemplate.curve.isSlewing) and (turnoutx <> 0)  // 0.93.a  (turnoutx<>0) added
   then begin
     p1.x := slew_s;
     p1.y := 0 - g * 3 / 2;                        // mark start of slewing zone.
@@ -26974,7 +26974,7 @@ begin
       tst := trans_length;       // length of transition mm.
       os := trans_start;         // start of transition mm.
 
-      slewing := slewing_flag;   // slewing flag.              // !!! replacing Tspares 10-7-99...
+      controlTemplate.curve.isSlewing := slewing_flag;   // slewing flag.              // !!! replacing Tspares 10-7-99...
       slew_s := slew_start;      // slewing zone start mm.
       slew_l := slew_length;     // slewing zone length mm.
       slew := slew_amount;       // amount of slew mm.
@@ -27657,7 +27657,7 @@ begin
       trans_start := os;         // start of transition mm.
       rad_offset := 0;{ycurv;}   // curving line offset mm.   // scrapped 26-7-00.
 
-      slewing_flag := slewing;   // slewing flag.             // !!! replacing Tspares 10-7-99...
+      slewing_flag := controlTemplate.curve.isSlewing;   // slewing flag.             // !!! replacing Tspares 10-7-99...
       slew_start := slew_s;      // slewing zone start mm.
       slew_length := slew_l;     // slewing zone length mm.
       slew_amount := slew;       // amount of slew mm.
@@ -28645,7 +28645,7 @@ var
     if Application.Terminated = False then
       Application.ProcessMessages;
 
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_str :=
         ', or try repeating the process with slewing cancelled. Slewing can then be re-applied to the new template as required.'
     else
@@ -28757,7 +28757,7 @@ begin
 
     hand_i := 0 - hand_i;
     // swap hand (so turnout-side is to same double-track centre).
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew := 0 - slew;   // need to swap the hand of any slewing also.
 
     if (ABS(nomrad) < max_rad_test) and (not controlTemplate.curve.isSpiral)
@@ -28988,7 +28988,7 @@ begin
       EXIT;
   end;
 
-  if slewing = True then begin
+  if controlTemplate.curve.isSlewing then begin
     repeat
       i := alert(3, '   make  double-track  -  slewed  track',
         'Your control template contains a slew.' +
@@ -29201,7 +29201,7 @@ begin
       gocalc(0, 0);            // peg calcs.
     end;
 
-    if (slewing) and (slew_s > turnoutx) then begin
+    if (controlTemplate.curve.isSlewing) and (slew_s > turnoutx) then begin
       pad_form.disable_slewing_menu_entry.Click;   // new template in unslewed section.
       gocalc(0, 0);                                 // peg calcs.
     end;
@@ -29232,7 +29232,7 @@ begin
       normalize_transition;        // ignore result.
     end;
 
-    if (slewing) and (slew_s > turnoutx) then begin
+    if (controlTemplate.curve.isSlewing) and (slew_s > turnoutx) then begin
       gocalc(0, 0);                                 // peg calcs.
       pad_form.disable_slewing_menu_entry.Click;   // new template in unslewed section.
     end;
@@ -29314,7 +29314,7 @@ begin
 
     until i <> 4;
 
-  if slewing = True then begin
+  if controlTemplate.curve.isSlewing then begin
     repeat
       i := alert(3, '    make  crossover  -  slewed  track',
         '||Your control template contains a slew.' +
@@ -29839,7 +29839,7 @@ begin
     EXIT;
   end;
 
-  if slewing = True then begin
+  if controlTemplate.curve.isSlewing then begin
     i := alert(3, '    make  laddder  -  slewed  track',
       '||Your control template contains a slew.' +
       '||It is generally unwise to construct a ladder if any part of it will be within the slewing zone.'
@@ -29986,7 +29986,7 @@ begin
     else
       old_trans_end := 0;             // keep compiler happy
 
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       old_slew_end := slew_s + slew_l - pegx     // ditto to end of slewing
     else
       old_slew_end := 0;
@@ -30069,7 +30069,7 @@ begin
       os := pegx - old_trans_end;
     gocalc(0, 0);
 
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := pegx - old_slew_end;
     gocalc(0, 0);
 
@@ -30564,7 +30564,7 @@ begin
 
   end;//with
 
-  slewing := True;
+  controlTemplate.curve.isSlewing := True;
   peg_curve;        // slew curve onto peg.
   redraw(True);
 end;
@@ -31179,7 +31179,7 @@ begin
 
     if controlTemplate.curve.isSpiral then
       os := os + xorg - xorg_old;           //  os transition start changes with xorg ditto.
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s + xorg - xorg_old;  //  slewing ditto
     peg_curve;                                          //  keep turnout on the peg.
   end;
@@ -31484,7 +31484,7 @@ begin
     pad_form.peg_on_overall_length_menu_entry.Click;
   gocalc(0, 0);
 
-  if slewing = True       // slewing, swap end positions..
+  if controlTemplate.curve.isSlewing       // slewing, swap end positions..
   then begin
     slew_s := turnoutx - (slew_s + slew_l);   // neg slew_s is OK.
     slew := 0 - slew;
@@ -33582,8 +33582,8 @@ begin
         peg_on_user_defined_menu_entry.Checked := True; // radio item. 'U'   user-defined position.
     end;//case
 
-    peg_on_slew_start_menu_entry.Enabled := slewing;
-    peg_on_slew_length_menu_entry.Enabled := slewing;
+    peg_on_slew_start_menu_entry.Enabled := controlTemplate.curve.isSlewing;
+    peg_on_slew_length_menu_entry.Enabled := controlTemplate.curve.isSlewing;
 
     peg_on_trans_start_menu_entry.Enabled := controlTemplate.curve.isSpiral;
     peg_on_trans_length_menu_entry.Enabled := controlTemplate.curve.isSpiral;
@@ -33593,13 +33593,13 @@ begin
     peg_on_mrp_menu_entry.Enabled :={(retpar_i=1) and} not plain_track;
 
     peg_on_EGTP_menu_entry.Enabled :=
-      not (controlTemplate.curve.isSpiral or slewing or plain_track);
+      not (controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing or plain_track);
     peg_on_EGORG_menu_entry.Enabled :=
-      not (controlTemplate.curve.isSpiral or slewing or plain_track);
+      not (controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing or plain_track);
     peg_on_IGTP_menu_entry.Enabled :=
-      not (controlTemplate.curve.isSpiral or slewing or plain_track);
+      not (controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing or plain_track);
     peg_on_IGORG_menu_entry.Enabled :=
-      not (controlTemplate.curve.isSpiral or slewing or plain_track);
+      not (controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing or plain_track);
 
     peg_on_tp_menu_entry.Enabled := not plain_track;
 
@@ -33978,7 +33978,7 @@ begin
 
     if controlTemplate.curve.isSpiral then
       os := os - dpx;
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s - dpx;
 
     half_diamond := True;    // to half-diamond
@@ -34042,7 +34042,7 @@ begin
 
   if controlTemplate.curve.isSpiral then
     os := os + dpx;
-  if slewing = True then
+  if controlTemplate.curve.isSlewing then
     slew_s := slew_s + dpx;
 
   xorg := 0;                          // should be 0 anyway.
@@ -36032,7 +36032,7 @@ begin
     // increase overall length to keep V-crossing and exit track on alignment.
     if controlTemplate.curve.isSpiral then
       os := os - xorg;
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s - xorg;
     xorg := 0;
   end;

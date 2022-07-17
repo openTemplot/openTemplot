@@ -218,7 +218,7 @@ begin
     EXIT;
   end;
 
-  if slewing = True then begin
+  if controlTemplate.curve.isSlewing then begin
     alert(6, '    make  slip  -  slewed  track',
       'Sorry, this function is not available because the control template contains a slew.'
       + '||A slip could be created manually, but it is generally unwise to create a slip if any part of it will be within a slewing zone.' + '||The slewing function is intended primarily for plain track.',

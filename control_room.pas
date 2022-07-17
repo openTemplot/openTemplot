@@ -1052,8 +1052,8 @@ begin
 
       // 211b moved from math_unit gocalc...
 
-      if slewing = True  // warn him this template includes a slew.
-      then begin
+      if controlTemplate.curve.isSlewing then begin
+        // warn him this template includes a slew.
         with info_form do begin
           if (plain_track = False) or (slew_mode = 2)
           // min rad info not available for slewed turnouts or any mode 2.
@@ -1123,10 +1123,10 @@ begin
 
 
       snap_to_EGTP_menu_entry.Enabled :=
-        not (plain_track or controlTemplate.curve.isSpiral or slewing or
+        not (plain_track or controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing or
         (egpx > (xorg - minfp_big)));
       snap_to_IGTP_menu_entry.Enabled :=
-        not (plain_track or controlTemplate.curve.isSpiral or slewing or
+        not (plain_track or controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing or
         (igpx > (xorg - minfp_big)));
       crop_approach_menu_entry.Enabled := not (plain_track or (xorg < minfp_big));
       shorten_approach_one_menu_entry.Enabled := not (xorg < minfp_big);
@@ -1151,7 +1151,7 @@ begin
         (ABS(nomrad2) < max_rad_test) and controlTemplate.curve.isSpiral;
 
       make_turnout_road_menu_entry.Enabled :=
-        not (plain_track or controlTemplate.curve.isSpiral or slewing or half_diamond);
+        not (plain_track or controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing or half_diamond);
 
       if keeps_list.Count < 1 then begin
         toggle_bgnd_menu_entry.Enabled := False;
@@ -1162,7 +1162,7 @@ begin
         group_menu.Enabled := True;                              // 0.82.a
       end;
 
-      if slewing = True then begin
+      if controlTemplate.curve.isSlewing then begin
         curving_label_prefix_str := '~';            // 213a
         slew_nudge_menu_entry.Checked := True;
 
@@ -1238,13 +1238,13 @@ begin
       // 217a
 
       swings_in_degs_menu_entry.Enabled :=
-        ((ABS(nomrad) < max_rad_test) or controlTemplate.curve.isSpiral or slewing);
+        ((ABS(nomrad) < max_rad_test) or controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing);
 
       adjust_trans_length_menu_entry.Enabled := controlTemplate.curve.isSpiral;
       // transition mouse actions..
       adjust_trans_start_menu_entry.Enabled := controlTemplate.curve.isSpiral;
 
-      swell_menu_entry.Enabled := not (controlTemplate.curve.isSpiral or slewing);
+      swell_menu_entry.Enabled := not (controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing);
       // no swell mouse action for transition curves or slews.
 
       if plain_track = True then begin

@@ -3440,7 +3440,6 @@ var
   xing_calc_i: integer = 0;
 
   pt_i: integer;
-  slewing: boolean = False;     // slewing flag.
   slew_mode: integer = 1;
 
   joggled: boolean = False;
@@ -8242,7 +8241,7 @@ begin
     if peg_code <> 0 then begin
       if controlTemplate.curve.isSpiral then
         os := os + xorg - old_xorg;           //  os transition start changes with xorg ditto.
-      if slewing = True then
+      if controlTemplate.curve.isSlewing then
         slew_s := slew_s + xorg - old_xorg;  //  slewing ditto
     end;
 
@@ -15077,7 +15076,7 @@ begin
       normalize_transition;        // ignore result.
     end;
 
-    if (slewing = True) and (slew_s > turnoutx) then begin
+    if (controlTemplate.curve.isSlewing) and (slew_s > turnoutx) then begin
       gocalc(0, 0);                                 // peg calcs.
       pad_form.disable_slewing_menu_entry.Click;   // new template in unslewed section.
     end;
@@ -15118,7 +15117,7 @@ begin
       normalize_transition;        // ignore result.
     end;
 
-    if (slewing = True) and (slew_s > turnoutx) then begin
+    if (controlTemplate.curve.isSlewing) and (slew_s > turnoutx) then begin
       gocalc(0, 0);                                 // peg calcs.
       pad_form.disable_slewing_menu_entry.Click;   // new template in unslewed section.
     end;
@@ -15227,7 +15226,7 @@ begin
       normalize_transition;        // ignore result.
     end;
 
-    if (slewing = True) and (slew_s > turnoutx) then begin
+    if (controlTemplate.curve.isSlewing) and (slew_s > turnoutx) then begin
       gocalc(0, 0);                        // peg calcs.
       disable_slewing_menu_entry.Click;   // new template in unslewed section.
     end;
@@ -15370,7 +15369,7 @@ begin
     EXIT;
   end;
 
-  if slewing = True then begin
+  if controlTemplate.curve.isSlewing then begin
     alert(6, '    make  return  curve  -  slewed  track',
       'Your control template contains a slew.' +
       '||Sorry, this return curve function is not available for slewed track.' +
@@ -15480,7 +15479,7 @@ begin
   retain_on_make;    // do blanking, shoves, diffs, crossing entry straight, cancel platforms  213a
 
   controlTemplate.curve.isSpiral := False;
-  slewing := False;
+  controlTemplate.curve.isSlewing := False;
 
   plain_track := True;
   set_plain_track(True, True);
@@ -15647,7 +15646,7 @@ begin
 
   controlTemplate.curve.isSpiral := False;   // plain curve for branch track.
 
-  if slewing = True then
+  if controlTemplate.curve.isSlewing then
     disable_slewing_menu_entry.Click;
 
   plain_track := True;
@@ -16408,8 +16407,8 @@ end;
 procedure Tpad_form.slew_nudge_menu_entryClick(Sender: TObject);
 
 begin
-  move_slewing_zone_menu_entry.Enabled := slewing;
-  change_slewing_zone_menu_entry.Enabled := slewing;
+  move_slewing_zone_menu_entry.Enabled := controlTemplate.curve.isSlewing;
+  change_slewing_zone_menu_entry.Enabled := controlTemplate.curve.isSlewing;
 end;
 //___________________________________________________________________________________________
 
@@ -16453,7 +16452,7 @@ begin
   docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
   // current peg data for peg_curve calcs.
 
-  slewing := False;
+  controlTemplate.curve.isSlewing := False;
   peg_curve;                                                      // slew curve onto peg.
 
   redraw(True);
@@ -16662,7 +16661,7 @@ begin
     //  pegx changes with xorg unless peg is reset on rail-end.
     if controlTemplate.curve.isSpiral then
       os := os - approach_last_xtb;            //  os transition start changes with xorg ditto.
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s - approach_last_xtb;   //  ditto slewing.
     peg_curve;                                               // keep turnout on the peg.
   end;
@@ -17419,7 +17418,7 @@ begin
   match_trans_start_to_template_menu_entry.Enabled := ((os + tst) >= (0 - minfp));
   match_trans_end_to_template_menu_entry.Enabled := (turnoutx >= (os - minfp));
 
-  match_trans_zone_to_slew_menu_entry.Enabled := slewing;
+  match_trans_zone_to_slew_menu_entry.Enabled := controlTemplate.curve.isSlewing;
 end;
 //_________________________________________________________________________________________
 
@@ -22321,7 +22320,7 @@ begin
   nomrad := max_rad;
   controlTemplate.curve.isSpiral := False;
 
-  if slewing = True then
+  if controlTemplate.curve.isSlewing then
     disable_slewing_menu_entry.Click;
 
   plain_track := True;
@@ -23635,7 +23634,7 @@ begin
     // increase overall length to keep V-crossing and exit track.
     if controlTemplate.curve.isSpiral then
       os := os - xorg;
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s - xorg;
     xorg := 0;
   end;
@@ -23752,7 +23751,7 @@ begin
   if xorg < 0 then begin
     turnoutx := turnoutx - xorg;
     // increase overall length to keep V-crossing and exit track.
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s - xorg;
     xorg := 0;
   end;
@@ -25006,7 +25005,7 @@ begin
     // increase overall length to keep V-crossing and exit track.
     if controlTemplate.curve.isSpiral then
       os := os - xorg;
-    if slewing = True then
+    if controlTemplate.curve.isSlewing then
       slew_s := slew_s - xorg;
     xorg := 0;
   end;
@@ -27617,7 +27616,7 @@ begin
     EXIT;
   end;
 
-  if slewing = True then begin
+  if controlTemplate.curve.isSlewing then begin
     alert(6, '    make  tandem  -  slewed  track',
       'Sorry, this function is not available because the control template contains a slew.' +
       '||A tandem could be created manually, but it is generally unwise to create a tandem turnout if any part of it will be within a slewing zone.' + '||The slewing function is intended primarily for plain track.',
@@ -27779,7 +27778,7 @@ begin
     EXIT;
   end;
 
-  if slewing = True then begin
+  if controlTemplate.curve.isSlewing then begin
     alert(6, '    make  tandem  -  slewed  track',
       'Sorry, this function is not available because the control template contains a slew.' +
       '||A tandem could be created manually, but it is generally unwise to create a tandem turnout if any part of it will be within a slewing zone.' + '||The slewing function is intended primarily for plain track.',

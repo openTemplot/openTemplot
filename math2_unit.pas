@@ -414,7 +414,7 @@ begin
     EXIT;
   end;
 
-  if slewing = True then begin
+  if controlTemplate.curve.isSlewing then begin
     Result := 0 - 6;
     EXIT;
   end;
@@ -457,7 +457,7 @@ begin
         EXIT;
       end;
 
-      if slewing = True then begin
+      if controlTemplate.curve.isSlewing then begin
         Result := 0 - 6;
         EXIT;
       end;
@@ -1159,7 +1159,7 @@ begin
     EXIT;
   end;
 
-  if slewing = True then begin
+  if controlTemplate.curve.isSlewing then begin
     if alert(6, 'php/110    make  diamond - crossing  at  intersection',
       'Sorry, this function is not available because the control template contains a slew.' +
       '||If the intersection is not within the slewing zone, try again after using the `0TOOLS > MAKE SPLIT >`1 menu options accordingly.' + '||If the intersection is within the slewing zone, you may be able to perform this operation manually by moving the fixing peg along the track (`0CTRL+F8`2 mouse action).', '', '', '', 'more  information', 'cancel', '', 4) = 4 then
