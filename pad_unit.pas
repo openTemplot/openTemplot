@@ -7604,7 +7604,7 @@ begin
 
 
   putdim(help_slews_str, 1, 'length  ( along  track )  to  start  of  slew',
-    slew_s, False, False, False, False);
+    controlTemplate.curve.distanceToStartOfSlew, False, False, False, False);
   // neg ok, preset ok, zero ok, don't terminate on zero.
   putdim(help_slewl_str, 1, 'length  of  slewing  zone', slew_l,
     True, False, True, False);           // no neg, preset ok, no zero, don't terminate on zero.
@@ -7620,7 +7620,7 @@ begin
   if getdims('slewing', slew_help_str +
     '||For more information about the slew settings, click the HELP flag for each one.',
     pad_form, n, od) = True then begin
-    slew_s := od[0];
+    controlTemplate.curve.distanceToStartOfSlew := od[0];
     slew_l := od[1];
     controlTemplate.curve.slewAmount := od[2];
 
@@ -7637,8 +7637,8 @@ begin
 
   if controlTemplate.curve.slewAmount = def_req then
     controlTemplate.curve.slewAmount := trtscent;     // default slew to adjacent track.
-  if slew_s = def_req then
-    slew_s := 0;
+  if controlTemplate.curve.distanceToStartOfSlew = def_req then
+    controlTemplate.curve.distanceToStartOfSlew := 0;
   if slew_l = def_req then begin
     case slew_mode of
       1: begin
@@ -8242,7 +8242,7 @@ begin
       if controlTemplate.curve.isSpiral then
         os := os + xorg - old_xorg;           //  os transition start changes with xorg ditto.
       if controlTemplate.curve.isSlewing then
-        slew_s := slew_s + xorg - old_xorg;  //  slewing ditto
+        controlTemplate.curve.distanceToStartOfSlew := controlTemplate.curve.distanceToStartOfSlew + xorg - old_xorg;  //  slewing ditto
     end;
 
     pegx := pegx - old_xorg + xorg;         // update the peg if free...
@@ -11718,7 +11718,7 @@ procedure Tpad_form.adjust_slew_start_menu_entryClick(Sender: TObject);
 begin
   cancel_adjusts(True);
   mouse_action_selected('SHIFT+CTRL-F5   adjust  slewing  start ...',
-    'SHIFT+CTRL-F5  slew  start', captext(slew_s) + ' mm');
+    'SHIFT+CTRL-F5  slew  start', captext(controlTemplate.curve.distanceToStartOfSlew) + ' mm');
   slew_start_mod := 1;
 end;
 //_________________________________________________________________________________________
@@ -15076,7 +15076,7 @@ begin
       normalize_transition;        // ignore result.
     end;
 
-    if (controlTemplate.curve.isSlewing) and (slew_s > turnoutx) then begin
+    if (controlTemplate.curve.isSlewing) and (controlTemplate.curve.distanceToStartOfSlew > turnoutx) then begin
       gocalc(0, 0);                                 // peg calcs.
       pad_form.disable_slewing_menu_entry.Click;   // new template in unslewed section.
     end;
@@ -15117,7 +15117,7 @@ begin
       normalize_transition;        // ignore result.
     end;
 
-    if (controlTemplate.curve.isSlewing) and (slew_s > turnoutx) then begin
+    if (controlTemplate.curve.isSlewing) and (controlTemplate.curve.distanceToStartOfSlew > turnoutx) then begin
       gocalc(0, 0);                                 // peg calcs.
       pad_form.disable_slewing_menu_entry.Click;   // new template in unslewed section.
     end;
@@ -15226,7 +15226,7 @@ begin
       normalize_transition;        // ignore result.
     end;
 
-    if (controlTemplate.curve.isSlewing) and (slew_s > turnoutx) then begin
+    if (controlTemplate.curve.isSlewing) and (controlTemplate.curve.distanceToStartOfSlew > turnoutx) then begin
       gocalc(0, 0);                        // peg calcs.
       disable_slewing_menu_entry.Click;   // new template in unslewed section.
     end;
@@ -16662,7 +16662,7 @@ begin
     if controlTemplate.curve.isSpiral then
       os := os - approach_last_xtb;            //  os transition start changes with xorg ditto.
     if controlTemplate.curve.isSlewing then
-      slew_s := slew_s - approach_last_xtb;   //  ditto slewing.
+      controlTemplate.curve.distanceToStartOfSlew := controlTemplate.curve.distanceToStartOfSlew - approach_last_xtb;   //  ditto slewing.
     peg_curve;                                               // keep turnout on the peg.
   end;
 
@@ -17405,7 +17405,7 @@ end;
 procedure Tpad_form.match_trans_zone_to_slew_menu_entryClick(Sender: TObject);
 
 begin
-  set_trans_position_from_ctrl_0(slew_s, slew_l);
+  set_trans_position_from_ctrl_0(controlTemplate.curve.distanceToStartOfSlew, slew_l);
 end;
 //_________________________________________________________________________________________
 
@@ -17471,7 +17471,7 @@ var
   new_len: double;
 
 begin
-  new_len := slew_s + slew_l - pegx;
+  new_len := controlTemplate.curve.distanceToStartOfSlew + slew_l - pegx;
   set_slew_position_from_ctrl_0(pegx, new_len);
 end;
 //_______________________________________________________________________________________
@@ -17482,8 +17482,8 @@ var
   new_len: double;
 
 begin
-  new_len := pegx - slew_s;
-  set_slew_position_from_ctrl_0(slew_s, new_len);
+  new_len := pegx - controlTemplate.curve.distanceToStartOfSlew;
+  set_slew_position_from_ctrl_0(controlTemplate.curve.distanceToStartOfSlew, new_len);
 end;
 //_______________________________________________________________________________________
 
@@ -17493,7 +17493,7 @@ var
   new_len: double;
 
 begin
-  new_len := slew_s + slew_l;
+  new_len := controlTemplate.curve.distanceToStartOfSlew + slew_l;
   set_slew_position_from_ctrl_0(0, new_len);
 end;
 //_______________________________________________________________________________________
@@ -17504,8 +17504,8 @@ var
   new_len: double;
 
 begin
-  new_len := turnoutx - slew_s;
-  set_slew_position_from_ctrl_0(slew_s, new_len);
+  new_len := turnoutx - controlTemplate.curve.distanceToStartOfSlew;
+  set_slew_position_from_ctrl_0(controlTemplate.curve.distanceToStartOfSlew, new_len);
 end;
 //_______________________________________________________________________________________
 
@@ -17527,10 +17527,10 @@ procedure Tpad_form.change_slewing_zone_menu_entryClick(Sender: TObject);
 
 // enable only if zone end will be beyond or equal to the start...
 begin
-  start_slew_from_peg_menu_entry.Enabled := ((slew_s + slew_l) >= (pegx - minfp));
-  end_slew_at_peg_menu_entry.Enabled := (pegx >= (slew_s - minfp));
-  match_slew_start_to_template_menu_entry.Enabled := ((slew_s + slew_l) >= (0 - minfp));
-  match_slew_end_to_template_menu_entry.Enabled := (turnoutx >= (slew_s - minfp));
+  start_slew_from_peg_menu_entry.Enabled := ((controlTemplate.curve.distanceToStartOfSlew + slew_l) >= (pegx - minfp));
+  end_slew_at_peg_menu_entry.Enabled := (pegx >= (controlTemplate.curve.distanceToStartOfSlew - minfp));
+  match_slew_start_to_template_menu_entry.Enabled := ((controlTemplate.curve.distanceToStartOfSlew + slew_l) >= (0 - minfp));
+  match_slew_end_to_template_menu_entry.Enabled := (turnoutx >= (controlTemplate.curve.distanceToStartOfSlew - minfp));
 
   match_slew_zone_to_trans_menu_entry.Enabled := controlTemplate.curve.isSpiral;
 end;
@@ -23635,7 +23635,7 @@ begin
     if controlTemplate.curve.isSpiral then
       os := os - xorg;
     if controlTemplate.curve.isSlewing then
-      slew_s := slew_s - xorg;
+      controlTemplate.curve.distanceToStartOfSlew := controlTemplate.curve.distanceToStartOfSlew - xorg;
     xorg := 0;
   end;
 
@@ -23752,7 +23752,7 @@ begin
     turnoutx := turnoutx - xorg;
     // increase overall length to keep V-crossing and exit track.
     if controlTemplate.curve.isSlewing then
-      slew_s := slew_s - xorg;
+      controlTemplate.curve.distanceToStartOfSlew := controlTemplate.curve.distanceToStartOfSlew - xorg;
     xorg := 0;
   end;
 
@@ -25006,7 +25006,7 @@ begin
     if controlTemplate.curve.isSpiral then
       os := os - xorg;
     if controlTemplate.curve.isSlewing then
-      slew_s := slew_s - xorg;
+      controlTemplate.curve.distanceToStartOfSlew := controlTemplate.curve.distanceToStartOfSlew - xorg;
     xorg := 0;
   end;
 
