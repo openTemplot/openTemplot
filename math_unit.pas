@@ -557,8 +557,6 @@ var
   // slewing angle at centre of slewing zone (used to mark slewed over rad centres).
   slew_t: double = 0;
 
-  // kmax radians for slew mode 2 (tanh).
-  slew2_kmax: double = 2.0;
   // rotation needed to straighten tanh curve (in trig units).
   slew2_rot: double = 0;
   slew2_ymax: double = 0;
@@ -5932,7 +5930,7 @@ begin
         end
         else begin
           Add('slewing radii not available ( slew mode 2 )');
-          Add('mode 2 slewing factor = ' + round_str(slew2_kmax * 50, 2));
+          Add('mode 2 slewing factor = ' + round_str(controlTemplate.curve.slewFactor * 50, 2));
         end;
       end;
 
@@ -9939,7 +9937,7 @@ begin
           EXIT;
         end;
 
-        pin.x := 0 - slew2_kmax + x * (slew2_kmax * 2) / slew_length;     // this k for tanh.
+        pin.x := 0 - controlTemplate.curve.slewFactor + x * (controlTemplate.curve.slewFactor * 2) / slew_length;     // this k for tanh.
         pin.y := TANH(pin.x);                                       // tanh at this k.
         dotransform(0 - slew2_rot, 0, 0, pin, pout);
         // rotate to modify y (ignore x).
@@ -10423,14 +10421,14 @@ begin
 
     if controlTemplate.curve.slewMode = eSM_TanH then begin      // calc constants once only...
 
-      if slew2_kmax < 0.02 then
-        slew2_kmax := 0.02;         // safety.
+      if controlTemplate.curve.slewFactor < 0.02 then
+        controlTemplate.curve.slewFactor := 0.02;         // safety.
 
-      slew2_rot := ARCTAN(1 - SQR(TANH(slew2_kmax)));
+      slew2_rot := ARCTAN(1 - SQR(TANH(controlTemplate.curve.slewFactor)));
       // dy/dx TANH(x) = 1-TANH^2(x).  rotation angle needed in trig units.
 
-      pin.x := slew2_kmax;
-      pin.y := TANH(slew2_kmax);
+      pin.x := controlTemplate.curve.slewFactor;
+      pin.y := TANH(controlTemplate.curve.slewFactor);
       dotransform(0 - slew2_rot, 0, 0, pin, pout);
 
       slew2_ymax := pout.y;
@@ -12322,13 +12320,13 @@ end;
 procedure trail_slew2_factor(X: integer);          // adjust slew mode 2 factor.
 
 begin
-  slew2_kmax := slew2_kmax_now + (X - slew_factor_now) * 6 / (pad_form.ClientWidth + 1);
+  controlTemplate.curve.slewFactor := slew2_kmax_now + (X - slew_factor_now) * 6 / (pad_form.ClientWidth + 1);
   // 6 arbitrary.
 
-  if slew2_kmax < 0.02 then
-    slew2_kmax := 0.02;      // ??? arbitrary minimum. (can't go neg).
-  if slew2_kmax > 10 then
-    slew2_kmax := 10;          // ??? arbitrary maximum.
+  if controlTemplate.curve.slewFactor < 0.02 then
+    controlTemplate.curve.slewFactor := 0.02;      // ??? arbitrary minimum. (can't go neg).
+  if controlTemplate.curve.slewFactor > 10 then
+    controlTemplate.curve.slewFactor := 10;          // ??? arbitrary maximum.
 
   peg_curve;                                     // keep slew on peg.
 end;
@@ -13850,7 +13848,7 @@ begin
 
       if trace_mouse = True then
         gocalc(2, mode{+first_click});
-      trail_str := captext(slew2_kmax * 50);
+      trail_str := captext(controlTemplate.curve.slewFactor * 50);
     end;
 
     29: begin
@@ -14577,7 +14575,7 @@ begin
       controlTemplate.curve.slewLength := slew_length;     // slewing zone length mm.
       controlTemplate.curve.slewAmount := slew_amount;       // amount of slew mm.
 
-      slew2_kmax := tanh_kmax;           {:double;}  {spare_int1:integer;}
+      controlTemplate.curve.slewFactor := tanh_kmax;           {:double;}  {spare_int1:integer;}
       // stretch factor for mode 2 slews.
       {spare_int2:integer;}
       // !!! double used because only 8 bytes available in existing file format (2 integers).
@@ -16122,7 +16120,7 @@ begin
       end;
 
       slew_factor_now := X;                       // save clicked position.
-      slew2_kmax_now := slew2_kmax;
+      slew2_kmax_now := controlTemplate.curve.slewFactor;
 
       kform_now := kform;
       docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy1);
@@ -26974,7 +26972,7 @@ begin
       controlTemplate.curve.slewLength := slew_length;     // slewing zone length mm.
       controlTemplate.curve.slewAmount := slew_amount;       // amount of slew mm.
 
-      slew2_kmax := tanh_kmax;           {:double;}  {spare_int1:integer;}
+      controlTemplate.curve.slewFactor := tanh_kmax;           {:double;}  {spare_int1:integer;}
       // stretch factor for mode 2 slews.
       {spare_int2:integer;}
       // !!! double used because only 8 bytes available in existing file format (2 integers).
@@ -27658,7 +27656,7 @@ begin
       slew_amount := controlTemplate.curve.slewAmount;       // amount of slew mm.
 
       try
-        tanh_kmax := slew2_kmax;     // ! double from extended..
+        tanh_kmax := controlTemplate.curve.slewFactor;     // ! double from extended..
         slew_type := SlewModeToByte(controlTemplate.curve.slewMode);      // ! byte from integer.
       except
         // in case of overflows...

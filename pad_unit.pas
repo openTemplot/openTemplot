@@ -7600,7 +7600,7 @@ begin
   if controlTemplate.curve.slewMode = eSM_Cosine then
     slew_factor_value := 0                  // mode 1
   else
-    slew_factor_value := slew2_kmax * 50;     // mode 2
+    slew_factor_value := controlTemplate.curve.slewFactor * 50;     // mode 2
 
 
   putdim(help_slews_str, 1, 'length  ( along  track )  to  start  of  slew',
@@ -7629,9 +7629,9 @@ begin
     else begin
       controlTemplate.curve.slewMode := eSM_TanH;                               // change to mode 2.
       if od[3] = def_req then
-        slew2_kmax := 2         // default factor.
+        controlTemplate.curve.slewFactor := 2         // default factor.
       else
-        slew2_kmax := od[3] / 50;
+        controlTemplate.curve.slewFactor := od[3] / 50;
     end;
   end;
 
@@ -7659,10 +7659,10 @@ begin
   if controlTemplate.curve.slewLength < 1 then
     controlTemplate.curve.slewLength := 1;                   // 1 mm safety minimum (div by zero).
 
-  if slew2_kmax > 10 then
-    slew2_kmax := 10;         // sensible max, min...
-  if slew2_kmax < 0.02 then
-    slew2_kmax := 0.02;
+  if controlTemplate.curve.slewFactor > 10 then
+    controlTemplate.curve.slewFactor := 10;         // sensible max, min...
+  if controlTemplate.curve.slewFactor < 0.02 then
+    controlTemplate.curve.slewFactor := 0.02;
 
   enable_slewing(controlTemplate.curve.slewMode, False);   // also does peg_curve and redraw.
 end;
@@ -11748,7 +11748,7 @@ procedure Tpad_form.adjust_slew2_factor_menu_entryClick(Sender: TObject);
 begin
   cancel_adjusts(True);
   mouse_action_selected('    adjust  mode  2  slew  factor ...', 'mode 2 slew factor',
-    captext(slew2_kmax * 50));
+    captext(controlTemplate.curve.slewFactor * 50));
   slew_factor_mod := 1;
 end;
 //_________________________________________________________________________________________
