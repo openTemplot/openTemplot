@@ -15,8 +15,9 @@ type
     ['ICurveParameters']
 
     function GetIsSpiral: boolean;
-    function GetNominalRadius: double;
-    function GetNominalRadius2: double;
+    function GetFixedRadius: double;
+    function GetTransitionRadius1: double;
+    function GetTransitionRadius2: double;
     function GetDistanceToTransition: double;
     function GetTransitionLength: double;
     function GetIsSlewing: boolean;
@@ -27,8 +28,9 @@ type
     function GetSlewFactor: double;
 
     property isSpiral: boolean Read GetIsSpiral;
-    property nominalRadius: double Read GetNominalRadius;
-    property nominalRadius2: double Read GetNominalRadius2;
+    property fixedRadius: double Read GetFixedRadius;
+    property transitionRadius1: double Read GetTransitionRadius1;
+    property transitionRadius2: double Read GetTransitionRadius2;
     property distanceToTransition: double Read GetDistanceToTransition;
     property transitionLength: double Read GetTransitionLength;
 

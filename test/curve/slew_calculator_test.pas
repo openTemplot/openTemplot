@@ -19,8 +19,9 @@ type
 
   TTestSlewCalculator = class(TTestCase, ICurveParameters)
   private
-    nominalRadius: double;
-    nominalRadius2: double;
+    fixedRadius: double;
+    transitionRadius1: double;
+    transitionRadius2: double;
     distanceToTransition: double;
     transitionLength: double;
     isSpiral: boolean;
@@ -39,8 +40,9 @@ type
     procedure TearDown; override;
 
     function GetIsSpiral: boolean;
-    function GetNominalRadius: double;
-    function GetNominalRadius2: double;
+    function GetFixedRadius: double;
+    function GetTransitionRadius1: double;
+    function GetTransitionRadius2: double;
     function GetDistanceToTransition: double;
     function GetTransitionLength: double;
 
@@ -95,14 +97,19 @@ begin
   Result := isSpiral;
 end;
 
-function TTestSlewCalculator.GetNominalRadius: double;
+function TTestSlewCalculator.GetFixedRadius: double;
 begin
-  Result := nominalRadius;
+  Result := fixedRadius;
 end;
 
-function TTestSlewCalculator.GetNominalRadius2: double;
+function TTestSlewCalculator.GetTransitionRadius1: double;
 begin
-  Result := nominalRadius2;
+  Result := transitionRadius1;
+end;
+
+function TTestSlewCalculator.GetTransitionRadius2: double;
+begin
+  Result := transitionRadius2;
 end;
 
 function TTestSlewCalculator.GetDistanceToTransition: double;
@@ -273,7 +280,7 @@ end;
 
 procedure TTestSlewCalculator.test_straight_line_slewed_left_cosine;
 begin
-  nominalRadius := max_rad;
+  fixedRadius := max_rad;
   isSpiral := False;
 
   isSlewing := True;
@@ -287,7 +294,7 @@ end;
 
 procedure TTestSlewCalculator.test_straight_line_slewed_right_cosine;
 begin
-  nominalRadius := max_rad;
+  fixedRadius := max_rad;
   isSpiral := False;
 
   isSlewing := True;
@@ -301,7 +308,7 @@ end;
 
 procedure TTestSlewCalculator.test_straight_line_slewed_left_tanh;
 begin
-  nominalRadius := max_rad;
+  fixedRadius := max_rad;
   isSpiral := False;
 
   isSlewing := True;

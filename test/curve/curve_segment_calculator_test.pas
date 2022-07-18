@@ -28,8 +28,9 @@ type
 
   TTestCurveSegmentCalculator = class(TTestCase, ICurveParameters)
   private
-    nominalRadius: double;
-    nominalRadius2: double;
+    fixedRadius: double;
+    transitionRadius1: double;
+    transitionRadius2: double;
     distanceToTransition: double;
     transitionLength: double;
     isSpiral: boolean;
@@ -41,8 +42,9 @@ type
     procedure TearDown; override;
 
     function GetIsSpiral: boolean;
-    function GetNominalRadius: double;
-    function GetNominalRadius2: double;
+    function GetFixedRadius: double;
+    function GetTransitionRadius1: double;
+    function GetTransitionRadius2: double;
     function GetDistanceToTransition: double;
     function GetTransitionLength: double;
 
@@ -96,14 +98,19 @@ begin
   Result := isSpiral;
 end;
 
-function TTestCurveSegmentCalculator.GetNominalRadius: double;
+function TTestCurveSegmentCalculator.GetFixedRadius: double;
 begin
-  Result := nominalRadius;
+  Result := fixedRadius;
 end;
 
-function TTestCurveSegmentCalculator.GetNominalRadius2: double;
+function TTestCurveSegmentCalculator.GetTransitionRadius1: double;
 begin
-  Result := nominalRadius2;
+  Result := transitionRadius1;
+end;
+
+function TTestCurveSegmentCalculator.GetTransitionRadius2: double;
+begin
+  Result := transitionRadius2;
 end;
 
 function TTestCurveSegmentCalculator.GetDistanceToTransition: double;
@@ -148,7 +155,7 @@ end;
 
 procedure TTestCurveSegmentCalculator.test_straight;
 begin
-  nominalRadius := max_rad;
+  fixedRadius := max_rad;
   isSpiral := False;
 
   calculator := TTestableCurveSegmentCalculator.Create(self);
@@ -160,7 +167,7 @@ end;
 
 procedure TTestCurveSegmentCalculator.test_circle;
 begin
-  nominalRadius := -1234;
+  fixedRadius := -1234;
   isSpiral := False;
 
   calculator := TTestableCurveSegmentCalculator.Create(self);
@@ -172,8 +179,8 @@ end;
 
 procedure TTestCurveSegmentCalculator.test_straight_transition_circle;
 begin
-  nominalRadius := max_rad;
-  nominalRadius2 := 2000;
+  transitionRadius1 := max_rad;
+  transitionRadius2 := 2000;
   distanceToTransition := 100;
   transitionLength := 150;
   isSpiral := True;
@@ -189,8 +196,8 @@ end;
 
 procedure TTestCurveSegmentCalculator.test_circle_transition_circle;
 begin
-  nominalRadius := 1000;
-  nominalRadius2 := 2000;
+  transitionRadius1 := 1000;
+  transitionRadius2 := 2000;
   distanceToTransition := 100;
   transitionLength := 150;
   isSpiral := True;
@@ -206,8 +213,8 @@ end;
 
 procedure TTestCurveSegmentCalculator.test_circle_transition_straight;
 begin
-  nominalRadius := 1000;
-  nominalRadius2 := max_rad;
+  transitionRadius1 := 1000;
+  transitionRadius2 := max_rad;
   distanceToTransition := 100;
   transitionLength := 150;
   isSpiral := True;
@@ -223,8 +230,8 @@ end;
 
 procedure TTestCurveSegmentCalculator.test_transition_straight;
 begin
-  nominalRadius := 1000;
-  nominalRadius2 := max_rad;
+  transitionRadius1 := 1000;
+  transitionRadius2 := max_rad;
   distanceToTransition := 0;
   transitionLength := 150;
   isSpiral := True;
@@ -239,8 +246,8 @@ end;
 
 procedure TTestCurveSegmentCalculator.test_transition_circle;
 begin
-  nominalRadius := 1000;
-  nominalRadius2 := 2000;
+  transitionRadius1 := 1000;
+  transitionRadius2 := 2000;
   distanceToTransition := 0;
   transitionLength := 150;
   isSpiral := True;
