@@ -309,7 +309,7 @@ begin
     gocalc(0, 0);
 
     if controlTemplate.curve.isSpiral then begin
-      if (os > fpx) or ((os + tst) < (toex - (fpx - toex)))
+      if (os > fpx) or ((os + controlTemplate.curve.transitionLength) < (toex - (fpx - toex)))
       // allow for other half_diamond to be created
       then begin
         spiral_safe := True;              // slip section not in transition zone

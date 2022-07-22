@@ -7479,7 +7479,7 @@ begin
         n := putdim(transgo_help_str, 1, 'length  along  1st  ( initial )  radius',
           os, False, False, False, False);         // neg ok, preset OK, 0 OK.
         n := putdim(transgo_help_str, 1, 'length  along  transition  zone',
-          tst, True, False, False, False);    // no neg, preset OK, 0 OK.
+          controlTemplate.curve.transitionLength, True, False, False, False);    // no neg, preset OK, 0 OK.
         if n <> 3 then
           EXIT;
         if getdims('transition  curve  settings', transition_help_str +
@@ -7522,7 +7522,7 @@ begin
               controlTemplate.curve.transitionRadius1 := od[0];
               controlTemplate.curve.transitionRadius2 := od[1];
               os := od[2];
-              tst := ABS(od[3]);
+              controlTemplate.curve.transitionLength := ABS(od[3]);
               //  transition length cannot be negative.
               BREAK;
             end
@@ -9031,7 +9031,7 @@ begin
   swap_transition_rads_menu_entry.Enabled := controlTemplate.curve.isSpiral;
   zero_trans_zone_menu_entry.Enabled := controlTemplate.curve.isSpiral;
   normalize_transition_menu_entry.Enabled :=
-    (controlTemplate.curve.isSpiral) and ((os < 0) or ((os + tst) > turnoutx));
+    (controlTemplate.curve.isSpiral) and ((os < 0) or ((os + controlTemplate.curve.transitionLength) > turnoutx));
 end;
 //________________________________________________________________________________________
 
@@ -11706,7 +11706,7 @@ begin
   action_panel_hint('adjust transition start instead'); // 205c
 
   mouse_action_selected('SHIFT+CTRL-F4   adjust  transition  length  ' +
-    mode_str + ' ...', 'SHIFT+CTRL-F4  transition  length  ' + mode_str, captext(tst) + ' mm');
+    mode_str + ' ...', 'SHIFT+CTRL-F4  transition  length  ' + mode_str, captext(controlTemplate.curve.transitionLength) + ' mm');
   trans_length_mod := 1;
 end;
 //_____________________________________________________________________________________
@@ -17324,28 +17324,28 @@ end;
 procedure Tpad_form.move_trans_start_to_peg_menu_entryClick(Sender: TObject);
 
 begin
-  set_trans_position_from_ctrl_0(pegx, tst);
+  set_trans_position_from_ctrl_0(pegx, controlTemplate.curve.transitionLength);
 end;
 //__________________________________________________________________________________________
 
 procedure Tpad_form.move_trans_end_to_peg_menu_entryClick(Sender: TObject);
 
 begin
-  set_trans_position_from_ctrl_0(pegx - tst, tst);
+  set_trans_position_from_ctrl_0(pegx - controlTemplate.curve.transitionLength, controlTemplate.curve.transitionLength);
 end;
 //______________________________________________________________________________________
 
 procedure Tpad_form.move_trans_start_to_template_menu_entryClick(Sender: TObject);
 
 begin
-  set_trans_position_from_ctrl_0(0, tst);
+  set_trans_position_from_ctrl_0(0, controlTemplate.curve.transitionLength);
 end;
 //________________________________________________________________________________________
 
 procedure Tpad_form.move_trans_end_to_template_menu_entryClick(Sender: TObject);
 
 begin
-  set_trans_position_from_ctrl_0(turnoutx - tst, tst);
+  set_trans_position_from_ctrl_0(turnoutx - controlTemplate.curve.transitionLength, controlTemplate.curve.transitionLength);
 end;
 //_______________________________________________________________________________________
 
@@ -17355,7 +17355,7 @@ var
   new_len: double;
 
 begin
-  new_len := os + tst - pegx;
+  new_len := os + controlTemplate.curve.transitionLength - pegx;
   set_trans_position_from_ctrl_0(pegx, new_len);
 end;
 //_______________________________________________________________________________________
@@ -17377,7 +17377,7 @@ var
   new_len: double;
 
 begin
-  new_len := os + tst;
+  new_len := os + controlTemplate.curve.transitionLength;
   set_trans_position_from_ctrl_0(0, new_len);
 end;
 //_______________________________________________________________________________________
@@ -17411,9 +17411,9 @@ procedure Tpad_form.change_transition_zone_menu_entryClick(Sender: TObject);
 
 // enable only if template end will be beyond or equal to the start...
 begin
-  start_trans_from_peg_menu_entry.Enabled := ((os + tst) >= (pegx - minfp));
+  start_trans_from_peg_menu_entry.Enabled := ((os + controlTemplate.curve.transitionLength) >= (pegx - minfp));
   end_trans_at_peg_menu_entry.Enabled := (pegx >= (os - minfp));
-  match_trans_start_to_template_menu_entry.Enabled := ((os + tst) >= (0 - minfp));
+  match_trans_start_to_template_menu_entry.Enabled := ((os + controlTemplate.curve.transitionLength) >= (0 - minfp));
   match_trans_end_to_template_menu_entry.Enabled := (turnoutx >= (os - minfp));
 
   match_trans_zone_to_slew_menu_entry.Enabled := controlTemplate.curve.isSlewing;
@@ -17517,7 +17517,7 @@ end;
 procedure Tpad_form.match_slew_zone_to_trans_menu_entryClick(Sender: TObject);
 
 begin
-  set_slew_position_from_ctrl_0(os, tst);
+  set_slew_position_from_ctrl_0(os, controlTemplate.curve.transitionLength);
 end;
 //_________________________________________________________________________________________
 
@@ -19832,7 +19832,7 @@ end;
 procedure Tpad_form.zone_rollout_menu_entryClick(Sender: TObject);
 
 begin
-  if tst < g         // 0.93.a  ...  (g arbitrary)
+  if controlTemplate.curve.transitionLength < g         // 0.93.a  ...  (g arbitrary)
   then begin
     ShowMessage('The transition zone is currently too short to allow roll-out mode.');
     EXIT;

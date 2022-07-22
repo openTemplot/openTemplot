@@ -1700,12 +1700,12 @@ begin
               arc_rad := ABS(controlTemplate.curve.transitionRadius1);
             end
             else
-            if turnoutx > (os + tst) then begin
+            if turnoutx > (os + controlTemplate.curve.transitionLength) then begin
               arc_rad := ABS(controlTemplate.curve.transitionRadius2);
             end
             else begin   // move boundary out of transition zone
 
-              turnoutx := os + tst + g / 10;    // g/10 arbitrary
+              turnoutx := os + controlTemplate.curve.transitionLength + g / 10;    // g/10 arbitrary
 
               if plain_track = True then
                 xorg := turnoutx;
