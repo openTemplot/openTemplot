@@ -1701,7 +1701,7 @@ begin
             end
             else
             if turnoutx > (os + tst) then begin
-              arc_rad := ABS(nomrad2);
+              arc_rad := ABS(controlTemplate.curve.transitionRadius2);
             end
             else begin   // move boundary out of transition zone
 

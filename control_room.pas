@@ -1149,7 +1149,7 @@ begin
       notch_on_1st_radial_centre_menu_entry.Enabled :=
         (ABS(controlTemplate.curve.transitionRadius1) < max_rad_test) and controlTemplate.curve.isSpiral;
       notch_on_2nd_radial_centre_menu_entry.Enabled :=
-        (ABS(nomrad2) < max_rad_test) and controlTemplate.curve.isSpiral;
+        (ABS(controlTemplate.curve.transitionRadius2) < max_rad_test) and controlTemplate.curve.isSpiral;
 
       make_turnout_road_menu_entry.Enabled :=
         not (plain_track or controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing or half_diamond);
