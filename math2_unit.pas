@@ -1696,16 +1696,16 @@ begin
           startx := 0;     // cancel any blanking
 
           if controlTemplate.curve.isSpiral then begin
-            if turnoutx < os then begin
+            if turnoutx < controlTemplate.curve.distanceToTransition then begin
               arc_rad := ABS(controlTemplate.curve.transitionRadius1);
             end
             else
-            if turnoutx > (os + controlTemplate.curve.transitionLength) then begin
+            if turnoutx > (controlTemplate.curve.distanceToTransition + controlTemplate.curve.transitionLength) then begin
               arc_rad := ABS(controlTemplate.curve.transitionRadius2);
             end
             else begin   // move boundary out of transition zone
 
-              turnoutx := os + controlTemplate.curve.transitionLength + g / 10;    // g/10 arbitrary
+              turnoutx := controlTemplate.curve.distanceToTransition + controlTemplate.curve.transitionLength + g / 10;    // g/10 arbitrary
 
               if plain_track = True then
                 xorg := turnoutx;

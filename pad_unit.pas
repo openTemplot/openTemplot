@@ -7477,7 +7477,7 @@ begin
         n := putdim(transgo_help_str, 1, '2nd  ( final )  radius  at  the  track  centre-line',
           controlTemplate.curve.transitionRadius2, False, False, True, False);   // neg ok, preset OK, 0 not allowed.
         n := putdim(transgo_help_str, 1, 'length  along  1st  ( initial )  radius',
-          os, False, False, False, False);         // neg ok, preset OK, 0 OK.
+          controlTemplate.curve.distanceToTransition, False, False, False, False);         // neg ok, preset OK, 0 OK.
         n := putdim(transgo_help_str, 1, 'length  along  transition  zone',
           controlTemplate.curve.transitionLength, True, False, False, False);    // no neg, preset OK, 0 OK.
         if n <> 3 then
@@ -7521,7 +7521,7 @@ begin
             begin                    //  ok, change settings.
               controlTemplate.curve.transitionRadius1 := od[0];
               controlTemplate.curve.transitionRadius2 := od[1];
-              os := od[2];
+              controlTemplate.curve.distanceToTransition := od[2];
               controlTemplate.curve.transitionLength := ABS(od[3]);
               //  transition length cannot be negative.
               BREAK;
@@ -8238,7 +8238,7 @@ begin
 
     if peg_code <> 0 then begin
       if controlTemplate.curve.isSpiral then
-        os := os + xorg - old_xorg;           //  os transition start changes with xorg ditto.
+        controlTemplate.curve.distanceToTransition := controlTemplate.curve.distanceToTransition + xorg - old_xorg;           //  os transition start changes with xorg ditto.
       if controlTemplate.curve.isSlewing then
         controlTemplate.curve.distanceToStartOfSlew := controlTemplate.curve.distanceToStartOfSlew + xorg - old_xorg;  //  slewing ditto
     end;
@@ -9031,7 +9031,7 @@ begin
   swap_transition_rads_menu_entry.Enabled := controlTemplate.curve.isSpiral;
   zero_trans_zone_menu_entry.Enabled := controlTemplate.curve.isSpiral;
   normalize_transition_menu_entry.Enabled :=
-    (controlTemplate.curve.isSpiral) and ((os < 0) or ((os + controlTemplate.curve.transitionLength) > turnoutx));
+    (controlTemplate.curve.isSpiral) and ((controlTemplate.curve.distanceToTransition < 0) or ((controlTemplate.curve.distanceToTransition + controlTemplate.curve.transitionLength) > turnoutx));
 end;
 //________________________________________________________________________________________
 
@@ -11685,7 +11685,7 @@ begin
   action_panel_hint('adjust transition length instead'); // 205c
 
   mouse_action_selected('SHIFT+CTRL-F3   adjust  transition  start  ' + mode_str +
-    ' ...', 'SHIFT+CTRL-F3  transition  start  ' + mode_str, captext(os) + ' mm');
+    ' ...', 'SHIFT+CTRL-F3  transition  start  ' + mode_str, captext(controlTemplate.curve.distanceToTransition) + ' mm');
   trans_start_mod := 1;
 end;
 //_____________________________________________________________________________________
@@ -16658,7 +16658,7 @@ begin
     pegx := pegx - approach_last_xtb;
     //  pegx changes with xorg unless peg is reset on rail-end.
     if controlTemplate.curve.isSpiral then
-      os := os - approach_last_xtb;            //  os transition start changes with xorg ditto.
+      controlTemplate.curve.distanceToTransition := controlTemplate.curve.distanceToTransition - approach_last_xtb;            //  os transition start changes with xorg ditto.
     if controlTemplate.curve.isSlewing then
       controlTemplate.curve.distanceToStartOfSlew := controlTemplate.curve.distanceToStartOfSlew - approach_last_xtb;   //  ditto slewing.
     peg_curve;                                               // keep turnout on the peg.
@@ -17355,7 +17355,7 @@ var
   new_len: double;
 
 begin
-  new_len := os + controlTemplate.curve.transitionLength - pegx;
+  new_len := controlTemplate.curve.distanceToTransition + controlTemplate.curve.transitionLength - pegx;
   set_trans_position_from_ctrl_0(pegx, new_len);
 end;
 //_______________________________________________________________________________________
@@ -17366,8 +17366,8 @@ var
   new_len: double;
 
 begin
-  new_len := pegx - os;
-  set_trans_position_from_ctrl_0(os, new_len);
+  new_len := pegx - controlTemplate.curve.distanceToTransition;
+  set_trans_position_from_ctrl_0(controlTemplate.curve.distanceToTransition, new_len);
 end;
 //_______________________________________________________________________________________
 
@@ -17377,7 +17377,7 @@ var
   new_len: double;
 
 begin
-  new_len := os + controlTemplate.curve.transitionLength;
+  new_len := controlTemplate.curve.distanceToTransition + controlTemplate.curve.transitionLength;
   set_trans_position_from_ctrl_0(0, new_len);
 end;
 //_______________________________________________________________________________________
@@ -17388,8 +17388,8 @@ var
   new_len: double;
 
 begin
-  new_len := turnoutx - os;
-  set_trans_position_from_ctrl_0(os, new_len);
+  new_len := turnoutx - controlTemplate.curve.distanceToTransition;
+  set_trans_position_from_ctrl_0(controlTemplate.curve.distanceToTransition, new_len);
 end;
 //_______________________________________________________________________________________
 
@@ -17411,10 +17411,10 @@ procedure Tpad_form.change_transition_zone_menu_entryClick(Sender: TObject);
 
 // enable only if template end will be beyond or equal to the start...
 begin
-  start_trans_from_peg_menu_entry.Enabled := ((os + controlTemplate.curve.transitionLength) >= (pegx - minfp));
-  end_trans_at_peg_menu_entry.Enabled := (pegx >= (os - minfp));
-  match_trans_start_to_template_menu_entry.Enabled := ((os + controlTemplate.curve.transitionLength) >= (0 - minfp));
-  match_trans_end_to_template_menu_entry.Enabled := (turnoutx >= (os - minfp));
+  start_trans_from_peg_menu_entry.Enabled := ((controlTemplate.curve.distanceToTransition + controlTemplate.curve.transitionLength) >= (pegx - minfp));
+  end_trans_at_peg_menu_entry.Enabled := (pegx >= (controlTemplate.curve.distanceToTransition - minfp));
+  match_trans_start_to_template_menu_entry.Enabled := ((controlTemplate.curve.distanceToTransition + controlTemplate.curve.transitionLength) >= (0 - minfp));
+  match_trans_end_to_template_menu_entry.Enabled := (turnoutx >= (controlTemplate.curve.distanceToTransition - minfp));
 
   match_trans_zone_to_slew_menu_entry.Enabled := controlTemplate.curve.isSlewing;
 end;
@@ -17517,7 +17517,7 @@ end;
 procedure Tpad_form.match_slew_zone_to_trans_menu_entryClick(Sender: TObject);
 
 begin
-  set_slew_position_from_ctrl_0(os, controlTemplate.curve.transitionLength);
+  set_slew_position_from_ctrl_0(controlTemplate.curve.distanceToTransition, controlTemplate.curve.transitionLength);
 end;
 //_________________________________________________________________________________________
 
@@ -23631,7 +23631,7 @@ begin
     turnoutx := turnoutx - xorg;
     // increase overall length to keep V-crossing and exit track.
     if controlTemplate.curve.isSpiral then
-      os := os - xorg;
+      controlTemplate.curve.distanceToTransition := controlTemplate.curve.distanceToTransition - xorg;
     if controlTemplate.curve.isSlewing then
       controlTemplate.curve.distanceToStartOfSlew := controlTemplate.curve.distanceToStartOfSlew - xorg;
     xorg := 0;
@@ -25002,7 +25002,7 @@ begin
     turnoutx := turnoutx - xorg;
     // increase overall length to keep V-crossing and exit track.
     if controlTemplate.curve.isSpiral then
-      os := os - xorg;
+      controlTemplate.curve.distanceToTransition := controlTemplate.curve.distanceToTransition - xorg;
     if controlTemplate.curve.isSlewing then
       controlTemplate.curve.distanceToStartOfSlew := controlTemplate.curve.distanceToStartOfSlew - xorg;
     xorg := 0;
