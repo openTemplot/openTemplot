@@ -1147,7 +1147,7 @@ begin
       notch_on_radial_centre_menu_entry.Enabled :=
         (ABS(nomrad) < max_rad_test) and (not controlTemplate.curve.isSpiral);
       notch_on_1st_radial_centre_menu_entry.Enabled :=
-        (ABS(nomrad1) < max_rad_test) and controlTemplate.curve.isSpiral;
+        (ABS(controlTemplate.curve.transitionRadius1) < max_rad_test) and controlTemplate.curve.isSpiral;
       notch_on_2nd_radial_centre_menu_entry.Enabled :=
         (ABS(nomrad2) < max_rad_test) and controlTemplate.curve.isSpiral;
 

@@ -942,6 +942,7 @@ procedure peg_curve;
 
 // return true if curving radius was within limits.
 function check_radius(warn: boolean; var r: double): boolean;
+function check_radius_limits(r: double): double;
 
 procedure clear_transform_data;
 
@@ -2099,7 +2100,7 @@ procedure reset_trans;     // reset transition and curving defaults.
 begin
   nomrad := 660 * scale;    // default curving radius. (660ft / 10 chains)        *
 
-  nomrad1 := max_rad;     // first transition radius ("straight")
+  controlTemplate.curve.transitionRadius1 := max_rad;     // first transition radius ("straight")
   nomrad2 := nomrad;      // second transition radius (as current)
 
   os := 0;                // length of first radius (straight) (nil)
@@ -5492,8 +5493,8 @@ begin
             if xing_calc_i <> 0
             // turnout - curved or generic crossing..
             then begin
-              trans_txrad := nomrad1;    // keep compiler happy.
-              rcurv_tx := nomrad1;       // keep compiler happy.
+              trans_txrad := controlTemplate.curve.transitionRadius1;    // keep compiler happy.
+              rcurv_tx := controlTemplate.curve.transitionRadius1;       // keep compiler happy.
 
               rcurv_fp :=
                 curved_onto_calc(tradius - g / 2, trans_fprad);   //^^^
@@ -5637,8 +5638,8 @@ begin
             if xing_calc_i <> 0
             // half-diamond - curved or generic crossing (irregular)...
             then begin
-              trans_txrad := nomrad1;    // keep compiler happy.
-              rcurv_tx := nomrad1;       // keep compiler happy.
+              trans_txrad := controlTemplate.curve.transitionRadius1;    // keep compiler happy.
+              rcurv_tx := controlTemplate.curve.transitionRadius1;       // keep compiler happy.
 
               rcurv_fp :=
                 curved_onto_calc(tradius - g / 2, trans_fprad);   //^^^
@@ -6188,7 +6189,7 @@ begin
       end
       else begin
 
-        if ABS(nomrad1) < max_rad_test  // transition.
+        if ABS(controlTemplate.curve.transitionRadius1) < max_rad_test  // transition.
         then
           Add('radial centre (1st rad) :  X = ' + round_str(rad1_orgx, 2) +
             '   Y = ' + round_str(rad1_orgy, 2))
@@ -7159,7 +7160,7 @@ begin
       Result := nomrad;
     end
     else begin
-      Result := min(ABS(nomrad1), ABS(nomrad2));
+      Result := min(ABS(controlTemplate.curve.transitionRadius1), ABS(nomrad2));
     end;
   end;
 end;
@@ -10455,7 +10456,7 @@ begin
     //!!! these calcs are relative to the template datum.
     //!!! see also calc_transition (math_unit) for calcs based on the transition origin.
 
-    clrad1 := nomrad1{+ycurv};  // track centre-line radius.
+    clrad1 := controlTemplate.curve.transitionRadius1{+ycurv};  // track centre-line radius.
     ssrad1 := clrad1 + g / 2;
     // radius in main road stock rail : g/2 adjustment aways +ve, even for -ve rad.
 
@@ -12230,7 +12231,7 @@ begin
 
       if ((os - old_os) < tst) and (limit_code = 0) then begin
         // don't let tst go negative or rads exceed limits.
-        nomrad1 := new_rad;         // ok, change 1st radius.
+        controlTemplate.curve.transitionRadius1 := new_rad;         // ok, change 1st radius.
         tst := tst + old_os - os;       // keep transition unchanged.
       end
       else
@@ -12878,19 +12879,19 @@ begin
           // no change to nomrad1 if spiral too gentle.
 
           if ABS(nomrad * nomrad2 * tst / temp) < max_spiral_constant then
-            nomrad1 := nomrad;
+            controlTemplate.curve.transitionRadius1 := nomrad;
         end;
       end;
 
       2: begin
         // check spiral constant will not exceeed the limit, leave nomrad2 unchanged if so.
 
-        temp := nomrad1 - nomrad;
+        temp := controlTemplate.curve.transitionRadius1 - nomrad;
         if ABS(temp) > minfp  // no change to nomrad2 if nomrad=nomrad1
         then begin
           // no change to nomrad2 if spiral too gentle..
 
-          if ABS(nomrad1 * nomrad * tst / temp) < max_spiral_constant then
+          if ABS(controlTemplate.curve.transitionRadius1 * nomrad * tst / temp) < max_spiral_constant then
             nomrad2 := nomrad;
         end;
       end;
@@ -13548,7 +13549,7 @@ begin
         init_resize;                 // ensure switch mods if no tracing.
 
       if controlTemplate.curve.isSpiral then
-        trail_str := captext(nomrad1) + ' mm  /  ' + captext(nomrad2) + ' mm'
+        trail_str := captext(controlTemplate.curve.transitionRadius1) + ' mm  /  ' + captext(nomrad2) + ' mm'
       else
         trail_str := captext(nomrad) + ' mm';
     end;
@@ -13576,7 +13577,7 @@ begin
         gocalc(2, mode{+first_click});
 
       if controlTemplate.curve.isSpiral then
-        trail_str := captext(nomrad1) + ' mm  /  ' + captext(nomrad2) + ' mm'
+        trail_str := captext(controlTemplate.curve.transitionRadius1) + ' mm  /  ' + captext(nomrad2) + ' mm'
       else
         trail_str := captext(nomrad) + ' mm';
     end;
@@ -14564,7 +14565,7 @@ begin
 
       nomrad := fixed_rad + y_offset;
       // fixed radius mm.     (include any offset from old files pre 0.64.a)...
-      nomrad1 := trans_rad1 + y_offset;     // first transition radius mm.
+      controlTemplate.curve.transitionRadius1 := trans_rad1 + y_offset;     // first transition radius mm.
       nomrad2 := trans_rad2 + y_offset;     // second transition radius mm.
 
       tst := trans_length;                // length of transition mm.
@@ -15446,7 +15447,7 @@ begin
       else begin                        // transition.
         case adjust_trans_rad of
           1:
-            nomrad_now := nomrad1;
+            nomrad_now := controlTemplate.curve.transitionRadius1;
           2:
             nomrad_now := nomrad2;
           else
@@ -15524,7 +15525,7 @@ begin
       else begin                // transition.
         case adjust_trans_rad of
           1:
-            nomrad_now := nomrad1;
+            nomrad_now := controlTemplate.curve.transitionRadius1;
           2:
             nomrad_now := nomrad2;
           else
@@ -18950,6 +18951,13 @@ begin
     EXIT;
   end;
 end;
+
+function check_radius_limits(r: double): double;
+begin
+  check_radius(false, r);
+  Result := r;
+end;
+
 //_____________________________________________________________________________________
 
 procedure xingoffset(aq: ERailData; gauge_mod: double);
@@ -19460,13 +19468,13 @@ begin
 
         if ABS(nomrad) < max_rad_test then
           nomrad := nomrad * mod_gauge_ratio;
-        if ABS(nomrad1) < max_rad_test then
-          nomrad1 := nomrad1 * mod_gauge_ratio;
+        if ABS(controlTemplate.curve.transitionRadius1) < max_rad_test then
+          controlTemplate.curve.transitionRadius1 := controlTemplate.curve.transitionRadius1 * mod_gauge_ratio;
         if ABS(nomrad2) < max_rad_test then
           nomrad2 := nomrad2 * mod_gauge_ratio;
 
         check_radius(False, nomrad);  // don't need function return value.
-        check_radius(False, nomrad1); // don't need function return value.
+        controlTemplate.curve.transitionRadius1 := check_radius_limits(controlTemplate.curve.transitionRadius1);
         check_radius(False, nomrad2); // don't need function return value.
 
         os := os * mod_gauge_ratio;
@@ -20257,11 +20265,11 @@ begin
       else begin                      // peg is in the transition zone.
         if transcalcs(False, False, trans_k, (x - os + ts1), dummy1, dummy2,
           dummy3, Result) = False then
-          Result := nomrad1;  // no change if trans error.
+          Result := controlTemplate.curve.transitionRadius1;  // no change if trans error.
       end;
     end
     else
-      Result := nomrad1{+ycurv};             // peg is in r1.
+      Result := controlTemplate.curve.transitionRadius1{+ycurv};             // peg is in r1.
   end
   else
     Result := nomrad{+ycurv};    // fixed curve.
@@ -20331,7 +20339,7 @@ begin
                         end;
 }
 
-      nomrad1 := max_rad;                             // first transition radius (straight).
+      controlTemplate.curve.transitionRadius1 := max_rad;                             // first transition radius (straight).
       if not controlTemplate.curve.isSpiral then
         nomrad2 := nomrad{+ycurv};
       // second transition radius (as current fixed curve centre-line),
@@ -20352,12 +20360,12 @@ begin
 
       if (not controlTemplate.curve.isSpiral) and (ABS(nomrad) > (max_rad / 2)) then
         nomrad := 660 * scale;  // change existing straight to 10 chains.
-      if (controlTemplate.curve.isSpiral) and (ABS(nomrad1) > (max_rad / 2)) then
-        nomrad1 := 660 * scale; // change existing straight to 10 chains.
+      if (controlTemplate.curve.isSpiral) and (ABS(controlTemplate.curve.transitionRadius1) > (max_rad / 2)) then
+        controlTemplate.curve.transitionRadius1 := 660 * scale; // change existing straight to 10 chains.
 
       nomrad2 := max_rad;                             // second transition radius (straight).
       if not controlTemplate.curve.isSpiral then
-        nomrad1 := nomrad{+ycurv}; // first transition radius (as current fixed curve centre-line),
+        controlTemplate.curve.transitionRadius1 := nomrad{+ycurv}; // first transition radius (as current fixed curve centre-line),
       // (but don't change if currently a transition).
 
       tst := 132 * scale;
@@ -20377,22 +20385,22 @@ begin
 
       if peg_code = 0    // CTRL-0, use existing 1st radius.
       then begin
-        nomrad1 := existing_rad;
+        controlTemplate.curve.transitionRadius1 := existing_rad;
 
-        if ABS(nomrad1) > (max_rad / 2)                // arbitrary (is straight).
+        if ABS(controlTemplate.curve.transitionRadius1) > (max_rad / 2)                // arbitrary (is straight).
         then
-          nomrad2 := (660 * scale) * SGZ(nomrad1)  // so transition down to 10 chains.
+          nomrad2 := (660 * scale) * SGZ(controlTemplate.curve.transitionRadius1)  // so transition down to 10 chains.
         else
-          nomrad2 := nomrad1 / 2;                // or down to half of 1st radius.
+          nomrad2 := controlTemplate.curve.transitionRadius1 / 2;                // or down to half of 1st radius.
       end
       else begin
         nomrad2 := existing_rad;
 
         if ABS(nomrad2) > (max_rad / 2)                // arbitrary (is straight).
         then
-          nomrad1 := (660 * scale) * SGZ(nomrad2)  // so transition down to 10 chains.
+          controlTemplate.curve.transitionRadius1 := (660 * scale) * SGZ(nomrad2)  // so transition down to 10 chains.
         else
-          nomrad1 := nomrad2 / 2;                // or down to half of 2nd radius.
+          controlTemplate.curve.transitionRadius1 := nomrad2 / 2;                // or down to half of 2nd radius.
       end;
 
       tst := turnoutx * 0.6;     // arbitrary transition length 60% of template.
@@ -20405,22 +20413,22 @@ begin
 
       if peg_code = 0    // CTRL-0, use existing 1st radius.
       then begin
-        nomrad1 := existing_rad;
+        controlTemplate.curve.transitionRadius1 := existing_rad;
 
-        if ABS(nomrad1) > (max_rad / 2)                // arbitrary (is straight).
+        if ABS(controlTemplate.curve.transitionRadius1) > (max_rad / 2)                // arbitrary (is straight).
         then
-          nomrad2 := (660 * scale) * SGZ(nomrad1)  // so transition down to 10 chains.
+          nomrad2 := (660 * scale) * SGZ(controlTemplate.curve.transitionRadius1)  // so transition down to 10 chains.
         else
-          nomrad2 := nomrad1 * 2;                // or up to double 1st radius.
+          nomrad2 := controlTemplate.curve.transitionRadius1 * 2;                // or up to double 1st radius.
       end
       else begin
         nomrad2 := existing_rad;
 
         if ABS(nomrad2) > (max_rad / 2)                // arbitrary (is straight).
         then
-          nomrad1 := (660 * scale) * SGZ(nomrad2)  // so transition down to 10 chains.
+          controlTemplate.curve.transitionRadius1 := (660 * scale) * SGZ(nomrad2)  // so transition down to 10 chains.
         else
-          nomrad1 := nomrad2 * 2;                // or up to double 2nd radius.
+          controlTemplate.curve.transitionRadius1 := nomrad2 * 2;                // or up to double 2nd radius.
       end;
 
       tst := turnoutx * 0.6;     // arbitrary transition length 60% of template.
@@ -20433,13 +20441,13 @@ begin
 
       if peg_code = 0    // CTRL-0, use existing 1st radius.
       then begin
-        nomrad1 := existing_rad;
+        controlTemplate.curve.transitionRadius1 := existing_rad;
 
-        if ABS(nomrad1) > (max_rad / 2)  // arbitrary (is straight).
+        if ABS(controlTemplate.curve.transitionRadius1) > (max_rad / 2)  // arbitrary (is straight).
         then
-          nomrad1 := 660 * scale;  // so use 10 chains.
+          controlTemplate.curve.transitionRadius1 := 660 * scale;  // so use 10 chains.
 
-        nomrad2 := 0 - nomrad1;
+        nomrad2 := 0 - controlTemplate.curve.transitionRadius1;
         // to opposite direction same size as 1st radius.
       end
       else begin
@@ -20449,7 +20457,7 @@ begin
         then
           nomrad2 := 660 * scale;  // so use 10 chains.
 
-        nomrad1 := 0 - nomrad2;
+        controlTemplate.curve.transitionRadius1 := 0 - nomrad2;
         // to opposite direction same size as 2nd radius.
       end;
 
@@ -20459,23 +20467,23 @@ begin
 
   end;//case
 
-  if ABS(nomrad1) < (g * 2) then
-    nomrad1 := g * 2 * SGZ(nomrad1);     // min rad (arbitrary).
+  if ABS(controlTemplate.curve.transitionRadius1) < (g * 2) then
+    controlTemplate.curve.transitionRadius1 := g * 2 * SGZ(controlTemplate.curve.transitionRadius1);     // min rad (arbitrary).
   if ABS(nomrad2) < (g * 2) then
     nomrad2 := g * 2 * SGZ(nomrad2);     // min rad (arbitrary).
 
-  temp := nomrad1 - nomrad2;
+  temp := controlTemplate.curve.transitionRadius1 - nomrad2;
 
   while ABS(temp) < minfp do begin   // no good if rads equal.
-    nomrad1 := nomrad1 * 1.05;         // increase r1 by 5%
+    controlTemplate.curve.transitionRadius1 := controlTemplate.curve.transitionRadius1 * 1.05;         // increase r1 by 5%
     nomrad2 := nomrad2 / 1.05;         // reduce r2 by 5%
-    temp := nomrad1 - nomrad2;
+    temp := controlTemplate.curve.transitionRadius1 - nomrad2;
   end;//while
 
-  temp_ktrans := nomrad1 * nomrad2 * tst / temp;     // new spiral constant
+  temp_ktrans := controlTemplate.curve.transitionRadius1 * nomrad2 * tst / temp;     // new spiral constant
 
   if ABS(temp_ktrans) > max_spiral_constant then begin
-    tst := max_spiral_constant * SGZ(temp_ktrans) * temp / nomrad1 / nomrad2;
+    tst := max_spiral_constant * SGZ(temp_ktrans) * temp / controlTemplate.curve.transitionRadius1 / nomrad2;
     //  no good, limit zone length.
     if tst < minfp then
       tst := 0;
@@ -20660,13 +20668,13 @@ begin
 
     if controlTemplate.curve.isSpiral      // 19-09-2015  212a this is a kludge bug-fix...
     then begin
-      if ABS(nomrad1) > max_rad_test    // straight?
+      if ABS(controlTemplate.curve.transitionRadius1) > max_rad_test    // straight?
       then begin
         kform_now := kform;
         docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
         // save current peg data for peg_curve calcs.
 
-        nomrad1 := (max_rad_test - 1) * SGZ(nomrad1);
+        controlTemplate.curve.transitionRadius1 := (max_rad_test - 1) * SGZ(controlTemplate.curve.transitionRadius1);
         // kludge - ensure treated as curved, not straight.
         // until I can find bug when it's straight 19-09-2015
 
@@ -20759,13 +20767,13 @@ begin
 
       if controlTemplate.curve.isSpiral      // 19-09-2015  212a this is a kludge bug-fix...
       then begin
-        if ABS(nomrad1) > max_rad_test    // straight?
+        if ABS(controlTemplate.curve.transitionRadius1) > max_rad_test    // straight?
         then begin
           kform_now := kform;
           docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
           // save current peg data for peg_curve calcs.
 
-          nomrad1 := (max_rad_test - 1) * SGZ(nomrad1);
+          controlTemplate.curve.transitionRadius1 := (max_rad_test - 1) * SGZ(controlTemplate.curve.transitionRadius1);
           // kludge - ensure treated as curved, not straight.
           // until I can find bug when it's straight 19-09-2015
 
@@ -20882,11 +20890,11 @@ begin
       tst := 0;            // arbitrary start zero transition length.
       os := 66 * scale;      // arbitrary start 1 chain (scale) initial length.
 
-      nomrad1 := ABS(rad_1st);      // set +ve for first rad.
+      controlTemplate.curve.transitionRadius1 := ABS(rad_1st);      // set +ve for first rad.
       nomrad2 := 0 - ABS(rad_2nd);    // set S curve for starters.
 
-      if (ABS(nomrad1) > (g * 2)) and (ABS(nomrad2) > (g * 2))  // min rads (arbitrary).
-        and (cen_apart > (ABS(nomrad1) + ABS(nomrad2) - minfp))   // ok to try S-curve
+      if (ABS(controlTemplate.curve.transitionRadius1) > (g * 2)) and (ABS(nomrad2) > (g * 2))  // min rads (arbitrary).
+        and (cen_apart > (ABS(controlTemplate.curve.transitionRadius1) + ABS(nomrad2) - minfp))   // ok to try S-curve
       then begin
         computeResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...',
           make_transition_from_current_calcs, nil);
@@ -20909,9 +20917,9 @@ begin
       then begin
         nomrad2 := ABS(nomrad2);     // set C curve.
 
-        temp := nomrad1 - nomrad2;
+        temp := controlTemplate.curve.transitionRadius1 - nomrad2;
 
-        if (ABS(temp) > minfp) and (cen_apart < (ABS(ABS(nomrad1) - ABS(nomrad2)) + minfp))
+        if (ABS(temp) > minfp) and (cen_apart < (ABS(ABS(controlTemplate.curve.transitionRadius1) - ABS(nomrad2)) + minfp))
         // ok to try C-curve
         then begin
           computeResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...',
@@ -21256,12 +21264,12 @@ begin
 
           // 212a kludge. restore easement straights...
 
-          if ABS(nomrad1) > (max_rad_test - 2) then begin
+          if ABS(controlTemplate.curve.transitionRadius1) > (max_rad_test - 2) then begin
             kform_now := kform;
             docurving(True, True, pegx, pegy, now_peg_x,
               now_peg_y, now_peg_k, dummy);    // save current peg data for peg_curve calcs.
 
-            nomrad1 := (max_rad) * SGZ(nomrad1);
+            controlTemplate.curve.transitionRadius1 := (max_rad) * SGZ(controlTemplate.curve.transitionRadius1);
             // kludge - ensure now treated as straight again.
 
             peg_curve;      //  keep it on peg..
@@ -21317,7 +21325,7 @@ begin
     // first find which way the centres-apart distance is moving...
     // (now_apart ignores any slewing).
 
-    if calc_transition(nomrad1, nomrad2, new_zone_len, dummy1, dummy2, dummy3,
+    if calc_transition(controlTemplate.curve.transitionRadius1, nomrad2, new_zone_len, dummy1, dummy2, dummy3,
       dummy4, now_apart, dummy5) = False then begin
       EXIT;
     end;
@@ -21334,7 +21342,7 @@ begin
     else
       dir := 1;
     repeat
-      if calc_transition(nomrad1, nomrad2, new_zone_len, dummy1, dummy2, dummy3,
+      if calc_transition(controlTemplate.curve.transitionRadius1, nomrad2, new_zone_len, dummy1, dummy2, dummy3,
         dummy4, now_apart, dummy5) = False then begin
         EXIT;
       end;
@@ -21368,11 +21376,11 @@ begin
     until new_zone_len > screenx_max;   // we need a limit of some sort.
 
   finally
-    temp := nomrad1 - nomrad2;      // 29-7-01 check any transition returned is not too gentle.
+    temp := controlTemplate.curve.transitionRadius1 - nomrad2;      // 29-7-01 check any transition returned is not too gentle.
     if ABS(temp) < minfp then
       Result := 0
     else begin
-      temp_ktrans := nomrad1 * nomrad2 * tst / temp;     // new spiral constant
+      temp_ktrans := controlTemplate.curve.transitionRadius1 * nomrad2 * tst / temp;     // new spiral constant
       if ABS(temp_ktrans) > max_spiral_constant then begin
         tst := 0;       // no good.
         Result := 0;
@@ -21603,13 +21611,13 @@ begin
     docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
     // save current peg data for peg_curve calcs.
 
-    clrad1 := nomrad1;      // change sign of centre-line 1st radius.
+    clrad1 := controlTemplate.curve.transitionRadius1;      // change sign of centre-line 1st radius.
     clrad1 := 0 - clrad1;
 
     clrad2 := nomrad2;      // change sign of centre-line 2nd radius.
     clrad2 := 0 - clrad2;
 
-    nomrad1 := clrad1;      // set the new radii.
+    controlTemplate.curve.transitionRadius1 := clrad1;      // set the new radii.
     nomrad2 := clrad2;
   end;
 
@@ -22131,7 +22139,7 @@ begin
     (turnoutx <> 0)  // 0.93.a  (turnoutx<>0) added
   then begin            // rad centre markers. don't call enter_mark - no curving wanted.
 
-    if ((controlTemplate.curve.isSpiral) and (ABS(nomrad1) < 1.0E6))
+    if ((controlTemplate.curve.isSpiral) and (ABS(controlTemplate.curve.transitionRadius1) < 1.0E6))
       // 1E6 arbitrary max radius for marking centres (mm).
       or ((not controlTemplate.curve.isSpiral) and (ABS(nomrad) < 1.0E6)) then begin
       // rad 1 centre marker...    (p2=0)
@@ -26961,7 +26969,7 @@ begin
 
       nomrad := fixed_rad + y_offset;
       // fixed radius mm.     (include any offset from old files pre 0.64.a)...
-      nomrad1 := trans_rad1 + y_offset;     // first transition radius mm.
+      controlTemplate.curve.transitionRadius1 := trans_rad1 + y_offset;     // first transition radius mm.
       nomrad2 := trans_rad2 + y_offset;     // second transition radius mm.
 
       tst := trans_length;       // length of transition mm.
@@ -27644,7 +27652,7 @@ begin
       // True=transition, False=fixed radius curving.
 
       fixed_rad := nomrad;       // fixed radius mm.
-      trans_rad1 := nomrad1;     // first transition radius mm.
+      trans_rad1 := controlTemplate.curve.transitionRadius1;     // first transition radius mm.
       trans_rad2 := nomrad2;     // second transition radius mm.
       trans_length := tst;       // length of transition mm.
       trans_start := os;         // start of transition mm.
@@ -28319,7 +28327,7 @@ begin
     end;
   end
   else begin
-    if (ABS(nomrad1) <= max_rad_test) and (ABS(nomrad2) <= max_rad_test)
+    if (ABS(controlTemplate.curve.transitionRadius1) <= max_rad_test) and (ABS(nomrad2) <= max_rad_test)
     // neither rad straight?
     then begin
       if to_notch = True then begin
@@ -28345,7 +28353,7 @@ begin
       end;//case
     end
     else begin
-      if ABS(nomrad1) > max_rad_test then
+      if ABS(controlTemplate.curve.transitionRadius1) > max_rad_test then
         first_rad := False  //easement from straight.
       else
         first_rad := True;  //easement to straight.
@@ -28668,7 +28676,7 @@ begin
     // first get the existing transition data (relative to TRANSITION datum).
     // (apartl ignores any slewing)
 
-    if calc_transition(nomrad1, nomrad2, tst, dummy1, dummy2, dummy3, dummy4,
+    if calc_transition(controlTemplate.curve.transitionRadius1, nomrad2, tst, dummy1, dummy2, dummy3, dummy4,
       old_apartl, dummy5) = False then begin
       calc_error;
       auto_spiral_adjust := False;
@@ -28769,7 +28777,7 @@ begin
 
     if controlTemplate.curve.isSpiral     // transition template, adjust the rads...
     then begin
-      nomrad1 := 0 - (nomrad1 - rad_mod);     // adjust for adjacent track (swapping hand)...
+      controlTemplate.curve.transitionRadius1 := 0 - (controlTemplate.curve.transitionRadius1 - rad_mod);     // adjust for adjacent track (swapping hand)...
       nomrad2 := 0 - (nomrad2 - rad_mod);
 
       if auto_spiral_adjust = True then begin
@@ -28998,8 +29006,8 @@ begin
   if controlTemplate.curve.isSpiral then begin
     auto_spiral_adjust := True;    // default init.
 
-    if (ABS(nomrad1) < max_rad_test) and (ABS(nomrad2) < max_rad_test) and
-      (SGZ(nomrad1) <> SGZ(nomrad2)) then
+    if (ABS(controlTemplate.curve.transitionRadius1) < max_rad_test) and (ABS(nomrad2) < max_rad_test) and
+      (SGZ(controlTemplate.curve.transitionRadius1) <> SGZ(nomrad2)) then
       s_curve_str :=
         '||This is a reverse S-curve transition. It may be necessary to check the track spacing within the transition zone for adequate passing clearance.'
     else
@@ -29440,13 +29448,13 @@ begin
       // save current peg data for peg_curve calcs.
 
       // change sign of centre-line 1st radius.
-      nomrad1 := 0 - (nomrad1 - trtscent);    // and adjust for adjacent track.
+      controlTemplate.curve.transitionRadius1 := 0 - (controlTemplate.curve.transitionRadius1 - trtscent);    // and adjust for adjacent track.
 
       // change sign of centre-line 2nd radius.
       nomrad2 := 0 - (nomrad2 - trtscent);    // and adjust for adjacent track.
 
-      dummy := nomrad1;         // swap the 2 radii as we are facing the other way.
-      nomrad1 := nomrad2;
+      dummy := controlTemplate.curve.transitionRadius1;         // swap the 2 radii as we are facing the other way.
+      controlTemplate.curve.transitionRadius1 := nomrad2;
       nomrad2 := dummy;
 
       os := pegx * 2 - (os + tst);
@@ -30018,13 +30026,13 @@ begin
       // save current peg data for peg_curve calcs.
 
       // change sign of centre-line 1st radius.
-      nomrad1 := 0 - (nomrad1 - trtscent);    // and adjust for adjacent track.
+      controlTemplate.curve.transitionRadius1 := 0 - (controlTemplate.curve.transitionRadius1 - trtscent);    // and adjust for adjacent track.
 
       // change sign of centre-line 2nd radius.
       nomrad2 := 0 - (nomrad2 - trtscent);    // and adjust for adjacent track.
 
-      dummy := nomrad1;         // swap the 2 radii as we are facing the other way.
-      nomrad1 := nomrad2;
+      dummy := controlTemplate.curve.transitionRadius1;         // swap the 2 radii as we are facing the other way.
+      controlTemplate.curve.transitionRadius1 := nomrad2;
       nomrad2 := dummy;
 
       peg_curve;              // do curving calcs for the current peg position.
@@ -31488,11 +31496,11 @@ begin
   then begin
     os := turnoutx - (os + tst);         // neg os is OK.
 
-    clrad1 := nomrad1{+ycurv};         // centre-line 1st radius.
+    clrad1 := controlTemplate.curve.transitionRadius1{+ycurv};         // centre-line 1st radius.
     clrad2 := nomrad2{+ycurv};         // centre-line 2nd radius.
 
     nomrad2 := clrad1{-ycurv};         // swap the radii.
-    nomrad1 := clrad2{-ycurv};
+    controlTemplate.curve.transitionRadius1 := clrad2{-ycurv};
 
     if adjust_trans_rad = 1 then
       adjust_trans_rad := 2      // and the one he was adjusting.
@@ -31600,7 +31608,7 @@ begin
       pad_form.reset_peg_menu_entry.Click;   // peg on datum
       gocalc(0, 0);                           // calc it.
     end;
-    fix_radius(nomrad1, False);    // set fixed radius curving.
+    fix_radius(controlTemplate.curve.transitionRadius1, False);    // set fixed radius curving.
     Result := True;
     EXIT;
   end;
@@ -31613,7 +31621,7 @@ begin
 
   new_tst := tst;     // init zone adjusts (don't change trans until both rads calced)...
   new_os := os;
-  new_r1 := nomrad1;
+  new_r1 := controlTemplate.curve.transitionRadius1;
   new_r2 := nomrad2;
 
   if os < 0            // trans starts before template...
@@ -31650,7 +31658,7 @@ begin
 
   os := new_os;
   tst := new_tst;
-  nomrad1 := new_r1;
+  controlTemplate.curve.transitionRadius1 := new_r1;
   nomrad2 := new_r2;
 
   peg_curve;       // fix template on peg.

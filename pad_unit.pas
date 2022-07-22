@@ -3453,7 +3453,6 @@ var
   mvjpx: double = 200;
 
   nomrad: double = 3630;
-  nomrad1: double = 1.0E8 - 5000;   // max_rad
   nomrad2: double = 3630;
 
   max_spiral_constant: double = 500.0E6;  // 0.72  23-7-01.
@@ -4248,7 +4247,7 @@ begin
     mouse_str := 'F6  curving';
 
   if controlTemplate.curve.isSpiral then
-    trail_str := captext(nomrad1) + ' mm  /  ' + captext(nomrad2) + ' mm'
+    trail_str := captext(controlTemplate.curve.transitionRadius1) + ' mm  /  ' + captext(nomrad2) + ' mm'
   else
     trail_str := captext(nomrad) + ' mm';
 
@@ -4277,7 +4276,7 @@ begin
   cancel_adjusts(True);
 
   if controlTemplate.curve.isSpiral then
-    trail_str := captext(nomrad1) + ' mm  /  ' + captext(nomrad2) + ' mm'
+    trail_str := captext(controlTemplate.curve.transitionRadius1) + ' mm  /  ' + captext(nomrad2) + ' mm'
   else
     trail_str := captext(nomrad) + ' mm';
 
@@ -7474,7 +7473,7 @@ begin
     else begin    // transition curving...
       repeat
         n := putdim(transgo_help_str, 1, '1st  ( initial )  radius  at  the  track  centre-line',
-          nomrad1, False, False, True, False);
+          controlTemplate.curve.transitionRadius1, False, False, True, False);
         // neg ok, preset OK, 0 not allowed, don't terminate on zero.
         n := putdim(transgo_help_str, 1, '2nd  ( final )  radius  at  the  track  centre-line',
           nomrad2, False, False, True, False);   // neg ok, preset OK, 0 not allowed.
@@ -7521,7 +7520,7 @@ begin
 
             if ABS(od[0] * od[1] * od[3] / temp) < max_spiral_constant then
             begin                    //  ok, change settings.
-              nomrad1 := od[0];
+              controlTemplate.curve.transitionRadius1 := od[0];
               nomrad2 := od[1];
               os := od[2];
               tst := ABS(od[3]);
@@ -17546,11 +17545,11 @@ begin
   docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
   // save current peg data for peg_curve calcs.
 
-  clrad2 := nomrad1{+ycurv};         // new centre-line 1st radius.
+  clrad2 := controlTemplate.curve.transitionRadius1{+ycurv};         // new centre-line 1st radius.
   clrad1 := nomrad2{+ycurv};         // new centre-line 2nd radius.
 
   nomrad2 := clrad2{-ycurv};
-  nomrad1 := clrad1{-ycurv};
+  controlTemplate.curve.transitionRadius1 := clrad1{-ycurv};
 
   peg_curve;
   redraw(True);

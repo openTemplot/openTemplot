@@ -1697,7 +1697,7 @@ begin
 
           if controlTemplate.curve.isSpiral then begin
             if turnoutx < os then begin
-              arc_rad := ABS(nomrad1);
+              arc_rad := ABS(controlTemplate.curve.transitionRadius1);
             end
             else
             if turnoutx > (os + tst) then begin
