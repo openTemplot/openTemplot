@@ -436,7 +436,7 @@ begin
 
       x1 := rad1_orgx;
       y1 := rad1_orgy;
-      r1 := ABS(nomrad) + control_rail_offset * g / 2;
+      r1 := ABS(controlTemplate.curve.fixedRadius) + control_rail_offset * g / 2;
 
       // now get the background template, and repeat...
 
@@ -464,7 +464,7 @@ begin
 
       x2 := rad1_orgx;
       y2 := rad1_orgy;
-      r2 := ABS(nomrad) + bgnd_rail_offset * g / 2;
+      r2 := ABS(controlTemplate.curve.fixedRadius) + bgnd_rail_offset * g / 2;
       // (bgnd template may be n.g. but is now the control)
 
       Result := get_circle_intersections(x1, y1, r1, x2, y2, r2, xi, yi, k1_i,
@@ -1718,7 +1718,7 @@ begin
             end;
           end
           else begin
-            arc_rad := ABS(nomrad);
+            arc_rad := ABS(controlTemplate.curve.fixedRadius);
           end;
 
         until arc_rad <> 0;

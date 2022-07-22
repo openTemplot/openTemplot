@@ -1145,7 +1145,7 @@ begin
       enable_peg_positions;  // update peg menu settings.
 
       notch_on_radial_centre_menu_entry.Enabled :=
-        (ABS(nomrad) < max_rad_test) and (not controlTemplate.curve.isSpiral);
+        (ABS(controlTemplate.curve.fixedRadius) < max_rad_test) and (not controlTemplate.curve.isSpiral);
       notch_on_1st_radial_centre_menu_entry.Enabled :=
         (ABS(controlTemplate.curve.transitionRadius1) < max_rad_test) and controlTemplate.curve.isSpiral;
       notch_on_2nd_radial_centre_menu_entry.Enabled :=
@@ -1208,7 +1208,7 @@ begin
         // 213a
       end
       else
-      if ABS(nomrad) < max_rad_test then begin
+      if ABS(controlTemplate.curve.fixedRadius) < max_rad_test then begin
         constant_radius_menu_entry.Checked := True;  // radio item.
         info_form.curving_label.Caption := curving_label_prefix_str + 'co';
       end
@@ -1239,7 +1239,7 @@ begin
       // 217a
 
       swings_in_degs_menu_entry.Enabled :=
-        ((ABS(nomrad) < max_rad_test) or controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing);
+        ((ABS(controlTemplate.curve.fixedRadius) < max_rad_test) or controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing);
 
       adjust_trans_length_menu_entry.Enabled := controlTemplate.curve.isSpiral;
       // transition mouse actions..
