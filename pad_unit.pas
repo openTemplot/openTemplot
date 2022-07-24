@@ -3353,9 +3353,9 @@ type
   end;//class
 
 
-  Troll_back = record
+  TRollback = record
     valid_flag: boolean;
-    rollback_info: Ttemplate_info;
+    rollback_info: TTemplate;
     rollback_name_str: string;       // added 0.93.a
     rollback_memo_str: string;       // ...
   end;
@@ -3370,11 +3370,13 @@ type
 //-----------------------------------------
 
 var
-  rollback_reg: array[0..undo_c] of Troll_back;          // roll-back register.
+  controlTemplate: TTemplate;
 
-  parking_bay: array[0..2] of Ttemplate_info;            // parking bay.
+  rollback_reg: array[0..undo_c] of TRollback;          // roll-back register.
 
-  invalidated_zero_save: Ttemplate_info;                 // 0.93.a
+  parking_bay: array[0..2] of TTemplate;            // parking bay.
+
+  invalidated_zero_save: TTemplate;                 // 0.93.a
 
   undo_notch: array[0..notch_c] of Tnotch;
   // rollback notch register.   x,y,k in Tnotch.
@@ -3438,7 +3440,6 @@ var
   xing_calc_i: integer = 0;
 
   pt_i: integer;
-  spiral: boolean = False;
   slewing: boolean = False;     // slewing flag.
   slew_mode: integer = 1;
 
@@ -4233,7 +4234,7 @@ begin
 
   cancel_adjusts(True);
 
-  if spiral = True then begin
+  if controlTemplate.curve.isSpiral then begin
     if adjust_trans_rad = 2 then begin
       mouse_str := 'F6  curving 2nd transition radius';
       action_panel_hint('adjust 1st radius instead'); // 205c
@@ -4247,7 +4248,7 @@ begin
   else
     mouse_str := 'F6  curving';
 
-  if spiral = True then
+  if controlTemplate.curve.isSpiral then
     trail_str := captext(nomrad1) + ' mm  /  ' + captext(nomrad2) + ' mm'
   else
     trail_str := captext(nomrad) + ' mm';
@@ -4276,7 +4277,7 @@ begin
 
   cancel_adjusts(True);
 
-  if spiral = True then
+  if controlTemplate.curve.isSpiral then
     trail_str := captext(nomrad1) + ' mm  /  ' + captext(nomrad2) + ' mm'
   else
     trail_str := captext(nomrad) + ' mm';
@@ -7448,8 +7449,8 @@ begin
 
   try
 
-    if spiral = False        // fixed radius curving...
-    then begin
+    if not controlTemplate.curve.isSpiral then begin
+      // fixed radius curving...
       repeat
         n := putdim(rad_help_str, 1, 'constant  radius  at  the  track  centre-line',
           nomrad, False, False, True, False);
@@ -8239,7 +8240,7 @@ begin
     end;
 
     if peg_code <> 0 then begin
-      if spiral = True then
+      if controlTemplate.curve.isSpiral then
         os := os + xorg - old_xorg;           //  os transition start changes with xorg ditto.
       if slewing = True then
         slew_s := slew_s + xorg - old_xorg;  //  slewing ditto
@@ -9002,7 +9003,7 @@ begin
   // save current peg data for peg_curve calcs.
 
   nomrad := max_rad;
-  spiral := False;
+  controlTemplate.curve.isSpiral := False;
 
   if (peg_code = 200) or (peg_code = 220) then
     gocalc(0, 0);    // to keep peg on geometrical tangent points.
@@ -9015,7 +9016,7 @@ end;
 procedure Tpad_form.constant_radius_menu_entryClick(Sender: TObject);
 
 begin
-  if (ABS(nomrad) > max_rad_test) and (spiral = False)   // straight template.
+  if (ABS(nomrad) > max_rad_test) and (not controlTemplate.curve.isSpiral)   // straight template.
   then
     curving_data_menu_entry.Click              // ask new radius instead.
   else
@@ -9026,14 +9027,14 @@ end;
 procedure Tpad_form.transition_template_menu_entryClick(Sender: TObject);
 
 begin
-  transition_previous_menu_entry.Enabled := not spiral;
+  transition_previous_menu_entry.Enabled := not controlTemplate.curve.isSpiral;
   // no effect if transition already in force.
-  move_transition_zone_menu_entry.Enabled := spiral;
-  change_transition_zone_menu_entry.Enabled := spiral;
-  swap_transition_rads_menu_entry.Enabled := spiral;
-  zero_trans_zone_menu_entry.Enabled := spiral;
+  move_transition_zone_menu_entry.Enabled := controlTemplate.curve.isSpiral;
+  change_transition_zone_menu_entry.Enabled := controlTemplate.curve.isSpiral;
+  swap_transition_rads_menu_entry.Enabled := controlTemplate.curve.isSpiral;
+  zero_trans_zone_menu_entry.Enabled := controlTemplate.curve.isSpiral;
   normalize_transition_menu_entry.Enabled :=
-    (spiral = True) and ((os < 0) or ((os + tst) > turnoutx));
+    (controlTemplate.curve.isSpiral) and ((os < 0) or ((os + tst) > turnoutx));
 end;
 //________________________________________________________________________________________
 
@@ -10026,7 +10027,7 @@ var
 begin
   cancel_adjusts(True);
 
-  if spiral = True then begin
+  if controlTemplate.curve.isSpiral then begin
     if adjust_trans_rad = 2 then begin
       mouse_str := 'CTRL-F5  orbit around 2nd radial centre';
       action_panel_hint('orbit 1st radial centre instead');       // 205c
@@ -11614,8 +11615,8 @@ begin
   adjust_trans_rad := 1;
   adjust_rad1_menu_entry.Checked := True;          // radio item.
 
-  if spiral = True      // transition
-  then begin
+  if controlTemplate.curve.isSpiral then begin
+    // transition
     if curving_mod = 1 then begin
       mouse_label_string := 'F6  curving 1st transition radius';
       action_panel_hint('adjust 2nd radius instead');           // 205c
@@ -11645,8 +11646,8 @@ begin
   adjust_trans_rad := 2;
   adjust_rad2_menu_entry.Checked := True;          // radio item.
 
-  if spiral = True      // transition
-  then begin
+  if controlTemplate.curve.isSpiral then begin
+    // transition
 
     if curving_mod = 1 then begin
       mouse_label_string := 'F6  curving 2nd transition radius';
@@ -11980,9 +11981,11 @@ begin
   if (turnoutx = 0) and (snap_to_zero_menu_entry.Tag = 1) then begin
     snap_to_zero_menu_entry.Tag := 0;
     copy_keep(invalidated_zero_save);    // retrieve previous control template
+    FreeAndNil(invalidated_zero_save);
   end
   else begin
     snap_to_zero_menu_entry.Tag := 1;
+    invalidated_zero_save := TTemplate.Create('');
     fill_kd(invalidated_zero_save);   // save existing.
 
     reset_peg_menu_entry.Click;  // first do Ctrl-0
@@ -14025,10 +14028,10 @@ end;
 procedure Tpad_form.shift_rotate_current_menu_entryClick(Sender: TObject);
 
 begin
-  shift_radial_centre_menu_entry.Enabled := ((ABS(nomrad) < max_rad_test) or (spiral = True));
+  shift_radial_centre_menu_entry.Enabled := ((ABS(nomrad) < max_rad_test) or (controlTemplate.curve.isSpiral));
   // only for curved template.
   shift_radial_centre_to_notch_menu_entry.Enabled :=
-    ((ABS(nomrad) < max_rad_test) or (spiral = True));
+    ((ABS(nomrad) < max_rad_test) or (controlTemplate.curve.isSpiral));
 end;
 //_______________________________________________________________________________________
 
@@ -14522,7 +14525,7 @@ procedure Tpad_form.peg_on_TORG_menu_entryClick(Sender: TObject);
 begin
   // only for a straight turnout with a curved crossing...
 
-  if (plain_track = True) or (ABS(nomrad) < max_rad_test) or (spiral = True) or
+  if (plain_track = True) or (ABS(nomrad) < max_rad_test) or (controlTemplate.curve.isSpiral) or
     (xing_type_i <> 1) then
     EXIT;  // ??? menu should be disabled.
 
@@ -15001,14 +15004,15 @@ end;
 procedure Tpad_form.make_separate_approach_menu_entryClick(Sender: TObject);
 
 begin
-  make_separate_approach(True);   // click=True
+  make_separate_approach;
 end;
 //_______________________________________________________________________________________
 
 procedure Tpad_form.make_separate_exit_menu_entryClick(Sender: TObject);
 
 var
-  cur_tem, new_tem: Ttemplate_info;
+  currentTemplate: TTemplate;
+  newTemplate: TTemplate;
 
 begin
   if plain_track = True then begin
@@ -15053,10 +15057,10 @@ begin
   if check_control_template_is_valid('split') = False then
     EXIT;  // 0.93.a  zero length
 
-  cur_tem.keep_shove_list := Tshoved_timber_list.Create;
-  new_tem.keep_shove_list := Tshoved_timber_list.Create;
+  currentTemplate := TTemplate.Create('');
+  newTemplate := TTemplate.Create('');
   try
-    fill_kd(cur_tem);  // first save the current.
+    fill_kd(currentTemplate);  // first save the current.
 
     turnoutx := mvjpx;   // crop all exit track.
     turnout_i := 1;      // length locked at turnoutx.
@@ -15065,9 +15069,9 @@ begin
     peg_on_overall_length_menu_entry.Click;       // and put peg there.
 
     gocalc(0, 0);
-    fill_kd(new_tem);         // save this for snaking onto (not normalized transition).
+    fill_kd(newTemplate);         // save this for snaking onto (not normalized transition).
 
-    if (spiral = True) and (pad_form.make_tools_normalize_transitions_menu_entry.Checked = True)
+    if (controlTemplate.curve.isSpiral) and (pad_form.make_tools_normalize_transitions_menu_entry.Checked = True)
     then begin
       gocalc(0, 0);                 // peg calcs.
       normalize_transition;        // ignore result.
@@ -15083,14 +15087,14 @@ begin
     do_rollback := False;
     store_and_background(False, False);  // keep it and copy to background.
     if keep_added = False then begin
-      copy_keep(cur_tem);           // restore original.
+      copy_keep(currentTemplate);           // restore original.
       show_and_redraw(True, False);
       EXIT;                         // he cancelled.
     end;
 
     // now change previous current to plain track...
 
-    copy_keep(cur_tem);                // get it again.
+    copy_keep(currentTemplate);                // get it again.
 
     retain_on_make;    // do blanking, shoves, diffs, crossing entry straight, cancel platforms  213a
 
@@ -15105,10 +15109,10 @@ begin
 
     gocalc(0, 0);       // peg calcs.
 
-    snake_onto_this_peg(new_tem.keep_dims, False, False);
+    snake_onto_this_peg(newTemplate.template_info.keep_dims, False, False);
     // align over it and snake onto peg (facing-trailing).
 
-    if (spiral = True) and (pad_form.make_tools_normalize_transitions_menu_entry.Checked = True)
+    if (controlTemplate.curve.isSpiral) and (pad_form.make_tools_normalize_transitions_menu_entry.Checked = True)
     then begin
       gocalc(0, 0);                 // peg calcs.
       normalize_transition;        // ignore result.
@@ -15124,8 +15128,8 @@ begin
     rail_options_form.restore_all_button.Click;  // 211c
 
   finally
-    cur_tem.keep_shove_list.Free;
-    new_tem.keep_shove_list.Free;
+    currentTemplate.Free;
+    newTemplate.Free;
     show_and_redraw(True, True);                 // in case copy caused a current hide.
   end;//try
 end;
@@ -15134,7 +15138,7 @@ end;
 procedure Tpad_form.make_split_at_peg_menu_entryClick(Sender: TObject);
 
 var
-  cur_tem: Ttemplate_info;
+  currentTemplate: TTemplate;
   new_len: double;
 
 begin
@@ -15177,9 +15181,9 @@ begin
 
   new_len := turnoutx - pegx;    // save for the new curent template
 
+  currentTemplate := TTemplate.Create('');
   try
-    cur_tem.keep_shove_list := Tshoved_timber_list.Create;
-    fill_kd(cur_tem);                              // first save the current.
+    fill_kd(currentTemplate);                              // first save the current.
 
     turnoutx := pegx;                       // shorten existing to peg
     xorg := turnoutx;
@@ -15187,21 +15191,21 @@ begin
     peg_on_joint_end_menu_entry.Click;    // peg at new CTRL-1.
     gocalc(0, 0);                          // do peg calcs.
 
-    if (spiral = True) and (make_tools_normalize_transitions_menu_entry.Checked = True) then begin
+    if (controlTemplate.curve.isSpiral) and (make_tools_normalize_transitions_menu_entry.Checked = True) then begin
       gocalc(0, 0);                 // peg calcs.
       normalize_transition;        // ignore result.
     end;
 
     store_and_background(False, False);   // keep it and copy to background.
     if keep_added = False then begin
-      copy_keep(cur_tem);            // restore original.
+      copy_keep(currentTemplate);            // restore original.
       show_and_redraw(True, False);
       EXIT;                          // he cancelled.
     end;
 
     // now change previous current...
 
-    copy_keep(cur_tem);                // get it again.
+    copy_keep(currentTemplate);                // get it again.
 
     retain_on_make;    // do blanking, shoves, diffs, crossing entry straight, cancel platforms  213a
 
@@ -15218,7 +15222,7 @@ begin
     peg_on_joint_end_menu_entry.Click; // put peg at CTRL-1 rail joint.
     gocalc(0, 0);                       // peg calcs.
 
-    if (spiral = True) and (make_tools_normalize_transitions_menu_entry.Checked = True) then begin
+    if (controlTemplate.curve.isSpiral) and (make_tools_normalize_transitions_menu_entry.Checked = True) then begin
       gocalc(0, 0);                 // peg calcs.
       normalize_transition;        // ignore result.
     end;
@@ -15229,7 +15233,7 @@ begin
     end;
 
   finally
-    cur_tem.keep_shove_list.Free;
+    currentTemplate.Free;
     show_and_redraw(True, True);                 // in case copy caused a current hide.
   end;//try
 end;
@@ -15382,7 +15386,7 @@ begin
       EXIT;
   end;
 
-  if spiral = True then begin
+  if controlTemplate.curve.isSpiral then begin
     if alert(3, '    make  return  curve  -  transition  curve',
       'The control template contains a transition curve.' +
       '||The return curve function will attempt to create a matching return curve as a fixed-radius template. This may take a few seconds.' + '||The result will be satisfactory in most cases, but if the transition curve is very short or sharp you may need to make some further adjustment.' + '||Or alternatively change to a parallel type V-crossing instead.', '', '', '', '', 'cancel', 'continue  -  make  return  curve', 0) = 5 then
@@ -15443,7 +15447,7 @@ begin
 
   rcurve := calculate_return_curve_radius(exit_notch, mid_notch, trp_notch);  // 218d
 
-  if spiral = True then begin
+  if controlTemplate.curve.isSpiral then begin
     docurving(False, True, trpx, g / 2, temp1, temp2, temp3, trans_trp_rad);
     // get curving radius at TRP
     rcurve := rcurve * SGZ(curved_onto_calc(retr, 0 - trans_trp_rad));
@@ -15475,7 +15479,7 @@ begin
 
   retain_on_make;    // do blanking, shoves, diffs, crossing entry straight, cancel platforms  213a
 
-  spiral := False;
+  controlTemplate.curve.isSpiral := False;
   slewing := False;
 
   plain_track := True;
@@ -15638,10 +15642,10 @@ begin
 
   // now change to curved plain track...
 
-  if spiral = True then
+  if controlTemplate.curve.isSpiral then
     nomrad := clrad_at_x(pegx);    // use curving rad at peg.
 
-  spiral := False;   // plain curve for branch track.
+  controlTemplate.curve.isSpiral := False;   // plain curve for branch track.
 
   if slewing = True then
     disable_slewing_menu_entry.Click;
@@ -16656,7 +16660,7 @@ begin
 
     pegx := pegx - approach_last_xtb;
     //  pegx changes with xorg unless peg is reset on rail-end.
-    if spiral = True then
+    if controlTemplate.curve.isSpiral then
       os := os - approach_last_xtb;            //  os transition start changes with xorg ditto.
     if slewing = True then
       slew_s := slew_s - approach_last_xtb;   //  ditto slewing.
@@ -16909,7 +16913,7 @@ procedure Tpad_form.duplicate_group_menu_entryClick(Sender: TObject);
 
 var
   n, n_max: integer;
-  saved_current: Ttemplate_info;
+  savedCurrent: TTemplate;
   saved_name_str: string;
   saved_current_memo_str: string;
 
@@ -16962,8 +16966,8 @@ begin
     turnout_i := 1;
     // length locked at turnoutx.  so that plain track or approach and exit tracks can be drawn.
 
-    saved_current.keep_shove_list := Tshoved_timber_list.Create;
-    fill_kd(saved_current);                              // save control template for restore.
+    savedCurrent := TTemplate.Create('');
+    fill_kd(savedCurrent);                              // save control template for restore.
     saved_name_str := current_name_str;
     saved_current_memo_str := current_memo_str;
 
@@ -16998,13 +17002,13 @@ begin
     end;//next n
 
   finally
-    copy_keep(saved_current);                 // restore his control template.
+    copy_keep(savedCurrent);                 // restore his control template.
     current_name_str := saved_name_str;
     current_memo_str := saved_current_memo_str;
 
     info_form.ref_name_label.Caption := current_name_str;
 
-    saved_current.keep_shove_list.Free;
+    savedCurrent.Free;
 
     save_done := False;
     backup_wanted := True;
@@ -17529,7 +17533,7 @@ begin
   match_slew_start_to_template_menu_entry.Enabled := ((slew_s + slew_l) >= (0 - minfp));
   match_slew_end_to_template_menu_entry.Enabled := (turnoutx >= (slew_s - minfp));
 
-  match_slew_zone_to_trans_menu_entry.Enabled := spiral;
+  match_slew_zone_to_trans_menu_entry.Enabled := controlTemplate.curve.isSpiral;
 end;
 //_________________________________________________________________________________________
 
@@ -18464,7 +18468,7 @@ procedure Tpad_form.create_unused_copy_popup_entryClick(Sender: TObject);
 
 var
   n: integer;
-  saved_current: Ttemplate_info;
+  savedCurrent: TTemplate;
   saved_name_str: string;
   saved_current_memo_str: string;
 
@@ -18477,8 +18481,8 @@ begin
     turnout_i := 1;
     // length locked at turnoutx.  so that plain track or approach and exit tracks can be drawn.
 
-    saved_current.keep_shove_list := Tshoved_timber_list.Create;
-    fill_kd(saved_current);                              // save control template for restore.
+    savedCurrent := TTemplate.Create('');
+    fill_kd(savedCurrent);                              // save control template for restore.
     saved_name_str := current_name_str;
     saved_current_memo_str := current_memo_str;
 
@@ -18488,13 +18492,13 @@ begin
     copy_keep_to_current(False, False, False, False);    // copy to pad.
     store_unused(False, False);
   finally
-    copy_keep(saved_current);                 // restore his control template.
+    copy_keep(savedCurrent);                 // restore his control template.
     current_name_str := saved_name_str;
     current_memo_str := saved_current_memo_str;
 
     info_form.ref_name_label.Caption := current_name_str;
 
-    saved_current.keep_shove_list.Free;
+    savedCurrent.Free;
 
     save_done := False;
     backup_wanted := True;
@@ -19531,7 +19535,7 @@ begin
       then begin
         if radius <> 0 then begin
           nomrad := radius;
-          spiral := False;     // 0.77.b
+          controlTemplate.curve.isSpiral := False;     // 0.77.b
         end
         else
           straight_template_menu_entry.Click;
@@ -22315,7 +22319,7 @@ begin
   // now change to straight plain track...
 
   nomrad := max_rad;
-  spiral := False;
+  controlTemplate.curve.isSpiral := False;
 
   if slewing = True then
     disable_slewing_menu_entry.Click;
@@ -23629,7 +23633,7 @@ begin
   if xorg < 0 then begin
     turnoutx := turnoutx - xorg;
     // increase overall length to keep V-crossing and exit track.
-    if spiral = True then
+    if controlTemplate.curve.isSpiral then
       os := os - xorg;
     if slewing = True then
       slew_s := slew_s - xorg;
@@ -23676,7 +23680,7 @@ begin
     EXIT;
   end;
 
-  if spiral = True then begin
+  if controlTemplate.curve.isSpiral then begin
     alert(6, 'php/151    set  gaunt  turnout  radius',
       'The control template contains a transition curve.' +
       '||It is not possible to use this function on a transition curve template.',
@@ -25000,7 +25004,7 @@ begin
   if xorg < 0 then begin
     turnoutx := turnoutx - xorg;
     // increase overall length to keep V-crossing and exit track.
-    if spiral = True then
+    if controlTemplate.curve.isSpiral then
       os := os - xorg;
     if slewing = True then
       slew_s := slew_s - xorg;
@@ -27605,7 +27609,7 @@ begin
     EXIT;
   end;
 
-  if spiral = True then begin
+  if controlTemplate.curve.isSpiral then begin
     alert(6, '    make  tandem  -  transition  curve',
       'Sorry, this function is not available because the control template contains a transition curve.'
       + '||A tandem turnout could be created manually within a transition zone if necessary, but it would be a complex design (and not very prototypical).',
@@ -27767,7 +27771,7 @@ begin
     EXIT;
   end;
 
-  if spiral = True then begin
+  if controlTemplate.curve.isSpiral then begin
     alert(6, '    make  tandem  -  transition  curve',
       'Sorry, this function is not available because the control template contains a transition curve.'
       + '||A tandem turnout could be created manually within a transition zone if necessary, but it would be a complex design (and not very prototypical).',
@@ -27932,5 +27936,10 @@ begin
 end;
 //______________________________________________________________________________
 
+initialization
+  controlTemplate := TTemplate.Create('');
+
+finalization
+  controlTemplate.Free;
 
 end.

@@ -82,6 +82,69 @@ uses
 
 {$R *.lfm}
 
+type
+  TShoveData = record     // shove data for a single timber ( version 0.71 11-4-01 ).
+
+    sv_code: TShoveCode;
+    sv_x: double;    // xtb modifier.
+    sv_k: double;    // angle modifier.
+    sv_o: double;    // offset modifier (near end).
+    sv_l: double;    // length modifier (far end).
+    sv_w: double;    // width modifier (per side).
+    sv_c: double;    // crab modifier.  0.78.c  01-02-03.
+    sv_t: double;    // spare (thickness 3-D modifier - nyi).
+
+    alignment_byte_1: byte;   // D5 0.81 12-06-05
+    alignment_byte_2: byte;   // D5 0.81 12-06-05
+
+    sv_sp_int: integer;     // spare integer.
+
+  end;//record
+
+  Tshove_for_file = record    // Used in the SHOVE DATA BLOCKS in the 071 files.
+    // But not used within the program - see Ttimber_shove.shove_data instead.
+    // Conversion takes place in 071 on loading.
+
+    sf_str: string[6];           // timber number string.
+
+    alignment_byte_1: byte;   // D5 0.81 12-06-05
+
+    sf_shove_data: TShoveData;  // all the data.
+
+    procedure copy_from(src: TShovedTimber);
+    procedure copy_to(dest: TShovedTimber);
+
+  end;//record
+
+
+procedure Tshove_for_file.copy_from(src: TShovedTimber);
+begin
+  sf_str := src.timberString;
+  sf_shove_data.sv_code := src.shoveCode;
+  sf_shove_data.sv_x := src.xtbModifier;
+  sf_shove_data.sv_k := src.angleModifier;
+  sf_shove_data.sv_o := src.offsetModifier;
+  sf_shove_data.sv_l := src.lengthModifier;
+  sf_shove_data.sv_w := src.widthModifier;
+  sf_shove_data.sv_c := src.crabModifier;
+  sf_shove_data.sv_t := 0;
+  sf_shove_data.sv_sp_int := 0;
+end;
+
+
+procedure Tshove_for_file.copy_to(dest: TShovedTimber);
+begin
+  dest.timberString := sf_str;
+  dest.shoveCode := sf_shove_data.sv_code;
+  dest.xtbModifier := sf_shove_data.sv_x;
+  dest.angleModifier := sf_shove_data.sv_k;
+  dest.offsetModifier := sf_shove_data.sv_o;
+  dest.lengthModifier := sf_shove_data.sv_l;
+  dest.widthModifier := sf_shove_data.sv_w;
+  dest.crabModifier := sf_shove_data.sv_c;
+end;
+
+
 //______________________________________________________________________________
 
 
@@ -113,7 +176,7 @@ const
     '||This is done independently of any saving to data files which you may have performed.' +
     '||If you answer "no thanks" the previous data can be restored later by selecting the `0FILES > RESTORE PREVIOUS`1 menu item on the storage box menus.' + '||tree.gif The restore feature works correctly even if your previous session terminated abnormally as a result of a power failure or system malfunction, so there is no need to perform repeated saves as a precaution against these events.' + '||rp.gif The restore feature does not include your Background Shapes or Sketchboard files, which must be saved and reloaded separately as required.' + '||rp.gif If you run two instances of Templot0 concurrently (not recommended for Windows 95/98/ME) from the same `0\TEMPLOT\`2 folder,' + ' the restore data will be held in common between the two. To prevent this happening, create and run the second instance from a different folder (directory).';
 
-  shovedim_c_048:integer = 29;
+  shovedim_c_048: integer = 29;
 
 var
   test_box_file: file;                 // untyped file for testing format.
@@ -129,13 +192,14 @@ var
   old_next_data: Told_keep_data;
   new_next_data: Tnew_keep_data;
 
-  this_ti: Ttemplate_info;
+  thisTemplate: TTemplate;
+
   _071_format: boolean;
   number_read: integer;
 
   inbyte: byte;
 
-  saved_control: Ttemplate_info;
+  savedControl: TTemplate;
   saved_notch: Tnotch;
 
   saved_control_name_str: string;
@@ -166,12 +230,12 @@ var
         on EInOutError do
       end;  // close file if it's open.
 
-{xxx      if append = False then}
-        clear_keeps(False, False);     // error reloading, clear all.
+      {xxx      if append = False then}
+      clear_keeps(False, False);     // error reloading, clear all.
 {xxx      else
         clear_keep(n);               // error adding, we already created the list entry for it.
 }
-     file_error(box_str);
+      file_error(box_str);
     end;
     /////////////////////////////////
 
@@ -180,6 +244,7 @@ var
 
     var
       shove_timber_data: Tshove_for_file;
+      shovedTimber: TShovedTimber;
 
       shove_count, st: integer;
       total_read: integer;
@@ -201,8 +266,8 @@ var
         except
           on EInOutError do
         end;  // close file if it's open.
-{xxx        if load_backup = False then}
-          file_error(box_str);
+        {xxx        if load_backup = False then}
+        file_error(box_str);
         EXIT;
       end;
 
@@ -236,14 +301,15 @@ var
               except
                 on EInOutError do
               end;  // close file if it's open.
-{              if load_backup = False then}
+              {              if load_backup = False then}
               file_error(box_str);
               EXIT;
             end;
 
             try
-              st :=
-                Add(Tshoved_timber.CreateFrom(shove_timber_data));
+              shovedTimber := TShovedTimber.Create;
+              shove_timber_data.copy_to(shovedTimber);
+              st := Add(shovedTimber);
             except
               EXIT;       // memory problem?
             end;//try
@@ -279,8 +345,8 @@ var
             except
               on EInOutError do
             end;  // close file if it's open.
-{xxx            if append = False then}
-              clear_keeps(False, False);
+            {xxx            if append = False then}
+            clear_keeps(False, False);
             EXIT;
           end;//try
 
@@ -298,7 +364,7 @@ var
           s := old_next_data.old_keep_dims1.box_dims1.box_ident;
 
           if {xxx (number_read <> SizeOf(Told_keep_data)) or}
-            ((s <> ('N ' + IntToStr(n - old_count))) and (s <> ('NX' + IntToStr(n - old_count))))
+          ((s <> ('N ' + IntToStr(n - old_count))) and (s <> ('NX' + IntToStr(n - old_count))))
           // error reading, or this is not a template.
           then begin
             read_file_error;
@@ -314,12 +380,15 @@ var
             old_next_data.old_keep_dims1.box_dims1.bgnd_code_077 := -1;
           // make it a library template.                               }
 
-          this_ti.keep_shove_list := Tshoved_timber_list.Create;
+          thisTemplate := TTemplate.Create('');
+          try
+            thisTemplate.template_info.keep_dims := Tkeep_dims(old_next_data);
 
-          this_ti.keep_dims := Tkeep_dims(old_next_data);
+            keeps_list[n].CopyFrom(thisTemplate);
 
-          copy_template_info_from_to(True, this_ti, keeps_list[n].template_info);
-          // True = free the shove list.
+          finally
+            FreeAndNil(thisTemplate);
+          end;
 
 {xxx          if (append = True) and (make_lib = False) and
             (keep_form.add_ignore_group_menu_entry.Checked = False) then
@@ -347,11 +416,11 @@ var
           except
             on EInOutError do
           end;  // close file if it's open.
-{xxx          if load_backup = False then}
-            file_error(box_str);
+          {xxx          if load_backup = False then}
+          file_error(box_str);
 
-{xxx          if append = False then}
-            clear_keeps(False, False);                   // error reloading, clear all.
+          {xxx          if append = False then}
+          clear_keeps(False, False);                   // error reloading, clear all.
 {xxx          else
           if n_valid = True then
             clear_keep(n);  // error adding, we already created the list entry for it.}
@@ -373,8 +442,8 @@ var
           except
             on EInOutError do
           end;  // close file if it's open.
-{xxx          if load_backup = False then}
-            file_error(box_str);
+          {xxx          if load_backup = False then}
+          file_error(box_str);
           EXIT;
         end;
 
@@ -397,8 +466,8 @@ var
           except
             on EInOutError do
           end;  // close file if it's open.
-{xxx          if load_backup = False then}
-            file_error(box_str);
+          {xxx          if load_backup = False then}
+          file_error(box_str);
           EXIT;
         end;
 
@@ -470,8 +539,8 @@ var
             except
               on EInOutError do
             end;  // close file if it's open.
-{xxx            if load_backup = False then}
-              file_error(box_str);
+            {xxx            if load_backup = False then}
+            file_error(box_str);
             EXIT;
           end;
         until Chr(inbyte) = '_';
@@ -490,8 +559,8 @@ var
           except
             on EInOutError do
           end;  // close file if it's open.
-{xxx          if load_backup = False then}
-            file_error(box_str);
+          {xxx          if load_backup = False then}
+          file_error(box_str);
           EXIT;
         end;
 
@@ -507,8 +576,8 @@ var
           except
             on EInOutError do
           end;  // close file if it's open.
-{xxx          if load_backup = False then}
-            file_error(box_str);
+          {xxx          if load_backup = False then}
+          file_error(box_str);
           EXIT;
         end;
 
@@ -530,8 +599,8 @@ var
             except
               on EInOutError do
             end;  // close file if it's open.
-{xxx            if load_backup = False then}
-              file_error(box_str);
+            {xxx            if load_backup = False then}
+            file_error(box_str);
             EXIT;
           end;
 
@@ -560,8 +629,8 @@ var
                   except
                     on EInOutError do
                   end;  // close file if it's open.
-{xxx                  if load_backup = False then}
-                    file_error(box_str);
+                  {xxx                  if load_backup = False then}
+                  file_error(box_str);
                   EXIT;
                 end;
               end;//next i
@@ -666,7 +735,7 @@ begin
         if not append then
           loadDialog.Title := '    load  or  reload  storage  box  from  file ..'
         else begin
-          if make_lib = true then
+          if make_lib = True then
             loadDialog.Title := '    add  library  templates  from  file ..'
           else
             loadDialog.Title := '    add  templates  from  file ..';
@@ -688,7 +757,7 @@ begin
 
       finally
         loadDialog.Free;
-      end
+      end;
     end
     else
       box_str := file_name;                       // file name supplied by caller.
@@ -706,8 +775,8 @@ begin
   end;
 
   // added 0.78.d 19-02-03...
-  saved_control.keep_shove_list := Tshoved_timber_list.Create;
-  fill_kd(saved_control);                             // save control template.
+  savedControl := TTemplate.Create('');
+  fill_kd(savedControl);                             // save control template.
   saved_control_name_str := current_name_str;
   saved_control_memo_str := current_memo_str;
 
@@ -767,8 +836,8 @@ begin
         CloseFile(test_box_file);    // and close the file. (Re-open later.)
       except
         on EInOutError do begin
-{xxx          if load_backup = False then}
-            file_error(box_str);
+          {xxx          if load_backup = False then}
+          file_error(box_str);
           if append = False then
             clear_keeps(False, False);
           EXIT;
@@ -906,7 +975,7 @@ begin
         end;//with old_next_data.old_keep_dims1
 
         save_done := not resave_needed;        // this boxful matches file.
-{xxx        if load_backup = False then} begin
+        {xxx        if load_backup = False then} begin
           keep_form.box_file_label.Caption := ' last reloaded from :  ' + loaded_str;
           keep_form.box_file_label.Hint := keep_form.box_file_label.Caption;
           // in case too long for caption
@@ -915,7 +984,7 @@ begin
           // for print of box contents list.
           reloaded_box_str := '|    ' + loaded_str;
           // ditto.
-        end
+        end;
 {xxx        else begin
           save_done := restored_save_done;
           // had it been saved?
@@ -989,12 +1058,12 @@ begin
       Screen.Cursor := saved_cursor;
       current_state(-1);                   // tidy up after any error exits.
 
-      copy_keep(saved_control);            // retrieve saved current...
+      copy_keep(savedControl);            // retrieve saved current...
       current_name_str := saved_control_name_str;
       current_memo_str := saved_control_memo_str;
       info_form.ref_name_label.Caption := current_name_str;
 
-      saved_control.keep_shove_list.Free;
+      savedControl.Free;
 
     end;//try
 
@@ -1040,7 +1109,6 @@ begin
 end;
 
 //______________________________________________________________________________
-
 
 
 //function save_box(this_one: integer; which_ones: ESaveBox; save_option: ESaveOption;
@@ -1715,7 +1783,6 @@ end;
 //  end;//try
 //end;
 ////______________________________________________________________________________________
-
 
 
 end.

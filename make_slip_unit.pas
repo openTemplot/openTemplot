@@ -89,9 +89,7 @@ function make_slip(sides: integer; making_crossover: boolean): boolean;        /
 var
   dummy1, dummy2: double;
   i, n: integer;
-  saved_current: Ttemplate_info;
-
-  ti: Ttemplate_info;
+  savedControl: TTemplate;
 
   saved_notch: Tnotch;
   saved_name_str: string;
@@ -159,7 +157,7 @@ var
   procedure restore_current;
 
   begin
-    copy_keep(saved_current);
+    copy_keep(savedControl);
     // retrieve saved original control template.
     current_name_str := saved_name_str;
     current_memo_str := saved_memo_str;
@@ -277,17 +275,15 @@ begin
   else
     xover_str := '';
 
-  org_was_spiral := spiral;
+  org_was_spiral := controlTemplate.curve.isSpiral;
 
   doing_2nd_side := False;
 
   id_str := '[slip ' + FormatDateTime('hhmmss', Time) + ']';
 
-  saved_current.keep_shove_list := Tshoved_timber_list.Create;
-  ti.keep_shove_list := Tshoved_timber_list.Create;
-
+  savedControl := TTemplate.Create('');
   try
-    fill_kd(saved_current);                              // save control template
+    fill_kd(savedControl);                              // save control template
     saved_name_str := current_name_str;
     saved_memo_str := current_memo_str;
 
@@ -312,7 +308,7 @@ begin
 
     gocalc(0, 0);
 
-    if spiral = True then begin
+    if controlTemplate.curve.isSpiral then begin
       if (os > fpx) or ((os + tst) < (toex - (fpx - toex)))
       // allow for other half_diamond to be created
       then begin
@@ -330,7 +326,7 @@ begin
       spiral_ok := True;
     end;
 
-    if (spiral = True) and (spiral_safe = False) and (spiral_ok = False) then begin
+    if (controlTemplate.curve.isSpiral) and (not spiral_safe) and (not spiral_ok) then begin
       if alert(2, '    make  slip  -  sharp  transition  curve',
         '||This slip will contain a sharp transition zone.'
         + '||The slip road(s) created by this function may not align perfectly with the slip switches. You can correct this if necessary by creating the slip road(s) manually using the `0make transition`3 functions.' + '||You could avoid this difficulty by making the transition zone more gentle, or by moving the slip away from it.' + '||For more information please ask on the <A HREF="go_to_templot_club.85a"><U>Templot&nbsp;Club</U></A> user forum.', '', '', '', '', 'cancel', 'continue  -  make  slip', 0) = 5 then begin
@@ -447,7 +443,7 @@ begin
       omit_wj_marks := True;
     // and omit the wing rail joint marks      // restored in retain_on_make
 
-    if spiral = True then
+    if controlTemplate.curve.isSpiral then
       switch_mid_rad1 := clrad_at_x(mcpx - switch_mid_mm)
     // back from MCP-1 to middle of switch location
     else
@@ -463,7 +459,7 @@ begin
 
     omit_wj_marks := True;  // and omit the wing rail joint marks      // restored in retain_on_make
 
-    if spiral = True then
+    if controlTemplate.curve.isSpiral then
       switch_mid_rad2 := clrad_at_x(mcpx - switch_mid_mm)
     // back from MCP-2 to middle of switch location
     else
@@ -532,7 +528,7 @@ begin
 
     // no transitions from now on ...
 
-    spiral := False;
+    controlTemplate.curve.isSpiral := False;
     nomrad := switch_mid_rad2;
 
     gocalc(0, 0);
@@ -702,10 +698,9 @@ begin
     slip_road_pos1 := keeps_list[first_sw_index].snap_peg_positions.ctrl_planing_pos;
     // location of end of planing on pad
 
-    copy_template_info_from_to(False, keeps_list[first_sw_index].template_info, ti);
     // get the switch back
-    copy_keep(ti);
     // and make it the control (discard the slip road)
+    copy_keep(keeps_list[first_sw_index]);
 
     gocalc(0, 0);
 
@@ -1044,8 +1039,7 @@ begin
     redraw(False);
 
   finally
-    ti.keep_shove_list.Free;
-    saved_current.keep_shove_list.Free;
+    savedControl.Free;
 
     pad_form.reset_notch_menu_entry.Enabled := True;
     pad_form.reset_notch_menu_entry.Click;

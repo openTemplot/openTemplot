@@ -66,7 +66,7 @@ uses
 //______________________________________________________________________________
 
 function export_mecbox(show_export_result: boolean; export_str: string): boolean;
-
+(*
 var
   output_list, encoded_list: TStringList;
 
@@ -942,10 +942,10 @@ var
 
   end;
   ////////////////////////////////////////////////////////////////
-
+*)
 begin
   Result := False;  // init
-
+(*
   if keeps_list.Count < 1 then begin
     alert(6, '     storage  box  is  empty',
       'There are no stored templates to export.' +
@@ -1055,12 +1055,12 @@ begin
   if show_export_result = True then
     ShowMessage(IntToStr(num_templates) + ' templates have been exported to' +
       #13 + #13 + mecbox_str);
-
+*)
 end;
 //______________________________________________________________________________
 
 function do_import(file_str: string): boolean;
-
+(*
 var
   input_list, decode_list: TStringList;
 
@@ -3102,9 +3102,10 @@ var
 
   end;
   ////////////////////////////////////////////////////////////////////
-
+*)
 begin
   Result := False;  // init..
+(*
   loaded_str := '';
   num_templates := 0;
   valid_template := False;
@@ -3309,19 +3310,20 @@ begin
 
     Screen.Cursor := crDefault;
   end;
+*)
 end;
 //______________________________________________________________________________
 
 function import_mecbox(file_str: string): boolean; // 290a
-
+(*
 var
   mecbox_str: string;
   i: integer;
   waitMessage: IAutoWaitMessage;
-
+*)
 begin
   Result := False;  // init
-
+(*
   if (keeps_list.Count > 0) and (save_done = False) // something already there and not saved... ?
   then begin
     i := alert(7, '    import  MECBOX  into  storage  box  -  save  first ?',
@@ -3436,6 +3438,7 @@ begin
   loading_in_progress := False;  // allow backups only after dialogs
 
   show_and_redraw(True, True);  // redraw pad when ready.
+*)
 end;
 //______________________________________________________________________________
 

@@ -1137,16 +1137,34 @@ type
     turnout_info2: TBox3TurnoutInfo2;
   end;
 
+  TBox3ShoveData = record     // shove data for a single timber ( version 0.71 11-4-01 ).
+
+    sv_code: TShoveCode;
+    sv_x: double;    // xtb modifier.
+    sv_k: double;    // angle modifier.
+    sv_o: double;    // offset modifier (near end).
+    sv_l: double;    // length modifier (far end).
+    sv_w: double;    // width modifier (per side).
+    sv_c: double;    // crab modifier.  0.78.c  01-02-03.
+    sv_t: double;    // spare (thickness 3-D modifier - nyi).
+
+    alignment_byte_1: byte;   // D5 0.81 12-06-05
+    alignment_byte_2: byte;   // D5 0.81 12-06-05
+
+    sv_sp_int: integer;     // spare integer.
+
+  end;//record
+
   TBox3ShoveForFile = record    // Used in the SHOVE DATA BLOCKS in the 071 files.
     // But not used within the program - see Ttimber_shove.shove_data instead.
     // Conversion takes place in 071 on loading.
 
     sf_str: string[6];           // timber number string.
     alignment_byte_1: byte;   // D5 0.81 12-06-05
-    sf_shove_data: Tshove_data;  // all the data.
+    sf_shove_data: TBox3ShoveData;  // all the data.
 
-    procedure CopyFrom(src: Tshoved_timber);
-    procedure CopyTo(dest: Tshoved_timber);
+    procedure CopyFrom(src: TShovedTimber);
+    procedure CopyTo(dest: TShovedTimber);
   end;//record
 
 
@@ -1176,35 +1194,33 @@ type
     spareZeroes: integer;
   end;
 
-procedure TBox3ShoveForFile.CopyFrom(src: Tshoved_timber);
+procedure TBox3ShoveForFile.CopyFrom(src: TShovedTimber);
 begin
-  sf_str := src.timber_string;
-  sf_shove_data.sv_code := src.sv_code;
-  sf_shove_data.sv_x := src.sv_x;
-  sf_shove_data.sv_k := src.sv_k;
-  sf_shove_data.sv_o := src.sv_o;
-  sf_shove_data.sv_l := src.sv_l;
-  sf_shove_data.sv_w := src.sv_w;
-  sf_shove_data.sv_c := src.sv_c;
-  sf_shove_data.sv_t := src.sv_t;
-  sf_shove_data.sv_sp_int := src.sv_sp_int;
+  sf_str := src.timberString;
+  sf_shove_data.sv_code := src.shoveCode;
+  sf_shove_data.sv_x := src.xtbModifier;
+  sf_shove_data.sv_k := src.angleModifier;
+  sf_shove_data.sv_o := src.offsetModifier;
+  sf_shove_data.sv_l := src.lengthModifier;
+  sf_shove_data.sv_w := src.widthModifier;
+  sf_shove_data.sv_c := src.crabModifier;
+  sf_shove_data.sv_t := 0;
+  sf_shove_data.sv_sp_int := 0;
 end;
 
-procedure TBox3ShoveForFile.CopyTo(dest: Tshoved_timber);
+procedure TBox3ShoveForFile.CopyTo(dest: TShovedTimber);
 begin
-  dest.timber_string := sf_str;
-  dest.sv_code := sf_shove_data.sv_code;
-  dest.sv_x := sf_shove_data.sv_x;
-  dest.sv_k := sf_shove_data.sv_k;
-  dest.sv_o := sf_shove_data.sv_o;
-  dest.sv_l := sf_shove_data.sv_l;
-  dest.sv_w := sf_shove_data.sv_w;
-  dest.sv_c := sf_shove_data.sv_c;
-  dest.sv_t := sf_shove_data.sv_t;
-  dest.sv_sp_int := sf_shove_data.sv_sp_int;
+  dest.timberString := sf_str;
+  dest.shoveCode := sf_shove_data.sv_code;
+  dest.xtbModifier := sf_shove_data.sv_x;
+  dest.angleModifier := sf_shove_data.sv_k;
+  dest.offsetModifier := sf_shove_data.sv_o;
+  dest.lengthModifier := sf_shove_data.sv_l;
+  dest.widthModifier := sf_shove_data.sv_w;
+  dest.crabModifier := sf_shove_data.sv_c;
 end;
 
-procedure ConvertShovedTimberToBox3(shoveList: Tshoved_timber_list; box3Template: TBox3Template);
+procedure ConvertShovedTimberToBox3(shoveList: TShovedTimberList; box3Template: TBox3Template);
 var
   i: integer;
 begin
@@ -1252,13 +1268,13 @@ procedure ConvertBox3ToShovedTimbers(const box3Timbers: array of TBox3ShoveForFi
   template: TTemplate);
 var
   i: integer;
-  timbers: Tshoved_timber_list;
-  t: Tshoved_timber;
+  timbers: TShovedTimberList;
+  t: TShovedTimber;
 begin
-  timbers := Tshoved_timber_list.Create;
+  timbers := TShovedTimberList.Create;
   try
     for i := 0 to High(box3Timbers) do begin
-      t := Tshoved_timber.Create;
+      t := TShovedTimber.Create;
       box3Timbers[i].CopyTo(t);
       timbers.Add(t);
     end;
@@ -1466,7 +1482,7 @@ begin
     // first block is the shove timber data...
 
     // shove data = code 10. 4 bytes containing the count of shoved timbers,
-    //                       + a series of Tshove_for_file data records for each one.
+    //                       + a series of TBox3ShoveData data records for each one.
 
     shoveCount := Length(template.shovedTimbers);
 

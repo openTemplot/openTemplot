@@ -100,6 +100,8 @@ type
     property slewFactor: double Read GetSlewFactor Write SetSlewFactor;
 
     procedure CalculateCurveAt(distance: double; out pt, direction: Tpex; out radius: double);
+
+    procedure CopyFrom(from: TCurve);
   end;
 
 implementation
@@ -121,6 +123,24 @@ begin
   FDistanceToTransition := 0;
   FTransitionLength := 100;
   FIsSpiral := False;
+end;
+
+procedure TCurve.CopyFrom(from: TCurve);
+begin
+  FNominalRadius := from.nominalRadius;
+  FNominalRadius2 := from.nominalRadius2;
+  FDistanceToTransition := from.distanceToTransition;
+  FTransitionLength := from.transitionLength;
+  FIsSpiral := from.isSpiral;
+
+  FIsSlewing := from.isSlewing;
+  FDistanceToStartOfSlew := from.distanceToStartOfSlew;
+  FSlewLength := from.slewLength;
+  FSlewAmount := from.slewAmount;
+  FSlewMode := from.slewMode;
+  FSlewFactor := from.slewFactor;
+
+  FModified := true;
 end;
 
 procedure TCurve.SetNominalRadius(const newRadius: double);

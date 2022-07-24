@@ -337,7 +337,9 @@
       <Unit46>
         <Filename Value="create_tandem.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="tandem_form"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit46>
       <Unit47>
         <Filename Value="xtc_unit.pas"/>

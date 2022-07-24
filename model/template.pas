@@ -11,7 +11,8 @@ uses
   point_ex,
   shoved_timber,
   mark_unit,
-  rail_data_unit;
+  rail_data_unit,
+  curve;
 
 
 const
@@ -1159,19 +1160,23 @@ type
     keep_dims: Tkeep_dims;           // all the template dimemsions.
 
     // the list of shoved timbers. (v:0.71.a  27-4-01).
-    keep_shove_list: Tshoved_timber_list;
+    keep_shove_list: TShovedTimberList;
   end;//record
 
 
   TTemplate = class       // a whole stored template
 
-  public
-    Name: String;
-    Memo: String;
+  private
+    FName: String;
+    FMemo: String;
+    FCurve: TCurve;
 
+
+  public
     // True=has been copied to the background. (not included in file).
     bg_copied: boolean;
-    group_selected: boolean;    // True=selected as one of a group.
+    // True=selected as one of a group.
+    group_selected: boolean;
     // True=has been shifted/rotated/mirrored, needs a new timestamp on rebuilding.
     new_stamp_wanted: boolean;
 
@@ -1210,9 +1215,16 @@ type
 
     bgnd_keep: Tbgnd_keep;    // drawn data for a background template.
 
+    property Name: String Read FName Write FName;
+    property Memo: String Read FMemo Write FMemo;
+
+    property curve: TCurve Read FCurve;
 
     constructor Create(AName: string);
     destructor Destroy; override;
+
+    function Clone: TTemplate;
+    procedure CopyFrom(from: TTemplate);
   end;//class
 
 
@@ -1233,16 +1245,39 @@ constructor TTemplate.Create(AName: String);
 begin
   inherited Create;
 
+  FCurve := TCurve.Create;
+
   Name := AName;
+
+  template_info.keep_shove_list := TShovedTimberList.Create;
 end;
 
 
 destructor TTemplate.Destroy;
 begin
+  FCurve.Free;
   template_info.keep_shove_list.Free;
 
   inherited;
 end;
+
+function TTemplate.Clone;
+begin
+  Result := TTemplate.Create(Name);
+  Result.CopyFrom(self);
+end;
+
+procedure TTemplate.CopyFrom(from: TTemplate);
+begin
+  FName := from.Name;
+  FMemo := from.Memo;
+
+  FCurve.CopyFrom(from.Curve);
+  template_info.keep_dims := from.template_info.keep_dims;
+
+  template_info.keep_shove_list.CopyFrom(from.template_info.keep_shove_list);
+end;
+
 
 procedure TTemplateList.Notify(constref AValue: TTemplate;
   ACollectionNotification: TCollectionNotification);
@@ -1254,12 +1289,3 @@ begin
 end;
 
 end.
-
-
-
-
-
-
-
-
-

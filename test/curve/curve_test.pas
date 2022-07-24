@@ -16,10 +16,10 @@ type
 
   { TTestableCurve }
 
-  TTestableCurve = class( TCurve )
-    public
-      // expose property for testing
-      property curveCalculator;
+  TTestableCurve = class(TCurve)
+  public
+    // expose property for testing
+    property curveCalculator;
   end;
 
   { TTestCurve }
@@ -51,25 +51,14 @@ type
     procedure test_transition_curve_negative_to_smaller_positive;
 
     procedure test_slew_creation;
-      (*
-      procedure test_straight_line_slewed_left;
-      procedure test_straight_line_slewed_right;
-      procedure test_single_radius_positive_slewed_left;
-      procedure test_single_radius_positive_slewed_right;
-      procedure test_single_radius_negative_slewed_left;
-      procedure test_single_radius_negative_slewed_right;
-      procedure test_transition_curve_positive_positive_increasing_slewed_left;
-      procedure test_transition_curve_positive_positive_decreasing_slewed_right;
-      procedure test_transition_curve_negative_negative_increasing_slewed_left;
-      procedure test_transition_curve_negative_negative_decreasing_slewed_right;
-      procedure test_transition_curve_positive_negative_slewed_left;
-      procedure test_transition_curve_negative_positive_slewed_right;
-      *)
+
+    procedure test_CopyFrom;
   end;
 
 implementation
 
 uses
+  curve_parameters_interface,
   slew_calculator;
 
 procedure TTestCurve.Setup;
@@ -435,9 +424,9 @@ end;
 
 procedure TTestCurve.test_slew_creation;
 var
- pt: Tpex;
- direction: Tpex;
- radius: double;
+  pt: Tpex;
+  direction: Tpex;
+  radius: double;
 begin
   // Given a curve defined with a slew
   //
@@ -445,8 +434,8 @@ begin
   //
   // Then the curveCalculator is a TSlewCalculator
 
-  curve.isSlewing := true;
-  curve.isSpiral := false;
+  curve.isSlewing := True;
+  curve.isSpiral := False;
   curve.nominalRadius := max_rad;
 
   curve.CalculateCurveAt(0, pt, direction, radius);
@@ -454,68 +443,48 @@ begin
   Check(curve.curveCalculator is TSlewCalculator, 'curveCalculator not expected class');
 end;
 
-(*
-procedure Ttest_curve.test_straight_line_slewed_left;
+procedure TTestCurve.test_CopyFrom;
+var
+  curve2: TCurve;
 begin
- Check(false, 'Not implemented');
-end;
+  // Given 2 curves with different parameters
+  //
+  // When I call CopyFrom
+  //
+  // Then the curve parameters are copied
 
-procedure Ttest_curve.test_straight_line_slewed_right;
-begin
- Check(false, 'Not implemented');
-end;
+  curve.isSpiral := True;
+  curve.isSlewing := True;
+  curve.nominalRadius := 3456;
+  curve.nominalRadius2 := 7890;
+  curve.distanceToTransition := 123;
+  curve.transitionLength := 234;
+  curve.distanceToStartOfSlew := 333;
+  curve.slewAmount := 23;
+  curve.slewLength := 145;
+  curve.slewFactor := 1.5;
+  curve.slewMode := eSM_TanH;
 
-procedure Ttest_curve.test_single_radius_positive_slewed_left;
-begin
- Check(false, 'Not implemented');
-end;
+  curve2 := TCurve.Create;
+  try
+    curve2.CopyFrom(curve);
 
-procedure Ttest_curve.test_single_radius_positive_slewed_right;
-begin
- Check(false, 'Not implemented');
-end;
+    CheckEquals(curve.isSpiral, curve2.isSpiral, 'isSpiral');
+    CheckEquals(curve.isSlewing, curve2.isSlewing, 'isSlewing');
+    CheckEquals(curve.nominalRadius, curve2.nominalRadius, 'nominalRadius');
+    CheckEquals(curve.nominalRadius2, curve2.nominalRadius2, 'nominalRadius2');
+    CheckEquals(curve.distanceToTransition, curve2.distanceToTransition, 'distanceToTransition');
+    CheckEquals(curve.transitionLength, curve2.transitionLength, 'transitionLength');
+    CheckEquals(curve.distanceToStartOfSlew, curve2.distanceToStartOfSlew, 'distanceToStartOfSlew');
+    CheckEquals(curve.slewAmount, curve2.slewAmount, 'slewAmount');
+    CheckEquals(curve.slewLength, curve2.slewLength, 'slewLength');
+    CheckEquals(curve.slewFactor, curve2.slewFactor, 'slewFactor');
+    CheckEquals(Ord(curve.slewMode), Ord(curve2.slewMode), 'slewMode');
 
-procedure Ttest_curve.test_single_radius_negative_slewed_left;
-begin
- Check(false, 'Not implemented');
+  finally
+    curve2.Free;
+  end;
 end;
-
-procedure Ttest_curve.test_single_radius_negative_slewed_right;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_transition_curve_positive_positive_increasing_slewed_left;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_transition_curve_positive_positive_decreasing_slewed_right;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_transition_curve_negative_negative_increasing_slewed_left;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_transition_curve_negative_negative_decreasing_slewed_right;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_transition_curve_positive_negative_slewed_left;
-begin
- Check(false, 'Not implemented');
-end;
-
-procedure Ttest_curve.test_transition_curve_negative_positive_slewed_right;
-begin
- Check(false, 'Not implemented');
-end;
-*)
-
 
 initialization
   RegisterTest(TTestCurve);

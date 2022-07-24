@@ -359,7 +359,7 @@ function notch_on_intersection(move_notch: boolean;
   // move_notch=False means here for calcs only, no visual change
 
 var
-  saved_current: Ttemplate_info;
+  savedCurrent: TTemplate;
 
   new_notch_data: Tnotch;
 
@@ -379,7 +379,7 @@ var
   procedure restore_current;
 
   begin
-    copy_keep(saved_current);                    // retrieve saved current.
+    copy_keep(savedCurrent);                    // retrieve saved current.
     current_name_str := saved_name_str;
     current_memo_str := saved_memo_str;
 
@@ -409,7 +409,7 @@ begin
     EXIT;  // zero length
   end;
 
-  if spiral = True then begin
+  if controlTemplate.curve.isSpiral then begin
     Result := 0 - 5;
     EXIT;
   end;
@@ -421,8 +421,8 @@ begin
 
   // save the control ...
 
-  saved_current.keep_shove_list := Tshoved_timber_list.Create;
-  fill_kd(saved_current);                              // save control template
+  savedCurrent := TTemplate.Create('');
+  fill_kd(savedCurrent);                              // save control template
   saved_name_str := current_name_str;
   saved_memo_str := current_memo_str;
 
@@ -452,7 +452,7 @@ begin
         EXIT;  // zero length
       end;
 
-      if spiral = True then begin
+      if controlTemplate.curve.isSpiral then begin
         Result := 0 - 5;
         EXIT;
       end;
@@ -522,7 +522,7 @@ begin
 
   finally
     restore_current;                                  // restore the original control
-    saved_current.keep_shove_list.Free;
+    savedCurrent.Free;
   end;//try
 end;
 //______________________________________________________________________________
@@ -802,7 +802,7 @@ function make_diamond_crossing_at_intersection: boolean;
 var
   way: integer;  // 1 = similar curvature, -1 = opposed curvature
 
-  saved_current: Ttemplate_info;
+  savedCurrent: TTemplate;
   saved_name_str: string;
   saved_memo_str: string;
 
@@ -1097,7 +1097,7 @@ var
   procedure restore_current;
 
   begin
-    copy_keep(saved_current);                    // retrieve saved current.
+    copy_keep(savedCurrent);                    // retrieve saved current.
     current_name_str := saved_name_str;
     current_memo_str := saved_memo_str;
 
@@ -1108,8 +1108,8 @@ var
 begin
   Result := False; // init fail result
 
-  saved_current.keep_shove_list := Tshoved_timber_list.Create;
-  fill_kd(saved_current);                              // save control template
+  savedCurrent := TTemplate.Create('');
+  fill_kd(savedCurrent);                              // save control template
   saved_name_str := current_name_str;
   saved_memo_str := current_memo_str;
 
@@ -1138,7 +1138,7 @@ begin
     redraw(True);
 
   finally
-    saved_current.keep_shove_list.Free;
+    savedCurrent.Free;
   end;//try
 end;
 //______________________________________________________________________________
@@ -1167,7 +1167,7 @@ begin
     EXIT;
   end;
 
-  if spiral = True then begin
+  if controlTemplate.curve.isSpiral then begin
     if alert(6, 'php/110    make  diamond - crossing  at  intersection',
       'Sorry, this function is not available because the control template contains a transition curve.'
       + '||If the intersection is not within the transition zone, try again after using the `0TOOLS > MAKE SPLIT >`1 menu options accordingly.' + '||If the intersection is within the transition zone, you may be able to perform this operation manually by moving the fixing peg along the track (`0CTRL+F8`2 mouse action).', '', '', '', 'more  information', 'cancel', '', 4) = 4 then
@@ -1695,7 +1695,7 @@ begin
 
           startx := 0;     // cancel any blanking
 
-          if spiral = True then begin
+          if controlTemplate.curve.isSpiral then begin
             if turnoutx < os then begin
               arc_rad := ABS(nomrad1);
             end

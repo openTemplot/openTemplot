@@ -12,241 +12,216 @@ uses
   Generics.Collections;
 
 type
-  Tshove_code = (svcOmit = -1, svcEmpty = 0, svcShove = 1);
+  TShoveCode = (svcOmit = -1, svcEmpty = 0, svcShove = 1);
 
-  Tshove_data = record     // shove data for a single timber ( version 0.71 11-4-01 ).
-
-    sv_code: Tshove_code;
-    sv_x: double;    // xtb modifier.
-    sv_k: double;    // angle modifier.
-    sv_o: double;    // offset modifier (near end).
-    sv_l: double;    // length modifier (far end).
-    sv_w: double;    // width modifier (per side).
-    sv_c: double;    // crab modifier.  0.78.c  01-02-03.
-    sv_t: double;    // spare (thickness 3-D modifier - nyi).
-
-    alignment_byte_1: byte;   // D5 0.81 12-06-05
-    alignment_byte_2: byte;   // D5 0.81 12-06-05
-
-    sv_sp_int: integer;     // spare integer.
-
-  end;//record
-
-  Tshoved_timber = class;
-
-  Tshove_for_file = record    // Used in the SHOVE DATA BLOCKS in the 071 files.
-    // But not used within the program - see Ttimber_shove.shove_data instead.
-    // Conversion takes place in 071 on loading.
-
-    sf_str: string[6];           // timber number string.
-
-    alignment_byte_1: byte;   // D5 0.81 12-06-05
-
-    sf_shove_data: Tshove_data;  // all the data.
-
-    procedure copy_from(src: Tshoved_timber);
-
-  end;//record
-
-  Tshoved_timber = class             // v: 0.71.a  27-4-01.
+  TShovedTimber = class             // v: 0.71.a  27-4-01.
 
   private
-    Ftimber_string: string;
-    shove_data: Tshove_data;
+    FTimberString: string;
+    FShoveCode: TShoveCode;
+    FXtbModifier: double;
+    FAngleModifier: double;
+    FOffsetModifier: double;
+    FLengthModifier: double;
+    FWidthModifier: double;
+    FCrabModifier: double;
+
+    procedure SetXtbModifier(shovex: double);
+    procedure SetOffsetModifier(offset: double);
+    procedure SetCrabModifier(crab: double);
+    procedure SetLengthModifier(length: double);
+    procedure SetWidthModifier(Width: double);
+    procedure SetAngleModifier(twist: double);
 
   public
     constructor Create;
-    constructor CreateFrom(f: Tshoved_timber); overload;
-    constructor CreateFrom(f: Tshove_for_file); overload;
+    constructor CreateFrom(f: TShovedTimber); overload;
 
-    property timber_string: string Read Ftimber_string Write Ftimber_string;
-    property sv_code: Tshove_code Read shove_data.sv_code Write shove_data.sv_code;
-    property sv_x: double Read shove_data.sv_x Write shove_data.sv_x;
-    property sv_k: double Read shove_data.sv_k Write shove_data.sv_k;
-    property sv_o: double Read shove_data.sv_o Write shove_data.sv_o;
-    property sv_l: double Read shove_data.sv_l Write shove_data.sv_l;
-    property sv_w: double Read shove_data.sv_w Write shove_data.sv_w;
-    property sv_c: double Read shove_data.sv_c Write shove_data.sv_c;
-    property sv_t: double Read shove_data.sv_t Write shove_data.sv_t;
-    property sv_sp_int: integer Read shove_data.sv_sp_int Write shove_data.sv_sp_int;
+    property timberString: string Read FTimberString Write FTimberString;
+    property shoveCode: TShoveCode Read FShoveCode Write FShoveCode;
+    property xtbModifier: double Read FXtbModifier Write SetXtbModifier;
+    property angleModifier: double Read FAngleModifier Write SetAngleModifier;
+    property offsetModifier: double Read FOffsetModifier Write SetOffsetModifier;
+    property lengthModifier: double Read FLengthModifier Write SetLengthModifier;
+    property widthModifier: double Read FWidthModifier Write SetWidthModifier;
+    property crabModifier: double Read FCrabModifier Write SetCrabModifier;
 
 
-    procedure make_shoved;
-    procedure make_omit;
+    procedure MakeShoved;
+    procedure MakeOmit;
 
-    procedure set_shovex(shovex: double);
-    procedure set_offset(offset: double);
-    procedure set_crab(crab: double);
-    procedure set_length(length: double);
-    procedure set_width(Width: double);
-    procedure set_twist(twist: double);
-
-    procedure adjust_shovex(adjustment: double);
-    procedure adjust_width(adjustment: double);
-    procedure adjust_offset(adjustment: double);
-    procedure adjust_length(adjustment: double);
-    procedure adjust_twist_degrees(adjustment: double);
-    procedure adjust_crab(adjustment: double);
-    procedure rescale(mod_scale_ratio: double);
-    function can_restore: boolean;
+    procedure AdjustXtb(adjustment: double);
+    procedure AdjustWidth(adjustment: double);
+    procedure AdjustOffset(adjustment: double);
+    procedure AdjustLength(adjustment: double);
+    procedure AdjustAngle(adjustment: double);
+    procedure AdjustCrab(adjustment: double);
+    procedure Rescale(scaleRatio: double);
+    function CanRestore: boolean;
 
   end;//class
 
 
-  Tshoved_timber_list = class(TObjectList<Tshoved_timber>)
+  TShovedTimberList = class(TObjectList<TShovedTimber>)
+  public
+    procedure CopyFrom(from: TShovedTimberList);
   end;
 
 
 implementation
 
-procedure Tshove_for_file.copy_from(src: Tshoved_timber);
+constructor TShovedTimber.Create;
 begin
-  sf_str := src.timber_string;
-  sf_shove_data := src.shove_data;
+  FTimberString := '';
+  FShoveCode := svcEmpty;
+  FXtbModifier := 0;        // xtb modifier.
+  FAngleModifier := 0;        // angle modifier.
+  FOffsetModifier := 0;        // offset modifier (near end).
+  FLengthModifier := 0;        // length modifier (far end).
+  FWidthModifier := 0;        // width modifier (per side).
+  FCrabModifier := 0;        // crab modifier.
 end;
 
-
-constructor Tshoved_timber.Create;
+constructor TShovedTimber.CreateFrom(f: TShovedTimber);
 begin
-  Ftimber_string := '';
-  shove_data.sv_code := svcEmpty;
-  shove_data.sv_x := 0;        // xtb modifier.
-  shove_data.sv_k := 0;        // angle modifier.
-  shove_data.sv_o := 0;        // offset modifier (near end).
-  shove_data.sv_l := 0;        // length modifier (far end).
-  shove_data.sv_w := 0;        // width modifier (per side).
-  shove_data.sv_c := 0;        // crab modifier.
-  shove_data.sv_t := 0;        // spare (thickness 3-D modifier - nyi)
-  shove_data.sv_sp_int := 0;   // spare integer.
+  FTimberString := f.FTimberString;
+  FShoveCode := f.shoveCode;
+  FXtbModifier := f.xtbModifier;
+  FAngleModifier := f.angleModifier;
+  FOffsetModifier := f.offsetModifier;
+  FLengthModifier := f.lengthModifier;
+  FWidthModifier := f.widthModifier;
+  FCrabModifier := f.crabModifier;
 end;
 
-constructor Tshoved_timber.CreateFrom(f: Tshoved_timber);
+procedure TShovedTimber.MakeShoved;
 begin
-  Ftimber_string := f.Ftimber_string;
-  shove_data := f.shove_data;
-end;
-
-constructor Tshoved_timber.CreateFrom(f: Tshove_for_file);
-begin
-  Ftimber_string := f.sf_str;
-  shove_data := f.sf_shove_data;
-end;
-
-procedure Tshoved_timber.make_shoved;
-begin
-  if shove_data.sv_code = svcEmpty then begin
-    shove_data.sv_code := svcShove;
+  if FShoveCode = svcEmpty then begin
+    FShoveCode := svcShove;
   end;
 end;
 
-procedure Tshoved_timber.make_omit;
+procedure TShovedTimber.MakeOmit;
 begin
-  shove_data.sv_code := svcOmit;
-  shove_data.sv_x := 0;        // xtb modifier.
-  shove_data.sv_k := 0;        // angle modifier.
-  shove_data.sv_o := 0;        // offset modifier (near end).
-  shove_data.sv_l := 0;        // length modifier (far end).
-  shove_data.sv_w := 0;        // width modifier (per side).
-  shove_data.sv_c := 0;        // crab modifier.
-  shove_data.sv_t := 0;        // spare (thickness 3-D modifier - nyi)
-  shove_data.sv_sp_int := 0;   // spare integer.
+  FShoveCode := svcOmit;
+  FXtbModifier := 0;        // xtb modifier.
+  FAngleModifier := 0;        // angle modifier.
+  FOffsetModifier := 0;        // offset modifier (near end).
+  FLengthModifier := 0;        // length modifier (far end).
+  FWidthModifier := 0;        // width modifier (per side).
+  FCrabModifier := 0;        // crab modifier.
 end;
 
-procedure Tshoved_timber.set_shovex(shovex: double);
+procedure TShovedTimber.SetXtbModifier(shovex: double);
 begin
-  shove_data.sv_code := svcShove;
-  shove_data.sv_x := shovex;
+  FShoveCode := svcShove;
+  FXtbModifier := shovex;
 end;
 
-procedure Tshoved_timber.set_offset(offset: double);
+procedure TShovedTimber.SetOffsetModifier(offset: double);
 begin
-  shove_data.sv_code := svcShove;
-  shove_data.sv_o := offset;
+  FShoveCode := svcShove;
+  FOffsetModifier := offset;
 end;
 
-procedure Tshoved_timber.set_crab(crab: double);
+procedure TShovedTimber.SetCrabModifier(crab: double);
 begin
-  shove_data.sv_code := svcShove;
-  shove_data.sv_c := crab;
+  FShoveCode := svcShove;
+  FCrabModifier := crab;
 end;
 
-procedure Tshoved_timber.set_length(length: double);
+procedure TShovedTimber.SetLengthModifier(length: double);
 begin
-  shove_data.sv_code := svcShove;
-  shove_data.sv_l := length;
+  FShoveCode := svcShove;
+  FLengthModifier := length;
 end;
 
-procedure Tshoved_timber.set_width(Width: double);
+procedure TShovedTimber.SetWidthModifier(Width: double);
 begin
-  shove_data.sv_code := svcShove;
-  shove_data.sv_w := Width;
+  FShoveCode := svcShove;
+  FWidthModifier := Width;
 end;
 
-procedure Tshoved_timber.set_twist(twist: double);
+procedure TShovedTimber.SetAngleModifier(twist: double);
 begin
-  shove_data.sv_code := svcShove;
-  shove_data.sv_k := twist;
+  FShoveCode := svcShove;
+  FAngleModifier := twist;
 end;
 
-procedure Tshoved_timber.adjust_shovex(adjustment: double);
+procedure TShovedTimber.AdjustXtb(adjustment: double);
 begin
-  shove_data.sv_code := svcShove;
-  shove_data.sv_x := shove_data.sv_x + adjustment;
+  FShoveCode := svcShove;
+  FXtbModifier := FXtbModifier + adjustment;
 end;
 
-procedure Tshoved_timber.adjust_width(adjustment: double);
+procedure TShovedTimber.AdjustWidth(adjustment: double);
 begin
-  shove_data.sv_code := svcShove;
-  shove_data.sv_w := shove_data.sv_w + adjustment;
+  FShoveCode := svcShove;
+  FWidthModifier := FWidthModifier + adjustment;
 end;
 
-procedure Tshoved_timber.adjust_offset(adjustment: double);
+procedure TShovedTimber.AdjustOffset(adjustment: double);
 begin
-  shove_data.sv_code := svcShove;
-  shove_data.sv_o := shove_data.sv_o + adjustment;
+  FShoveCode := svcShove;
+  FOffsetModifier := FOffsetModifier + adjustment;
 end;
 
-procedure Tshoved_timber.adjust_length(adjustment: double);
+procedure TShovedTimber.AdjustLength(adjustment: double);
 begin
-  shove_data.sv_code := svcShove;
-  shove_data.sv_l := shove_data.sv_l + adjustment;
+  FShoveCode := svcShove;
+  FLengthModifier := FLengthModifier + adjustment;
 end;
 
-procedure Tshoved_timber.adjust_twist_degrees(adjustment: double);
+procedure TShovedTimber.AdjustAngle(adjustment: double);
 begin
-  shove_data.sv_code := svcShove;
-  shove_data.sv_k := shove_data.sv_k + adjustment * Pi / 180;
+  FShoveCode := svcShove;
+  FAngleModifier := FAngleModifier + adjustment;
 end;
 
-procedure Tshoved_timber.adjust_crab(adjustment: double);
+procedure TShovedTimber.AdjustCrab(adjustment: double);
 begin
-  shove_data.sv_code := svcShove;
-  shove_data.sv_c := shove_data.sv_c + adjustment;
+  FShoveCode := svcShove;
+  FCrabModifier := FCrabModifier + adjustment;
 end;
 
-procedure Tshoved_timber.rescale(mod_scale_ratio: double);
+procedure TShovedTimber.Rescale(scaleRatio: double);
 begin
-  shove_data.sv_x := shove_data.sv_x * mod_scale_ratio;        // xtb modifier.
-  //sv_k                             // angle modifier (no change).
-  shove_data.sv_o := shove_data.sv_o * mod_scale_ratio;        // offset modifier (near end).
-  shove_data.sv_l := shove_data.sv_l * mod_scale_ratio;        // length modifier (far end).
-  shove_data.sv_w := shove_data.sv_w * mod_scale_ratio;        // width modifier (per side).
-  shove_data.sv_t := shove_data.sv_t * mod_scale_ratio;        // thickness modifier (nyi).
+  FXtbModifier := FXtbModifier * scaleRatio;
+  // angle modifier (no change).
+  FOffsetModifier := FOffsetModifier * scaleRatio;
+  FLengthModifier := FLengthModifier * scaleRatio;
+  FWidthModifier := FWidthModifier * scaleRatio;
+  FCrabModifier := FCrabModifier * scaleRatio;
 end;
 
-function Tshoved_timber.can_restore: boolean;
+function TShovedTimber.CanRestore: boolean;
 begin
-  Result := (shove_data.sv_code = svcOmit) or
-    (((shove_data.sv_x <> 0)       // xtb modifier.
-    or (shove_data.sv_k <> 0)       // angle modifier.
-    or (shove_data.sv_o <> 0)       // offset modifier (near end).
-    or (shove_data.sv_l <> 0)       // length modifier (far end).
-    or (shove_data.sv_w <> 0)       // width modifier (per side).
-    or (shove_data.sv_c <> 0)       // crab modifier.  0.78.c  01-02-03.
-    or (shove_data.sv_t <> 0)       // spare (thickness 3-D modifier - nyi).
-    or (shove_data.sv_sp_int <> 0)  // spare integer.
+  Result := (FShoveCode = svcOmit) or
+    (((FXtbModifier <> 0)       // xtb modifier.
+    or (FAngleModifier <> 0)       // angle modifier.
+    or (FOffsetModifier <> 0)       // offset modifier (near end).
+    or (FLengthModifier <> 0)       // length modifier (far end).
+    or (FWidthModifier <> 0)       // width modifier (per side).
+    or (FCrabModifier <> 0)       // crab modifier.  0.78.c  01-02-03.
 
-    ) and (shove_data.sv_code = svcShove));
+    ) and (FShoveCode = svcShove));
+end;
+
+
+procedure TShovedTimberList.CopyFrom(from: TShovedTimberList);
+var
+  f: TShovedTimber;
+  t: TShovedTimber;
+begin
+  Clear;
+
+  if not Assigned(from) then
+    EXIT;  // return empty list.
+
+  for f in from do begin
+    t := TShovedTimber.CreateFrom(f);
+    Add(t);
+  end;//next
 end;
 
 end.

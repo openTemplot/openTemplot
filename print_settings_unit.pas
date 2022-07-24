@@ -278,7 +278,7 @@ function create_fb_kludge_templates: integer;
 
 var
   Count, n, n_max: integer;
-  ti, save_current: Ttemplate_info;
+  savedControl: TTemplate;
   l_ng, h_g: integer;
 
   save_bgnd_option: boolean;
@@ -302,17 +302,16 @@ begin
   Screen.Cursor := crHourGlass;        // might take a while.
   Application.ProcessMessages;
 
-  save_current.keep_shove_list := Tshoved_timber_list.Create;
-  fill_kd(save_current);                               // save the current control template data.
-
-  ti.keep_shove_list := Tshoved_timber_list.Create;
-
-  save_bgnd_option := pad_form.show_bgnd_keeps_menu_entry.Checked;
   // don't want a complete redraw for every template added.
-  pad_form.hide_bgnd_keeps_menu_entry.Checked := True;
-  // so switch bgnd off radio item.
+  save_bgnd_option := pad_form.show_bgnd_keeps_menu_entry.Checked;
 
+  // so switch bgnd off radio item.
+  pad_form.hide_bgnd_keeps_menu_entry.Checked := True;
+
+  // save the current control template data.
+  savedControl := TTemplate.Create('');
   try
+    fill_kd(savedControl);
 
     n_max := keeps_list.Count - 1;
 
@@ -326,11 +325,8 @@ begin
         and (keeps_list[n].template_info.keep_dims.box_dims1.fb_kludge_template_code = 0)
       // not if already a kludge template
       then begin
-        copy_template_info_from_to(False,
-          keeps_list[n].template_info, ti);
         // get the keep data.
-
-        copy_keep(ti);    // to the control template
+        copy_keep(keeps_list[n]);
 
         no_timbering := True;  // no timbering
 
@@ -400,9 +396,9 @@ begin
   finally
     pad_form.show_bgnd_keeps_menu_entry.Checked := save_bgnd_option;   // restore, radio item.
 
-    copy_keep(save_current);                         // reset current control template
-    save_current.keep_shove_list.Free;
-    ti.keep_shove_list.Free;
+    // reset current control template
+    copy_keep(savedControl);
+    savedControl.Free;
     Screen.Cursor := crDefault;
 
   end;//try
