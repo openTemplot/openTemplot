@@ -641,8 +641,6 @@ function GetVersionString(version_options: Tversion_options): string;
 
 implementation
 
-{$BOOLEVAL ON}
-
 uses
   LCLType,
   LCLIntf,

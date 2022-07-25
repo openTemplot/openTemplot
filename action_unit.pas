@@ -72,9 +72,6 @@ procedure action_panel_resize;
 //_______________________________________________________________________________________
 implementation
 
-{$BOOLEVAL ON}
-
-
 uses pad_unit, math_unit, wait_message;
 
 {$R *.lfm}

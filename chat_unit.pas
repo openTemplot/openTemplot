@@ -71,9 +71,6 @@ procedure do_fkey_chart;          // print function key chart.
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses Printers, math_unit, control_room, colour_unit, calibration_unit, alert_unit,
