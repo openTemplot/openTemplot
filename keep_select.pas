@@ -691,8 +691,6 @@ function version_mismatch(var okd: Told_keep_data): boolean;
 
 implementation
 
-{$BOOLEVAL ON}
-
 {$R *.lfm}
 
 uses
