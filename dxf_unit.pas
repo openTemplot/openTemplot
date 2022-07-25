@@ -145,9 +145,6 @@ procedure export_templates_dxf;
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses

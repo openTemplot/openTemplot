@@ -156,9 +156,6 @@ procedure init_gauge_list;          //  fill all gauge list data
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses

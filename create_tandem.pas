@@ -76,8 +76,6 @@ function create_single_sided_tandem(jump_forward: boolean): boolean;
 
 implementation
 
-{$BOOLEVAL ON}
-
 {$R *.lfm}
 
 uses
