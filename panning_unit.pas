@@ -148,9 +148,6 @@ procedure pan_button_click(scroll: double; dir: integer; max_jump: boolean);
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses

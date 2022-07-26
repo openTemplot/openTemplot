@@ -132,9 +132,6 @@ procedure pdf_draw;
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses

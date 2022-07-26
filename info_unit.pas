@@ -156,9 +156,6 @@ procedure statusbar_click(new: boolean);          // copied name becomes new ref
 //__________________________________________________________________________________________
 implementation
 
-{$BOOLEVAL ON}
-
-
 uses config_unit, pad_unit, alert_unit, control_room, gauge_unit, print_unit, math_unit, colour_unit,
   Menus, Printers, keep_select, help_sheet, chat_unit, grid_unit,
   shove_timber, edit_memo_unit, jotter_unit, data_memo_unit;

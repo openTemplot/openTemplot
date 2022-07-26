@@ -3908,9 +3908,6 @@ procedure reduce_centres_18in(which: integer);     // 218e
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses

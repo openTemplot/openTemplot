@@ -197,9 +197,6 @@ function get_show_margins_info(calc_for_none: boolean): boolean;  // 0.93.a
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 uses
   LCLType, LCLIntf,
   point_ex, control_room, pad_unit,
