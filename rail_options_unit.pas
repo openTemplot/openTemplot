@@ -92,9 +92,6 @@ procedure update_rail_settings;
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 uses
   pad_unit, help_sheet, colour_unit, math_unit, mark_unit;
 

@@ -170,9 +170,6 @@ procedure shove_width_panel_click;
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 uses
   control_room, pad_unit, colour_unit, {grid_unit,} alert_unit, help_sheet, math_unit,
   enter_timber, {bgkeeps_unit,} entry_sheet, mark_unit;
