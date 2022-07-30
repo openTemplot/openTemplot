@@ -705,6 +705,7 @@ uses
   make_slip_unit,
   create_tandem,     // 217a
   curve,
+  curve_parameters_interface,
   rail_data_unit;
 
 {$R *.lfm}
@@ -1052,10 +1053,10 @@ begin
 
       // 211b moved from math_unit gocalc...
 
-      if slewing = True  // warn him this template includes a slew.
-      then begin
+      if controlTemplate.curve.isSlewing then begin
+        // warn him this template includes a slew.
         with info_form do begin
-          if (plain_track = False) or (slew_mode = 2)
+          if (plain_track = False) or (controlTemplate.curve.slewMode = eSM_TanH)
           // min rad info not available for slewed turnouts or any mode 2.
           then begin
             min_rad_box.Hide;
@@ -1123,10 +1124,10 @@ begin
 
 
       snap_to_EGTP_menu_entry.Enabled :=
-        not (plain_track or controlTemplate.curve.isSpiral or slewing or
+        not (plain_track or controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing or
         (egpx > (xorg - minfp_big)));
       snap_to_IGTP_menu_entry.Enabled :=
-        not (plain_track or controlTemplate.curve.isSpiral or slewing or
+        not (plain_track or controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing or
         (igpx > (xorg - minfp_big)));
       crop_approach_menu_entry.Enabled := not (plain_track or (xorg < minfp_big));
       shorten_approach_one_menu_entry.Enabled := not (xorg < minfp_big);
@@ -1144,14 +1145,14 @@ begin
       enable_peg_positions;  // update peg menu settings.
 
       notch_on_radial_centre_menu_entry.Enabled :=
-        (ABS(nomrad) < max_rad_test) and (not controlTemplate.curve.isSpiral);
+        (ABS(controlTemplate.curve.fixedRadius) < max_rad_test) and (not controlTemplate.curve.isSpiral);
       notch_on_1st_radial_centre_menu_entry.Enabled :=
-        (ABS(nomrad1) < max_rad_test) and controlTemplate.curve.isSpiral;
+        (ABS(controlTemplate.curve.transitionRadius1) < max_rad_test) and controlTemplate.curve.isSpiral;
       notch_on_2nd_radial_centre_menu_entry.Enabled :=
-        (ABS(nomrad2) < max_rad_test) and controlTemplate.curve.isSpiral;
+        (ABS(controlTemplate.curve.transitionRadius2) < max_rad_test) and controlTemplate.curve.isSpiral;
 
       make_turnout_road_menu_entry.Enabled :=
-        not (plain_track or controlTemplate.curve.isSpiral or slewing or half_diamond);
+        not (plain_track or controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing or half_diamond);
 
       if keeps_list.Count < 1 then begin
         toggle_bgnd_menu_entry.Enabled := False;
@@ -1162,7 +1163,7 @@ begin
         group_menu.Enabled := True;                              // 0.82.a
       end;
 
-      if slewing = True then begin
+      if controlTemplate.curve.isSlewing then begin
         curving_label_prefix_str := '~';            // 213a
         slew_nudge_menu_entry.Checked := True;
 
@@ -1170,22 +1171,22 @@ begin
         adjust_slew_length_menu_entry.Enabled := True;
         adjust_slew_amount_menu_entry.Enabled := True;
 
-        case slew_mode of
-          1: begin
+        case controlTemplate.curve.slewMode of
+          eSM_Cosine: begin
             slew_mode1_menu_entry.Checked := True;            // radio item.
             adjust_slew2_factor_menu_entry.Enabled := False;
             slewing_panel.Caption :=
               'caution :  template  contains  a  SLEW  ( mode  1 )';
             info_form.slew_caution_mode_label.Caption :=
-              'caution :    this  template  contains  a  SLEW  ( mode  1 )';
+              'caution :    this  template  contains  a  SLEW  ( mode  Cosine )';
           end;
-          2: begin
+          eSM_TanH: begin
             slew_mode2_menu_entry.Checked := True;            // radio item.
             adjust_slew2_factor_menu_entry.Enabled := True;
             slewing_panel.Caption :=
               'caution :  template  contains  a  SLEW  ( mode  2 )';
             info_form.slew_caution_mode_label.Caption :=
-              'caution :    this  template  contains  a  SLEW  ( mode  2 )';
+              'caution :    this  template  contains  a  SLEW  ( mode  TanH )';
           end;
         end;//case
 
@@ -1207,7 +1208,7 @@ begin
         // 213a
       end
       else
-      if ABS(nomrad) < max_rad_test then begin
+      if ABS(controlTemplate.curve.fixedRadius) < max_rad_test then begin
         constant_radius_menu_entry.Checked := True;  // radio item.
         info_form.curving_label.Caption := curving_label_prefix_str + 'co';
       end
@@ -1238,13 +1239,13 @@ begin
       // 217a
 
       swings_in_degs_menu_entry.Enabled :=
-        ((ABS(nomrad) < max_rad_test) or controlTemplate.curve.isSpiral or slewing);
+        ((ABS(controlTemplate.curve.fixedRadius) < max_rad_test) or controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing);
 
       adjust_trans_length_menu_entry.Enabled := controlTemplate.curve.isSpiral;
       // transition mouse actions..
       adjust_trans_start_menu_entry.Enabled := controlTemplate.curve.isSpiral;
 
-      swell_menu_entry.Enabled := not (controlTemplate.curve.isSpiral or slewing);
+      swell_menu_entry.Enabled := not (controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing);
       // no swell mouse action for transition curves or slews.
 
       if plain_track = True then begin

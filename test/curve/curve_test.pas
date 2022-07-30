@@ -87,7 +87,7 @@ begin
   // Then that point is on a straight line
   //
 
-  curve.nominalRadius := max_rad_limit;
+  curve.fixedRadius := max_rad_limit;
   curve.isSpiral := False;
 
   distance := 0;
@@ -126,7 +126,7 @@ begin
   //
   // Then that point is a distance of 5m from (0, 5)
   //
-  curve.nominalRadius := testRadius;
+  curve.fixedRadius := testRadius;
   curve.isSpiral := False;
 
   circleOrigin.set_xy(0, testRadius);
@@ -171,7 +171,7 @@ begin
   //
   // Then that point is a distance of 8m from (0, -8)
   //
-  curve.nominalRadius := testRadius;
+  curve.fixedRadius := testRadius;
   curve.isSpiral := False;
 
   circleOrigin.set_xy(0, testRadius);
@@ -213,8 +213,8 @@ var
   curvature1: double;
   curvature2: double;
 begin
-  curve.nominalRadius := r1;
-  curve.nominalRadius2 := r2;
+  curve.transitionRadius1 := r1;
+  curve.transitionRadius2 := r2;
   curve.transitionLength := transitionLength;
   curve.distanceToTransition := initialLength;
   curve.isSpiral := True;
@@ -436,7 +436,7 @@ begin
 
   curve.isSlewing := True;
   curve.isSpiral := False;
-  curve.nominalRadius := max_rad;
+  curve.fixedRadius := max_rad;
 
   curve.CalculateCurveAt(0, pt, direction, radius);
 
@@ -455,8 +455,9 @@ begin
 
   curve.isSpiral := True;
   curve.isSlewing := True;
-  curve.nominalRadius := 3456;
-  curve.nominalRadius2 := 7890;
+  curve.fixedRadius := max_rad;
+  curve.transitionRadius1 := 3456;
+  curve.transitionRadius2 := 7890;
   curve.distanceToTransition := 123;
   curve.transitionLength := 234;
   curve.distanceToStartOfSlew := 333;
@@ -471,8 +472,9 @@ begin
 
     CheckEquals(curve.isSpiral, curve2.isSpiral, 'isSpiral');
     CheckEquals(curve.isSlewing, curve2.isSlewing, 'isSlewing');
-    CheckEquals(curve.nominalRadius, curve2.nominalRadius, 'nominalRadius');
-    CheckEquals(curve.nominalRadius2, curve2.nominalRadius2, 'nominalRadius2');
+    CheckEquals(curve.fixedRadius, curve2.fixedRadius, 'fixedRadius');
+    CheckEquals(curve.transitionRadius1, curve2.transitionRadius1, 'transitionRadius1');
+    CheckEquals(curve.transitionRadius2, curve2.transitionRadius2, 'transitionRadius2');
     CheckEquals(curve.distanceToTransition, curve2.distanceToTransition, 'distanceToTransition');
     CheckEquals(curve.transitionLength, curve2.transitionLength, 'transitionLength');
     CheckEquals(curve.distanceToStartOfSlew, curve2.distanceToStartOfSlew, 'distanceToStartOfSlew');

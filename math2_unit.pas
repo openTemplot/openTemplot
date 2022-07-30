@@ -414,7 +414,7 @@ begin
     EXIT;
   end;
 
-  if slewing = True then begin
+  if controlTemplate.curve.isSlewing then begin
     Result := 0 - 6;
     EXIT;
   end;
@@ -436,7 +436,7 @@ begin
 
       x1 := rad1_orgx;
       y1 := rad1_orgy;
-      r1 := ABS(nomrad) + control_rail_offset * g / 2;
+      r1 := ABS(controlTemplate.curve.fixedRadius) + control_rail_offset * g / 2;
 
       // now get the background template, and repeat...
 
@@ -457,14 +457,14 @@ begin
         EXIT;
       end;
 
-      if slewing = True then begin
+      if controlTemplate.curve.isSlewing then begin
         Result := 0 - 6;
         EXIT;
       end;
 
       x2 := rad1_orgx;
       y2 := rad1_orgy;
-      r2 := ABS(nomrad) + bgnd_rail_offset * g / 2;
+      r2 := ABS(controlTemplate.curve.fixedRadius) + bgnd_rail_offset * g / 2;
       // (bgnd template may be n.g. but is now the control)
 
       Result := get_circle_intersections(x1, y1, r1, x2, y2, r2, xi, yi, k1_i,
@@ -1159,7 +1159,7 @@ begin
     EXIT;
   end;
 
-  if slewing = True then begin
+  if controlTemplate.curve.isSlewing then begin
     if alert(6, 'php/110    make  diamond - crossing  at  intersection',
       'Sorry, this function is not available because the control template contains a slew.' +
       '||If the intersection is not within the slewing zone, try again after using the `0TOOLS > MAKE SPLIT >`1 menu options accordingly.' + '||If the intersection is within the slewing zone, you may be able to perform this operation manually by moving the fixing peg along the track (`0CTRL+F8`2 mouse action).', '', '', '', 'more  information', 'cancel', '', 4) = 4 then
@@ -1696,16 +1696,16 @@ begin
           startx := 0;     // cancel any blanking
 
           if controlTemplate.curve.isSpiral then begin
-            if turnoutx < os then begin
-              arc_rad := ABS(nomrad1);
+            if turnoutx < controlTemplate.curve.distanceToTransition then begin
+              arc_rad := ABS(controlTemplate.curve.transitionRadius1);
             end
             else
-            if turnoutx > (os + tst) then begin
-              arc_rad := ABS(nomrad2);
+            if turnoutx > (controlTemplate.curve.distanceToTransition + controlTemplate.curve.transitionLength) then begin
+              arc_rad := ABS(controlTemplate.curve.transitionRadius2);
             end
             else begin   // move boundary out of transition zone
 
-              turnoutx := os + tst + g / 10;    // g/10 arbitrary
+              turnoutx := controlTemplate.curve.distanceToTransition + controlTemplate.curve.transitionLength + g / 10;    // g/10 arbitrary
 
               if plain_track = True then
                 xorg := turnoutx;
@@ -1718,7 +1718,7 @@ begin
             end;
           end
           else begin
-            arc_rad := ABS(nomrad);
+            arc_rad := ABS(controlTemplate.curve.fixedRadius);
           end;
 
         until arc_rad <> 0;

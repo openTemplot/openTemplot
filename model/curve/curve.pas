@@ -38,8 +38,9 @@ type
   TCurve = class(ICurveParameters)
   private
     FModified: boolean;
-    FNominalRadius: double;
-    FNominalRadius2: double;
+    FFixedRadius: double;
+    FTransitionRadius1: double;
+    FTransitionRadius2: double;
     FDistanceToTransition: double;
     FTransitionLength: double;
     FIsSpiral: boolean;
@@ -55,14 +56,16 @@ type
 
     procedure UpdateIfModified;
     procedure CreateCurveCalculator;
-    procedure SetNominalRadius(const newRadius: double);
-    procedure SetNominalRadius2(const newRadius: double);
+    procedure SetFixedRadius(const newRadius: double);
+    procedure SetTransitionRadius1(const newRadius: double);
+    procedure SetTransitionRadius2(const newRadius: double);
     procedure SetDistanceToTransition(const newDistance: double);
     procedure SetTransitionLength(const newLength: double);
     procedure SetIsSpiral(const newIsSpiral: boolean);
     function GetIsSpiral: boolean;
-    function GetNominalRadius: double;
-    function GetNominalRadius2: double;
+    function GetFixedRadius: double;
+    function GetTransitionRadius1: double;
+    function GetTransitionRadius2: double;
     function GetDistanceToTransition: double;
     function GetTransitionLength: double;
     function GetIsSlewing: boolean;
@@ -84,8 +87,9 @@ type
   public
     constructor Create;
 
-    property nominalRadius: double Read GetNominalRadius Write SetNominalRadius;
-    property nominalRadius2: double Read GetNominalRadius2 Write SetNominalRadius2;
+    property fixedRadius: double Read GetFixedRadius Write SetFixedRadius;
+    property transitionRadius1: double Read GetTransitionRadius1 Write SetTransitionRadius1;
+    property transitionRadius2: double Read GetTransitionRadius2 Write SetTransitionRadius2;
     property distanceToTransition: double Read GetDistanceToTransition
       Write SetDistanceToTransition;
     property transitionLength: double Read GetTransitionLength Write SetTransitionLength;
@@ -118,8 +122,9 @@ constructor TCurve.Create;
 begin
   // default is straight line
   FModified := True;
-  FNominalRadius := max_rad;
-  FNominalRadius2 := max_rad;
+  FFixedRadius := max_rad;
+  FTransitionRadius1 := max_rad;
+  FTransitionRadius2 := max_rad;
   FDistanceToTransition := 0;
   FTransitionLength := 100;
   FIsSpiral := False;
@@ -127,8 +132,9 @@ end;
 
 procedure TCurve.CopyFrom(from: TCurve);
 begin
-  FNominalRadius := from.nominalRadius;
-  FNominalRadius2 := from.nominalRadius2;
+  FFixedRadius := from.fixedRadius;
+  FTransitionRadius1 := from.transitionRadius1;
+  FTransitionRadius2 := from.transitionRadius2;
   FDistanceToTransition := from.distanceToTransition;
   FTransitionLength := from.transitionLength;
   FIsSpiral := from.isSpiral;
@@ -143,19 +149,27 @@ begin
   FModified := true;
 end;
 
-procedure TCurve.SetNominalRadius(const newRadius: double);
+procedure TCurve.SetFixedRadius(const newRadius: double);
 begin
-  if (newRadius <> FNominalRadius) then begin
+  if (newRadius <> FFixedRadius) then begin
     FModified := True;
-    FNominalRadius := newRadius;
+    FFixedRadius := newRadius;
   end;
 end;
 
-procedure TCurve.SetNominalRadius2(const newRadius: double);
+procedure TCurve.SetTransitionRadius1(const newRadius: double);
 begin
-  if (newRadius <> FNominalRadius2) then begin
+  if (newRadius <> FTransitionRadius1) then begin
     FModified := True;
-    FNominalRadius2 := newRadius;
+    FTransitionRadius1 := newRadius;
+  end;
+end;
+
+procedure TCurve.SetTransitionRadius2(const newRadius: double);
+begin
+  if (newRadius <> FTransitionRadius2) then begin
+    FModified := True;
+    FTransitionRadius2 := newRadius;
   end;
 end;
 
@@ -219,14 +233,19 @@ begin
   Result := FIsSpiral;
 end;
 
-function TCurve.GetNominalRadius: double;
+function TCurve.GetFixedRadius: double;
 begin
-  Result := FNominalRadius;
+  Result := FFixedRadius;
 end;
 
-function TCurve.GetNominalRadius2: double;
+function TCurve.GetTransitionRadius1: double;
 begin
-  Result := FNominalRadius2;
+  Result := FTransitionRadius1;
+end;
+
+function TCurve.GetTransitionRadius2: double;
+begin
+  Result := FTransitionRadius2;
 end;
 
 function TCurve.GetDistanceToTransition: double;

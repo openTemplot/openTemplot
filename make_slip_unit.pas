@@ -218,7 +218,7 @@ begin
     EXIT;
   end;
 
-  if slewing = True then begin
+  if controlTemplate.curve.isSlewing then begin
     alert(6, '    make  slip  -  slewed  track',
       'Sorry, this function is not available because the control template contains a slew.'
       + '||A slip could be created manually, but it is generally unwise to create a slip if any part of it will be within a slewing zone.' + '||The slewing function is intended primarily for plain track.',
@@ -309,7 +309,7 @@ begin
     gocalc(0, 0);
 
     if controlTemplate.curve.isSpiral then begin
-      if (os > fpx) or ((os + tst) < (toex - (fpx - toex)))
+      if (controlTemplate.curve.distanceToTransition > fpx) or ((controlTemplate.curve.distanceToTransition + controlTemplate.curve.transitionLength) < (toex - (fpx - toex)))
       // allow for other half_diamond to be created
       then begin
         spiral_safe := True;              // slip section not in transition zone
@@ -447,7 +447,7 @@ begin
       switch_mid_rad1 := clrad_at_x(mcpx - switch_mid_mm)
     // back from MCP-1 to middle of switch location
     else
-      switch_mid_rad1 := nomrad;
+      switch_mid_rad1 := controlTemplate.curve.fixedRadius;
 
     if make_diamond_crossing = False      // make the underlying diamond
     then begin
@@ -463,7 +463,7 @@ begin
       switch_mid_rad2 := clrad_at_x(mcpx - switch_mid_mm)
     // back from MCP-2 to middle of switch location
     else
-      switch_mid_rad2 := nomrad;
+      switch_mid_rad2 := controlTemplate.curve.fixedRadius;
 
     first_hd_index := keeps_list.Count - 1;
 
@@ -529,7 +529,7 @@ begin
     // no transitions from now on ...
 
     controlTemplate.curve.isSpiral := False;
-    nomrad := switch_mid_rad2;
+    controlTemplate.curve.fixedRadius := switch_mid_rad2;
 
     gocalc(0, 0);
 
@@ -645,7 +645,7 @@ begin
       second_hd_index := keeps_list.Count - 1;   // stored again, update index
 
       normalize_transforms;
-      docurving(True, True, nom_sw_len * (nomrad - g / 2) / nomrad, 0,
+      docurving(True, True, nom_sw_len * (controlTemplate.curve.fixedRadius - g / 2) / controlTemplate.curve.fixedRadius, 0,
         sw_heel_pegx_on_pad, sw_heel_pegy_on_pad, dummy1, dummy2);
 
       x3 := sw_heel_pegx_on_pad;
@@ -656,7 +656,7 @@ begin
       if temp1 > minfp then begin
         rot_move := ABS(SQRT(temp1));  // distance to move by rotation
 
-        rot_k := 0 - rot_move * hand_i / (nom_sw_len * nomrad / (nomrad - g / 2));
+        rot_k := 0 - rot_move * hand_i / (nom_sw_len * controlTemplate.curve.fixedRadius / (controlTemplate.curve.fixedRadius - g / 2));
 
         rotate_turnout(rot_k, False);
 
@@ -665,7 +665,7 @@ begin
         // check rotated in correct direction ...
 
         normalize_transforms;
-        docurving(True, True, nom_sw_len * (nomrad - g / 2) / nomrad,
+        docurving(True, True, nom_sw_len * (controlTemplate.curve.fixedRadius - g / 2) / controlTemplate.curve.fixedRadius,
           0, sw_heel_pegx_on_pad, sw_heel_pegy_on_pad, dummy1, dummy2);
 
         x3 := sw_heel_pegx_on_pad;
@@ -713,7 +713,7 @@ begin
 
     gocalc(0, 0);
 
-    nomrad := switch_mid_rad1;
+    controlTemplate.curve.fixedRadius := switch_mid_rad1;
 
     clicked_keep_index := first_hd_index;       // onto the first-stored half_diamond at TCP
 
@@ -777,7 +777,7 @@ begin
     first_hd_index := keeps_list.Count - 1;   // stored again, update index
 
     normalize_transforms;
-    docurving(True, True, nom_sw_len * (nomrad - g / 2) / nomrad, 0, sw_heel_pegx_on_pad,
+    docurving(True, True, nom_sw_len * (controlTemplate.curve.fixedRadius - g / 2) / controlTemplate.curve.fixedRadius, 0, sw_heel_pegx_on_pad,
       sw_heel_pegy_on_pad, dummy1, dummy2);
 
     x3 := sw_heel_pegx_on_pad;
@@ -788,7 +788,7 @@ begin
     if temp1 > minfp then begin
       rot_move := ABS(SQRT(temp1));  // distance to move by rotation
 
-      rot_k := 0 - rot_move * hand_i / (nom_sw_len * nomrad / (nomrad - g / 2));
+      rot_k := 0 - rot_move * hand_i / (nom_sw_len * controlTemplate.curve.fixedRadius / (controlTemplate.curve.fixedRadius - g / 2));
 
       rotate_turnout(rot_k, False);
 
@@ -797,7 +797,7 @@ begin
       // check rotated in correct direction ...
 
       normalize_transforms;
-      docurving(True, True, nom_sw_len * (nomrad - g / 2) / nomrad, 0,
+      docurving(True, True, nom_sw_len * (controlTemplate.curve.fixedRadius - g / 2) / controlTemplate.curve.fixedRadius, 0,
         sw_heel_pegx_on_pad, sw_heel_pegy_on_pad, dummy1, dummy2);
 
       x3 := sw_heel_pegx_on_pad;
@@ -895,7 +895,7 @@ begin
 
     // try both +ve and -ve rads to see which fits ...
 
-    nomrad := slip_rad;      // first +ve
+    controlTemplate.curve.fixedRadius := slip_rad;      // first +ve
 
     gocalc(0, 0);
 
@@ -909,7 +909,7 @@ begin
     offset_pos_sq := SQR(x3 - x1) + SQR(y3 - y1);
 
 
-    nomrad := 0 - slip_rad;      // -ve
+    controlTemplate.curve.fixedRadius := 0 - slip_rad;      // -ve
 
     gocalc(0, 0);
 
@@ -924,18 +924,18 @@ begin
 
     if offset_pos_sq < offset_neg_sq       // use smallest
     then
-      nomrad := slip_rad;
+      controlTemplate.curve.fixedRadius := slip_rad;
 
     gocalc(0, 0);
 
     if doing_2nd_side = True
     // get rads for end report
     then
-      slip_rad2_str := '||        ' + round_str(ABS(nomrad), 0) + ' mm   ( ' +
-        round_str(ABS(nomrad) / 25.4, 1) + '" )'
+      slip_rad2_str := '||        ' + round_str(ABS(controlTemplate.curve.fixedRadius), 0) + ' mm   ( ' +
+        round_str(ABS(controlTemplate.curve.fixedRadius) / 25.4, 1) + '" )'
     else
-      slip_rad1_str := '||        ' + round_str(ABS(nomrad), 0) + ' mm   ( ' + round_str(
-        ABS(nomrad) / 25.4, 1) + '" )';
+      slip_rad1_str := '||        ' + round_str(ABS(controlTemplate.curve.fixedRadius), 0) + ' mm   ( ' + round_str(
+        ABS(controlTemplate.curve.fixedRadius) / 25.4, 1) + '" )';
 
     store_and_background(False, False);    // slip road stored
 

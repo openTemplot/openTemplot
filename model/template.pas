@@ -12,7 +12,8 @@ uses
   shoved_timber,
   mark_unit,
   rail_data_unit,
-  curve;
+  curve,
+  curve_parameters_interface;
 
 
 const
@@ -499,6 +500,10 @@ type
     spare_float3: double;
 
     spare_int: integer;
+
+
+    function ByteToSlewMode(b: Byte): ESlewMode;
+    function SlewModeToByte(sm: ESlewMode): Byte;
 
   end;//record
 
@@ -1240,6 +1245,27 @@ type
 
 
 implementation
+
+
+function Talignment_info.ByteToSlewMode(b: Byte): ESlewMode;
+begin
+  case b of
+  1: Result := eSM_Cosine;
+  2: Result := eSM_TanH;
+  else
+    Result := eSM_Cosine;  // why not?
+  end;
+end;
+
+function Talignment_info.SlewModeToByte(sm: ESlewMode): Byte;
+begin
+  case sm of
+  eSM_Cosine: Result := 1;
+  eSM_TanH: Result := 2;
+  else
+    Result := 1;
+  end;
+end;
 
 constructor TTemplate.Create(AName: String);
 begin
