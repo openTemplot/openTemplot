@@ -84,8 +84,6 @@ uses
   make_slip_unit;
 
 
-{$BOOLEVAL ON}
-
 {$R *.lfm}
 
 { OT-FIRST

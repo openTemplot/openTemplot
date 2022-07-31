@@ -63,9 +63,6 @@ function timb_num_strip(in_str: string): string;
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses control_room, pad_unit, math_unit, shove_timber, alert_unit,

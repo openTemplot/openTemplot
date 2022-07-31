@@ -69,8 +69,6 @@ function make_slip(sides: integer; making_crossover: boolean): boolean;  // 215a
 
 implementation
 
-{$BOOLEVAL ON}
-
 {$R *.lfm}
 
 uses

@@ -65,9 +65,6 @@ function get_font(str: string; fon: TFont; more_colours: boolean): TFont;   //  
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses

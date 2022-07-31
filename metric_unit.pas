@@ -115,9 +115,6 @@ procedure restore_metric_formsize_as_previous(previous_position: integer);
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses

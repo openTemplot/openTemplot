@@ -101,9 +101,6 @@ function quick_set_radius(var radius: double): boolean;
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 uses
   config_unit,
   pad_unit, colour_unit, help_sheet, math_unit, control_room, styleun;

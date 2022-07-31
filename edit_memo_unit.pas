@@ -63,9 +63,6 @@ var
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 uses
   control_room, keep_select, colour_unit, math_unit, info_unit;
 

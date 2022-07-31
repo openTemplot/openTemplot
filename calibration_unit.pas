@@ -105,9 +105,6 @@ function get_prindex(var index: integer): boolean;          // return current pr
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses

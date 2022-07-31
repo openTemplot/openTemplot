@@ -180,9 +180,6 @@ procedure get_custom_input_factors;
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses

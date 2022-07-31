@@ -172,9 +172,6 @@ function alert_no_group: boolean;    // return False if any get selected.
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 //  this unit is a replacement for the GFA ALERT box.

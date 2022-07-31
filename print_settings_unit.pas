@@ -161,9 +161,6 @@ procedure delete_fb_kludge_templates;
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses control_room, pad_unit, math_unit, keep_select, help_sheet, shove_timber, wait_message,

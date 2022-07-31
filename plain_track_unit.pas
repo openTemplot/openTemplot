@@ -79,9 +79,6 @@ procedure plain_track_spacings_click;   // show form and get data.
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses pad_unit, alert_unit, control_room, entry_sheet, colour_unit, help_sheet, chat_unit,

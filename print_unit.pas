@@ -167,9 +167,6 @@ function calc_intensity(colour: integer): integer;
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses

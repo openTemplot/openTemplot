@@ -200,9 +200,6 @@ function parse_text_for_newline(var full_string, next_string: string): boolean; 
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses

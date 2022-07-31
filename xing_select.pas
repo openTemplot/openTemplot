@@ -107,9 +107,6 @@ procedure get_xing(var xing_k_i: integer; var xing_list_i: integer;
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses pad_unit, math_unit, control_room, colour_unit, help_sheet, alert_unit;

@@ -194,9 +194,6 @@ procedure outline_in_red(sheet_down, sheet_across: integer);  //  draw next page
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses Printers, control_room, grid_unit, alert_unit, math_unit, calibration_unit,

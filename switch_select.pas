@@ -112,8 +112,6 @@ function set_csi_data(sw_group, sw_size: integer): boolean;
 
 implementation
 
-{$BOOLEVAL ON}
-
 {$R *.lfm}
 
 uses pad_unit, control_room, entry_sheet, colour_unit, alert_unit, help_sheet, chat_unit,

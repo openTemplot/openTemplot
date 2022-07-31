@@ -500,9 +500,6 @@ function create_picture_shape_image_from_file(image_file_str: string;
 
 implementation
 
-{$BOOLEVAL ON}
-
-
 {$R *.lfm}
 
 uses

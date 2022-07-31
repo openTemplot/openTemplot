@@ -126,8 +126,6 @@ procedure cancel_platforms;   // called by make tools
 
 implementation
 
-{$BOOLEVAL ON}
-
 uses
   control_room, pad_unit, help_sheet, colour_unit, math_unit, entry_sheet, alert_unit;
 
