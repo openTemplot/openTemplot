@@ -1697,11 +1697,11 @@ begin
 
           if controlTemplate.curve.isSpiral then begin
             if turnoutx < controlTemplate.curve.distanceToTransition then begin
-              arc_rad := ABS(controlTemplate.curve.transitionRadius1);
+              arc_rad := ABS(controlTemplate.curve.transitionStartRadius);
             end
             else
             if turnoutx > (controlTemplate.curve.distanceToTransition + controlTemplate.curve.transitionLength) then begin
-              arc_rad := ABS(controlTemplate.curve.transitionRadius2);
+              arc_rad := ABS(controlTemplate.curve.transitionEndRadius);
             end
             else begin   // move boundary out of transition zone
 

@@ -4243,7 +4243,7 @@ begin
     mouse_str := 'F6  curving';
 
   if controlTemplate.curve.isSpiral then
-    trail_str := captext(controlTemplate.curve.transitionRadius1) + ' mm  /  ' + captext(controlTemplate.curve.transitionRadius2) + ' mm'
+    trail_str := captext(controlTemplate.curve.transitionStartRadius) + ' mm  /  ' + captext(controlTemplate.curve.transitionEndRadius) + ' mm'
   else
     trail_str := captext(nomrad) + ' mm';
 
@@ -4272,7 +4272,7 @@ begin
   cancel_adjusts(True);
 
   if controlTemplate.curve.isSpiral then
-    trail_str := captext(controlTemplate.curve.transitionRadius1) + ' mm  /  ' + captext(controlTemplate.curve.transitionRadius2) + ' mm'
+    trail_str := captext(controlTemplate.curve.transitionStartRadius) + ' mm  /  ' + captext(controlTemplate.curve.transitionEndRadius) + ' mm'
   else
     trail_str := captext(nomrad) + ' mm';
 
@@ -7469,10 +7469,10 @@ begin
     else begin    // transition curving...
       repeat
         n := putdim(transgo_help_str, 1, '1st  ( initial )  radius  at  the  track  centre-line',
-          controlTemplate.curve.transitionRadius1, False, False, True, False);
+          controlTemplate.curve.transitionStartRadius, False, False, True, False);
         // neg ok, preset OK, 0 not allowed, don't terminate on zero.
         n := putdim(transgo_help_str, 1, '2nd  ( final )  radius  at  the  track  centre-line',
-          controlTemplate.curve.transitionRadius2, False, False, True, False);   // neg ok, preset OK, 0 not allowed.
+          controlTemplate.curve.transitionEndRadius, False, False, True, False);   // neg ok, preset OK, 0 not allowed.
         n := putdim(transgo_help_str, 1, 'length  along  1st  ( initial )  radius',
           controlTemplate.curve.distanceToTransition, False, False, False, False);         // neg ok, preset OK, 0 OK.
         n := putdim(transgo_help_str, 1, 'length  along  transition  zone',
@@ -7516,8 +7516,8 @@ begin
 
             if ABS(od[0] * od[1] * od[3] / temp) < max_spiral_constant then
             begin                    //  ok, change settings.
-              controlTemplate.curve.transitionRadius1 := od[0];
-              controlTemplate.curve.transitionRadius2 := od[1];
+              controlTemplate.curve.transitionStartRadius := od[0];
+              controlTemplate.curve.transitionEndRadius := od[1];
               controlTemplate.curve.distanceToTransition := od[2];
               controlTemplate.curve.transitionLength := ABS(od[3]);
               //  transition length cannot be negative.
@@ -17541,11 +17541,11 @@ begin
   docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
   // save current peg data for peg_curve calcs.
 
-  clrad2 := controlTemplate.curve.transitionRadius1{+ycurv};         // new centre-line 1st radius.
-  clrad1 := controlTemplate.curve.transitionRadius2{+ycurv};         // new centre-line 2nd radius.
+  clrad2 := controlTemplate.curve.transitionStartRadius{+ycurv};         // new centre-line 1st radius.
+  clrad1 := controlTemplate.curve.transitionEndRadius{+ycurv};         // new centre-line 2nd radius.
 
-  controlTemplate.curve.transitionRadius2 := clrad2{-ycurv};
-  controlTemplate.curve.transitionRadius1 := clrad1{-ycurv};
+  controlTemplate.curve.transitionEndRadius := clrad2{-ycurv};
+  controlTemplate.curve.transitionStartRadius := clrad1{-ycurv};
 
   peg_curve;
   redraw(True);

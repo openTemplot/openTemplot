@@ -83,13 +83,13 @@ begin
 
     if ACurveParameters.distanceToTransition > 0 then begin
       // do something about initial radius
-      if (Abs(ACurveParameters.transitionRadius1) > max_rad_test) then begin
+      if (Abs(ACurveParameters.transitionStartRadius) > max_rad_test) then begin
         FSegments.Add(TStraightSegment.Create(ACurveParameters.distanceToTransition, Tpex.xy(0, 0),
           Tpex.xy(1, 0)));
       end
       else begin
         FSegments.Add(TCircleSegment.Create(ACurveParameters.distanceToTransition, Tpex.xy(0, 0),
-          Tpex.xy(1, 0), ACurveParameters.transitionRadius1));
+          Tpex.xy(1, 0), ACurveParameters.transitionStartRadius));
       end;
       FSegments.Items[0].CalculateCurveAt(ACurveParameters.distanceToTransition, transitionStartPoint,
         transitionStartDirection, radius);
@@ -100,18 +100,18 @@ begin
     end;
 
     FSegments.Add(TTransitionSegment.Create(ACurveParameters.transitionLength, transitionStartPoint,
-      transitionStartDirection, ACurveParameters.transitionRadius1, ACurveParameters.transitionRadius2));
+      transitionStartDirection, ACurveParameters.transitionStartRadius, ACurveParameters.transitionEndRadius));
 
     FSegments.Items[FSegments.Count - 1].CalculateCurveAt(ACurveParameters.transitionLength,
       transitionEndPoint, transitionEndDirection, radius);
 
-    if (Abs(ACurveParameters.transitionRadius2) > max_rad_test) then begin
+    if (Abs(ACurveParameters.transitionEndRadius) > max_rad_test) then begin
       FSegments.Add(TStraightSegment.Create(maximum_segment_length,
         transitionEndPoint, transitionEndDirection));
     end
     else begin
       FSegments.Add(TCircleSegment.Create(maximum_segment_length,
-        transitionEndPoint, transitionEndDirection, ACurveParameters.transitionRadius2));
+        transitionEndPoint, transitionEndDirection, ACurveParameters.transitionEndRadius));
     end;
   end;
 end;

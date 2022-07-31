@@ -16,8 +16,8 @@ type
 
     function GetIsSpiral: boolean;
     function GetFixedRadius: double;
-    function GetTransitionRadius1: double;
-    function GetTransitionRadius2: double;
+    function GetTransitionStartRadius: double;
+    function GetTransitionEndRadius: double;
     function GetDistanceToTransition: double;
     function GetTransitionLength: double;
     function GetIsSlewing: boolean;
@@ -29,8 +29,8 @@ type
 
     property isSpiral: boolean Read GetIsSpiral;
     property fixedRadius: double Read GetFixedRadius;
-    property transitionRadius1: double Read GetTransitionRadius1;
-    property transitionRadius2: double Read GetTransitionRadius2;
+    property transitionStartRadius: double Read GetTransitionStartRadius;
+    property transitionEndRadius: double Read GetTransitionEndRadius;
     property distanceToTransition: double Read GetDistanceToTransition;
     property transitionLength: double Read GetTransitionLength;
 
