@@ -287,7 +287,7 @@ begin
   distanceToStartOfSlew := 100;
   slewLength := 100;
   slewAmount := 10;
-  slewMode := eSM_Cosine;
+  slewMode := smCosine;
 
   do_test_slew_cosine;
 end;
@@ -301,7 +301,7 @@ begin
   distanceToStartOfSlew := 50;
   slewLength := 100;
   slewAmount := -20;
-  slewMode := eSM_Cosine;
+  slewMode := smCosine;
 
   do_test_slew_cosine;
 end;
@@ -315,7 +315,7 @@ begin
   distanceToStartOfSlew := 100;
   slewLength := 100;
   slewAmount := 10;
-  slewMode := eSM_TanH;
+  slewMode := smTanH;
   slewFactor := 1;
 
   do_test_slew_tanh;

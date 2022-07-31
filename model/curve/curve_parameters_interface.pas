@@ -8,7 +8,7 @@ uses
   Classes, SysUtils;
 
 type
-  ESlewMode = (eSM_Cosine, eSM_TanH);
+  ESlewMode = (smCosine, smTanH);
 
   {$interfaces corba}
   ICurveParameters = interface

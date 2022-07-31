@@ -7592,7 +7592,7 @@ begin
   docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
   // save current peg data for peg_curve calcs.
 
-  if controlTemplate.curve.slewMode = eSM_Cosine then
+  if controlTemplate.curve.slewMode = smCosine then
     slew_factor_value := 0                  // mode 1
   else
     slew_factor_value := controlTemplate.curve.slewFactor * 50;     // mode 2
@@ -7620,9 +7620,9 @@ begin
     controlTemplate.curve.slewAmount := od[2];
 
     if od[3] = 0 then
-      controlTemplate.curve.slewMode := eSM_Cosine       // change to mode 1.
+      controlTemplate.curve.slewMode := smCosine       // change to mode 1.
     else begin
-      controlTemplate.curve.slewMode := eSM_TanH;                               // change to mode 2.
+      controlTemplate.curve.slewMode := smTanH;                               // change to mode 2.
       if od[3] = def_req then
         controlTemplate.curve.slewFactor := 2         // default factor.
       else
@@ -7636,7 +7636,7 @@ begin
     controlTemplate.curve.distanceToStartOfSlew := 0;
   if controlTemplate.curve.slewLength = def_req then begin
     case controlTemplate.curve.slewMode of
-      eSM_Cosine: begin
+      smCosine: begin
         temp := 500 * scale * ABS(controlTemplate.curve.slewAmount) * SQR(Pi) / 2;
         // set default length for 500ft scale slewing rads.
         if temp > minfp then
@@ -7644,7 +7644,7 @@ begin
         else
           controlTemplate.curve.slewLength := 600;          // ???  600 mm otherwise.
       end;
-      eSM_TanH:
+      smTanH:
         controlTemplate.curve.slewLength := ABS(controlTemplate.curve.slewAmount) * 10;                      // arbitrary.
     end;//case
   end;
@@ -16410,14 +16410,14 @@ end;
 procedure Tpad_form.slew_mode1_menu_entryClick(Sender: TObject);
 
 begin
-  enable_slewing(eSM_Cosine, True);
+  enable_slewing(smCosine, True);
 end;
 //_______________________________________________________________________________________
 
 procedure Tpad_form.slew_mode2_menu_entryClick(Sender: TObject);
 
 begin
-  enable_slewing(eSM_TanH, True);
+  enable_slewing(smTanH, True);
 end;
 //________________________________________________________________________________________
 

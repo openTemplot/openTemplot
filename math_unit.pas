@@ -5875,7 +5875,7 @@ begin
         Add('amount of slew = ' + round_str(controlTemplate.curve.slewAmount, 2));
         Add('');
 
-        if controlTemplate.curve.slewMode = eSM_Cosine then begin
+        if controlTemplate.curve.slewMode = smCosine then begin
           if ABS(controlTemplate.curve.slewAmount) > minfp then
             slew_rad := 2 * SQR(controlTemplate.curve.slewLength) / controlTemplate.curve.slewAmount / SQR(Pi)
           // (sign of rad is for start end of slew, slew amount is +ve towards the hand).
@@ -9923,14 +9923,14 @@ begin
   try
     case controlTemplate.curve.slewMode of
 
-      eSM_Cosine: begin                         // COS curve method.
+      smCosine: begin                         // COS curve method.
         theta := x * Pi / slew_length;
         // theta is a dummy angle - runs from 0 to pi in the slewing zone.
         y := (1 - COS(theta)) * slew / 2;
         // track follows stretched cosine curve, COS(theta) runs from +1 to -1 in the slewing zone.
       end;
 
-      eSM_TanH: begin         // rotated TANH curve method.
+      smTanH: begin         // rotated TANH curve method.
 
         temp := slew2_ymax - slew2_ymin;
         if ABS(temp) < minfp then begin
@@ -10420,7 +10420,7 @@ begin
     end;
     slew_t := slew_angle;       //  slewing angle is same for straight track.
 
-    if controlTemplate.curve.slewMode = eSM_TanH then begin      // calc constants once only...
+    if controlTemplate.curve.slewMode = smTanH then begin      // calc constants once only...
 
       if controlTemplate.curve.slewFactor < 0.02 then
         controlTemplate.curve.slewFactor := 0.02;         // safety.
@@ -30513,15 +30513,15 @@ begin
   with pad_form do begin
 
     case mode of
-      eSM_Cosine: begin
+      smCosine: begin
         slew_mode1_menu_entry.Checked := True;   // radio item.
-        controlTemplate.curve.slewMode := eSM_Cosine;
+        controlTemplate.curve.slewMode := smCosine;
         adjust_slew2_factor_menu_entry.Enabled := False;
       end;
 
-      eSM_TanH: begin
+      smTanH: begin
         slew_mode2_menu_entry.Checked := True;   // radio item.
-        controlTemplate.curve.slewMode := eSM_TanH;
+        controlTemplate.curve.slewMode := smTanH;
         adjust_slew2_factor_menu_entry.Enabled := True;
       end;
 
@@ -30534,7 +30534,7 @@ begin
     info_form.slew_caution_mode_label.Caption :=
       'caution :    this  template  contains  a  SLEW  ( mode  ' + IntToStr(Ord(controlTemplate.curve.slewMode)) + ' )';
 
-    if (plain_track = False) or (controlTemplate.curve.slewMode = eSM_TanH)
+    if (plain_track = False) or (controlTemplate.curve.slewMode = smTanH)
     // min rad info not available for slewed turnouts or any mode 2.
     then begin
       with info_form do begin

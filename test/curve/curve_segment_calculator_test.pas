@@ -145,7 +145,7 @@ end;
 
 function TTestCurveSegmentCalculator.GetSlewMode: ESlewMode;
 begin
-  Result := eSM_Cosine;
+  Result := smCosine;
 end;
 
 function TTestCurveSegmentCalculator.GetSlewFactor: double;

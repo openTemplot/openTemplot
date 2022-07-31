@@ -464,7 +464,7 @@ begin
   curve.slewAmount := 23;
   curve.slewLength := 145;
   curve.slewFactor := 1.5;
-  curve.slewMode := eSM_TanH;
+  curve.slewMode := smTanH;
 
   curve2 := TCurve.Create;
   try

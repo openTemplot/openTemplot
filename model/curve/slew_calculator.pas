@@ -73,7 +73,7 @@ begin
   FSlewMode := ACurve.slewMode;
   FSlewFactor := ACurve.slewFactor;
 
-  if FSlewMode = eSM_Tanh then begin
+  if FSlewMode = smTanH then begin
     y := tanh(FSlewFactor);
     yDash := 1 - sqr(tanh(FSlewFactor));
     rotation := Tpex.xy(1, yDash).normalise;
@@ -110,7 +110,7 @@ begin
     Exit;
   end;
 
-  if FSlewMode = eSM_Cosine then begin
+  if FSlewMode = smCosine then begin
     offset := FSlewAmount * (1 - cos(slewDistance * Pi / FSlewLength)) / 2;
     slope := (Pi * FSlewAmount * sin(slewDistance * Pi / FSlewLength)) / (2 * FSlewLength);
   end
