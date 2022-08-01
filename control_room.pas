@@ -1054,7 +1054,7 @@ begin
       if controlTemplate.curve.isSlewing then begin
         // warn him this template includes a slew.
         with info_form do begin
-          if (plain_track = False) or (controlTemplate.curve.slewMode = eSM_TanH)
+          if (plain_track = False) or (controlTemplate.curve.slewMode = smTanH)
           // min rad info not available for slewed turnouts or any mode 2.
           then begin
             min_rad_box.Hide;
@@ -1145,9 +1145,9 @@ begin
       notch_on_radial_centre_menu_entry.Enabled :=
         (ABS(controlTemplate.curve.fixedRadius) < max_rad_test) and (not controlTemplate.curve.isSpiral);
       notch_on_1st_radial_centre_menu_entry.Enabled :=
-        (ABS(controlTemplate.curve.transitionRadius1) < max_rad_test) and controlTemplate.curve.isSpiral;
+        (ABS(controlTemplate.curve.transitionStartRadius) < max_rad_test) and controlTemplate.curve.isSpiral;
       notch_on_2nd_radial_centre_menu_entry.Enabled :=
-        (ABS(controlTemplate.curve.transitionRadius2) < max_rad_test) and controlTemplate.curve.isSpiral;
+        (ABS(controlTemplate.curve.transitionEndRadius) < max_rad_test) and controlTemplate.curve.isSpiral;
 
       make_turnout_road_menu_entry.Enabled :=
         not (plain_track or controlTemplate.curve.isSpiral or controlTemplate.curve.isSlewing or half_diamond);
@@ -1170,7 +1170,7 @@ begin
         adjust_slew_amount_menu_entry.Enabled := True;
 
         case controlTemplate.curve.slewMode of
-          eSM_Cosine: begin
+          smCosine: begin
             slew_mode1_menu_entry.Checked := True;            // radio item.
             adjust_slew2_factor_menu_entry.Enabled := False;
             slewing_panel.Caption :=
@@ -1178,7 +1178,7 @@ begin
             info_form.slew_caution_mode_label.Caption :=
               'caution :    this  template  contains  a  SLEW  ( mode  Cosine )';
           end;
-          eSM_TanH: begin
+          smTanH: begin
             slew_mode2_menu_entry.Checked := True;            // radio item.
             adjust_slew2_factor_menu_entry.Enabled := True;
             slewing_panel.Caption :=

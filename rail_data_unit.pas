@@ -12,80 +12,80 @@ const
 
 type
   ERailData = (
-    eRD_StraightStockGaugeFace, // 0
-    eRD_StraightTurnoutWingGaugeFace,             // 1
-    eRD_CurvedTurnoutWingGaugeFace,                  // 2
-    eRD_CurvedStockGaugeFace,                                // 3
+    rdStraightStockGaugeFace, // 0
+    rdStraightTurnoutWingGaugeFace,             // 1
+    rdCurvedTurnoutWingGaugeFace,                  // 2
+    rdCurvedStockGaugeFace,                                // 3
 
-    eRD_VeePointGaugeFace, // 4
-    eRD_VeeSpliceGaugeFace, // 5
-    eRD_MainSideCheckGaugeFace, // 6
-    eRD_TurnoutSideCheckGaugeFace, // 7
+    rdVeePointGaugeFace, // 4
+    rdVeeSpliceGaugeFace, // 5
+    rdMainSideCheckGaugeFace, // 6
+    rdTurnoutSideCheckGaugeFace, // 7
 
-    eRD_StraightStockOuterFace, // 8
-    eRD_StraightTurnoutWingOuterFace, // 9
-    eRD_CurvedTurnoutWingOuterFace, // 10
-    eRD_CurvedStockOuterFace, // 11
+    rdStraightStockOuterFace, // 8
+    rdStraightTurnoutWingOuterFace, // 9
+    rdCurvedTurnoutWingOuterFace, // 10
+    rdCurvedStockOuterFace, // 11
 
-    eRD_VeePointOuterFace, // 12
-    eRD_VeeSpliceOuterFace, // 13
-    eRD_MainSideCheckOuterFace, // 14
-    eRD_TurnoutSideCheckOuterFace, // 15
+    rdVeePointOuterFace, // 12
+    rdVeeSpliceOuterFace, // 13
+    rdMainSideCheckOuterFace, // 14
+    rdTurnoutSideCheckOuterFace, // 15
 
-    eRD_AdjTrackTurnoutSideNearGaugeFace, // 16
-    eRD_AdjTrackTurnoutSideNearOuterFace, // 17
-    eRD_AdjTrackTurnoutSideFarGaugeFace, // 18
-    eRD_AdjTrackTurnoutSideFarOuterFace, // 19
+    rdAdjTrackTurnoutSideNearGaugeFace, // 16
+    rdAdjTrackTurnoutSideNearOuterFace, // 17
+    rdAdjTrackTurnoutSideFarGaugeFace, // 18
+    rdAdjTrackTurnoutSideFarOuterFace, // 19
 
-    eRD_AdjTrackMainSideNearGaugeFace, // 20
-    eRD_AdjTrackMainSideNearOuterFace, // 21
-    eRD_AdjTrackMainSideFarGaugeFace, // 22
-    eRD_AdjTrackMainSideFarOuterFace, // 23
+    rdAdjTrackMainSideNearGaugeFace, // 20
+    rdAdjTrackMainSideNearOuterFace, // 21
+    rdAdjTrackMainSideFarGaugeFace, // 22
+    rdAdjTrackMainSideFarOuterFace, // 23
 
-    eRD_MainRoadCentreLine, // 24
-    eRD_TurnoutRoadCentreLine, // 25
+    rdMainRoadCentreLine, // 24
+    rdTurnoutRoadCentreLine, // 25
 
-    eRD_KCrossingCheckMainSideGaugeFace, // 26
-    eRD_KCrossingCheckMainSideOuterEdge, // 27
-    eRD_KCrossingCheckTurnoutSideGaugeFace, // 28
-    eRD_KCrossingCheckTurnoutSideOuterEdge, // 29
+    rdKCrossingCheckMainSideGaugeFace, // 26
+    rdKCrossingCheckMainSideOuterEdge, // 27
+    rdKCrossingCheckTurnoutSideGaugeFace, // 28
+    rdKCrossingCheckTurnoutSideOuterEdge, // 29
 
-    eRD_StraightStockFootInnerEdge, // 30
-    eRD_StraightTurnoutWingFootInnerEdge, // 31
-    eRD_CurvedTurnoutWingFootInnerEdge, // 32
-    eRD_CurvedStockFootInnerEdge, // 33
+    rdStraightStockFootInnerEdge, // 30
+    rdStraightTurnoutWingFootInnerEdge, // 31
+    rdCurvedTurnoutWingFootInnerEdge, // 32
+    rdCurvedStockFootInnerEdge, // 33
 
-    eRD_VeePointFootInnerEdge, // 34
-    eRD_VeeSpliceFootInnerEdge, // 35
-    eRD_MainSideCheckFootInnerEdge, // 36
-    eRD_TurnoutSideCheckFootInnerEdge, // 37
+    rdVeePointFootInnerEdge, // 34
+    rdVeeSpliceFootInnerEdge, // 35
+    rdMainSideCheckFootInnerEdge, // 36
+    rdTurnoutSideCheckFootInnerEdge, // 37
 
-    eRD_StraightStockFootOuterEdge, // 38
-    eRD_StraightTurnoutWindFootOuterEdge, // 39
-    eRD_CurvedTurnoutWindFootOuterEdge, // 40
-    eRD_CurvedStockFootOuterEdge, // 41
+    rdStraightStockFootOuterEdge, // 38
+    rdStraightTurnoutWindFootOuterEdge, // 39
+    rdCurvedTurnoutWindFootOuterEdge, // 40
+    rdCurvedStockFootOuterEdge, // 41
 
-    eRD_VeePointFootOuterEdge, // 42
-    eRD_VeeSpliceFootOuterEdge, // 43
-    eRD_MainSideCheckFootOuterEdge, // 44
-    eRD_TurnoutSideCheckFootOuterEdge, // 45
+    rdVeePointFootOuterEdge, // 42
+    rdVeeSpliceFootOuterEdge, // 43
+    rdMainSideCheckFootOuterEdge, // 44
+    rdTurnoutSideCheckFootOuterEdge, // 45
 
-    eRD_SwitchFlangewayGuidelineMainSide, // 46
-    eRD_SwitchFlangewayGuidelineTurnoutSide, // 47
-    eRD_Unused // 48
+    rdSwitchFlangewayGuidelineMainSide, // 46
+    rdSwitchFlangewayGuidelineTurnoutSide, // 47
+    rdUnused // 48
     );
 
   TPoint_array = array of TPoint;    // array of Windows TPoints (integers)
 
 const
-  eRD_StockRailGaugeFaces = [eRD_StraightStockGaugeFace, eRD_CurvedStockGaugeFace];
-  eRD_StockRailOuterFaces = [eRD_StraightStockOuterFace, eRD_CurvedStockOuterFace];
+  rdStockRailGaugeFaces = [rdStraightStockGaugeFace, rdCurvedStockGaugeFace];
+  rdStockRailOuterFaces = [rdStraightStockOuterFace, rdCurvedStockOuterFace];
 
-  eRD_StockRails = eRD_StockRailGaugeFaces + eRD_StockRailOuterFaces;
+  rdStockRails = rdStockRailGaugeFaces + rdStockRailOuterFaces;
 
-  eRD_AdjacentTracksGaugeFaces = [eRD_AdjTrackTurnoutSideNearGaugeFace, eRD_AdjTrackTurnoutSideFarGaugeFace, eRD_AdjTrackMainSideNearGaugeFace, eRD_AdjTrackMainSideFarGaugeFace];
-  eRD_AdjacentTracksOuterFaces = [eRD_AdjTrackTurnoutSideNearOuterFace, eRD_AdjTrackTurnoutSideFarOuterFace, eRD_AdjTrackMainSideNearOuterFace, eRD_AdjTrackMainSideFarOuterFace];
-  eRD_AdjacentTracks = eRD_AdjacentTracksGaugeFaces + eRD_AdjacentTracksOuterFaces;
+  rdAdjacentTracksGaugeFaces = [rdAdjTrackTurnoutSideNearGaugeFace, rdAdjTrackTurnoutSideFarGaugeFace, rdAdjTrackMainSideNearGaugeFace, rdAdjTrackMainSideFarGaugeFace];
+  rdAdjacentTracksOuterFaces = [rdAdjTrackTurnoutSideNearOuterFace, rdAdjTrackTurnoutSideFarOuterFace, rdAdjTrackMainSideNearOuterFace, rdAdjTrackMainSideFarOuterFace];
+  rdAdjacentTracks = rdAdjacentTracksGaugeFaces + rdAdjacentTracksOuterFaces;
 
 
 var
@@ -125,140 +125,140 @@ implementation
 
 initialization
 
-  aq_str[eRD_StraightStockGaugeFace] := 'straight stock rail, gauge-face'; // 0
-  aq_str[eRD_StraightTurnoutWingGaugeFace] := 'straight turnout rail - wing rail, gauge-face';
+  aq_str[rdStraightStockGaugeFace] := 'straight stock rail, gauge-face'; // 0
+  aq_str[rdStraightTurnoutWingGaugeFace] := 'straight turnout rail - wing rail, gauge-face';
   // 1
-  aq_str[eRD_CurvedTurnoutWingGaugeFace] := 'curved turnout rail - wing rail, gauge-face';
+  aq_str[rdCurvedTurnoutWingGaugeFace] := 'curved turnout rail - wing rail, gauge-face';
   // 2
-  aq_str[eRD_CurvedStockGaugeFace] := 'curved stock rail, gauge-face';
+  aq_str[rdCurvedStockGaugeFace] := 'curved stock rail, gauge-face';
   // 3
 
-  aq_str[eRD_VeePointGaugeFace] := 'vee point rail, gauge-face'; // 4
-  aq_str[eRD_VeeSpliceGaugeFace] := 'vee splice rail, gauge-face'; // 5
-  aq_str[eRD_MainSideCheckGaugeFace] := 'main-side check rail, gauge-face'; // 6
-  aq_str[eRD_TurnoutSideCheckGaugeFace] := 'turnout-side check rail, gauge-face'; // 7
+  aq_str[rdVeePointGaugeFace] := 'vee point rail, gauge-face'; // 4
+  aq_str[rdVeeSpliceGaugeFace] := 'vee splice rail, gauge-face'; // 5
+  aq_str[rdMainSideCheckGaugeFace] := 'main-side check rail, gauge-face'; // 6
+  aq_str[rdTurnoutSideCheckGaugeFace] := 'turnout-side check rail, gauge-face'; // 7
 
-  aq_str[eRD_StraightStockOuterFace] := 'straight stock rail, outer-face'; // 8
-  aq_str[eRD_StraightTurnoutWingOuterFace] := 'straight turnout rail - wing rail, outer-face'; // 9
-  aq_str[eRD_CurvedTurnoutWingOuterFace] := 'curved turnout rail - wing rail, outer-face'; // 10
-  aq_str[eRD_CurvedStockOuterFace] := 'curved stock rail, outer-face'; // 11
+  aq_str[rdStraightStockOuterFace] := 'straight stock rail, outer-face'; // 8
+  aq_str[rdStraightTurnoutWingOuterFace] := 'straight turnout rail - wing rail, outer-face'; // 9
+  aq_str[rdCurvedTurnoutWingOuterFace] := 'curved turnout rail - wing rail, outer-face'; // 10
+  aq_str[rdCurvedStockOuterFace] := 'curved stock rail, outer-face'; // 11
 
-  aq_str[eRD_VeePointOuterFace] := 'vee point rail, outer-face'; // 12
-  aq_str[eRD_VeeSpliceOuterFace] := 'vee splice rail, outer-face'; // 13
-  aq_str[eRD_MainSideCheckOuterFace] := 'main-side check rail, outer-face'; // 14
-  aq_str[eRD_TurnoutSideCheckOuterFace] := 'turnout-side check rail, outer-face'; // 15
+  aq_str[rdVeePointOuterFace] := 'vee point rail, outer-face'; // 12
+  aq_str[rdVeeSpliceOuterFace] := 'vee splice rail, outer-face'; // 13
+  aq_str[rdMainSideCheckOuterFace] := 'main-side check rail, outer-face'; // 14
+  aq_str[rdTurnoutSideCheckOuterFace] := 'turnout-side check rail, outer-face'; // 15
 
-  aq_str[eRD_AdjTrackTurnoutSideNearGaugeFace] :=
+  aq_str[rdAdjTrackTurnoutSideNearGaugeFace] :=
     'adjacent track (turnout side) near rail, gauge-face'; // 16
-  aq_str[eRD_AdjTrackTurnoutSideNearOuterFace] :=
+  aq_str[rdAdjTrackTurnoutSideNearOuterFace] :=
     'adjacent track (turnout side) near rail, outer-face'; // 17
-  aq_str[eRD_AdjTrackTurnoutSideFarGaugeFace] :=
+  aq_str[rdAdjTrackTurnoutSideFarGaugeFace] :=
     'adjacent track (turnout side) far rail, gauge-face'; // 18
-  aq_str[eRD_AdjTrackTurnoutSideFarOuterFace] :=
+  aq_str[rdAdjTrackTurnoutSideFarOuterFace] :=
     'adjacent track (turnout side) far rail, outer-face'; // 19
 
-  aq_str[eRD_AdjTrackMainSideNearGaugeFace] :=
+  aq_str[rdAdjTrackMainSideNearGaugeFace] :=
     'adjacent track (main side) near rail, gauge-face'; // 20
-  aq_str[eRD_AdjTrackMainSideNearOuterFace] :=
+  aq_str[rdAdjTrackMainSideNearOuterFace] :=
     'adjacent track (main side) near rail, outer-face'; // 21
-  aq_str[eRD_AdjTrackMainSideFarGaugeFace] :=
+  aq_str[rdAdjTrackMainSideFarGaugeFace] :=
     'adjacent track (main side) far rail, gauge-face'; // 22
-  aq_str[eRD_AdjTrackMainSideFarOuterFace] :=
+  aq_str[rdAdjTrackMainSideFarOuterFace] :=
     'adjacent track (main side) far rail, outer-face'; // 23
 
-  aq_str[eRD_MainRoadCentreLine] := 'main road centre-line'; // 24
-  aq_str[eRD_TurnoutRoadCentreLine] := 'turnout road centre-line'; // 25
+  aq_str[rdMainRoadCentreLine] := 'main road centre-line'; // 24
+  aq_str[rdTurnoutRoadCentreLine] := 'turnout road centre-line'; // 25
 
-  aq_str[eRD_KCrossingCheckMainSideGaugeFace] :=
+  aq_str[rdKCrossingCheckMainSideGaugeFace] :=
     'K-crossing check rail, main-side, gauge-face'; // 26
-  aq_str[eRD_KCrossingCheckMainSideOuterEdge] :=
+  aq_str[rdKCrossingCheckMainSideOuterEdge] :=
     'K-crossing check rail, main-side, outer-edge'; // 27
-  aq_str[eRD_KCrossingCheckTurnoutSideGaugeFace] :=
+  aq_str[rdKCrossingCheckTurnoutSideGaugeFace] :=
     'K-crossing check rail, turnout-side, gauge-face'; // 28
-  aq_str[eRD_KCrossingCheckTurnoutSideOuterEdge] :=
+  aq_str[rdKCrossingCheckTurnoutSideOuterEdge] :=
     'K-crossing check rail, turnout-side, outer-edge'; // 29
 
-  aq_str[eRD_StraightStockFootInnerEdge] := 'straight stock rail, foot, inner edge'; // 30
-  aq_str[eRD_StraightTurnoutWingFootInnerEdge] :=
+  aq_str[rdStraightStockFootInnerEdge] := 'straight stock rail, foot, inner edge'; // 30
+  aq_str[rdStraightTurnoutWingFootInnerEdge] :=
     'straight turnout rail - wing rail, foot, inner edge'; // 31
-  aq_str[eRD_CurvedTurnoutWingFootInnerEdge] :=
+  aq_str[rdCurvedTurnoutWingFootInnerEdge] :=
     'curved turnout rail - wing rail, foot, inner edge'; // 32
-  aq_str[eRD_CurvedStockFootInnerEdge] := 'curved stock rail, foot, inner edge'; // 33
+  aq_str[rdCurvedStockFootInnerEdge] := 'curved stock rail, foot, inner edge'; // 33
 
-  aq_str[eRD_VeePointFootInnerEdge] := 'vee point rail, foot, inner edge'; // 34
-  aq_str[eRD_VeeSpliceFootInnerEdge] := 'vee splice rail, foot, inner edge'; // 35
-  aq_str[eRD_MainSideCheckFootInnerEdge] := 'main-side check rail, foot, inner edge'; // 36
-  aq_str[eRD_TurnoutSideCheckFootInnerEdge] := 'turnout-side check rail, foot, inner edge'; // 37
+  aq_str[rdVeePointFootInnerEdge] := 'vee point rail, foot, inner edge'; // 34
+  aq_str[rdVeeSpliceFootInnerEdge] := 'vee splice rail, foot, inner edge'; // 35
+  aq_str[rdMainSideCheckFootInnerEdge] := 'main-side check rail, foot, inner edge'; // 36
+  aq_str[rdTurnoutSideCheckFootInnerEdge] := 'turnout-side check rail, foot, inner edge'; // 37
 
-  aq_str[eRD_StraightStockFootOuterEdge] := 'straight stock rail, foot, outer edge'; // 38
-  aq_str[eRD_StraightTurnoutWindFootOuterEdge] :=
+  aq_str[rdStraightStockFootOuterEdge] := 'straight stock rail, foot, outer edge'; // 38
+  aq_str[rdStraightTurnoutWindFootOuterEdge] :=
     'straight turnout rail - wing rail, foot, outer edge'; // 39
-  aq_str[eRD_CurvedTurnoutWindFootOuterEdge] :=
+  aq_str[rdCurvedTurnoutWindFootOuterEdge] :=
     'curved turnout rail - wing rail, foot, outer edge'; // 40
-  aq_str[eRD_CurvedStockFootOuterEdge] := 'curved stock rail, foot, outer edge'; // 41
+  aq_str[rdCurvedStockFootOuterEdge] := 'curved stock rail, foot, outer edge'; // 41
 
-  aq_str[eRD_VeePointFootOuterEdge] := 'vee point rail, foot, outer edge'; // 42
-  aq_str[eRD_VeeSpliceFootOuterEdge] := 'vee splice rail, foot, outer edge'; // 43
-  aq_str[eRD_MainSideCheckFootOuterEdge] := 'main-side check rail, foot, outer edge'; // 44
-  aq_str[eRD_TurnoutSideCheckFootOuterEdge] := 'turnout-side check rail, foot, outer edge'; // 45
+  aq_str[rdVeePointFootOuterEdge] := 'vee point rail, foot, outer edge'; // 42
+  aq_str[rdVeeSpliceFootOuterEdge] := 'vee splice rail, foot, outer edge'; // 43
+  aq_str[rdMainSideCheckFootOuterEdge] := 'main-side check rail, foot, outer edge'; // 44
+  aq_str[rdTurnoutSideCheckFootOuterEdge] := 'turnout-side check rail, foot, outer edge'; // 45
 
-  aq_str[eRD_SwitchFlangewayGuidelineMainSide] := 'switch flangeway guide-line, main-side'; // 46
-  aq_str[eRD_SwitchFlangewayGuidelineTurnoutSide] :=
+  aq_str[rdSwitchFlangewayGuidelineMainSide] := 'switch flangeway guide-line, main-side'; // 46
+  aq_str[rdSwitchFlangewayGuidelineTurnoutSide] :=
     'switch flangeway guide-line, turnout-side'; // 47
-  aq_str[eRD_Unused] := 'unused aq'; // 48
+  aq_str[rdUnused] := 'unused aq'; // 48
 
-  aq_oppositeFace[eRD_StraightStockGaugeFace] := eRD_StraightStockOuterFace;
-  aq_oppositeFace[eRD_StraightTurnoutWingGaugeFace] := eRD_StraightTurnoutWingOuterFace;
-  aq_oppositeFace[eRD_CurvedTurnoutWingGaugeFace] := eRD_CurvedTurnoutWingOuterFace;
-  aq_oppositeFace[eRD_CurvedStockGaugeFace] := eRD_CurvedStockOuterFace;
-  aq_oppositeFace[eRD_VeePointGaugeFace] := eRD_VeePointOuterFace;
-  aq_oppositeFace[eRD_VeeSpliceGaugeFace] := eRD_VeeSpliceOuterFace;
-  aq_oppositeFace[eRD_MainSideCheckGaugeFace] := eRD_MainSideCheckOuterFace;
-  aq_oppositeFace[eRD_TurnoutSideCheckGaugeFace] := eRD_TurnoutSideCheckOuterFace;
-  aq_oppositeFace[eRD_StraightStockOuterFace] := eRD_Unused;
-  aq_oppositeFace[eRD_StraightTurnoutWingOuterFace] := eRD_Unused;
-  aq_oppositeFace[eRD_CurvedTurnoutWingOuterFace] := eRD_Unused;
-  aq_oppositeFace[eRD_CurvedStockOuterFace] := eRD_Unused;
-  aq_oppositeFace[eRD_VeePointOuterFace] := eRD_Unused;
-  aq_oppositeFace[eRD_VeeSpliceOuterFace] := eRD_Unused;
-  aq_oppositeFace[eRD_MainSideCheckOuterFace] := eRD_Unused;
-  aq_oppositeFace[eRD_TurnoutSideCheckOuterFace] := eRD_Unused;
+  aq_oppositeFace[rdStraightStockGaugeFace] := rdStraightStockOuterFace;
+  aq_oppositeFace[rdStraightTurnoutWingGaugeFace] := rdStraightTurnoutWingOuterFace;
+  aq_oppositeFace[rdCurvedTurnoutWingGaugeFace] := rdCurvedTurnoutWingOuterFace;
+  aq_oppositeFace[rdCurvedStockGaugeFace] := rdCurvedStockOuterFace;
+  aq_oppositeFace[rdVeePointGaugeFace] := rdVeePointOuterFace;
+  aq_oppositeFace[rdVeeSpliceGaugeFace] := rdVeeSpliceOuterFace;
+  aq_oppositeFace[rdMainSideCheckGaugeFace] := rdMainSideCheckOuterFace;
+  aq_oppositeFace[rdTurnoutSideCheckGaugeFace] := rdTurnoutSideCheckOuterFace;
+  aq_oppositeFace[rdStraightStockOuterFace] := rdUnused;
+  aq_oppositeFace[rdStraightTurnoutWingOuterFace] := rdUnused;
+  aq_oppositeFace[rdCurvedTurnoutWingOuterFace] := rdUnused;
+  aq_oppositeFace[rdCurvedStockOuterFace] := rdUnused;
+  aq_oppositeFace[rdVeePointOuterFace] := rdUnused;
+  aq_oppositeFace[rdVeeSpliceOuterFace] := rdUnused;
+  aq_oppositeFace[rdMainSideCheckOuterFace] := rdUnused;
+  aq_oppositeFace[rdTurnoutSideCheckOuterFace] := rdUnused;
 
-  aq_oppositeFace[eRD_AdjTrackTurnoutSideNearGaugeFace] := eRD_AdjTrackTurnoutSideNearOuterFace;
-  aq_oppositeFace[eRD_AdjTrackTurnoutSideNearOuterFace] := eRD_Unused;
-  aq_oppositeFace[eRD_AdjTrackTurnoutSideFarGaugeFace] := eRD_AdjTrackTurnoutSideFarOuterFace;
-  aq_oppositeFace[eRD_AdjTrackTurnoutSideFarOuterFace] := eRD_Unused;
-  aq_oppositeFace[eRD_AdjTrackMainSideNearGaugeFace] := eRD_AdjTrackMainSideNearOuterFace;
-  aq_oppositeFace[eRD_AdjTrackMainSideNearOuterFace] := eRD_Unused;
-  aq_oppositeFace[eRD_AdjTrackMainSideFarGaugeFace] := eRD_AdjTrackMainSideFarOuterFace;
-  aq_oppositeFace[eRD_AdjTrackMainSideFarOuterFace] := eRD_Unused;
+  aq_oppositeFace[rdAdjTrackTurnoutSideNearGaugeFace] := rdAdjTrackTurnoutSideNearOuterFace;
+  aq_oppositeFace[rdAdjTrackTurnoutSideNearOuterFace] := rdUnused;
+  aq_oppositeFace[rdAdjTrackTurnoutSideFarGaugeFace] := rdAdjTrackTurnoutSideFarOuterFace;
+  aq_oppositeFace[rdAdjTrackTurnoutSideFarOuterFace] := rdUnused;
+  aq_oppositeFace[rdAdjTrackMainSideNearGaugeFace] := rdAdjTrackMainSideNearOuterFace;
+  aq_oppositeFace[rdAdjTrackMainSideNearOuterFace] := rdUnused;
+  aq_oppositeFace[rdAdjTrackMainSideFarGaugeFace] := rdAdjTrackMainSideFarOuterFace;
+  aq_oppositeFace[rdAdjTrackMainSideFarOuterFace] := rdUnused;
 
-  aq_oppositeFace[eRD_MainRoadCentreLine] := eRD_Unused;
-  aq_oppositeFace[eRD_TurnoutRoadCentreLine] := eRD_Unused;
+  aq_oppositeFace[rdMainRoadCentreLine] := rdUnused;
+  aq_oppositeFace[rdTurnoutRoadCentreLine] := rdUnused;
 
-  aq_oppositeFace[eRD_KCrossingCheckMainSideGaugeFace] := eRD_KCrossingCheckMainSideOuterEdge;
-  aq_oppositeFace[eRD_KCrossingCheckMainSideOuterEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_KCrossingCheckTurnoutSideGaugeFace] := eRD_KCrossingCheckTurnoutSideOuterEdge;
-  aq_oppositeFace[eRD_KCrossingCheckTurnoutSideOuterEdge] := eRD_Unused;
+  aq_oppositeFace[rdKCrossingCheckMainSideGaugeFace] := rdKCrossingCheckMainSideOuterEdge;
+  aq_oppositeFace[rdKCrossingCheckMainSideOuterEdge] := rdUnused;
+  aq_oppositeFace[rdKCrossingCheckTurnoutSideGaugeFace] := rdKCrossingCheckTurnoutSideOuterEdge;
+  aq_oppositeFace[rdKCrossingCheckTurnoutSideOuterEdge] := rdUnused;
 
-  aq_oppositeFace[eRD_StraightStockFootInnerEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_StraightTurnoutWingFootInnerEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_CurvedTurnoutWingFootInnerEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_CurvedStockFootInnerEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_VeePointFootInnerEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_VeeSpliceFootInnerEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_MainSideCheckFootInnerEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_TurnoutSideCheckFootInnerEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_StraightStockFootOuterEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_StraightTurnoutWindFootOuterEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_CurvedTurnoutWindFootOuterEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_CurvedStockFootOuterEdge] := eRD_Unused;
+  aq_oppositeFace[rdStraightStockFootInnerEdge] := rdUnused;
+  aq_oppositeFace[rdStraightTurnoutWingFootInnerEdge] := rdUnused;
+  aq_oppositeFace[rdCurvedTurnoutWingFootInnerEdge] := rdUnused;
+  aq_oppositeFace[rdCurvedStockFootInnerEdge] := rdUnused;
+  aq_oppositeFace[rdVeePointFootInnerEdge] := rdUnused;
+  aq_oppositeFace[rdVeeSpliceFootInnerEdge] := rdUnused;
+  aq_oppositeFace[rdMainSideCheckFootInnerEdge] := rdUnused;
+  aq_oppositeFace[rdTurnoutSideCheckFootInnerEdge] := rdUnused;
+  aq_oppositeFace[rdStraightStockFootOuterEdge] := rdUnused;
+  aq_oppositeFace[rdStraightTurnoutWindFootOuterEdge] := rdUnused;
+  aq_oppositeFace[rdCurvedTurnoutWindFootOuterEdge] := rdUnused;
+  aq_oppositeFace[rdCurvedStockFootOuterEdge] := rdUnused;
 
-  aq_oppositeFace[eRD_VeePointFootOuterEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_VeeSpliceFootOuterEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_MainSideCheckFootOuterEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_TurnoutSideCheckFootOuterEdge] := eRD_Unused;
-  aq_oppositeFace[eRD_SwitchFlangewayGuidelineMainSide] := eRD_Unused;
-  aq_oppositeFace[eRD_SwitchFlangewayGuidelineTurnoutSide] := eRD_Unused;
+  aq_oppositeFace[rdVeePointFootOuterEdge] := rdUnused;
+  aq_oppositeFace[rdVeeSpliceFootOuterEdge] := rdUnused;
+  aq_oppositeFace[rdMainSideCheckFootOuterEdge] := rdUnused;
+  aq_oppositeFace[rdTurnoutSideCheckFootOuterEdge] := rdUnused;
+  aq_oppositeFace[rdSwitchFlangewayGuidelineMainSide] := rdUnused;
+  aq_oppositeFace[rdSwitchFlangewayGuidelineTurnoutSide] := rdUnused;
 
 end.

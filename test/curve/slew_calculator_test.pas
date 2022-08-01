@@ -20,8 +20,8 @@ type
   TTestSlewCalculator = class(TTestCase, ICurveParameters)
   private
     fixedRadius: double;
-    transitionRadius1: double;
-    transitionRadius2: double;
+    transitionStartRadius: double;
+    transitionEndRadius: double;
     distanceToTransition: double;
     transitionLength: double;
     isSpiral: boolean;
@@ -41,8 +41,8 @@ type
 
     function GetIsSpiral: boolean;
     function GetFixedRadius: double;
-    function GetTransitionRadius1: double;
-    function GetTransitionRadius2: double;
+    function GetTransitionStartRadius: double;
+    function GetTransitionEndRadius: double;
     function GetDistanceToTransition: double;
     function GetTransitionLength: double;
 
@@ -102,14 +102,14 @@ begin
   Result := fixedRadius;
 end;
 
-function TTestSlewCalculator.GetTransitionRadius1: double;
+function TTestSlewCalculator.GetTransitionStartRadius: double;
 begin
-  Result := transitionRadius1;
+  Result := transitionStartRadius;
 end;
 
-function TTestSlewCalculator.GetTransitionRadius2: double;
+function TTestSlewCalculator.GetTransitionEndRadius: double;
 begin
-  Result := transitionRadius2;
+  Result := transitionEndRadius;
 end;
 
 function TTestSlewCalculator.GetDistanceToTransition: double;
@@ -287,7 +287,7 @@ begin
   distanceToStartOfSlew := 100;
   slewLength := 100;
   slewAmount := 10;
-  slewMode := eSM_Cosine;
+  slewMode := smCosine;
 
   do_test_slew_cosine;
 end;
@@ -301,7 +301,7 @@ begin
   distanceToStartOfSlew := 50;
   slewLength := 100;
   slewAmount := -20;
-  slewMode := eSM_Cosine;
+  slewMode := smCosine;
 
   do_test_slew_cosine;
 end;
@@ -315,7 +315,7 @@ begin
   distanceToStartOfSlew := 100;
   slewLength := 100;
   slewAmount := 10;
-  slewMode := eSM_TanH;
+  slewMode := smTanH;
   slewFactor := 1;
 
   do_test_slew_tanh;

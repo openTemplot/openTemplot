@@ -2100,8 +2100,8 @@ procedure reset_trans;     // reset transition and curving defaults.
 begin
   controlTemplate.curve.fixedRadius := 660 * scale;    // default curving radius. (660ft / 10 chains)        *
 
-  controlTemplate.curve.transitionRadius1 := max_rad;     // first transition radius ("straight")
-  controlTemplate.curve.transitionRadius2 := controlTemplate.curve.fixedRadius;      // second transition radius (as current)
+  controlTemplate.curve.transitionStartRadius := max_rad;     // first transition radius ("straight")
+  controlTemplate.curve.transitionEndRadius := controlTemplate.curve.fixedRadius;      // second transition radius (as current)
 
   controlTemplate.curve.distanceToTransition := 0;                // length of first radius (straight) (nil)
   controlTemplate.curve.transitionLength := 66 * scale;        // transition length (66ft - 1 chain)
@@ -2835,13 +2835,13 @@ begin      // calculate the switch data.
   then begin
     // defaults for turnout...
 
-    aqyn[eRD_KCrossingCheckMainSideGaugeFace] := False;
+    aqyn[rdKCrossingCheckMainSideGaugeFace] := False;
     // h-d MS check rail. (MS check is in diagonal road.)
-    aqyn[eRD_KCrossingCheckMainSideOuterEdge] := False;
+    aqyn[rdKCrossingCheckMainSideOuterEdge] := False;
 
-    aqyn[eRD_KCrossingCheckTurnoutSideGaugeFace] := False;
+    aqyn[rdKCrossingCheckTurnoutSideGaugeFace] := False;
     // h-d DS check rail. (DS check is in main road.)
-    aqyn[eRD_KCrossingCheckTurnoutSideOuterEdge] := False;
+    aqyn[rdKCrossingCheckTurnoutSideOuterEdge] := False;
 
     if (h_diamond = True) and (fixed_diamond = True) and pad_form.check_rails_menu_entry.Checked =
       True   // generator switch.
@@ -2849,18 +2849,18 @@ begin      // calculate the switch data.
       if k_main_side_check_rail_flag = True
       // 0.93.a      was turnout_road_check_rail_flag=True
       then begin
-        aqyn[eRD_KCrossingCheckMainSideGaugeFace] := gauge_faces;
+        aqyn[rdKCrossingCheckMainSideGaugeFace] := gauge_faces;
         // h-d MS check rail. (MS check is in diagonal road.)
-        aqyn[eRD_KCrossingCheckMainSideOuterEdge] :=
+        aqyn[rdKCrossingCheckMainSideOuterEdge] :=
           (full_draw or (mouse_modify <= 0)) and outer_edges;
       end;
 
       if k_diagonal_side_check_rail_flag = True
       // 0.93.a      was main_road_check_rail_flag=True
       then begin
-        aqyn[eRD_KCrossingCheckTurnoutSideGaugeFace] := gauge_faces;
+        aqyn[rdKCrossingCheckTurnoutSideGaugeFace] := gauge_faces;
         // h-d DS check rail. (DS check is in main road.)
-        aqyn[eRD_KCrossingCheckTurnoutSideOuterEdge] :=
+        aqyn[rdKCrossingCheckTurnoutSideOuterEdge] :=
           (full_draw or (mouse_modify <= 0)) and outer_edges;
       end;
     end;
@@ -4783,89 +4783,89 @@ begin
     // seg_termx[0,  = switch front...
 
     if (gaunt = True) and (half_diamond = False) then begin
-      seg_termx[0, eRD_CurvedTurnoutWingGaugeFace] := 0;
+      seg_termx[0, rdCurvedTurnoutWingGaugeFace] := 0;
       //  aq=2 turnout rail, gauge face, switch front, gauntletted approach track
-      seg_termx[0, eRD_CurvedTurnoutWingOuterFace] := 0;     //  aq=10 ditto outer.
+      seg_termx[0, rdCurvedTurnoutWingOuterFace] := 0;     //  aq=10 ditto outer.
     end
     else begin
-      seg_termx[0, eRD_CurvedTurnoutWingGaugeFace] := nodraw;
+      seg_termx[0, rdCurvedTurnoutWingGaugeFace] := nodraw;
       //  aq=2 turnout rail, gauge face, switch front, do not draw.
-      seg_termx[0, eRD_CurvedTurnoutWingOuterFace] := nodraw;
+      seg_termx[0, rdCurvedTurnoutWingOuterFace] := nodraw;
       //  aq=10 ditto outer, do not draw.
     end;
 
     if half_diamond = True then begin
-      seg_termx[0, eRD_CurvedStockGaugeFace] := nodraw;
+      seg_termx[0, rdCurvedStockGaugeFace] := nodraw;
       //  aq=3 diagonal stock rail, gauge face, do not draw for h-d.
-      seg_termx[0, eRD_CurvedStockOuterFace] := nodraw;    //  aq=11 ditto outer edge, do not draw.
+      seg_termx[0, rdCurvedStockOuterFace] := nodraw;    //  aq=11 ditto outer edge, do not draw.
     end
     else begin
-      seg_termx[0, eRD_CurvedStockGaugeFace] := 0;
+      seg_termx[0, rdCurvedStockGaugeFace] := 0;
       //  turnout curved stock rail, gauge face, switch front start.
-      seg_termx[0, eRD_CurvedStockOuterFace] := 0;         //  ditto outer edge.
+      seg_termx[0, rdCurvedStockOuterFace] := 0;         //  ditto outer edge.
     end;
 
     // seg_termx[1,  = planing, and set straight section...
 
     if half_diamond = True then begin
-      seg_termx[1, eRD_CurvedTurnoutWingGaugeFace] := nodraw;
+      seg_termx[1, rdCurvedTurnoutWingGaugeFace] := nodraw;
       // aq=2 trg   no planing section for h-d.
-      seg_termx[1, eRD_CurvedTurnoutWingOuterFace] := nodraw;    // aq=10 tro  do not draw.
+      seg_termx[1, rdCurvedTurnoutWingOuterFace] := nodraw;    // aq=10 tro  do not draw.
 
-      seg_termx[1, eRD_CurvedStockGaugeFace] := nodraw;     // aq=3 srg   ditto diagonal stock rail
-      seg_termx[1, eRD_CurvedStockOuterFace] := nodraw;    // aq=11 sro
+      seg_termx[1, rdCurvedStockGaugeFace] := nodraw;     // aq=3 srg   ditto diagonal stock rail
+      seg_termx[1, rdCurvedStockOuterFace] := nodraw;    // aq=11 sro
 
     end
     else begin
       if gaunt = True then begin
-        seg_termx[1, eRD_CurvedTurnoutWingGaugeFace] := toex;     // aq=2 trg
-        seg_termx[1, eRD_CurvedTurnoutWingOuterFace] := toex;    // aq=10 tro
+        seg_termx[1, rdCurvedTurnoutWingGaugeFace] := toex;     // aq=2 trg
+        seg_termx[1, rdCurvedTurnoutWingOuterFace] := toex;    // aq=10 tro
 
-        seg_termx[1, eRD_CurvedStockGaugeFace] := toex;     // aq=3 srg
-        seg_termx[1, eRD_CurvedStockOuterFace] := toex;    // aq=11 sro
+        seg_termx[1, rdCurvedStockGaugeFace] := toex;     // aq=3 srg
+        seg_termx[1, rdCurvedStockOuterFace] := toex;    // aq=11 sro
       end
       else begin
-        seg_termx[1, eRD_CurvedTurnoutWingGaugeFace] := toex;
+        seg_termx[1, rdCurvedTurnoutWingGaugeFace] := toex;
         // aq=2 trg  planing start
-        seg_termx[1, eRD_CurvedTurnoutWingOuterFace] := nodraw;    // aq=10 tro  do not draw.
+        seg_termx[1, rdCurvedTurnoutWingOuterFace] := nodraw;    // aq=10 tro  do not draw.
 
-        seg_termx[1, eRD_CurvedStockGaugeFace] := setx;       // aq=3 srg  "set" start.
-        seg_termx[1, eRD_CurvedStockOuterFace] := setox;     // aq=11 sro
+        seg_termx[1, rdCurvedStockGaugeFace] := setx;       // aq=3 srg  "set" start.
+        seg_termx[1, rdCurvedStockOuterFace] := setox;     // aq=11 sro
       end;
     end;
 
     // seg_termx[2,  = switch radius ...
 
     if half_diamond = True then begin
-      seg_termx[2, eRD_CurvedTurnoutWingGaugeFace] := nodraw;
+      seg_termx[2, rdCurvedTurnoutWingGaugeFace] := nodraw;
       // aq=2 trg   no switch radius section for h-d.
-      seg_termx[2, eRD_CurvedTurnoutWingOuterFace] := nodraw;    // aq=10 tro  do not draw.
+      seg_termx[2, rdCurvedTurnoutWingOuterFace] := nodraw;    // aq=10 tro  do not draw.
 
-      seg_termx[2, eRD_CurvedStockGaugeFace] := nodraw;
+      seg_termx[2, rdCurvedStockGaugeFace] := nodraw;
       // aq=3 srg  ditto for diagonal stock rail.
-      seg_termx[2, eRD_CurvedStockOuterFace] := nodraw;    // aq=11 sro
+      seg_termx[2, rdCurvedStockOuterFace] := nodraw;    // aq=11 sro
     end
     else begin
       if gaunt = True then begin
-        seg_termx[2, eRD_CurvedTurnoutWingGaugeFace] := toex;     // aq=2 trg
-        seg_termx[2, eRD_CurvedTurnoutWingOuterFace] := toex;    // aq=10 tro
+        seg_termx[2, rdCurvedTurnoutWingGaugeFace] := toex;     // aq=2 trg
+        seg_termx[2, rdCurvedTurnoutWingOuterFace] := toex;    // aq=10 tro
 
-        seg_termx[2, eRD_CurvedStockGaugeFace] := toex;     // aq=3 srg
-        seg_termx[2, eRD_CurvedStockOuterFace] := toex;    // aq=11 sro
+        seg_termx[2, rdCurvedStockGaugeFace] := toex;     // aq=3 srg
+        seg_termx[2, rdCurvedStockOuterFace] := toex;    // aq=11 sro
       end
       else begin
-        seg_termx[2, eRD_CurvedTurnoutWingGaugeFace] := plx;
+        seg_termx[2, rdCurvedTurnoutWingGaugeFace] := plx;
         // aq=2 trg  switch curve start.
         if plox < heelox then
-          seg_termx[2, eRD_CurvedTurnoutWingOuterFace] :=
+          seg_termx[2, rdCurvedTurnoutWingOuterFace] :=
             plox     // aq=10 tro  outer-edge, normal intercept on stock rail,
         else
-          seg_termx[2, eRD_CurvedTurnoutWingOuterFace] := nodraw;
+          seg_termx[2, rdCurvedTurnoutWingOuterFace] := nodraw;
         // aq=10 or no switch curve draw if extra-wide custom rail.
 
-        seg_termx[2, eRD_CurvedStockGaugeFace] := plx3;
+        seg_termx[2, rdCurvedStockGaugeFace] := plx3;
         // aq=3 srg  ditto for curved stock rail. (!!! coincident with the "set" for straight switch or curved planing).
-        seg_termx[2, eRD_CurvedStockOuterFace] := plox11;   // aq=11 sro
+        seg_termx[2, rdCurvedStockOuterFace] := plox11;   // aq=11 sro
       end;
     end;
 
@@ -4886,56 +4886,56 @@ begin
         tempy := fw + bnw * COS(hdk / 2);  // offset to tip.
 
         if tradius_is_straight = True then begin
-          seg_termx[3, eRD_CurvedTurnoutWingGaugeFace] := toex + tempy * hdkn;
+          seg_termx[3, rdCurvedTurnoutWingGaugeFace] := toex + tempy * hdkn;
           // 20-09-04 gauge-face.
-          seg_termx[3, eRD_CurvedTurnoutWingOuterFace] := plox + fw * hdkn;     // outer-edge.
+          seg_termx[3, rdCurvedTurnoutWingOuterFace] := plox + fw * hdkn;     // outer-edge.
         end
         else begin
-          seg_termx[3, eRD_CurvedTurnoutWingGaugeFace] :=
+          seg_termx[3, rdCurvedTurnoutWingGaugeFace] :=
             torgx + SGZ(tradius) * SQRT(SQR(tradius) - SQR(torgy - tempy));  // gauge-face.
-          seg_termx[3, eRD_CurvedTurnoutWingOuterFace] :=
+          seg_termx[3, rdCurvedTurnoutWingOuterFace] :=
             torgx + SGZ(tradius) * SQRT(SQR(tradius + j) - SQR(torgy - fw));  // outer-edge.
         end;
       end
       else begin   // switch diamond..
 
-        seg_termx[3, eRD_CurvedTurnoutWingGaugeFace] := toex;    // gauge-face.
+        seg_termx[3, rdCurvedTurnoutWingGaugeFace] := toex;    // gauge-face.
 
         if tradius_is_straight = True       // outer-edge..
         then
-          seg_termx[3, eRD_CurvedTurnoutWingOuterFace] := plox
+          seg_termx[3, rdCurvedTurnoutWingOuterFace] := plox
         else
-          seg_termx[3, eRD_CurvedTurnoutWingOuterFace] :=
+          seg_termx[3, rdCurvedTurnoutWingOuterFace] :=
             torgx + SGZ(tradius) * SQRT(SQR(tradius + j) - SQR(torgy));
       end;
 
-      seg_termx[3, eRD_CurvedStockGaugeFace] := toex - g * TAN(hdk / 2);
+      seg_termx[3, rdCurvedStockGaugeFace] := toex - g * TAN(hdk / 2);
       //0-(g/2)*SIN(hdk/2);           // aq=3 srg
-      seg_termx[3, eRD_CurvedStockOuterFace] := toex - (g + j) * TAN(hdk / 2);
+      seg_termx[3, rdCurvedStockOuterFace] := toex - (g + j) * TAN(hdk / 2);
       //seg_termx[3,3]-j*TAN(hdk/2); // aq=11 sro
 
     end
     else begin     // turnout...
 
       if gaunt = True then begin
-        seg_termx[3, eRD_CurvedTurnoutWingGaugeFace] := toex;     // aq=2 trg
-        seg_termx[3, eRD_CurvedTurnoutWingOuterFace] := toex;    // aq=10 tro
+        seg_termx[3, rdCurvedTurnoutWingGaugeFace] := toex;     // aq=2 trg
+        seg_termx[3, rdCurvedTurnoutWingOuterFace] := toex;    // aq=10 tro
 
-        seg_termx[3, eRD_CurvedStockGaugeFace] := toex;     // aq=3 srg
-        seg_termx[3, eRD_CurvedStockOuterFace] := toex;    // aq=11 sro
+        seg_termx[3, rdCurvedStockGaugeFace] := toex;     // aq=3 srg
+        seg_termx[3, rdCurvedStockOuterFace] := toex;    // aq=11 sro
       end
       else begin
-        seg_termx[3, eRD_CurvedTurnoutWingGaugeFace] := heelx;
+        seg_termx[3, rdCurvedTurnoutWingGaugeFace] := heelx;
         // aq=2 trg  turnout curve start.
         if plox > heelox then
-          seg_termx[3, eRD_CurvedTurnoutWingOuterFace] :=
+          seg_termx[3, rdCurvedTurnoutWingOuterFace] :=
             plox     // aq=10 tro  outer-edge, intercept on (custom extra-wide) stock rail,
         else
-          seg_termx[3, eRD_CurvedTurnoutWingOuterFace] := heelox;
+          seg_termx[3, rdCurvedTurnoutWingOuterFace] := heelox;
         // aq=10 or normal draw from heel.
 
-        seg_termx[3, eRD_CurvedStockGaugeFace] := heelx - g * SIN(k2);              // aq=3 srg
-        seg_termx[3, eRD_CurvedStockOuterFace] := heelx - (g + j) * SIN(k2);         // aq=11 sro
+        seg_termx[3, rdCurvedStockGaugeFace] := heelx - g * SIN(k2);              // aq=3 srg
+        seg_termx[3, rdCurvedStockOuterFace] := heelx - (g + j) * SIN(k2);         // aq=11 sro
       end;
     end;
 
@@ -4943,49 +4943,49 @@ begin
 
     case xing_calc_i of
       0: begin                                // for regular crossing:
-        seg_termx[4, eRD_CurvedTurnoutWingGaugeFace] := tx;
+        seg_termx[4, rdCurvedTurnoutWingGaugeFace] := tx;
         // aq=2 trg  curve ends at entry straight.
-        seg_termx[4, eRD_CurvedTurnoutWingOuterFace] := tx + j * SIN(k3);
+        seg_termx[4, rdCurvedTurnoutWingOuterFace] := tx + j * SIN(k3);
         // aq=10 tro ditto.
 
-        seg_termx[4, eRD_CurvedStockGaugeFace] := tx - g * SIN(k3);
+        seg_termx[4, rdCurvedStockGaugeFace] := tx - g * SIN(k3);
         // aq=3 srg  ditto for stock rail.
-        seg_termx[4, eRD_CurvedStockOuterFace] := tx - (g + j) * SIN(k3);      // aq=11 sro ditto.
+        seg_termx[4, rdCurvedStockOuterFace] := tx - (g + j) * SIN(k3);      // aq=11 sro ditto.
       end;
 
       1: begin                                // for curviform crossing:
         //seg_termx[4,2]:=wingx;                  // trg  end of turnout curve.
         //seg_termx[4,10]:=wingox;                // tro  ditto.
 
-        seg_termx[4, eRD_CurvedTurnoutWingGaugeFace] := wingx_minus;
+        seg_termx[4, rdCurvedTurnoutWingGaugeFace] := wingx_minus;
         //  214a trg  end of turnout curve at start of knuckle bend.
-        seg_termx[4, eRD_CurvedTurnoutWingOuterFace] := wingox_minus;      //  214a tro  ditto.
+        seg_termx[4, rdCurvedTurnoutWingOuterFace] := wingox_minus;      //  214a tro  ditto.
 
-        seg_termx[4, eRD_CurvedStockGaugeFace] := csrendx;
+        seg_termx[4, rdCurvedStockGaugeFace] := csrendx;
         // srg  end of turnout curve.
-        seg_termx[4, eRD_CurvedStockOuterFace] := csrendox;              // sro  ditto.
+        seg_termx[4, rdCurvedStockOuterFace] := csrendox;              // sro  ditto.
       end;
       -1: begin                                // for generic crossing:
         //seg_termx[4,2]:=wingx;                  // trg  end of turnout curve.
         //seg_termx[4,10]:=wingox;                // tro  ditto.
 
-        seg_termx[4, eRD_CurvedTurnoutWingGaugeFace] := wingx_minus;
+        seg_termx[4, rdCurvedTurnoutWingGaugeFace] := wingx_minus;
         //  214a trg  end of turnout curve at start of knuckle bend.
-        seg_termx[4, eRD_CurvedTurnoutWingOuterFace] := wingox_minus;      //  214a tro  ditto.
+        seg_termx[4, rdCurvedTurnoutWingOuterFace] := wingox_minus;      //  214a tro  ditto.
 
-        seg_termx[4, eRD_CurvedStockGaugeFace] := csrfpx;
+        seg_termx[4, rdCurvedStockGaugeFace] := csrfpx;
         // srg  end of turnout curve.
-        seg_termx[4, eRD_CurvedStockOuterFace] := csrfpox;               // sro  ditto.
+        seg_termx[4, rdCurvedStockOuterFace] := csrfpox;               // sro  ditto.
       end;
     end;//case
 
     if plain_track = True            //  stop the curved stock rail at the rail-joint
     then begin                  //  if plain track (approach track) only wanted.
-      seg_termx[1, eRD_CurvedStockGaugeFace] := xorg;
-      seg_termx[1, eRD_CurvedStockOuterFace] := xorg;
+      seg_termx[1, rdCurvedStockGaugeFace] := xorg;
+      seg_termx[1, rdCurvedStockOuterFace] := xorg;
       for i := 2 to 4 do begin
-        seg_termx[i, eRD_CurvedStockGaugeFace] := nodraw;      // aq=3   gauge-face.
-        seg_termx[i, eRD_CurvedStockOuterFace] := nodraw;     // aq=11  outer-edge.
+        seg_termx[i, rdCurvedStockGaugeFace] := nodraw;      // aq=3   gauge-face.
+        seg_termx[i, rdCurvedStockOuterFace] := nodraw;     // aq=11  outer-edge.
       end;
     end;
     //end;//with cpi
@@ -5493,8 +5493,8 @@ begin
             if xing_calc_i <> 0
             // turnout - curved or generic crossing..
             then begin
-              trans_txrad := controlTemplate.curve.transitionRadius1;    // keep compiler happy.
-              rcurv_tx := controlTemplate.curve.transitionRadius1;       // keep compiler happy.
+              trans_txrad := controlTemplate.curve.transitionStartRadius;    // keep compiler happy.
+              rcurv_tx := controlTemplate.curve.transitionStartRadius;       // keep compiler happy.
 
               rcurv_fp :=
                 curved_onto_calc(tradius - g / 2, trans_fprad);   //^^^
@@ -5638,8 +5638,8 @@ begin
             if xing_calc_i <> 0
             // half-diamond - curved or generic crossing (irregular)...
             then begin
-              trans_txrad := controlTemplate.curve.transitionRadius1;    // keep compiler happy.
-              rcurv_tx := controlTemplate.curve.transitionRadius1;       // keep compiler happy.
+              trans_txrad := controlTemplate.curve.transitionStartRadius;    // keep compiler happy.
+              rcurv_tx := controlTemplate.curve.transitionStartRadius;       // keep compiler happy.
 
               rcurv_fp :=
                 curved_onto_calc(tradius - g / 2, trans_fprad);   //^^^
@@ -5875,7 +5875,7 @@ begin
         Add('amount of slew = ' + round_str(controlTemplate.curve.slewAmount, 2));
         Add('');
 
-        if controlTemplate.curve.slewMode = eSM_Cosine then begin
+        if controlTemplate.curve.slewMode = smCosine then begin
           if ABS(controlTemplate.curve.slewAmount) > minfp then
             slew_rad := 2 * SQR(controlTemplate.curve.slewLength) / controlTemplate.curve.slewAmount / SQR(Pi)
           // (sign of rad is for start end of slew, slew amount is +ve towards the hand).
@@ -6189,14 +6189,14 @@ begin
       end
       else begin
 
-        if ABS(controlTemplate.curve.transitionRadius1) < max_rad_test  // transition.
+        if ABS(controlTemplate.curve.transitionStartRadius) < max_rad_test  // transition.
         then
           Add('radial centre (1st rad) :  X = ' + round_str(rad1_orgx, 2) +
             '   Y = ' + round_str(rad1_orgy, 2))
         else
           Add('radial centre (1st rad) = straight');
 
-        if ABS(controlTemplate.curve.transitionRadius2) < max_rad_test then
+        if ABS(controlTemplate.curve.transitionEndRadius) < max_rad_test then
           Add('radial centre (2nd rad) :  X = ' + round_str(rad2_orgx, 2) +
             '   Y = ' + round_str(rad2_orgy, 2))
         else
@@ -6663,27 +6663,27 @@ begin
 
   if (plain_track = True) or (cl_only = True) or (rail_section = 0) then begin
     case aq of
-      eRD_StraightStockGaugeFace,
-      eRD_CurvedStockGaugeFace,
-      eRD_StraightStockOuterFace,
-      eRD_CurvedStockOuterFace,
-      eRD_StraightStockFootInnerEdge,
-      eRD_CurvedStockFootInnerEdge,
-      eRD_StraightStockFootOuterEdge,
-      eRD_CurvedStockFootOuterEdge: begin
+      rdStraightStockGaugeFace,
+      rdCurvedStockGaugeFace,
+      rdStraightStockOuterFace,
+      rdCurvedStockOuterFace,
+      rdStraightStockFootInnerEdge,
+      rdCurvedStockFootInnerEdge,
+      rdStraightStockFootOuterEdge,
+      rdCurvedStockFootOuterEdge: begin
         if (cl_only = False) and (rail_section <> 0) then
           list_size := turnoutx / incx     // plain track main rails.
         else
           list_size := 0;                // no rails, centre-lines only
       end;
 
-      eRD_AdjTrackTurnoutSideNearGaugeFace..eRD_AdjTrackMainSideFarOuterFace:
+      rdAdjTrackTurnoutSideNearGaugeFace..rdAdjTrackMainSideFarOuterFace:
         list_size := turnoutx / incx; // platforms, trackbed edges
 
-      eRD_MainRoadCentreLine:
+      rdMainRoadCentreLine:
         list_size := turnoutx / incx;         // main-side centre-line.
       //25 : list_size:=(turnoutx-dpx)/incx;   // turnout-side centre-line.
-      eRD_TurnoutRoadCentreLine:
+      rdTurnoutRoadCentreLine:
         list_size := turnoutx / incx;
         // 0.93.a for irregular half_diamond // turnout-side centre-line.
 
@@ -6693,16 +6693,16 @@ begin
   end
   else begin             // normal turnout or half-diamond or gaunt...
     case aq of
-      eRD_StraightStockGaugeFace,
-      eRD_StraightStockOuterFace,
-      eRD_StraightStockFootInnerEdge,
-      eRD_StraightStockFootOuterEdge:
+      rdStraightStockGaugeFace,
+      rdStraightStockOuterFace,
+      rdStraightStockFootInnerEdge,
+      rdStraightStockFootOuterEdge:
         if main_road_i <> 0 then
           list_size := (xorg + main_road_endx) / incx       // straight stock rail   217a
         else
           list_size := turnoutx / incx;
 
-      eRD_AdjTrackTurnoutSideNearGaugeFace..eRD_AdjTrackMainSideFarOuterFace:
+      rdAdjTrackTurnoutSideNearGaugeFace..rdAdjTrackMainSideFarOuterFace:
         list_size := turnoutx / incx;       // platforms, trackbed edges
 
       //1,2,9,10 : list_size:=(ckendx-toex)/incx;    // closure rails.  mods v:0.71.a  16-5-01..
@@ -6714,10 +6714,10 @@ begin
 
       // 093a ex 081 ...
 
-      eRD_StraightTurnoutWingGaugeFace,
-      eRD_StraightTurnoutWingOuterFace,
-      eRD_StraightTurnoutWingFootInnerEdge,
-      eRD_StraightTurnoutWindFootOuterEdge: begin
+      rdStraightTurnoutWingGaugeFace,
+      rdStraightTurnoutWingOuterFace,
+      rdStraightTurnoutWingFootInnerEdge,
+      rdStraightTurnoutWindFootOuterEdge: begin
         if gaunt = True                            // 0.93.a
         then
           list_size := flcendx / incx          // includes approach track gauntletted rail.
@@ -6728,10 +6728,10 @@ begin
         // 214a   1" steps along knuckle radius. At normal setting that means 12 steps.
       end;
 
-      eRD_CurvedTurnoutWingGaugeFace,
-      eRD_CurvedTurnoutWingOuterFace,
-      eRD_CurvedTurnoutWingFootInnerEdge,
-      eRD_CurvedTurnoutWindFootOuterEdge: begin
+      rdCurvedTurnoutWingGaugeFace,
+      rdCurvedTurnoutWingOuterFace,
+      rdCurvedTurnoutWingFootInnerEdge,
+      rdCurvedTurnoutWindFootOuterEdge: begin
         if gaunt = True                               // 0.93.a
         then
           list_size := wingendx_ms / incx         // includes approach track gauntletted rail.
@@ -6742,30 +6742,30 @@ begin
         // 214a   1" steps along knuckle radius. At normal setting that means 12 steps.
       end;
 
-      eRD_CurvedStockGaugeFace,
-      eRD_CurvedStockOuterFace,
-      eRD_CurvedStockFootInnerEdge,
-      eRD_CurvedStockFootOuterEdge:
+      rdCurvedStockGaugeFace,
+      rdCurvedStockOuterFace,
+      rdCurvedStockFootInnerEdge,
+      rdCurvedStockFootOuterEdge:
         if turnout_road_i > 1 then
           list_size := (xorg + turnout_road_endx) /
             incx       // 209a  curved stock rail.     was =2 217a
         else
           list_size := turnoutx / incx;
 
-      eRD_VeeSpliceGaugeFace,
-      eRD_VeeSpliceOuterFace,
-      eRD_VeeSpliceFootInnerEdge,
-      eRD_VeeSpliceFootOuterEdge:
+      rdVeeSpliceGaugeFace,
+      rdVeeSpliceOuterFace,
+      rdVeeSpliceFootInnerEdge,
+      rdVeeSpliceFootOuterEdge:
         if turnout_road_i > 1 then
           list_size := (xorg + turnout_road_endx - fpx) /
             incx   // 209a  vee splice rail.       was =2 217a
         else
           list_size := (turnoutx - fpx) / incx;
 
-      eRD_VeePointGaugeFace,
-      eRD_VeePointOuterFace,
-      eRD_VeePointFootInnerEdge,
-      eRD_VeePointFootOuterEdge:
+      rdVeePointGaugeFace,
+      rdVeePointOuterFace,
+      rdVeePointFootInnerEdge,
+      rdVeePointFootOuterEdge:
         if main_road_i <> 0 then
           list_size := (xorg + main_road_endx - fpx) / incx   // vee point rail. 217a
         else
@@ -6776,38 +6776,38 @@ begin
 
       //6,7,14,15 : list_size:=(ckendx-ckx)/incx;     // check rails.
 
-      eRD_MainSideCheckGaugeFace,
-      eRD_MainSideCheckOuterFace,
-      eRD_MainSideCheckFootInnerEdge,
-      eRD_MainSideCheckFootOuterEdge:
+      rdMainSideCheckGaugeFace,
+      rdMainSideCheckOuterFace,
+      rdMainSideCheckFootInnerEdge,
+      rdMainSideCheckFootOuterEdge:
         list_size := (ckl_ms) / incx;     // main-side check rails.
 
-      eRD_TurnoutSideCheckGaugeFace,
-      eRD_TurnoutSideCheckOuterFace,
-      eRD_TurnoutSideCheckFootInnerEdge,
-      eRD_TurnoutSideCheckFootOuterEdge:
+      rdTurnoutSideCheckGaugeFace,
+      rdTurnoutSideCheckOuterFace,
+      rdTurnoutSideCheckFootInnerEdge,
+      rdTurnoutSideCheckFootOuterEdge:
         list_size := (ckl_ts) / incx;     // turnout-side check rails.
 
       //25 : list_size:=(turnoutx-dpx)/incx;   // turnout-side centre-line.
 
-      eRD_MainRoadCentreLine:
+      rdMainRoadCentreLine:
         if main_road_i <> 0 then
           list_size := (xorg + main_road_endx) / incx   // 217a  main-road centre-line
         else
           list_size := turnoutx / incx;
 
-      eRD_TurnoutRoadCentreLine:
+      rdTurnoutRoadCentreLine:
         if turnout_road_i > 1 then
           list_size := (xorg + turnout_road_endx) /
             incx   // 209a  turnout-road centre-line   was =2 217a
         else
           list_size := turnoutx / incx;
 
-      eRD_KCrossingCheckMainSideGaugeFace,
-      eRD_KCrossingCheckMainSideOuterEdge:
+      rdKCrossingCheckMainSideGaugeFace,
+      rdKCrossingCheckMainSideOuterEdge:
         list_size := (kckmsflendx - kckmsx) / incx;  // k-crossing check rails.
-      eRD_KCrossingCheckTurnoutSideGaugeFace,
-      eRD_KCrossingCheckTurnoutSideOuterEdge:
+      rdKCrossingCheckTurnoutSideGaugeFace,
+      rdKCrossingCheckTurnoutSideOuterEdge:
         list_size := (kckdsflendx - kckdsx) / incx;
 
       else
@@ -6890,7 +6890,7 @@ begin
   incx125 := incx * 125;
 
   for n := 0 to ring_count_c do begin
-    rings_checkpoints[n].aq := eRD_Unused;        // no aq yet being checked.
+    rings_checkpoints[n].aq := rdUnused;        // no aq yet being checked.
     rings_checkpoints[n].infringed := False;       // not closer than incx to ring.
   end;//for
 
@@ -6904,7 +6904,7 @@ begin
       pen_width := 3;
   end;
 
-  for aq := eRD_Unused downto eRD_StraightStockGaugeFace do begin      // Main loop for rails :
+  for aq := rdUnused downto rdStraightStockGaugeFace do begin      // Main loop for rails :
     // (in reverse order so that FB foot, adjacent rails and centre-lines are overdrawn.)
 
 
@@ -6926,22 +6926,22 @@ begin
     if (cl_only = True) or (rail_section = 0)
     // no rails wanted, but don't ignore platforms and trackbed edges
     then begin
-      if aq in [eRD_StraightStockGaugeFace..eRD_TurnoutSideCheckOuterFace] then
+      if aq in [rdStraightStockGaugeFace..rdTurnoutSideCheckOuterFace] then
         CONTINUE;  // no template rails
 
       if adjacent_edges = False   // adjacent rails
       then begin
-        if (aq <> eRD_MainRoadCentreLine) and (aq <> eRD_TurnoutRoadCentreLine) then
+        if (aq <> rdMainRoadCentreLine) and (aq <> rdTurnoutRoadCentreLine) then
           CONTINUE;   // only centre lines, ignore adjacent rails
       end
       else begin                        // platforms and trackbed edges
-        if aq in [eRD_KCrossingCheckMainSideGaugeFace..eRD_Unused] then
+        if aq in [rdKCrossingCheckMainSideGaugeFace..rdUnused] then
           CONTINUE;    // ignore only half-diamond rails
       end;
     end;
 
-    if (plain_track = False) or (aq in eRD_StockRails) or (aq in eRD_AdjacentTracks) or
-      (aq = eRD_MainRoadCentreLine)
+    if (plain_track = False) or (aq in rdStockRails) or (aq in rdAdjacentTracks) or
+      (aq = rdMainRoadCentreLine)
     // stock rails and adjacent tracks only if plain track.
     then begin
       if aqyn[aq] = True then begin
@@ -6975,7 +6975,7 @@ begin
           begin
             ink_colour := rail_colour;  // init
 
-            if (aq = eRD_MainRoadCentreLine) or (aq = eRD_TurnoutRoadCentreLine)
+            if (aq = rdMainRoadCentreLine) or (aq = rdTurnoutRoadCentreLine)
             // track centre-lines
             then begin
               if dummy_template = True then
@@ -6984,10 +6984,10 @@ begin
                 ink_colour := guide_colour;
             end;
 
-            if ((aq = eRD_AdjTrackTurnoutSideNearGaugeFace) or
-              (aq = eRD_AdjTrackTurnoutSideNearOuterFace) or
-              (aq = eRD_AdjTrackMainSideNearGaugeFace) or
-              (aq = eRD_AdjTrackMainSideNearOuterFace)) and (adjacent_edges = True)
+            if ((aq = rdAdjTrackTurnoutSideNearGaugeFace) or
+              (aq = rdAdjTrackTurnoutSideNearOuterFace) or
+              (aq = rdAdjTrackMainSideNearGaugeFace) or
+              (aq = rdAdjTrackMainSideNearOuterFace)) and (adjacent_edges = True)
             // 0.93.a platforms
             then
               ink_colour := guide_colour;
@@ -7160,7 +7160,7 @@ begin
       Result := controlTemplate.curve.fixedRadius;
     end
     else begin
-      Result := min(ABS(controlTemplate.curve.transitionRadius1), ABS(controlTemplate.curve.transitionRadius2));
+      Result := min(ABS(controlTemplate.curve.transitionStartRadius), ABS(controlTemplate.curve.transitionEndRadius));
     end;
   end;
 end;
@@ -7346,22 +7346,22 @@ begin
 
   case aq of                          // which rail-line ?
 
-    eRD_StraightStockGaugeFace,
-    eRD_StraightStockOuterFace,
-    eRD_AdjTrackTurnoutSideNearGaugeFace..eRD_MainRoadCentreLine:
+    rdStraightStockGaugeFace,
+    rdStraightStockOuterFace,
+    rdAdjTrackTurnoutSideNearGaugeFace..rdMainRoadCentreLine:
       Result := strails(aq);
     // straight stock rail, adjacent tracks/trackbed/platforms, main-road track centre-line.
 
-    eRD_StraightTurnoutWingGaugeFace,
-    eRD_StraightTurnoutWingOuterFace: begin
+    rdStraightTurnoutWingGaugeFace,
+    rdStraightTurnoutWingOuterFace: begin
       Result := strails(aq);                   // straight turnout rail to knuckle.
       if knuckle_code <> -1 then
         knuckle(aq);  // knuckle radius  214a   -1=sharp knuckle
       cuwing(aq{,flen_tr});                  // then turnout-side wing rail.
     end;
 
-    eRD_CurvedTurnoutWingGaugeFace,
-    eRD_CurvedTurnoutWingOuterFace: begin
+    rdCurvedTurnoutWingGaugeFace,
+    rdCurvedTurnoutWingOuterFace: begin
       curails(aq{,flen_mr});
       // curved turnout rail to end of curve.
       if xing_calc_i = 0 then
@@ -7371,8 +7371,8 @@ begin
       stwing(aq{,flen_mr});                         // then main-side wing rail.
     end;
 
-    eRD_CurvedStockGaugeFace,
-    eRD_CurvedStockOuterFace: begin
+    rdCurvedStockGaugeFace,
+    rdCurvedStockOuterFace: begin
       curails(aq{,flen_tw});      // curved stock rail to end of turnout curve.
       if xing_calc_i <> 1 then begin
         stcurail(aq{,flen_tw});
@@ -7382,40 +7382,40 @@ begin
       end;
     end;
 
-    eRD_VeePointGaugeFace,
-    eRD_VeePointOuterFace:
+    rdVeePointGaugeFace,
+    rdVeePointOuterFace:
       stvee(aq);                  // straight vee rail.
 
-    eRD_VeeSpliceGaugeFace,
-    eRD_VeeSpliceOuterFace: begin
+    rdVeeSpliceGaugeFace,
+    rdVeeSpliceOuterFace: begin
       cuvee(aq{,flen_tr});                                       // curved vee rail,
       if (xing_calc_i <> 1) and (retpar_i = 1) then
         retrails(aq);  // then if straight crossing,
     end;
     // add return curve if any.
 
-    eRD_MainSideCheckGaugeFace,
-    eRD_MainSideCheckOuterFace:
+    rdMainSideCheckGaugeFace,
+    rdMainSideCheckOuterFace:
       stckrail(aq{,xing_fl});       // main-side check rail.
 
-    eRD_TurnoutSideCheckGaugeFace,
-    eRD_TurnoutSideCheckOuterFace:
+    rdTurnoutSideCheckGaugeFace,
+    rdTurnoutSideCheckOuterFace:
       cuckrail(aq{,xing_fl});       // turnout-side check rail.
 
-    eRD_TurnoutRoadCentreLine:
+    rdTurnoutRoadCentreLine:
       turnroad_cl;                // turnout road centre-line.
 
     //091c 26,27: k_checkrail_ms(aq);        // K-crossing check rail, MS.
 
     // 0.93.a ex 081 ..
 
-    eRD_KCrossingCheckMainSideGaugeFace:
+    rdKCrossingCheckMainSideGaugeFace:
       cuwing(aq{,flen_mk});        // K-crossing check rail, MS, gauge-face
-    eRD_KCrossingCheckMainSideOuterEdge:
+    rdKCrossingCheckMainSideOuterEdge:
       cuwing(aq{,flen_mk_oe});     // K-crossing check rail, MS, outer edge
 
-    eRD_KCrossingCheckTurnoutSideGaugeFace,
-    eRD_KCrossingCheckTurnoutSideOuterEdge:
+    rdKCrossingCheckTurnoutSideGaugeFace,
+    rdKCrossingCheckTurnoutSideOuterEdge:
       k_checkrail_ds(aq);        // K-crossing check rail, DS.
 
     else
@@ -7430,13 +7430,13 @@ begin
   if (gaunt = True) and (plain_track = False)     // plain track bug fix 211c
   then begin
     case aq of                     // which rail ?
-      eRD_CurvedTurnoutWingGaugeFace:
+      rdCurvedTurnoutWingGaugeFace:
         ys := h;               // trg, // not actually used, xb = nodraw.
-      eRD_CurvedStockGaugeFace:
+      rdCurvedStockGaugeFace:
         ys := h + g;             // srg.
-      eRD_CurvedTurnoutWingOuterFace:
+      rdCurvedTurnoutWingOuterFace:
         ys := h - j;             // tro, // not actually used, xb = nodraw.
-      eRD_CurvedStockOuterFace:
+      rdCurvedStockOuterFace:
         ys := h + g + j;           // sro.
       else
         run_error(64);
@@ -7444,13 +7444,13 @@ begin
   end
   else begin
     case aq of                     // which rail ?
-      eRD_CurvedTurnoutWingGaugeFace:
+      rdCurvedTurnoutWingGaugeFace:
         ys := 0;               // trg, // not actually used, xb = nodraw.
-      eRD_CurvedStockGaugeFace:
+      rdCurvedStockGaugeFace:
         ys := g;               // srg.
-      eRD_CurvedTurnoutWingOuterFace:
+      rdCurvedTurnoutWingOuterFace:
         ys := 0 - j;             // tro, // not actually used, xb = nodraw.
-      eRD_CurvedStockOuterFace:
+      rdCurvedStockOuterFace:
         ys := g + j;             // sro.
       else
         run_error(64);
@@ -7474,8 +7474,8 @@ begin
 
   xpl := xs - setx;     // current length along planing.
 
-  if (do_joggle = True) and ((aq = eRD_CurvedStockGaugeFace) or
-    (aq = eRD_CurvedStockOuterFace)) and (len > minfp) then begin
+  if (do_joggle = True) and ((aq = rdCurvedStockGaugeFace) or
+    (aq = rdCurvedStockOuterFace)) and (len > minfp) then begin
     if xpl >= len then
       jog := 0                           // beyond end of planing.
     else
@@ -7487,13 +7487,13 @@ begin
   y := jog + xpl * TAN(k1);                // total offset.
 
   case aq of                     // which rail ?
-    eRD_CurvedTurnoutWingGaugeFace:
+    rdCurvedTurnoutWingGaugeFace:
       ys := y;                        // trg.
-    eRD_CurvedStockGaugeFace:
+    rdCurvedStockGaugeFace:
       ys := g + y;                      // srg.
-    eRD_CurvedTurnoutWingOuterFace:
+    rdCurvedTurnoutWingOuterFace:
       ys := 0;                        // tro.
-    eRD_CurvedStockOuterFace:
+    rdCurvedStockOuterFace:
       ys := g + y + j / COS(k1);            // sro.
     else
       run_error(155);
@@ -7513,13 +7513,13 @@ begin
   if gaunt = True then begin
     ks := 0;
     case aq of
-      eRD_CurvedTurnoutWingGaugeFace:
+      rdCurvedTurnoutWingGaugeFace:
         ys := h;          // trg
-      eRD_CurvedStockGaugeFace:
+      rdCurvedStockGaugeFace:
         ys := h + g;        // srg
-      eRD_CurvedTurnoutWingOuterFace:
+      rdCurvedTurnoutWingOuterFace:
         ys := h - j;        // tro
-      eRD_CurvedStockOuterFace:
+      rdCurvedStockOuterFace:
         ys := h + g + j;      // sro
       else
         run_error(66);
@@ -7532,8 +7532,8 @@ begin
 
   len := stox - setx;   // length of planing for joggle.
 
-  if (do_joggle = True) and ((aq = eRD_CurvedStockGaugeFace) or
-    (aq = eRD_CurvedStockOuterFace)) and (len > minfp) then begin
+  if (do_joggle = True) and ((aq = rdCurvedStockGaugeFace) or
+    (aq = rdCurvedStockOuterFace)) and (len > minfp) then begin
     xjog := xs - setx;              // length along planing.
     if xjog >= len then
       jog := 0                            // beyond end of planing.
@@ -7546,13 +7546,13 @@ begin
   x := xs - sworgx;                 // x from rad centre.
 
   case aq of                  // which rail ?
-    eRD_CurvedTurnoutWingGaugeFace:
+    rdCurvedTurnoutWingGaugeFace:
       rsw := swrad;             // trg radius.
-    eRD_CurvedStockGaugeFace:
+    rdCurvedStockGaugeFace:
       rsw := swrad - g;           // srg radius.
-    eRD_CurvedTurnoutWingOuterFace:
+    rdCurvedTurnoutWingOuterFace:
       rsw := swrad + j;           // tro radius.
-    eRD_CurvedStockOuterFace:
+    rdCurvedStockOuterFace:
       rsw := swrad - g - j;         // sro radius.
     else
       run_error(67);
@@ -7608,13 +7608,13 @@ begin
 
     case aq of                       // which side of which rail ?
 
-      eRD_StraightStockGaugeFace, eRD_StraightStockOuterFace: begin                 // stock rail.
+      rdStraightStockGaugeFace, rdStraightStockOuterFace: begin                 // stock rail.
 
         //if (joggled=True) and (turnout_road_crossing_rail_flag=True)
         if (plain_track = False) and (half_diamond = False) and (joggled = True) and
           ({cri.}turnout_road_crossing_rail_flag = True)   // mod 0.76.a 27-4-02.
         then begin
-          if aq = eRD_StraightStockGaugeFace then
+          if aq = rdStraightStockGaugeFace then
             ys := 0      // gauge-face aq=0.
           else
             ys := 0 - j;   // outer edge aq=8.
@@ -7633,13 +7633,13 @@ begin
         end
         else begin      //   no joggle, ys constant for this rail.
 
-          if aq = eRD_StraightStockGaugeFace then
+          if aq = rdStraightStockGaugeFace then
             ys := 0      // gauge-face aq=0.
           else
             ys := 0 - j;   // outer edge aq=8.
 
           if half_diamond = True then begin
-            if aq = eRD_StraightStockGaugeFace then
+            if aq = rdStraightStockGaugeFace then
               xb := toex      // half diamond switch starts at toe.
             else
               xb := toeoxhd;  // aq=8.
@@ -7650,7 +7650,7 @@ begin
         end;
       end;
 
-      eRD_StraightTurnoutWingGaugeFace: begin   //  main road crossing rail.
+      rdStraightTurnoutWingGaugeFace: begin   //  main road crossing rail.
 
         ys := g;              //  gauge face. ys constant.
 
@@ -7714,7 +7714,7 @@ begin
         end;
       end;
 
-      eRD_StraightTurnoutWingOuterFace: begin                  //  main-road crossing rail
+      rdStraightTurnoutWingOuterFace: begin                  //  main-road crossing rail
         ys := g + j;             //  outer edge.  ys constant.
 
         if isolated_crossing = True   // 217a
@@ -7745,7 +7745,7 @@ begin
       end;
 
 
-      eRD_AdjTrackTurnoutSideNearGaugeFace..eRD_AdjTrackMainSideFarOuterFace: begin
+      rdAdjTrackTurnoutSideNearGaugeFace..rdAdjTrackMainSideFarOuterFace: begin
         // 0.93.a mods ...
 
         xb := 0;         //  start at datum. init, changed later for platforms, trackbed
@@ -7756,7 +7756,7 @@ begin
         then begin
           case aq of
 
-            eRD_AdjTrackTurnoutSideNearGaugeFace: begin  // TS platform rear edge
+            rdAdjTrackTurnoutSideNearGaugeFace: begin  // TS platform rear edge
 
               xb := platform_ts_start_mm;
               if xb = def_req then
@@ -7777,7 +7777,7 @@ begin
               ys := 0; // calculated in dostr
             end;
 
-            eRD_AdjTrackTurnoutSideNearOuterFace: begin  // TS platform near edge.
+            rdAdjTrackTurnoutSideNearOuterFace: begin  // TS platform near edge.
 
               xb := platform_ts_start_mm;
               if xb = def_req then
@@ -7791,7 +7791,7 @@ begin
               ys := g / 2 + platform_ts_front_edge_ins * inscale;
             end;
 
-            eRD_AdjTrackTurnoutSideFarGaugeFace: begin
+            rdAdjTrackTurnoutSideFarGaugeFace: begin
               // TS trackbed
               xb := trackbed_ts_start_mm;        // 215a ...
               if xb = def_req then
@@ -7806,7 +7806,7 @@ begin
               // TS trackbed width      215a
             end;
 
-            eRD_AdjTrackTurnoutSideFarOuterFace: begin
+            rdAdjTrackTurnoutSideFarOuterFace: begin
               xb := trackbed_ts_start_mm;        // 215a ...
               if xb = def_req then
                 xb := 0;
@@ -7824,7 +7824,7 @@ begin
               // cutting edge mark is half rail-width wide
             end;
 
-            eRD_AdjTrackMainSideNearGaugeFace: begin  // MS platform rear edge
+            rdAdjTrackMainSideNearGaugeFace: begin  // MS platform rear edge
 
               xb := platform_ms_start_mm;
               if xb = def_req then
@@ -7845,7 +7845,7 @@ begin
               ys := 0; // calculated in dostr
             end;
 
-            eRD_AdjTrackMainSideNearOuterFace: begin  // MS platform near edge.
+            rdAdjTrackMainSideNearOuterFace: begin  // MS platform near edge.
 
               xb := platform_ms_start_mm;
               if xb = def_req then
@@ -7860,7 +7860,7 @@ begin
             end;
 
 
-            eRD_AdjTrackMainSideFarGaugeFace: begin
+            rdAdjTrackMainSideFarGaugeFace: begin
               // MS trackbed
               xb := trackbed_ms_start_mm;       // 215a ...
               if xb = def_req then
@@ -7875,7 +7875,7 @@ begin
               // MS trackbed width      215a
             end;
 
-            eRD_AdjTrackMainSideFarOuterFace: begin
+            rdAdjTrackMainSideFarOuterFace: begin
               xb := trackbed_ms_start_mm;       // 215a ...
               if xb = def_req then
                 xb := 0;
@@ -7898,24 +7898,24 @@ begin
         else begin             // adjacent tracks ...
           case aq of
 
-            eRD_AdjTrackTurnoutSideNearGaugeFace:
+            rdAdjTrackTurnoutSideNearGaugeFace:
               ys := trtscent;      //  gauge-face, turnout side adjacent track near rail.
-            eRD_AdjTrackTurnoutSideNearOuterFace:
+            rdAdjTrackTurnoutSideNearOuterFace:
               ys := trtscent - j;    //  ditto outer-edge.
 
-            eRD_AdjTrackTurnoutSideFarGaugeFace:
+            rdAdjTrackTurnoutSideFarGaugeFace:
               ys := trtscent + g;    //  gauge-face, ditto far rail.
-            eRD_AdjTrackTurnoutSideFarOuterFace:
+            rdAdjTrackTurnoutSideFarOuterFace:
               ys := trtscent + g + j;  //  ditto outer-edge.
 
-            eRD_AdjTrackMainSideNearGaugeFace:
+            rdAdjTrackMainSideNearGaugeFace:
               ys := g - trmscent;    //  gauge-face, main side adjacent track near rail.
-            eRD_AdjTrackMainSideNearOuterFace:
+            rdAdjTrackMainSideNearOuterFace:
               ys := g - trmscent + j;  //  ditto outer-edge.
 
-            eRD_AdjTrackMainSideFarGaugeFace:
+            rdAdjTrackMainSideFarGaugeFace:
               ys := 0 - trmscent;    //  gauge-face, ditto far rail.
-            eRD_AdjTrackMainSideFarOuterFace:
+            rdAdjTrackMainSideFarOuterFace:
               ys := 0 - trmscent - j;  //  ditto outer-edge.
 
           end;//case
@@ -7923,7 +7923,7 @@ begin
 
       end;//16..23
 
-      eRD_MainRoadCentreLine: begin     // track centre-line...
+      rdMainRoadCentreLine: begin     // track centre-line...
 
         ys := get_cl_offset;   // added 206a
 
@@ -8156,7 +8156,7 @@ begin
 
     ys := aq25offset(xs, ks);     // get offset to centre-line and angle.
 
-    if (f28000(eRD_TurnoutRoadCentreLine, xs, ys) = 1) or (xs >= xe) then
+    if (f28000(rdTurnoutRoadCentreLine, xs, ys) = 1) or (xs >= xe) then
       BREAK;  // do curving on xs,ys and put in array (aq=25).
     xs := xs + incx;                                     // increment xs.
   until 0 <> 0;
@@ -8196,19 +8196,19 @@ var
 
       case aq of
 
-        eRD_StraightTurnoutWingGaugeFace,
-        eRD_StraightTurnoutWingFootInnerEdge,
-        eRD_StraightTurnoutWingOuterFace,
-        eRD_StraightTurnoutWindFootOuterEdge: begin                        // main road
+        rdStraightTurnoutWingGaugeFace,
+        rdStraightTurnoutWingFootInnerEdge,
+        rdStraightTurnoutWingOuterFace,
+        rdStraightTurnoutWindFootOuterEdge: begin                        // main road
           temp := SQR(kr) - SQR(xs - xb);  // SQRT protection
           if temp < minfp then
             EXIT;
         end;
 
-        eRD_CurvedTurnoutWingGaugeFace,
-        eRD_CurvedTurnoutWingFootInnerEdge,
-        eRD_CurvedTurnoutWingOuterFace,
-        eRD_CurvedTurnoutWindFootOuterEdge: begin                        // turnout road
+        rdCurvedTurnoutWingGaugeFace,
+        rdCurvedTurnoutWingFootInnerEdge,
+        rdCurvedTurnoutWingOuterFace,
+        rdCurvedTurnoutWindFootOuterEdge: begin                        // turnout road
           temp := SQR(kr) - SQR(xe - xs);  // SQRT protection
           if temp < minfp then
             EXIT;
@@ -8217,18 +8217,18 @@ var
 
       case aq of
 
-        eRD_StraightTurnoutWingGaugeFace,
-        eRD_StraightTurnoutWingFootInnerEdge:
+        rdStraightTurnoutWingGaugeFace,
+        rdStraightTurnoutWingFootInnerEdge:
           ys := g + kr - SQRT(temp);      // main road rail, gauge-face
-        eRD_StraightTurnoutWingOuterFace,
-        eRD_StraightTurnoutWindFootOuterEdge:
+        rdStraightTurnoutWingOuterFace,
+        rdStraightTurnoutWindFootOuterEdge:
           ys := g + j + kr - SQRT(temp);    // main road rail, outer edge
 
-        eRD_CurvedTurnoutWingGaugeFace,
-        eRD_CurvedTurnoutWingFootInnerEdge:
+        rdCurvedTurnoutWingGaugeFace,
+        rdCurvedTurnoutWingFootInnerEdge:
           ys := g - fw - kr + SQRT(temp);      // turnout road rail, gauge-face
-        eRD_CurvedTurnoutWingOuterFace,
-        eRD_CurvedTurnoutWindFootOuterEdge:
+        rdCurvedTurnoutWingOuterFace,
+        rdCurvedTurnoutWindFootOuterEdge:
           ys := g - fw - j - kr + SQRT(temp);    // turnout road rail, outer edge
 
       end;//case
@@ -8245,20 +8245,20 @@ begin
 
   case aq of
 
-    eRD_StraightTurnoutWingGaugeFace,
-    eRD_StraightTurnoutWingFootInnerEdge:
+    rdStraightTurnoutWingGaugeFace,
+    rdStraightTurnoutWingFootInnerEdge:
       do_kuckle_curve(aq, knuck_rad, wingcx_minus, wingcx_plus);      // main road rail, gauge-face
-    eRD_StraightTurnoutWingOuterFace,
-    eRD_StraightTurnoutWindFootOuterEdge:
+    rdStraightTurnoutWingOuterFace,
+    rdStraightTurnoutWindFootOuterEdge:
       do_kuckle_curve(aq, knuck_rad - j, wingcox_minus, wingcox_plus);
     // main road rail, outer edge
 
-    eRD_CurvedTurnoutWingGaugeFace,
-    eRD_CurvedTurnoutWingFootInnerEdge:
+    rdCurvedTurnoutWingGaugeFace,
+    rdCurvedTurnoutWingFootInnerEdge:
       do_kuckle_curve(aq, knuck_rad, wingx_minus, wingx_plus);
     // turnout road rail, gauge-face
-    eRD_CurvedTurnoutWingOuterFace,
-    eRD_CurvedTurnoutWindFootOuterEdge:
+    rdCurvedTurnoutWingOuterFace,
+    rdCurvedTurnoutWindFootOuterEdge:
       do_kuckle_curve(aq, knuck_rad - j, wingox_minus, wingox_plus);
     // turnout road rail, outer edge
 
@@ -8273,7 +8273,7 @@ procedure cuwing(aq: ERailData{; fl:extended});      // turnout-side wing rail.
 begin
   // 0.93.a  // mods 0.79.b 23-09-04...
 
-  if aq = eRD_KCrossingCheckMainSideGaugeFace       // K-crossing MS check rail gauge-face...
+  if aq = rdKCrossingCheckMainSideGaugeFace       // K-crossing MS check rail gauge-face...
   then begin
     xb := kckmsx;       // start at centre knuckle.
     xe := kckmsflx;     // do up to flare start.
@@ -8288,7 +8288,7 @@ begin
     EXIT;
   end;
 
-  if aq = eRD_KCrossingCheckMainSideOuterEdge       // K-crossing MS check rail outer-edge...
+  if aq = rdKCrossingCheckMainSideOuterEdge       // K-crossing MS check rail outer-edge...
   then begin
     xb := kckmsox;       // start at centre knuckle.
     xe := kckmsflox;     // do up to flare start.
@@ -8309,7 +8309,7 @@ begin
   then begin            // first do short curve to f.p. :
     case aq of     // which rail-line ?
 
-      eRD_StraightTurnoutWingGaugeFace: begin
+      rdStraightTurnoutWingGaugeFace: begin
         // straight turnout rail, gauge-face.
         //xb:=wingcx;           // start at knuckle.
         xb := wingcx_plus;      // 214a start at end of knuckle_rad.
@@ -8327,7 +8327,7 @@ begin
 
       end;
 
-      eRD_StraightTurnoutWingOuterFace: begin                         // ditto, outer-edges.
+      rdStraightTurnoutWingOuterFace: begin                         // ditto, outer-edges.
         //xb:=wingcox;
         xb := wingcox_plus;      // 214a start at end of knuckle_rad.
 
@@ -8352,7 +8352,7 @@ begin
   else begin                            // normal straight or curviform V-crossing :
     case aq of                     // which rail-line ?
 
-      eRD_StraightTurnoutWingGaugeFace: begin
+      rdStraightTurnoutWingGaugeFace: begin
         // straight turnout rail, gauge-face.
         //xb:=wingcx;                 // start at knuckle.
         xb := wingcx_plus;      // 214a start at end of knuckle_rad.
@@ -8365,7 +8365,7 @@ begin
         docrossing(aq,{fl,}xb, xe, 1);
       end;
 
-      eRD_StraightTurnoutWingOuterFace: begin                        // ditto, outer-edges.
+      rdStraightTurnoutWingOuterFace: begin                        // ditto, outer-edges.
         //xb:=wingcox;
         xb := wingcox_plus;      // 214a start at end of knuckle_rad.
 
@@ -8402,22 +8402,22 @@ begin
 
   case aq of               // which rail ?
 
-    eRD_VeeSpliceGaugeFace: begin            // vee rail:
+    rdVeeSpliceGaugeFace: begin            // vee rail:
       xb := vendx;
       retrmod := 0 - g / 2;       // gf
     end;
 
-    eRD_VeeSpliceOuterFace: begin
+    rdVeeSpliceOuterFace: begin
       xb := vendox;
       retrmod := 0 - g / 2 - j;     // oe
     end;
 
-    eRD_CurvedStockGaugeFace: begin            // curved stock rail:
+    rdCurvedStockGaugeFace: begin            // curved stock rail:
       xb := csrendx;
       retrmod := g / 2;       // gf
     end;
 
-    eRD_CurvedStockOuterFace: begin
+    rdCurvedStockOuterFace: begin
       xb := csrendox;
       retrmod := g / 2 + j;     // oe
     end;
@@ -8455,9 +8455,9 @@ begin
     if xe = nodraw then
       EXIT;  // nothing more on this rail.
 
-    if (aq = eRD_CurvedTurnoutWingGaugeFace) and (xe > wingx_minus) then
+    if (aq = rdCurvedTurnoutWingGaugeFace) and (xe > wingx_minus) then
       xe := wingx_minus;       // 214a mods for knuckle bend
-    if (aq = eRD_CurvedTurnoutWingOuterFace) and (xe > wingox_minus) then
+    if (aq = rdCurvedTurnoutWingOuterFace) and (xe > wingox_minus) then
       xe := wingox_minus;    // 214a mods for knuckle bend
 
     if xb > turnoutx then
@@ -8468,7 +8468,7 @@ begin
 
     if (plain_track = False) and (joggled = True) and
       ({cri.} main_road_crossing_rail_flag = True) and
-      ((aq = eRD_CurvedStockGaugeFace) or (aq = eRD_CurvedStockOuterFace))
+      ((aq = rdCurvedStockGaugeFace) or (aq = rdCurvedStockOuterFace))
     // joggled turnout-side stock rail  v:0.71.a . mod v:0.76.a 27-4-02.
     then begin
       do_joggle := True;
@@ -8481,7 +8481,7 @@ begin
     else
       do_joggle := False;
 
-    if (aq = eRD_CurvedTurnoutWingGaugeFace) and (segment_index = 3) and
+    if (aq = rdCurvedTurnoutWingGaugeFace) and (segment_index = 3) and
       (half_diamond = True) and (fixed_diamond = True) then begin
       // diagonal road crossing rail
       // leave K-crossing flangeway...
@@ -8502,10 +8502,10 @@ begin
 
     if isolated_crossing = True    // 217a
     then begin
-      if aq = eRD_CurvedTurnoutWingGaugeFace then
+      if aq = rdCurvedTurnoutWingGaugeFace then
         xs := blank_start(wingx_minus - scale / 6)                  // 2" arbitrary
       else
-      if aq = eRD_CurvedTurnoutWingOuterFace then
+      if aq = rdCurvedTurnoutWingOuterFace then
         xs := blank_start(wingox_minus - scale / 6)
       else
         xs := blank_start(xb);
@@ -8521,7 +8521,7 @@ begin
     else
       plox_done := False;           // init 18-8-01.
 
-    if (joggled = True) and (aq = eRD_CurvedTurnoutWingGaugeFace) and (xs = toex)
+    if (joggled = True) and (aq = rdCurvedTurnoutWingGaugeFace) and (xs = toex)
     // start aq=2 curved switch blade with the blade tip mark if joggled.
     then begin
       if f28000(aq, xs, 0 - joggle_deep) = 1 then
@@ -8535,7 +8535,7 @@ begin
       // 209a mods   curviform crossing           was turnout_road_i=2 217a
       then begin
         // adjustable..
-        if ((aq <> eRD_CurvedStockGaugeFace) and (aq <> eRD_CurvedStockOuterFace)) or
+        if ((aq <> rdCurvedStockGaugeFace) and (aq <> rdCurvedStockOuterFace)) or
           (turnoutx < (xorg + min_turnout_road_endx)) then
           xe := turnoutx;
         // all other rails stop at end of template
@@ -8547,7 +8547,7 @@ begin
     repeat
       // !!! mods 18-8-01 0.73.a to ensure plox occurs in the list (for neater blade infill on printing)...
 
-      if (aq = eRD_CurvedTurnoutWingGaugeFace) and (segment_index = 2) and
+      if (aq = rdCurvedTurnoutWingGaugeFace) and (segment_index = 2) and
         (switch_type = 0) and (xb < plox) and (xs > plox) and (plox_done = False)
       // planing and switch curve all in one for straight and curved switches...
       then begin
@@ -8596,7 +8596,7 @@ begin
       //  !!! ys global?
 
       if ((half_diamond = False) or (fixed_diamond = False)) and
-        (aq = eRD_CurvedTurnoutWingGaugeFace) and (xs < (plox + minfp{plox+incx mod 18-8-01})) then
+        (aq = rdCurvedTurnoutWingGaugeFace) and (xs < (plox + minfp{plox+incx mod 18-8-01})) then
         list_planing_mark_aq2 := nlmax_array[aq];
       // mod 25-8-98: keep note of where end of planing is in the list.
       // (curved turnout rail - turnout road blade), but not for a fixed-diamond.
@@ -8618,14 +8618,14 @@ begin
 
   case aq of
 
-    eRD_CurvedTurnoutWingGaugeFace: begin                       // turnout rail, gauge-face:
+    rdCurvedTurnoutWingGaugeFace: begin                       // turnout rail, gauge-face:
       xb := seg_termx[4, aq];      // start at end of curved part.
 
       //xe:=wingx;             // end at knuckle.
       xe := wingx_minus;         // 214a end at start of knuckle bend
     end;
 
-    eRD_CurvedTurnoutWingOuterFace: begin                       // ditto, outer-edge:
+    rdCurvedTurnoutWingOuterFace: begin                       // ditto, outer-edge:
       xb := seg_termx[4, aq];
 
       //xe:=wingox;
@@ -8647,7 +8647,7 @@ procedure stwing(aq: ERailData{; fl:extended});   // do main-side wing rail.
 begin
   case aq of                     // which edge ?
 
-    eRD_CurvedTurnoutWingGaugeFace: begin
+    rdCurvedTurnoutWingGaugeFace: begin
       ys := g - fw;       // wing rail gauge face.
 
       //xb:=wingx;           // start at knuckle.
@@ -8663,7 +8663,7 @@ begin
       // fill list for flare-out.
     end;
 
-    eRD_CurvedTurnoutWingOuterFace: begin
+    rdCurvedTurnoutWingOuterFace: begin
       ys := g - fw - j;     // ditto, outer edge.
 
       //xb:=wingox;
@@ -8723,10 +8723,10 @@ begin
 
   if isolated_crossing = True    // 217a
   then begin
-    if aq = eRD_CurvedTurnoutWingGaugeFace then
+    if aq = rdCurvedTurnoutWingGaugeFace then
       xs := blank_start(wingx_minus - scale / 6)                  // 2" arbitrary
     else
-    if aq = eRD_CurvedTurnoutWingOuterFace then
+    if aq = rdCurvedTurnoutWingOuterFace then
       xs := blank_start(wingox_minus - scale / 6)
     else
       xs := blank_start(xb);
@@ -8744,8 +8744,8 @@ begin
     then
       xe := turnoutx      // stop at end of template
     else begin                       // adjustable..
-      if (aq <> eRD_VeeSpliceGaugeFace) and (aq <> eRD_VeeSpliceOuterFace) and
-        (aq <> eRD_CurvedStockGaugeFace) and (aq <> eRD_CurvedStockOuterFace)
+      if (aq <> rdVeeSpliceGaugeFace) and (aq <> rdVeeSpliceOuterFace) and
+        (aq <> rdCurvedStockGaugeFace) and (aq <> rdCurvedStockOuterFace)
       // 209a not turnout exit rails
       then
         xe := turnoutx;                              // all other rails stop at end of template
@@ -8762,14 +8762,14 @@ begin
       xs := xe;              // ensure we hit the end.
 
     case aq of
-      eRD_StraightTurnoutWingGaugeFace,
-      eRD_StraightTurnoutWingOuterFace,
-      eRD_KCrossingCheckMainSideGaugeFace,
-      eRD_KCrossingCheckMainSideOuterEdge:
+      rdStraightTurnoutWingGaugeFace,
+      rdStraightTurnoutWingOuterFace,
+      rdKCrossingCheckMainSideGaugeFace,
+      rdKCrossingCheckMainSideOuterEdge:
         ys := turnoutst_wing(aq,{fl,}xb, xend, xs);   // go calc TS wing rail (mod 27-5-01 0.71.a).
 
-      eRD_TurnoutSideCheckGaugeFace,
-      eRD_TurnoutSideCheckOuterFace:
+      rdTurnoutSideCheckGaugeFace,
+      rdTurnoutSideCheckOuterFace:
         ys := turnoutst_check(aq,{fl,}xb, xend, xs);
         // go calc TS check rail (mod 27-5-01 0.71.a).
 
@@ -8822,7 +8822,7 @@ begin
   if xs > (xe - minfp) then
     EXIT;  // !!! 0.76.a  18-1-02.
 
-  if (plain_track = False) and (joggled = True) and (aq = eRD_StraightTurnoutWingGaugeFace) and
+  if (plain_track = False) and (joggled = True) and (aq = rdStraightTurnoutWingGaugeFace) and
     (xs = setx)
   // start the aq=1 straight switch blade with the blade tip mark if joggled.
   then begin
@@ -8832,8 +8832,8 @@ begin
 
   aq3_done := False;  // init for trackbed edges
 
-  if ((aq = eRD_AdjTrackTurnoutSideNearGaugeFace) or
-    (aq = eRD_AdjTrackTurnoutSideNearOuterFace)) and (plain_track = False) and
+  if ((aq = rdAdjTrackTurnoutSideNearGaugeFace) or
+    (aq = rdAdjTrackTurnoutSideNearOuterFace)) and (plain_track = False) and
     (adjacent_edges = True)
   // TS platform rear/front
   then begin
@@ -8849,14 +8849,14 @@ begin
 
     // temp assume regular diamond ..
 
-    if (aq = eRD_KCrossingCheckMainSideGaugeFace) or
-      (aq = eRD_KCrossingCheckMainSideOuterEdge) then
+    if (aq = rdKCrossingCheckMainSideGaugeFace) or
+      (aq = rdKCrossingCheckMainSideOuterEdge) then
       yys := ys + (xs - xb) / hdkn;   // K-crossing check rails (working part).
 
     if adjacent_edges = True      // mod straight edges
     then begin
 
-      if aq = eRD_AdjTrackTurnoutSideNearGaugeFace           // rear edge of TS platform
+      if aq = rdAdjTrackTurnoutSideNearGaugeFace           // rear edge of TS platform
       then begin
 
         w1 := platform_ts_start_width_ins * inscale;
@@ -8873,7 +8873,7 @@ begin
           yys := g + sp;  // 207a rear edge can't go in front of front edge
       end;
 
-      if aq = eRD_AdjTrackMainSideNearGaugeFace          // rear edge of MS platform
+      if aq = rdAdjTrackMainSideNearGaugeFace          // rear edge of MS platform
       then begin
         w1 := platform_ms_start_width_ins * inscale;
         w2 := platform_ms_end_width_ins * inscale;
@@ -8890,7 +8890,7 @@ begin
       end;
 
 
-      if (aq = eRD_AdjTrackTurnoutSideNearOuterFace) and (plain_track = False)
+      if (aq = rdAdjTrackTurnoutSideNearOuterFace) and (plain_track = False)
       // 207b TS platform front edge, modify ys to follow turnout curve...
       then begin
 
@@ -8920,7 +8920,7 @@ begin
       end;
 
 
-      if (aq = eRD_AdjTrackTurnoutSideFarGaugeFace) and (aq3_done = False) and
+      if (aq = rdAdjTrackTurnoutSideFarGaugeFace) and (aq3_done = False) and
         (plain_track = False)
       // 215a TS trackbed edge inner, modify ys to follow turnout curve...
       then begin
@@ -8953,7 +8953,7 @@ begin
         end;
       end;
 
-      if (aq = eRD_AdjTrackTurnoutSideFarOuterFace) and (aq3_done = False) and
+      if (aq = rdAdjTrackTurnoutSideFarOuterFace) and (aq3_done = False) and
         (plain_track = False)
       // 215a TS trackbed edge outer, modify ys to follow turnout curve...
       // go further along curve to ensure an overlap with inner at short angles
@@ -9005,7 +9005,7 @@ begin
       BREAK;  // do curving on xs,ys and put in array.
 
     if ((half_diamond = False) or (fixed_diamond = False)) and
-      (aq = eRD_StraightTurnoutWingGaugeFace) and (xs < (stox + minfp{stox+incx mod 18-8-01})) then
+      (aq = rdStraightTurnoutWingGaugeFace) and (xs < (stox + minfp{stox+incx mod 18-8-01})) then
       list_planing_mark_aq1 := nlmax_array[aq];
     // mod 25-8-98: keep note of where end of planing is in the list
     // (straight turnout rail - main road blade) but not for a fixed-diamond.
@@ -9069,7 +9069,7 @@ begin
   then begin
     case aq of
 
-      eRD_CurvedStockGaugeFace: begin                     // curved stock rail, gauge-face:
+      rdCurvedStockGaugeFace: begin                     // curved stock rail, gauge-face:
         xb := seg_termx[4, aq];    // start at end of curved part.
 
         // 209a mods... xe:=csrendx;            // end of turnout.
@@ -9088,7 +9088,7 @@ begin
           xe := csrendx;
       end;
 
-      eRD_CurvedStockOuterFace: begin                     // ditto for outer-edge:
+      rdCurvedStockOuterFace: begin                     // ditto for outer-edge:
         xb := seg_termx[4, aq];
 
         // 209a mods...   xe:=csrendox;
@@ -9136,13 +9136,13 @@ begin
 
   case aq of
 
-    eRD_VeePointGaugeFace: begin                        // gauge-face.
+    rdVeePointGaugeFace: begin                        // gauge-face.
       ys := g;
       xb := bnx;
       xe := endx;   //  217a  turnoutx;
     end;
 
-    eRD_VeePointOuterFace: begin                       // outer edge.
+    rdVeePointOuterFace: begin                       // outer edge.
       ys := g + j;
       xb := bnox;
       xe := endx;   //  217a  turnoutx;
@@ -9174,12 +9174,12 @@ begin
   then begin
     case aq of
 
-      eRD_VeeSpliceGaugeFace: begin                        // curved vee rail, gauge-face.
+      rdVeeSpliceGaugeFace: begin                        // curved vee rail, gauge-face.
         xb := bnxx;
         xe := turnoutx;
       end;
 
-      eRD_VeeSpliceOuterFace: begin                       // ditto, outer-edge.
+      rdVeeSpliceOuterFace: begin                       // ditto, outer-edge.
         xb := bnox;
         xe := turnoutx;
       end;
@@ -9191,12 +9191,12 @@ begin
   else begin
     case aq of
 
-      eRD_VeeSpliceGaugeFace: begin                        // curved vee rail, gauge-face.
+      rdVeeSpliceGaugeFace: begin                        // curved vee rail, gauge-face.
         xb := bnxx;
         xe := vendx;
       end;
 
-      eRD_VeeSpliceOuterFace: begin                       // ditto, outer-edge.
+      rdVeeSpliceOuterFace: begin                       // ditto, outer-edge.
         xb := bnox;
         xe := vendox;
       end;
@@ -9267,17 +9267,17 @@ begin
     ytemp := h + (xs - heelx) * TAN(k3);  // offset.
 
     case aq of                    // which rail ?
-      eRD_CurvedTurnoutWingGaugeFace:
+      rdCurvedTurnoutWingGaugeFace:
         Result := ytemp;                    // turnout-road crossing rail, gauge-face.
-      eRD_CurvedStockGaugeFace:
+      rdCurvedStockGaugeFace:
         Result := ytemp + g * costemp;          // turnout-road stock rail, gauge-face.
-      eRD_CurvedTurnoutWingOuterFace:
+      rdCurvedTurnoutWingOuterFace:
         Result := ytemp - j * costemp;          // turnout-road crossing rail, outer-edge.
-      eRD_CurvedStockOuterFace:
+      rdCurvedStockOuterFace:
         Result := ytemp + (g + j) * costemp;      // turnout-road stock rail, outer-edge.
-      eRD_KCrossingCheckMainSideGaugeFace:
+      rdKCrossingCheckMainSideGaugeFace:
         Result := ytemp + fw * costemp;         // K-crossing MS check rail, gauge-face.
-      eRD_KCrossingCheckMainSideOuterEdge:
+      rdKCrossingCheckMainSideOuterEdge:
         Result := ytemp + (fw + j) * costemp;     // K-crossing MS check rail, outer-edge.
       else
         run_error(67);
@@ -9289,24 +9289,24 @@ begin
     rto := tradius;    //^^^ // to keep the compiler happy.
 
     case aq of                     // which rail ?
-      eRD_CurvedTurnoutWingGaugeFace,
-      eRD_VeeSpliceGaugeFace:
+      rdCurvedTurnoutWingGaugeFace,
+      rdVeeSpliceGaugeFace:
         rto := tradius;      //^^^               // trg radius.
-      eRD_CurvedTurnoutWingOuterFace,
-      eRD_VeeSpliceOuterFace:
+      rdCurvedTurnoutWingOuterFace,
+      rdVeeSpliceOuterFace:
         rto := tradius + j;    //^^^               // tro radius.
-      eRD_CurvedStockGaugeFace:
+      rdCurvedStockGaugeFace:
         rto := tradius - g;                        // srg radius.
-      eRD_CurvedStockOuterFace:
+      rdCurvedStockOuterFace:
         rto := tradius - g - j;                      // sro radius.
-      eRD_StraightTurnoutWingGaugeFace,
-      eRD_StraightTurnoutWingOuterFace {,26,27}:
+      rdStraightTurnoutWingGaugeFace,
+      rdStraightTurnoutWingOuterFace {,26,27}:
         rto := flarerad(aq,{fl,k5,}xs{,1});
       // turnout-side wing rail, go calc radius (flare-out).
       {// and K-crossing check rail, main-side.}
 
-      eRD_TurnoutSideCheckGaugeFace,
-      eRD_TurnoutSideCheckOuterFace:
+      rdTurnoutSideCheckGaugeFace,
+      rdTurnoutSideCheckOuterFace:
         rto := flarerad(aq,{fl,k5,}xs{,flway}); // turnout-side check rail, (flare in or out).
       else
         run_error(68);
@@ -9374,32 +9374,32 @@ begin
 
     // first calc offset at xb or xe point of each rail.
 
-    eRD_CurvedTurnoutWingGaugeFace: begin
+    rdCurvedTurnoutWingGaugeFace: begin
       yst := th;                               // curved turnout rail, gauge-face.
       x := xs - xb;
     end;
 
-    eRD_CurvedTurnoutWingOuterFace: begin
+    rdCurvedTurnoutWingOuterFace: begin
       yst := th - j * COS(k3);                     // ditto, outer-edge.
       x := xs - xb;
     end;
 
-    eRD_CurvedStockGaugeFace: begin
+    rdCurvedStockGaugeFace: begin
       yst := th + g * COS(k3);                     // curved stock rail, gauge-face.
       x := xs - xb;
     end;
 
-    eRD_CurvedStockOuterFace: begin
+    rdCurvedStockOuterFace: begin
       yst := th + (g + j) * COS(k3);                 // ditto, outer edge.
       x := xs - xb;
     end;
 
-    eRD_VeeSpliceGaugeFace: begin
+    rdVeeSpliceGaugeFace: begin
       yst := g + (bnx - fpx) / k3n;                 // curved vee rail, gauge face.
       x := xs - xb;
     end;
 
-    eRD_VeeSpliceOuterFace: begin
+    rdVeeSpliceOuterFace: begin
       yst := g + j;                              // ditto, outer edge.
       x := xs - xb;
     end;
@@ -9434,7 +9434,7 @@ begin
   case aq of
     // TS wing rail: 0.71.a 27-5-01 now using aq2offset for the TS wing rail (for long wing rail, return curve, etc.)
 
-    eRD_StraightTurnoutWingGaugeFace: begin
+    rdStraightTurnoutWingGaugeFace: begin
       if ccd.end_diff_tr.type_diff = 3      // no flare
       then
         fl_offset := 0
@@ -9450,7 +9450,7 @@ begin
         ys := fw + fl_offset;  //!!!
     end;
 
-    eRD_StraightTurnoutWingOuterFace: begin
+    rdStraightTurnoutWingOuterFace: begin
 
       case get_flare_type(ccd.end_diff_tr.type_diff) of
         1:
@@ -9470,7 +9470,7 @@ begin
 
     // MS K-crossing check rail...
 
-    eRD_KCrossingCheckMainSideGaugeFace: begin
+    rdKCrossingCheckMainSideGaugeFace: begin
       fl_offset := cuflare(flen_mk, k5_mk, kckmsflx, kckmsflendx, xs, 1); // flare-out offset.
 
       y_temp := aq2offset(xs, k_temp);   // get y_temp to running rail and angle.
@@ -9481,7 +9481,7 @@ begin
         ys := fw + fl_offset;  //!!!
     end;
 
-    eRD_KCrossingCheckMainSideOuterEdge: begin
+    rdKCrossingCheckMainSideOuterEdge: begin
       case get_flare_type(ccd.end_diff_mk.type_diff) of
         1:
           fl_offset := cuflare(flen_mk, k5_mk, kckmsflox, kckmsflendox, xs, 1); // bent flares.
@@ -9519,7 +9519,7 @@ begin
   case aq of
     // TS check rail: 0.71.a 27-5-01 now using aq3offset for the TS check rail (for long check rails, return curve, etc.)
 
-    eRD_TurnoutSideCheckGaugeFace: begin
+    rdTurnoutSideCheckGaugeFace: begin
       if xb < cuckfpx then
         fl_offset := cuflare(flen_tw, k5_tw, cuckx, cuckfwx, xs, -1)    // flare-in offset.
       else
@@ -9533,7 +9533,7 @@ begin
         ys := g - fw - fl_offset;  //!!!
     end;
 
-    eRD_TurnoutSideCheckOuterFace: begin                      // TS check rail outer-edge...
+    rdTurnoutSideCheckOuterFace: begin                      // TS check rail outer-edge...
 
       if xb < cuckfpox then begin
         case get_flare_type(ccd.end_diff_tw.type_diff) of
@@ -9578,7 +9578,7 @@ var
 begin
   case aq of
 
-    eRD_TurnoutSideCheckGaugeFace: begin                // gauge-face...
+    rdTurnoutSideCheckGaugeFace: begin                // gauge-face...
 
       if (cuckx >= 0) and (cuckfwx > 0) and (cuckox >= 0) and (cuckfwox > 0)
       // tidy start - do flare only if it's all in the template. 0.71.a  29-5-01.
@@ -9604,7 +9604,7 @@ begin
 
     end;
 
-    eRD_TurnoutSideCheckOuterFace: begin                    // ditto, inner-edge...
+    rdTurnoutSideCheckOuterFace: begin                    // ditto, inner-edge...
 
       if (cuckx >= 0) and (cuckfwx > 0) and (cuckox >= 0) and (cuckfwox > 0)
       // tidy start - do flare only if it's all in the template. 0.71.a  29-5-01.
@@ -9643,7 +9643,7 @@ var
 
 begin
   case aq of
-    eRD_MainSideCheckGaugeFace: begin                     // gauge-face
+    rdMainSideCheckGaugeFace: begin                     // gauge-face
       if (ckx_ms >= 0) and (ckfwx > 0) and (ckox >= 0) and (ckfwox > 0)
       // tidy start - do flare only if it's all in the template. 0.71.a  29-5-01.
       then begin
@@ -9667,7 +9667,7 @@ begin
       // flare-out.
     end;
 
-    eRD_MainSideCheckOuterFace: begin                    // outer-edge.
+    rdMainSideCheckOuterFace: begin                    // outer-edge.
       if (ckx_ms >= 0) and (ckfwx > 0) and (ckox >= 0) and (ckfwox > 0)
       // tidy start - do flare only if it's all in the template. 0.71.a  29-5-01.
       then begin
@@ -9718,9 +9718,9 @@ begin
     if xs > xe then
       xs := xe;                           // ensure we hit the end.
 
-    if (machined_end = True) and ((aq = eRD_CurvedTurnoutWingOuterFace) or
-      (aq = eRD_MainSideCheckOuterFace) {or (aq=27)} or
-      (aq = eRD_KCrossingCheckTurnoutSideOuterEdge))
+    if (machined_end = True) and ((aq = rdCurvedTurnoutWingOuterFace) or
+      (aq = rdMainSideCheckOuterFace) {or (aq=27)} or
+      (aq = rdKCrossingCheckTurnoutSideOuterEdge))
     // MS wing or check rail outer-edges
     then
       ys := yfl                                                          // machined flares.
@@ -9744,7 +9744,7 @@ var
 
 begin
   case aq of
-    eRD_KCrossingCheckTurnoutSideGaugeFace: begin                     // gauge-face
+    rdKCrossingCheckTurnoutSideGaugeFace: begin                     // gauge-face
       xb := kckdsx;
       xe := kckdsflx;
       ys := g - fw;
@@ -9757,7 +9757,7 @@ begin
       // fill list for flare-out.
     end;
 
-    eRD_KCrossingCheckTurnoutSideOuterEdge: begin                    // outer-edge.
+    rdKCrossingCheckTurnoutSideOuterEdge: begin                    // outer-edge.
       xb := kckdsox;
       xe := kckdsflox;
       ys := g - fw - j;
@@ -9789,10 +9789,10 @@ begin
 
   if isolated_crossing = True    // 217a
   then begin
-    if aq = eRD_CurvedTurnoutWingGaugeFace then
+    if aq = rdCurvedTurnoutWingGaugeFace then
       xs := blank_start(wingx_minus - scale / 6)                  // 2" arbitrary
     else
-    if aq = eRD_CurvedTurnoutWingOuterFace then
+    if aq = rdCurvedTurnoutWingOuterFace then
       xs := blank_start(wingox_minus - scale / 6)
     else
       xs := blank_start(xb);
@@ -9868,14 +9868,14 @@ begin
 
   case aq of            // which rail ?
     // turnout-side wing rail, gauge face.
-    eRD_StraightTurnoutWingGaugeFace:
+    rdStraightTurnoutWingGaugeFace:
       Result := tradius - fw - cuflare(flen_tr, k5_tr, flarecx, flcendx, xs, 1);
     // rad to this xs.
-    eRD_StraightTurnoutWingOuterFace:
+    rdStraightTurnoutWingOuterFace:
       Result := tradius - fw - j - cuflare(flen_tr, k5_tr, flarecox, flcendox, xs, 1);
     // ditto, outer edge
 
-    eRD_TurnoutSideCheckGaugeFace:
+    rdTurnoutSideCheckGaugeFace:
       if xs < cuckfpx
       // turnout-side check rail, gauge_face     x to check rail opposite f.p.
       then
@@ -9884,7 +9884,7 @@ begin
         Result := csradius + fw + cuflare(flen_te, k5_te, cuckflx, cuckendx, xs, 1);
     // flare-out.
 
-    eRD_TurnoutSideCheckOuterFace:
+    rdTurnoutSideCheckOuterFace:
       if xs < cuckfpox           // turnout-side check rail, inner-edge:
       then
         Result := csradius + fw + j + cuflare(flen_tw, k5_tw, cuckox, cuckfwox, xs, -1)
@@ -9923,14 +9923,14 @@ begin
   try
     case controlTemplate.curve.slewMode of
 
-      eSM_Cosine: begin                         // COS curve method.
+      smCosine: begin                         // COS curve method.
         theta := x * Pi / slew_length;
         // theta is a dummy angle - runs from 0 to pi in the slewing zone.
         y := (1 - COS(theta)) * slew / 2;
         // track follows stretched cosine curve, COS(theta) runs from +1 to -1 in the slewing zone.
       end;
 
-      eSM_TanH: begin         // rotated TANH curve method.
+      smTanH: begin         // rotated TANH curve method.
 
         temp := slew2_ymax - slew2_ymin;
         if ABS(temp) < minfp then begin
@@ -10159,9 +10159,9 @@ begin
 
   // mods 209a for adjustable turnout-road exit...
 
-  if ((aq = eRD_CurvedStockGaugeFace) or (aq = eRD_CurvedStockOuterFace) or
-    (aq = eRD_VeeSpliceGaugeFace) or (aq = eRD_VeeSpliceOuterFace) or
-    (aq = eRD_TurnoutRoadCentreLine))   // turnout road
+  if ((aq = rdCurvedStockGaugeFace) or (aq = rdCurvedStockOuterFace) or
+    (aq = rdVeeSpliceGaugeFace) or (aq = rdVeeSpliceOuterFace) or
+    (aq = rdTurnoutRoadCentreLine))   // turnout road
     and (turnout_road_i > 1)                                  // was turnout_road_i=2 217a
   then begin
     if xs > (xorg + turnout_road_endx + incx * 2) then
@@ -10316,10 +10316,10 @@ begin
 
   if (ring_warn = True) or (ring_copies_warn = True) then begin
     if ((cl_only = False) and (warn_centrelines = False) and
-      (aq in [eRD_StraightStockGaugeFace..eRD_TurnoutSideCheckGaugeFace]))
+      (aq in [rdStraightStockGaugeFace..rdTurnoutSideCheckGaugeFace]))
       // gauge-faces for main rails only (check against OUTER ring).
       or (((cl_only = True) or (warn_centrelines = True)) and
-      ((aq = eRD_MainRoadCentreLine) or (aq = eRD_TurnoutRoadCentreLine)))
+      ((aq = rdMainRoadCentreLine) or (aq = rdTurnoutRoadCentreLine)))
     // centre-lines
     then begin
       if ring_warn = True then begin
@@ -10420,7 +10420,7 @@ begin
     end;
     slew_t := slew_angle;       //  slewing angle is same for straight track.
 
-    if controlTemplate.curve.slewMode = eSM_TanH then begin      // calc constants once only...
+    if controlTemplate.curve.slewMode = smTanH then begin      // calc constants once only...
 
       if controlTemplate.curve.slewFactor < 0.02 then
         controlTemplate.curve.slewFactor := 0.02;         // safety.
@@ -10456,11 +10456,11 @@ begin
     //!!! these calcs are relative to the template datum.
     //!!! see also calc_transition (math_unit) for calcs based on the transition origin.
 
-    clrad1 := controlTemplate.curve.transitionRadius1{+ycurv};  // track centre-line radius.
+    clrad1 := controlTemplate.curve.transitionStartRadius{+ycurv};  // track centre-line radius.
     ssrad1 := clrad1 + g / 2;
     // radius in main road stock rail : g/2 adjustment aways +ve, even for -ve rad.
 
-    clrad2 := controlTemplate.curve.transitionRadius2{+ycurv};
+    clrad2 := controlTemplate.curve.transitionEndRadius{+ycurv};
     ssrad2 := clrad2 + g / 2;
     // radius in main road stock rail : g/2 adjustment aways +ve, even for -ve rad.
 
@@ -12231,7 +12231,7 @@ begin
 
       if ((controlTemplate.curve.distanceToTransition - old_os) < controlTemplate.curve.transitionLength) and (limit_code = 0) then begin
         // don't let tst go negative or rads exceed limits.
-        controlTemplate.curve.transitionRadius1 := new_rad;         // ok, change 1st radius.
+        controlTemplate.curve.transitionStartRadius := new_rad;         // ok, change 1st radius.
         controlTemplate.curve.transitionLength := controlTemplate.curve.transitionLength + old_os - controlTemplate.curve.distanceToTransition;       // keep transition unchanged.
       end
       else
@@ -12277,7 +12277,7 @@ begin
         new_rad := limits(g * 2, max_rad, new_rad, limit_code);      // minimum 2*g arbitrary.
 
       if limit_code = 0 then
-        controlTemplate.curve.transitionRadius2 := new_rad          // ok, change 2nd radius.
+        controlTemplate.curve.transitionEndRadius := new_rad          // ok, change 2nd radius.
       else
         controlTemplate.curve.transitionLength := old_tst;             // not ok, no change.
     end
@@ -12873,26 +12873,26 @@ begin
       1: begin
         // check spiral constant will not exceeed the limit, leave nomrad1 unchanged if so.
 
-        temp := controlTemplate.curve.fixedRadius - controlTemplate.curve.transitionRadius2;
+        temp := controlTemplate.curve.fixedRadius - controlTemplate.curve.transitionEndRadius;
         if ABS(temp) > minfp  // no change to nomrad1 if nomrad=nomrad2
         then begin
           // no change to nomrad1 if spiral too gentle.
 
-          if ABS(controlTemplate.curve.fixedRadius * controlTemplate.curve.transitionRadius2 * controlTemplate.curve.transitionLength / temp) < max_spiral_constant then
-            controlTemplate.curve.transitionRadius1 := controlTemplate.curve.fixedRadius;
+          if ABS(controlTemplate.curve.fixedRadius * controlTemplate.curve.transitionEndRadius * controlTemplate.curve.transitionLength / temp) < max_spiral_constant then
+            controlTemplate.curve.transitionStartRadius := controlTemplate.curve.fixedRadius;
         end;
       end;
 
       2: begin
         // check spiral constant will not exceeed the limit, leave nomrad2 unchanged if so.
 
-        temp := controlTemplate.curve.transitionRadius1 - controlTemplate.curve.fixedRadius;
+        temp := controlTemplate.curve.transitionStartRadius - controlTemplate.curve.fixedRadius;
         if ABS(temp) > minfp  // no change to nomrad2 if nomrad=nomrad1
         then begin
           // no change to nomrad2 if spiral too gentle..
 
-          if ABS(controlTemplate.curve.transitionRadius1 * controlTemplate.curve.fixedRadius * controlTemplate.curve.transitionLength / temp) < max_spiral_constant then
-            controlTemplate.curve.transitionRadius2 := controlTemplate.curve.fixedRadius;
+          if ABS(controlTemplate.curve.transitionStartRadius * controlTemplate.curve.fixedRadius * controlTemplate.curve.transitionLength / temp) < max_spiral_constant then
+            controlTemplate.curve.transitionEndRadius := controlTemplate.curve.fixedRadius;
         end;
       end;
       else
@@ -13549,7 +13549,7 @@ begin
         init_resize;                 // ensure switch mods if no tracing.
 
       if controlTemplate.curve.isSpiral then
-        trail_str := captext(controlTemplate.curve.transitionRadius1) + ' mm  /  ' + captext(controlTemplate.curve.transitionRadius2) + ' mm'
+        trail_str := captext(controlTemplate.curve.transitionStartRadius) + ' mm  /  ' + captext(controlTemplate.curve.transitionEndRadius) + ' mm'
       else
         trail_str := captext(controlTemplate.curve.fixedRadius) + ' mm';
     end;
@@ -13577,7 +13577,7 @@ begin
         gocalc(2, mode{+first_click});
 
       if controlTemplate.curve.isSpiral then
-        trail_str := captext(controlTemplate.curve.transitionRadius1) + ' mm  /  ' + captext(controlTemplate.curve.transitionRadius2) + ' mm'
+        trail_str := captext(controlTemplate.curve.transitionStartRadius) + ' mm  /  ' + captext(controlTemplate.curve.transitionEndRadius) + ' mm'
       else
         trail_str := captext(controlTemplate.curve.fixedRadius) + ' mm';
     end;
@@ -14565,8 +14565,8 @@ begin
 
       controlTemplate.curve.fixedRadius := fixed_rad + y_offset;
       // fixed radius mm.     (include any offset from old files pre 0.64.a)...
-      controlTemplate.curve.transitionRadius1 := trans_rad1 + y_offset;     // first transition radius mm.
-      controlTemplate.curve.transitionRadius2 := trans_rad2 + y_offset;     // second transition radius mm.
+      controlTemplate.curve.transitionStartRadius := trans_rad1 + y_offset;     // first transition radius mm.
+      controlTemplate.curve.transitionEndRadius := trans_rad2 + y_offset;     // second transition radius mm.
 
       controlTemplate.curve.transitionLength := trans_length;                // length of transition mm.
       controlTemplate.curve.distanceToTransition := trans_start;                  // start of transition mm.
@@ -15447,9 +15447,9 @@ begin
       else begin                        // transition.
         case adjust_trans_rad of
           1:
-            nomrad_now := controlTemplate.curve.transitionRadius1;
+            nomrad_now := controlTemplate.curve.transitionStartRadius;
           2:
-            nomrad_now := controlTemplate.curve.transitionRadius2;
+            nomrad_now := controlTemplate.curve.transitionEndRadius;
           else
             run_error(198);
         end;//case
@@ -15525,9 +15525,9 @@ begin
       else begin                // transition.
         case adjust_trans_rad of
           1:
-            nomrad_now := controlTemplate.curve.transitionRadius1;
+            nomrad_now := controlTemplate.curve.transitionStartRadius;
           2:
-            nomrad_now := controlTemplate.curve.transitionRadius2;
+            nomrad_now := controlTemplate.curve.transitionEndRadius;
           else
             run_error(198);
         end;//case
@@ -17826,10 +17826,10 @@ begin
 
       Pen.Style := psSolid;
 
-      if (aq = eRD_AdjTrackTurnoutSideNearGaugeFace) and (adjacent_edges = True) and
+      if (aq = rdAdjTrackTurnoutSideNearGaugeFace) and (adjacent_edges = True) and
         (draw_ts_platform_rear_edge = False) then
         Pen.Style := psDot;    // 0.93.a show dotted on screen if hidden on output.
-      if (aq = eRD_AdjTrackMainSideNearGaugeFace) and (adjacent_edges = True) and
+      if (aq = rdAdjTrackMainSideNearGaugeFace) and (adjacent_edges = True) and
         (draw_ms_platform_rear_edge = False) then
         Pen.Style := psDot;
 
@@ -18701,56 +18701,56 @@ begin
     then begin
       if main_road_stock_rail_flag = True      // rail switches per template.
       then begin
-        aqyn[eRD_StraightStockGaugeFace] := gf;    // straight stock rail.
-        aqyn[eRD_StraightStockOuterFace] := oe;
+        aqyn[rdStraightStockGaugeFace] := gf;    // straight stock rail.
+        aqyn[rdStraightStockOuterFace] := oe;
       end;
 
       if turnout_road_stock_rail_flag = True then begin
-        aqyn[eRD_CurvedStockGaugeFace] := gf;    // curved stock rail.
-        aqyn[eRD_CurvedStockOuterFace] := oe;
+        aqyn[rdCurvedStockGaugeFace] := gf;    // curved stock rail.
+        aqyn[rdCurvedStockOuterFace] := oe;
       end;
     end;
 
     if pad_form.crossing_rails_menu_entry.Checked = True then begin
       if main_road_crossing_rail_flag = True then begin
-        aqyn[eRD_StraightTurnoutWingGaugeFace] := gf;    // straight turnout/wing rail.
-        aqyn[eRD_StraightTurnoutWingOuterFace] := oe;
+        aqyn[rdStraightTurnoutWingGaugeFace] := gf;    // straight turnout/wing rail.
+        aqyn[rdStraightTurnoutWingOuterFace] := oe;
       end;
 
       if turnout_road_crossing_rail_flag = True then begin
-        aqyn[eRD_CurvedTurnoutWingGaugeFace] := gf;    // curved turnout/wing rail.
-        aqyn[eRD_CurvedTurnoutWingOuterFace] := oe;
+        aqyn[rdCurvedTurnoutWingGaugeFace] := gf;    // curved turnout/wing rail.
+        aqyn[rdCurvedTurnoutWingOuterFace] := oe;
       end;
 
       if crossing_vee_flag = True then begin
-        aqyn[eRD_VeePointGaugeFace] := gf;    // straight vee rail.
-        aqyn[eRD_VeePointOuterFace] := oe;
+        aqyn[rdVeePointGaugeFace] := gf;    // straight vee rail.
+        aqyn[rdVeePointOuterFace] := oe;
 
-        aqyn[eRD_VeeSpliceGaugeFace] := gf;    // curved vee rail.
-        aqyn[eRD_VeeSpliceOuterFace] := oe;
+        aqyn[rdVeeSpliceGaugeFace] := gf;    // curved vee rail.
+        aqyn[rdVeeSpliceOuterFace] := oe;
       end;
     end;
 
     if pad_form.check_rails_menu_entry.Checked = True then begin
       if main_road_check_rail_flag = True then begin
-        aqyn[eRD_MainSideCheckGaugeFace] := gf;    // straight check rail.
-        aqyn[eRD_MainSideCheckOuterFace] := oe;
+        aqyn[rdMainSideCheckGaugeFace] := gf;    // straight check rail.
+        aqyn[rdMainSideCheckOuterFace] := oe;
 
         if (half_diamond = True) and (fixed_diamond = True) then begin
-          aqyn[eRD_KCrossingCheckTurnoutSideGaugeFace] := gf;
+          aqyn[rdKCrossingCheckTurnoutSideGaugeFace] := gf;
           // h-d DS check rail. (DS check is in main road.)
-          aqyn[eRD_KCrossingCheckTurnoutSideOuterEdge] := oe;
+          aqyn[rdKCrossingCheckTurnoutSideOuterEdge] := oe;
         end;
       end;
 
       if turnout_road_check_rail_flag = True then begin
-        aqyn[eRD_TurnoutSideCheckGaugeFace] := gf;    // curved check rail.
-        aqyn[eRD_TurnoutSideCheckOuterFace] := oe;
+        aqyn[rdTurnoutSideCheckGaugeFace] := gf;    // curved check rail.
+        aqyn[rdTurnoutSideCheckOuterFace] := oe;
 
         if (half_diamond = True) and (fixed_diamond = True) then begin
-          aqyn[eRD_KCrossingCheckMainSideGaugeFace] := gf;
+          aqyn[rdKCrossingCheckMainSideGaugeFace] := gf;
           // h-d MS check rail. (MS check is in diamond road.)
-          aqyn[eRD_KCrossingCheckMainSideOuterEdge] := oe;
+          aqyn[rdKCrossingCheckMainSideOuterEdge] := oe;
         end;
       end;
     end;
@@ -18770,26 +18770,26 @@ begin
         // any adjacent tracks...
         //       if gen_tsnr=True
         //          then begin
-        aqyn[eRD_AdjTrackTurnoutSideNearGaugeFace] := gf;
-        aqyn[eRD_AdjTrackTurnoutSideNearOuterFace] := oe;
+        aqyn[rdAdjTrackTurnoutSideNearGaugeFace] := gf;
+        aqyn[rdAdjTrackTurnoutSideNearOuterFace] := oe;
         //               end;
 
         //       if gen_tsfr=True
         //          then begin
-        aqyn[eRD_AdjTrackTurnoutSideFarGaugeFace] := gf;
-        aqyn[eRD_AdjTrackTurnoutSideFarOuterFace] := oe;
+        aqyn[rdAdjTrackTurnoutSideFarGaugeFace] := gf;
+        aqyn[rdAdjTrackTurnoutSideFarOuterFace] := oe;
         //               end;
 
         //       if gen_msnr=True
         //          then begin
-        aqyn[eRD_AdjTrackMainSideNearGaugeFace] := gf;
-        aqyn[eRD_AdjTrackMainSideNearOuterFace] := oe;
+        aqyn[rdAdjTrackMainSideNearGaugeFace] := gf;
+        aqyn[rdAdjTrackMainSideNearOuterFace] := oe;
         //               end;
 
         //       if gen_msfr=True
         //          then begin
-        aqyn[eRD_AdjTrackMainSideFarGaugeFace] := gf;
-        aqyn[eRD_AdjTrackMainSideFarOuterFace] := oe;
+        aqyn[rdAdjTrackMainSideFarGaugeFace] := gf;
+        aqyn[rdAdjTrackMainSideFarOuterFace] := oe;
         //               end;
 
       end;
@@ -18797,17 +18797,17 @@ begin
 
     else begin     // 0.93.a platforms and trackbed edges...
 
-      aqyn[eRD_AdjTrackTurnoutSideNearGaugeFace] := draw_ts_platform;
-      aqyn[eRD_AdjTrackTurnoutSideNearOuterFace] := draw_ts_platform;
+      aqyn[rdAdjTrackTurnoutSideNearGaugeFace] := draw_ts_platform;
+      aqyn[rdAdjTrackTurnoutSideNearOuterFace] := draw_ts_platform;
 
-      aqyn[eRD_AdjTrackTurnoutSideFarGaugeFace] := draw_ts_trackbed_edge;
-      aqyn[eRD_AdjTrackTurnoutSideFarOuterFace] := draw_ts_trackbed_edge;
+      aqyn[rdAdjTrackTurnoutSideFarGaugeFace] := draw_ts_trackbed_edge;
+      aqyn[rdAdjTrackTurnoutSideFarOuterFace] := draw_ts_trackbed_edge;
 
-      aqyn[eRD_AdjTrackMainSideNearGaugeFace] := draw_ms_platform;
-      aqyn[eRD_AdjTrackMainSideNearOuterFace] := draw_ms_platform;
+      aqyn[rdAdjTrackMainSideNearGaugeFace] := draw_ms_platform;
+      aqyn[rdAdjTrackMainSideNearOuterFace] := draw_ms_platform;
 
-      aqyn[eRD_AdjTrackMainSideFarGaugeFace] := draw_ms_trackbed_edge;
-      aqyn[eRD_AdjTrackMainSideFarOuterFace] := draw_ms_trackbed_edge;
+      aqyn[rdAdjTrackMainSideFarGaugeFace] := draw_ms_trackbed_edge;
+      aqyn[rdAdjTrackMainSideFarOuterFace] := draw_ms_trackbed_edge;
 
     end;
   end;//generator switch
@@ -18815,10 +18815,10 @@ begin
   //  end;//case
 
   if track_centre_lines_flag = True then begin
-    aqyn[eRD_MainRoadCentreLine] := cl;          // track centre-lines.
+    aqyn[rdMainRoadCentreLine] := cl;          // track centre-lines.
 
     if plain_track = False then
-      aqyn[eRD_TurnoutRoadCentreLine] := cl;    // turnout side centre-line.
+      aqyn[rdTurnoutRoadCentreLine] := cl;    // turnout side centre-line.
   end;
 end;
 //________________________________________________________________________________________
@@ -18975,7 +18975,7 @@ begin
   //081  with cpi do begin
   ys := 0;      // default init.
   ks := 0;
-  if (aq <> eRD_CurvedTurnoutWingGaugeFace) and (aq <> eRD_CurvedStockGaugeFace) then
+  if (aq <> rdCurvedTurnoutWingGaugeFace) and (aq <> rdCurvedStockGaugeFace) then
     EXIT;    // !!!
 
   if (xs < xe) or (xing_calc_i = 1) then
@@ -18990,9 +18990,9 @@ begin
       if xing_calc_i = -1        // generic crossing  - bug fix 27-5-01.
       then begin
         case aq of
-          eRD_CurvedTurnoutWingGaugeFace:
+          rdCurvedTurnoutWingGaugeFace:
             ys := g + (xs - fpx) / k3n;                // calc along straight crossing at this x.
-          eRD_CurvedStockGaugeFace:
+          rdCurvedStockGaugeFace:
             ys := g + g * COS(k3) + (xs - csrfpx) / k3n;
         end;//case
       end
@@ -19034,18 +19034,18 @@ begin
 
   if half_diamond = True  // mods 22-09-04 ...
   then begin
-    xb := seg_termx[3, eRD_CurvedTurnoutWingGaugeFace];
+    xb := seg_termx[3, rdCurvedTurnoutWingGaugeFace];
     // segment_index=3, h-d all on turnout curve.
-    xe := seg_termx[4, eRD_CurvedTurnoutWingGaugeFace];
-    xingoffset(eRD_CurvedTurnoutWingGaugeFace, 0);      // get ys,ks for aq=2.
+    xe := seg_termx[4, rdCurvedTurnoutWingGaugeFace];
+    xingoffset(rdCurvedTurnoutWingGaugeFace, 0);      // get ys,ks for aq=2.
   end
   else begin
     segment_index := 1;   // start search for current rail segment at toex.
 
     repeat
-      xb := seg_termx[segment_index, eRD_CurvedTurnoutWingGaugeFace];
+      xb := seg_termx[segment_index, rdCurvedTurnoutWingGaugeFace];
       // start x for this segment.
-      xe := seg_termx[segment_index + 1, eRD_CurvedTurnoutWingGaugeFace];
+      xe := seg_termx[segment_index + 1, rdCurvedTurnoutWingGaugeFace];
       // end x for this segment
       if (xs < xe) or (segment_index = 3) then
         BREAK;
@@ -19057,20 +19057,20 @@ begin
       1:
         case switch_type of
           -1:
-            straight_planing(eRD_CurvedTurnoutWingGaugeFace, False);    // semi-curved switch.
+            straight_planing(rdCurvedTurnoutWingGaugeFace, False);    // semi-curved switch.
           0:
-            swcurve(eRD_CurvedTurnoutWingGaugeFace, False);
+            swcurve(rdCurvedTurnoutWingGaugeFace, False);
           // for straight switch or curved switch, the planing is part of the switch curve.
           1:
-            double_curved_planing(eRD_CurvedTurnoutWingGaugeFace);
+            double_curved_planing(rdCurvedTurnoutWingGaugeFace);
             // double-curved switch planing.
           else
             run_error(68);
         end;//case
       2:
-        swcurve(eRD_CurvedTurnoutWingGaugeFace, False);
+        swcurve(rdCurvedTurnoutWingGaugeFace, False);
       3:
-        xingoffset(eRD_CurvedTurnoutWingGaugeFace, 0);      // aq=2.
+        xingoffset(rdCurvedTurnoutWingGaugeFace, 0);      // aq=2.
       else
         run_error(82);
     end;//case
@@ -19115,18 +19115,18 @@ begin
 
   if half_diamond = True  // mods 22-09-04...
   then begin
-    xb := seg_termx[3, eRD_CurvedStockGaugeFace];   // segment_index=3, h-d all on turnout curve.
-    xe := seg_termx[4, eRD_CurvedStockGaugeFace];
-    xingoffset(eRD_CurvedStockGaugeFace, g);  // get ys,ks for aq=3.
+    xb := seg_termx[3, rdCurvedStockGaugeFace];   // segment_index=3, h-d all on turnout curve.
+    xe := seg_termx[4, rdCurvedStockGaugeFace];
+    xingoffset(rdCurvedStockGaugeFace, g);  // get ys,ks for aq=3.
   end
   else begin
 
     segment_index := 0;     // turnout - start search for current rail segment.
 
     repeat
-      xb := seg_termx[segment_index, eRD_CurvedStockGaugeFace];
+      xb := seg_termx[segment_index, rdCurvedStockGaugeFace];
       // start x for this segment.
-      xe := seg_termx[segment_index + 1, eRD_CurvedStockGaugeFace];
+      xe := seg_termx[segment_index + 1, rdCurvedStockGaugeFace];
       // end x for this segment.
       if (xs < xe) or (segment_index = 3) then
         BREAK;
@@ -19135,23 +19135,23 @@ begin
 
     case segment_index of
       0:
-        toe(eRD_CurvedStockGaugeFace);
+        toe(rdCurvedStockGaugeFace);
       1:
         case switch_type of
           -1:
-            straight_planing(eRD_CurvedStockGaugeFace, False);      // semi-curved switch.
+            straight_planing(rdCurvedStockGaugeFace, False);      // semi-curved switch.
           0:
-            swcurve(eRD_CurvedStockGaugeFace, False);
+            swcurve(rdCurvedStockGaugeFace, False);
           // for straight switch or curved switch, the planing is part of the switch curve.
           1:
-            double_curved_planing(eRD_CurvedStockGaugeFace);       // double-curved switch planing.
+            double_curved_planing(rdCurvedStockGaugeFace);       // double-curved switch planing.
           else
             run_error(68);
         end;//case
       2:
-        swcurve(eRD_CurvedStockGaugeFace, False);
+        swcurve(rdCurvedStockGaugeFace, False);
       3:
-        xingoffset(eRD_CurvedStockGaugeFace, g);     // aq=3
+        xingoffset(rdCurvedStockGaugeFace, g);     // aq=3
       else
         run_error(83);
     end;//case
@@ -19468,14 +19468,14 @@ begin
 
         if ABS(controlTemplate.curve.fixedRadius) < max_rad_test then
           controlTemplate.curve.fixedRadius := controlTemplate.curve.fixedRadius * mod_gauge_ratio;
-        if ABS(controlTemplate.curve.transitionRadius1) < max_rad_test then
-          controlTemplate.curve.transitionRadius1 := controlTemplate.curve.transitionRadius1 * mod_gauge_ratio;
-        if ABS(controlTemplate.curve.transitionRadius2) < max_rad_test then
-          controlTemplate.curve.transitionRadius2 := controlTemplate.curve.transitionRadius2 * mod_gauge_ratio;
+        if ABS(controlTemplate.curve.transitionStartRadius) < max_rad_test then
+          controlTemplate.curve.transitionStartRadius := controlTemplate.curve.transitionStartRadius * mod_gauge_ratio;
+        if ABS(controlTemplate.curve.transitionEndRadius) < max_rad_test then
+          controlTemplate.curve.transitionEndRadius := controlTemplate.curve.transitionEndRadius * mod_gauge_ratio;
 
         controlTemplate.curve.fixedRadius := check_radius_limits(controlTemplate.curve.fixedRadius);
-        controlTemplate.curve.transitionRadius1 := check_radius_limits(controlTemplate.curve.transitionRadius1);
-        controlTemplate.curve.transitionRadius2 := check_radius_limits(controlTemplate.curve.transitionRadius2);
+        controlTemplate.curve.transitionStartRadius := check_radius_limits(controlTemplate.curve.transitionStartRadius);
+        controlTemplate.curve.transitionEndRadius := check_radius_limits(controlTemplate.curve.transitionEndRadius);
 
         controlTemplate.curve.distanceToTransition := controlTemplate.curve.distanceToTransition * mod_gauge_ratio;
         controlTemplate.curve.transitionLength := controlTemplate.curve.transitionLength * mod_gauge_ratio;
@@ -20261,15 +20261,15 @@ begin
     if x > controlTemplate.curve.distanceToTransition then begin                         // peg is not in r1.
       if x >= (controlTemplate.curve.distanceToTransition + controlTemplate.curve.transitionLength)                     // 214a bug fix was x>(
       then
-        Result := controlTemplate.curve.transitionRadius2{+ycurv}    // peg is in r2.
+        Result := controlTemplate.curve.transitionEndRadius{+ycurv}    // peg is in r2.
       else begin                      // peg is in the transition zone.
         if transcalcs(False, False, trans_k, (x - controlTemplate.curve.distanceToTransition + ts1), dummy1, dummy2,
           dummy3, Result) = False then
-          Result := controlTemplate.curve.transitionRadius1;  // no change if trans error.
+          Result := controlTemplate.curve.transitionStartRadius;  // no change if trans error.
       end;
     end
     else
-      Result := controlTemplate.curve.transitionRadius1{+ycurv};             // peg is in r1.
+      Result := controlTemplate.curve.transitionStartRadius{+ycurv};             // peg is in r1.
   end
   else
     Result := controlTemplate.curve.fixedRadius{+ycurv};    // fixed curve.
@@ -20328,8 +20328,8 @@ begin
 
       if (not controlTemplate.curve.isSpiral) and (ABS(controlTemplate.curve.fixedRadius) > (max_rad / 2)) then
         controlTemplate.curve.fixedRadius := 660 * scale;  // change existing straight to 10 chains.
-      if (controlTemplate.curve.isSpiral) and (ABS(controlTemplate.curve.transitionRadius2) > (max_rad / 2)) then
-        controlTemplate.curve.transitionRadius2 := 660 * scale; // change existing straight to 10 chains.
+      if (controlTemplate.curve.isSpiral) and (ABS(controlTemplate.curve.transitionEndRadius) > (max_rad / 2)) then
+        controlTemplate.curve.transitionEndRadius := 660 * scale; // change existing straight to 10 chains.
 
       {                   then begin
                           alert(6,'    both  radii  straight',
@@ -20339,9 +20339,9 @@ begin
                         end;
 }
 
-      controlTemplate.curve.transitionRadius1 := max_rad;                             // first transition radius (straight).
+      controlTemplate.curve.transitionStartRadius := max_rad;                             // first transition radius (straight).
       if not controlTemplate.curve.isSpiral then
-        controlTemplate.curve.transitionRadius2 := controlTemplate.curve.fixedRadius{+ycurv};
+        controlTemplate.curve.transitionEndRadius := controlTemplate.curve.fixedRadius{+ycurv};
       // second transition radius (as current fixed curve centre-line),
       // (but don't change if currently a transition).
 
@@ -20360,12 +20360,12 @@ begin
 
       if (not controlTemplate.curve.isSpiral) and (ABS(controlTemplate.curve.fixedRadius) > (max_rad / 2)) then
         controlTemplate.curve.fixedRadius := 660 * scale;  // change existing straight to 10 chains.
-      if (controlTemplate.curve.isSpiral) and (ABS(controlTemplate.curve.transitionRadius1) > (max_rad / 2)) then
-        controlTemplate.curve.transitionRadius1 := 660 * scale; // change existing straight to 10 chains.
+      if (controlTemplate.curve.isSpiral) and (ABS(controlTemplate.curve.transitionStartRadius) > (max_rad / 2)) then
+        controlTemplate.curve.transitionStartRadius := 660 * scale; // change existing straight to 10 chains.
 
-      controlTemplate.curve.transitionRadius2 := max_rad;                             // second transition radius (straight).
+      controlTemplate.curve.transitionEndRadius := max_rad;                             // second transition radius (straight).
       if not controlTemplate.curve.isSpiral then
-        controlTemplate.curve.transitionRadius1 := controlTemplate.curve.fixedRadius{+ycurv}; // first transition radius (as current fixed curve centre-line),
+        controlTemplate.curve.transitionStartRadius := controlTemplate.curve.fixedRadius{+ycurv}; // first transition radius (as current fixed curve centre-line),
       // (but don't change if currently a transition).
 
       controlTemplate.curve.transitionLength := 132 * scale;
@@ -20385,22 +20385,22 @@ begin
 
       if peg_code = 0    // CTRL-0, use existing 1st radius.
       then begin
-        controlTemplate.curve.transitionRadius1 := existing_rad;
+        controlTemplate.curve.transitionStartRadius := existing_rad;
 
-        if ABS(controlTemplate.curve.transitionRadius1) > (max_rad / 2)                // arbitrary (is straight).
+        if ABS(controlTemplate.curve.transitionStartRadius) > (max_rad / 2)                // arbitrary (is straight).
         then
-          controlTemplate.curve.transitionRadius2 := (660 * scale) * SGZ(controlTemplate.curve.transitionRadius1)  // so transition down to 10 chains.
+          controlTemplate.curve.transitionEndRadius := (660 * scale) * SGZ(controlTemplate.curve.transitionStartRadius)  // so transition down to 10 chains.
         else
-          controlTemplate.curve.transitionRadius2 := controlTemplate.curve.transitionRadius1 / 2;                // or down to half of 1st radius.
+          controlTemplate.curve.transitionEndRadius := controlTemplate.curve.transitionStartRadius / 2;                // or down to half of 1st radius.
       end
       else begin
-        controlTemplate.curve.transitionRadius2 := existing_rad;
+        controlTemplate.curve.transitionEndRadius := existing_rad;
 
-        if ABS(controlTemplate.curve.transitionRadius2) > (max_rad / 2)                // arbitrary (is straight).
+        if ABS(controlTemplate.curve.transitionEndRadius) > (max_rad / 2)                // arbitrary (is straight).
         then
-          controlTemplate.curve.transitionRadius1 := (660 * scale) * SGZ(controlTemplate.curve.transitionRadius2)  // so transition down to 10 chains.
+          controlTemplate.curve.transitionStartRadius := (660 * scale) * SGZ(controlTemplate.curve.transitionEndRadius)  // so transition down to 10 chains.
         else
-          controlTemplate.curve.transitionRadius1 := controlTemplate.curve.transitionRadius2 / 2;                // or down to half of 2nd radius.
+          controlTemplate.curve.transitionStartRadius := controlTemplate.curve.transitionEndRadius / 2;                // or down to half of 2nd radius.
       end;
 
       controlTemplate.curve.transitionLength := turnoutx * 0.6;     // arbitrary transition length 60% of template.
@@ -20413,22 +20413,22 @@ begin
 
       if peg_code = 0    // CTRL-0, use existing 1st radius.
       then begin
-        controlTemplate.curve.transitionRadius1 := existing_rad;
+        controlTemplate.curve.transitionStartRadius := existing_rad;
 
-        if ABS(controlTemplate.curve.transitionRadius1) > (max_rad / 2)                // arbitrary (is straight).
+        if ABS(controlTemplate.curve.transitionStartRadius) > (max_rad / 2)                // arbitrary (is straight).
         then
-          controlTemplate.curve.transitionRadius2 := (660 * scale) * SGZ(controlTemplate.curve.transitionRadius1)  // so transition down to 10 chains.
+          controlTemplate.curve.transitionEndRadius := (660 * scale) * SGZ(controlTemplate.curve.transitionStartRadius)  // so transition down to 10 chains.
         else
-          controlTemplate.curve.transitionRadius2 := controlTemplate.curve.transitionRadius1 * 2;                // or up to double 1st radius.
+          controlTemplate.curve.transitionEndRadius := controlTemplate.curve.transitionStartRadius * 2;                // or up to double 1st radius.
       end
       else begin
-        controlTemplate.curve.transitionRadius2 := existing_rad;
+        controlTemplate.curve.transitionEndRadius := existing_rad;
 
-        if ABS(controlTemplate.curve.transitionRadius2) > (max_rad / 2)                // arbitrary (is straight).
+        if ABS(controlTemplate.curve.transitionEndRadius) > (max_rad / 2)                // arbitrary (is straight).
         then
-          controlTemplate.curve.transitionRadius1 := (660 * scale) * SGZ(controlTemplate.curve.transitionRadius2)  // so transition down to 10 chains.
+          controlTemplate.curve.transitionStartRadius := (660 * scale) * SGZ(controlTemplate.curve.transitionEndRadius)  // so transition down to 10 chains.
         else
-          controlTemplate.curve.transitionRadius1 := controlTemplate.curve.transitionRadius2 * 2;                // or up to double 2nd radius.
+          controlTemplate.curve.transitionStartRadius := controlTemplate.curve.transitionEndRadius * 2;                // or up to double 2nd radius.
       end;
 
       controlTemplate.curve.transitionLength := turnoutx * 0.6;     // arbitrary transition length 60% of template.
@@ -20441,23 +20441,23 @@ begin
 
       if peg_code = 0    // CTRL-0, use existing 1st radius.
       then begin
-        controlTemplate.curve.transitionRadius1 := existing_rad;
+        controlTemplate.curve.transitionStartRadius := existing_rad;
 
-        if ABS(controlTemplate.curve.transitionRadius1) > (max_rad / 2)  // arbitrary (is straight).
+        if ABS(controlTemplate.curve.transitionStartRadius) > (max_rad / 2)  // arbitrary (is straight).
         then
-          controlTemplate.curve.transitionRadius1 := 660 * scale;  // so use 10 chains.
+          controlTemplate.curve.transitionStartRadius := 660 * scale;  // so use 10 chains.
 
-        controlTemplate.curve.transitionRadius2 := 0 - controlTemplate.curve.transitionRadius1;
+        controlTemplate.curve.transitionEndRadius := 0 - controlTemplate.curve.transitionStartRadius;
         // to opposite direction same size as 1st radius.
       end
       else begin
-        controlTemplate.curve.transitionRadius2 := existing_rad;
+        controlTemplate.curve.transitionEndRadius := existing_rad;
 
-        if ABS(controlTemplate.curve.transitionRadius2) > (max_rad / 2)  // arbitrary (is straight).
+        if ABS(controlTemplate.curve.transitionEndRadius) > (max_rad / 2)  // arbitrary (is straight).
         then
-          controlTemplate.curve.transitionRadius2 := 660 * scale;  // so use 10 chains.
+          controlTemplate.curve.transitionEndRadius := 660 * scale;  // so use 10 chains.
 
-        controlTemplate.curve.transitionRadius1 := 0 - controlTemplate.curve.transitionRadius2;
+        controlTemplate.curve.transitionStartRadius := 0 - controlTemplate.curve.transitionEndRadius;
         // to opposite direction same size as 2nd radius.
       end;
 
@@ -20467,23 +20467,23 @@ begin
 
   end;//case
 
-  if ABS(controlTemplate.curve.transitionRadius1) < (g * 2) then
-    controlTemplate.curve.transitionRadius1 := g * 2 * SGZ(controlTemplate.curve.transitionRadius1);     // min rad (arbitrary).
-  if ABS(controlTemplate.curve.transitionRadius2) < (g * 2) then
-    controlTemplate.curve.transitionRadius2 := g * 2 * SGZ(controlTemplate.curve.transitionRadius2);     // min rad (arbitrary).
+  if ABS(controlTemplate.curve.transitionStartRadius) < (g * 2) then
+    controlTemplate.curve.transitionStartRadius := g * 2 * SGZ(controlTemplate.curve.transitionStartRadius);     // min rad (arbitrary).
+  if ABS(controlTemplate.curve.transitionEndRadius) < (g * 2) then
+    controlTemplate.curve.transitionEndRadius := g * 2 * SGZ(controlTemplate.curve.transitionEndRadius);     // min rad (arbitrary).
 
-  temp := controlTemplate.curve.transitionRadius1 - controlTemplate.curve.transitionRadius2;
+  temp := controlTemplate.curve.transitionStartRadius - controlTemplate.curve.transitionEndRadius;
 
   while ABS(temp) < minfp do begin   // no good if rads equal.
-    controlTemplate.curve.transitionRadius1 := controlTemplate.curve.transitionRadius1 * 1.05;         // increase r1 by 5%
-    controlTemplate.curve.transitionRadius2 := controlTemplate.curve.transitionRadius2 / 1.05;         // reduce r2 by 5%
-    temp := controlTemplate.curve.transitionRadius1 - controlTemplate.curve.transitionRadius2;
+    controlTemplate.curve.transitionStartRadius := controlTemplate.curve.transitionStartRadius * 1.05;         // increase r1 by 5%
+    controlTemplate.curve.transitionEndRadius := controlTemplate.curve.transitionEndRadius / 1.05;         // reduce r2 by 5%
+    temp := controlTemplate.curve.transitionStartRadius - controlTemplate.curve.transitionEndRadius;
   end;//while
 
-  temp_ktrans := controlTemplate.curve.transitionRadius1 * controlTemplate.curve.transitionRadius2 * controlTemplate.curve.transitionLength / temp;     // new spiral constant
+  temp_ktrans := controlTemplate.curve.transitionStartRadius * controlTemplate.curve.transitionEndRadius * controlTemplate.curve.transitionLength / temp;     // new spiral constant
 
   if ABS(temp_ktrans) > max_spiral_constant then begin
-    controlTemplate.curve.transitionLength := max_spiral_constant * SGZ(temp_ktrans) * temp / controlTemplate.curve.transitionRadius1 / controlTemplate.curve.transitionRadius2;
+    controlTemplate.curve.transitionLength := max_spiral_constant * SGZ(temp_ktrans) * temp / controlTemplate.curve.transitionStartRadius / controlTemplate.curve.transitionEndRadius;
     //  no good, limit zone length.
     if controlTemplate.curve.transitionLength < minfp then
       controlTemplate.curve.transitionLength := 0;
@@ -20668,13 +20668,13 @@ begin
 
     if controlTemplate.curve.isSpiral      // 19-09-2015  212a this is a kludge bug-fix...
     then begin
-      if ABS(controlTemplate.curve.transitionRadius1) > max_rad_test    // straight?
+      if ABS(controlTemplate.curve.transitionStartRadius) > max_rad_test    // straight?
       then begin
         kform_now := kform;
         docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
         // save current peg data for peg_curve calcs.
 
-        controlTemplate.curve.transitionRadius1 := (max_rad_test - 1) * SGZ(controlTemplate.curve.transitionRadius1);
+        controlTemplate.curve.transitionStartRadius := (max_rad_test - 1) * SGZ(controlTemplate.curve.transitionStartRadius);
         // kludge - ensure treated as curved, not straight.
         // until I can find bug when it's straight 19-09-2015
 
@@ -20682,13 +20682,13 @@ begin
         gocalc(0, 0);
       end;
 
-      if ABS(controlTemplate.curve.transitionRadius2) > max_rad_test    // straight?
+      if ABS(controlTemplate.curve.transitionEndRadius) > max_rad_test    // straight?
       then begin
         kform_now := kform;
         docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
         // save current peg data for peg_curve calcs.
 
-        controlTemplate.curve.transitionRadius2 := (max_rad_test - 1) * SGZ(controlTemplate.curve.transitionRadius2);
+        controlTemplate.curve.transitionEndRadius := (max_rad_test - 1) * SGZ(controlTemplate.curve.transitionEndRadius);
         // kludge - ensure treated as curved, not straight.
         // until I can find bug when it's straight 19-09-2015
 
@@ -20767,13 +20767,13 @@ begin
 
       if controlTemplate.curve.isSpiral      // 19-09-2015  212a this is a kludge bug-fix...
       then begin
-        if ABS(controlTemplate.curve.transitionRadius1) > max_rad_test    // straight?
+        if ABS(controlTemplate.curve.transitionStartRadius) > max_rad_test    // straight?
         then begin
           kform_now := kform;
           docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
           // save current peg data for peg_curve calcs.
 
-          controlTemplate.curve.transitionRadius1 := (max_rad_test - 1) * SGZ(controlTemplate.curve.transitionRadius1);
+          controlTemplate.curve.transitionStartRadius := (max_rad_test - 1) * SGZ(controlTemplate.curve.transitionStartRadius);
           // kludge - ensure treated as curved, not straight.
           // until I can find bug when it's straight 19-09-2015
 
@@ -20781,13 +20781,13 @@ begin
           gocalc(0, 0);
         end;
 
-        if ABS(controlTemplate.curve.transitionRadius2) > max_rad_test    // straight?
+        if ABS(controlTemplate.curve.transitionEndRadius) > max_rad_test    // straight?
         then begin
           kform_now := kform;
           docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
           // save current peg data for peg_curve calcs.
 
-          controlTemplate.curve.transitionRadius2 := (max_rad_test - 1) * SGZ(controlTemplate.curve.transitionRadius2);
+          controlTemplate.curve.transitionEndRadius := (max_rad_test - 1) * SGZ(controlTemplate.curve.transitionEndRadius);
           // kludge - ensure treated as curved, not straight.
           // until I can find bug when it's straight 19-09-2015
 
@@ -20890,11 +20890,11 @@ begin
       controlTemplate.curve.transitionLength := 0;            // arbitrary start zero transition length.
       controlTemplate.curve.distanceToTransition := 66 * scale;      // arbitrary start 1 chain (scale) initial length.
 
-      controlTemplate.curve.transitionRadius1 := ABS(rad_1st);      // set +ve for first rad.
-      controlTemplate.curve.transitionRadius2 := 0 - ABS(rad_2nd);    // set S curve for starters.
+      controlTemplate.curve.transitionStartRadius := ABS(rad_1st);      // set +ve for first rad.
+      controlTemplate.curve.transitionEndRadius := 0 - ABS(rad_2nd);    // set S curve for starters.
 
-      if (ABS(controlTemplate.curve.transitionRadius1) > (g * 2)) and (ABS(controlTemplate.curve.transitionRadius2) > (g * 2))  // min rads (arbitrary).
-        and (cen_apart > (ABS(controlTemplate.curve.transitionRadius1) + ABS(controlTemplate.curve.transitionRadius2) - minfp))   // ok to try S-curve
+      if (ABS(controlTemplate.curve.transitionStartRadius) > (g * 2)) and (ABS(controlTemplate.curve.transitionEndRadius) > (g * 2))  // min rads (arbitrary).
+        and (cen_apart > (ABS(controlTemplate.curve.transitionStartRadius) + ABS(controlTemplate.curve.transitionEndRadius) - minfp))   // ok to try S-curve
       then begin
         computeResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...',
           make_transition_from_current_calcs, nil);
@@ -20915,11 +20915,11 @@ begin
 
       if got_transition = False      // now try C-curve instead...
       then begin
-        controlTemplate.curve.transitionRadius2 := ABS(controlTemplate.curve.transitionRadius2);     // set C curve.
+        controlTemplate.curve.transitionEndRadius := ABS(controlTemplate.curve.transitionEndRadius);     // set C curve.
 
-        temp := controlTemplate.curve.transitionRadius1 - controlTemplate.curve.transitionRadius2;
+        temp := controlTemplate.curve.transitionStartRadius - controlTemplate.curve.transitionEndRadius;
 
-        if (ABS(temp) > minfp) and (cen_apart < (ABS(ABS(controlTemplate.curve.transitionRadius1) - ABS(controlTemplate.curve.transitionRadius2)) + minfp))
+        if (ABS(temp) > minfp) and (cen_apart < (ABS(ABS(controlTemplate.curve.transitionStartRadius) - ABS(controlTemplate.curve.transitionEndRadius)) + minfp))
         // ok to try C-curve
         then begin
           computeResult := TWaitForm.ShowWaitMessageAndCompute('calculating ...',
@@ -21264,24 +21264,24 @@ begin
 
           // 212a kludge. restore easement straights...
 
-          if ABS(controlTemplate.curve.transitionRadius1) > (max_rad_test - 2) then begin
+          if ABS(controlTemplate.curve.transitionStartRadius) > (max_rad_test - 2) then begin
             kform_now := kform;
             docurving(True, True, pegx, pegy, now_peg_x,
               now_peg_y, now_peg_k, dummy);    // save current peg data for peg_curve calcs.
 
-            controlTemplate.curve.transitionRadius1 := (max_rad) * SGZ(controlTemplate.curve.transitionRadius1);
+            controlTemplate.curve.transitionStartRadius := (max_rad) * SGZ(controlTemplate.curve.transitionStartRadius);
             // kludge - ensure now treated as straight again.
 
             peg_curve;      //  keep it on peg..
             gocalc(0, 0);
           end;
 
-          if ABS(controlTemplate.curve.transitionRadius2) > (max_rad_test - 2) then begin
+          if ABS(controlTemplate.curve.transitionEndRadius) > (max_rad_test - 2) then begin
             kform_now := kform;
             docurving(True, True, pegx, pegy, now_peg_x,
               now_peg_y, now_peg_k, dummy);    // save current peg data for peg_curve calcs.
 
-            controlTemplate.curve.transitionRadius2 := (max_rad) * SGZ(controlTemplate.curve.transitionRadius2);
+            controlTemplate.curve.transitionEndRadius := (max_rad) * SGZ(controlTemplate.curve.transitionEndRadius);
             // kludge - ensure now treated as straight again.
 
             peg_curve;      //  keep it on peg..
@@ -21325,7 +21325,7 @@ begin
     // first find which way the centres-apart distance is moving...
     // (now_apart ignores any slewing).
 
-    if calc_transition(controlTemplate.curve.transitionRadius1, controlTemplate.curve.transitionRadius2, new_zone_len, dummy1, dummy2, dummy3,
+    if calc_transition(controlTemplate.curve.transitionStartRadius, controlTemplate.curve.transitionEndRadius, new_zone_len, dummy1, dummy2, dummy3,
       dummy4, now_apart, dummy5) = False then begin
       EXIT;
     end;
@@ -21342,7 +21342,7 @@ begin
     else
       dir := 1;
     repeat
-      if calc_transition(controlTemplate.curve.transitionRadius1, controlTemplate.curve.transitionRadius2, new_zone_len, dummy1, dummy2, dummy3,
+      if calc_transition(controlTemplate.curve.transitionStartRadius, controlTemplate.curve.transitionEndRadius, new_zone_len, dummy1, dummy2, dummy3,
         dummy4, now_apart, dummy5) = False then begin
         EXIT;
       end;
@@ -21376,11 +21376,11 @@ begin
     until new_zone_len > screenx_max;   // we need a limit of some sort.
 
   finally
-    temp := controlTemplate.curve.transitionRadius1 - controlTemplate.curve.transitionRadius2;      // 29-7-01 check any transition returned is not too gentle.
+    temp := controlTemplate.curve.transitionStartRadius - controlTemplate.curve.transitionEndRadius;      // 29-7-01 check any transition returned is not too gentle.
     if ABS(temp) < minfp then
       Result := 0
     else begin
-      temp_ktrans := controlTemplate.curve.transitionRadius1 * controlTemplate.curve.transitionRadius2 * controlTemplate.curve.transitionLength / temp;     // new spiral constant
+      temp_ktrans := controlTemplate.curve.transitionStartRadius * controlTemplate.curve.transitionEndRadius * controlTemplate.curve.transitionLength / temp;     // new spiral constant
       if ABS(temp_ktrans) > max_spiral_constant then begin
         controlTemplate.curve.transitionLength := 0;       // no good.
         Result := 0;
@@ -21611,14 +21611,14 @@ begin
     docurving(True, True, pegx, pegy, now_peg_x, now_peg_y, now_peg_k, dummy);
     // save current peg data for peg_curve calcs.
 
-    clrad1 := controlTemplate.curve.transitionRadius1;      // change sign of centre-line 1st radius.
+    clrad1 := controlTemplate.curve.transitionStartRadius;      // change sign of centre-line 1st radius.
     clrad1 := 0 - clrad1;
 
-    clrad2 := controlTemplate.curve.transitionRadius2;      // change sign of centre-line 2nd radius.
+    clrad2 := controlTemplate.curve.transitionEndRadius;      // change sign of centre-line 2nd radius.
     clrad2 := 0 - clrad2;
 
-    controlTemplate.curve.transitionRadius1 := clrad1;      // set the new radii.
-    controlTemplate.curve.transitionRadius2 := clrad2;
+    controlTemplate.curve.transitionStartRadius := clrad1;      // set the new radii.
+    controlTemplate.curve.transitionEndRadius := clrad2;
   end;
 
   if controlTemplate.curve.isSlewing then
@@ -22139,7 +22139,7 @@ begin
     (turnoutx <> 0)  // 0.93.a  (turnoutx<>0) added
   then begin            // rad centre markers. don't call enter_mark - no curving wanted.
 
-    if ((controlTemplate.curve.isSpiral) and (ABS(controlTemplate.curve.transitionRadius1) < 1.0E6))
+    if ((controlTemplate.curve.isSpiral) and (ABS(controlTemplate.curve.transitionStartRadius) < 1.0E6))
       // 1E6 arbitrary max radius for marking centres (mm).
       or ((not controlTemplate.curve.isSpiral) and (ABS(controlTemplate.curve.fixedRadius) < 1.0E6)) then begin
       // rad 1 centre marker...    (p2=0)
@@ -22180,7 +22180,7 @@ begin
       end;
     end;//rad 1
 
-    if (controlTemplate.curve.isSpiral) and (ABS(controlTemplate.curve.transitionRadius2) < 1.0E6)      // rad 2 centre marker ...
+    if (controlTemplate.curve.isSpiral) and (ABS(controlTemplate.curve.transitionEndRadius) < 1.0E6)      // rad 2 centre marker ...
     then begin
       pin.x := xt2;
       pin.y := yt2;
@@ -22562,17 +22562,17 @@ begin
         if tradius_is_straight = True    // regular diamond
 
         then
-          p1 := draw_xing_label(hdk / 2, seg_termx[3, eRD_CurvedTurnoutWingGaugeFace],
+          p1 := draw_xing_label(hdk / 2, seg_termx[3, rdCurvedTurnoutWingGaugeFace],
             0 - gm_hdlabels_ms, g + gm_hdlabels_ts, fw, 0, 0)
         // 211b do blunt nose marks, and get BN note position
         else begin
           // irregular diamond
 
-          k_irreg := hdk + seg_termx[3, eRD_CurvedTurnoutWingGaugeFace] / tradius;
+          k_irreg := hdk + seg_termx[3, rdCurvedTurnoutWingGaugeFace] / tradius;
           // angle at tips
 
           p1 :=
-            draw_xing_label(k_irreg / 2, seg_termx[3, eRD_CurvedTurnoutWingGaugeFace],
+            draw_xing_label(k_irreg / 2, seg_termx[3, rdCurvedTurnoutWingGaugeFace],
             0 - gm_hdlabels_ms, g + gm_hdlabels_ts, fw, 0, 0);
         end;
 
@@ -23129,29 +23129,29 @@ begin
     EXIT;
 
   if plain_track = True then begin
-    aq_begin := eRD_AdjTrackTurnoutSideNearGaugeFace;   // platform ends
-    aq_end := eRD_AdjTrackMainSideFarOuterFace;
+    aq_begin := rdAdjTrackTurnoutSideNearGaugeFace;   // platform ends
+    aq_end := rdAdjTrackMainSideFarOuterFace;
   end
   else begin
-    aq_begin := eRD_StraightStockGaugeFace;         // turnout
-    aq_end := eRD_Unused;
+    aq_begin := rdStraightStockGaugeFace;         // turnout
+    aq_end := rdUnused;
   end;
 
   for aq := aq_begin to aq_end do begin
 
     if cl_only = True     // platforms /trackbed only
     then begin
-      if not (aq in eRD_AdjacentTracks) then
+      if not (aq in rdAdjacentTracks) then
         CONTINUE;
     end;
 
     if aqyn[aq] = True then begin
       case aq of
 
-        eRD_AdjTrackTurnoutSideNearGaugeFace,
-        eRD_AdjTrackTurnoutSideNearOuterFace,
-        eRD_AdjTrackMainSideNearGaugeFace,
-        eRD_AdjTrackMainSideNearOuterFace: begin
+        rdAdjTrackTurnoutSideNearGaugeFace,
+        rdAdjTrackTurnoutSideNearOuterFace,
+        rdAdjTrackMainSideNearGaugeFace,
+        rdAdjTrackMainSideNearOuterFace: begin
           start_boundary := startx - scale;
           //minfp_big;   // platforms - increase limits by 1ft to show ends always
           end_boundary := turnoutx + scale; //minfp_big;
@@ -23216,8 +23216,8 @@ var
 
           if ink = True                           // not erasing ?
           then begin
-            if (aq1 = eRD_AdjTrackTurnoutSideNearGaugeFace) or
-              (aq1 = eRD_AdjTrackMainSideNearGaugeFace)     // 0.93.a platforms
+            if (aq1 = rdAdjTrackTurnoutSideNearGaugeFace) or
+              (aq1 = rdAdjTrackMainSideNearGaugeFace)     // 0.93.a platforms
             then
               Pen.Color := guide_colour
             else
@@ -23250,22 +23250,22 @@ begin
 
   // 0.93.a TS platform start
 
-  mark_end(eRD_AdjTrackTurnoutSideNearGaugeFace, 0, eRD_AdjTrackTurnoutSideNearOuterFace, 0,
+  mark_end(rdAdjTrackTurnoutSideNearGaugeFace, 0, rdAdjTrackTurnoutSideNearOuterFace, 0,
     draw_ts_platform_start_edge);
 
   // 0.93.a TS platform end
 
-  mark_end(eRD_AdjTrackTurnoutSideNearGaugeFace, 1, eRD_AdjTrackTurnoutSideNearOuterFace, 1,
+  mark_end(rdAdjTrackTurnoutSideNearGaugeFace, 1, rdAdjTrackTurnoutSideNearOuterFace, 1,
     draw_ts_platform_end_edge);
 
   // 0.93.a MS platform start
 
-  mark_end(eRD_AdjTrackMainSideNearGaugeFace, 0, eRD_AdjTrackMainSideNearOuterFace,
+  mark_end(rdAdjTrackMainSideNearGaugeFace, 0, rdAdjTrackMainSideNearOuterFace,
     0, draw_ms_platform_start_edge);
 
   // 0.93.a MS platform end
 
-  mark_end(eRD_AdjTrackMainSideNearGaugeFace, 1, eRD_AdjTrackMainSideNearOuterFace,
+  mark_end(rdAdjTrackMainSideNearGaugeFace, 1, rdAdjTrackMainSideNearOuterFace,
     1, draw_ms_platform_end_edge);
 
   if plain_track = False then begin                                       // mark rail-ends...
@@ -23273,35 +23273,35 @@ begin
     //            if off_screen=True then pad_canvas:=pad_bmp.Canvas
     //                               else pad_canvas:=pad_form.Canvas;
 
-    mark_end(eRD_StraightTurnoutWingGaugeFace, 1, eRD_StraightTurnoutWingOuterFace, 1, True);
+    mark_end(rdStraightTurnoutWingGaugeFace, 1, rdStraightTurnoutWingOuterFace, 1, True);
     // main rail wing rail finish. Solid line.
-    mark_end(eRD_CurvedTurnoutWingGaugeFace, 1, eRD_CurvedTurnoutWingOuterFace, 1, True);
+    mark_end(rdCurvedTurnoutWingGaugeFace, 1, rdCurvedTurnoutWingOuterFace, 1, True);
     // turnout rail wing rail finish.
 
-    mark_end(eRD_MainSideCheckGaugeFace, 0, eRD_MainSideCheckOuterFace, 0, True);
+    mark_end(rdMainSideCheckGaugeFace, 0, rdMainSideCheckOuterFace, 0, True);
     // main side check rail start.
-    mark_end(eRD_MainSideCheckGaugeFace, 1, eRD_MainSideCheckOuterFace, 1, True);
+    mark_end(rdMainSideCheckGaugeFace, 1, rdMainSideCheckOuterFace, 1, True);
     // main side check rail finish.
 
-    mark_end(eRD_TurnoutSideCheckGaugeFace, 0, eRD_TurnoutSideCheckOuterFace, 0, True);
+    mark_end(rdTurnoutSideCheckGaugeFace, 0, rdTurnoutSideCheckOuterFace, 0, True);
     // turnout side check rail start.
-    mark_end(eRD_TurnoutSideCheckGaugeFace, 1, eRD_TurnoutSideCheckOuterFace, 1, True);
+    mark_end(rdTurnoutSideCheckGaugeFace, 1, rdTurnoutSideCheckOuterFace, 1, True);
     // turnout side check rail finish.
 
-    mark_end(eRD_VeePointGaugeFace, 0, eRD_VeeSpliceGaugeFace, 0, True);    // blunt nose.
+    mark_end(rdVeePointGaugeFace, 0, rdVeeSpliceGaugeFace, 0, True);    // blunt nose.
 
     if (half_diamond = True) and (fixed_diamond = True) then begin
       if isolated_crossing = False    // 217a
       then begin
-        mark_end(eRD_StraightTurnoutWingGaugeFace, 0, eRD_StraightTurnoutWingOuterFace, 0, True);
+        mark_end(rdStraightTurnoutWingGaugeFace, 0, rdStraightTurnoutWingOuterFace, 0, True);
         // planed faced of point rails for a fixed-diamond. Solid line.
-        mark_end(eRD_CurvedTurnoutWingGaugeFace, 0, eRD_CurvedTurnoutWingOuterFace, 0, True);
+        mark_end(rdCurvedTurnoutWingGaugeFace, 0, rdCurvedTurnoutWingOuterFace, 0, True);
       end;
 
-      mark_end(eRD_KCrossingCheckMainSideGaugeFace, 1,
-        eRD_KCrossingCheckMainSideOuterEdge, 1, True);
+      mark_end(rdKCrossingCheckMainSideGaugeFace, 1,
+        rdKCrossingCheckMainSideOuterEdge, 1, True);
       // MS K-crossing check rails.
-      mark_end(eRD_KCrossingCheckTurnoutSideGaugeFace, 1, eRD_KCrossingCheckTurnoutSideOuterEdge,
+      mark_end(rdKCrossingCheckTurnoutSideGaugeFace, 1, rdKCrossingCheckTurnoutSideOuterEdge,
         1, True);     // DS K-crossing check rails.
     end;
   end;
@@ -24857,7 +24857,7 @@ begin                             // for rail-joint marks.
           // centre timber for all angles.
 
           //xdpb:=seg_termx[2,2]-(g/2)*SIN(hdk/2)+4*inscale;   // diamond point blunt nose + 4".
-          xdpb := seg_termx[3, eRD_CurvedTurnoutWingGaugeFace] - (g / 2) *
+          xdpb := seg_termx[3, rdCurvedTurnoutWingGaugeFace] - (g / 2) *
             SIN(hdk / 2) + 4 * inscale;
           // 0.97.a diamond point blunt nose + 4".
 
@@ -26969,8 +26969,8 @@ begin
 
       controlTemplate.curve.fixedRadius := fixed_rad + y_offset;
       // fixed radius mm.     (include any offset from old files pre 0.64.a)...
-      controlTemplate.curve.transitionRadius1 := trans_rad1 + y_offset;     // first transition radius mm.
-      controlTemplate.curve.transitionRadius2 := trans_rad2 + y_offset;     // second transition radius mm.
+      controlTemplate.curve.transitionStartRadius := trans_rad1 + y_offset;     // first transition radius mm.
+      controlTemplate.curve.transitionEndRadius := trans_rad2 + y_offset;     // second transition radius mm.
 
       controlTemplate.curve.transitionLength := trans_length;       // length of transition mm.
       controlTemplate.curve.distanceToTransition := trans_start;         // start of transition mm.
@@ -27652,8 +27652,8 @@ begin
       // True=transition, False=fixed radius curving.
 
       fixed_rad := controlTemplate.curve.fixedRadius;       // fixed radius mm.
-      trans_rad1 := controlTemplate.curve.transitionRadius1;     // first transition radius mm.
-      trans_rad2 := controlTemplate.curve.transitionRadius2;     // second transition radius mm.
+      trans_rad1 := controlTemplate.curve.transitionStartRadius;     // first transition radius mm.
+      trans_rad2 := controlTemplate.curve.transitionEndRadius;     // second transition radius mm.
       trans_length := controlTemplate.curve.transitionLength;       // length of transition mm.
       trans_start := controlTemplate.curve.distanceToTransition;         // start of transition mm.
       rad_offset := 0;{ycurv;}   // curving line offset mm.   // scrapped 26-7-00.
@@ -28327,7 +28327,7 @@ begin
     end;
   end
   else begin
-    if (ABS(controlTemplate.curve.transitionRadius1) <= max_rad_test) and (ABS(controlTemplate.curve.transitionRadius2) <= max_rad_test)
+    if (ABS(controlTemplate.curve.transitionStartRadius) <= max_rad_test) and (ABS(controlTemplate.curve.transitionEndRadius) <= max_rad_test)
     // neither rad straight?
     then begin
       if to_notch = True then begin
@@ -28353,7 +28353,7 @@ begin
       end;//case
     end
     else begin
-      if ABS(controlTemplate.curve.transitionRadius1) > max_rad_test then
+      if ABS(controlTemplate.curve.transitionStartRadius) > max_rad_test then
         first_rad := False  //easement from straight.
       else
         first_rad := True;  //easement to straight.
@@ -28676,7 +28676,7 @@ begin
     // first get the existing transition data (relative to TRANSITION datum).
     // (apartl ignores any slewing)
 
-    if calc_transition(controlTemplate.curve.transitionRadius1, controlTemplate.curve.transitionRadius2, controlTemplate.curve.transitionLength, dummy1, dummy2, dummy3, dummy4,
+    if calc_transition(controlTemplate.curve.transitionStartRadius, controlTemplate.curve.transitionEndRadius, controlTemplate.curve.transitionLength, dummy1, dummy2, dummy3, dummy4,
       old_apartl, dummy5) = False then begin
       calc_error;
       auto_spiral_adjust := False;
@@ -28777,8 +28777,8 @@ begin
 
     if controlTemplate.curve.isSpiral     // transition template, adjust the rads...
     then begin
-      controlTemplate.curve.transitionRadius1 := 0 - (controlTemplate.curve.transitionRadius1 - rad_mod);     // adjust for adjacent track (swapping hand)...
-      controlTemplate.curve.transitionRadius2 := 0 - (controlTemplate.curve.transitionRadius2 - rad_mod);
+      controlTemplate.curve.transitionStartRadius := 0 - (controlTemplate.curve.transitionStartRadius - rad_mod);     // adjust for adjacent track (swapping hand)...
+      controlTemplate.curve.transitionEndRadius := 0 - (controlTemplate.curve.transitionEndRadius - rad_mod);
 
       if auto_spiral_adjust = True then begin
         case do_auto_trans_length_adjust(old_apartl, waitMessage) of
@@ -29006,8 +29006,8 @@ begin
   if controlTemplate.curve.isSpiral then begin
     auto_spiral_adjust := True;    // default init.
 
-    if (ABS(controlTemplate.curve.transitionRadius1) < max_rad_test) and (ABS(controlTemplate.curve.transitionRadius2) < max_rad_test) and
-      (SGZ(controlTemplate.curve.transitionRadius1) <> SGZ(controlTemplate.curve.transitionRadius2)) then
+    if (ABS(controlTemplate.curve.transitionStartRadius) < max_rad_test) and (ABS(controlTemplate.curve.transitionEndRadius) < max_rad_test) and
+      (SGZ(controlTemplate.curve.transitionStartRadius) <> SGZ(controlTemplate.curve.transitionEndRadius)) then
       s_curve_str :=
         '||This is a reverse S-curve transition. It may be necessary to check the track spacing within the transition zone for adequate passing clearance.'
     else
@@ -29448,14 +29448,14 @@ begin
       // save current peg data for peg_curve calcs.
 
       // change sign of centre-line 1st radius.
-      controlTemplate.curve.transitionRadius1 := 0 - (controlTemplate.curve.transitionRadius1 - trtscent);    // and adjust for adjacent track.
+      controlTemplate.curve.transitionStartRadius := 0 - (controlTemplate.curve.transitionStartRadius - trtscent);    // and adjust for adjacent track.
 
       // change sign of centre-line 2nd radius.
-      controlTemplate.curve.transitionRadius2 := 0 - (controlTemplate.curve.transitionRadius2 - trtscent);    // and adjust for adjacent track.
+      controlTemplate.curve.transitionEndRadius := 0 - (controlTemplate.curve.transitionEndRadius - trtscent);    // and adjust for adjacent track.
 
-      dummy := controlTemplate.curve.transitionRadius1;         // swap the 2 radii as we are facing the other way.
-      controlTemplate.curve.transitionRadius1 := controlTemplate.curve.transitionRadius2;
-      controlTemplate.curve.transitionRadius2 := dummy;
+      dummy := controlTemplate.curve.transitionStartRadius;         // swap the 2 radii as we are facing the other way.
+      controlTemplate.curve.transitionStartRadius := controlTemplate.curve.transitionEndRadius;
+      controlTemplate.curve.transitionEndRadius := dummy;
 
       controlTemplate.curve.distanceToTransition := pegx * 2 - (controlTemplate.curve.distanceToTransition + controlTemplate.curve.transitionLength);
       // approximate adjust transition start to match previous transition end.
@@ -30026,14 +30026,14 @@ begin
       // save current peg data for peg_curve calcs.
 
       // change sign of centre-line 1st radius.
-      controlTemplate.curve.transitionRadius1 := 0 - (controlTemplate.curve.transitionRadius1 - trtscent);    // and adjust for adjacent track.
+      controlTemplate.curve.transitionStartRadius := 0 - (controlTemplate.curve.transitionStartRadius - trtscent);    // and adjust for adjacent track.
 
       // change sign of centre-line 2nd radius.
-      controlTemplate.curve.transitionRadius2 := 0 - (controlTemplate.curve.transitionRadius2 - trtscent);    // and adjust for adjacent track.
+      controlTemplate.curve.transitionEndRadius := 0 - (controlTemplate.curve.transitionEndRadius - trtscent);    // and adjust for adjacent track.
 
-      dummy := controlTemplate.curve.transitionRadius1;         // swap the 2 radii as we are facing the other way.
-      controlTemplate.curve.transitionRadius1 := controlTemplate.curve.transitionRadius2;
-      controlTemplate.curve.transitionRadius2 := dummy;
+      dummy := controlTemplate.curve.transitionStartRadius;         // swap the 2 radii as we are facing the other way.
+      controlTemplate.curve.transitionStartRadius := controlTemplate.curve.transitionEndRadius;
+      controlTemplate.curve.transitionEndRadius := dummy;
 
       peg_curve;              // do curving calcs for the current peg position.
 
@@ -30513,15 +30513,15 @@ begin
   with pad_form do begin
 
     case mode of
-      eSM_Cosine: begin
+      smCosine: begin
         slew_mode1_menu_entry.Checked := True;   // radio item.
-        controlTemplate.curve.slewMode := eSM_Cosine;
+        controlTemplate.curve.slewMode := smCosine;
         adjust_slew2_factor_menu_entry.Enabled := False;
       end;
 
-      eSM_TanH: begin
+      smTanH: begin
         slew_mode2_menu_entry.Checked := True;   // radio item.
-        controlTemplate.curve.slewMode := eSM_TanH;
+        controlTemplate.curve.slewMode := smTanH;
         adjust_slew2_factor_menu_entry.Enabled := True;
       end;
 
@@ -30534,7 +30534,7 @@ begin
     info_form.slew_caution_mode_label.Caption :=
       'caution :    this  template  contains  a  SLEW  ( mode  ' + IntToStr(Ord(controlTemplate.curve.slewMode)) + ' )';
 
-    if (plain_track = False) or (controlTemplate.curve.slewMode = eSM_TanH)
+    if (plain_track = False) or (controlTemplate.curve.slewMode = smTanH)
     // min rad info not available for slewed turnouts or any mode 2.
     then begin
       with info_form do begin
@@ -30725,8 +30725,8 @@ begin
               else begin
                 // no, to test for partially contained templates we must search the whole template...
 
-                for aq := eRD_KCrossingCheckTurnoutSideOuterEdge downto
-                  eRD_StraightStockGaugeFace do begin
+                for aq := rdKCrossingCheckTurnoutSideOuterEdge downto
+                  rdStraightStockGaugeFace do begin
                   // 205e was 25    ignore FB foot lines.
 
                   if Length(list_bgnd_rails[aq]) = 0 then
@@ -31496,11 +31496,11 @@ begin
   then begin
     controlTemplate.curve.distanceToTransition := turnoutx - (controlTemplate.curve.distanceToTransition + controlTemplate.curve.transitionLength);         // neg os is OK.
 
-    clrad1 := controlTemplate.curve.transitionRadius1{+ycurv};         // centre-line 1st radius.
-    clrad2 := controlTemplate.curve.transitionRadius2{+ycurv};         // centre-line 2nd radius.
+    clrad1 := controlTemplate.curve.transitionStartRadius{+ycurv};         // centre-line 1st radius.
+    clrad2 := controlTemplate.curve.transitionEndRadius{+ycurv};         // centre-line 2nd radius.
 
-    controlTemplate.curve.transitionRadius2 := clrad1{-ycurv};         // swap the radii.
-    controlTemplate.curve.transitionRadius1 := clrad2{-ycurv};
+    controlTemplate.curve.transitionEndRadius := clrad1{-ycurv};         // swap the radii.
+    controlTemplate.curve.transitionStartRadius := clrad2{-ycurv};
 
     if adjust_trans_rad = 1 then
       adjust_trans_rad := 2      // and the one he was adjusting.
@@ -31596,7 +31596,7 @@ begin
       pad_form.reset_peg_menu_entry.Click;   // peg on datum
       gocalc(0, 0);                           // calc it.
     end;
-    fix_radius(controlTemplate.curve.transitionRadius2, False);    // set fixed radius curving.
+    fix_radius(controlTemplate.curve.transitionEndRadius, False);    // set fixed radius curving.
     Result := True;
     EXIT;
   end;
@@ -31608,7 +31608,7 @@ begin
       pad_form.reset_peg_menu_entry.Click;   // peg on datum
       gocalc(0, 0);                           // calc it.
     end;
-    fix_radius(controlTemplate.curve.transitionRadius1, False);    // set fixed radius curving.
+    fix_radius(controlTemplate.curve.transitionStartRadius, False);    // set fixed radius curving.
     Result := True;
     EXIT;
   end;
@@ -31621,8 +31621,8 @@ begin
 
   new_tst := controlTemplate.curve.transitionLength;     // init zone adjusts (don't change trans until both rads calced)...
   new_os := controlTemplate.curve.distanceToTransition;
-  new_r1 := controlTemplate.curve.transitionRadius1;
-  new_r2 := controlTemplate.curve.transitionRadius2;
+  new_r1 := controlTemplate.curve.transitionStartRadius;
+  new_r2 := controlTemplate.curve.transitionEndRadius;
 
   if controlTemplate.curve.distanceToTransition < 0            // trans starts before template...
   then begin
@@ -31658,8 +31658,8 @@ begin
 
   controlTemplate.curve.distanceToTransition := new_os;
   controlTemplate.curve.transitionLength := new_tst;
-  controlTemplate.curve.transitionRadius1 := new_r1;
-  controlTemplate.curve.transitionRadius2 := new_r2;
+  controlTemplate.curve.transitionStartRadius := new_r1;
+  controlTemplate.curve.transitionEndRadius := new_r2;
 
   peg_curve;       // fix template on peg.
   Result := True;

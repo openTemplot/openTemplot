@@ -1250,18 +1250,18 @@ implementation
 function Talignment_info.ByteToSlewMode(b: Byte): ESlewMode;
 begin
   case b of
-  1: Result := eSM_Cosine;
-  2: Result := eSM_TanH;
+  1: Result := smCosine;
+  2: Result := smTanH;
   else
-    Result := eSM_Cosine;  // why not?
+    Result := smCosine;  // why not?
   end;
 end;
 
 function Talignment_info.SlewModeToByte(sm: ESlewMode): Byte;
 begin
   case sm of
-  eSM_Cosine: Result := 1;
-  eSM_TanH: Result := 2;
+  smCosine: Result := 1;
+  smTanH: Result := 2;
   else
     Result := 1;
   end;

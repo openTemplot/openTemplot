@@ -213,8 +213,8 @@ var
   curvature1: double;
   curvature2: double;
 begin
-  curve.transitionRadius1 := r1;
-  curve.transitionRadius2 := r2;
+  curve.transitionStartRadius := r1;
+  curve.transitionEndRadius := r2;
   curve.transitionLength := transitionLength;
   curve.distanceToTransition := initialLength;
   curve.isSpiral := True;
@@ -456,15 +456,15 @@ begin
   curve.isSpiral := True;
   curve.isSlewing := True;
   curve.fixedRadius := max_rad;
-  curve.transitionRadius1 := 3456;
-  curve.transitionRadius2 := 7890;
+  curve.transitionStartRadius := 3456;
+  curve.transitionEndRadius := 7890;
   curve.distanceToTransition := 123;
   curve.transitionLength := 234;
   curve.distanceToStartOfSlew := 333;
   curve.slewAmount := 23;
   curve.slewLength := 145;
   curve.slewFactor := 1.5;
-  curve.slewMode := eSM_TanH;
+  curve.slewMode := smTanH;
 
   curve2 := TCurve.Create;
   try
@@ -473,8 +473,8 @@ begin
     CheckEquals(curve.isSpiral, curve2.isSpiral, 'isSpiral');
     CheckEquals(curve.isSlewing, curve2.isSlewing, 'isSlewing');
     CheckEquals(curve.fixedRadius, curve2.fixedRadius, 'fixedRadius');
-    CheckEquals(curve.transitionRadius1, curve2.transitionRadius1, 'transitionRadius1');
-    CheckEquals(curve.transitionRadius2, curve2.transitionRadius2, 'transitionRadius2');
+    CheckEquals(curve.transitionStartRadius, curve2.transitionStartRadius, 'transitionStartRadius');
+    CheckEquals(curve.transitionEndRadius, curve2.transitionEndRadius, 'transitionEndRadius');
     CheckEquals(curve.distanceToTransition, curve2.distanceToTransition, 'distanceToTransition');
     CheckEquals(curve.transitionLength, curve2.transitionLength, 'transitionLength');
     CheckEquals(curve.distanceToStartOfSlew, curve2.distanceToStartOfSlew, 'distanceToStartOfSlew');
