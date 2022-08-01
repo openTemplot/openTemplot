@@ -803,7 +803,7 @@ var
 
       array_max := High(list_bgnd_rails[aq]);
       if (do_3d = True) and (aq in
-        [eRD_StraightStockGaugeFace..eRD_TurnoutSideCheckGaugeFace]) then
+        [rdStraightStockGaugeFace..rdTurnoutSideCheckGaugeFace]) then
         array_max_outer := High(list_bgnd_rails[aq_oppositeFace[aq]])
       else
         array_max_outer := 0;
@@ -823,9 +823,9 @@ var
           list_bgnd_rails[aq_oppositeFace[aq]][0].Y;
 
         case aq of
-          eRD_StraightTurnoutWingGaugeFace:
+          rdStraightTurnoutWingGaugeFace:
             nk_3d_start := planing_end_aq1; // start top infill from end of planing
-          eRD_CurvedTurnoutWingGaugeFace:
+          rdCurvedTurnoutWingGaugeFace:
             nk_3d_start := planing_end_aq2;
           else
             nk_3d_start := 0;
@@ -1144,14 +1144,14 @@ begin
 
       if colour(layer) <> '0|'                              // does he want them in the file ?
       then
-        for aq := eRD_MainRoadCentreLine to eRD_TurnoutRoadCentreLine do
+        for aq := rdMainRoadCentreLine to rdTurnoutRoadCentreLine do
           dxf_bgnd_rail(False);   // track centre-lines (no 3-D option).
 
       layer := 1;           // layer ADJTRACK    adjacent track rails.
 
       if colour(layer) <> '0|'                            // does he want them in the file ?
       then
-        for aq := eRD_AdjTrackTurnoutSideNearGaugeFace to eRD_AdjTrackMainSideFarOuterFace do
+        for aq := rdAdjTrackTurnoutSideNearGaugeFace to rdAdjTrackMainSideFarOuterFace do
           dxf_bgnd_rail(_3d);   // all the adjacent rails.
 
       layer := 0;           // layer RAILS       turnout rails.
@@ -1159,39 +1159,39 @@ begin
       if colour(layer) <> '0|'                      // does he want them in the file ?
       then begin
 
-        for aq := eRD_StraightStockGaugeFace to eRD_TurnoutSideCheckOuterFace do
+        for aq := rdStraightStockGaugeFace to rdTurnoutSideCheckOuterFace do
           dxf_bgnd_rail(_3d);   // all the turnout rails.
-        for aq := eRD_KCrossingCheckMainSideGaugeFace to eRD_KCrossingCheckTurnoutSideOuterEdge do
+        for aq := rdKCrossingCheckMainSideGaugeFace to rdKCrossingCheckTurnoutSideOuterEdge do
           dxf_bgnd_rail(_3d);   // K-crossing check rails.
 
         // next, draw in the rail ends...
 
-        dxf_mark_end(eRD_StraightTurnoutWingGaugeFace, 1, eRD_StraightTurnoutWingOuterFace, 1);
+        dxf_mark_end(rdStraightTurnoutWingGaugeFace, 1, rdStraightTurnoutWingOuterFace, 1);
         // main rail wing rail finish.
-        dxf_mark_end(eRD_CurvedTurnoutWingGaugeFace, 1, eRD_CurvedTurnoutWingOuterFace, 1);
+        dxf_mark_end(rdCurvedTurnoutWingGaugeFace, 1, rdCurvedTurnoutWingOuterFace, 1);
         // turnout rail wing rail finish.
 
-        dxf_mark_end(eRD_MainSideCheckGaugeFace, 0, eRD_MainSideCheckOuterFace, 0);
+        dxf_mark_end(rdMainSideCheckGaugeFace, 0, rdMainSideCheckOuterFace, 0);
         // main side check rail start.
-        dxf_mark_end(eRD_MainSideCheckGaugeFace, 1, eRD_MainSideCheckOuterFace, 1);
+        dxf_mark_end(rdMainSideCheckGaugeFace, 1, rdMainSideCheckOuterFace, 1);
         // main side check rail finish.
 
-        dxf_mark_end(eRD_TurnoutSideCheckGaugeFace, 0, eRD_TurnoutSideCheckOuterFace, 0);
+        dxf_mark_end(rdTurnoutSideCheckGaugeFace, 0, rdTurnoutSideCheckOuterFace, 0);
         // turnout side check rail start.
-        dxf_mark_end(eRD_TurnoutSideCheckGaugeFace, 1, eRD_TurnoutSideCheckOuterFace, 1);
+        dxf_mark_end(rdTurnoutSideCheckGaugeFace, 1, rdTurnoutSideCheckOuterFace, 1);
         // turnout side check rail finish.
 
-        dxf_mark_end(eRD_VeePointGaugeFace, 0, eRD_VeeSpliceGaugeFace, 0);    // blunt nose.
+        dxf_mark_end(rdVeePointGaugeFace, 0, rdVeeSpliceGaugeFace, 0);    // blunt nose.
 
         if fixed_diamond_ends = True then begin
-          dxf_mark_end(eRD_StraightTurnoutWingGaugeFace, 0, eRD_StraightTurnoutWingOuterFace, 0);
+          dxf_mark_end(rdStraightTurnoutWingGaugeFace, 0, rdStraightTurnoutWingOuterFace, 0);
           // planed faced of point rails for a fixed-diamond.
-          dxf_mark_end(eRD_CurvedTurnoutWingGaugeFace, 0, eRD_CurvedTurnoutWingOuterFace, 0);
+          dxf_mark_end(rdCurvedTurnoutWingGaugeFace, 0, rdCurvedTurnoutWingOuterFace, 0);
 
-          dxf_mark_end(eRD_KCrossingCheckMainSideGaugeFace, 1,
-            eRD_KCrossingCheckMainSideOuterEdge, 1);     // MS K-crossing check rails.
-          dxf_mark_end(eRD_KCrossingCheckTurnoutSideGaugeFace, 1,
-            eRD_KCrossingCheckTurnoutSideOuterEdge, 1);     // DS K-crossing check rails.
+          dxf_mark_end(rdKCrossingCheckMainSideGaugeFace, 1,
+            rdKCrossingCheckMainSideOuterEdge, 1);     // MS K-crossing check rails.
+          dxf_mark_end(rdKCrossingCheckTurnoutSideGaugeFace, 1,
+            rdKCrossingCheckTurnoutSideOuterEdge, 1);     // DS K-crossing check rails.
         end;
       end;//if RAILS
 

@@ -3146,10 +3146,10 @@ var
 
       Pen.Style := psSolid;
 
-      if (aq = eRD_AdjTrackTurnoutSideNearGaugeFace) and (adjacent_edges = True) and
+      if (aq = rdAdjTrackTurnoutSideNearGaugeFace) and (adjacent_edges = True) and
         (draw_ts_platform_rear_edge = False) then
         Pen.Style := psDot;    // 0.93.a show dotted on screen if hidden on output.
-      if (aq = eRD_AdjTrackMainSideNearGaugeFace) and (adjacent_edges = True) and
+      if (aq = rdAdjTrackMainSideNearGaugeFace) and (adjacent_edges = True) and
         (draw_ms_platform_rear_edge = False) then
         Pen.Style := psDot;
 
@@ -3733,9 +3733,9 @@ begin
 
       if bgkeeps_form.centres_checkbox.Checked = True    // track centre-lines first...
       then begin
-        for aq := eRD_MainRoadCentreLine to eRD_TurnoutRoadCentreLine do begin
+        for aq := rdMainRoadCentreLine to rdTurnoutRoadCentreLine do begin
 
-          if (plain_track = False) or (aq = eRD_MainRoadCentreLine)
+          if (plain_track = False) or (aq = rdMainRoadCentreLine)
           // main-side only, if plain track
           then
             draw_rail(aq);
@@ -3749,35 +3749,35 @@ begin
       then begin
         //                    if draw_ts_platform_rear_edge=True      // TS platform rear edge
         //                       then begin                           // data is always in list so can print infilled
-        aq := eRD_AdjTrackTurnoutSideNearGaugeFace;
+        aq := rdAdjTrackTurnoutSideNearGaugeFace;
         draw_rail(aq);
         //                            end;
 
-        aq := eRD_AdjTrackTurnoutSideNearOuterFace;             // TS platform front edge
+        aq := rdAdjTrackTurnoutSideNearOuterFace;             // TS platform front edge
         draw_rail(aq);
 
         //                    if draw_ms_platform_rear_edge=True    // MS platform rear edge
         //                       then begin                         // data is always in list so can print infilled
-        aq := eRD_AdjTrackMainSideNearGaugeFace;
+        aq := rdAdjTrackMainSideNearGaugeFace;
         draw_rail(aq);
         //                            end;
 
-        aq := eRD_AdjTrackMainSideNearOuterFace;             // MS platform front edge
+        aq := rdAdjTrackMainSideNearOuterFace;             // MS platform front edge
         draw_rail(aq);
 
         // 0.93.a platform ends ...
 
         if draw_ts_platform = True then begin
-          mark_end(eRD_AdjTrackTurnoutSideNearGaugeFace, 0, eRD_AdjTrackTurnoutSideNearOuterFace,
+          mark_end(rdAdjTrackTurnoutSideNearGaugeFace, 0, rdAdjTrackTurnoutSideNearOuterFace,
             0, draw_ts_platform_start_edge);
-          mark_end(eRD_AdjTrackTurnoutSideNearGaugeFace, 1, eRD_AdjTrackTurnoutSideNearOuterFace,
+          mark_end(rdAdjTrackTurnoutSideNearGaugeFace, 1, rdAdjTrackTurnoutSideNearOuterFace,
             1, draw_ts_platform_end_edge);
         end;
 
         if draw_ms_platform = True then begin
-          mark_end(eRD_AdjTrackMainSideNearGaugeFace, 0, eRD_AdjTrackMainSideNearOuterFace,
+          mark_end(rdAdjTrackMainSideNearGaugeFace, 0, rdAdjTrackMainSideNearOuterFace,
             0, draw_ms_platform_start_edge);
-          mark_end(eRD_AdjTrackMainSideNearGaugeFace, 1, eRD_AdjTrackMainSideNearOuterFace,
+          mark_end(rdAdjTrackMainSideNearGaugeFace, 1, rdAdjTrackMainSideNearOuterFace,
             1, draw_ms_platform_end_edge);
         end;
       end;
@@ -3787,13 +3787,13 @@ begin
       if (adjacent_edges = True) and (bgkeeps_form.trackbed_edges_checkbox.Checked = True)
       // trackbed edges
       then begin
-        aq := eRD_AdjTrackTurnoutSideFarGaugeFace;
+        aq := rdAdjTrackTurnoutSideFarGaugeFace;
         draw_rail(aq);
-        aq := eRD_AdjTrackTurnoutSideFarOuterFace;
+        aq := rdAdjTrackTurnoutSideFarOuterFace;
         draw_rail(aq);
-        aq := eRD_AdjTrackMainSideFarGaugeFace;
+        aq := rdAdjTrackMainSideFarGaugeFace;
         draw_rail(aq);
-        aq := eRD_AdjTrackMainSideFarOuterFace;
+        aq := rdAdjTrackMainSideFarOuterFace;
         draw_rail(aq);
       end;
 
@@ -3806,31 +3806,31 @@ begin
         Pen.Color := keep_rail_colour;
 
       if bgkeeps_form.gauge_faces_checkbox.Checked = True then
-        for aq := eRD_StraightStockGaugeFace to eRD_TurnoutSideCheckGaugeFace do
+        for aq := rdStraightStockGaugeFace to rdTurnoutSideCheckGaugeFace do
         begin                      // main rails gauge faces
-          if (plain_track = False) or (aq = eRD_StraightStockGaugeFace) or
-            (aq = eRD_CurvedStockGaugeFace) // stock rails only, if plain track
+          if (plain_track = False) or (aq = rdStraightStockGaugeFace) or
+            (aq = rdCurvedStockGaugeFace) // stock rails only, if plain track
           then
             draw_rail(aq);
         end;//next aq
 
       if bgkeeps_form.outer_edges_checkbox.Checked = True then
-        for aq := eRD_StraightStockOuterFace to eRD_TurnoutSideCheckOuterFace do
+        for aq := rdStraightStockOuterFace to rdTurnoutSideCheckOuterFace do
         begin                     // main rails outer edges
-          if (plain_track = False) or (aq = eRD_StraightStockOuterFace) or
-            (aq = eRD_CurvedStockOuterFace) then
+          if (plain_track = False) or (aq = rdStraightStockOuterFace) or
+            (aq = rdCurvedStockOuterFace) then
             draw_rail(aq);
         end;//next aq
 
       if (adjacent_edges = False) and (bgkeeps_form.gauge_faces_checkbox.Checked = True) then begin
-        for aq in eRD_AdjacentTracksGaugeFaces do begin
+        for aq in rdAdjacentTracksGaugeFaces do begin
           draw_rail(aq);
         end;
       end;
 
       if (adjacent_edges = False) and (bgkeeps_form.outer_edges_checkbox.Checked = True) then begin
 
-        for aq in eRD_AdjacentTracksOuterFaces do begin
+        for aq in rdAdjacentTracksOuterFaces do begin
           draw_rail(aq);
         end;
       end;
@@ -3839,32 +3839,32 @@ begin
 
       if (plain_track = False) and (bgkeeps_form.gauge_faces_checkbox.Checked = True) and
         (bgkeeps_form.outer_edges_checkbox.Checked = True) then begin
-        mark_end(eRD_StraightTurnoutWingGaugeFace, 1, eRD_StraightTurnoutWingOuterFace, 1, True);
+        mark_end(rdStraightTurnoutWingGaugeFace, 1, rdStraightTurnoutWingOuterFace, 1, True);
         // turnout rail wing rail finish.
-        mark_end(eRD_CurvedTurnoutWingGaugeFace, 1, eRD_CurvedTurnoutWingOuterFace, 1, True);
+        mark_end(rdCurvedTurnoutWingGaugeFace, 1, rdCurvedTurnoutWingOuterFace, 1, True);
         // main rail wing rail finish.
 
-        mark_end(eRD_MainSideCheckGaugeFace, 0, eRD_MainSideCheckOuterFace, 0, True);
+        mark_end(rdMainSideCheckGaugeFace, 0, rdMainSideCheckOuterFace, 0, True);
         // main side check rail start.
-        mark_end(eRD_MainSideCheckGaugeFace, 1, eRD_MainSideCheckOuterFace, 1, True);
+        mark_end(rdMainSideCheckGaugeFace, 1, rdMainSideCheckOuterFace, 1, True);
         // main side check rail finish.
 
-        mark_end(eRD_TurnoutSideCheckGaugeFace, 0, eRD_TurnoutSideCheckOuterFace, 0, True);
+        mark_end(rdTurnoutSideCheckGaugeFace, 0, rdTurnoutSideCheckOuterFace, 0, True);
         // turnout side check rail start.
-        mark_end(eRD_TurnoutSideCheckGaugeFace, 1, eRD_TurnoutSideCheckOuterFace, 1, True);
+        mark_end(rdTurnoutSideCheckGaugeFace, 1, rdTurnoutSideCheckOuterFace, 1, True);
         // turnout side check rail finish.
 
-        mark_end(eRD_VeePointGaugeFace, 0, eRD_VeeSpliceGaugeFace, 0, True);    // blunt nose.
+        mark_end(rdVeePointGaugeFace, 0, rdVeeSpliceGaugeFace, 0, True);    // blunt nose.
 
         if (half_diamond = True) and (fixed_diamond = True) then begin
-          mark_end(eRD_StraightTurnoutWingGaugeFace, 0, eRD_StraightTurnoutWingOuterFace, 0, True);
+          mark_end(rdStraightTurnoutWingGaugeFace, 0, rdStraightTurnoutWingOuterFace, 0, True);
           // planed faced of point rails for a fixed-diamond.
-          mark_end(eRD_CurvedTurnoutWingGaugeFace, 0, eRD_CurvedTurnoutWingOuterFace, 0, True);
+          mark_end(rdCurvedTurnoutWingGaugeFace, 0, rdCurvedTurnoutWingOuterFace, 0, True);
 
-          mark_end(eRD_KCrossingCheckMainSideGaugeFace, 1, eRD_KCrossingCheckMainSideOuterEdge,
+          mark_end(rdKCrossingCheckMainSideGaugeFace, 1, rdKCrossingCheckMainSideOuterEdge,
             1, True);     // MS K-crossing check rails.
-          mark_end(eRD_KCrossingCheckTurnoutSideGaugeFace, 1,
-            eRD_KCrossingCheckTurnoutSideOuterEdge, 1, True);     // DS K-crossing check rails.
+          mark_end(rdKCrossingCheckTurnoutSideGaugeFace, 1,
+            rdKCrossingCheckTurnoutSideOuterEdge, 1, True);     // DS K-crossing check rails.
         end;
       end;
 
@@ -4726,7 +4726,7 @@ begin
 
             SetLength(list_bgnd_rails[aq], nlmax_array[aq] + 1);
 
-            if ((plain_track = False) or (aq in eRD_StockRails) or (aq in eRD_AdjacentTracks)) and
+            if ((plain_track = False) or (aq in rdStockRails) or (aq in rdAdjacentTracks)) and
               (aqyn[aq] = True)
 
             // stock rails, adjacent rails, centre-lines only if plain track, and data available ?
