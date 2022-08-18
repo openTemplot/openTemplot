@@ -394,8 +394,6 @@ begin
   // these Timage components are not visible on the form. used on first run to create the image files for HtmlViewer and maps
 
   store_image(csfiOTlogo, ot_logo_bmp_image);
-  store_image(csfiTMlogo, tm_logo_bmp_image);
-  store_image(csfiT3logo, t3_logo_bmp_image);
   store_image(csfiAdobePrint, adobe_print_dialog_png_image);
   store_image(csfiB6Startup, b6_startup_gif_image);
   store_image(csfiCompanion, companion_taskbar_png_image);

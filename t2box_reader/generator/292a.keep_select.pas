@@ -2057,7 +2057,7 @@ begin
                           file_format_code:=0;                             // D5 format
                         end;
 
-                if templot_version<292   // Templot3
+                if templot_version<292   // OpenTemplot
                    then begin
                           //
                         end;

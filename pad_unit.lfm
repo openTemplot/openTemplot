@@ -10030,10 +10030,10 @@ object pad_form: Tpad_form
         Caption = '-'
         GroupIndex = 90
       end
-      object pad_about_templotmec_menu_entry: TMenuItem
-        Caption = 'ab&out  Templot'
+      object pad_about_opentemplot_menu_entry: TMenuItem
+        Caption = 'ab&out  OpenTemplot'
         GroupIndex = 90
-        OnClick = pad_about_templot_menu_entryClick
+        OnClick = pad_about_opentemplot_menu_entryClick
       end
     end
   end

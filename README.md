@@ -1,20 +1,20 @@
 
-# templot3
-Templot3 is an open source fork of the Templot2 program by Martin Wynne.
+# OpenTemplot
+OpenTemplot is an open source fork of the Templot2 program by Martin Wynne.
 
 See README.txt for the original ReadMe by Martin.
 
 Templot2 is still the official version of Templot. It is still under active development
 and can be found at <http://templot.com>
 
-**Warning: the box3 file format currently used by Templot3 is _not_ cross-platform compatible. In particular, a box3
+**Warning: the box3 file format currently used by OpenTemplot is _not_ cross-platform compatible. In particular, a box3
 file saved using a Win32 build will not work with any other platform build (Win64, Linux etc)**
 
 ## Goals of this fork
 
 In no particular order, the goals for this fork are:
 * create an open source, functionally equivalent version of Templot
-* make templot3 compile and run across several platforms, including Win32, Win64, Linux (x86, amd64 and RPi).
+* make OpenTemplot compile and run across several platforms, including Win32, Win64, Linux (x86, amd64 and RPi).
 * work on improving the code structure/design.
 * add currently unsupported features from templot2
 

@@ -91,9 +91,7 @@ type
     csfiStartBgnd,      //<
     csfiStartBox,       //<
     csfiStoreBgnd,      //<
-    csfiT3logo,         //<
     csfiTickedBox,      //<
-    csfiTMlogo,         //<
     csfiTreeSymbol,     //<
     csfiUndoChanges,    //<
     csfiUnTickedBox,    //<
@@ -331,9 +329,7 @@ begin
   LoadFile(csfiScriptError, [configGlobalDirName, 'help', 'script_error.png']);
   LoadFile(csfiSmile, [configGlobalDirName, 'help', 'smile.gif']);
   LoadFile(csfiStoreBgnd, [configGlobalDirName, 'help', 'store_bgnd_options.png']);
-  LoadFile(csfiT3logo, [configGlobalDirName, 'help', 't3_logo.bmp']);
   LoadFile(csfiTickedBox, [configGlobalDirName, 'help', 'tickbox_unticked.png']);
-  LoadFile(csfiTMlogo, [configGlobalDirName, 'help', 'tm_logo.bmp']);
   LoadFile(csfiTreeSymbol, [configGlobalDirName, 'help', 'tree_symbol.gif']);
   LoadFile(csfiUndoChanges, [configGlobalDirName, 'help', 'undo_changes.png']);
   LoadFile(csfiUnTickedBox, [configGlobalDirName, 'help', 'tickbox_ticked.png']);

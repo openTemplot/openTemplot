@@ -68,8 +68,6 @@ type
     data_distortions_menu_entry: TMenuItem;
     aspect_distortion_menu_entry: TMenuItem;
     ot_logo_panel: TPanel;
-    t3_logo_image: TImage;
-    t3_logo_panel: TPanel;
     x_skewing_menu_entry: TMenuItem;
     x_coning_menu_entry: TMenuItem;
     distortion_help_menu_entry: TMenuItem;
@@ -155,8 +153,6 @@ type
     graphics_24_bit_limits_menu_entry: TMenuItem;
     graphics_32_bit_limits_menu_entry: TMenuItem;
     graphics_limits_help_menu_entry: TMenuItem;
-    tmec_logo_panel: TPanel;
-    tmec_logo_image: TImage;
     com_label: TLabel;
     recent_button: TButton;
     recent_menu_entry: TMenuItem;
@@ -345,11 +341,7 @@ var
 
 const
 
-  program_name_str: string = 'TemplotMEC';
-
-  //program_name_str:string='OpenTemplot';
-
-  //program_name_str:string='Templot3';
+  program_name_str:string='OpenTemplot';
 
   //
   // Version information
@@ -1636,8 +1628,6 @@ begin
 
   // only one of these is visible ...
 
-  t3_logo_panel.BringToFront;    // OT-FIRST
-  tmec_logo_panel.BringToFront;  // OT-FIRST
   ot_logo_panel.BringToFront;    // OT-FIRST
 
   picture_panel.Visible := True;
@@ -2015,9 +2005,7 @@ begin
 
     // OT-FIRST color:=$0066EEBB;  // 214a lime green
 
-    //Color:=$00FFEECC;  // OpenTemplot  water blue
-
-    //Color:=$00A8FFF8;  // TemplotMEC  unripe banana
+    Color:=$00FFEECC;  // OpenTemplot  water blue
 
     Show;
 
@@ -2053,7 +2041,7 @@ begin
 
   Application.ProcessMessages;
 
-  title_str:='TemplotMEC';
+  title_str:='OpenTemplot';
   window_handle:=FindWindow(nil,PChar(title_str));
 
   title_str:=Application.Title;
@@ -2222,13 +2210,7 @@ var
 
 begin
 
-  if Application.Title = 'TemplotMEC' then
-    logo_img_path := Config.GetFilePath(csfiTMlogo)
-  else
-  if Application.Title = 'OpenTemplot' then
-    logo_img_path := Config.GetFilePath(csfiOTlogo)
-  else
-    logo_img_path := Config.GetFilePath(csfiT3logo);
+  logo_img_path := Config.GetFilePath(csfiOTlogo);
 
   about_str := '<P STYLE="text-align:center; margin-top:20px;"><IMG SRC="' +
     logo_img_path + '"></P>' +
@@ -3818,19 +3800,7 @@ begin
 
   version_label.Caption := GetVersionString(voFull);
 
-  if Application.Title = 'TemplotMEC' then begin
-    Color := $00A8FFF8;                   // TemplotMEC  unripe banana
-    tmec_logo_panel.Visible := True;
-  end
-  else
-  if Application.Title = 'OpenTemplot' then begin
-    Color := $00FFEECC;                   // OpenTemplot  water blue
-    ot_logo_panel.Visible := True;
-  end
-  else begin
-    Color := $00B0FFF0;                   // 291a Templot3  cream
-    t3_logo_panel.Visible := True;
-  end;
+  Color := $00FFEECC;                   // OpenTemplot  water blue
 
   Caption := '        . . .  welcome  to  ' + Application.Title;
 

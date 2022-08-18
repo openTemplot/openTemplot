@@ -2134,14 +2134,14 @@ begin
 
         end;
 
-        if templot_version < 290   // TemplotMEC
+        if templot_version < 290   // OpenTemplot
         then begin
           turnout_info1.rolled_in_sleepered_flag := True;
           // default was True pre-223a
           file_format_code := 0;                             // D5 format
         end;
 
-        if templot_version < 292   // Templot3
+        if templot_version < 292   // OpenTemplot
         then begin
           //
         end;

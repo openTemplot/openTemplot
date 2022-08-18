@@ -919,7 +919,7 @@ begin
     else
       InitialDir := Config.GetDir(cudiImages);
 
-    { T3-FIRST
+    { OT-FIRST
     if transparent_gif_checkbox.Checked=True
        then begin
               DefaultExt:='gif';
@@ -1041,7 +1041,7 @@ begin
         create_jpg.SaveToFile(file_str);
       end;
 
-      { T3-FIRST
+      { OT-FIRST
       if LowerCase(ExtractFileExt(file_str))='.gif'
          then begin
                 create_bitmap.TransparentColor:=clWhite;
@@ -1218,6 +1218,6 @@ begin
 end;
 //______________________________________________________________________________
 
-// T3-FIRST   draw functions are now in export_draw_unit  11/11/2019
+// OT-FIRST   draw functions are now in export_draw_unit  11/11/2019
 
 end.

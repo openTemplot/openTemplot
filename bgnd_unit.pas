@@ -490,7 +490,7 @@ procedure add_picture_expert;   // 214a
 procedure free_shape_object(n: integer);  // moved to interface 215a
 
 function get_EMF_from_file_to_memory(file_str: string; var new_met_DC_handle: HDC): boolean;
-// T3-FIRST  219a
+// OT-FIRST  219a
 
 function create_picture_shape_image_from_file(image_file_str: string;
   bgshape: Tbgshape; var img_width, img_height: integer): boolean;    // 291a
@@ -813,7 +813,7 @@ begin
 
       rotated_picture := TPicture.Create;
 
-      // T3-FIRST   EMF metafile ...
+      // OT-FIRST   EMF metafile ...
 
       if ext_str = '.emf' then
         Result := get_metafile_for_existing_shape(image_file_str, bgshape)
@@ -2275,7 +2275,7 @@ begin
               load_picture := TPicture.Create; //0.93.a
 
               try
-                // T3-FIRST   EMF metafile ...
+                // OT-FIRST   EMF metafile ...
 
                 if (LowerCase(ExtractFileExt(image_file_str)) = '.emf')
                 then begin
@@ -3903,7 +3903,7 @@ begin
 
       with header_node do begin
 
-        WriteString('program_name', 'Templot3 background shapes, saved from version ' +
+        WriteString('program_name', 'OpenTemplot background shapes, saved from version ' +
           GetVersionString(voFull));
 
         WriteInteger('file_version', file_version, 0);
@@ -7270,7 +7270,7 @@ begin
                   img_saved := True;
                 end;
 
-                { T3-FIRST
+                { OT-FIRST
                                 if LowerCase(ExtractFileExt(FileName))='.gif'
                                     then begin
                                            temp_bitmap:=TBitmap.Create;

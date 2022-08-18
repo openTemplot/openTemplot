@@ -11,22 +11,18 @@
         <CompatibilityMode Value="True"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="Templot3"/>
+      <Title Value="OpenTemplot"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
       <XPManifest>
         <DpiAware Value="True"/>
       </XPManifest>
-      <Icon Value="0"/>
     </General>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
-      <MajorVersionNr Value="2"/>
-      <MinorVersionNr Value="92"/>
-      <RevisionNr Value="1"/>
-      <BuildNr Value="174"/>
-      <StringTable InternalName="Templot3" LegalCopyright="(c) Martin Wynne 2019" ProductName="Templot3/TemplotMEC" ProductVersion="2.92.a"/>
+      <Language Value="0809"/>
+      <StringTable InternalName="OpenTemplot" LegalCopyright="(c) OpenTemplot Contributors 2019" ProductName="OpenTemplot" ProductVersion="0.0.dev"/>
     </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
@@ -53,7 +49,7 @@
     </RequiredPackages>
     <Units Count="108">
       <Unit0>
-        <Filename Value="templotmec.lpr"/>
+        <Filename Value="opentemplot.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
@@ -611,7 +607,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="output\templotmec"/>
+      <Filename Value="output\opentemplot"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="t2box_reader"/>

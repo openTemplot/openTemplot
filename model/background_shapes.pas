@@ -62,7 +62,7 @@ type
     image_width: integer;
     image_height: integer;
 
-    image_metafile: Temf;       // T3-FIRST  219a
+    image_metafile: Temf;       // OT-FIRST  219a
   end;
 
   Tbgimage = class(TPersistent)             // 3-2-01

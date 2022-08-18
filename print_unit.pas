@@ -1999,7 +1999,7 @@ begin
 
               bottom_str := bottom_str + '    ' + DateToStr(Date) + '  ' + TimeToStr(Time);
 
-              top_str := ' Templot3  v:' + GetVersionString(voFull) +
+              top_str := ' OpenTemplot  v:' + GetVersionString(voFull) +
                 '  templot.com  This drawing contains design elements and data © 2018 Martin Wynne.';
               if box_project_title_str <> '' then
                 top_str := top_str + '   Project : ' + box_project_title_str;
