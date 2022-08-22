@@ -31,8 +31,17 @@ unit switch_select;
 interface
 
 uses
-  LCLType, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls;
+  LCLType,
+  Messages,
+  SysUtils,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  ExtCtrls,
+  ComCtrls;
 
 type
   Tswitch_select_form = class(TForm)
@@ -88,12 +97,95 @@ var
 //---------------------------
 
 const
-  switch_help_str: string = '          Switch  Size  and  Type' +
-    '||-----------------------------------------' + '|Important note for INTERNATIONAL users:'
-    + '||Templot0 uses UK track terminology. In Templot0 the term SWITCH applies to ONLY that part of a turnout comprising the moving switch blades (points).' + '||A complete TURNOUT comprises a SWITCH (also known as a set of points), a V-CROSSING (also known as a frog), and some closure rails (also known as closer or filler rails) linking between them.' + ' For more information and diagrams, please refer to the Templot0 Companion pages on the Templot web site at  templot.com .' + '|-----------------------------------------' + '||Use this window to select the switch to be used for your turnout when you want to change the type of switch (see below), or when you want to set the size directly instead of using the ADJUST SIZE (F5) mouse action' + ' or one of the common REA bullhead turnout sizes available on the TEMPLATE > QUICK SET... window.' + '||First select the switch you require by clicking the list.' + '||You may then possibly want to tick or untick the JOGGLED STOCK RAILS option box as required.' + '||Then click the OK button.' + '||Clicking the RESTORE button will restore the previous setting.' + '||Clicking the SHOW SWITCH INFO button lists the dimensions of the currently selected switch.' + '||To re-use a custom switch which has previously been reloaded or copied from a stored template, click the bottom line in the list.' + '||To enter your own custom switch dimensions, first click one of the 8 custom switch slots (towards the bottom of the list), and then click the SET CUSTOM SWITCH... button. For more information click the HELP buttons which then appear.' + ' You can create up to 8 different custom switches.' + '||To save your custom switches in a storage box data file for re-use later, ensure that there is at least one template in the box using each custom switch.' + '||    Switch  Sizes  and  Selection:' + '||Templot0 currently provides 8 groups of pre-defined switches. These are:' + '||Group 1. Straight loose-heel switches in 6 sizes - 9ft, 12ft, 15ft, 18ft, 24ft and 30ft. These are suitable for bullhead or flat-bottom rail.' + '||Group 2. REA semi-curved flexible switches in 6 sizes - A, B, C, D, E and F. These are for bullhead rail only.' + '||Group 3. GWR curved flexible switches in 3 sizes - B, C and D, plus GWR straight loose-heel switch in 1 30ft size. These are for bullhead rail only.' + '||Group 4. GWR old-type curved loose-heel switches in 6 sizes - 9ft, 10ft, 12ft, 14ft, 15ft and 16ft, plus GWR old-type straight loose-heel switches in 2 sizes - 18ft and 20ft. These are for bullhead rail only.' + '||Group 5. FB-109 semi-curved flexible switches in 6 sizes - SA (for industrial sidings only), SB, SC, SD, SE and SF. These are for flat-bottom rail only.' + '||Group 6. BS-110A && BS-113A(inclined) curved flexible switches in 6 sizes - CA, CB, CC, CD, CE and CF. These are for flat-bottom rail only.' + '||Group 7. Non-prototype straight-planed model switches having a virtual heel at the end of the planing. These are suitable for bullhead or flat-bottom rail.' + '||Group 8. Non-prototype-specific straight-planed slip switches comprising only the planing length. These are suitable for bullhead or flat-bottom rail.' + '||Group 9. Custom switches used by Templot0 in creating tandem turnouts. These are suitable for bullhead or flat-bottom rail.' + '||When you select a switch from one of these groups, subsequent changes to the switch size using the F5 mouse action will be limited to switches within the same group.' + '||In each group, the switches are listed in order of increasing size (i.e. length).' + '||The shortest switch sizes (less than size B or 12ft) are generally only suitable for yards and sidings, and cannot usually be' + ' curved very much, if at all, without infringing your minimum radius. (Unless the curving radius is negative, i.e. to produce a Y-turnout.)' + '||Size B or 12ft is the size most commonly used on small model railways. Although hardly a running-line size on the prototype,' + ' it can serve as such on the model without looking out of place, and can be gently curved if required.' + '||Longer sizes are a more realistic choice for running lines where space is less of a problem, and a necessary choice when significant curving is needed.' + '||The longest sizes in each group are used for high-speed junctions and for long curved turnouts on sharply curved running lines. In model terms' + ' they will be found to need a great deal of space.' + '||The first group in the list are straight loose-heel switches (see below). These are generally suitable for running lines on non-GWR pre-grouping railways,' + ' and for use in yards and sidings up to the present day. Using a straight switch instead of a semi-curved one can usually save some space.' + ' These straight switch designs are suitable for both bullhead (BH) and flat-bottom (FB) rails.' + '||The second group of switches are the REA (British Standard) semi-curved flexible switch designs for bullhead rail. These are the sizes which are familiar to many modellers who' + ' have been using pre-printed plans, and are suitable for use on non-GWR lines from the grouping (1923) to the present day.' + '||The third and fourth groups contain bullhead switches specific to the GWR. The third group are the more modern sizes, adopted on running lines since' + ' about 1930. The fourth group of switches are the older-pattern GWR loose-heel switches, suitable for yards and sidings and lesser used lines.' + '||The fifth group contains the FB-109 flat-bottom semi-curved switches introduced about 1950 as direct replacements for the REA bullhead switches.' + '||The sixth group contains the BS-110A and BS-113A(inclined) flat-bottom single-curved switches introduced about 1959 as an improved version of the earlier FB-109 switches.' + '||The seventh group contains non-prototype model switches for use in shortened turnouts when space constraints prevent the use of correct prototype switches.' + ' Using these switches can not only save some space, but also ease the turnout-road radius.' + '||The eighth group contains generic non-prototype-specific switches for use when adding slip roads to a diamond-crossing to create single or double slips.' + '||N.B. The above notes are very general and should be taken as a rough guide only. As in all modelling, correct pointwork has to be based on' + ' observation of the actual prototype being modelled. ("the grouping" refers to the amalgamations of U.K. railways which occurred in 1923.)';
+  switch_help_str: string = '          Switch  Size  and  Type'
+    + '||-----------------------------------------'
+    + '|Important note for INTERNATIONAL users:'
+    + '||Templot0 uses UK track terminology. In Templot0 the term SWITCH applies to ONLY that part of a turnout comprising the moving switch blades (points).'
+    + '||A complete TURNOUT comprises a SWITCH (also known as a set of points), a V-CROSSING (also known as a frog), and some closure rails (also known as closer or filler rails) linking between them.'
+    + ' For more information and diagrams, please refer to the Templot0 Companion pages on the Templot web site at  templot.com .'
+    + '|-----------------------------------------'
+    + '||Use this window to select the switch to be used for your turnout when you want to change the type of switch (see below), or when you want to set the size directly instead of using the ADJUST SIZE (F5) mouse action'
+    + ' or one of the common REA bullhead turnout sizes available on the TEMPLATE > QUICK SET... window.'
+    + '||First select the switch you require by clicking the list.'
+    + '||You may then possibly want to tick or untick the JOGGLED STOCK RAILS option box as required.'
+    + '||Then click the OK button.'
+    + '||Clicking the RESTORE button will restore the previous setting.'
+    + '||Clicking the SHOW SWITCH INFO button lists the dimensions of the currently selected switch.'
+    + '||To re-use a custom switch which has previously been reloaded or copied from a stored template, click the bottom line in the list.'
+    + '||To enter your own custom switch dimensions, first click one of the 8 custom switch slots (towards the bottom of the list), and then click the SET CUSTOM SWITCH... button. For more information click the HELP buttons which then appear.'
+    + ' You can create up to 8 different custom switches.'
+    + '||To save your custom switches in a storage box data file for re-use later, ensure that there is at least one template in the box using each custom switch.'
+    + '||    Switch  Sizes  and  Selection:' +
+    '||Templot0 currently provides 8 groups of pre-defined switches. These are:'
+    + '||Group 1. Straight loose-heel switches in 6 sizes - 9ft, 12ft, 15ft, 18ft, 24ft and 30ft. These are suitable for bullhead or flat-bottom rail.'
+    + '||Group 2. REA semi-curved flexible switches in 6 sizes - A, B, C, D, E and F. These are for bullhead rail only.'
+    + '||Group 3. GWR curved flexible switches in 3 sizes - B, C and D, plus GWR straight loose-heel switch in 1 30ft size. These are for bullhead rail only.'
+    + '||Group 4. GWR old-type curved loose-heel switches in 6 sizes - 9ft, 10ft, 12ft, 14ft, 15ft and 16ft, plus GWR old-type straight loose-heel switches in 2 sizes - 18ft and 20ft. These are for bullhead rail only.'
+    + '||Group 5. FB-109 semi-curved flexible switches in 6 sizes - SA (for industrial sidings only), SB, SC, SD, SE and SF. These are for flat-bottom rail only.'
+    + '||Group 6. BS-110A && BS-113A(inclined) curved flexible switches in 6 sizes - CA, CB, CC, CD, CE and CF. These are for flat-bottom rail only.'
+    + '||Group 7. Non-prototype straight-planed model switches having a virtual heel at the end of the planing. These are suitable for bullhead or flat-bottom rail.'
+    + '||Group 8. Non-prototype-specific straight-planed slip switches comprising only the planing length. These are suitable for bullhead or flat-bottom rail.'
+    + '||Group 9. Custom switches used by Templot0 in creating tandem turnouts. These are suitable for bullhead or flat-bottom rail.'
+    + '||When you select a switch from one of these groups, subsequent changes to the switch size using the F5 mouse action will be limited to switches within the same group.'
+    + '||In each group, the switches are listed in order of increasing size (i.e. length).'
+    + '||The shortest switch sizes (less than size B or 12ft) are generally only suitable for yards and sidings, and cannot usually be'
+    + ' curved very much, if at all, without infringing your minimum radius. (Unless the curving radius is negative, i.e. to produce a Y-turnout.)'
+    + '||Size B or 12ft is the size most commonly used on small model railways. Although hardly a running-line size on the prototype,'
+    + ' it can serve as such on the model without looking out of place, and can be gently curved if required.'
+    + '||Longer sizes are a more realistic choice for running lines where space is less of a problem, and a necessary choice when significant curving is needed.'
+    + '||The longest sizes in each group are used for high-speed junctions and for long curved turnouts on sharply curved running lines. In model terms'
+    + ' they will be found to need a great deal of space.'
+    + '||The first group in the list are straight loose-heel switches (see below). These are generally suitable for running lines on non-GWR pre-grouping railways,'
+    + ' and for use in yards and sidings up to the present day. Using a straight switch instead of a semi-curved one can usually save some space.'
+    + ' These straight switch designs are suitable for both bullhead (BH) and flat-bottom (FB) rails.'
+    + '||The second group of switches are the REA (British Standard) semi-curved flexible switch designs for bullhead rail. These are the sizes which are familiar to many modellers who'
+    + ' have been using pre-printed plans, and are suitable for use on non-GWR lines from the grouping (1923) to the present day.'
+    + '||The third and fourth groups contain bullhead switches specific to the GWR. The third group are the more modern sizes, adopted on running lines since'
+    + ' about 1930. The fourth group of switches are the older-pattern GWR loose-heel switches, suitable for yards and sidings and lesser used lines.'
+    + '||The fifth group contains the FB-109 flat-bottom semi-curved switches introduced about 1950 as direct replacements for the REA bullhead switches.'
+    + '||The sixth group contains the BS-110A and BS-113A(inclined) flat-bottom single-curved switches introduced about 1959 as an improved version of the earlier FB-109 switches.'
+    + '||The seventh group contains non-prototype model switches for use in shortened turnouts when space constraints prevent the use of correct prototype switches.'
+    + ' Using these switches can not only save some space, but also ease the turnout-road radius.'
+    + '||The eighth group contains generic non-prototype-specific switches for use when adding slip roads to a diamond-crossing to create single or double slips.'
+    + '||N.B. The above notes are very general and should be taken as a rough guide only. As in all modelling, correct pointwork has to be based on'
+    + ' observation of the actual prototype being modelled. ("the grouping" refers to the amalgamations of U.K. railways which occurred in 1923.)';
 
-  switch_geo_help_str: string = 'The type and geometry of switches can take several forms:' +
-    '||a) Curved Switch:|This type is normal on the GWR (except for very long switches) and for modern flat-bottom track, but is unusual elsewhere in bullhead track.' + '|The switch blade is curved at a constant "switch radius" from the blade tips (called the "toe") to the "heel"' + ' (the point where the "turnout radius" begins). The switch radius is not normally less than the turnout radius, and is often greater.' + ' If the switch radius and turnout radius are equal, this size of switch is known as the "natural" size for the crossing angle.' + '||Curved switches can be either loose-heel or flexible pattern - see below.' + '||In model form, curved switches need careful construction to ensure that the switch blade seats properly against the stock rail,' + ' and maintains the correct gauge.' + '||b) Semi-Curved Switch:|This type represents the final development of bullhead switches on non-GWR lines. These switches are' + ' also known as REA-pattern British Standard switches.' + '|For the length from the tip of the blade to the end of the machined area, called the "planing", the switch blade is straight, and inclined to the' + ' stock rail at the "planing angle". From the end of the planing to the heel the switch blade is curved at the switch radius.' + '||Semi-curved switches are usually of flexible construction - e.g. the REA design.' + '||This is the type of switch commonly used in model form, and represented on many ready-printed plans.' + '||c) Straight Switch:|This is the older (pre-grouping, non-GWR) type of switch and is also commonly found on narrow-gauge and industrial lines,' + ' and Light Railways. Many straight switches can still be found in sidings and yards today.' + '|The switch blade is straight from the tip to the heel, which is normally the point where the offset from the stock rail is 4.5 inches,' + ' and this length is the size of the switch. There is no switch radius, the turnout radius begins directly from the straight at the heel.' + '||The simple geometry of straight switches is more easily reproduced in model form, and can save some space. If you are designing a custom switch' + ' to save space, a straight switch will probably be the most useful.' + '||In addition, switches can be of the older "loose-heel" pattern, or the more modern "flexible" pattern. This does not affect the length of turnouts' + ' or the geometry of the rail edges, but does determine the position of the rail joints, which can also affect the timber spacings.' + '||In a loose-heel switch the switch blade is shorter and the fish-bolts at the heel are not fully tightened, so that the blade can pivot slightly at the heel' + ' to give the required movement.' + ' Most straight switches and n.g. and industrial switches are of this pattern.' + '||On post-grouping running lines flexible switches are more usual, although the GWR was later in introducing them than other main-line companies.' + ' The switch blade is longer and is firmly held in several chairs at the heel. The movement of the blade' + ' is achieved by actually flexing (bending) the rail from side to side. This requires that the point rodding is more robust than is necessary for loose-heel switches.' + ' Flexible switches are also sometimes known as "spring" or "heel-less" switches.' + '||In model form flexible switches are the norm and generally more reliable. It''s quite posible to represent the geometry of loose-heel switches using flexible' + ' construction - dummy rail joints can be added to represent the shorter switch blade. Templot0 is not concerned with the construction of switches, only their dimensions' + ' and geometry, so the choice of loose-heel or flexible construction can be made after the template has been printed.' + '||For all these switches there is additionally the option of using joggled stock rails to accommodate the thickness of the switch blade tips. This is normally done only for facing' + ' turnouts in running lines, except on the GWR where joggled stock rails were standard for all switches. The sideways depth of the joggle is quite small, typically 3/8" (scale), but is often' + ' modelled overscale for functional reasons. If you wish to create your templates with overscale joggles, click the GENERATOR > GENERATOR SETTINGS > RAILS > OVERSCALE JOGGLES menu item.' + '||For diagrams and more prototype information about switches, see "Real Track" in the Templot0 Companion pages on the Templot web site at  templot.com .';
+  switch_geo_help_str: string = 'The type and geometry of switches can take several forms:'
+    + '||a) Curved Switch:|This type is normal on the GWR (except for very long switches) and for modern flat-bottom track, but is unusual elsewhere in bullhead track.'
+    + '|The switch blade is curved at a constant "switch radius" from the blade tips (called the "toe") to the "heel"'
+    + ' (the point where the "turnout radius" begins). The switch radius is not normally less than the turnout radius, and is often greater.'
+    + ' If the switch radius and turnout radius are equal, this size of switch is known as the "natural" size for the crossing angle.'
+    + '||Curved switches can be either loose-heel or flexible pattern - see below.'
+    + '||In model form, curved switches need careful construction to ensure that the switch blade seats properly against the stock rail,'
+    + ' and maintains the correct gauge.'
+    + '||b) Semi-Curved Switch:|This type represents the final development of bullhead switches on non-GWR lines. These switches are'
+    + ' also known as REA-pattern British Standard switches.'
+    + '|For the length from the tip of the blade to the end of the machined area, called the "planing", the switch blade is straight, and inclined to the'
+    + ' stock rail at the "planing angle". From the end of the planing to the heel the switch blade is curved at the switch radius.'
+    + '||Semi-curved switches are usually of flexible construction - e.g. the REA design.'
+    + '||This is the type of switch commonly used in model form, and represented on many ready-printed plans.'
+    + '||c) Straight Switch:|This is the older (pre-grouping, non-GWR) type of switch and is also commonly found on narrow-gauge and industrial lines,'
+    + ' and Light Railways. Many straight switches can still be found in sidings and yards today.'
+    + '|The switch blade is straight from the tip to the heel, which is normally the point where the offset from the stock rail is 4.5 inches,'
+    + ' and this length is the size of the switch. There is no switch radius, the turnout radius begins directly from the straight at the heel.'
+    + '||The simple geometry of straight switches is more easily reproduced in model form, and can save some space. If you are designing a custom switch'
+    + ' to save space, a straight switch will probably be the most useful.'
+    + '||In addition, switches can be of the older "loose-heel" pattern, or the more modern "flexible" pattern. This does not affect the length of turnouts'
+    + ' or the geometry of the rail edges, but does determine the position of the rail joints, which can also affect the timber spacings.'
+    + '||In a loose-heel switch the switch blade is shorter and the fish-bolts at the heel are not fully tightened, so that the blade can pivot slightly at the heel'
+    + ' to give the required movement.'
+    + ' Most straight switches and n.g. and industrial switches are of this pattern.'
+    + '||On post-grouping running lines flexible switches are more usual, although the GWR was later in introducing them than other main-line companies.'
+    + ' The switch blade is longer and is firmly held in several chairs at the heel. The movement of the blade'
+    + ' is achieved by actually flexing (bending) the rail from side to side. This requires that the point rodding is more robust than is necessary for loose-heel switches.'
+    + ' Flexible switches are also sometimes known as "spring" or "heel-less" switches.'
+    + '||In model form flexible switches are the norm and generally more reliable. It''s quite posible to represent the geometry of loose-heel switches using flexible'
+    + ' construction - dummy rail joints can be added to represent the shorter switch blade. Templot0 is not concerned with the construction of switches, only their dimensions'
+    + ' and geometry, so the choice of loose-heel or flexible construction can be made after the template has been printed.'
+    + '||For all these switches there is additionally the option of using joggled stock rails to accommodate the thickness of the switch blade tips. This is normally done only for facing'
+    + ' turnouts in running lines, except on the GWR where joggled stock rails were standard for all switches. The sideways depth of the joggle is quite small, typically 3/8" (scale), but is often'
+    + ' modelled overscale for functional reasons. If you wish to create your templates with overscale joggles, click the GENERATOR > GENERATOR SETTINGS > RAILS > OVERSCALE JOGGLES menu item.'
+    + '||For diagrams and more prototype information about switches, see "Real Track" in the Templot0 Companion pages on the Templot web site at  templot.com .';
 
 var
   x0001: integer;                             // keep the compiler happy.
@@ -103,10 +195,10 @@ var
 procedure init_switch_data;                // initial fill switch data.
 function get_switch(sw: integer): integer;   // show switch selector form.
 
-function get_switch_list_index(sw_group, sw_size: integer): integer;
 // get switch listbox index, or -1 if not found in list.
-function set_csi_data(sw_group, sw_size: integer): boolean;
+function get_switch_list_index(sw_group, sw_size: integer): integer;
 // set control template switch data from listbox entries.
+function set_csi_data(sw_group, sw_size: integer): boolean;
 
 //________________________________________________________
 
@@ -114,8 +206,19 @@ implementation
 
 {$R *.lfm}
 
-uses pad_unit, control_room, entry_sheet, colour_unit, alert_unit, help_sheet, chat_unit,
-  math_unit, data_memo_unit, make_slip_unit, curve, template;
+uses
+  pad_unit,
+  control_room,
+  entry_sheet,
+  colour_unit,
+  alert_unit,
+  help_sheet,
+  chat_unit,
+  math_unit,
+  data_memo_unit,
+  make_slip_unit,
+  curve,
+  template;
 
 var
   switch_index: integer = 0;
@@ -295,56 +398,92 @@ end;
 procedure Tswitch_select_form.custom_switch_buttonClick(Sender: TObject);
 
 const
-  custom_help_str: string = 'Custom  Switch' +
-    '||Before entering data for a custom switch you ideally need to have access to the appropriate prototype information. It is possible to save some' + ' space in model form by designing non-prototype short switches, but unless these are based on correct practice the results are unlikely to be satisfactory.' + ' If you enter incompatible dimensions Templot0 may decline to draw your switch.' + '||When entering custom switch data, the dimensions refer to the right-hand blade of a left-hand switch (looking from the tips towards the heel), and are all in FULL-SIZE inches' + ' (including the switch radius, which is normally shown on drawings in feet, so multiply by 12).';
+  custom_help_str: string = 'Custom  Switch'
+    + '||Before entering data for a custom switch you ideally need to have access to the appropriate prototype information. It is possible to save some'
+    + ' space in model form by designing non-prototype short switches, but unless these are based on correct practice the results are unlikely to be satisfactory.'
+    + ' If you enter incompatible dimensions Templot0 may decline to draw your switch.'
+    + '||When entering custom switch data, the dimensions refer to the right-hand blade of a left-hand switch (looking from the tips towards the heel), and are all in FULL-SIZE inches'
+    + ' (including the switch radius, which is normally shown on drawings in feet, so multiply by 12).';
 
   lead_help_str: string =
     'This is the distance from the tip of the blade (switch rail) to the point known as the "heel". This point is used in the calculation of the turnout radius.';
 
   offset_help_str: string =
-    'This is the dimension from the running face of the stock rail to the running face of the switch rail at the heel point. This dimension is normally 4.5 inches for loose-heel' + ' switches in standard 2.75 inch wide bullhead rail (thus giving the standard 1.75 inch flangeway between the two rails at this point).||For flexible switches the heel offset' + ' is usually about 10-11 inches.';
+    'This is the dimension from the running face of the stock rail to the running face of the switch rail at the heel point. This dimension is normally 4.5 inches for loose-heel'
+    + ' switches in standard 2.75 inch wide bullhead rail (thus giving the standard 1.75 inch flangeway between the two rails at this point).||For flexible switches the heel offset'
+    + ' is usually about 10-11 inches.';
 
   joint_help_str: string =
-    'This is the switch front distance from the stock rail joint at the left end of the turnout to the "toe" (blade tips). For GWR switches this dimension is normally 64 inches, elsewhere it' + ' is usually 65 inches. There are normally 2 standard sleepers occupying this space.' + '||Handy Hint:' + '|For some custom switches you may not want to have a switch front section. In this case a distance of about 2 inches should be entered. (Entering zero may prevent the switch blade tips from being generated properly.)' + ' Then use the CTRL-2 TOE position for template pegging purposes.';
+    'This is the switch front distance from the stock rail joint at the left end of the turnout to the "toe" (blade tips). For GWR switches this dimension is normally 64 inches, elsewhere it'
+    + ' is usually 65 inches. There are normally 2 standard sleepers occupying this space.'
+    + '||Handy Hint:' +
+    '|For some custom switches you may not want to have a switch front section. In this case a distance of about 2 inches should be entered. (Entering zero may prevent the switch blade tips from being generated properly.)'
+    + ' Then use the CTRL-2 TOE position for template pegging purposes.';
 
   rail_help_str: string =
-    'This rail-length dimension is for reference only and does not affect the geometry or calculations. It is needed to enable the rail joint to be marked in the correct place.' + '||The timber spacings should be so arranged that the joint lies centrally between a pair timbers. For standard bullhead track joint timbers are normally at 24" or 25" centres.' + ' For UK flat-bottom track joint timbers are normally at 25" or 26" centres.' + '||If a rail length of zero is entered, no rail joint mark will be generated.';
+    'This rail-length dimension is for reference only and does not affect the geometry or calculations. It is needed to enable the rail joint to be marked in the correct place.'
+    + '||The timber spacings should be so arranged that the joint lies centrally between a pair timbers. For standard bullhead track joint timbers are normally at 24" or 25" centres.'
+    + ' For UK flat-bottom track joint timbers are normally at 25" or 26" centres.'
+    + '||If a rail length of zero is entered, no rail joint mark will be generated.';
 
   radius_help_str: string =
-    'This is the switch radius, the radius of curvature of the switch blade. This is normally shown on drawings in feet, but should be entered' + ' here in INCHES (multiply by 12).' + '||For a curved switch, this radius applies from the blade tips to the switch heel.' + '||For a semi-curved switch, this radius applies from the end of the planing (machined section) to the switch heel. The planing section is straight.';
+    'This is the switch radius, the radius of curvature of the switch blade. This is normally shown on drawings in feet, but should be entered'
+    + ' here in INCHES (multiply by 12).'
+    + '||For a curved switch, this radius applies from the blade tips to the switch heel.'
+    + '||For a semi-curved switch, this radius applies from the end of the planing (machined section) to the switch heel. The planing section is straight.';
 
   planing_help_str: string =
     'This is the distance from the tip of the blade (switch rail) to the end of the machined section, i.e. to the point where the switch rail is the full rail-width.';
 
   angle_help_str: string =
-    'This is the switch deflection angle, and the angle machined on the switch rail (blade) to reduce it to a sharp point at the tip. This angle should be entered as a unit value,' + ' which can be found by dividing the planing length (in inches) by the rail-width (in inches). (For standard-gauge bullhead track the rail-width is normally 2.75 inches.)';
+    'This is the switch deflection angle, and the angle machined on the switch rail (blade) to reduce it to a sharp point at the tip. This angle should be entered as a unit value,'
+    + ' which can be found by dividing the planing length (in inches) by the rail-width (in inches). (For standard-gauge bullhead track the rail-width is normally 2.75 inches.)';
 
-  fixed_spacing_help_str: string = '      Fixed  Timber  Spacings' +
-    '||If you are simply experimenting with a custom switch, Templot0 can fill in the timber positions for you at a constant spacing.'
-    + ' This will not be per-prototype of course, but it will look the part and save time.' +
-    '||The first 3 timbers from the rail joint to the toe (blade tips) will be spaced according to the current settings.'
+  fixed_spacing_help_str: string = '      Fixed  Timber  Spacings'
+    + '||If you are simply experimenting with a custom switch, Templot0 can fill in the timber positions for you at a constant spacing.'
+    + ' This will not be per-prototype of course, but it will look the part and save time.'
+    + '||The first 3 timbers from the rail joint to the toe (blade tips) will be spaced according to the current settings.'
     + '||The maximum fill spacing for the remaining timbers can be set from the REAL > TIMBERING > TIMBERING DATA... menu item.'
     + '||If you intend to actually construct this switch you will probably need to adjust the rail lengths so that the rail joints lie centrally between a pair of timbers.';
 
   joggled_help_str: string = '      Joggled  Stock  Rails' +
-    '||For a diagram and further notes explaining the use and dimensioning of joggles, see also the "real track" page on the Templot web site at  templot.com .' + '||The switch stock rails are sometimes joggled outwards by a small amount to create a housing for the switch blade tips and so protect them from wheel damage.' + ' The joggled section is always created by bending the rail rather than by machining a notch.' + '||REA and straight switches can be either joggled or not - normally joggled switches are used only in facing positions on running lines. In trailing positions there is a danger of rough running' + ' when wheels hit the joggle on the open switch blade side.' + '||However, all GWR switches are joggled.' + '||Having entered joggle dimensions for your custom switch, you can choose whether to actually use the joggles for an individual template by means of the JOGGLED STOCK RAILS tickbox.';
+    '||For a diagram and further notes explaining the use and dimensioning of joggles, see also the "real track" page on the Templot web site at  templot.com .'
+    + '||The switch stock rails are sometimes joggled outwards by a small amount to create a housing for the switch blade tips and so protect them from wheel damage.'
+    + ' The joggled section is always created by bending the rail rather than by machining a notch.'
+    + '||REA and straight switches can be either joggled or not - normally joggled switches are used only in facing positions on running lines. In trailing positions there is a danger of rough running'
+    + ' when wheels hit the joggle on the open switch blade side.'
+    + '||However, all GWR switches are joggled.'
+    + '||Having entered joggle dimensions for your custom switch, you can choose whether to actually use the joggles for an individual template by means of the JOGGLED STOCK RAILS tickbox.';
 
   joggle_length_help_str: string = '      Return  Length  of  Joggle' +
-    '||Enter a dimension in full-size prototype INCHES for the return length of the joggle. This is the distance in front of the switch blade tips in which the rail returns to its normal alignment.' + '||For REA and GWR flexible switches this dimension is 6 inches.' + '||For GWR old-type switches this dimension is 4 inches.' + '||Templot0 puts a guide mark across the rail at this position.';
+    '||Enter a dimension in full-size prototype INCHES for the return length of the joggle. This is the distance in front of the switch blade tips in which the rail returns to its normal alignment.'
+    + '||For REA and GWR flexible switches this dimension is 6 inches.'
+    + '||For GWR old-type switches this dimension is 4 inches.'
+    + '||Templot0 puts a guide mark across the rail at this position.';
 
-  joggle_depth_help_str: string = '      Joggle  Depth' +
-    '||Enter a dimension in full-size prototype INCHES for the maximum depth of the joggle. This is the amount by which the rail is deflected sideways at the position of the switch blade tips.' + '||For REA and GWR old-type switches this dimension is 3/8" (0.375 inches).' + '||For GWR flexible switches this dimension is 1/4" (0.25 inches).' + '||These dimensions scale down to only a few thou in the common model sizes and are frequently exaggerated for functional reasons.';
+  joggle_depth_help_str: string = '      Joggle  Depth'
+    + '||Enter a dimension in full-size prototype INCHES for the maximum depth of the joggle. This is the amount by which the rail is deflected sideways at the position of the switch blade tips.'
+    + '||For REA and GWR old-type switches this dimension is 3/8" (0.375 inches).'
+    + '||For GWR flexible switches this dimension is 1/4" (0.25 inches).'
+    + '||These dimensions scale down to only a few thou in the common model sizes and are frequently exaggerated for functional reasons.';
 
   adopt_help_str: string = '      Adopt  Switch  from  Control  Template  as  Custom  Switch'
     + '||This option is useful when a stored template containing a custom switch has been reloaded from a data file.'
     + '||Copy it to the control template, and then use this option to adopt the switch data into one of the custom slots.'
     + '||The data will also be automatically entered into the bottom slot in the list, but will not be preserved there'
-    + ' if a subsequent control template has a different custom switch.' +
-    '||N.B. Although adopting the switch from the control template serves no apparent purpose if the control template contains a standard switch,' + ' this can be a useful way of pre-setting the custom switch data before modifying it.';
+    + ' if a subsequent control template has a different custom switch.'
+    + '||N.B. Although adopting the switch from the control template serves no apparent purpose if the control template contains a standard switch,'
+    + ' this can be a useful way of pre-setting the custom switch data before modifying it.';
 
-  front_timb_help_str: string = '    Switch  Front  Timbering' +
-    '||The timbering in the switch front section can use either plain track sleepers or turnout timbers.'
-    + '||These are the timbers (usually two of them) between the joint in the stock rail (CTRL-1 peg position) and the switch toe (blade tips) (CTRL-2 peg position). They are numbered J1 and J2 on the templates.' + '||For most pre-grouping practice they should be plain track sleepers, i.e. normally 10" wide and 5" thick.' + '||For most post-grouping practice they should be turnout timbers, i.e. normally 12" wide and 6" thick.' + '||These dimensions apply to British standard-gauge track. The actual sizes used will correspond to the settings made in the REAL > TIMBERING > TIMBERING DATA... menu item.' + '||In both cases the length of these timbers matches the current length of plain track sleepers.' + '||If more specific prototype information is available, sizes can be adjusted for each individual template using the SHOVE TIMBER functions.' + '||In most cases there are 2 timbers in the switch front, but Templot0 can generate up to 5 of them if needed (J1-J5). If more than this are needed they can be added on each individual template as BONUS timbers.';
+  front_timb_help_str: string = '    Switch  Front  Timbering'
+    + '||The timbering in the switch front section can use either plain track sleepers or turnout timbers.'
+    + '||These are the timbers (usually two of them) between the joint in the stock rail (CTRL-1 peg position) and the switch toe (blade tips) (CTRL-2 peg position). They are numbered J1 and J2 on the templates.'
+    + '||For most pre-grouping practice they should be plain track sleepers, i.e. normally 10" wide and 5" thick.'
+    + '||For most post-grouping practice they should be turnout timbers, i.e. normally 12" wide and 6" thick.'
+    + '||These dimensions apply to British standard-gauge track. The actual sizes used will correspond to the settings made in the REAL > TIMBERING > TIMBERING DATA... menu item.'
+    + '||In both cases the length of these timbers matches the current length of plain track sleepers.'
+    + '||If more specific prototype information is available, sizes can be adjusted for each individual template using the SHOVE TIMBER functions.'
+    + '||In most cases there are 2 timbers in the switch front, but Templot0 can generate up to 5 of them if needed (J1-J5). If more than this are needed they can be added on each individual template as BONUS timbers.';
 
   { Tswitch_info:
 
@@ -399,7 +538,11 @@ begin
 
     if ItemIndex = (Items.Count - 1) then begin
       alert(6, '    control  template  custom  slot  selected',
-        'The bottom slot in the list is reserved for the custom switch settings from the most recent control template which contained a custom switch.' + '||The switch data in this slot is maintained automatically by Templot, it is not possible to change it manually.' + '||You can select this custom switch for the control template if the curent template is currently using one of the standard switches.' + '||To create your own custom switch, please first click one of the 8 custom slots in the list to select the one for which you wish to enter custom switch data.' + '||You can have a different custom switch in each of the 8 slots.',
+        'The bottom slot in the list is reserved for the custom switch settings from the most recent control template which contained a custom switch.'
+        + '||The switch data in this slot is maintained automatically by Templot, it is not possible to change it manually.'
+        + '||You can select this custom switch for the control template if the curent template is currently using one of the standard switches.'
+        + '||To create your own custom switch, please first click one of the 8 custom slots in the list to select the one for which you wish to enter custom switch data.'
+        + '||You can have a different custom switch in each of the 8 slots.',
         '', '', '', '', '', 'O K', 0);
       restore_settings_button.Click;
       EXIT;
@@ -409,7 +552,9 @@ begin
 
       if list_switch_info.group_code > -1 then begin
         alert(6, '    no  custom  slot  selected',
-          'Please click one of the 8 custom slots in the list (near the bottom of the list) to select the one for which you wish to enter custom switch data.' + '||You can have a different custom switch in each of the 8 slots.' + '||It is not possible to change the data for the standard switches in the upper slots.',
+          'Please click one of the 8 custom slots in the list (near the bottom of the list) to select the one for which you wish to enter custom switch data.'
+          + '||You can have a different custom switch in each of the 8 slots.'
+          + '||It is not possible to change the data for the standard switches in the upper slots.',
           '', '', '', '', '', 'O K', 0);
         restore_settings_button.Click;
         EXIT;
@@ -422,8 +567,8 @@ begin
         if alert(7, '    existing  custom  switch  ( slot  ' + IntToStr(
           ABS(list_switch_info.group_code)) + ' )',
           '||You have an existing custom switch in this slot:||  '
-          + temp_str +
-          '||Entering new data will replace or modify the existing custom switch in this slot.'
+          + temp_str
+          + '||Entering new data will replace or modify the existing custom switch in this slot.'
           + '||If you will need this switch again, you may prefer to cancel and select a different slot.'
           + ' You can have a different custom switch in each of the 8 slots.',
           '', '', '', '', 'cancel  -  no  change',
@@ -824,7 +969,11 @@ begin
         putdim('', 2, 'spacing back from J4 to next front ' + front_str + ' J5',
           ABS(new_switch_info.sleeper_j5), True, True, False, False);          // ditto...
 
-        n := putdim('    Switch  Toe ( Blade  Tips )  to  Timber  Centre  S1.||For bullhead REA semi-curved switches and flat-bottom switches this dimension is 3.5 inches. For GWR practice it is 4 inches.' + ' Otherwise it is normally 4 inches or 1/3rd of the timber width.' + '||( But on some pre-grouping switches the blade tips lie on the timber centre-line (e.g. NER), in which case this dimension would be 0.)', 2, 'spacing forward from TOE to first timber S1', new_switch_info.timber_centres[0], False, True, False, False);  // 0.91.b  allow neg or zero.
+        n := putdim('    Switch  Toe ( Blade  Tips )  to  Timber  Centre  S1.||For bullhead REA semi-curved switches and flat-bottom switches this dimension is 3.5 inches. For GWR practice it is 4 inches.'
+          + ' Otherwise it is normally 4 inches or 1/3rd of the timber width.'
+          + '||( But on some pre-grouping switches the blade tips lie on the timber centre-line (e.g. NER), in which case this dimension would be 0.)',
+          2, 'spacing forward from TOE to first timber S1', new_switch_info.timber_centres[0],
+          False, True, False, False);  // 0.91.b  allow neg or zero.
         if n <> 5 then
           run_error(211);
         temp_flag := getdims('custom  switch  front  spacings',
