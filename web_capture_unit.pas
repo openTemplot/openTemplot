@@ -1,9 +1,9 @@
 
-(*
+(*  v1
+    This file is part of OpenTemplot, a computer program for the design of
+    model railway track.
 
-    This file is part of OpenTemplot, a computer program for the design of model railway track.
-    Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
-
+    Copyright (C) 2018  OpenTemplot project contributors
 
     This program is free software: you may redistribute it and/or modify
     it under the terms of the GNU General Public Licence as published by
@@ -21,12 +21,8 @@
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
 ====================================================================================
-
-This file is intended to be compiled in Delphi5 or other early versions of Delphi.
-
 *)
 
-{ }
 unit web_capture_unit;
 
 interface
