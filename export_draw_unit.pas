@@ -1,8 +1,9 @@
-(*
 
-    This file is part of Templot3, a computer program for the design of model railway track.
-    Copyright (C) 2019  Martin Wynne.  email: martin@templot.com
+(*  v1
+    This file is part of OpenTemplot, a computer program for the design of
+    model railway track.
 
+    Copyright (C) 2018  OpenTemplot project contributors
 
     This program is free software: you may redistribute it and/or modify
     it under the terms of the GNU General Public Licence as published by
@@ -15,14 +16,13 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or templotmec.lpr
+    along with this program. See the files: licence.txt or opentemplot.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
 ====================================================================================
 *)
 
-{ }
 unit export_draw_unit;
 
 {$mode delphi}
@@ -1024,7 +1024,7 @@ var
             case output_code of
               1, 2:
                 blanking_colour := Brush.Color;
-              // T3-FIRST dtp_settings_form.sb_page_colour_panel.Color;
+              // OT-FIRST dtp_settings_form.sb_page_colour_panel.Color;
               3:
                 blanking_colour := export_form.img_bgnd_colour_panel.Color;
               4:
@@ -1327,7 +1327,7 @@ var
             case output_code of
               1, 2:
                 blanking_colour := Brush.Color;
-              // T3-FIRST  dtp_settings_form.sb_page_colour_panel.Color;
+              // OT-FIRST  dtp_settings_form.sb_page_colour_panel.Color;
               3:
                 blanking_colour := export_form.img_bgnd_colour_panel.Color;
               4:
@@ -1436,7 +1436,7 @@ begin
 
   case output_code of
     1:
-      { T3-FIRST if dtp_settings_form.raster_trackplan_bgnd_checkbox.Checked=True
+      { OT-FIRST if dtp_settings_form.raster_trackplan_bgnd_checkbox.Checked=True
             then img_bgnd_colour:=dtp_settings_form.sb_page_colour_panel.Color        // use the page colour
             else} img_bgnd_colour := export_form.img_bgnd_colour_panel.Color;
     // use same as image export
@@ -1516,7 +1516,7 @@ begin
         Font.Height := 0 - 2; // dots
 
       if (((output_code = 1) or (output_code =
-        2)) { T3-FIRST and (dtp_settings_form.include_grid_checkbox.Checked=True)}) or
+        2)) { OT-FIRST and (dtp_settings_form.include_grid_checkbox.Checked=True)}) or
         (((output_code = 3) or (output_code = 4)) and
         (export_form.export_include_grid_checkbox.Checked = True)) then begin
         case grid_labels_code_i of
@@ -1591,7 +1591,7 @@ begin
           // 093a option to omit grid labels on sketchboard ...
 
           if (((output_code = 1) or (output_code = 2))
-            { T3-FIRST and (dtp_settings_form.include_grid_labels_checkbox.Checked=True)}
+            { OT-FIRST and (dtp_settings_form.include_grid_labels_checkbox.Checked=True)}
             )    // for sketchboard
             or (((output_code = 3) or (output_code = 4)) and
             (export_form.export_include_grid_labels_checkbox.Checked = True)) then begin
@@ -1664,7 +1664,7 @@ begin
           // 093a option to omit grid labels on sketchboard ...
 
           if (((output_code = 1) or (output_code = 2))
-            { T3-FIRST and (dtp_settings_form.include_grid_labels_checkbox.Checked=True)}
+            { OT-FIRST and (dtp_settings_form.include_grid_labels_checkbox.Checked=True)}
             ) or (((output_code = 3) or (output_code = 4)) and
             (export_form.export_include_grid_labels_checkbox.Checked = True)) then begin
 
@@ -1711,7 +1711,7 @@ begin
         // 093a option to omit grid labels on sketchboard ...
 
         if (((output_code = 1) or (output_code =
-          2)) { T3-FIRST and (dtp_settings_form.include_grid_labels_checkbox.Checked=True)}
+          2)) { OT-FIRST and (dtp_settings_form.include_grid_labels_checkbox.Checked=True)}
           ) or (((output_code = 3) or (output_code = 4)) and
           (export_form.export_include_grid_labels_checkbox.Checked = True)) then begin
 
@@ -1966,7 +1966,7 @@ begin
     store_and_background(False, True);
   // 093a make-on-click mode - first store existing control template
 
-  { T3-ZERO  223d rebuild generator functions nyi
+  { OT-first  223d rebuild generator functions nyi
 
   if (print_settings_form.output_timber_extensions_checkbox.Checked=False) and (print_settings_form.output_timbering_checkbox.Checked=True)   // 223d   rebuild templates if necessary
      then begin
@@ -1997,7 +1997,7 @@ begin
 
   export_limits := False;  // reset if necessary afterwards for global limits checking only
 
-  // T3-ZERO  if saved_extensions=True then pad_form.restore_timber_extension_marks_menu_entry.Click;  // 223d
+  // OT-first  if saved_extensions=True then pad_form.restore_timber_extension_marks_menu_entry.Click;  // 223d
 
 end;
 //______________________________________________________________________________
@@ -2126,7 +2126,7 @@ begin
               -1: begin     // picture = bitmap image...
 
                 if (((output_code = 1) or (output_code = 2))
-                  { T3-FIRST and (dtp_settings_form.include_picture_shapes_checkbox.Checked=True)}
+                  { OT-FIRST and (dtp_settings_form.include_picture_shapes_checkbox.Checked=True)}
                   ) or (((output_code = 3) or (output_code = 4)) and
                   (export_form.export_include_picture_shapes_checkbox.Checked = True))
                 then begin
@@ -2141,7 +2141,7 @@ begin
 
                     if Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[
                       i]).bgnd_shape.picture_is_metafile = True then begin
-                      { T3-ZERO     nested metafile nyi
+                      { OT-FIRST     nested metafile nyi
                                                                       // metafile...
 
                                                                 bgnd_form.bgnd_shape_image.Picture.Graphic:=Tbgshape(bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape.image_metafile;
@@ -2190,7 +2190,7 @@ begin
                     // add a picture border if wanted...  205a
 
                     if (((output_code = 1) or (output_code = 2))
-                      { T3-FIRST and (dtp_settings_form.include_picture_borders_checkbox.Checked=True)}
+                      { OT-FIRST and (dtp_settings_form.include_picture_borders_checkbox.Checked=True)}
                       ) or (((output_code = 3) or (output_code = 4)) and
                       (export_form.export_include_picture_borders_checkbox.Checked = True))
                     then begin
@@ -3206,7 +3206,7 @@ var
             case output_code of
               1, 2:
                 blanking_colour := Brush.Color;
-              { T3-FIRST dtp_settings_form.sb_page_colour_panel.Color; }
+              { OT-FIRST dtp_settings_form.sb_page_colour_panel.Color; }
               3:
                 blanking_colour := export_form.img_bgnd_colour_panel.Color;
               4:
@@ -3523,7 +3523,7 @@ var
               case output_code of
                 1, 2:
                   blanking_colour := Brush.Color;
-                { T3-FIRST dtp_settings_form.sb_page_colour_panel.Color;}
+                { OT-FIRST dtp_settings_form.sb_page_colour_panel.Color;}
                 3:
                   blanking_colour := export_form.img_bgnd_colour_panel.Color;
                 4:
@@ -3842,7 +3842,7 @@ var
               case output_code of
                 1, 2:
                   blanking_colour := Brush.Color;
-                { T3-FIRST dtp_settings_form.sb_page_colour_panel.Color;}
+                { OT-FIRST dtp_settings_form.sb_page_colour_panel.Color;}
                 3:
                   blanking_colour := export_form.img_bgnd_colour_panel.Color;
                 4:
@@ -3921,7 +3921,7 @@ begin          // export background templates...
 
     if (output_code > 2)       // not sketchboard
 
-    { T3-FIRST or (dtp_settings_form.include_track_checkbox.Checked=True) } then
+    { OT-FIRST or (dtp_settings_form.include_track_checkbox.Checked=True) } then
       export_bgnd_marks(on_canvas, canvas_height, grid_left, grid_top, max_list_index, False);
     // 091d if // first print all the background timbering and marks except rail joints.
 
@@ -3940,7 +3940,7 @@ begin          // export background templates...
       // output_code 1=sketchboard bitmap, 2=sketchboard metafile, 3=create image file, 4=create EMF file
 
       if ((output_code < 3)
-        { T3-FIRST and (dtp_settings_form.track_background_checkbox.Checked=True)})
+        { OT-FIRST and (dtp_settings_form.track_background_checkbox.Checked=True)})
         // sketchboard
         or ((output_code > 2) and (export_form.export_track_background_checkbox.Checked
         = True))
@@ -4032,7 +4032,7 @@ begin          // export background templates...
     // all done if he doesn't want the actual track ...
 
     if (output_code < 3)              // sketchboard
-    { T3-FIRST and (dtp_settings_form.include_track_checkbox.Checked=False)} then
+    { OT-FIRST and (dtp_settings_form.include_track_checkbox.Checked=False)} then
       EXIT;
 
     //  now export bgnd track centre-lines and turnout rails...

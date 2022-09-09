@@ -1,9 +1,9 @@
 
-(*
+(*  v1
+    This file is part of OpenTemplot, a computer program for the design of
+    model railway track.
 
-    This file is part of Templot3, a computer program for the design of model railway track.
-    Copyright (C) 2019  Martin Wynne.  email: martin@templot.com
-
+    Copyright (C) 2018  OpenTemplot project contributors
 
     This program is free software: you may redistribute it and/or modify
     it under the terms of the GNU General Public Licence as published by
@@ -16,14 +16,13 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or templotmec.lpr
+    along with this program. See the files: licence.txt or opentemplot.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
 ====================================================================================
 *)
 
-{}
 unit pad_unit;
 
 {$MODE Delphi}
@@ -413,7 +412,7 @@ type
     peg_on_trans_start_menu_entry: TMenuItem;
     peg_on_trans_length_menu_entry: TMenuItem;
     outline_extensions_menu_entry: TMenuItem;
-    pad_about_templotmec_menu_entry: TMenuItem;
+    pad_about_opentemplot_menu_entry: TMenuItem;
     fineadjust1: TMenuItem;
     extra_fine_adjust_menu_entry: TMenuItem;
     fine_adjust_menu_entry: TMenuItem;
@@ -2349,7 +2348,7 @@ type
     procedure peg_on_trans_length_menu_entryClick(Sender: TObject);
     procedure outline_extensions_menu_entryClick(Sender: TObject);
     procedure fkey_chart_menu_entryClick(Sender: TObject);
-    procedure pad_about_templot_menu_entryClick(Sender: TObject);
+    procedure pad_about_opentemplot_menu_entryClick(Sender: TObject);
     procedure extra_fine_adjust_menu_entryClick(Sender: TObject);
     procedure fine_adjust_menu_entryClick(Sender: TObject);
     procedure normal_adjust_menu_entryClick(Sender: TObject);
@@ -11586,7 +11585,7 @@ begin
   // so still "Visible=True" but not actually visible on pad.
   // used to receive arrow keys, which can then be intercepted.
 
-  pad_about_templotmec_menu_entry.Caption :=
+  pad_about_opentemplot_menu_entry.Caption :=
     '&about  ' + Application.Title + '   ( v : ' + GetVersionString(voFull) + ' )';   // OT-FIRST
 
   pad_quit_menu_entry.Caption := 'quit  ' + Application.Title;
@@ -11896,14 +11895,7 @@ begin
   templot_help_str := '<HR NOSHADE>' +
     '<P CLASS="spacer">&nbsp;</P><P>Thank you for adopting Templot track design as part of your model railway hobby. I hope that you enjoy using ' + Application.Title + ' and find it a useful addition to your modelling resources.</P>' + '<P CLASS="spacer">&nbsp;</P>' + '<P>To help you get started please be sure to click <SPAN CLASS="firm">Templot&nbsp;Companion User&nbsp;Guide</SPAN> on the <SPAN CLASS="firm">help</SPAN> menu.' + ' There is a "Templot Explained" beginners section on there in addition to the more detailed explanations about ' + Application.Title + ', with diagrams, tutorials and videos.' + ' Click <A HREF="go_to_templot_explained.85a">Templot&nbsp;Explained</A> to go there now.</P>' + '<P CLASS="spacer">&nbsp;</P>' + '<P>The full <SPAN CLASS="firm">Templot&nbsp;Companion</SPAN> is the main help resource for ' + Application.Title + ' users, and is being frequently updated and extended. Remember to return there often to see the latest updates.' + ' Click <A HREF="go_to_templot_companion.85a">Templot&nbsp;Companion</A> to go there now.</P>' + '<P CLASS="spacer">&nbsp;</P>' + '<P>To get the most from ' + Application.Title + ' and keep up to date with the latest developments, please join the friendly and helpful <SPAN CLASS="firm">Templot&nbsp;Club</SPAN> user forum.' + ' Membership is free and open to all. Full details are on the Templot web site, or click <A HREF="go_to_templot_club.85a">Templot&nbsp;Club</A> now.</P>' + '<P CLASS="spacer">&nbsp;</P>' + '<P>Templot2 and ' + Application.Title + ' are the result of countless hours of development work over more than 30 years. They are available for you to use free of charge.' + ' If you find them useful you may like to <A HREF="go_to_donation.85a">make&nbsp;a&nbsp;donation</A> towards the costs of running the web site. Thank you.</P>' + '<P CLASS="spacer">&nbsp;</P>';
 
-  if Application.Title = 'TemplotMEC'       // OT-FIRST
-  then
-    logo_img_path := Config.GetFilePath(csfiTMlogo)
-  else
-  if Application.Title = 'OpenTemplot' then
-    logo_img_path := Config.GetFilePath(csfiOTlogo)
-  else
-    logo_img_path := Config.GetFilePath(csfiT3logo);
+  logo_img_path := Config.GetFilePath(csfiOTlogo);
 
   logo_str := '<P CLASS="spacer">&nbsp;</P>' + '<TABLE WIDTH="90%" ALIGN="CENTER"><TR>' +
     '<TD ROWSPAN="2" VALIGN="BOTTOM"><IMG SRC="' + logo_img_path + '"></TD>' +
@@ -15974,7 +15966,7 @@ begin
 end;
 //_____________________________________________________________________________________________
 
-procedure Tpad_form.pad_about_templot_menu_entryClick(Sender: TObject);
+procedure Tpad_form.pad_about_opentemplot_menu_entryClick(Sender: TObject);
 
 begin
   with control_room_form do begin

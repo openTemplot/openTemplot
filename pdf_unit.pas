@@ -1,3 +1,28 @@
+
+(*  v1
+    This file is part of OpenTemplot, a computer program for the design of
+    model railway track.
+
+    Copyright (C) 2018  OpenTemplot project contributors
+
+    This program is free software: you may redistribute it and/or modify
+    it under the terms of the GNU General Public Licence as published by
+    the Free Software Foundation, either version 3 of the Licence, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public Licence for more details.
+
+    You should have received a copy of the GNU General Public Licence
+    along with this program. See the files: licence.txt or opentemplot.lpr
+
+    Or if not, refer to the web site: https://www.gnu.org/licenses/
+
+====================================================================================
+*)
+
 {
 This unit is still very much a
 
@@ -34,7 +59,7 @@ uses
   StdCtrls, ExtCtrls, ComCtrls, FPCanvas,
   pdf_lib_unit;
 
-// T3-OUT WPPDFPRP, WPPDFR1, WPPDFR2, dtpShape,dtpGR32;
+// OT-OUT WPPDFPRP, WPPDFR1, WPPDFR2, dtpShape,dtpGR32;
 
 type
 
@@ -150,7 +175,7 @@ uses
   //entry_sheet,
   export_unit,
 
-  // T3-OUT dtp_settings_unit, dtp_unit,
+  // OT-OUT dtp_settings_unit, dtp_unit,
   background_shapes,
   rail_options_unit, platform_unit, check_diffs_unit, data_memo_unit,
   trackbed_unit, make_slip_unit,
@@ -250,8 +275,8 @@ procedure pdf_bgnd(grid_left, grid_top: double; pdf_page: TPDF_page); forward;
 procedure pdf_bgnd_shapes(grid_left, grid_top: double); forward; // print all background shapes.
 procedure pdf_rotate_bitmap(i: integer); forward;     // rotate bitmap for picture shape.
 
-// T3-OUT  procedure pdf_sketchboard_items(on_canvas:TCanvas; grid_left,grid_top:double);forward;   // 206e
-// T3-OUT  procedure pdf_rotate_metafile(i:integer);forward;   // rotate metafile supplied 90degs clockwise.   213b
+// OT-OUT  procedure pdf_sketchboard_items(on_canvas:TCanvas; grid_left,grid_top:double);forward;   // 206e
+// OT-OUT  procedure pdf_rotate_metafile(i:integer);forward;   // rotate metafile supplied 90degs clockwise.   213b
 
 //_______________________________________________________________________________________
 
@@ -861,7 +886,7 @@ var
       with Infos do begin
         Title := Application.Title;
         Author := 'Graeme Defty';
-        Producer := 'Templot 3';
+        Producer := 'OpenTemplot';
         ApplicationName := ApplicationName;
         CreationDate := Now;
       end;
@@ -896,8 +921,8 @@ var
 
   begin
     try
-      // T3-OUT                  pdf_form.pdf_printer.EndPage;
-      // T3-OUT                  pdf_form.pdf_printer.EndDoc;
+      // OT-OUT                  pdf_form.pdf_printer.EndPage;
+      // OT-OUT                  pdf_form.pdf_printer.EndDoc;
       begin
         try
           pdf_file := TFileStream.Create(pdf_filename_str, fmCreate);
@@ -916,13 +941,13 @@ var
         pdf_size_str := '';
 
       i := alert(2, 'php/260   PDF  file  created', 'The PDF file was created successfully:'
-        // T3-OUT                   +'||`0'+pdf_form.pdf_printer.Filename+'`f'
+        // OT-OUT                   +'||`0'+pdf_form.pdf_printer.Filename+'`f'
         + '||Click <A HREF="alert_3.85a">open PDF file</A> to open the file in your PDF reader.'
         + pdf_size_str, '', '', 'open  PDF  file', 'open  the  containing  folder',
         '', 'continue', 0);
 
       if i = 3 then begin
-        // T3-OUT                   folder_str:=pdf_form.pdf_printer.Filename;
+        // OT-OUT                   folder_str:=pdf_form.pdf_printer.Filename;
         if not OpenDocument(PChar(folder_str))
         // { *Converted from ShellExecute* }<=32
         then
@@ -932,7 +957,7 @@ var
       end;
 
       if i = 4 then begin
-        // T3-OUT                   folder_str:=ExtractFilePath(pdf_form.pdf_printer.Filename);
+        // OT-OUT                   folder_str:=ExtractFilePath(pdf_form.pdf_printer.Filename);
         if not OpenDocument(PChar(folder_str))
         // { *Converted from ShellExecute* }<=32
         then
@@ -1990,13 +2015,13 @@ var
 
   begin
 
-    // T3-OUT       if bgnd_form.output_shapes_in_front_of_sb_checkbox.Checked=True
-    // T3-OUT          then pdf_sketchboard_items(pdf_form.pdf_printer.Canvas,grid_left,grid_top);  // 206e
+    // OT-OUT       if bgnd_form.output_shapes_in_front_of_sb_checkbox.Checked=True
+    // OT-OUT          then pdf_sketchboard_items(pdf_form.pdf_printer.Canvas,grid_left,grid_top);  // 206e
 
     pdf_bgnd_shapes(grid_left, grid_top);    // output all background shapes
 
-    // T3-OUT       if bgnd_form.output_shapes_in_front_of_sb_checkbox.Checked=False
-    // T3-OUT          then pdf_sketchboard_items(pdf_form.pdf_printer.Canvas,grid_left,grid_top);  // 206e
+    // OT-OUT       if bgnd_form.output_shapes_in_front_of_sb_checkbox.Checked=False
+    // OT-OUT          then pdf_sketchboard_items(pdf_form.pdf_printer.Canvas,grid_left,grid_top);  // 206e
 
   end;
   //////////////////////////////////////////////////////////////////
@@ -2049,7 +2074,7 @@ begin
   try
     print_busy := True;               // lock-out the loop while printing.
 
-{ T3-OUT
+{ OT-OUT
   if pdf_form.pdf_printer.Printing=True
      then begin
             if alert(6,'    PDF  output  busy',
@@ -2274,7 +2299,7 @@ begin
                   preview_record_file_made := True;
                 end;
                 if printer_printing then begin
-{ T3-OUT
+{ OT-OUT
                     pdf_form.pdf_printer.EndPage;
                     pdf_form.pdf_printer.StartPage(pdf_width_dots,pdf_height_dots,pdf_width_dpi,pdf_height_dpi,0);    // 0.91.d
 }
@@ -2305,7 +2330,7 @@ begin
                   preview_record_file_made := True;
                 end;
                 if printer_printing then begin
-{ T3-OUT
+{ OT-OUT
                     pdf_form.pdf_printer.EndPage;
                     pdf_form.pdf_printer.StartPage(pdf_width_dots,pdf_height_dots,pdf_width_dpi,pdf_height_dpi,0);    // 0.91.d
 }
@@ -2340,7 +2365,7 @@ begin
             end;
 
             if printer_printing then begin
-                              { T3-OUT
+                              { OT-OUT
                                                   pdf_form.pdf_printer.EndPage;
                                                   pdf_form.pdf_printer.StartPage(pdf_width_dots,pdf_height_dots,pdf_width_dpi,pdf_height_dpi,0);    // 0.91.d
                               }
@@ -3089,7 +3114,7 @@ begin
   ModalResult := mrCancel;
 end;
 //________________________________________________________________________________________
-(* T3-OUT
+(* OT-OUT
 
 procedure pdf_sketchboard_items(on_canvas:TCanvas; grid_left,grid_top:double);   // 206e
 
@@ -3259,7 +3284,7 @@ var
   dummy_bitmap: TBitmap;
   dummy_rect: TRect;
 
-  // T3-OUT  rotated_emf:TMetafile;
+  // OT-OUT  rotated_emf:TMetafile;
 
 begin
   if not print_settings_form.output_bgnd_shapes_checkbox.Checked then
@@ -3270,8 +3295,8 @@ begin
   if maxbg_index < 0 then
     EXIT;
 
-  // T3-OUT  with pdf_form.pdf_printer.Canvas do begin
-  with pad_form.Canvas do begin  // T3 rubbish to allow test compilation
+  // OT-OUT  with pdf_form.pdf_printer.Canvas do begin
+  with pad_form.Canvas do begin  // OT rubbish to allow test compilation
 
     Font.Assign(shapes_label_font);
     Font.Color := printshape_colour;
@@ -3402,7 +3427,7 @@ begin
                     // blank to start...
 
                     with dummy_bitmap.Canvas do begin
-                      // T3-OUT                                                       Brush.Color:=pdf_form.pdf_printer.Canvas.Brush.Color;
+                      // OT-OUT                                                       Brush.Color:=pdf_form.pdf_printer.Canvas.Brush.Color;
                       Brush.Style := bsSolid;
                       FillRect(dummy_rect);
                       TextOut(0, 0, '');
@@ -3414,7 +3439,7 @@ begin
                         bgnd_form.bgnd_shapes_listbox.Items.Objects[i]).bgimage.image_shape.rotated_picture.Width = 0
                       // empty Graphic
                       then begin
-                        // T3-OUT                                                                 pdf_rotate_metafile(i);
+                        // OT-OUT                                                                 pdf_rotate_metafile(i);
                         Application.ProcessMessages;
                         // this seems to be necessary for StretchDraw to work first time.
                       end;
@@ -5516,7 +5541,7 @@ begin
   end;//with
 end;
 //__________________________________________________________________________________________
-{ T3-OUT
+{ OT-OUT
 procedure pdf_rotate_metafile(i:integer);   // rotate metafile supplied 90degs clockwise.   213b
 
 var
@@ -5750,7 +5775,7 @@ end;
 procedure Tpdf_form.include_sketchboard_items_checkboxClick(Sender: TObject);   // 206e
 
 begin
-{ T3-OUT
+{ OT-OUT
 
   if include_sketchboard_items_checkbox.Checked=False then EXIT;
 

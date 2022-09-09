@@ -1,9 +1,9 @@
 
-(*
+(*  v1
+    This file is part of OpenTemplot, a computer program for the design of
+    model railway track.
 
-    This file is part of Templot3, a computer program for the design of model railway track.
-    Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
-
+    Copyright (C) 2018  OpenTemplot project contributors
 
     This program is free software: you may redistribute it and/or modify
     it under the terms of the GNU General Public Licence as published by
@@ -16,14 +16,13 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or templotmec.lpr
+    along with this program. See the files: licence.txt or opentemplot.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
 ====================================================================================
 *)
 
-{}
 unit print_unit;
 
 {$MODE Delphi}
@@ -1999,7 +1998,7 @@ begin
 
               bottom_str := bottom_str + '    ' + DateToStr(Date) + '  ' + TimeToStr(Time);
 
-              top_str := ' Templot3  v:' + GetVersionString(voFull) +
+              top_str := ' OpenTemplot  v:' + GetVersionString(voFull) +
                 '  templot.com  This drawing contains design elements and data © 2018 Martin Wynne.';
               if box_project_title_str <> '' then
                 top_str := top_str + '   Project : ' + box_project_title_str;

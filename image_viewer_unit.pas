@@ -1,9 +1,9 @@
 
-(*
+(*  v1
+    This file is part of OpenTemplot, a computer program for the design of
+    model railway track.
 
-    This file is part of Templot3, a computer program for the design of model railway track.
-    Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
-
+    Copyright (C) 2018  OpenTemplot project contributors
 
     This program is free software: you may redistribute it and/or modify
     it under the terms of the GNU General Public Licence as published by
@@ -16,14 +16,13 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or templotmec.lpr
+    along with this program. See the files: licence.txt or opentemplot.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
 ====================================================================================
 *)
 
-{ }
 unit image_viewer_unit;
 
 {$MODE Delphi}
@@ -394,8 +393,6 @@ begin
   // these Timage components are not visible on the form. used on first run to create the image files for HtmlViewer and maps
 
   store_image(csfiOTlogo, ot_logo_bmp_image);
-  store_image(csfiTMlogo, tm_logo_bmp_image);
-  store_image(csfiT3logo, t3_logo_bmp_image);
   store_image(csfiAdobePrint, adobe_print_dialog_png_image);
   store_image(csfiB6Startup, b6_startup_gif_image);
   store_image(csfiCompanion, companion_taskbar_png_image);

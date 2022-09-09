@@ -1,9 +1,9 @@
 
-(*
+(*  v1
+    This file is part of OpenTemplot, a computer program for the design of
+    model railway track.
 
-    This file is part of Templot3, a computer program for the design of model railway track.
-    Copyright (C) 2019  Martin Wynne.  email: martin@templot.com
-
+    Copyright (C) 2018  OpenTemplot project contributors
 
     This program is free software: you may redistribute it and/or modify
     it under the terms of the GNU General Public Licence as published by
@@ -16,14 +16,13 @@
     See the GNU General Public Licence for more details.
 
     You should have received a copy of the GNU General Public Licence
-    along with this program. See the files: licence.txt or templotmec.lpr
+    along with this program. See the files: licence.txt or opentemplot.lpr
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
 ====================================================================================
 *)
 
-{ }
 unit export_unit;
 
 {$MODE Delphi}
@@ -919,7 +918,7 @@ begin
     else
       InitialDir := Config.GetDir(cudiImages);
 
-    { T3-FIRST
+    { OT-FIRST
     if transparent_gif_checkbox.Checked=True
        then begin
               DefaultExt:='gif';
@@ -1041,7 +1040,7 @@ begin
         create_jpg.SaveToFile(file_str);
       end;
 
-      { T3-FIRST
+      { OT-FIRST
       if LowerCase(ExtractFileExt(file_str))='.gif'
          then begin
                 create_bitmap.TransparentColor:=clWhite;
@@ -1218,6 +1217,6 @@ begin
 end;
 //______________________________________________________________________________
 
-// T3-FIRST   draw functions are now in export_draw_unit  11/11/2019
+// OT-FIRST   draw functions are now in export_draw_unit  11/11/2019
 
 end.

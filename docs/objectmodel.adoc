@@ -1,6 +1,6 @@
-== Templot3 Object Model
+== OpenTemplot Object Model
 
-This document describes the internal object model to be used by Templot3. 
+This document describes the internal object model to be used by OpenTemplot. 
 Note that this is not the *current* structure, but is rather what we are 
 intending to move towards.
 

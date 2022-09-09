@@ -2,7 +2,7 @@
 <CONFIG>
   <ProjectGroup FileVersion="2">
     <Targets>
-      <Target FileName="templotmec.lpi">
+      <Target FileName="opentemplot.lpi">
         <BuildModes>
           <Mode Name="Default"/>
         </BuildModes>

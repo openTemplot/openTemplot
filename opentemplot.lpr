@@ -23,7 +23,7 @@
 ====================================================================================
 *)
 
-program templotmec;
+program opentemplot;
 
 {$MODE Delphi}
 
@@ -34,7 +34,7 @@ uses
   Forms, Interfaces, SysUtils, Dialogs, FileUtil, Classes,
 
 
-           // Templot3 units:
+           // OpenTemplot units:
 
   config_unit in 'config_unit.pas', // configuration handling
 
@@ -116,7 +116,7 @@ var
 begin
   RequireDerivedFormResource:=True;
 
-  Application.Title:='Templot3';
+  Application.Title:='OpenTemplot';
 
   Application.Scaled:=False;
 

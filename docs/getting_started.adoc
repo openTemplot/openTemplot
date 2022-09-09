@@ -99,20 +99,20 @@ Yes. If you plan to work with the code, then you will need the code. :-)
 To pull a copy of the project sources, simply open a command line,
 go to the folder in which you wish to install the project and enter the command:
 
-    git clone https://github.com/openTemplot/templot3.git
+    git clone https://github.com/openTemplot/opentemplot.git
 
 If you prefer not to use the command line, the version of git loaded on your platform
 may have a GUI in front of it, in which case you will need to find the facility which
 corresponds to the git 'clone' command.
 
-This will create a folder called 'templot3' and copy the project sources into it.
+This will create a folder called 'opentemplot' and copy the project sources into it.
 
 ===== Alternative method without using Git
 If you do not wish to push changes to github (perhaps you just want to browse the sources
 or pull down a copy for testing purposes, etc.) you can get a copy of the source from github
  as follows:
 
-* go to https://github.com/openTemplot/templot3
+* go to https://github.com/openTemplot/opentemplot
 * click on the green 'Code' button
 * click on 'Download ZIP
 
@@ -186,6 +186,6 @@ If you have installed all the neccessary components, you should now be able to r
 
 * starting Lazarus, 
 * opening the menu File/Open... 
-* navigating to the templot3 directory 
-* opening "templotmec.lpi", and 
+* navigating to the opentemplot directory 
+* opening "opentemplot.lpi", and 
 * running OpenTemplot via either menu run/run or by pressing F9.
