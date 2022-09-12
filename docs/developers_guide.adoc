@@ -1,14 +1,14 @@
 == Introduction
 
-OpenTemplot is developed using the Lazarus IDE, and hence is a Pasal program using 
-FPC - the Free Pascal Compiler. 
+OpenTemplot is developed using the Lazarus IDE, and hence is a pascal program using
+FPC - the Free Pascal Compiler.
 
-Details of how to install a working environment are described in the document "Getting Started".
 The purpose of this document is to highlight the coding conventions and working practices
 employed on the project.
 
+Details of how to install a working environment are described in the document "Getting Started".
 
-== Coding Conventions 
+== Coding Conventions
 
 === Formatting (JEDI)
 
@@ -24,12 +24,11 @@ This will ensure that your changes stay in line with the project standards as yo
 To (slightly mis-)quote the Go-lang community, the format is nobody's favourite,
 but everyone loves the fact that it exists.
 
-In order to configure JEDI, the settings file you need is provided in 
+In order to configure JEDI, the settings file you need is provided in
 the project's root directory (OT-jcfsettings.cfg). To make use of this file, you need
-to copy it into the appropriate directory as jcfsettings.cfg. 
+to copy it into the appropriate directory as jcfsettings.cfg.
 
-This directory again
-varies by platform. You can find where it lives on your system by 
+This directory again varies by platform. You can find where it lives on your system by
 opening Lazarus and using the menu
 
      Source -> JEDI Code Format -> Format Settings
@@ -38,9 +37,32 @@ The window will show you where the settings file lives.
 
 === Identifiers Etc
 
-The code base has been the subject of a number of practices/conventions over time, 
-so it is not necessarily true that what you see there is the direction we wish to go. 
+The code base has been the subject of a number of practices/conventions over time,
+so it is not necessarily true that what you see there is the direction we wish to go.
 
-In general look at recent changes to get the feel of what practices are preferred. 
-If no example exists for what you want, 
-the standards found at https://edn.embarcadero.com/article/10280 are a useful guide.
+In general look at recent changes to get the feel of what practices are preferred.
+If no example exists for what you want, the standards found at
+
+	https://edn.embarcadero.com/article/10280
+
+are a useful guide.
+
+=== Scripts
+
+The *scripts* directory contains a numbeer of scripts which are useful in the
+developent process.
+
+==== gendoc & gendoc.bat
+These scripts run the docuentation generator to extract embedded documentation from
+the project source into the *docs* directory.
+
+==== addLicense.py
+This python script adds the license reference comment at the top of each module.
+(If the comment exists already it is replaced).
+
+It is recommended to run this script each time a new module is added to ensure consistency of
+the leading comment.
+
+Note that this script also contains a list of directories containing project source code, so
+it must also be updated when a new sub-directory is added which contains pascal modules
+belonging to the project.

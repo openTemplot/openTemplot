@@ -1,8 +1,0 @@
-# This script will generate documentation under linux ("bash")
-# For Windows use "gendocs.bat" 
-
-# First make sure the documentation directory exists ...
-mkdir docs/autodocs
-
-# ... then generate the docs.
-pasdoc -E docs/autodocs --css OT-doc.css  *.pas  model/*.pas
