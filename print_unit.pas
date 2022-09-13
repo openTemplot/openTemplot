@@ -20,6 +20,12 @@
 
     Or if not, refer to the web site: https://www.gnu.org/licenses/
 
+                >>>     NOTE TO DEVELOPERS     <<<
+                     DO NOT EDIT THIS COMMENT
+              It is inserted in this file by running
+                  'python3 scripts/addComment.py'
+         The original text lives in scripts/addComment.py.
+
 ====================================================================================
 *)
 
