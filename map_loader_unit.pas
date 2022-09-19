@@ -713,7 +713,7 @@ begin
 
   F0 := 0.9996012717;      // NatGrid scale factor on central meridian
 
-  k10 := 49 * Pi / 180;        // radians // NatGrid true origin is 49°N,2°W
+  k10 := 49 * Pi / 180;        // radians // NatGrid true origin is 49Â°N,2Â°W
   k20 := 0 - 2 * Pi / 180;
 
   N0 := -100000;           // northing & easting of true origin, metres
@@ -864,7 +864,7 @@ begin
       + '||This appears to be an individual scanned sheet from NLS, i.e. not georeferenced to modern maps:'
       + '||<SPAN NOWRAP>`0' + url_str + '`f</SPAN>' +
       '||The NLS refer to these maps as "Find by place" maps.' +
-      '||Templot cannot by itself determine which type of map you are displaying, so you must indicate accordingly below. Please check that the screenshot has been sized correctly before using it for track design.' + '||The scale is usually shown in the heading bar above the map, and also on the map itself in the bottom-right corner of the sheet.' + '||• The 1:1250 500m square maps are indicated on the NLS web site as "1940s-1960s". These maps have OS Grid lines marked on them, 5 squares each way.' + '||• The Metric 1:2500 maps are indicated on the NLS web site as "1940s-1960s". Zoom out to the full sheet to see whether it is a 1km wide square sheet, or a 2km wide oblong sheet. These maps have OS Grid lines marked on them.' + '||• The historic County Series 1:2500 maps are indicated on the NLS web site as "1841-1952" or "1890-1960" or older dates. They pre-date the introduction of the OS Grid and do not have grid lines.', 'NOT  any  below  ( picture  shape  will  not  be  sized ! )    ', '50 inch/mile  1:1250  500 m x 500 m  square     ', '25 inch/mile  1:2500  Metric  Series  1 km x 1 km  square    ', '25 inch/mile  1:2500  Metric  Series  2 km x 1 km  oblong    ', 'cancel  screenshot', '25 inch/mile  1:2500  County  Series  1.5 mile x 1 mile   ', 0);
+      '||Templot cannot by itself determine which type of map you are displaying, so you must indicate accordingly below. Please check that the screenshot has been sized correctly before using it for track design.' + '||The scale is usually shown in the heading bar above the map, and also on the map itself in the bottom-right corner of the sheet.' + '||â€¢ The 1:1250 500m square maps are indicated on the NLS web site as "1940s-1960s". These maps have OS Grid lines marked on them, 5 squares each way.' + '||â€¢ The Metric 1:2500 maps are indicated on the NLS web site as "1940s-1960s". Zoom out to the full sheet to see whether it is a 1km wide square sheet, or a 2km wide oblong sheet. These maps have OS Grid lines marked on them.' + '||Â â€¢ The historic County Series 1:2500 maps are indicated on the NLS web site as "1841-1952" or "1890-1960" or older dates. They pre-date the introduction of the OS Grid and do not have grid lines.', 'NOT  any  below  ( picture  shape  will  not  be  sized ! )   Â ', '50 inch/mile  1:1250  500 m x 500 m  square    Â ', '25 inch/mile  1:2500  Metric  Series  1 km x 1 km  square   Â ', '25 inch/mile  1:2500  Metric  Series  2 km x 1 km  oblong   Â ', 'cancel  screenshot', '25 inch/mile  1:2500  County  Series  1.5 mile x 1 mile  Â ', 0);
 
     case i of
 
@@ -1866,7 +1866,7 @@ procedure Tmap_loader_form.load_buttonClick(Sender: TObject);
 const
   size_help_str: string = 'Enter the required size of the map on the trackpad.'
     + '||Do not start with too large a size, otherwise you may end up waiting for hundreds of tiles to load.'
-    + '||The map area can be easily increased later by adding additional rows and columns of tiles.|| ';
+    + '||The map area can be easily increased later by adding additional rows and columns of tiles.||Â ';
 
 label
   123;
@@ -1930,7 +1930,7 @@ begin
       +
       '||Have you forgotten to set your model scale ?' +
       '||Your intended model scale must first be set in order for maps to be scaled (sized) correctly.'
-      + '||<SPAN STYLE="COLOR:RED;">• DO NOT</SPAN> change the model scale after adding maps - they will <SPAN STYLE="COLOR:RED;">NOT</SPAN> be re-sized to match.', '', '', '', 'continue  using  T-55', 'cancel', '', 0) = 5 then
+      + '||<SPAN STYLE="COLOR:RED;">â€¢ DO NOT</SPAN> change the model scale after adding maps - they will <SPAN STYLE="COLOR:RED;">NOT</SPAN> be re-sized to match.', '', '', '', 'continue  using  T-55', 'cancel', '', 0) = 5 then
       EXIT;
   end
   else
