@@ -1,9 +1,10 @@
 
 (*
+    This file is part of OpenTemplot, a computer program for the design of
+    model railway track.
 
-    This file is part of Templot3, a computer program for the design of model railway track.
-    Copyright (C) 2019  Martin Wynne.  email: martin@templot.com
-
+    Copyright (C) 2018  Martin Wynne.  email: martin@templot.com
+    Copyright (C) 2019  OpenTemplot project contributors
 
     This program is free software: you may redistribute it and/or modify
     it under the terms of the GNU General Public Licence as published by
@@ -15,10 +16,16 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     See the GNU General Public Licence for more details.
 
-    There is a copy of the GNU General Public Licence at the end of this file.
+    You should have received a copy of the GNU General Public Licence
+    along with this program. See the files: licence.txt or opentemplot.lpr
 
-    Alternatively refer to the file: licence.txt
-    or to the web site: https://www.gnu.org/licenses/
+    Or if not, refer to the web site: https://www.gnu.org/licenses/
+
+                >>>     NOTE TO DEVELOPERS     <<<
+                     DO NOT EDIT THIS COMMENT
+              It is inserted in this file by running
+                  'python3 scripts/addComment.py'
+         The original text lives in scripts/addComment.py.
 
 ====================================================================================
 *)
