@@ -1,9 +1,14 @@
-licenseText = """
-(*  v1
+licenseText_A = """
+(*
     This file is part of OpenTemplot, a computer program for the design of
     model railway track.
+"""
 
-    Copyright (C) 2018  OpenTemplot project contributors
+licenseText_T2 = """
+    Copyright (C) 2018  Martin Wynne.  email: martin@templot.com"""
+
+licenseText_B = """
+    Copyright (C) 2019  OpenTemplot project contributors
 
     This program is free software: you may redistribute it and/or modify
     it under the terms of the GNU General Public Licence as published by
@@ -36,22 +41,52 @@ licenseText = """
 This program walks the source tree and inserts or replaces the license text
 at the beginning of each source file.
 
-
 """
 
+
+from enum import Enum
 from pathlib import Path
 import re
 from string import whitespace
 import sys
 
-wanted_dirs = ["model", "test", "t2box_reader"]
+from units_list import leaveAloneUnits, leaveAloneDirs, T2Units
 
-def do_file(path_object):
-    print(f"====> {path_object}")           # print the file name, then ...
+class srcType(Enum):
+    isDir   = 0 # Directory
+    doOT    = 1 # Open Templot license comment needed
+    doT2    = 2 # Templot 2 license comment needed
+    doNowt  = 3 # No changes needed to license comment
+
+def fileType(path_object):
+    if not path_object.is_file():
+        return srcType.isDir
+
+    parts = path_object.parts
+    if parts.__len__() > 1 and parts[0] in leaveAloneDirs:
+        return srcType.doNowt
+
+    if not path_object.suffix in [".pas", ".lpr"]:
+        return srcType.doNowt
+
+    if parts[-1] in leaveAloneUnits:
+        return srcType.doNowt
+
+    if parts[-1] in T2Units:
+        return srcType.doT2
+
+    return srcType.doOT
+
+
+def doFile(path_object, fType):
+    print(f"====> {fType.name} : {path_object}")           # print the file name, then ...
 #    sys.stdin.read(1)                       # ... PAUSE for a key press
 
     with open(f"{path_object}", encoding="iso-8859-1") as file:
         lines = file.readlines()
+
+    if len(lines) == 0:  # Just in case of an empty source file ....
+        return
 
     ix = 0
 
@@ -80,17 +115,23 @@ def do_file(path_object):
 
 # then rewrite the file from licensetext and any remaining lines...
     with open(f"{path_object}", encoding="iso-8859-1", mode="w") as file:
-        file.writelines(licenseText)
+        file.writelines(licenseText_A)
+        if fType == srcType.doT2:
+            file.writelines(licenseText_T2)
+        file.writelines(licenseText_B)
         file.writelines(lines[ix:])
 
 
 
 # --------------------------------------------------------------#
 
-root_directory = Path(".")
-for path_object in root_directory.glob('./**/*'):
-    if path_object.is_file():
-        parts = path_object.parts
-        if path_object.suffix == ".pas" and \
-            (parts.__len__() == 1 or parts[0] in wanted_dirs):
-            do_file(path_object)
+rootDirectory = Path(".")
+for pathObject in rootDirectory.glob('./**/*'):
+    fType = fileType(pathObject)
+    if fType == srcType.isDir:
+        pass
+    elif fType == srcType.doNowt:
+        pass
+    else:
+        doFile(pathObject, fType)
+
