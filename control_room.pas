@@ -708,11 +708,15 @@ uses
 
 {$R custom_cursors.res}
 
-var
-  // OT-FIRST ...
-  log: ILogger;
+const
+  sourceURL_str: string =
+    'https://github.com/OpenTemplot/OpenTemplot/';
+  GPL3URL_str: string =
+    'https://www.gnu.org/licenses/';
+  licence_str: string =
+    '<c>Copyright &copy; 2018  Martin Wynne.  email: martin@templot.com .<br>' +
+    'Copyright &copy; 2019  OpenTemplot project contributors<br><br></c>' +
 
-  licence_str: string = 'Copyright &copy; 2018  Martin Wynne.  email: martin@templot.com .' +
     ' This program is free software: you may redistribute it and/or modify' +
     ' it under the terms of the GNU General Public Licence as published by' +
     ' the Free Software Foundation, either version 3 of the Licence, or' +
@@ -720,9 +724,12 @@ var
     ' This program is distributed in the hope that it will be useful,' +
     ' but WITHOUT ANY WARRANTY; without even the implied warranty of' +
     ' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.' +
-    ' See the GNU General Public Licence for more details.<br>' +
-    'You should have received a copy of the GNU General Public Licence with this program.<br>' +
-    'If not, refer to the web site: https://www.gnu.org/licenses/';
+    ' See the GNU General Public Licence for more details.<br>';
+
+var
+  // OT-FIRST ...
+  log: ILogger;
+
 
   w_len: integer = 0;
   legal_agree: boolean = False;
@@ -2218,9 +2225,22 @@ begin
 
   logo_img_path := Config.GetFilePath(csfiOTlogo);
 
-  about_str := '<P STYLE="text-align:center; margin-top:20px;"><IMG SRC="' +
+  about_str :=
+    '<P STYLE="text-align:center; margin-top:20px;"><IMG SRC="' +
     logo_img_path + '"></P>' +
-    '<P STYLE="text-align:center; margin-top:20px; color:blue; font-family:''Trebuchet MS''; font-size:19px; font-weight:bold; font-style:italic;">precision track design for model railways</P>' + '<P STYLE="text-align:center; margin-top:20px; margin-bottom:20px; color:#dd6600; font-size:16px; font-weight:bold;">track &nbsp;plan &nbsp;design&nbsp; &nbsp; • &nbsp; &nbsp;precision &nbsp;construction &nbsp;templates</P>' + '<HR NOSHADE>' + '<P CLASS="mainheading" STYLE="text-align:center; font-size:20px; color:#0077DD;">' + Application.Title + ' &nbsp;Version &nbsp;' + GetVersionString(voFull) + '</P>' + '<P CLASS="centerbold"><A HREF="go_to_templot_com.85a">templot • com</A></P>' + '<P CLASS="center"><SPAN STYLE="font-size:12px; color:#555555;">&copy; 2018 &nbsp;released under open-source licence: GNU/GPLv3+<br>program from: &nbsp;https://sourceforge.net/projects/opentemplot/<br>' + 'licence at: https://www.gnu.org/licenses/<br></SPAN></P>' + '<P STYLE="font-size:12px; color:#555555;">' + licence_str + '</P>';
+    '<P STYLE="text-align:center; margin-top:20px; color:blue; font-family:''Trebuchet MS''; font-size:19px; font-weight:bold; font-style:italic;">precision track design for model railways</P>' +
+    '<P STYLE="text-align:center; margin-top:20px; margin-bottom:20px; color:#dd6600; font-size:16px; font-weight:bold;">track &nbsp;plan &nbsp;design&nbsp; &nbsp; • &nbsp; &nbsp;precision &nbsp;construction &nbsp;templates</P>' +
+    '<HR NOSHADE>' +
+    '<P CLASS="mainheading" STYLE="text-align:center; font-size:20px; color:#0077DD;">' + Application.Title +
+    ' &nbsp;Version &nbsp;' + GetVersionString(voFull) + '</P>' +
+    '<P CLASS="centerbold"><A HREF="go_to_templot_com.85a">templot • com</A></P>' +
+    '<P CLASS="center"><SPAN STYLE="font-size:12px; color:#555555;">&copy; 2018 &nbsp;released under open-source licence: GNU/GPLv3+<br>' +
+    'program from: &nbsp;'+ sourceURL_str + '<br>' +
+    'licence at: &nbsp'+ GPL3URL_str +'<br>'+
+    '</SPAN></P>' +
+    '<P STYLE="font-size:12px; color:#555555;">' + licence_str + '<br>' +
+    'You should have received a copy of the GNU General Public Licence with this program. ' +
+    'If not, refer to the web site: ' + GPL3URL_str + '</P>';
 
   no_new_help_sizes := True;      // don't change the user's default sizes.
 
