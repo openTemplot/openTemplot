@@ -1,4 +1,4 @@
-= Developer 'Getting Started' Guide
+= OpenTemplot 'Getting Started' Guide
 
 == Introduction
 
@@ -47,20 +47,26 @@ You will need to pick the one suitable for you, and follow the instructions.
 
 Note that YouTube is a good resource if you prefer the video-tutorial style of instruction.
 
-== 2. HtmlViewer
+== 2. Lazarus Packages
 ==== What is it?
-HtmlViewer is one of the optional packages which the project uses. 
+There is a small number of additional Lazarus packages which are optional (i.e. not installed by default)
+ but which this project uses. 
 
-==== Do I need it?
-If you intend to run OpenTemplot via Lazarus (e.g. for developing or testing) you will need this additional module.
+Currently these packages are:
 
-==== How do I get it it?
-Additional modules are easily installed using Lazarus' built-in package manager.
-Install HtmlViewer as follows:
+* HtmlViewer
+
+* UniqueInstance_package
+
+==== Do I need them?
+If you intend to run OpenTemplot via Lazarus (e.g. for developing or testing) you will need these additional packages.
+
+==== How do I get it them?
+Additional modules are easily installed using Lazarus' built-in package manager, as follows:
 
 ** Start Lazarus
 ** Go to menu Packages/Online Package Manager
-** In the package manager look for HtmlViewer, select it and click 'Install'
+** In the package manager look for the package you wish to install, select it and click 'Install'
 and rebuild the IDE when prompted
 
 == 2. Git
