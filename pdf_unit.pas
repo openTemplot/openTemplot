@@ -1169,6 +1169,7 @@ var
           eMC_100_placeholder .. eMC_199_placeholder,
           eMC_600_LongMark,
           eMC_700_XingLongMark: begin
+            p1 := ptr_1st^.p1;      // x1,y1 in  1/100ths mm
             p2 := ptr_1st^.p2;      // x2,y2 in  1/100ths mm
 
             move_to := page_locate(p1, grid_left, grid_top, [ypd, 0]);
