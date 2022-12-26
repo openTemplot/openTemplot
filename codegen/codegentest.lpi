@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="12"/>
+    <PathDelim Value="\"/>
+    <General>
+      <SessionStorage Value="InProjectDir"/>
+      <Title Value="codegentest"/>
+      <UseAppBundle Value="False"/>
+      <ResourceType Value="res"/>
+    </General>
+    <BuildModes>
+      <Item Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+    <RunParams>
+      <FormatVersion Value="2"/>
+    </RunParams>
+    <RequiredPackages>
+      <Item>
+        <PackageName Value="LCLBase"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPackages>
+    <Units>
+      <Unit>
+        <Filename Value="codegentest.lpr"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="tests\unitgeneratortest.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="otunitgenerator.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="tests\templategeneratortest.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TemplateGeneratorTest"/>
+      </Unit>
+      <Unit>
+        <Filename Value="ottemplategenerator.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OTTemplateGenerator"/>
+      </Unit>
+      <Unit>
+        <Filename Value="otcodegenutils.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OTCodeGenUtils"/>
+      </Unit>
+      <Unit>
+        <Filename Value="tests\codegenutilstest.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="CodeGenUtilsTest"/>
+      </Unit>
+      <Unit>
+        <Filename Value="tests\classregeneratortest.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ClassRegeneratorTest"/>
+      </Unit>
+      <Unit>
+        <Filename Value="otclassregenerator.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OTClassRegenerator"/>
+      </Unit>
+      <Unit>
+        <Filename Value="testdata\loadinput.txt"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\submodules\otYaml\src\otYaml.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\submodules\otYaml\src\otyamlchars.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="otYamlChars"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\submodules\otYaml\src\otyamlevent.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="otYamlEvent"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\submodules\otYaml\src\otyamlparser.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="otYamlParser"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\submodules\otYaml\src\otyamlreader.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="otYamlReader"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\submodules\otYaml\src\otyamlscanner.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="otYamlScanner"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\submodules\otYaml\src\otyamltoken.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="otYamlToken"/>
+      </Unit>
+      <Unit>
+        <Filename Value="codegen.rc"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="templates\membervar_simple.template"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+    </Units>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="11"/>
+    <PathDelim Value="\"/>
+    <Target>
+      <Filename Value="codegentest"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="tests;..\submodules\otYaml\src"/>
+      <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
+    <Linking>
+      <Debugging>
+        <DebugInfoType Value="dsDwarf2"/>
+      </Debugging>
+    </Linking>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions>
+      <Item>
+        <Name Value="EAbort"/>
+      </Item>
+      <Item>
+        <Name Value="ECodetoolError"/>
+      </Item>
+      <Item>
+        <Name Value="EFOpenError"/>
+      </Item>
+    </Exceptions>
+  </Debugging>
+</CONFIG>
