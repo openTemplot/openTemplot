@@ -1,0 +1,13 @@
+Name=sub
+Type=sub
+Class=sub
+||
+// GENERATED METHOD - DO NOT EDIT
+procedure |Class|.Set|Name|(const AValue: |Type|);
+begin
+  if AValue <> F|Name| then begin
+    SetModified;
+    F|Name| := AValue;
+  end;
+end;
+

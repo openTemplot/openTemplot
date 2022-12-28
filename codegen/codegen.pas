@@ -13,6 +13,9 @@ uses
   OTUnitGenerator,
   OTClassRegenerator;
 
+
+{$R codegen.rc}
+
 type
 
   { TOTCodeGen }
@@ -144,7 +147,7 @@ begin
   { add your help code here }
   writeln('Usage: ', ExeName, ' <command>');
   writeln('  -h, --help : display this help text');
-  writeln('  new unit <file> : generate a unit with skeleton generation info');
+  writeln('  new class <file> : generate a unit with skeleton generation info');
   writeln('  gen <files...> : update generated code in <files...>');
 end;
 

@@ -1,0 +1,4 @@
+Name=sub
+Type=sub
+||
+  Restore|Type|(AStream, F|Name|);

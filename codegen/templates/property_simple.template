@@ -1,0 +1,4 @@
+Name=sub
+Type=sub
+||
+    property |name|: |Type| read F|Name| write Set|Name|;

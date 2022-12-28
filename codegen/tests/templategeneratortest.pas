@@ -46,11 +46,12 @@ begin
     try
       testGen.Generate(dest);
 
-      AssertEquals(4, dest.Count);
+      AssertEquals(5, dest.Count);
       AssertEquals('Line1', dest[0]);
       AssertEquals('Line2', dest[1]);
       AssertEquals('Line3', dest[2]);
       AssertEquals('Line5', dest[3]);
+      AssertEquals('Line6', dest[4]);
     finally
       dest.Free;
     end;
@@ -60,11 +61,12 @@ begin
     try
       testGen.Generate(dest);
 
-      AssertEquals(4, dest.Count);
+      AssertEquals(5, dest.Count);
       AssertEquals('Line1', dest[0]);
       AssertEquals('Line3', dest[1]);
       AssertEquals('Line4', dest[2]);
       AssertEquals('Line5', dest[3]);
+      AssertEquals('Line7', dest[4]);
     finally
       dest.Free;
     end;

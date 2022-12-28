@@ -9,18 +9,20 @@ uses
 
 {# class TSample
 ---
-- name: tom
-  type: integer
-- name: dick
-  type: double
-- name: harry
-  type: string
+class: TSample
+attributes:
+  - name: tom
+    type: integer
+  - name: dick
+    type: double
+  - name: harry
+    type: string
 ...
 }
 
 type
 
-  TSample = class( TOTPersistent )
+  TSample = class(TOTPersistent)
   private
     //# genMemberVars
     //# endGenMemberVars
@@ -30,15 +32,15 @@ type
 
   protected
 
-    procedure   RestoreAttributes( stream : TStream ); override;
-    procedure   SaveAttributes( stream : TStream ); override;
+    procedure   RestoreAttributes(AStream : TStream); override;
+    procedure   SaveAttributes(AStream : TStream); override;
 
     //# genGetSetDeclarations
     //# endGenGetSetDeclarations
 
   public
-    procedure   RestoreYamlAttribute( name, value : string ); override;
-    procedure   SaveYamlAttributes( xml : TAttributesImpl ); override;
+    procedure   RestoreYamlAttribute(AName, AValue : string); override;
+    procedure   SaveYamlAttributes(AEmitter: TYamlEmitter); override;
 
     //# genProperty
     //# endGenProperty
@@ -56,14 +58,14 @@ var
 
 { TSample }
 
-procedure TSample.RestoreYamlAttribute( name, value : string );
+procedure TSample.RestoreYamlAttribute(AName, AValue : string);
   begin
   //# genRestoreYamlVars
   //# endGenRestoreYamlVars
-  inherited;
+   inherited RestoreYamlAttribute(AName, AValue);
   end;
 
-procedure TSample.RestoreAttributes( stream : TStream );
+procedure TSample.RestoreAttributes(AStream : TStream);
   begin
   inherited;
 
@@ -71,7 +73,7 @@ procedure TSample.RestoreAttributes( stream : TStream );
   //# endGenRestoreVars
   end;
 
-procedure TSample.SaveAttributes( stream : TStream );
+procedure TSample.SaveAttributes(AStream : TStream);
   begin
   inherited;
 
@@ -79,8 +81,8 @@ procedure TSample.SaveAttributes( stream : TStream );
   //# endGenSaveVars
 
   end;
-
-procedure TSample.SaveYamlAttributes( xml : TAttributesImpl );
+  
+procedure TSample.SaveYamlAttributes(AEmitter : TYamlEmitter);
   begin
   inherited;
   //# genSaveYamlVars
@@ -93,5 +95,5 @@ procedure TSample.SaveYamlAttributes( xml : TAttributesImpl );
 initialization
   TSample.RegisterClass;
 
-  log := Logger.GetInstace('TSample');
+  log := Logger.GetInstance('TSample');
 end.

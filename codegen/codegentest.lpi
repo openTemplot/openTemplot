@@ -116,6 +116,11 @@
         <Filename Value="templates\membervar_simple.template"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="tests\ottestutils.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OTTestUtils"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -129,6 +134,11 @@
       <OtherUnitFiles Value="tests;..\submodules\otYaml\src"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <SyntaxMode Value="Delphi"/>
+      </SyntaxOptions>
+    </Parsing>
     <Linking>
       <Debugging>
         <DebugInfoType Value="dsDwarf2"/>

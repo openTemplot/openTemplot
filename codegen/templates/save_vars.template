@@ -1,0 +1,4 @@
+Name=sub
+Type=sub
+||
+  Save|Type|(AStream, F|Name|);

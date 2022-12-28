@@ -53,9 +53,11 @@ type
   TOTClassRegenerator = class
   private
     FFileName: string;
+    FBackupFileName: string;
     FInput: TStringList;
     FBlocks: array[EBlockIdentifier] of TBlock;
     FAttributes: TObjectList<TAttribute>;
+    FClassName: String;
 
     function GetBlock(bi: EBlockIdentifier): TBlock;
     function GetAttribute(i: Integer): TAttribute;
@@ -69,6 +71,13 @@ type
     procedure Regenerate;
 
     function GenerateMemberVars: TStringList;
+    function GenerateGetSetDeclarations: TStringList;
+    function GeneratePropertyDeclarations: TStringList;
+    function GenerateRestoreYamlVars: TStringList;
+    function GenerateRestoreVars: TStringList;
+    function GenerateSaveVars: TStringList;
+    function GenerateSaveYamlVars: TStringList;
+    function GenerateGetSetMethods: TStringList;
 
   public
     constructor Create(const AFileName: string);
@@ -80,11 +89,13 @@ type
     property blocks[bi: EBlockIdentifier]: TBlock read GetBlock;
     property attribute[i: Integer]: TAttribute read GetAttribute;
     property attributeCount: Integer read GetAttributeCount;
+    property className: String read FClassName;
   end;
 
 implementation
 
 uses
+  LazFileUtils,
   OTYamlParser,
   OTYamlEvent,
   OTTemplateGenerator;
@@ -140,6 +151,7 @@ begin
   inherited Create;
 
   FFileName := AFileName;
+  FBackupFileName := ExtractFileNameWithoutExt(AFileName) + '.bak';
 
   for blockId in EBlockIdentifier do begin
     FBlocks[blockId] := nil;
@@ -251,8 +263,11 @@ var
   state:
     (pyInitial,
     pyExpectingDocumentStart,
-    pyExpectingSequenceStart,
     pyExpectingMappingStart,
+    pyExpectingClassInfo,
+    pyExpectingClassInfoValue,
+    pyExpectingSequenceStart,
+    pyExpectingAttributeStart,
     pyExpectingName,
     pyExpectingValue);
   newAttr: TAttribute;
@@ -288,21 +303,51 @@ begin
             begin
               if not (event is TDocumentStartEvent) then
                 raise Exception.Create('Expected Yaml Document Start');
-              state := pyExpectingSequenceStart;
+              state := pyExpectingMappingStart;
+            end;
+
+          pyExpectingMappingStart:
+            begin
+              if not (event is TMappingStartEvent) then
+                raise Exception.Create('Expected Yaml Mapping Start');
+              state := pyExpectingClassInfo;
+            end;
+
+          pyExpectingClassInfo:
+            begin
+              if (event is TMappingEndEvent) then begin
+                 // only expecting one class definition
+                 break;
+                 end
+              else if not (event is TScalarEvent) then
+                raise Exception.Create('Expected Yaml Scalar Event (classinfo name)');
+
+              currentName := TScalarEvent(event).value;
+              if currentName = 'class' then
+                state := pyExpectingClassInfoValue
+              else if currentName = 'attributes' then
+                state := pyExpectingSequenceStart;
+            end;
+
+          pyExpectingClassInfoValue:
+            begin
+              if not (event is TScalarEvent) then
+                raise Exception.Create('Expecting Yaml Scalar Event (classinfo value)');
+              FClassName := TScalarEvent(event).value;
+              state := pyExpectingClassInfo;
             end;
 
           pyExpectingSequenceStart:
             begin
               if not (event is TSequenceStartEvent) then
                 raise Exception.Create('Expected Yaml Sequence Start');
-              state := pyExpectingMappingStart;
+              state := pyExpectingAttributeStart;
             end;
 
-          pyExpectingMappingStart:
+          pyExpectingAttributeStart:
             begin
               if (event is TSequenceEndEvent) then begin
-                 // we only expect one sequence, so bail out immediately!
-                 break;
+                state := pyExpectingClassInfo;
               end
               else begin
                 if not (event is TMappingStartEvent) then
@@ -317,7 +362,7 @@ begin
               if (event is TMappingEndEvent) then begin
                  FAttributes.Add(newAttr);
                  newAttr := nil;
-                 state := pyExpectingMappingStart;
+                 state := pyExpectingAttributeStart;
               end
               else begin
                 if not (event is TScalarEvent) then
@@ -355,8 +400,57 @@ begin
 end;
 
 procedure TOTClassRegenerator.Regenerate;
+var
+  code: array[EBlockIdentifier] of TStringList;
+  bi: EBlockIdentifier;
+  output: TStringList;
+  startIndex: Integer;
+  i: Integer;
 begin
+  for bi in EBlockIdentifier do
+    code[bi] := nil;
+  output := TStringList.Create;
+  try
+    code[biMemberVars] := GenerateMemberVars;
+    // code[biCollections] := ...,
+    code[biGetSetDeclarations] := GenerateGetSetDeclarations;
+    code[biProperty] := GeneratePropertyDeclarations;
+    code[biRestoreYamlVars] := GenerateRestoreYamlVars;
+    code[biRestoreVars] := GenerateRestoreVars;
+    code[biSaveVars] := GenerateSaveVars;
+    code[biSaveYamlVars] := GenerateSaveYamlVars;
+    code[biGetSetMethods] := GenerateGetSetMethods;
 
+    bi := biMemberVars;
+    startIndex := 0;
+
+    while true do begin
+      for i := startIndex to FBlocks[bi].startLine - 1 do begin
+        output.Add(FInput[i]);
+      end;
+      output.AddStrings(code[bi]);
+      startIndex := FBlocks[bi].followingLine;
+
+      if bi = biGetSetMethods then
+        break;
+
+      Inc(bi);
+      while (FBlocks[bi] = nil) or (code[bi] = nil) do
+        Inc(bi);
+    end;
+    for i := startIndex to FInput.Count- 1 do
+      output.Add(FInput[i]);
+
+    output.SaveToFile('temp.xxx');
+    if FileExists(FBackupFileName) then
+      DeleteFile(FBackupFileName);
+    RenameFile(FFileName, FBackupFileName);
+    RenameFile('temp.xxx', FFileName);
+  finally
+    for bi in EBlockIdentifier do
+      code[bi].Free;
+    output.Free;
+  end;
 end;
 
 function TOTClassRegenerator.GenerateMemberVars: TStringList;
@@ -377,6 +471,159 @@ begin
     finally
       t.Free;
     end;
+  end;
+end;
+
+function TOTClassRegenerator.GenerateGetSetDeclarations: TStringList;
+var
+  attr: TAttribute;
+  t: TOTTemplateGenerator;
+begin
+  result := TStringList.Create;
+
+  for attr in FAttributes do begin
+    t := TOTTemplateGenerator.Create;
+    try
+      t.LoadTemplateFromResource('TEMPLATE_SETPROPERTY_SIMPLE_DECL');
+      (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
+      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+
+      t.Generate(result);
+    finally
+      t.Free;
+    end;
+  end;
+end;
+
+function TOTClassRegenerator.GeneratePropertyDeclarations: TStringList;
+var
+  attr: TAttribute;
+  t: TOTTemplateGenerator;
+begin
+  result := TStringList.Create;
+
+  for attr in FAttributes do begin
+    t := TOTTemplateGenerator.Create;
+    try
+      t.LoadTemplateFromResource('TEMPLATE_PROPERTY_SIMPLE');
+      (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
+      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+
+      t.Generate(result);
+    finally
+      t.Free;
+    end;
+  end;
+end;
+
+function TOTClassRegenerator.GenerateRestoreYamlVars: TStringList;
+var
+  attr: TAttribute;
+  t: TOTTemplateGenerator;
+begin
+  result := TStringList.Create;
+
+  t := TOTTemplateGenerator.Create;
+  try
+    t.LoadTemplateFromResource('TEMPLATE_RESTORE_YAML_VARS');
+
+    for attr in FAttributes do begin
+      (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
+      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+
+      t.Generate(result);
+    end;
+  finally
+    t.Free;
+  end;
+end;
+
+function TOTClassRegenerator.GenerateRestoreVars: TStringList;
+var
+  attr: TAttribute;
+  t: TOTTemplateGenerator;
+begin
+  result := TStringList.Create;
+
+  t := TOTTemplateGenerator.Create;
+  try
+    t.LoadTemplateFromResource('TEMPLATE_RESTORE_VARS');
+
+    for attr in FAttributes do begin
+      (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
+      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+
+      t.Generate(result);
+    end;
+  finally
+    t.Free;
+  end;
+end;
+
+function TOTClassRegenerator.GenerateSaveVars: TStringList;
+var
+  attr: TAttribute;
+  t: TOTTemplateGenerator;
+begin
+  result := TStringList.Create;
+
+  t := TOTTemplateGenerator.Create;
+  try
+    t.LoadTemplateFromResource('TEMPLATE_SAVE_VARS');
+
+    for attr in FAttributes do begin
+      (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
+      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+
+      t.Generate(result);
+    end;
+  finally
+    t.Free;
+  end;
+end;
+
+function TOTClassRegenerator.GenerateSaveYamlVars: TStringList;
+var
+  attr: TAttribute;
+  t: TOTTemplateGenerator;
+begin
+  result := TStringList.Create;
+
+  t := TOTTemplateGenerator.Create;
+  try
+    t.LoadTemplateFromResource('TEMPLATE_SAVE_YAML_VARS');
+
+    for attr in FAttributes do begin
+      (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
+      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+
+      t.Generate(result);
+    end;
+  finally
+    t.Free;
+  end;
+end;
+
+function TOTClassRegenerator.GenerateGetSetMethods: TStringList;
+var
+  attr: TAttribute;
+  t: TOTTemplateGenerator;
+begin
+  result := TStringList.Create;
+
+  t := TOTTemplateGenerator.Create;
+  try
+    t.LoadTemplateFromResource('TEMPLATE_SETPROPERTY_SIMPLE');
+
+    for attr in FAttributes do begin
+      (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
+      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+      (t['Class'] as TOTTemplateSubstitution).userValue := FClassName;
+
+      t.Generate(result);
+    end;
+  finally
+    t.Free;
   end;
 end;
 

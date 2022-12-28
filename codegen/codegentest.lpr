@@ -6,7 +6,7 @@ uses
   Classes, consoletestrunner, unitgeneratortest, templategeneratortest,
   otunitgenerator, otTemplateGenerator, OTCodeGenUtils, OTClassRegenerator,
   otYaml, otYamlChars, otYamlEvent, otYamlParser, otYamlReader, otYamlScanner,
-  otYamlToken, CodeGenUtilsTest, ClassRegeneratorTest;
+  otYamlToken, CodeGenUtilsTest, ClassRegeneratorTest, OTTestUtils;
 
 type
 

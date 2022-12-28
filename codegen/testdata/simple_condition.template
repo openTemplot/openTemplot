@@ -9,3 +9,8 @@ Line3
 Line4
 |ENDIF Include|
 Line5
+|IF Include|
+Line6
+|ELSE Include|
+Line7
+|ENDIF Include|

@@ -186,10 +186,18 @@ end;
 procedure TOTTemplateGenerator.Generate(ADestination: TStrings);
 var
   i: Integer;
+  s: TStringList;
 begin
-  ADestination.AddStrings(FTemplate);
-  for i := 0 to numberOfInputs - 1 do
-    input[i].Process(ADestination);
+  s := TStringList.Create;
+  try
+    s.AddStrings(FTemplate);
+    for i := 0 to numberOfInputs - 1 do
+      input[i].Process(s);
+
+    ADestination.AddStrings(s);
+  finally
+    s.Free;
+  end;
 end;
 
 function TOTTemplateGenerator.GetInput(i: Integer): TOTTemplateInput;
@@ -306,6 +314,7 @@ procedure TOTTemplateCondition.Process(ALines: TStrings);
 var
   startText,
   startTextNot,
+  elseText,
   endText: String;
   i: Integer;
   line: String;
@@ -315,6 +324,7 @@ var
 begin
   startText := DELIM + 'IF ' + Name + DELIM;
   startTextNot := DELIM + 'IFNOT ' + Name + DELIM;
+  elseText := DELIM + 'ELSE ' + Name + DELIM;
   endText := DELIM + 'ENDIF ' + Name + DELIM;
 
   i := 0;
@@ -329,8 +339,13 @@ begin
         withinConditional := False;
         removeLine := True;
       end
-      else
+      else if line = elseText then begin
+        include := not include;
+        removeLine := true;
+      end
+      else begin
         removeLine := (include and (not userValue)) or ((not include) and userValue);
+      end;
     end
     else begin
       if line = startText then begin
