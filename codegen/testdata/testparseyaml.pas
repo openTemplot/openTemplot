@@ -27,9 +27,6 @@ type
     //# genMemberVars
     //# endGenMemberVars
 
-    //# genCollections
-    //# endGenCollections
-
   protected
 
     procedure   RestoreAttributes(AStream : TStream); override;

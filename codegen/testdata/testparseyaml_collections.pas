@@ -1,7 +1,4 @@
-Name=sub
-Ancestor=sub
-||
-unit |Name|;
+unit Sample;
 
 interface
 
@@ -10,16 +7,25 @@ uses
   SysUtils;
 
 
-{# class T|Name|
+{# class TSample
 ---
-class: T|Name|
+class: TSample
 attributes:
+  - name: tom
+    type: integer
+    array: dynamic
+  - name: dick
+    type: double
+    array: 0..maxCount
+  - name: harry
+    type: string
+    array: ESpecialEnum
 ...
 }
 
 type
 
-  T|Name| = class(|Ancestor|)
+  TSample = class(TOTPersistent)
   private
     //# genMemberVars
     //# endGenMemberVars
@@ -50,16 +56,16 @@ var
   log : ILogger;
 
 
-{ T|Name| }
+{ TSample }
 
-procedure T|Name|.RestoreYamlAttribute(AName, AValue : string);
+procedure TSample.RestoreYamlAttribute(AName, AValue : string);
   begin
   //# genRestoreYamlVars
   //# endGenRestoreYamlVars
    inherited RestoreYamlAttribute(AName, AValue);
   end;
 
-procedure T|Name|.RestoreAttributes(AStream : TStream);
+procedure TSample.RestoreAttributes(AStream : TStream);
   begin
   inherited;
 
@@ -67,7 +73,7 @@ procedure T|Name|.RestoreAttributes(AStream : TStream);
   //# endGenRestoreVars
   end;
 
-procedure T|Name|.SaveAttributes(AStream : TStream);
+procedure TSample.SaveAttributes(AStream : TStream);
   begin
   inherited;
 
@@ -76,7 +82,7 @@ procedure T|Name|.SaveAttributes(AStream : TStream);
 
   end;
   
-procedure T|Name|.SaveYamlAttributes(AEmitter : TYamlEmitter);
+procedure TSample.SaveYamlAttributes(AEmitter : TYamlEmitter);
   begin
   inherited;
   //# genSaveYamlVars
@@ -87,7 +93,7 @@ procedure T|Name|.SaveYamlAttributes(AEmitter : TYamlEmitter);
 //# endGenGetSetMethods
 
 initialization
-  T|Name|.RegisterClass;
+  TSample.RegisterClass;
 
-  log := Logger.GetInstance('T|Name|');
+  log := Logger.GetInstance('TSample');
 end.

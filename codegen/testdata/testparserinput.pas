@@ -8,7 +8,7 @@ uses
 
 
 {# class TSample
-+++
+---
 ...
 }
 
@@ -18,9 +18,6 @@ type
   private
     //# genMemberVars
     //# endGenMemberVars
-
-    //# genCollections
-    //# endGenCollections
 
   protected
 

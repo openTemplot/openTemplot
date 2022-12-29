@@ -26,7 +26,6 @@ type
   EBlockIdentifier = (
     biClassYaml,
     biMemberVars,
-    biCollections,
     biGetSetDeclarations,
     biProperty,
     biRestoreYamlVars,
@@ -40,11 +39,22 @@ type
     private
       FName: string;
       FTypeName: string;
+      FIsCollection: boolean;
+      FIsDynamic: boolean;
+      FBounds: string;
+      FIndexType: string;
+
     public
       constructor Create;
 
-      property name: string read FName write FName;
-      property typeName: string read FTypeName write FTypeName;
+      procedure SetProperty(const AName, AValue: String);
+
+      property name: string read FName;
+      property typeName: string read FTypeName;
+      property isCollection: boolean read FIsCollection;
+      property isDynamic: boolean read FIsDynamic;
+      property bounds: string read FBounds;
+      property indexType: string read FIndexType;
 
   end;
 
@@ -104,7 +114,6 @@ const
   BLOCK_LABELS: array[EBlockIdentifier] of string = (
     '',
     'MemberVars',
-    'Collections',
     'GetSetDeclarations',
     'Property',
     'RestoreYamlVars',
@@ -140,6 +149,36 @@ end;
 constructor TAttribute.Create;
 begin
   inherited Create;
+
+  FIsCollection := false;
+  FIsDynamic := false;
+  FBounds := '';
+  FIndexType := 'integer';
+end;
+
+procedure TAttribute.SetProperty(const AName, AValue: String);
+begin
+  if AName = 'name' then
+    FName := AValue
+  else if AName = 'type' then
+    FTypeName := AValue
+  else if AName = 'array' then begin
+     if AValue = 'false' then
+       FIsCollection := false
+     else begin
+       FIsCollection := true;
+       if AValue = 'dynamic' then
+         FIsDynamic := true
+       else if Pos('..', AValue) <> 0 then
+         FBounds := AValue
+       else begin
+         FBounds := AValue;
+         FIndexType := AValue;
+       end;
+     end;
+  end
+  else
+    raise Exception.CreateFmt('unexpected attribute name/value-- %s: %s', [AName, AValue]);
 end;
 
 { TOTClassRegenerator }
@@ -378,12 +417,7 @@ begin
               if not (event is TScalarEvent) then
                 raise Exception.Create('Expected Yaml Scalar (value)');
 
-              if currentName = 'name' then begin
-                 newAttr.name := TScalarEvent(event).value;
-              end
-              else if currentName = 'type' then begin
-                newAttr.typeName:= TScalarEvent(event).value;
-              end;
+              newAttr.SetProperty(currentName, TScalarEvent(event).value);
               currentName := '';
               state := pyExpectingName;
             end;
@@ -412,7 +446,6 @@ begin
   output := TStringList.Create;
   try
     code[biMemberVars] := GenerateMemberVars;
-    // code[biCollections] := ...,
     code[biGetSetDeclarations] := GenerateGetSetDeclarations;
     code[biProperty] := GeneratePropertyDeclarations;
     code[biRestoreYamlVars] := GenerateRestoreYamlVars;
@@ -463,10 +496,24 @@ begin
   for attr in FAttributes do begin
     t := TOTTemplateGenerator.Create;
     try
-      t.LoadTemplateFromResource('TEMPLATE_MEMBERVAR_SIMPLE');
-      (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
-      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
-
+      if attr.isCollection then begin
+        if attr.isDynamic then begin
+          t.LoadTemplateFromResource('TEMPLATE_MEMBERVAR_DYNAMIC');
+          (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
+          (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+        end
+        else begin
+          t.LoadTemplateFromResource('TEMPLATE_MEMBERVAR_ARRAY');
+          (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
+          (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+          (t['Bounds'] as TOTTemplateSubstitution).userValue := attr.bounds;
+        end;
+      end
+      else begin
+        t.LoadTemplateFromResource('TEMPLATE_MEMBERVAR_SIMPLE');
+        (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+      end;
       t.Generate(result);
     finally
       t.Free;
@@ -482,11 +529,35 @@ begin
   result := TStringList.Create;
 
   for attr in FAttributes do begin
+    if attr.isCollection then begin
+      t := TOTTemplateGenerator.Create;
+      try
+        t.LoadTemplateFromResource('TEMPLATE_GETPROPERTY_ARRAY_DECL');
+        (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+        (t['IndexType'] as TOTTemplateSubstitution).userValue := attr.indexType;
+
+        t.Generate(result);
+      finally
+        t.Free;
+      end;
+    end;
+  end;
+
+  for attr in FAttributes do begin
     t := TOTTemplateGenerator.Create;
     try
-      t.LoadTemplateFromResource('TEMPLATE_SETPROPERTY_SIMPLE_DECL');
-      (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
-      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+      if attr.isCollection then begin
+        t.LoadTemplateFromResource('TEMPLATE_SETPROPERTY_ARRAY_DECL');
+        (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+        (t['IndexType'] as TOTTemplateSubstitution).userValue := attr.indexType;
+      end
+      else begin
+        t.LoadTemplateFromResource('TEMPLATE_SETPROPERTY_SIMPLE_DECL');
+        (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+      end;
 
       t.Generate(result);
     finally

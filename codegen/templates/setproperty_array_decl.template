@@ -1,0 +1,5 @@
+Name=sub
+Type=sub
+IndexType=sub
+||
+    procedure Set|Name|(AIndex: |IndexType|; const AValue: |Type|);

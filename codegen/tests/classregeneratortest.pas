@@ -32,6 +32,10 @@ type
 
     procedure TestGenerate;
 
+    procedure TestParseYamlCollections;
+    procedure TestGenerateMemberVarsCollections;
+    procedure TestGenerateGetSetDeclarationsCollections;
+
   end;
 
 implementation
@@ -73,7 +77,7 @@ begin
   cg := TTestableClassRegenerator.Create('testdata/testparserinput.pas');
   try
      cg.LoadInput;
-     AssertEquals( 91, cg.input.Count );
+     AssertEquals( 88, cg.input.Count );
 
      // When...
      cg.ParseInput;
@@ -87,37 +91,33 @@ begin
      AssertEquals('blocks[biMemberVars].startLine', 19, cg.blocks[biMemberVars].startLine);
      AssertEquals('blocks[biMemberVars].followingLine', 19, cg.blocks[biMemberVars].followingLine);
 
-     AssertNotNull('blocks[biCollections]', cg.blocks[biCollections]);
-     AssertEquals('blocks[biCollections].startLine', 22, cg.blocks[biCollections].startLine);
-     AssertEquals('blocks[biCollections].followingLine', 22, cg.blocks[biCollections].followingLine);
-
      AssertNotNull('blocks[biGetSetDeclarations]', cg.blocks[biGetSetDeclarations]);
-     AssertEquals('blocks[biGetSetDeclarations].startLine', 30, cg.blocks[biGetSetDeclarations].startLine);
-     AssertEquals('blocks[biGetSetDeclarations].followingLine', 30, cg.blocks[biGetSetDeclarations].followingLine);
+     AssertEquals('blocks[biGetSetDeclarations].startLine', 27, cg.blocks[biGetSetDeclarations].startLine);
+     AssertEquals('blocks[biGetSetDeclarations].followingLine', 27, cg.blocks[biGetSetDeclarations].followingLine);
 
      AssertNotNull('blocks[biProperty]', cg.blocks[biProperty]);
-     AssertEquals('blocks[biProperty].startLine', 37, cg.blocks[biProperty].startLine);
-     AssertEquals('blocks[biProperty].followingLine', 37, cg.blocks[biProperty].followingLine);
+     AssertEquals('blocks[biProperty].startLine', 34, cg.blocks[biProperty].startLine);
+     AssertEquals('blocks[biProperty].followingLine', 34, cg.blocks[biProperty].followingLine);
 
      AssertNotNull('blocks[biRestoreYamlVars]', cg.blocks[biRestoreYamlVars]);
-     AssertEquals('blocks[biRestoreYamlVars].startLine', 55, cg.blocks[biRestoreYamlVars].startLine);
-     AssertEquals('blocks[biRestoreYamlVars].followingLine', 55, cg.blocks[biRestoreYamlVars].followingLine);
+     AssertEquals('blocks[biRestoreYamlVars].startLine', 52, cg.blocks[biRestoreYamlVars].startLine);
+     AssertEquals('blocks[biRestoreYamlVars].followingLine', 52, cg.blocks[biRestoreYamlVars].followingLine);
 
      AssertNotNull('blocks[biRestoreVars]', cg.blocks[biRestoreVars]);
-     AssertEquals('blocks[biRestoreVars].startLine', 64, cg.blocks[biRestoreVars].startLine);
-     AssertEquals('blocks[biRestoreVars].followingLine', 64, cg.blocks[biRestoreVars].followingLine);
+     AssertEquals('blocks[biRestoreVars].startLine', 61, cg.blocks[biRestoreVars].startLine);
+     AssertEquals('blocks[biRestoreVars].followingLine', 61, cg.blocks[biRestoreVars].followingLine);
 
      AssertNotNull('blocks[biSaveVars]', cg.blocks[biSaveVars]);
-     AssertEquals('blocks[biSaveVars].startLine', 72, cg.blocks[biSaveVars].startLine);
-     AssertEquals('blocks[biSaveVars].followingLine', 72, cg.blocks[biSaveVars].followingLine);
+     AssertEquals('blocks[biSaveVars].startLine', 69, cg.blocks[biSaveVars].startLine);
+     AssertEquals('blocks[biSaveVars].followingLine', 69, cg.blocks[biSaveVars].followingLine);
 
      AssertNotNull('blocks[biSaveYamlVars]', cg.blocks[biSaveYamlVars]);
-     AssertEquals('blocks[biSaveYamlVars].startLine', 80, cg.blocks[biSaveYamlVars].startLine);
-     AssertEquals('blocks[biSaveYamlVars].followingLine', 80, cg.blocks[biSaveYamlVars].followingLine);
+     AssertEquals('blocks[biSaveYamlVars].startLine', 77, cg.blocks[biSaveYamlVars].startLine);
+     AssertEquals('blocks[biSaveYamlVars].followingLine', 77, cg.blocks[biSaveYamlVars].followingLine);
 
      AssertNotNull('blocks[biGetSetMethods]', cg.blocks[biGetSetMethods]);
-     AssertEquals('blocks[biGetSetMethods].startLine', 84, cg.blocks[biGetSetMethods].startLine);
-     AssertEquals('blocks[biGetSetMethods].followingLine', 84, cg.blocks[biGetSetMethods].followingLine);
+     AssertEquals('blocks[biGetSetMethods].startLine', 81, cg.blocks[biGetSetMethods].startLine);
+     AssertEquals('blocks[biGetSetMethods].followingLine', 81, cg.blocks[biGetSetMethods].followingLine);
 
   finally
     cg.Free;
@@ -143,6 +143,9 @@ begin
 
      // Then...
      AssertEquals(3, cg.attributeCount);
+     AssertEquals('#0', false, cg.attribute[0].isCollection);
+     AssertEquals('#1', false, cg.attribute[1].isCollection);
+     AssertEquals('#2', false, cg.attribute[2].isCollection);
   finally
     cg.Free;
   end;
@@ -440,6 +443,108 @@ begin
     cg.Free;
   end;
 end;
+
+procedure TTestClassRegenerator.TestParseYamlCollections;
+var
+  cg: TTestableClassRegenerator;
+begin
+  // Given a regen object with sample input containing collections loaded and Parsed
+  // When ParseYaml is called
+  // Then all the attributes are created
+  // and  attribute properties are set
+
+  cg := TTestableClassRegenerator.Create('testdata/testparseyaml_collections.pas');
+  try
+     cg.LoadInput;
+     cg.ParseInput;
+
+     // When...
+     cg.ParseYaml;
+
+     // Then...
+     AssertEquals(3, cg.attributeCount);
+
+     AssertEquals('#0', true, cg.attribute[0].isCollection);
+     AssertEquals('#0', true, cg.attribute[0].isDynamic);
+     AssertEquals('#0', 'integer', cg.attribute[0].indexType);
+     AssertEquals('#1', true, cg.attribute[1].isCollection);
+     AssertEquals('#1', false, cg.attribute[1].isDynamic);
+     AssertEquals('#1', '0..maxCount', cg.attribute[1].bounds);
+     AssertEquals('#1', 'integer', cg.attribute[1].indexType);
+     AssertEquals('#2', true, cg.attribute[2].isCollection);
+     AssertEquals('#2', false, cg.attribute[2].isDynamic);
+     AssertEquals('#2', 'ESpecialEnum', cg.attribute[2].bounds);
+     AssertEquals('#2', 'ESpecialEnum', cg.attribute[2].indexType);
+  finally
+    cg.Free;
+  end;
+
+end;
+
+procedure TTestClassRegenerator.TestGenerateMemberVarsCollections;
+var
+  cg: TTestableClassRegenerator;
+  s: TStringList;
+begin
+  // Given a regen object with defined attributes
+  // When GenerateMemberVars is called
+  // Then the expected textis returned
+
+  s := nil;
+  cg := TTestableClassRegenerator.Create('testdata/testparseyaml_collections.pas');
+  try
+    cg.LoadInput;
+    cg.ParseInput;
+    cg.ParseYaml;
+
+    // When...
+    s := cg.GenerateMemberVars;
+
+    // Then
+    AssertEquals(3, s.Count);
+    AssertEquals('    FTom: array of Integer;', s[0]);
+    AssertEquals('    FDick: array[0..maxCount] of Double;', s[1]);
+    AssertEquals('    FHarry: array[ESpecialEnum] of String;', s[2]);
+  finally
+    cg.Free;
+    s.Free;
+  end;
+end;
+
+  procedure TTestClassRegenerator.TestGenerateGetSetDeclarationsCollections;
+  var
+    cg: TTestableClassRegenerator;
+    s: TStringList;
+  begin
+    // Given a regen object with defined attributes
+    // When GenerateGetSetDeclarations is called
+    // Then the expected text is returned
+
+    s := nil;
+    cg := TTestableClassRegenerator.Create('testdata/testparseyaml_collections.pas');
+    try
+      cg.LoadInput;
+      cg.ParseInput;
+      cg.ParseYaml;
+
+      // When...
+      s := cg.GenerateGetSetDeclarations;
+
+      // Then
+      AssertEquals(6, s.Count);
+      AssertEquals('    function GetTom(AIndex: Integer): Integer;', s[0]);
+      AssertEquals('    function GetDick(AIndex: Integer): Double;', s[1]);
+      AssertEquals('    function GetHarry(AIndex: ESpecialEnum): String;', s[2]);
+      AssertEquals('    procedure SetTom(AIndex: Integer; const AValue: Integer);', s[3]);
+      AssertEquals('    procedure SetDick(AIndex: Integer; const AValue: Double);', s[4]);
+      AssertEquals('    procedure SetHarry(AIndex: ESpecialEnum; const AValue: String);', s[5]);
+    finally
+      cg.Free;
+      s.Free;
+    end;
+  end;
+
+
 
 initialization
   RegisterTest(TTestClassRegenerator);

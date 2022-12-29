@@ -30,9 +30,6 @@ type
     FHarry: String;
     //# endGenMemberVars
 
-    //# genCollections
-    //# endGenCollections
-
   protected
 
     procedure   RestoreAttributes(AStream : TStream); override;
