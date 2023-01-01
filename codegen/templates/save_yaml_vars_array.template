@@ -1,0 +1,11 @@
+Name=sub
+Type=sub
+IndexType=sub
+IsDynamic=condition
+||
+|IF IsDynamic|
+  SaveYamlInteger(AEmitter, '|name|-length', Length(F|Name|));
+|ENDIF IsDynamic|
+  SaveYamlSequence(AEmitter, '|name|');
+  for i := Ord(Low(F|Name|)) to Ord(High(F|Name|)) do
+    SaveYamlSequence|Type|(AEmitter, F|Name|[|IndexType|(i)]);

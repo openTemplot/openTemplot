@@ -35,6 +35,13 @@ type
     procedure TestParseYamlCollections;
     procedure TestGenerateMemberVarsCollections;
     procedure TestGenerateGetSetDeclarationsCollections;
+    procedure TestGeneratePropertyDeclarationsCollections;
+    procedure TestGenerateRestoreYamlVarsCollections;
+    procedure TestGenerateRestoreVarsCollections;
+    procedure TestGenerateSaveVarsCollections;
+    procedure TestGenerateSaveYamlVarsCollections;
+    procedure TestGenerateGetSetMethodsCollections;
+
 
   end;
 
@@ -486,7 +493,7 @@ var
   cg: TTestableClassRegenerator;
   s: TStringList;
 begin
-  // Given a regen object with defined attributes
+  // Given a regen object with collection attributes
   // When GenerateMemberVars is called
   // Then the expected textis returned
 
@@ -516,7 +523,7 @@ end;
     cg: TTestableClassRegenerator;
     s: TStringList;
   begin
-    // Given a regen object with defined attributes
+    // Given a regen object with collection attributes
     // When GenerateGetSetDeclarations is called
     // Then the expected text is returned
 
@@ -543,6 +550,248 @@ end;
       s.Free;
     end;
   end;
+
+procedure TTestClassRegenerator.TestGeneratePropertyDeclarationsCollections;
+  var
+    cg: TTestableClassRegenerator;
+    s: TStringList;
+  begin
+    // Given a regen object with collection attributes
+    // When GeneratePropertyDeclarations is called
+    // Then the expected text is returned
+
+    s := nil;
+    cg := TTestableClassRegenerator.Create('testdata/testparseyaml_collections.pas');
+    try
+      cg.LoadInput;
+      cg.ParseInput;
+      cg.ParseYaml;
+
+      // When...
+      s := cg.GeneratePropertyDeclarations;
+
+      // Then
+      AssertEquals(3, s.Count);
+      AssertEquals('    property tom[AIndex: Integer]: Integer read GetTom write SetTom;', s[0]);
+      AssertEquals('    property dick[AIndex: Integer]: Double read GetDick write SetDick;', s[1]);
+      AssertEquals('    property harry[AIndex: ESpecialEnum]: String read GetHarry write SetHarry;', s[2]);
+    finally
+      cg.Free;
+      s.Free;
+    end;
+  end;
+
+procedure TTestClassRegenerator.TestGenerateRestoreYamlVarsCollections;
+var
+  cg: TTestableClassRegenerator;
+  s: TStringList;
+begin
+  // Given a regen object with collection attributes
+  // When GenerateRestoreYamlVars is called
+  // Then the expected text is returned
+
+  s := nil;
+  cg := TTestableClassRegenerator.Create('testdata/testparseyaml_collections.pas');
+  try
+    cg.LoadInput;
+    cg.ParseInput;
+    cg.ParseYaml;
+
+    // When...
+    s := cg.GenerateRestoreYamlVars;
+
+    // Then
+    AssertEquals(12, s.Count);
+    AssertEquals('  if AName = ''tom-length'' then', s[0]);
+    AssertEquals('    SetLength(FTom, StrToInteger(AValue)', s[1]);
+    AssertEquals('  else', s[2]);
+    AssertEquals('  if AName = ''tom'' then', s[3]);
+    AssertEquals('    FTom[Integer(Ord(Low(FTom))+AIndex)] := StrToInteger(AValue)', s[4]);
+    AssertEquals('  else', s[5]);
+    AssertEquals('  if AName = ''dick'' then', s[6]);
+    AssertEquals('    FDick[Integer(Ord(Low(FDick))+AIndex)] := StrToDouble(AValue)', s[7]);
+    AssertEquals('  else', s[8]);
+    AssertEquals('  if AName = ''harry'' then', s[9]);
+    AssertEquals('    FHarry[ESpecialEnum(Ord(Low(FHarry))+AIndex)] := StrToString(AValue)', s[10]);
+    AssertEquals('  else', s[11]);
+  finally
+    cg.Free;
+    s.Free;
+  end;
+end;
+
+procedure TTestClassRegenerator.TestGenerateRestoreVarsCollections;
+var
+  cg: TTestableClassRegenerator;
+  s: TStringList;
+begin
+  // Given a regen object with collection attributes
+  // When GenerateRestoreVars is called
+  // Then the expected text is returned
+
+  s := nil;
+  cg := TTestableClassRegenerator.Create('testdata/testparseyaml_collections.pas');
+  try
+    cg.LoadInput;
+    cg.ParseInput;
+    cg.ParseYaml;
+
+    // When...
+    s := cg.GenerateRestoreVars;
+
+    // Then
+    AssertEquals(5, s.Count);
+    AssertEquals('  SetLength(FTom, AStream.ReadDWord);', s[0]);
+    AssertEquals('  AStream.ReadBuffer(FTom[Low(FTom)], (Ord(High(FTom))-Ord(Low(FTom)) + 1)*sizeof(Integer));', s[1]);
+    AssertEquals('  AStream.ReadBuffer(FDick[Low(FDick)], (Ord(High(FDick))-Ord(Low(FDick)) + 1)*sizeof(Double));', s[2]);
+    AssertEquals('  for i := Ord(Low(FHarry)) to Ord(High(FHarry)) do', s[3]);
+    AssertEquals('    FHarry[ESpecialEnum(i)] := AStream.ReadAnsiString;', s[4]);
+  finally
+    cg.Free;
+    s.Free;
+  end;
+end;
+
+procedure TTestClassRegenerator.TestGenerateSaveVarsCollections;
+var
+  cg: TTestableClassRegenerator;
+  s: TStringList;
+begin
+  // Given a regen object with collection attributes
+  // When GenerateSaveVars is called
+  // Then the expected text is returned
+
+  s := nil;
+  cg := TTestableClassRegenerator.Create('testdata/testparseyaml_collections.pas');
+  try
+    cg.LoadInput;
+    cg.ParseInput;
+    cg.ParseYaml;
+
+    // When...
+    s := cg.GenerateSaveVars;
+
+    // Then
+    AssertEquals(5, s.Count);
+    AssertEquals('  AStream.WriteDWord(Length(FTom));', s[0]);
+    AssertEquals('  AStream.WriteBuffer(FTom[Low(FTom)], (Ord(High(FTom))-Ord(Low(FTom)) + 1)*sizeof(Integer));', s[1]);
+    AssertEquals('  AStream.WriteBuffer(FDick[Low(FDick)], (Ord(High(FDick))-Ord(Low(FDick)) + 1)*sizeof(Double));', s[2]);
+    AssertEquals('  for i := Ord(Low(FHarry)) to Ord(High(FHarry)) do', s[3]);
+    AssertEquals('    AStream.WriteAnsiString(FHarry[ESpecialEnum(i)]);', s[4]);
+  finally
+    cg.Free;
+    s.Free;
+  end;
+end;
+
+procedure TTestClassRegenerator.TestGenerateSaveYamlVarsCollections;
+var
+  cg: TTestableClassRegenerator;
+  s: TStringList;
+begin
+  // Given a regen object with defined attributes
+  // When GenerateSaveYamlVars is called
+  // Then the expected text is returned
+
+  s := nil;
+  cg := TTestableClassRegenerator.Create('testdata/testparseyaml_collections.pas');
+  try
+    cg.LoadInput;
+    cg.ParseInput;
+    cg.ParseYaml;
+
+    // When...
+    s := cg.GenerateSaveYamlVars;
+
+    // Then
+    AssertEquals(10, s.Count);
+    AssertEquals('  SaveYamlInteger(AEmitter, ''tom-length'', Length(FTom));', s[0]);
+    AssertEquals('  SaveYamlSequence(AEmitter, ''tom'');', s[1]);
+    AssertEquals('  for i := Ord(Low(FTom)) to Ord(High(FTom)) do', s[2]);
+    AssertEquals('    SaveYamlSequenceInteger(AEmitter, FTom[Integer(i)]);', s[3]);
+    AssertEquals('  SaveYamlSequence(AEmitter, ''dick'');', s[4]);
+    AssertEquals('  for i := Ord(Low(FDick)) to Ord(High(FDick)) do', s[5]);
+    AssertEquals('    SaveYamlSequenceDouble(AEmitter, FDick[Integer(i)]);', s[6]);
+    AssertEquals('  SaveYamlSequence(AEmitter, ''harry'');', s[7]);
+    AssertEquals('  for i := Ord(Low(FHarry)) to Ord(High(FHarry)) do', s[8]);
+    AssertEquals('    SaveYamlSequenceString(AEmitter, FHarry[ESpecialEnum(i)]);', s[9]);
+  finally
+    cg.Free;
+    s.Free;
+  end;
+end;
+
+procedure TTestClassRegenerator.TestGenerateGetSetMethodsCollections;
+var
+  cg: TTestableClassRegenerator;
+  s: TStringList;
+begin
+  // Given a regen object with collection attributes
+  // When GenerateGetSetMethods is called
+  // Then the expected text is returned
+
+  s := nil;
+  cg := TTestableClassRegenerator.Create('testdata/testparseyaml_collections.pas');
+  try
+    cg.LoadInput;
+    cg.ParseInput;
+    cg.ParseYaml;
+
+    // When...
+    s := cg.GenerateGetSetMethods;
+
+    // Then
+    AssertEquals(45, s.Count);
+    AssertEquals('// GENERATED METHOD - DO NOT EDIT', s[0]);
+    AssertEquals('function TSample.GetTom(AIndex: Integer): Integer;', s[1]);
+    AssertEquals('begin', s[2]);
+    AssertEquals('  Result := FTom[AIndex];', s[3]);
+    AssertEquals('end;', s[4]);
+    AssertEquals('', s[5]);
+    AssertEquals('// GENERATED METHOD - DO NOT EDIT', s[6]);
+    AssertEquals('function TSample.GetDick(AIndex: Integer): Double;', s[7]);
+    AssertEquals('begin', s[8]);
+    AssertEquals('  Result := FDick[AIndex];', s[9]);
+    AssertEquals('end;', s[10]);
+    AssertEquals('', s[11]);
+    AssertEquals('// GENERATED METHOD - DO NOT EDIT', s[12]);
+    AssertEquals('function TSample.GetHarry(AIndex: ESpecialEnum): String;', s[13]);
+    AssertEquals('begin', s[14]);
+    AssertEquals('  Result := FHarry[AIndex];', s[15]);
+    AssertEquals('end;', s[16]);
+    AssertEquals('', s[17]);
+    AssertEquals('// GENERATED METHOD - DO NOT EDIT', s[18]);
+    AssertEquals('procedure TSample.SetTom(AIndex: Integer; const AValue: Integer);', s[19]);
+    AssertEquals('begin', s[20]);
+    AssertEquals('  if AValue <> FTom[AIndex] then begin', s[21]);
+    AssertEquals('    SetModified;', s[22]);
+    AssertEquals('    FTom[AIndex] := AValue;', s[23]);
+    AssertEquals('  end;', s[24]);
+    AssertEquals('end;', s[25]);
+    AssertEquals('', s[26]);
+    AssertEquals('// GENERATED METHOD - DO NOT EDIT', s[27]);
+    AssertEquals('procedure TSample.SetDick(AIndex: Integer; const AValue: Double);', s[28]);
+    AssertEquals('begin', s[29]);
+    AssertEquals('  if AValue <> FDick[AIndex] then begin', s[30]);
+    AssertEquals('    SetModified;', s[31]);
+    AssertEquals('    FDick[AIndex] := AValue;', s[32]);
+    AssertEquals('  end;', s[33]);
+    AssertEquals('end;', s[34]);
+    AssertEquals('', s[35]);
+    AssertEquals('// GENERATED METHOD - DO NOT EDIT', s[36]);
+    AssertEquals('procedure TSample.SetHarry(AIndex: ESpecialEnum; const AValue: String);', s[37]);
+    AssertEquals('begin', s[38]);
+    AssertEquals('  if AValue <> FHarry[AIndex] then begin', s[39]);
+    AssertEquals('    SetModified;', s[40]);
+    AssertEquals('    FHarry[AIndex] := AValue;', s[41]);
+    AssertEquals('  end;', s[42]);
+    AssertEquals('end;', s[43]);
+    AssertEquals('', s[44]);
+  finally
+    cg.Free;
+    s.Free;
+  end;
+end;
 
 
 

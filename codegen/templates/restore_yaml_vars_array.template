@@ -1,0 +1,13 @@
+Name=sub
+Type=sub
+IndexType=sub
+IsDynamic=condition
+||
+|IF IsDynamic|
+  if AName = '|name|-length' then
+    SetLength(F|Name|, StrToInteger(AValue)
+  else
+|ENDIF IsDynamic|
+  if AName = '|name|' then
+    F|Name|[|IndexType|(Ord(Low(F|Name|))+AIndex)] := StrTo|Type|(AValue)
+  else

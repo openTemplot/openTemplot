@@ -41,6 +41,7 @@ type
       FTypeName: string;
       FIsCollection: boolean;
       FIsDynamic: boolean;
+      FIsString: boolean;
       FBounds: string;
       FIndexType: string;
 
@@ -53,6 +54,7 @@ type
       property typeName: string read FTypeName;
       property isCollection: boolean read FIsCollection;
       property isDynamic: boolean read FIsDynamic;
+      property isString: boolean read FIsString;
       property bounds: string read FBounds;
       property indexType: string read FIndexType;
 
@@ -160,8 +162,10 @@ procedure TAttribute.SetProperty(const AName, AValue: String);
 begin
   if AName = 'name' then
     FName := AValue
-  else if AName = 'type' then
-    FTypeName := AValue
+  else if AName = 'type' then begin
+    FTypeName := AValue;
+    FIsString := (FTypeName = 'String') or (FTypeName = 'string');
+  end
   else if AName = 'array' then begin
      if AValue = 'false' then
        FIsCollection := false
@@ -576,9 +580,17 @@ begin
   for attr in FAttributes do begin
     t := TOTTemplateGenerator.Create;
     try
-      t.LoadTemplateFromResource('TEMPLATE_PROPERTY_SIMPLE');
-      (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
-      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+      if attr.isCollection then begin
+        t.LoadTemplateFromResource('TEMPLATE_PROPERTY_ARRAY');
+        (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+        (t['IndexType'] as TOTTemplateSubstitution).userValue := attr.indexType;
+      end
+      else begin
+        t.LoadTemplateFromResource('TEMPLATE_PROPERTY_SIMPLE');
+        (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+      end;
 
       t.Generate(result);
     finally
@@ -594,18 +606,27 @@ var
 begin
   result := TStringList.Create;
 
-  t := TOTTemplateGenerator.Create;
-  try
-    t.LoadTemplateFromResource('TEMPLATE_RESTORE_YAML_VARS');
 
-    for attr in FAttributes do begin
-      (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
-      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+  for attr in FAttributes do begin
+    t := TOTTemplateGenerator.Create;
+    try
+      if attr.isCollection then begin
+        t.LoadTemplateFromResource('TEMPLATE_RESTORE_YAML_VARS_ARRAY');
+        (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+        (t['IndexType'] as TOTTemplateSubstitution).userValue := attr.indexType;
+        (t['IsDynamic'] as TOTTemplateCondition).userValue := attr.isDynamic;
+      end
+      else begin
+        t.LoadTemplateFromResource('TEMPLATE_RESTORE_YAML_VARS');
+        (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+      end;
 
       t.Generate(result);
+    finally
+      t.Free;
     end;
-  finally
-    t.Free;
   end;
 end;
 
@@ -616,18 +637,27 @@ var
 begin
   result := TStringList.Create;
 
-  t := TOTTemplateGenerator.Create;
-  try
-    t.LoadTemplateFromResource('TEMPLATE_RESTORE_VARS');
-
-    for attr in FAttributes do begin
-      (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
-      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+  for attr in FAttributes do begin
+    t := TOTTemplateGenerator.Create;
+    try
+      if attr.isCollection then begin
+        t.LoadTemplateFromResource('TEMPLATE_RESTORE_VARS_ARRAY');
+        (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+        (t['IndexType'] as TOTTemplateSubstitution).userValue := attr.indexType;
+        (t['IsDynamic'] as TOTTemplateCondition).userValue := attr.isDynamic;
+        (t['IsString'] as TOTTemplateCondition).userValue := attr.isString;
+      end
+      else begin
+        t.LoadTemplateFromResource('TEMPLATE_RESTORE_VARS');
+        (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+      end;
 
       t.Generate(result);
+    finally
+      t.Free;
     end;
-  finally
-    t.Free;
   end;
 end;
 
@@ -638,18 +668,28 @@ var
 begin
   result := TStringList.Create;
 
-  t := TOTTemplateGenerator.Create;
-  try
-    t.LoadTemplateFromResource('TEMPLATE_SAVE_VARS');
+  for attr in FAttributes do begin
+    t := TOTTemplateGenerator.Create;
+    try
 
-    for attr in FAttributes do begin
+    if attr.isCollection then begin
+      t.LoadTemplateFromResource('TEMPLATE_SAVE_VARS_ARRAY');
       (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
       (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
-
-      t.Generate(result);
+      (t['IndexType'] as TOTTemplateSubstitution).userValue := attr.indexType;
+      (t['IsDynamic'] as TOTTemplateCondition).userValue := attr.isDynamic;
+      (t['IsString'] as TOTTemplateCondition).userValue := attr.isString;
+    end
+    else begin
+      t.LoadTemplateFromResource('TEMPLATE_SAVE_VARS');
+      (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
+      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
     end;
-  finally
-    t.Free;
+
+    t.Generate(result);
+    finally
+      t.Free;
+    end;
   end;
 end;
 
@@ -660,18 +700,26 @@ var
 begin
   result := TStringList.Create;
 
-  t := TOTTemplateGenerator.Create;
-  try
-    t.LoadTemplateFromResource('TEMPLATE_SAVE_YAML_VARS');
-
-    for attr in FAttributes do begin
-      (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
-      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+  for attr in FAttributes do begin
+    t := TOTTemplateGenerator.Create;
+    try
+      if attr.isCollection then begin
+        t.LoadTemplateFromResource('TEMPLATE_SAVE_YAML_VARS_ARRAY');
+        (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+        (t['IndexType'] as TOTTemplateSubstitution).userValue := attr.indexType;
+        (t['IsDynamic'] as TOTTemplateCondition).userValue := attr.isDynamic;
+      end
+      else begin
+        t.LoadTemplateFromResource('TEMPLATE_SAVE_YAML_VARS');
+        (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+      end;
 
       t.Generate(result);
+    finally
+      t.Free;
     end;
-  finally
-    t.Free;
   end;
 end;
 
@@ -682,19 +730,44 @@ var
 begin
   result := TStringList.Create;
 
-  t := TOTTemplateGenerator.Create;
-  try
-    t.LoadTemplateFromResource('TEMPLATE_SETPROPERTY_SIMPLE');
+  for attr in FAttributes do begin
+    if attr.isCollection then begin
+      t := TOTTemplateGenerator.Create;
+      try
+        t.LoadTemplateFromResource('TEMPLATE_GETPROPERTY_ARRAY');
+        (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+        (t['Class'] as TOTTemplateSubstitution).userValue := FClassName;
+        (t['IndexType'] as TOTTemplateSubstitution).userValue := attr.indexType;
 
-    for attr in FAttributes do begin
-      (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
-      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
-      (t['Class'] as TOTTemplateSubstitution).userValue := FClassName;
+        t.Generate(result);
+      finally
+        t.Free;
+      end;
+    end;
+  end;
+
+  for attr in FAttributes do begin
+    t := TOTTemplateGenerator.Create;
+    try
+      if attr.isCollection then begin
+        t.LoadTemplateFromResource('TEMPLATE_SETPROPERTY_ARRAY');
+        (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+        (t['Class'] as TOTTemplateSubstitution).userValue := FClassName;
+        (t['IndexType'] as TOTTemplateSubstitution).userValue := attr.indexType;
+      end
+      else begin
+        t.LoadTemplateFromResource('TEMPLATE_SETPROPERTY_SIMPLE');
+        (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+        (t['Class'] as TOTTemplateSubstitution).userValue := FClassName;
+      end;
 
       t.Generate(result);
+    finally
+      t.Free;
     end;
-  finally
-    t.Free;
   end;
 end;
 

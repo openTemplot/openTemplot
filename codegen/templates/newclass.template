@@ -33,7 +33,7 @@ type
     //# endGenGetSetDeclarations
 
   public
-    procedure   RestoreYamlAttribute(AName, AValue : string); override;
+    procedure   RestoreYamlAttribute(AName, AValue : String; AIndex: Integer); override;
     procedure   SaveYamlAttributes(AEmitter: TYamlEmitter); override;
 
     //# genProperty
@@ -52,14 +52,16 @@ var
 
 { T|Name| }
 
-procedure T|Name|.RestoreYamlAttribute(AName, AValue : string);
+procedure T|Name|.RestoreYamlAttribute(AName, AValue : String; AIndex: Integer);
   begin
   //# genRestoreYamlVars
   //# endGenRestoreYamlVars
-   inherited RestoreYamlAttribute(AName, AValue);
+   inherited RestoreYamlAttribute(AName, AValue, AIndex);
   end;
 
 procedure T|Name|.RestoreAttributes(AStream : TStream);
+  var
+    i: Integer;
   begin
   inherited;
 
@@ -68,17 +70,19 @@ procedure T|Name|.RestoreAttributes(AStream : TStream);
   end;
 
 procedure T|Name|.SaveAttributes(AStream : TStream);
+  var
+    i: Integer;
   begin
   inherited;
 
   //# genSaveVars
   //# endGenSaveVars
-
   end;
   
 procedure T|Name|.SaveYamlAttributes(AEmitter : TYamlEmitter);
   begin
   inherited;
+  
   //# genSaveYamlVars
   //# endGenSaveYamlVars
   end;
