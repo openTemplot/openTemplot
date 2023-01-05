@@ -299,6 +299,7 @@ begin
   ProcessSubstitution(FirstUpper(Name), FirstUpper(userValue));
   ProcessSubstitution(FirstLower(Name), FirstLower(userValue));
   ProcessSubstitution(AllUpper(Name), AllUpper(userValue));
+  ProcessSubstitution('_' + LowerCase(Name) + '_', SnakeCase(userValue));
 end;
 
 { TOTTemplateCondition }

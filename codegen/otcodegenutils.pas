@@ -14,6 +14,7 @@ function AllUpper(const AString: String): String;
 function AllUpperToCamelCase(const AString: String): String;
 function StripUnderscores(const AString: String): String;
 function QuotedValue(const AString: String): String;
+function SnakeCase(const AString: String): String;
 
 
 implementation
@@ -87,6 +88,26 @@ begin
   Result := '';
   for ch in AString do begin
     if ch <> '_' then
+      Result := Result + ch;
+  end;
+end;
+
+function SnakeCase(const AString: String): String;
+var
+  i: Integer;
+  ch: Char;
+begin
+  Result := '';
+  for i := 1 to Length(AString) do begin
+    ch := AString[i];
+
+    if CharInSet(ch, ['A'..'Z']) then begin
+      if (i > 1) then
+         Result := Result + '_';
+
+      Result := Result + Char(Ord(ch) - Ord('A') + Ord('a'))
+    end
+    else
       Result := Result + ch;
   end;
 end;

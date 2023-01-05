@@ -39,7 +39,7 @@ procedure TOTCodeGen.NewClass(const AClassName: string);
 var
   template: TOTUnitGenerator;
 begin
-  template := TOTUnitGenerator.Create('templates/newclass.template', AClassName);
+  template := TOTUnitGenerator.Create('TEMPLATE_NEW_CLASS', AClassName);
   try
     template.Generate;
   finally

@@ -17,4 +17,5 @@ TEMPLATE_SAVE_YAML_VARS_ARRAY       RCDATA "templates/save_yaml_vars_array.templ
 TEMPLATE_GETPROPERTY_ARRAY          RCDATA "templates/getproperty_array.template"
 TEMPLATE_SETPROPERTY_SIMPLE         RCDATA "templates/setproperty_simple.template"
 TEMPLATE_SETPROPERTY_ARRAY          RCDATA "templates/setproperty_array.template"
+TEMPLATE_NEW_CLASS                  RCDATA "templates/newclass.template"
 

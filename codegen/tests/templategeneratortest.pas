@@ -99,7 +99,7 @@ begin
       testGen.Generate(dest);
 
       AssertEquals(1, dest.Count);
-      AssertEquals('Simple test of Fred, fred and FRED.', dest[0]);
+      AssertEquals('Simple test of Fred, fred, FRED and fred.', dest[0]);
     finally
       dest.Free;
     end;
@@ -110,7 +110,7 @@ begin
       testGen.Generate(dest);
 
       AssertEquals(1, dest.Count);
-      AssertEquals('Simple test of TomDickHarry, tomDickHarry and TOM_DICK_HARRY.',
+      AssertEquals('Simple test of TomDickHarry, tomDickHarry, TOM_DICK_HARRY and tom_dick_harry.',
         dest[0]);
     finally
       dest.Free;

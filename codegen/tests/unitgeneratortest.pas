@@ -34,7 +34,7 @@ begin
   // Then a new object is create
   //  and the className property matches the constructor parameter
 
-  tg := TOTUnitGenerator.Create('testdata/testgenerator.template', 'Fred');
+  tg := TOTUnitGenerator.Create('TEMPLATE_NEW_CLASS', 'Fred');
   try
     AssertEquals('Fred', tg.templateName);
   finally
@@ -51,7 +51,7 @@ begin
   // Then a new file is created
   //  and the file contents match the expected
 
-  tg := TOTUnitGenerator.Create('testdata/testgenerator.template', 'Fred');
+  tg := TOTUnitGenerator.Create('TEMPLATE_NEW_CLASS', 'Fred');
   try
     tg.Generate;
 

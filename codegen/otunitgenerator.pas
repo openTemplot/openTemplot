@@ -14,29 +14,30 @@ type
 
   TOTUnitGenerator = class
     private
-      FTemplateSource : string;
+      FTemplateResource : string;
       FTemplateName: string;
 
     public
-      constructor Create(const ATemplateSource: string; const ATemplateName: string);
+      constructor Create(const ATemplateResource: string; const ATemplateName: string);
       procedure Generate;
 
       property templateName: string read FTemplateName;
-      property templateSource: string read FTemplateSource;
+      property templateResource: string read FTemplateResource;
   end;
 
 implementation
 
 uses
+  OTCodeGenUtils,
   OTTemplateGenerator;
 
 { TOTUnitGenerator }
 
-constructor TOTUnitGenerator.Create(const ATemplateSource: string;const ATemplateName: string);
+constructor TOTUnitGenerator.Create(const ATemplateResource: string;const ATemplateName: string);
 begin
   inherited Create;
 
-  FTemplateSource := ATemplateSource;
+  FTemplateResource := ATemplateResource;
   FTemplateName := ATemplateName;
 end;
 
@@ -47,7 +48,7 @@ var
 begin
   generator := TOTTemplateGenerator.Create;
   try
-    generator.LoadTemplate(FTemplateSource);
+    generator.LoadTemplateFromResource(FTemplateResource);
 
     (generator['Name'] as TOTTemplateSubstitution).userValue := FTemplateName;
     (generator['Ancestor'] as TOTTemplateSubstitution).userValue := 'TOTPersistent';

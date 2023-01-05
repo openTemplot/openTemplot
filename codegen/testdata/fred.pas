@@ -8,31 +8,30 @@ uses
 
 
 {# class TFred
-+++
+---
+class: TFred
+attributes:
 ...
 }
 
 type
 
-  TFred = class( TOTPersistent )
+  TFred = class(TOTPersistent)
   private
     //# genMemberVars
     //# endGenMemberVars
 
-    //# genCollections
-    //# endGenCollections
-
   protected
 
-    procedure   RestoreAttributes( stream : TStream ); override;
-    procedure   SaveAttributes( stream : TStream ); override;
+    procedure   RestoreAttributes(AStream : TStream); override;
+    procedure   SaveAttributes(AStream : TStream); override;
 
     //# genGetSetDeclarations
     //# endGenGetSetDeclarations
 
   public
-    procedure   RestoreYamlAttribute( name, value : string ); override;
-    procedure   SaveYamlAttributes( xml : TAttributesImpl ); override;
+    procedure   RestoreYamlAttribute(AName, AValue : String; AIndex: Integer); override;
+    procedure   SaveYamlAttributes(AEmitter: TYamlEmitter); override;
 
     //# genProperty
     //# endGenProperty
@@ -50,14 +49,16 @@ var
 
 { TFred }
 
-procedure TFred.RestoreYamlAttribute( name, value : string );
+procedure TFred.RestoreYamlAttribute(AName, AValue : String; AIndex: Integer);
   begin
   //# genRestoreYamlVars
   //# endGenRestoreYamlVars
-  inherited;
+   inherited RestoreYamlAttribute(AName, AValue, AIndex);
   end;
 
-procedure TFred.RestoreAttributes( stream : TStream );
+procedure TFred.RestoreAttributes(AStream : TStream);
+  var
+    i: Integer;
   begin
   inherited;
 
@@ -65,18 +66,20 @@ procedure TFred.RestoreAttributes( stream : TStream );
   //# endGenRestoreVars
   end;
 
-procedure TFred.SaveAttributes( stream : TStream );
+procedure TFred.SaveAttributes(AStream : TStream);
+  var
+    i: Integer;
   begin
   inherited;
 
   //# genSaveVars
   //# endGenSaveVars
-
   end;
-
-procedure TFred.SaveYamlAttributes( xml : TAttributesImpl );
+  
+procedure TFred.SaveYamlAttributes(AEmitter : TYamlEmitter);
   begin
   inherited;
+  
   //# genSaveYamlVars
   //# endGenSaveYamlVars
   end;
@@ -87,5 +90,5 @@ procedure TFred.SaveYamlAttributes( xml : TAttributesImpl );
 initialization
   TFred.RegisterClass;
 
-  log := Logger.GetInstace('TFred');
+  log := Logger.GetInstance('TFred');
 end.
