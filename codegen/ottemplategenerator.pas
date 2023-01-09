@@ -57,6 +57,19 @@ type
     property userValue: Boolean Read FUserValue Write FUserValue;
   end;
 
+  TOTTemplateMultiSubstitution = class(TOTTemplateInput)
+  private
+    FUserValues: TStrings;
+
+  public
+    constructor Create(const AName: String);
+    destructor Destroy; override;
+
+    procedure Process(ALines: TStrings); override;
+
+    property userValues: TStrings Read FUserValues;
+  end;
+
   // Main class for handling templates
   TOTTemplateGenerator = class
   private
@@ -69,6 +82,7 @@ type
 
     procedure AddCondition(const AName: String; const ADefaultValue: String);
     procedure AddSub(const AName: String; const ADefaultValue: String);
+    procedure AddMultiSub(const AName: String);
     procedure ExtractOptions;
 
   public
@@ -125,6 +139,14 @@ begin
   FInputs.Add(newSub);
 end;
 
+procedure TOTTemplateGenerator.AddMultiSub(const AName: String);
+var
+  newMSub: TOTTemplateMultiSubstitution;
+begin
+  newMSub := TOTTemplateMultiSubstitution.Create(AName);
+  FInputs.Add(newMSub);
+end;
+
 procedure TOTTemplateGenerator.Clear;
 begin
   FreeAndNil(FTemplate);
@@ -179,6 +201,10 @@ begin
     else
     if StartsStr('condition', Value) then begin
       AddCondition(Name, Copy(Value, 11, Length(Value) - 10));
+    end
+    else
+    if StartsStr('msub', Value) then begin
+      AddMultiSub(Name);
     end;
   end;
 end;
@@ -366,6 +392,96 @@ begin
       ALines.Delete(i)
     else
       Inc(i);
+  end;
+end;
+
+constructor TOTTemplateMultiSubstitution.Create(const AName: String);
+begin
+  inherited Create(AName);
+
+  FUserValues := TStringList.Create;
+end;
+
+destructor TOTTemplateMultiSubstitution.Destroy;
+begin
+  FUserValues.Free;
+
+  inherited;
+end;
+
+procedure TOTTemplateMultiSubstitution.Process(ALines: TStrings);
+var
+  startText,
+  endText: String;
+  i: Integer;
+  line: String;
+  withinRepeat: Boolean;
+  removeLine: Boolean;
+  include: Boolean;
+  repeatLines: TStringList;
+  temp: TStringList;
+  v: String;
+  sub: TOTTemplateSubstitution;
+  newLine: String;
+begin
+  startText := DELIM + 'REPEAT ' + Name + DELIM;
+  endText := DELIM + 'ENDREPEAT ' + Name + DELIM;
+
+  repeatLines := TStringList.Create;
+  try
+    i := 0;
+    include := True;
+    withinRepeat := False;
+    while i < ALines.Count do begin
+      line := ALines[i];
+      removeLine := False;
+
+      if withinRepeat then begin
+        removeLine := true;
+        if line = endText then begin
+          for v in FUserValues do begin
+            temp := TStringList.Create;
+            try
+              temp.AddStrings(repeatLines);
+              sub := TOTTemplateSubstitution.Create(FName, '');
+              try
+                sub.userValue := v;
+                sub.Process(temp);
+
+                for newLine in temp do begin
+                  ALines.Insert(i, newLine);
+                  Inc(i);
+                end;
+
+              finally
+                sub.Free;
+              end;
+            finally
+              temp.Free;
+            end;
+          end;
+          withinRepeat := False;
+        end
+        else begin
+          repeatLines.Add(line);
+        end
+      end
+      else begin
+        if line = startText then begin
+          withinRepeat := True;
+          removeLine := True;
+          repeatLines.Clear;
+        end;
+      end;
+
+      if removeLine then
+        ALines.Delete(i)
+      else
+        Inc(i);
+    end;
+
+  finally
+    repeatLines.Free;
   end;
 end;
 

@@ -17,6 +17,7 @@ attributes:
     type: double
   - name: harry
     type: string
+    comment: A single line comment
 ...
 }
 
@@ -48,6 +49,8 @@ type
     //# genProperty
     property tom: Integer read FTom write SetTom;
     property dick: Double read FDick write SetDick;
+
+    // A single line comment
     property harry: String read FHarry write SetHarry;
     //# endGenProperty
   end;

@@ -17,6 +17,7 @@ attributes:
     type: double
   - name: harry
     type: string
+    comment: A single line comment
 ...
 }
 

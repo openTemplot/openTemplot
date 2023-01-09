@@ -44,9 +44,12 @@ type
       FIsString: boolean;
       FBounds: string;
       FIndexType: string;
+      FHasComment: boolean;
+      FComment: TStringList;
 
     public
       constructor Create;
+      destructor Destroy; override;
 
       procedure SetProperty(const AName, AValue: String);
 
@@ -57,6 +60,8 @@ type
       property isString: boolean read FIsString;
       property bounds: string read FBounds;
       property indexType: string read FIndexType;
+      property hasComment: boolean read FHasComment;
+      property comment: TStringList read FComment;
 
   end;
 
@@ -156,6 +161,15 @@ begin
   FIsDynamic := false;
   FBounds := '';
   FIndexType := 'integer';
+  FHasComment := false;
+  FComment := nil;
+end;
+
+destructor TAttribute.Destroy;
+begin
+  FComment.Free;
+
+  inherited;
 end;
 
 procedure TAttribute.SetProperty(const AName, AValue: String);
@@ -180,6 +194,12 @@ begin
          FIndexType := AValue;
        end;
      end;
+  end
+  else if AName = 'comment' then begin
+      FHasComment := true;
+      if not Assigned(FComment) then
+        FComment := TStringList.Create;
+      FComment.AddText(AValue);
   end
   else
     raise Exception.CreateFmt('unexpected attribute name/value-- %s: %s', [AName, AValue]);
@@ -590,6 +610,11 @@ begin
         t.LoadTemplateFromResource('TEMPLATE_PROPERTY_SIMPLE');
         (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
         (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+      end;
+
+      (t['HasComment'] as TOTTemplateCondition).userValue := attr.hasComment;
+      if (attr.hasComment) then begin
+        (t['Comment'] as TOTTemplateMultiSubstitution).userValues.SetStrings(attr.comment);
       end;
 
       t.Generate(result);

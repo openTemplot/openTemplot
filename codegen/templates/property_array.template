@@ -1,5 +1,13 @@
 Name=sub
 Type=sub
 IndexType=sub
+HasComment=condition
+Comment=msub
 ||
+|IF HasComment|
+
+|REPEAT Comment|
+    // |'Comment'|
+|ENDREPEAT Comment|
+|ENDIF HasComment|
     property |name|[AIndex: |IndexType|]: |Type| read Get|Name| write Set|Name|;

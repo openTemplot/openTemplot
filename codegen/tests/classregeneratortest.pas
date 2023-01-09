@@ -239,10 +239,12 @@ begin
     s := cg.GeneratePropertyDeclarations;
 
     // Then
-    AssertEquals(3, s.Count);
+    AssertEquals(5, s.Count);
     AssertEquals('    property tom: Integer read FTom write SetTom;', s[0]);
     AssertEquals('    property dick: Double read FDick write SetDick;', s[1]);
-    AssertEquals('    property harry: String read FHarry write SetHarry;', s[2]);
+    AssertEquals('', s[2]);
+    AssertEquals('    // A single line comment', s[3]);
+    AssertEquals('    property harry: String read FHarry write SetHarry;', s[4]);
   finally
     cg.Free;
     s.Free;
@@ -571,10 +573,16 @@ procedure TTestClassRegenerator.TestGeneratePropertyDeclarationsCollections;
       s := cg.GeneratePropertyDeclarations;
 
       // Then
-      AssertEquals(3, s.Count);
-      AssertEquals('    property tom[AIndex: Integer]: Integer read GetTom write SetTom;', s[0]);
-      AssertEquals('    property dick[AIndex: Integer]: Double read GetDick write SetDick;', s[1]);
-      AssertEquals('    property harry[AIndex: ESpecialEnum]: String read GetHarry write SetHarry;', s[2]);
+      AssertEquals(9, s.Count);
+      AssertEquals('', s[0]);
+      AssertEquals('    // A single line comment', s[1]);
+      AssertEquals('    property tom[AIndex: Integer]: Integer read GetTom write SetTom;', s[2]);
+      AssertEquals('', s[3]);
+      AssertEquals('    // A multi-line comment', s[4]);
+      AssertEquals('    // about Dick!', s[5]);
+      AssertEquals('    // (not necessarily very complimentary)', s[6]);
+      AssertEquals('    property dick[AIndex: Integer]: Double read GetDick write SetDick;', s[7]);
+      AssertEquals('    property harry[AIndex: ESpecialEnum]: String read GetHarry write SetHarry;', s[8]);
     finally
       cg.Free;
       s.Free;

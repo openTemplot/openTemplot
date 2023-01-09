@@ -14,9 +14,14 @@ attributes:
   - name: tom
     type: integer
     array: dynamic
+    comment: A single line comment
   - name: dick
     type: double
     array: 0..maxCount
+    comment: |
+      A multi-line comment
+      about Dick!
+      (not necessarily very complimentary)
   - name: harry
     type: string
     array: ESpecialEnum

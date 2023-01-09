@@ -3,6 +3,8 @@ Ancestor=sub
 ||
 unit |Name|;
 
+{$MODE Delphi}
+
 interface
 
 uses
