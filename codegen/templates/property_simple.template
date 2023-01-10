@@ -6,7 +6,7 @@ Comment=msub
 |IF HasComment|
 
 |REPEAT Comment|
-    // |Comment|
+    // |'Comment'|
 |ENDREPEAT Comment|
 |ENDIF HasComment|
     property |name|: |Type| read F|Name| write Set|Name|;
