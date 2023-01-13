@@ -9,3 +9,4 @@ IsDynamic=condition
   SaveYamlSequence(AEmitter, '|name|');
   for i := Ord(Low(F|Name|)) to Ord(High(F|Name|)) do
     SaveYamlSequence|Type|(AEmitter, F|Name|[|IndexType|(i)]);
+  SaveYamlEndSequence(AEmitter);

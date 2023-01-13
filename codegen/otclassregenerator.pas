@@ -677,6 +677,7 @@ begin
         t.LoadTemplateFromResource('TEMPLATE_RESTORE_VARS');
         (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
         (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+        (t['IsString'] as TOTTemplateCondition).userValue := attr.isString;
       end;
 
       t.Generate(result);
@@ -709,6 +710,7 @@ begin
       t.LoadTemplateFromResource('TEMPLATE_SAVE_VARS');
       (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
       (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+      (t['IsString'] as TOTTemplateCondition).userValue := attr.isString;
     end;
 
     t.Generate(result);

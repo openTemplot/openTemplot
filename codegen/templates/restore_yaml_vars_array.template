@@ -5,7 +5,7 @@ IsDynamic=condition
 ||
 |IF IsDynamic|
   if AName = '|name|-length' then
-    SetLength(F|Name|, StrToInteger(AValue)
+    SetLength(F|Name|, StrToInteger(AValue))
   else
 |ENDIF IsDynamic|
   if AName = '|name|' then

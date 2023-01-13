@@ -9,7 +9,8 @@ interface
 
 uses
   Classes,
-  SysUtils;
+  SysUtils,
+  OTPersistent;
 
 
 {# class T|Name|
@@ -35,6 +36,9 @@ type
     //# endGenGetSetDeclarations
 
   public
+    constructor Create(AParent: TOTPersistent); override;
+    destructor Destroy; override;
+
     procedure   RestoreYamlAttribute(AName, AValue : String; AIndex: Integer); override;
     procedure   SaveYamlAttributes(AEmitter: TYamlEmitter); override;
 
@@ -53,6 +57,16 @@ var
 
 
 { T|Name| }
+
+constructor T|Name|.Create(AParent: TOTPersistent);
+begin
+  inherited Create(AParent);
+end;
+
+destructor T|Name|.Destroy;
+begin
+  inherited;
+end;
 
 procedure T|Name|.RestoreYamlAttribute(AName, AValue : String; AIndex: Integer);
   begin
@@ -82,6 +96,8 @@ procedure T|Name|.SaveAttributes(AStream : TStream);
   end;
   
 procedure T|Name|.SaveYamlAttributes(AEmitter : TYamlEmitter);
+  var
+    i: Integer;
   begin
   inherited;
   

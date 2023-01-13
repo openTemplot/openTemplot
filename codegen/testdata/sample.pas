@@ -88,9 +88,9 @@ procedure TSample.RestoreAttributes(AStream : TStream);
   inherited;
 
   //# genRestoreVars
-  RestoreInteger(AStream, FTom);
-  RestoreDouble(AStream, FDick);
-  RestoreString(AStream, FHarry);
+  AStream.ReadBuffer(FTom, sizeof(Integer));
+  AStream.ReadBuffer(FDick, sizeof(Double));
+  FHarry := AStream.ReadAnsiString;
   //# endGenRestoreVars
   end;
 
@@ -99,9 +99,9 @@ procedure TSample.SaveAttributes(AStream : TStream);
   inherited;
 
   //# genSaveVars
-  SaveInteger(AStream, FTom);
-  SaveDouble(AStream, FDick);
-  SaveString(AStream, FHarry);
+  AStream.WriteBuffer(FTom, sizeof(Integer));
+  AStream.WriteBuffer(FDick, sizeof(Double));
+  AStream.WriteAnsiString(FHarry);
   //# endGenSaveVars
 
   end;

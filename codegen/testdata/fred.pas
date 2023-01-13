@@ -1,10 +1,13 @@
 unit Fred;
 
+{$MODE Delphi}
+
 interface
 
 uses
   Classes,
-  SysUtils;
+  SysUtils,
+  OTPersistent;
 
 
 {# class TFred
@@ -30,6 +33,9 @@ type
     //# endGenGetSetDeclarations
 
   public
+    constructor Create(AParent: TOTPersistent); override;
+    destructor Destroy; override;
+
     procedure   RestoreYamlAttribute(AName, AValue : String; AIndex: Integer); override;
     procedure   SaveYamlAttributes(AEmitter: TYamlEmitter); override;
 
@@ -48,6 +54,16 @@ var
 
 
 { TFred }
+
+constructor TFred.Create(AParent: TOTPersistent);
+begin
+  inherited Create(AParent);
+end;
+
+destructor TFred.Destroy;
+begin
+  inherited;
+end;
 
 procedure TFred.RestoreYamlAttribute(AName, AValue : String; AIndex: Integer);
   begin
@@ -77,6 +93,8 @@ procedure TFred.SaveAttributes(AStream : TStream);
   end;
   
 procedure TFred.SaveYamlAttributes(AEmitter : TYamlEmitter);
+  var
+    i: Integer;
   begin
   inherited;
   

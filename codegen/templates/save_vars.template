@@ -1,4 +1,9 @@
 Name=sub
 Type=sub
+IsString=condition
 ||
-  Save|Type|(AStream, F|Name|);
+|IF IsString|
+  AStream.WriteAnsiString(F|Name|);
+|ELSE IsString|
+  AStream.WriteBuffer(F|Name|, sizeof(|Type|));
+|ENDIF IsString|

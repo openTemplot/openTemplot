@@ -308,9 +308,9 @@ begin
 
     // Then
     AssertEquals(3, s.Count);
-    AssertEquals('  RestoreInteger(AStream, FTom);', s[0]);
-    AssertEquals('  RestoreDouble(AStream, FDick);', s[1]);
-    AssertEquals('  RestoreString(AStream, FHarry);', s[2]);
+    AssertEquals('  AStream.ReadBuffer(FTom, sizeof(Integer));', s[0]);
+    AssertEquals('  AStream.ReadBuffer(FDick, sizeof(Double));', s[1]);
+    AssertEquals('  FHarry := AStream.ReadAnsiString;', s[2]);
   finally
     cg.Free;
     s.Free;
@@ -339,9 +339,9 @@ begin
 
     // Then
     AssertEquals(3, s.Count);
-    AssertEquals('  SaveInteger(AStream, FTom);', s[0]);
-    AssertEquals('  SaveDouble(AStream, FDick);', s[1]);
-    AssertEquals('  SaveString(AStream, FHarry);', s[2]);
+    AssertEquals('  AStream.WriteBuffer(FTom, sizeof(Integer));', s[0]);
+    AssertEquals('  AStream.WriteBuffer(FDick, sizeof(Double));', s[1]);
+    AssertEquals('  AStream.WriteAnsiString(FHarry);', s[2]);
   finally
     cg.Free;
     s.Free;
@@ -611,7 +611,7 @@ begin
     // Then
     AssertEquals(12, s.Count);
     AssertEquals('  if AName = ''tom-length'' then', s[0]);
-    AssertEquals('    SetLength(FTom, StrToInteger(AValue)', s[1]);
+    AssertEquals('    SetLength(FTom, StrToInteger(AValue))', s[1]);
     AssertEquals('  else', s[2]);
     AssertEquals('  if AName = ''tom'' then', s[3]);
     AssertEquals('    FTom[Integer(Ord(Low(FTom))+AIndex)] := StrToInteger(AValue)', s[4]);
@@ -712,17 +712,20 @@ begin
     s := cg.GenerateSaveYamlVars;
 
     // Then
-    AssertEquals(10, s.Count);
+    AssertEquals(13, s.Count);
     AssertEquals('  SaveYamlInteger(AEmitter, ''tom-length'', Length(FTom));', s[0]);
     AssertEquals('  SaveYamlSequence(AEmitter, ''tom'');', s[1]);
     AssertEquals('  for i := Ord(Low(FTom)) to Ord(High(FTom)) do', s[2]);
     AssertEquals('    SaveYamlSequenceInteger(AEmitter, FTom[Integer(i)]);', s[3]);
-    AssertEquals('  SaveYamlSequence(AEmitter, ''dick'');', s[4]);
-    AssertEquals('  for i := Ord(Low(FDick)) to Ord(High(FDick)) do', s[5]);
-    AssertEquals('    SaveYamlSequenceDouble(AEmitter, FDick[Integer(i)]);', s[6]);
-    AssertEquals('  SaveYamlSequence(AEmitter, ''harry'');', s[7]);
-    AssertEquals('  for i := Ord(Low(FHarry)) to Ord(High(FHarry)) do', s[8]);
-    AssertEquals('    SaveYamlSequenceString(AEmitter, FHarry[ESpecialEnum(i)]);', s[9]);
+    AssertEquals('  SaveYamlEndSequence(AEmitter);', s[4]);
+    AssertEquals('  SaveYamlSequence(AEmitter, ''dick'');', s[5]);
+    AssertEquals('  for i := Ord(Low(FDick)) to Ord(High(FDick)) do', s[6]);
+    AssertEquals('    SaveYamlSequenceDouble(AEmitter, FDick[Integer(i)]);', s[7]);
+    AssertEquals('  SaveYamlEndSequence(AEmitter);', s[8]);
+    AssertEquals('  SaveYamlSequence(AEmitter, ''harry'');', s[9]);
+    AssertEquals('  for i := Ord(Low(FHarry)) to Ord(High(FHarry)) do', s[10]);
+    AssertEquals('    SaveYamlSequenceString(AEmitter, FHarry[ESpecialEnum(i)]);', s[11]);
+    AssertEquals('  SaveYamlEndSequence(AEmitter);', s[12]);
   finally
     cg.Free;
     s.Free;
