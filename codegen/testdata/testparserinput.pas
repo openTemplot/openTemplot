@@ -28,6 +28,9 @@ type
     //# endGenGetSetDeclarations
 
   public
+    //# genPublicDeclarations
+    //# endGenPublicDeclarations
+
     procedure   RestoreYamlAttribute( name, value : string ); override;
     procedure   SaveYamlAttributes( xml : TAttributesImpl ); override;
 

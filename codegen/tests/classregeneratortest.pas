@@ -15,11 +15,17 @@ uses
 type
   TTestableClassRegenerator = class(TOTClassRegenerator);
 
+  { TTestClassRegenerator }
+
   TTestClassRegenerator = class(TTestCase)
+  private
+    procedure AssertEquals(const expected: TArray<string>; actual: TStrings); overload;
+
   published
     procedure TestLoadInput;
     procedure TestParseInput;
     procedure TestParseYaml;
+    procedure TestParseYamlCollectionOperations;
 
     procedure TestGenerateMemberVars;
     procedure TestGenerateGetSetDeclarations;
@@ -42,6 +48,9 @@ type
     procedure TestGenerateSaveYamlVarsCollections;
     procedure TestGenerateGetSetMethodsCollections;
 
+    procedure TestGeneratePublicDeclarations;
+    procedure TestGenerateGetSetMethodsCollectionOperations;
+
 
   end;
 
@@ -49,6 +58,16 @@ implementation
 
 uses
   FileUtil;
+
+procedure TTestClassRegenerator.AssertEquals(const expected: TArray<string>; actual: TStrings);
+var
+  i: Integer;
+begin
+  AssertEquals(Length(expected), actual.Count);
+  for i := 0 to High(expected) do begin
+    AssertEquals(expected[i], actual[i]);
+  end;
+end;
 
 procedure TTestClassRegenerator.TestLoadInput;
 var
@@ -84,7 +103,7 @@ begin
   cg := TTestableClassRegenerator.Create('testdata/testparserinput.pas');
   try
      cg.LoadInput;
-     AssertEquals( 88, cg.input.Count );
+     AssertEquals( 91, cg.input.Count );
 
      // When...
      cg.ParseInput;
@@ -102,29 +121,33 @@ begin
      AssertEquals('blocks[biGetSetDeclarations].startLine', 27, cg.blocks[biGetSetDeclarations].startLine);
      AssertEquals('blocks[biGetSetDeclarations].followingLine', 27, cg.blocks[biGetSetDeclarations].followingLine);
 
+     AssertNotNull('blocks[biPublicDeclarations]', cg.blocks[biPublicDeclarations]);
+     AssertEquals('blocks[biPublicDeclarations].startLine', 31, cg.blocks[biPublicDeclarations].startLine);
+     AssertEquals('blocks[biPublicDeclarations].followingLine', 31, cg.blocks[biPublicDeclarations].followingLine);
+
      AssertNotNull('blocks[biProperty]', cg.blocks[biProperty]);
-     AssertEquals('blocks[biProperty].startLine', 34, cg.blocks[biProperty].startLine);
-     AssertEquals('blocks[biProperty].followingLine', 34, cg.blocks[biProperty].followingLine);
+     AssertEquals('blocks[biProperty].startLine', 37, cg.blocks[biProperty].startLine);
+     AssertEquals('blocks[biProperty].followingLine', 37, cg.blocks[biProperty].followingLine);
 
      AssertNotNull('blocks[biRestoreYamlVars]', cg.blocks[biRestoreYamlVars]);
-     AssertEquals('blocks[biRestoreYamlVars].startLine', 52, cg.blocks[biRestoreYamlVars].startLine);
-     AssertEquals('blocks[biRestoreYamlVars].followingLine', 52, cg.blocks[biRestoreYamlVars].followingLine);
+     AssertEquals('blocks[biRestoreYamlVars].startLine', 55, cg.blocks[biRestoreYamlVars].startLine);
+     AssertEquals('blocks[biRestoreYamlVars].followingLine', 55, cg.blocks[biRestoreYamlVars].followingLine);
 
      AssertNotNull('blocks[biRestoreVars]', cg.blocks[biRestoreVars]);
-     AssertEquals('blocks[biRestoreVars].startLine', 61, cg.blocks[biRestoreVars].startLine);
-     AssertEquals('blocks[biRestoreVars].followingLine', 61, cg.blocks[biRestoreVars].followingLine);
+     AssertEquals('blocks[biRestoreVars].startLine', 64, cg.blocks[biRestoreVars].startLine);
+     AssertEquals('blocks[biRestoreVars].followingLine', 64, cg.blocks[biRestoreVars].followingLine);
 
      AssertNotNull('blocks[biSaveVars]', cg.blocks[biSaveVars]);
-     AssertEquals('blocks[biSaveVars].startLine', 69, cg.blocks[biSaveVars].startLine);
-     AssertEquals('blocks[biSaveVars].followingLine', 69, cg.blocks[biSaveVars].followingLine);
+     AssertEquals('blocks[biSaveVars].startLine', 72, cg.blocks[biSaveVars].startLine);
+     AssertEquals('blocks[biSaveVars].followingLine', 72, cg.blocks[biSaveVars].followingLine);
 
      AssertNotNull('blocks[biSaveYamlVars]', cg.blocks[biSaveYamlVars]);
-     AssertEquals('blocks[biSaveYamlVars].startLine', 77, cg.blocks[biSaveYamlVars].startLine);
-     AssertEquals('blocks[biSaveYamlVars].followingLine', 77, cg.blocks[biSaveYamlVars].followingLine);
+     AssertEquals('blocks[biSaveYamlVars].startLine', 80, cg.blocks[biSaveYamlVars].startLine);
+     AssertEquals('blocks[biSaveYamlVars].followingLine', 80, cg.blocks[biSaveYamlVars].followingLine);
 
      AssertNotNull('blocks[biGetSetMethods]', cg.blocks[biGetSetMethods]);
-     AssertEquals('blocks[biGetSetMethods].startLine', 81, cg.blocks[biGetSetMethods].startLine);
-     AssertEquals('blocks[biGetSetMethods].followingLine', 81, cg.blocks[biGetSetMethods].followingLine);
+     AssertEquals('blocks[biGetSetMethods].startLine', 84, cg.blocks[biGetSetMethods].startLine);
+     AssertEquals('blocks[biGetSetMethods].followingLine', 84, cg.blocks[biGetSetMethods].followingLine);
 
   finally
     cg.Free;
@@ -153,6 +176,45 @@ begin
      AssertEquals('#0', false, cg.attribute[0].isCollection);
      AssertEquals('#1', false, cg.attribute[1].isCollection);
      AssertEquals('#2', false, cg.attribute[2].isCollection);
+  finally
+    cg.Free;
+  end;
+
+end;
+
+procedure TTestClassRegenerator.TestParseYamlCollectionOperations;
+var
+  cg: TTestableClassRegenerator;
+begin
+  // Given sample input with attribute containing a sequence of values
+  // When ParseYaml is called
+  // Then all the attributes are created with the values populated
+
+  cg := TTestableClassRegenerator.Create('testdata/testparseyaml_collection_operations.pas');
+  try
+     cg.LoadInput;
+     cg.ParseInput;
+
+     // When...
+     cg.ParseYaml;
+
+     // Then...
+     AssertEquals(3, cg.attributeCount);
+     AssertEquals('#0', true, cg.attribute[0].isCollection);
+     AssertEquals('#1', true, cg.attribute[1].isCollection);
+     AssertEquals('#2', true, cg.attribute[2].isCollection);
+
+     AssertTrue(opAdd in cg.attribute[0].operations);
+     AssertTrue(opDelete in cg.attribute[0].operations);
+     AssertTrue(opClear in cg.attribute[0].operations);
+
+     AssertTrue(opAdd in cg.attribute[1].operations);
+     AssertFalse(opDelete in cg.attribute[1].operations);
+     AssertFalse(opClear in cg.attribute[1].operations);
+
+     AssertTrue(opAdd in cg.attribute[2].operations);
+     AssertFalse(opDelete in cg.attribute[2].operations);
+     AssertTrue(opClear in cg.attribute[2].operations);
   finally
     cg.Free;
   end;
@@ -540,13 +602,14 @@ end;
       s := cg.GenerateGetSetDeclarations;
 
       // Then
-      AssertEquals(6, s.Count);
+      AssertEquals(7, s.Count);
       AssertEquals('    function GetTom(AIndex: Integer): Integer;', s[0]);
-      AssertEquals('    function GetDick(AIndex: Integer): Double;', s[1]);
-      AssertEquals('    function GetHarry(AIndex: ESpecialEnum): String;', s[2]);
-      AssertEquals('    procedure SetTom(AIndex: Integer; const AValue: Integer);', s[3]);
-      AssertEquals('    procedure SetDick(AIndex: Integer; const AValue: Double);', s[4]);
-      AssertEquals('    procedure SetHarry(AIndex: ESpecialEnum; const AValue: String);', s[5]);
+      AssertEquals('    function GetTomCount: Integer;', s[1]);
+      AssertEquals('    function GetDick(AIndex: Integer): Double;', s[2]);
+      AssertEquals('    function GetHarry(AIndex: ESpecialEnum): String;', s[3]);
+      AssertEquals('    procedure SetTom(AIndex: Integer; const AValue: Integer);', s[4]);
+      AssertEquals('    procedure SetDick(AIndex: Integer; const AValue: Double);', s[5]);
+      AssertEquals('    procedure SetHarry(AIndex: ESpecialEnum; const AValue: String);', s[6]);
     finally
       cg.Free;
       s.Free;
@@ -557,6 +620,19 @@ procedure TTestClassRegenerator.TestGeneratePropertyDeclarationsCollections;
   var
     cg: TTestableClassRegenerator;
     s: TStringList;
+  const
+    expected: TArray<string> = [
+      '',
+      '    // A single line comment',
+      '    property tom[AIndex: Integer]: Integer read GetTom write SetTom;',
+      '    property tomCount: Integer read GetTomCount;',
+      '',
+      '    // A multi-line comment',
+      '    // about Dick!',
+      '    // (not necessarily very complimentary)',
+      '    property dick[AIndex: Integer]: Double read GetDick write SetDick;',
+      '    property harry[AIndex: ESpecialEnum]: String read GetHarry write SetHarry;'
+    ];
   begin
     // Given a regen object with collection attributes
     // When GeneratePropertyDeclarations is called
@@ -573,16 +649,7 @@ procedure TTestClassRegenerator.TestGeneratePropertyDeclarationsCollections;
       s := cg.GeneratePropertyDeclarations;
 
       // Then
-      AssertEquals(9, s.Count);
-      AssertEquals('', s[0]);
-      AssertEquals('    // A single line comment', s[1]);
-      AssertEquals('    property tom[AIndex: Integer]: Integer read GetTom write SetTom;', s[2]);
-      AssertEquals('', s[3]);
-      AssertEquals('    // A multi-line comment', s[4]);
-      AssertEquals('    // about Dick!', s[5]);
-      AssertEquals('    // (not necessarily very complimentary)', s[6]);
-      AssertEquals('    property dick[AIndex: Integer]: Double read GetDick write SetDick;', s[7]);
-      AssertEquals('    property harry[AIndex: ESpecialEnum]: String read GetHarry write SetHarry;', s[8]);
+      AssertEquals(expected, s);
     finally
       cg.Free;
       s.Free;
@@ -736,6 +803,60 @@ procedure TTestClassRegenerator.TestGenerateGetSetMethodsCollections;
 var
   cg: TTestableClassRegenerator;
   s: TStringList;
+const
+  expected: TArray<string> = [
+    '// GENERATED METHOD - DO NOT EDIT',
+    'function TSample.GetTom(AIndex: Integer): Integer;',
+    'begin',
+    '  Result := FTom[AIndex];',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'procedure TSample.SetTom(AIndex: Integer; const AValue: Integer);',
+    'begin',
+    '  if AValue <> FTom[AIndex] then begin',
+    '    SetModified;',
+    '    FTom[AIndex] := AValue;',
+    '  end;',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'function TSample.GetTomCount: Integer;',
+    'begin',
+    '  Result := Length(FTom);',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'function TSample.GetDick(AIndex: Integer): Double;',
+    'begin',
+    '  Result := FDick[AIndex];',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'procedure TSample.SetDick(AIndex: Integer; const AValue: Double);',
+    'begin',
+    '  if AValue <> FDick[AIndex] then begin',
+    '    SetModified;',
+    '    FDick[AIndex] := AValue;',
+    '  end;',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'function TSample.GetHarry(AIndex: ESpecialEnum): String;',
+    'begin',
+    '  Result := FHarry[AIndex];',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'procedure TSample.SetHarry(AIndex: ESpecialEnum; const AValue: String);',
+    'begin',
+    '  if AValue <> FHarry[AIndex] then begin',
+    '    SetModified;',
+    '    FHarry[AIndex] := AValue;',
+    '  end;',
+    'end;',
+    ''
+  ];
 begin
   // Given a regen object with collection attributes
   // When GenerateGetSetMethods is called
@@ -752,52 +873,184 @@ begin
     s := cg.GenerateGetSetMethods;
 
     // Then
-    AssertEquals(45, s.Count);
-    AssertEquals('// GENERATED METHOD - DO NOT EDIT', s[0]);
-    AssertEquals('function TSample.GetTom(AIndex: Integer): Integer;', s[1]);
-    AssertEquals('begin', s[2]);
-    AssertEquals('  Result := FTom[AIndex];', s[3]);
-    AssertEquals('end;', s[4]);
-    AssertEquals('', s[5]);
-    AssertEquals('// GENERATED METHOD - DO NOT EDIT', s[6]);
-    AssertEquals('function TSample.GetDick(AIndex: Integer): Double;', s[7]);
-    AssertEquals('begin', s[8]);
-    AssertEquals('  Result := FDick[AIndex];', s[9]);
-    AssertEquals('end;', s[10]);
-    AssertEquals('', s[11]);
-    AssertEquals('// GENERATED METHOD - DO NOT EDIT', s[12]);
-    AssertEquals('function TSample.GetHarry(AIndex: ESpecialEnum): String;', s[13]);
-    AssertEquals('begin', s[14]);
-    AssertEquals('  Result := FHarry[AIndex];', s[15]);
-    AssertEquals('end;', s[16]);
-    AssertEquals('', s[17]);
-    AssertEquals('// GENERATED METHOD - DO NOT EDIT', s[18]);
-    AssertEquals('procedure TSample.SetTom(AIndex: Integer; const AValue: Integer);', s[19]);
-    AssertEquals('begin', s[20]);
-    AssertEquals('  if AValue <> FTom[AIndex] then begin', s[21]);
-    AssertEquals('    SetModified;', s[22]);
-    AssertEquals('    FTom[AIndex] := AValue;', s[23]);
-    AssertEquals('  end;', s[24]);
-    AssertEquals('end;', s[25]);
-    AssertEquals('', s[26]);
-    AssertEquals('// GENERATED METHOD - DO NOT EDIT', s[27]);
-    AssertEquals('procedure TSample.SetDick(AIndex: Integer; const AValue: Double);', s[28]);
-    AssertEquals('begin', s[29]);
-    AssertEquals('  if AValue <> FDick[AIndex] then begin', s[30]);
-    AssertEquals('    SetModified;', s[31]);
-    AssertEquals('    FDick[AIndex] := AValue;', s[32]);
-    AssertEquals('  end;', s[33]);
-    AssertEquals('end;', s[34]);
-    AssertEquals('', s[35]);
-    AssertEquals('// GENERATED METHOD - DO NOT EDIT', s[36]);
-    AssertEquals('procedure TSample.SetHarry(AIndex: ESpecialEnum; const AValue: String);', s[37]);
-    AssertEquals('begin', s[38]);
-    AssertEquals('  if AValue <> FHarry[AIndex] then begin', s[39]);
-    AssertEquals('    SetModified;', s[40]);
-    AssertEquals('    FHarry[AIndex] := AValue;', s[41]);
-    AssertEquals('  end;', s[42]);
-    AssertEquals('end;', s[43]);
-    AssertEquals('', s[44]);
+    AssertEquals(expected, s);
+  finally
+    cg.Free;
+    s.Free;
+  end;
+end;
+
+procedure TTestClassRegenerator.TestGeneratePublicDeclarations;
+var
+  cg: TTestableClassRegenerator;
+  s: TStringList;
+const
+  expected: TArray<string> = [
+    '    function AddTom(AValue: Integer): Integer;',
+    '    procedure DeleteTom(AIndex: Integer);',
+    '    procedure ClearTom;',
+    '    function AddDick(AValue: Double): Integer;',
+    '    function AddHarry(AValue: String): Integer;',
+    '    procedure ClearHarry;'
+  ];
+begin
+  // Given a regen object with collection attributes
+  // When GeneratePropertyDeclarations is called
+  // Then the expected text is returned
+
+  s := nil;
+  cg := TTestableClassRegenerator.Create('testdata/testparseyaml_collection_operations.pas');
+  try
+    cg.LoadInput;
+    cg.ParseInput;
+    cg.ParseYaml;
+
+    // When...
+    s := cg.GeneratePublicDeclarations;
+
+    // Then
+    AssertEquals(expected, s);
+  finally
+    cg.Free;
+    s.Free;
+  end;
+end;
+
+procedure TTestClassRegenerator.TestGenerateGetSetMethodsCollectionOperations;
+var
+  cg: TTestableClassRegenerator;
+  s: TStringList;
+const
+  expected: TArray<string> = [
+    '// GENERATED METHOD - DO NOT EDIT',
+    'function TSample.GetTom(AIndex: Integer): Integer;',
+    'begin',
+    '  Result := FTom[AIndex];',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'procedure TSample.SetTom(AIndex: Integer; const AValue: Integer);',
+    'begin',
+    '  if AValue <> FTom[AIndex] then begin',
+    '    SetModified;',
+    '    FTom[AIndex] := AValue;',
+    '  end;',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'function TSample.GetTomCount: Integer;',
+    'begin',
+    '  Result := Length(FTom);',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'function TSample.AddTom(AValue: Integer): Integer;',
+    'begin',
+    '  SetModified;',
+    '  SetLength(FTom, Length(FTom) + 1);',
+    '  FTom[High(FTom)] := AValue;',
+    '  Result := High(FTom);',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'procedure TSample.DeleteTom(AIndex: Integer);',
+    'begin',
+    '  SetModified;',
+    '  Delete(FTom, AIndex, 1);',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'procedure TSample.ClearTom;',
+    'begin',
+    '  SetModified;',
+    '  SetLength(FTom, 0);',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'function TSample.GetDick(AIndex: Integer): Double;',
+    'begin',
+    '  Result := FDick[AIndex];',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'procedure TSample.SetDick(AIndex: Integer; const AValue: Double);',
+    'begin',
+    '  if AValue <> FDick[AIndex] then begin',
+    '    SetModified;',
+    '    FDick[AIndex] := AValue;',
+    '  end;',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'function TSample.GetDickCount: Integer;',
+    'begin',
+    '  Result := Length(FDick);',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'function TSample.AddDick(AValue: Double): Integer;',
+    'begin',
+    '  SetModified;',
+    '  SetLength(FDick, Length(FDick) + 1);',
+    '  FDick[High(FDick)] := AValue;',
+    '  Result := High(FDick);',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'function TSample.GetHarry(AIndex: Integer): String;',
+    'begin',
+    '  Result := FHarry[AIndex];',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'procedure TSample.SetHarry(AIndex: Integer; const AValue: String);',
+    'begin',
+    '  if AValue <> FHarry[AIndex] then begin',
+    '    SetModified;',
+    '    FHarry[AIndex] := AValue;',
+    '  end;',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'function TSample.GetHarryCount: Integer;',
+    'begin',
+    '  Result := Length(FHarry);',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'function TSample.AddHarry(AValue: String): Integer;',
+    'begin',
+    '  SetModified;',
+    '  SetLength(FHarry, Length(FHarry) + 1);',
+    '  FHarry[High(FHarry)] := AValue;',
+    '  Result := High(FHarry);',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'procedure TSample.ClearHarry;',
+    'begin',
+    '  SetModified;',
+    '  SetLength(FHarry, 0);',
+    'end;',
+    ''
+  ];
+begin
+  // Given a regen object with collection attributes
+  // When GenerateGetSetMethods is called
+  // Then the expected text is returned
+
+  s := nil;
+  cg := TTestableClassRegenerator.Create('testdata/testparseyaml_collection_operations.pas');
+  try
+    cg.LoadInput;
+    cg.ParseInput;
+    cg.ParseYaml;
+
+    // When...
+    s := cg.GenerateGetSetMethods;
+
+    // Then
+    AssertEquals(expected, s);
   finally
     cg.Free;
     s.Free;

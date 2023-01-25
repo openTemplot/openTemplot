@@ -1,0 +1,15 @@
+Name=sub
+Type=sub
+HasAdd=condition
+HasDelete=condition
+HasClear=condition
+||
+|IF HasAdd|
+    function Add|Name|(AValue: |Type|): Integer;
+|ENDIF HasAdd|
+|IF HasDelete|
+    procedure Delete|Name|(AIndex: Integer);
+|ENDIF HasDelete|
+|IF HasClear|
+    procedure Clear|Name|;
+|ENDIF HasClear|

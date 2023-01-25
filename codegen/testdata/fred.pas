@@ -36,6 +36,9 @@ type
     constructor Create(AParent: TOTPersistent); override;
     destructor Destroy; override;
 
+    //# genPublicDeclarations
+    //# endGenPublicDeclarations
+
     procedure   RestoreYamlAttribute(AName, AValue : String; AIndex: Integer); override;
     procedure   SaveYamlAttributes(AEmitter: TYamlEmitter); override;
 

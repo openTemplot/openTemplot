@@ -27,6 +27,7 @@ type
     biClassYaml,
     biMemberVars,
     biGetSetDeclarations,
+    biPublicDeclarations,
     biProperty,
     biRestoreYamlVars,
     biRestoreVars,
@@ -34,6 +35,9 @@ type
     biSaveYamlVars,
     biGetSetMethods
   );
+
+  TOperation = (opAdd, opDelete, opClear);
+  TOperationSet = set of TOperation;
 
   TAttribute = class
     private
@@ -46,12 +50,14 @@ type
       FIndexType: string;
       FHasComment: boolean;
       FComment: TStringList;
+      FOperations: TOperationSet;
 
     public
       constructor Create;
       destructor Destroy; override;
 
-      procedure SetProperty(const AName, AValue: String);
+      procedure SetProperty(const AName, AValue: String); overload;
+      procedure SetProperty(const AName: String; const AValues: TArray<String>); overload;
 
       property name: string read FName;
       property typeName: string read FTypeName;
@@ -62,6 +68,7 @@ type
       property indexType: string read FIndexType;
       property hasComment: boolean read FHasComment;
       property comment: TStringList read FComment;
+      property operations: TOperationSet read FOperations;
 
   end;
 
@@ -89,6 +96,7 @@ type
 
     function GenerateMemberVars: TStringList;
     function GenerateGetSetDeclarations: TStringList;
+    function GeneratePublicDeclarations: TStringList;
     function GeneratePropertyDeclarations: TStringList;
     function GenerateRestoreYamlVars: TStringList;
     function GenerateRestoreVars: TStringList;
@@ -122,6 +130,7 @@ const
     '',
     'MemberVars',
     'GetSetDeclarations',
+    'PublicDeclarations',
     'Property',
     'RestoreYamlVars',
     'RestoreVars',
@@ -203,6 +212,28 @@ begin
   end
   else
     raise Exception.CreateFmt('unexpected attribute name/value-- %s: %s', [AName, AValue]);
+end;
+
+procedure TAttribute.SetProperty(const AName: String; const AValues: TArray<String>);
+var
+  i: Integer;
+begin
+  if AName = 'operations' then begin
+    FOperations := [];
+    for i := 0 to High(AValues) do begin
+      if AValues[i] = 'add' then
+        Include(FOperations, opAdd)
+      else if AVAlues[i] = 'delete' then
+        Include(FOperations, opDelete)
+      else if AValues[i] = 'clear' then
+        Include(FOperations, opClear)
+      else
+        raise Exception.CreateFmt('unexpected operation value -- %s', [AValues[i]]);
+    end;
+  end
+  else
+    raise Exception.CreateFmt('unexpected attribute name/value(s)-- %s', [AName]);
+
 end;
 
 { TOTClassRegenerator }
@@ -318,7 +349,6 @@ end;
 procedure TOTClassRegenerator.ParseYaml;
 var
   yaml: string;
-  yamlStream: TStringStream;
   i: Integer;
   yamlBlock: TBlock;
   parser: TYamlParser;
@@ -332,9 +362,11 @@ var
     pyExpectingSequenceStart,
     pyExpectingAttributeStart,
     pyExpectingName,
-    pyExpectingValue);
+    pyExpectingValue,
+    pyExpectingValueSequence);
   newAttr: TAttribute;
   currentName: string;
+  currentSequence: TArray<string>;
 begin
   yamlBlock := FBlocks[biClassYaml];
   if not Assigned(yamlBlock) then
@@ -345,99 +377,102 @@ begin
     yaml := yaml + FInput[i] + #$0A;
   end;
 
-  yamlStream := TStringStream.Create(yaml);
+  parser := TYamlParser.Create;
   try
-    parser := TYamlParser.Create;
-    try
-      parser.SetInput(yamlStream);
+    parser.SetInput(TStringStream.Create(yaml));
 
-      state := pyInitial;
-      event := parser.parse;
-      while not (event is TStreamEndEvent) do begin
-        case state of
-          pyInitial:
-            begin
-              if not (event is TStreamStartEvent) then
-                raise Exception.Create('Expected Yaml Stream Start');
-              state := pyExpectingDocumentStart;
-            end;
+    state := pyInitial;
+    event := parser.parse;
+    while not (event is TStreamEndEvent) do begin
+      case state of
+        pyInitial:
+          begin
+            if not (event is TStreamStartEvent) then
+              raise Exception.Create('Expected Yaml Stream Start');
+            state := pyExpectingDocumentStart;
+          end;
 
-          pyExpectingDocumentStart:
-            begin
-              if not (event is TDocumentStartEvent) then
-                raise Exception.Create('Expected Yaml Document Start');
-              state := pyExpectingMappingStart;
-            end;
+        pyExpectingDocumentStart:
+          begin
+            if not (event is TDocumentStartEvent) then
+              raise Exception.Create('Expected Yaml Document Start');
+            state := pyExpectingMappingStart;
+          end;
 
-          pyExpectingMappingStart:
-            begin
+        pyExpectingMappingStart:
+          begin
+            if not (event is TMappingStartEvent) then
+              raise Exception.Create('Expected Yaml Mapping Start');
+            state := pyExpectingClassInfo;
+          end;
+
+        pyExpectingClassInfo:
+          begin
+            if (event is TMappingEndEvent) then begin
+               // only expecting one class definition
+               break;
+               end
+            else if not (event is TScalarEvent) then
+              raise Exception.Create('Expected Yaml Scalar Event (classinfo name)');
+
+            currentName := TScalarEvent(event).value;
+            if currentName = 'class' then
+              state := pyExpectingClassInfoValue
+            else if currentName = 'attributes' then
+              state := pyExpectingSequenceStart;
+          end;
+
+        pyExpectingClassInfoValue:
+          begin
+            if not (event is TScalarEvent) then
+              raise Exception.Create('Expecting Yaml Scalar Event (classinfo value)');
+            FClassName := TScalarEvent(event).value;
+            state := pyExpectingClassInfo;
+          end;
+
+        pyExpectingSequenceStart:
+          begin
+            if not (event is TSequenceStartEvent) then
+              raise Exception.Create('Expected Yaml Sequence Start');
+            state := pyExpectingAttributeStart;
+          end;
+
+        pyExpectingAttributeStart:
+          begin
+            if (event is TSequenceEndEvent) then begin
+              state := pyExpectingClassInfo;
+            end
+            else begin
               if not (event is TMappingStartEvent) then
                 raise Exception.Create('Expected Yaml Mapping Start');
-              state := pyExpectingClassInfo;
+              newAttr := TAttribute.Create;
+              state := pyExpectingName;
             end;
+          end;
 
-          pyExpectingClassInfo:
-            begin
-              if (event is TMappingEndEvent) then begin
-                 // only expecting one class definition
-                 break;
-                 end
-              else if not (event is TScalarEvent) then
-                raise Exception.Create('Expected Yaml Scalar Event (classinfo name)');
+        pyExpectingName:
+          begin
+            if (event is TMappingEndEvent) then begin
+               FAttributes.Add(newAttr);
+               newAttr := nil;
+               state := pyExpectingAttributeStart;
+            end
+            else begin
+              if not (event is TScalarEvent) then
+                raise Exception.Create('Expected Yaml Scalar (name)');
 
               currentName := TScalarEvent(event).value;
-              if currentName = 'class' then
-                state := pyExpectingClassInfoValue
-              else if currentName = 'attributes' then
-                state := pyExpectingSequenceStart;
+              state := pyExpectingValue;
             end;
+          end;
 
-          pyExpectingClassInfoValue:
-            begin
-              if not (event is TScalarEvent) then
-                raise Exception.Create('Expecting Yaml Scalar Event (classinfo value)');
-              FClassName := TScalarEvent(event).value;
-              state := pyExpectingClassInfo;
-            end;
-
-          pyExpectingSequenceStart:
-            begin
-              if not (event is TSequenceStartEvent) then
-                raise Exception.Create('Expected Yaml Sequence Start');
-              state := pyExpectingAttributeStart;
-            end;
-
-          pyExpectingAttributeStart:
-            begin
-              if (event is TSequenceEndEvent) then begin
-                state := pyExpectingClassInfo;
-              end
-              else begin
-                if not (event is TMappingStartEvent) then
-                  raise Exception.Create('Expected Yaml Mapping Start');
-                newAttr := TAttribute.Create;
-                state := pyExpectingName;
-              end;
-            end;
-
-          pyExpectingName:
-            begin
-              if (event is TMappingEndEvent) then begin
-                 FAttributes.Add(newAttr);
-                 newAttr := nil;
-                 state := pyExpectingAttributeStart;
-              end
-              else begin
-                if not (event is TScalarEvent) then
-                  raise Exception.Create('Expected Yaml Scalar (name)');
-
-                currentName := TScalarEvent(event).value;
-                state := pyExpectingValue;
-              end;
-            end;
-
-          pyExpectingValue:
-            begin
+        pyExpectingValue:
+          begin
+            if (event is TSequenceStartEvent) then begin
+               SetLength(currentSequence, 0);
+               state := pyExpectingValueSequence;
+            end
+            else begin
               if not (event is TScalarEvent) then
                 raise Exception.Create('Expected Yaml Scalar (value)');
 
@@ -446,14 +481,28 @@ begin
               state := pyExpectingName;
             end;
           end;
-        event.Free;
-        event := parser.parse;
-      end;
-    finally
-      parser.Free;
+
+        pyExpectingValueSequence:
+          begin
+            if (event is TSequenceEndEvent) then begin
+              newAttr.SetProperty(currentName, currentSequence);
+              currentName := '';
+              SetLength(currentSequence, 0);
+              state := pyExpectingName;
+            end
+            else begin
+              if not (event is TScalarEvent) then
+                raise Exception.Create('Expected Yaml Scalar (value sequence)');
+              SetLength(currentSequence, Length(currentSequence)+1);
+              currentSequence[High(currentSequence)] := TScalarEvent(event).value;
+            end;
+          end;
+        end;
+      event.Free;
+      event := parser.parse;
     end;
   finally
-    yamlStream.Free;
+    parser.Free;
   end;
 end;
 
@@ -471,6 +520,7 @@ begin
   try
     code[biMemberVars] := GenerateMemberVars;
     code[biGetSetDeclarations] := GenerateGetSetDeclarations;
+    code[biPublicDeclarations] := GeneratePublicDeclarations;
     code[biProperty] := GeneratePropertyDeclarations;
     code[biRestoreYamlVars] := GenerateRestoreYamlVars;
     code[biRestoreVars] := GenerateRestoreVars;
@@ -560,6 +610,7 @@ begin
         (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
         (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
         (t['IndexType'] as TOTTemplateSubstitution).userValue := attr.indexType;
+        (t['IsDynamic'] as TOTTemplateCondition).userValue := attr.isDynamic;
 
         t.Generate(result);
       finally
@@ -590,6 +641,33 @@ begin
   end;
 end;
 
+function TOTClassRegenerator.GeneratePublicDeclarations: TStringList;
+var
+  attr: TAttribute;
+  t: TOTTemplateGenerator;
+begin
+  result := TStringList.Create;
+
+  for attr in FAttributes do begin
+    t := TOTTemplateGenerator.Create;
+    try
+      if attr.isCollection and attr.isDynamic then begin
+        t.LoadTemplateFromResource('TEMPLATE_PUBLIC_DECL');
+        (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+        (t['HasAdd'] as TOTTemplateCondition).userValue := (opAdd in attr.operations);
+        (t['HasDelete'] as TOTTemplateCondition).userValue := (opDelete in attr.operations);
+        (t['HasClear'] as TOTTemplateCondition).userValue := (opClear in attr.operations);
+
+        t.Generate(result);
+      end;
+    finally
+      t.Free;
+    end;
+  end;
+end;
+
+
 function TOTClassRegenerator.GeneratePropertyDeclarations: TStringList;
 var
   attr: TAttribute;
@@ -605,6 +683,7 @@ begin
         (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
         (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
         (t['IndexType'] as TOTTemplateSubstitution).userValue := attr.indexType;
+        (t['IsDynamic'] as TOTTemplateCondition).userValue := attr.isDynamic;
       end
       else begin
         t.LoadTemplateFromResource('TEMPLATE_PROPERTY_SIMPLE');
@@ -758,38 +837,18 @@ begin
   result := TStringList.Create;
 
   for attr in FAttributes do begin
-    if attr.isCollection then begin
-      t := TOTTemplateGenerator.Create;
-      try
-        t.LoadTemplateFromResource('TEMPLATE_GETPROPERTY_ARRAY');
-        (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
-        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
-        (t['Class'] as TOTTemplateSubstitution).userValue := FClassName;
-        (t['IndexType'] as TOTTemplateSubstitution).userValue := attr.indexType;
-
-        t.Generate(result);
-      finally
-        t.Free;
-      end;
-    end;
-  end;
-
-  for attr in FAttributes do begin
     t := TOTTemplateGenerator.Create;
     try
-      if attr.isCollection then begin
-        t.LoadTemplateFromResource('TEMPLATE_SETPROPERTY_ARRAY');
-        (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
-        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
-        (t['Class'] as TOTTemplateSubstitution).userValue := FClassName;
-        (t['IndexType'] as TOTTemplateSubstitution).userValue := attr.indexType;
-      end
-      else begin
-        t.LoadTemplateFromResource('TEMPLATE_SETPROPERTY_SIMPLE');
-        (t['Name'] as TOTTemplateSubstitution).userValue := attr.name;
-        (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
-        (t['Class'] as TOTTemplateSubstitution).userValue := FClassName;
-      end;
+      t.LoadTemplateFromResource('TEMPLATE_GETSET_METHODS');
+      (t['Name'] as TOTTemplateSubstitution).userValue:= attr.name;
+      (t['Type'] as TOTTemplateSubstitution).userValue := attr.typeName;
+      (t['Class'] as TOTTemplateSubstitution).userValue := FClassName;
+      (t['IsCollection'] as TOTTemplateCondition).userValue := attr.isCollection;
+      (t['IndexType'] as TOTTemplateSubstitution).userValue := attr.indexType;
+      (t['IsDynamic'] as TOTTemplateCondition).userValue := attr.isDynamic;
+      (t['HasAdd'] as TOTTemplateCondition).userValue := (opAdd in attr.operations);
+      (t['HasDelete'] as TOTTemplateCondition).userValue := (opDelete in attr.operations);
+      (t['HasClear'] as TOTTemplateCondition).userValue := (opClear in attr.operations);
 
       t.Generate(result);
     finally

@@ -3,6 +3,7 @@ Type=sub
 IndexType=sub
 HasComment=condition
 Comment=msub
+IsDynamic=condition
 ||
 |IF HasComment|
 
@@ -11,3 +12,6 @@ Comment=msub
 |ENDREPEAT Comment|
 |ENDIF HasComment|
     property |name|[AIndex: |IndexType|]: |Type| read Get|Name| write Set|Name|;
+|IF IsDynamic|
+    property |name|Count: Integer read Get|Name|Count;
+|ENDIF IsDynamic|
