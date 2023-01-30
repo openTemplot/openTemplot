@@ -30,7 +30,6 @@ type
   // Performs text substitution for a template
   TOTTemplateSubstitution = class(TOTTemplateInput)
   private
-    FDefaultValues: TStrings;
     FUserValue: String;
 
   public
@@ -38,7 +37,6 @@ type
 
     procedure Process(ALines: TStrings); override;
 
-    property defaultValues: TStrings Read FDefaultValues;
     property userValue: String Read FUserValue Write FUserValue;
   end;
 
@@ -177,35 +175,39 @@ begin
   endDelim := DELIM + DELIM;
 
   options := TStringList.Create;
+  try
+    while FTemplate.Count > 0 do begin
+      aLine := FTemplate[0];
 
-  while FTemplate.Count > 0 do begin
-    aLine := FTemplate[0];
+      FTemplate.Delete(0);
 
-    FTemplate.Delete(0);
-
-    if aLine <> endDelim then
-      options.Add(aLine)
-    else
-      Break;  // it is the end delimiter so get out of loop
-  end;
-
-  // turn our options into a list of names (substitutions) and
-  // conditionals...
-  for i := 0 to options.Count - 1 do begin
-    Name := options.Names[i];
-    Value := options.ValueFromIndex[i];
-
-    if StartsStr('sub', Value) then begin
-      AddSub(Name, Copy(Value, 5, Length(Value) - 4));
-    end
-    else
-    if StartsStr('condition', Value) then begin
-      AddCondition(Name, Copy(Value, 11, Length(Value) - 10));
-    end
-    else
-    if StartsStr('msub', Value) then begin
-      AddMultiSub(Name);
+      if aLine <> endDelim then
+        options.Add(aLine)
+      else
+        Break;  // it is the end delimiter so get out of loop
     end;
+
+    // turn our options into a list of names (substitutions) and
+    // conditionals...
+    for i := 0 to options.Count - 1 do begin
+      Name := options.Names[i];
+      Value := options.ValueFromIndex[i];
+
+      if StartsStr('sub', Value) then begin
+        AddSub(Name, Copy(Value, 5, Length(Value) - 4));
+      end
+      else
+      if StartsStr('condition', Value) then begin
+        AddCondition(Name, Copy(Value, 11, Length(Value) - 10));
+      end
+      else
+      if StartsStr('msub', Value) then begin
+        AddMultiSub(Name);
+      end;
+    end;
+
+  finally
+    options.Free;
   end;
 end;
 
@@ -301,10 +303,6 @@ end;
 constructor TOTTemplateSubstitution.Create(const AName: String; const ADefaultValue: String);
 begin
   inherited Create(AName);
-
-  FDefaultValues := TStringList.Create;
-  FDefaultValues.Delimiter := DELIM;
-  FDefaultValues.delimitedText := ADefaultValue;
 end;
 
 procedure TOTTemplateSubstitution.Process(ALines: TStrings);

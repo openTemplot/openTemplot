@@ -498,10 +498,11 @@ begin
             end;
           end;
         end;
-      event.Free;
+      FreeAndNil(event);
       event := parser.parse;
     end;
   finally
+    event.Free;
     parser.Free;
   end;
 end;

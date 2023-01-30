@@ -16,7 +16,6 @@ type
   TTestTemplateGenerator = class(TTestCase)
   published
     procedure TestSimpleSubstitution;
-    procedure TestSubstitutionDefaultValues;
     procedure TestSimpleCondition;
     procedure TestMultiSubstitution;
   end;
@@ -92,7 +91,6 @@ begin
     inp := testGen.input[0];
     AssertTrue(inp is TOTTemplateSubstitution);
     AssertEquals('Name', (inp as TOTTemplateSubstitution).Name);
-    AssertEquals(0, (inp as TOTTemplateSubstitution).defaultValues.Count);
 
     (inp as TOTTemplateSubstitution).userValue := 'Fred';
     dest := TStringList.Create;
@@ -122,37 +120,6 @@ begin
   end;
 end;
 
-{!
-    Test reading default values for a substitution
-}
-procedure TTestTemplateGenerator.TestSubstitutionDefaultValues;
-var
-  testGen: TOTTemplateGenerator;
-  inp: TOTTemplateInput;
-  subInput: TOTTemplateSubstitution;
-begin
-  testGen := TOTTemplateGenerator.Create;
-  try
-    testGen.LoadTemplate('testdata/substitution_default_values.template');
-
-    AssertEquals(1, testGen.numberOfInputs);
-
-    inp := testGen.input[0];
-    Check(inp is TOTTemplateSubstitution);
-    subInput := inp as TOTTemplateSubstitution;
-
-    AssertEquals('Name', subInput.Name);
-    AssertEquals(3, subInput.defaultValues.Count);
-    AssertEquals('Option1', subInput.defaultValues[0]);
-    AssertEquals('Option2', subInput.defaultValues[1]);
-    AssertEquals('Option3', subInput.defaultValues[2]);
-
-
-  finally
-    testGen.Free;
-  end;
-end;
-
 procedure TTestTemplateGenerator.TestMultiSubstitution;
 var
   testGen: TOTTemplateGenerator;
@@ -172,11 +139,15 @@ begin
     AssertEquals('Comments', (inp as TOTTemplateMultiSubstitution).Name);
 
     subList := TStringList.Create;
-    subList.Add('Entry 1');
-    subList.Add('Entry 2');
-    subList.Add('Entry 3');
+    try
+      subList.Add('Entry 1');
+      subList.Add('Entry 2');
+      subList.Add('Entry 3');
 
-    (inp as TOTTemplateMultiSubstitution).userValues.SetStrings(subList);
+      (inp as TOTTemplateMultiSubstitution).userValues.SetStrings(subList);
+    finally
+      subList.Free;
+    end;
 
     inp := testGen.input[1];
     AssertTrue(inp is TOTTemplateSubstitution);
