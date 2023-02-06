@@ -35,6 +35,7 @@ type
 
     class procedure RegisterClass;
     class function RestoreYamlObject(AParent: TOTPersistent; AParser: TYamlParser; AEvent: TMappingStartEvent): TOTPersistent;
+    class function RestoreYamlFromStream(AStream: TStream): TOTPersistent;
 
   end;
 
@@ -105,7 +106,7 @@ end;
 procedure SaveYamlString(AEmitter: TYamlEmitter; const AName: String; AValue: String);
 begin
   AEmitter.ScalarEvent('', '', AName, true, false, yssPlainScalar);
-  AEmitter.ScalarEvent('', '', AValue, true, false, yssDoubleQuotedScalar);
+  AEmitter.ScalarEvent('', '', AValue, true, true, yssDoubleQuotedScalar);
 end;
 
 procedure SaveYamlSequence(AEmitter: TYamlEmitter; const AName: String);
@@ -131,7 +132,7 @@ end;
 
 procedure SaveYamlSequenceString(AEmitter: TYamlEmitter; const AValue: String);
 begin
-  AEmitter.ScalarEvent('', '', AValue, true, false, yssDoubleQuotedScalar);
+  AEmitter.ScalarEvent('', '', AValue, true, true, yssDoubleQuotedScalar);
 end;
 
 procedure SaveYamlEndSequence(AEmitter: TYamlEmitter);
@@ -250,6 +251,59 @@ begin
   except
     result.Free;
     raise;
+  end;
+end;
+
+class function TOTPersistent.RestoreYamlFromStream(AStream: TStream): TOTPersistent;
+var
+  parser: TYamlParser;
+  event: TYamlEvent;
+  state: (
+    stExpectStreamStart,
+    stExpectDocumentStart,
+    stExpectMappingStart,
+    stExpectDocumentEnd
+  );
+begin
+  Result := nil;
+  parser := TYamlParser.Create;
+  try
+    parser.SetInput(AStream);
+
+    state := stExpectStreamStart;
+    event := parser.Parse;
+    while not (event is TStreamEndEvent) do begin
+      case state of
+        stExpectStreamStart: begin
+          if not (event is TStreamStartEvent) then
+            raise Exception.Create('Expected Stream Start');
+          state := stExpectDocumentStart;
+        end;
+        stExpectDocumentStart: begin
+          if not (event is TDocumentStartEvent) then
+            raise Exception.Create('Expected Document Start');
+          state := stExpectMappingStart;
+        end;
+        stExpectMappingStart: begin
+          if not (event is TMappingStartEvent) then
+            raise Exception.Create('Expected Mapping Start');
+
+          Result := TOTPersistent.RestoreYamlObject(nil, parser, event as TMappingStartEvent);
+          state := stExpectDocumentEnd;
+        end;
+        stExpectDocumentEnd: begin
+          if not (event is TDocumentEndEvent) then
+            raise Exception.Create('Expected Document End');
+        end;
+      end;
+
+      FreeAndNil(event);
+      event := parser.Parse;
+    end;
+
+  finally
+    parser.Free;
+    event.Free;
   end;
 end;
 
