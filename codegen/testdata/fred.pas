@@ -7,7 +7,9 @@ interface
 uses
   Classes,
   SysUtils,
-  OTPersistent;
+  OTPersistent,
+  OTPersistentList,
+  OTYamlEmitter;
 
 
 {# class TFred
@@ -25,9 +27,9 @@ type
     //# endGenMemberVars
 
   protected
-
-    procedure   RestoreAttributes(AStream : TStream); override;
-    procedure   SaveAttributes(AStream : TStream); override;
+    procedure Calculate; override;
+    procedure RestoreAttributes(AStream : TStream); override;
+    procedure SaveAttributes(AStream : TStream); override;
 
     //# genGetSetDeclarations
     //# endGenGetSetDeclarations
@@ -46,6 +48,9 @@ type
     //# endGenProperty
   end;
 
+  TFredOwningList = class(TOTOwningList<TFred>);
+  TFredReferenceList = class(TOTReferenceList<TFred>);
+
 
 implementation
 
@@ -61,19 +66,28 @@ var
 constructor TFred.Create(AParent: TOTPersistent);
 begin
   inherited Create(AParent);
+  //# genCreate
+  //# endGenCreate
 end;
 
 destructor TFred.Destroy;
 begin
+  //# genDestroy
+  //# endGenDestroy
   inherited;
 end;
 
+procedure TFred.Calculate;
+begin
+  // Add your calculation code here, and cache the results...
+end;
+
 procedure TFred.RestoreYamlAttribute(AName, AValue : String; AIndex: Integer);
-  begin
+begin
   //# genRestoreYamlVars
   //# endGenRestoreYamlVars
-   inherited RestoreYamlAttribute(AName, AValue, AIndex);
-  end;
+    inherited RestoreYamlAttribute(AName, AValue, AIndex);
+end;
 
 procedure TFred.RestoreAttributes(AStream : TStream);
   var
@@ -111,5 +125,5 @@ procedure TFred.SaveYamlAttributes(AEmitter : TYamlEmitter);
 initialization
   TFred.RegisterClass;
 
-  log := Logger.GetInstance('TFred');
+  //log := Logger.GetInstance('TFred');
 end.

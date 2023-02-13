@@ -44,6 +44,12 @@ type
     //# endGenGetSetDeclarations
 
   public
+    constructor Create(AParent: TOTPersistent); override;
+    destructor Destroy; override;
+
+    //# genPublicDeclarations
+    //# endGenPublicDeclarations
+
     procedure   RestoreYamlAttribute(AName, AValue : string); override;
     procedure   SaveYamlAttributes(AEmitter: TYamlEmitter); override;
 
@@ -62,6 +68,20 @@ var
 
 
 { TSample }
+
+constructor TSample.Create(AParent: TOTPersistent);
+begin
+  inherited Create(AParent);
+  //# genCreate
+  //# endGenCreate
+end;
+
+destructor TSample.Destroy;
+begin
+  //# genDestroy
+  //# endGenDestroy
+  inherited;
+end;
 
 procedure TSample.RestoreYamlAttribute(AName, AValue : string);
   begin

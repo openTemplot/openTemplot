@@ -13,9 +13,9 @@ Comment=msub
 |ENDIF HasComment|
 |IF HasGet|
 |IF HasSet|
-    property |name|: |Type| read F|Name| write Set|Name|;
+    property |name|: |Type| read Get|Name| write Set|Name|;
 |ELSE HasSet|
-    property |name|: |Type| read F|Name|;
+    property |name|: |Type| read Get|Name|;
 |ENDIF HasSet|
 |ELSE HasGet|
 |IF HasSet|

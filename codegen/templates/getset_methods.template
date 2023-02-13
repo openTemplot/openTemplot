@@ -2,12 +2,17 @@ Name=sub
 Type=sub
 Class=sub
 IndexType=sub
+HasGet=condition
+HasSet=condition
 IsCollection=condition
+IsObject=condition
+OwnsObject=condition
 IsDynamic=condition
 HasAdd=condition
 HasDelete=condition
 HasClear=condition
 ||
+|IF HasGet|
 |IF IsCollection|
 // GENERATED METHOD - DO NOT EDIT
 function |Class|.Get|Name|(AIndex: |IndexType|): |Type|;
@@ -16,6 +21,16 @@ begin
 end;
 
 |ENDIF IsCollection|
+|IF IsObject|
+// GENERATED METHOD - DO NOT EDIT
+function |Class|.Get|Name|: |Type|;
+begin
+  Result := |Type|(FromOID(F|Name|));
+end;
+
+|ENDIF IsObject|
+|ENDIF HasGet|
+|IF HasSet|
 // GENERATED METHOD - DO NOT EDIT
 |IF IsCollection|
 procedure |Class|.Set|Name|(AIndex: |IndexType|; const AValue: |Type|);
@@ -26,6 +41,16 @@ begin
   end;
 end;
 |ELSE IsCollection|
+|IF IsObject|
+procedure |Class|.Set|Name|(const AValue: |Type|);
+begin
+|IF OwnsObject|
+  SetOwned(F|Name|, AValue);
+|ELSE OwnsObject|
+  SetReference(F|Name|, AValue);
+|ENDIF OwnsObject|
+end;
+|ELSE IsObject|
 procedure |Class|.Set|Name|(const AValue: |Type|);
 begin
   if AValue <> F|Name| then begin
@@ -33,8 +58,10 @@ begin
     F|Name| := AValue;
   end;
 end;
+|ENDIF IsObject|
 |ENDIF IsCollection|
 
+|ENDIF HasSet|
 |IF IsCollection|
 |IF IsDynamic|
 // GENERATED METHOD - DO NOT EDIT

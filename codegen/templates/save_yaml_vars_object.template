@@ -1,0 +1,8 @@
+Name=sub
+Owns=condition
+||
+|IF Owns|
+  SaveYamlObject(AEmitter, '|name|', F|Name|);
+|ELSE Owns|
+  SaveYamlObjectReference(AEmitter, '|name|', F|Name|);
+|ENDIF Owns|

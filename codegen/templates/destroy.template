@@ -1,0 +1,8 @@
+Name=sub
+OwnsObject=condition
+||
+|IF OwnsObject|
+  SetOwned(F|Name|, nil);
+|ELSE OwnsObject|
+  SetReference(F|Name|, nil);
+|ENDIF OwnsObject|

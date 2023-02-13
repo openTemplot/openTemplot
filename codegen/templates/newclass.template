@@ -11,6 +11,7 @@ uses
   Classes,
   SysUtils,
   OTPersistent,
+  OTPersistentList,
   OTYamlEmitter;
 
 
@@ -29,9 +30,9 @@ type
     //# endGenMemberVars
 
   protected
-
-    procedure   RestoreAttributes(AStream : TStream); override;
-    procedure   SaveAttributes(AStream : TStream); override;
+    procedure Calculate; override;
+    procedure RestoreAttributes(AStream : TStream); override;
+    procedure SaveAttributes(AStream : TStream); override;
 
     //# genGetSetDeclarations
     //# endGenGetSetDeclarations
@@ -50,6 +51,9 @@ type
     //# endGenProperty
   end;
 
+  T|Name|OwningList = class(TOTOwningList<T|Name|>);
+  T|Name|ReferenceList = class(TOTReferenceList<T|Name|>);
+
 
 implementation
 
@@ -65,19 +69,28 @@ var
 constructor T|Name|.Create(AParent: TOTPersistent);
 begin
   inherited Create(AParent);
+  //# genCreate
+  //# endGenCreate
 end;
 
 destructor T|Name|.Destroy;
 begin
+  //# genDestroy
+  //# endGenDestroy
   inherited;
 end;
 
+procedure T|Name|.Calculate;
+begin
+  // Add your calculation code here, and cache the results...
+end;
+
 procedure T|Name|.RestoreYamlAttribute(AName, AValue : String; AIndex: Integer);
-  begin
+begin
   //# genRestoreYamlVars
   //# endGenRestoreYamlVars
-   inherited RestoreYamlAttribute(AName, AValue, AIndex);
-  end;
+    inherited RestoreYamlAttribute(AName, AValue, AIndex);
+end;
 
 procedure T|Name|.RestoreAttributes(AStream : TStream);
   var
@@ -115,5 +128,5 @@ procedure T|Name|.SaveYamlAttributes(AEmitter : TYamlEmitter);
 initialization
   T|Name|.RegisterClass;
 
-  log := Logger.GetInstance('T|Name|');
+  //log := Logger.GetInstance('T|Name|');
 end.
