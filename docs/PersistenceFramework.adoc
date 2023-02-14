@@ -12,7 +12,7 @@ The OpenTemplot Persistence Framework is a framework developed in Free Pascal to
 
 == Outline of usage
 
-All persistent objects need to be descendant classes of TOTPersistent, and the source files created using the `codegen` tool. Properties of the class that are to be persisted need to be defined in a comment section at the head of the file using a YAML structure defined later. The `codegen` tool reads the YAML data, and generates all the boiler-plate code required by the framework.
+All persistent objects need to be descendant classes of `TOTPersistent`, and the source files created using the `codegen` tool. Properties of the class that are to be persisted need to be defined in a comment section at the head of the file using a YAML structure defined later. The `codegen` tool reads the YAML data, and generates all the boiler-plate code required by the framework.
 
 === Steps to create a new class
 .Ordered
@@ -76,6 +76,12 @@ This is the attribute name, expected to be in camelCase. This name will be used 
 
 === type
 The Pascal type for the property. `Integer`, `Double` and `String` are supported directly. Other types can be specified if appropriate supporting methods (for conversion to/from string) are provided.
+
+=== access
+Controls access to the property. Value is a set containing either `get`, `set`, or both. If not specified, the default is both.
+
+=== owns
+If present, this specifies the property is referring to another `TOTPersistent` object. Values are `own` or `ref`. A value of `own` specifies a parent-child relation, and the lifetime of the child object will be tied to the parent. A value of `ref` specifies this is purely a reference. Child objects will be stored in YAML as a sub-oject of the parent.
 
 === array
 Specifies if this is an array property. Values are `false`, `dynamic`, a range that includes `..` or an enumerated type name.
