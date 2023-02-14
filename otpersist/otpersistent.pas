@@ -14,21 +14,33 @@ uses
 
 type
 
+  TOID = Cardinal;
+
   { TOTPersistent }
 
   TOTPersistent = class
+  private
+    FOID: TOID;
+    FParent: TOTPersistent;
+    FIsCalculated: Boolean;
 
   protected
     procedure RestoreAttributes(AStream: TStream); virtual;
     procedure SaveAttributes(AStream: TStream); virtual;
 
+    procedure RestoreYamlObjectOwn(var AOid: TOID; ASourceOID: Integer);
+
     procedure SetModified;
+    procedure CheckCalculated;
+
+    procedure Calculate; virtual;
 
   public
     constructor Create(AParent: TOTPersistent); virtual;
     destructor Destroy; override;
 
-    procedure SaveYamlObject(AEmitter: TYamlEmitter);
+    procedure SaveToYaml(AEmitter: TYamlEmitter);
+    procedure SaveToStream(AStream: TStream);
 
     procedure RestoreYamlAttribute(AName, AValue: String; AIndex: Integer); virtual;
     procedure SaveYamlAttributes(AEmitter: TYamlEmitter); virtual;
@@ -37,6 +49,12 @@ type
     class function RestoreYamlObject(AParent: TOTPersistent; AParser: TYamlParser; AEvent: TMappingStartEvent): TOTPersistent;
     class function RestoreYamlFromStream(AStream: TStream): TOTPersistent;
 
+    class function RestoreStreamedObject(AParent: TOTPersistent; AStream: TStream): TOTPersistent;
+    class function FromOID(AOid: TOID): TOTPersistent;
+
+    property oid: TOID read FOID;
+    property parent: TOTPersistent read FParent;
+    property IsCalculated: Boolean read FIsCalculated;
   end;
 
   TOTPersistentClassRef = class of TOTPersistent;
@@ -50,17 +68,22 @@ procedure SaveYamlInteger(AEmitter: TYamlEmitter; const AName: String; AValue: I
 procedure SaveYamlDouble(AEmitter: TYamlEmitter; const AName: String; AValue: Double);
 procedure SaveYamlBoolean(AEmitter: TYamlEmitter; const AName: String; AValue: Boolean);
 procedure SaveYamlString(AEmitter: TYamlEmitter; const AName: String; AValue: String);
+procedure SaveYamlObject(AEmitter: TYamlEmitter; const AName: String; AValue: TOID);
+procedure SaveYamlObjectReference(AEmitter: TYamlEmitter; const AName: String; AValue: TOID);
 procedure SaveYamlSequence(AEmitter: TYamlEmitter; const AName: String);
 procedure SaveYamlSequenceInteger(AEmitter: TYamlEmitter; AValue: Integer);
 procedure SaveYamlSequenceDouble(AEmitter: TYamlEmitter; AValue: Double);
 procedure SaveYamlSequenceBoolean(AEmitter: TYamlEmitter; AValue: Boolean);
 procedure SaveYamlSequenceString(AEmitter: TYamlEmitter; const AValue: String);
+procedure SaveYamlSequenceObject(AEmitter: TYamlEmitter; AValue: TOID);
+procedure SaveYamlSequenceObjectReference(AEmitter: TYamlEmitter; const AName: String; AValue: TOID);
 procedure SaveYamlEndSequence(AEmitter: TYamlEmitter);
 
 implementation
 
 uses
-  Generics.Collections;
+  Generics.Collections,
+  OTOIDManager;
 
 var
   Registry: THashMap<String, TOTPersistentClassRef>;
@@ -109,6 +132,18 @@ begin
   AEmitter.ScalarEvent('', '', AValue, true, true, yssDoubleQuotedScalar);
 end;
 
+procedure SaveYamlObject(AEmitter: TYamlEmitter; const AName: String; AValue: TOID);
+begin
+  AEmitter.ScalarEvent('', '', AName, true, false, yssPlainScalar);
+  TOTPersistent.FromOID(AValue).SaveToYaml(AEmitter);
+end;
+
+procedure SaveYamlObjectReference(AEmitter: TYamlEmitter; const AName: String; AValue: TOID);
+begin
+  AEmitter.ScalarEvent('', '', AName, true, false, yssPlainScalar);
+  AEmitter.ScalarEvent('', '', IntToStr(AValue), true, false, yssPlainScalar);
+end;
+
 procedure SaveYamlSequence(AEmitter: TYamlEmitter; const AName: String);
 begin
   AEmitter.ScalarEvent('', '', AName, true, false, yssPlainScalar);
@@ -135,6 +170,16 @@ begin
   AEmitter.ScalarEvent('', '', AValue, true, true, yssDoubleQuotedScalar);
 end;
 
+procedure SaveYamlSequenceObject(AEmitter: TYamlEmitter; AValue: TOID);
+begin
+  TOTPersistent.FromOID(AValue).SaveToYaml(AEmitter);
+end;
+
+procedure SaveYamlSequenceObjectReference(AEmitter: TYamlEmitter; const AName: String; AValue: TOID);
+begin
+  AEmitter.ScalarEvent('', '', IntToStr(AValue), true, false, yssPlainScalar);
+end;
+
 procedure SaveYamlEndSequence(AEmitter: TYamlEmitter);
 begin
   AEmitter.SequenceEndEvent;
@@ -145,10 +190,16 @@ end;
 constructor TOTPersistent.Create(AParent: TOTPersistent);
 begin
   inherited Create;
+
+  FOID := OIDManager.AllocateOID(self);
+  FParent := AParent;
+  FIsCalculated := false;
 end;
 
 destructor TOTPersistent.Destroy;
 begin
+  OIDManager.FreeOID(FOID);
+
   inherited Destroy;
 end;
 
@@ -164,7 +215,20 @@ end;
 
 procedure TOTPersistent.SetModified;
 begin
-  // do something!
+  FIsCalculated := false;
+end;
+
+procedure TOTPersistent.CheckCalculated;
+begin
+  if not FIsCalculated then begin
+    FIsCalculated := true;
+    Calculate;
+  end;
+end;
+
+procedure TOTPersistent.Calculate;
+begin
+  // nothing to do here...
 end;
 
 procedure TOTPersistent.RestoreYamlAttribute(AName, AValue: String;
@@ -178,11 +242,20 @@ begin
 
 end;
 
-procedure TOTPersistent.SaveYamlObject(AEmitter: TYamlEmitter);
+procedure TOTPersistent.SaveToYaml(AEmitter: TYamlEmitter);
 begin
   AEmitter.MappingStartEvent('', className, false, ympBlockMapping);
   SaveYamlAttributes(AEmitter);
   AEmitter.MappingEndEvent;
+end;
+
+procedure TOTPersistent.SaveToStream(AStream: TStream);
+var
+  classref: TOTPersistentClassRef;
+begin
+  classref := TOTPersistentClassRef(ClassType);
+  AStream.WriteBuffer(classref, sizeof(classref));
+  SaveAttributes(AStream);
 end;
 
 class procedure TOTPersistent.RegisterClass;
@@ -254,6 +327,11 @@ begin
   end;
 end;
 
+procedure TOTPersistent.RestoreYamlObjectOwn(var AOid: TOID; ASourceOID: Integer);
+begin
+
+end;
+
 class function TOTPersistent.RestoreYamlFromStream(AStream: TStream): TOTPersistent;
 var
   parser: TYamlParser;
@@ -305,6 +383,27 @@ begin
     parser.Free;
     event.Free;
   end;
+end;
+
+class function TOTPersistent.RestoreStreamedObject(AParent: TOTPersistent; AStream: TStream): TOTPersistent;
+var
+  classref: TOTPersistentClassRef;
+  obj: TOTPersistent;
+begin
+  AStream.ReadBuffer(classref, sizeof(classref));
+  obj := classref.Create(AParent);
+  try
+    obj.RestoreAttributes(AStream);
+  except
+    obj.Free;
+    raise;
+  end;
+  Result := obj;
+end;
+
+class function TOTPersistent.FromOID(AOid: TOID): TOTPersistent;
+begin
+  Result := OIDManager.FromOID(AOID);
 end;
 
 initialization

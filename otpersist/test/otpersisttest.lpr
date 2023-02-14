@@ -3,8 +3,9 @@ program otpersisttest;
 {$mode objfpc}{$H+}
 
 uses
-  Classes, consoletestrunner, otpersistenttest, LeafClass, OTPersistent,
-  TLoggerUnit, otYaml, otYamlEmitter, otYamlEvent, otYamlParser;
+  Classes, consoletestrunner, otpersistenttest, LeafClass, ContainerClass,
+  OTPersistent, TLoggerUnit, otYaml, otYamlEmitter, otYamlEvent, otYamlParser,
+  OTPersistentList, OTOIDManager, OTOIDManagerTest;
 
 type
 

@@ -66,6 +66,26 @@
         <Filename Value="..\..\log4delphi\TLoggerUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="containerclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ContainerClass"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\otpersistentlist.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OTPersistentList"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\otoidmanager.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OTOIDManager"/>
+      </Unit>
+      <Unit>
+        <Filename Value="otoidmanagertest.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OTOIDManagerTest"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

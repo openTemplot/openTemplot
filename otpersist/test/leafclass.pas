@@ -15,6 +15,7 @@ uses
   Classes,
   SysUtils,
   OTPersistent,
+  OTPersistentList,
   OTYamlEmitter;
 
 
@@ -50,10 +51,15 @@ type
     FArray2: array[0..4] of String;
     //# endGenMemberVars
 
+    // calculated values...
+    FSum: Integer;
+
   protected
 
-    procedure   RestoreAttributes(AStream : TStream); override;
-    procedure   SaveAttributes(AStream : TStream); override;
+    procedure Calculate; override;
+
+    procedure RestoreAttributes(AStream: TStream); override;
+    procedure SaveAttributes(AStream: TStream); override;
 
     //# genGetSetDeclarations
     function GetArray1(AIndex: Integer): Double;
@@ -66,6 +72,8 @@ type
     procedure SetArray2(AIndex: Integer; const AValue: String);
     //# endGenGetSetDeclarations
 
+    function GetSum: Integer;
+
   public
     constructor Create(AParent: TOTPersistent); override;
     destructor Destroy; override;
@@ -76,18 +84,23 @@ type
     procedure ClearArray1;
     //# endGenPublicDeclarations
 
-    procedure   RestoreYamlAttribute(AName, AValue : String; AIndex: Integer); override;
-    procedure   SaveYamlAttributes(AEmitter: TYamlEmitter); override;
+    procedure RestoreYamlAttribute(AName, AValue: String; AIndex: Integer); override;
+    procedure SaveYamlAttributes(AEmitter: TYamlEmitter); override;
 
     //# genProperty
-    property int1: Integer read FInt1 write SetInt1;
-    property int2: Integer read FInt2 write SetInt2;
-    property str1: String read FStr1 write SetStr1;
-    property array1[AIndex: Integer]: Double read GetArray1 write SetArray1;
-    property array1Count: Integer read GetArray1Count;
-    property array2[AIndex: Integer]: String read GetArray2 write SetArray2;
+    property int1: Integer Read FInt1 Write SetInt1;
+    property int2: Integer Read FInt2 Write SetInt2;
+    property str1: String Read FStr1 Write SetStr1;
+    property array1[AIndex: Integer]: Double Read GetArray1 Write SetArray1;
+    property array1Count: Integer Read GetArray1Count;
+    property array2[AIndex: Integer]: String Read GetArray2 Write SetArray2;
     //# endGenProperty
+
+    property sum: Integer Read GetSum;
   end;
+
+  TLeafClassOwningList = class(TOTOwningList<TLeafClass>);
+  TLeafClassReferenceList = class(TOTReferenceList<TLeafClass>);
 
 
 implementation
@@ -96,7 +109,7 @@ uses
   TLoggerUnit;
 
 var
-  log : ILogger;
+  log: ILogger;
 
 
 { TLeafClass }
@@ -111,8 +124,15 @@ begin
   inherited;
 end;
 
-procedure TLeafClass.RestoreYamlAttribute(AName, AValue : String; AIndex: Integer);
-  begin
+procedure TLeafClass.Calculate;
+begin
+  inherited;
+
+  FSum := FInt1 + FInt2;
+end;
+
+procedure TLeafClass.RestoreYamlAttribute(AName, AValue: String; AIndex: Integer);
+begin
   //# genRestoreYamlVars
   if AName = 'int1' then
     FInt1 := StrToInteger(AValue)
@@ -127,19 +147,19 @@ procedure TLeafClass.RestoreYamlAttribute(AName, AValue : String; AIndex: Intege
     SetLength(FArray1, StrToInteger(AValue))
   else
   if AName = 'array1' then
-    FArray1[Integer(Ord(Low(FArray1))+AIndex)] := StrToDouble(AValue)
+    FArray1[Integer(Ord(Low(FArray1)) + AIndex)] := StrToDouble(AValue)
   else
   if AName = 'array2' then
-    FArray2[Integer(Ord(Low(FArray2))+AIndex)] := StrToString(AValue)
+    FArray2[Integer(Ord(Low(FArray2)) + AIndex)] := StrToString(AValue)
   else
-  //# endGenRestoreYamlVars
-   inherited RestoreYamlAttribute(AName, AValue, AIndex);
-  end;
+    //# endGenRestoreYamlVars
+    inherited RestoreYamlAttribute(AName, AValue, AIndex);
+end;
 
-procedure TLeafClass.RestoreAttributes(AStream : TStream);
-  var
-    i: Integer;
-  begin
+procedure TLeafClass.RestoreAttributes(AStream: TStream);
+var
+  i: Integer;
+begin
   inherited;
 
   //# genRestoreVars
@@ -147,16 +167,17 @@ procedure TLeafClass.RestoreAttributes(AStream : TStream);
   AStream.ReadBuffer(FInt2, sizeof(Integer));
   FStr1 := AStream.ReadAnsiString;
   SetLength(FArray1, AStream.ReadDWord);
-  AStream.ReadBuffer(FArray1[Low(FArray1)], (Ord(High(FArray1))-Ord(Low(FArray1)) + 1)*sizeof(Double));
+  AStream.ReadBuffer(FArray1[Low(FArray1)], (Ord(High(FArray1)) - Ord(Low(FArray1)) +
+    1) * sizeof(Double));
   for i := Ord(Low(FArray2)) to Ord(High(FArray2)) do
     FArray2[Integer(i)] := AStream.ReadAnsiString;
   //# endGenRestoreVars
-  end;
+end;
 
-procedure TLeafClass.SaveAttributes(AStream : TStream);
-  var
-    i: Integer;
-  begin
+procedure TLeafClass.SaveAttributes(AStream: TStream);
+var
+  i: Integer;
+begin
   inherited;
 
   //# genSaveVars
@@ -164,18 +185,19 @@ procedure TLeafClass.SaveAttributes(AStream : TStream);
   AStream.WriteBuffer(FInt2, sizeof(Integer));
   AStream.WriteAnsiString(FStr1);
   AStream.WriteDWord(Length(FArray1));
-  AStream.WriteBuffer(FArray1[Low(FArray1)], (Ord(High(FArray1))-Ord(Low(FArray1)) + 1)*sizeof(Double));
+  AStream.WriteBuffer(FArray1[Low(FArray1)], (Ord(High(FArray1)) - Ord(Low(FArray1)) +
+    1) * sizeof(Double));
   for i := Ord(Low(FArray2)) to Ord(High(FArray2)) do
     AStream.WriteAnsiString(FArray2[Integer(i)]);
   //# endGenSaveVars
-  end;
-  
-procedure TLeafClass.SaveYamlAttributes(AEmitter : TYamlEmitter);
-  var
-    i: Integer;
-  begin
+end;
+
+procedure TLeafClass.SaveYamlAttributes(AEmitter: TYamlEmitter);
+var
+  i: Integer;
+begin
   inherited;
-  
+
   //# genSaveYamlVars
   SaveYamlInteger(AEmitter, 'int1', FInt1);
   SaveYamlInteger(AEmitter, 'int2', FInt2);
@@ -190,7 +212,7 @@ procedure TLeafClass.SaveYamlAttributes(AEmitter : TYamlEmitter);
     SaveYamlSequenceString(AEmitter, FArray2[Integer(i)]);
   SaveYamlEndSequence(AEmitter);
   //# endGenSaveYamlVars
-  end;
+end;
 
 //# genGetSetMethods
 // GENERATED METHOD - DO NOT EDIT
@@ -280,6 +302,13 @@ begin
 end;
 
 //# endGenGetSetMethods
+
+
+function TLeafClass.GetSum: Integer;
+begin
+  CheckCalculated;
+  Result := FSum;
+end;
 
 initialization
   TLeafClass.RegisterClass;
