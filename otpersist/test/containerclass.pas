@@ -77,6 +77,8 @@ begin
   //# genCreate
   FLeafs := 0;
   //# endGenCreate
+
+  FLeafs := TLeafClassOwningList.Create(self).oid;
 end;
 
 destructor TContainerClass.Destroy;
@@ -146,6 +148,8 @@ end;
 
 initialization
   TContainerClass.RegisterClass;
+  TContainerClassOwningList.RegisterClass;
+  TContainerClassReferenceList.RegisterClass;
 
   //log := Logger.GetInstance('TContainerClass');
 end.

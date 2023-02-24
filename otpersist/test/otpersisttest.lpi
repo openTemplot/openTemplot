@@ -4,6 +4,11 @@
     <Version Value="12"/>
     <PathDelim Value="\"/>
     <General>
+      <Flags>
+        <MainUnitHasCreateFormStatements Value="False"/>
+        <MainUnitHasTitleStatement Value="False"/>
+        <MainUnitHasScaledStatement Value="False"/>
+      </Flags>
       <SessionStorage Value="InProjectDir"/>
       <Title Value="otpersisttest"/>
       <UseAppBundle Value="False"/>
@@ -86,6 +91,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="OTOIDManagerTest"/>
       </Unit>
+      <Unit>
+        <Filename Value="otpersistentlisttest.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OTPersistentListTest"/>
+      </Unit>
+      <Unit>
+        <Filename Value="owningclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OwningClass"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -99,6 +114,11 @@
       <OtherUnitFiles Value="..;..\..\submodules\otYaml\src;..\..\log4delphi"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <CodeGeneration>
+      <Optimizations>
+        <OptimizationLevel Value="0"/>
+      </Optimizations>
+    </CodeGeneration>
   </CompilerOptions>
   <Debugging>
     <Exceptions>

@@ -312,6 +312,8 @@ end;
 
 initialization
   TLeafClass.RegisterClass;
+  TLeafClassOwningList.RegisterClass;
+  TLeafClassReferenceList.RegisterClass;
 
   //log := Logger.GetInstance('TLeafClass');
 end.

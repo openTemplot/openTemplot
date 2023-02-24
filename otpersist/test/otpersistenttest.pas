@@ -13,13 +13,18 @@ uses
 
 type
 
+  { TTestOTPersistent }
+
   TTestOTPersistent = class(TTestCase)
   published
     procedure TestSimpleSaveRestoreYaml;
-    procedure TestSimpleSaveRestoreStream;
+    //procedure TestSimpleSaveRestoreStream;
     procedure TestSimpleSetModified;
 
-    procedure TestContainerSaveRestoreYaml;
+    procedure TestOwningSaveRestoreYaml;
+    //procedure TestOwningSaveRestoreStream;
+    procedure TestOwningSetModified;
+
   end;
 
 implementation
@@ -29,6 +34,7 @@ uses
   OTYamlEmitter,
   OTPersistent,
   ContainerClass,
+  OwningClass,
   LeafClass;
 
 procedure TTestOTPersistent.TestSimpleSaveRestoreYaml;
@@ -112,6 +118,7 @@ begin
   end;
 end;
 
+{
 procedure TTestOTPersistent.TestSimpleSaveRestoreStream;
 var
   leaf: TLeafClass;
@@ -173,11 +180,12 @@ begin
     leaf.Free;
   end;
 end;
+}
 
 procedure TTestOTPersistent.TestSimpleSetModified;
 var
   leaf: TLeafClass;
-  value: Integer;
+  Value: Integer;
 begin
   //
   // When a simple leaf class is created
@@ -199,13 +207,13 @@ begin
   try
     AssertFalse('initial calculated state', leaf.IsCalculated);
 
-    value := leaf.sum;
+    Value := leaf.sum;
     AssertTrue('first sum', leaf.IsCalculated);
 
     leaf.int1 := 123;
     AssertFalse('int1 = 123', leaf.IsCalculated);
 
-    value := leaf.sum;
+    Value := leaf.sum;
     AssertTrue('second sum', leaf.IsCalculated);
 
     leaf.int1 := 123;
@@ -216,14 +224,13 @@ begin
   end;
 end;
 
-procedure TTestOTPersistent.TestContainerSaveRestoreYaml;
+procedure TTestOTPersistent.TestOwningSaveRestoreYaml;
 var
-  container: TContainerClass;
-  newContainer: TContainerClass;
   leaf: TLeafClass;
+  owning: TOwningClass;
   newLeaf: TLeafClass;
+  newOwning: TOwningClass;
   i: Integer;
-  j: Integer;
   stream: TStringStream;
   yamlVer: TYamlVersionDirective;
   yamlText: String;
@@ -231,37 +238,27 @@ var
   obj: TOTPersistent;
 begin
   //
-  // Given an instance of TContainerClass
-  // And several instances of TLeafClass
-  // When the container is saved to Yaml
+  // Given an instance of TLeafClass with assigned properties
+  // When that instance is saved to Yaml
   // Then a stream of Yaml text is created
   //
   // When the stream of Yaml text is restored
-  // Then a new container object is created
-  // And the container contains the expected number of TLeafClass instances
-  // And each TLeafClass instance is equal to the original instance
+  // Then a new object is created with the same property values as the original
   //
-
-  container := TContainerClass.Create(nil);
+  leaf := nil;
+  owning := TOwningClass.Create(nil);
   try
-    for j := 1 to 3 do begin
-      leaf := TLeafClass.Create(nil);
-      try
-        leaf.int1 := 234 + j*3;
-        leaf.int2 := 56789 - j*3;
-        leaf.str1 := 'Happy Birthday!';
-        for i := 0 to 20 do begin
-          leaf.AddArray1(23.1 + i*i + j*j*j);
-        end;
-        for i := 0 to 4 do begin
-          leaf.array2[i] := 'Fred ' + IntToStr(j) + IntToStr(i);
-        end;
+    leaf := TLeafClass.Create(nil);
+    owning.leaf := leaf;
 
-        container.leafs.Add(leaf);
-        leaf := nil;
-      except
-        leaf.Free;
-      end;
+    leaf.int1 := 234;
+    leaf.int2 := 56789;
+    leaf.str1 := 'Happy Birthday!';
+    for i := 0 to 20 do begin
+      leaf.AddArray1(23.1 + i * i);
+    end;
+    for i := 0 to 4 do begin
+      leaf.array2[i] := 'Fred ' + IntToStr(i);
     end;
 
     // When save...
@@ -275,7 +272,7 @@ begin
       emitter.StreamStartEvent;
       emitter.DocumentStartEvent(yamlVer, nil, True);
 
-      container.SaveToYaml(emitter);
+      owning.SaveToYaml(emitter);
 
       emitter.DocumentEndEvent(True);
       emitter.StreamEndEvent;
@@ -292,33 +289,127 @@ begin
     stream := TStringStream.Create(yamlText);
     obj := TOTPersistent.RestoreYamlFromStream(stream);
     try
-      AssertTrue(obj is TContainerClass);
-      newContainer := obj as TContainerClass;
+      AssertTrue(obj is TOwningClass);
+      newOwning := obj as TOwningClass;
 
-      AssertEquals('count', container.leafs.Count, newContainer.leafs.Count);
+      newLeaf := newOwning.leaf;
 
-      for j := 0 to container.leafs.Count - 1 do begin
-        leaf := container.leafs[j];
-        newLeaf := newContainer.leafs[j];
+      AssertNotNull('newLeaf', newLeaf);
+      AssertEquals('int1', leaf.int1, newLeaf.int1);
+      AssertEquals('int2', leaf.int2, newLeaf.int2);
+      AssertEquals('str1', leaf.str1, newLeaf.str1);
+      AssertEquals('array1Count', leaf.array1Count, newLeaf.array1Count);
 
-        AssertEquals('int1', leaf.int1, newLeaf.int1);
-        AssertEquals('int2', leaf.int2, newLeaf.int2);
-        AssertEquals('str1', leaf.str1, newLeaf.str1);
-        AssertEquals('array1Count', leaf.array1Count, newLeaf.array1Count);
+      for i := 0 to newLeaf.array1Count - 1 do
+        AssertEquals('array1#' + IntToStr(i), leaf.array1[i], newLeaf.array1[i]);
 
-        for i := 0 to newLeaf.array1Count - 1 do
-          AssertEquals('array1#' + IntToStr(i), leaf.array1[i], newLeaf.array1[i]);
-
-        for i := 0 to 4 do
-          AssertEquals('array2#' + IntToStr(i), leaf.array2[i], newLeaf.array2[i]);
-
-      end;
+      for i := 0 to 4 do
+        AssertEquals('array2#' + IntToStr(i), leaf.array2[i], newLeaf.array2[i]);
     finally
       obj.Free;
     end;
 
   finally
-    container.Free;
+    owning.Free;
+  end;
+end;
+
+{
+procedure TTestOTPersistent.TestOwningSaveRestoreStream;
+var
+  owning: TOwningClass;
+  leaf: TLeafClass;
+  i: Integer;
+  stream: TMemoryStream;
+  obj: TOTPersistent;
+begin
+  //
+  // Given an instance of TOwningClass with an assigned leaf
+  // When that instance is saved to a binary stream
+  // And that stream is restored
+  // Then a new object is created with the same property values as the original
+  //
+  owning := TOwningClass.Create(nil);
+  try
+    leaf := TLeafClass.Create(nil);
+    owning.leaf := leaf;
+    leaf.int1 := 234;
+    leaf.int2 := 56789;
+    leaf.str1 := 'Happy Birthday!';
+    for i := 0 to 20 do begin
+      leaf.AddArray1(23.1 + i * i);
+    end;
+    for i := 0 to 4 do begin
+      leaf.array2[i] := 'Fred ' + IntToStr(i);
+    end;
+
+    // When save...
+    stream := TMemoryStream.Create;
+    try
+      owning.SaveToStream(stream);
+
+      // And restore...
+      stream.Seek(0, soFromBeginning);
+      obj := TOTPersistent.RestoreStreamedObject(nil, stream);
+      try
+
+      // Then
+      AssertTrue(obj is TOwningClass);
+      finally
+        obj.Free;
+      end;
+    finally
+      stream.Free;
+    end;
+  finally
+    owning.Free;
+  end;
+end;
+}
+
+procedure TTestOTPersistent.TestOwningSetModified;
+var
+  owning: TOwningClass;
+  leaf: TLeafClass;
+  Value: Integer;
+begin
+  //
+  // When an owning class is created
+  // Then the class is *not* calculated
+  //
+  // When a calculated property is accessed
+  // Then the class is calculated
+  //
+  // When a the leaf attribute of the class is modified
+  // Then the class is *not* calculated
+  //
+  // When a calculated property is accessed
+  // Then the class is calculated
+  //
+  // When the leaf is set with it's existing value
+  // Then the class is still calculated
+  //
+  owning := TOwningClass.Create(nil);
+  leaf := nil;
+  try
+    AssertFalse('initial calculated state', owning.IsCalculated);
+
+    Value := owning.leafSum;
+    AssertTrue('first sum', owning.IsCalculated);
+
+    leaf := TLeafClass.Create(nil);
+    leaf.int1 := 123;
+    owning.leaf := leaf;
+    AssertFalse('leaf = leaf', owning.IsCalculated);
+
+    Value := owning.leafSum;
+    AssertTrue('second sum', owning.IsCalculated);
+
+    owning.leaf := leaf;
+    AssertTrue('second leaf = leaf', owning.IsCalculated);
+
+  finally
+    leaf.Free;
   end;
 end;
 

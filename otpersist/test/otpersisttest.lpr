@@ -5,7 +5,7 @@ program otpersisttest;
 uses
   Classes, consoletestrunner, otpersistenttest, LeafClass, ContainerClass,
   OTPersistent, TLoggerUnit, otYaml, otYamlEmitter, otYamlEvent, otYamlParser,
-  OTPersistentList, OTOIDManager, OTOIDManagerTest;
+  OTPersistentList, OTOIDManager, OTOIDManagerTest, OTPersistentListTest;
 
 type
 

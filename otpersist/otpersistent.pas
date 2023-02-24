@@ -32,6 +32,7 @@ type
 
     procedure SetModified;
     procedure CheckCalculated;
+    procedure SetOwned(var AOID: TOID; ANew: TOTPersistent);
 
     procedure Calculate; virtual;
 
@@ -76,7 +77,7 @@ procedure SaveYamlSequenceDouble(AEmitter: TYamlEmitter; AValue: Double);
 procedure SaveYamlSequenceBoolean(AEmitter: TYamlEmitter; AValue: Boolean);
 procedure SaveYamlSequenceString(AEmitter: TYamlEmitter; const AValue: String);
 procedure SaveYamlSequenceObject(AEmitter: TYamlEmitter; AValue: TOID);
-procedure SaveYamlSequenceObjectReference(AEmitter: TYamlEmitter; const AName: String; AValue: TOID);
+procedure SaveYamlSequenceObjectReference(AEmitter: TYamlEmitter; AValue: TOID);
 procedure SaveYamlEndSequence(AEmitter: TYamlEmitter);
 
 implementation
@@ -175,7 +176,7 @@ begin
   TOTPersistent.FromOID(AValue).SaveToYaml(AEmitter);
 end;
 
-procedure SaveYamlSequenceObjectReference(AEmitter: TYamlEmitter; const AName: String; AValue: TOID);
+procedure SaveYamlSequenceObjectReference(AEmitter: TYamlEmitter; AValue: TOID);
 begin
   AEmitter.ScalarEvent('', '', IntToStr(AValue), true, false, yssPlainScalar);
 end;
@@ -223,6 +224,30 @@ begin
   if not FIsCalculated then begin
     FIsCalculated := true;
     Calculate;
+  end;
+end;
+
+procedure TOTPersistent.SetOwned(var AOID: TOID; ANew: TOTPersistent);
+begin
+  if (AOID = 0) and (ANew = nil) then
+    // equal and nil, so no change...
+    Exit;
+
+  if (AOID = ANew.FOID) then
+    // oid's the same, so no change...
+    Exit;
+
+  SetModified;
+
+  if (AOID <> 0) then begin
+    OIDManager.FreeOID(AOID);
+  end;
+  if (ANew <> nil) then begin
+    AOID := ANew.oid;
+    ANew.FParent := self;
+  end
+  else begin
+    AOID := 0;
   end;
 end;
 
@@ -274,6 +299,7 @@ var
   key: String;
   value: String;
   index: Integer;
+  objectFromYaml: TOTPersistent;
 begin
   objClass := Registry.Items[AEvent.tag];
   if not Assigned(objClass) then
@@ -293,7 +319,9 @@ begin
       if (event is TMappingStartEvent) then begin
         // this is the start of an owned sub-object,
         // so let's go recursive...
-        raise Exception.Create('RestoreYamlObject sub-objects not implemented yet!');
+        objectFromYaml := RestoreYamlObject(result, AParser, TMappingStartEvent(event));
+        value := IntToStr(objectFromYaml.oid);
+        result.RestoreYamlAttribute(key, value, 0);
       end
       else if (event is TSequenceStartEvent) then begin
         // start of a collection
@@ -301,11 +329,19 @@ begin
         FreeAndNil(event);
         event := AParser.Parse;
         while not (event is TSequenceEndEvent) do begin
-          if not (event is TScalarEvent) then
-            raise Exception.Create('Expected Scalar value in sequence');
+          if (event is TScalarEvent) then begin
+            value := TScalarEvent(event).value;
+            result.RestoreYamlAttribute(key, value, index);
+          end
+          else if (event is TMappingStartEvent) then begin
+            objectFromYaml := RestoreYamlObject(result, AParser, TMappingStartEvent(event));
+            value := IntToStr(objectFromYaml.oid);
+            result.RestoreYamlAttribute(key, value, index);
+          end
+          else begin
+            raise Exception.Create('Expected Scalar or Mapping value in sequence');
+          end;
 
-          value := TScalarEvent(event).value;
-          result.RestoreYamlAttribute(key, value, index);
           Inc(index);
           FreeAndNil(event);
           event := AParser.Parse;
@@ -329,7 +365,13 @@ end;
 
 procedure TOTPersistent.RestoreYamlObjectOwn(var AOid: TOID; ASourceOID: Integer);
 begin
-
+  if (AOid <> 0) then begin
+    OIDManager.FreeOID(AOid);
+  end;
+  AOid := ASourceOID;
+  if ASourceOID <> 0 then begin
+     FromOid(ASourceOID).FParent := self;
+  end;
 end;
 
 class function TOTPersistent.RestoreYamlFromStream(AStream: TStream): TOTPersistent;
