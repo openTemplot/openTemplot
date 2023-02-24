@@ -124,6 +124,8 @@ procedure TFred.SaveYamlAttributes(AEmitter : TYamlEmitter);
 
 initialization
   TFred.RegisterClass;
+  TFredOwningList.RegisterClass;
+  TFredReferenceList.RegisterClass;
 
   //log := Logger.GetInstance('TFred');
 end.

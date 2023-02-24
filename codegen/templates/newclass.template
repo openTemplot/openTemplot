@@ -127,6 +127,8 @@ procedure T|Name|.SaveYamlAttributes(AEmitter : TYamlEmitter);
 
 initialization
   T|Name|.RegisterClass;
+  T|Name|OwningList.RegisterClass;
+  T|Name|ReferenceList.RegisterClass;
 
   //log := Logger.GetInstance('T|Name|');
 end.
