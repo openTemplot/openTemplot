@@ -1,0 +1,1 @@
+codegentest --format=plain --all
