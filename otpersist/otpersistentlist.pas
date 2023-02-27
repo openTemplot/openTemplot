@@ -24,7 +24,7 @@ type
   protected
     function GetItem(AIndex: Integer): T;
     procedure SetItem(AIndex: Integer; AValue: T);
-    procedure RestoreYamlAttribute(AName, AValue: String; AIndex: Integer); override;
+    procedure RestoreYamlAttribute(AName, AValue: String; AIndex: Integer; ALoader: TOTPersistentLoader); override;
     procedure SaveYamlAttributes(AEmitter: TYamlEmitter); override;
 
   public
@@ -101,12 +101,12 @@ begin
 end;
 
 procedure TOTPersistentList<T>.RestoreYamlAttribute(AName, AValue: String;
-  AIndex: Integer);
+  AIndex: Integer; ALoader: TOTPersistentLoader);
 begin
   if AName = 'list-items' then
     Add(T(FromOID(StrToInteger(AValue))))
   else
-    inherited RestoreYamlAttribute(AName, AValue, AIndex);
+    inherited RestoreYamlAttribute(AName, AValue, AIndex, ALoader);
 end;
 
 procedure TOTPersistentList<T>.SaveYamlAttributes(AEmitter: TYamlEmitter);

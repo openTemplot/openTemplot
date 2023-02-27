@@ -1,4 +1,4 @@
-unit OwningClass;
+unit ReferringClass;
 
 {$MODE Delphi}
 
@@ -10,30 +10,25 @@ uses
   OTPersistent,
   OTPersistentList,
   OTYamlEmitter,
-  LeafClass,
-  ReferringClass;
+  LeafClass;
 
 
-{# class TOwningClass
+{# class TReferringClass
 ---
-class: TOwningClass
+class: TReferringClass
 attributes:
 - name: leaf
   type: TLeafClass
-  owns: own
-- name: referrer
-  type: TReferringClass
-  owns: own
+  owns: ref
 ...
 }
 
 type
 
-  TOwningClass = class(TOTPersistent)
+  TReferringClass = class(TOTPersistent)
   private
     //# genMemberVars
     FLeaf: TOID;
-    FReferrer: TOID;
     //# endGenMemberVars
 
     // calculated...
@@ -46,9 +41,7 @@ type
 
     //# genGetSetDeclarations
     function GetLeaf: TLeafClass;
-    function GetReferrer: TReferringClass;
     procedure SetLeaf(const AValue: TLeafClass);
-    procedure SetReferrer(const AValue: TReferringClass);
     //# endGenGetSetDeclarations
 
     function GetLeafSum: Integer;
@@ -65,14 +58,13 @@ type
 
     //# genProperty
     property leaf: TLeafClass read GetLeaf write SetLeaf;
-    property referrer: TReferringClass read GetReferrer write SetReferrer;
     //# endGenProperty
 
     property leafSum: Integer Read GetLeafSum;
   end;
 
-  TOwningClassOwningList = class(TOTOwningList<TOwningClass>);
-  TOwningClassReferenceList = class(TOTReferenceList<TOwningClass>);
+  TReferringClassOwningList = class(TOTOwningList<TReferringClass>);
+  TReferringClassReferenceList = class(TOTReferenceList<TReferringClass>);
 
 
 implementation
@@ -84,26 +76,24 @@ var
   log : ILogger;
 
 
-{ TOwningClass }
+{ TReferringClass }
 
-constructor TOwningClass.Create(AParent: TOTPersistent);
+constructor TReferringClass.Create(AParent: TOTPersistent);
 begin
   inherited Create(AParent);
   //# genCreate
   //# endGenCreate
 end;
 
-destructor TOwningClass.Destroy;
+destructor TReferringClass.Destroy;
 begin
   //# genDestroy
   //# endGenDestroy
   inherited;
 end;
 
-procedure TOwningClass.Calculate;
+procedure TReferringClass.Calculate;
 begin
-  inherited;
-
   // Add your calculation code here, and cache the results...
   if Assigned(leaf) then
     FLeafSum := leaf.sum
@@ -111,20 +101,17 @@ begin
     FLeafSum := 0;
 end;
 
-procedure TOwningClass.RestoreYamlAttribute(AName, AValue : String; AIndex: Integer; ALoader: TOTPersistentLoader);
+procedure TReferringClass.RestoreYamlAttribute(AName, AValue : String; AIndex: Integer; ALoader: TOTPersistentLoader);
 begin
   //# genRestoreYamlVars
   if AName = 'leaf' then
-    RestoreYamlObjectOwn(FLeaf, StrToInteger(AValue), ALoader)
-  else
-  if AName = 'referrer' then
-    RestoreYamlObjectOwn(FReferrer, StrToInteger(AValue), ALoader)
+    RestoreYamlObjectRef(FLeaf, StrToInteger(AValue), ALoader)
   else
   //# endGenRestoreYamlVars
     inherited RestoreYamlAttribute(AName, AValue, AIndex, ALoader);
 end;
 
-procedure TOwningClass.RestoreAttributes(AStream : TStream);
+procedure TReferringClass.RestoreAttributes(AStream : TStream);
   var
     i: Integer;
   begin
@@ -132,11 +119,10 @@ procedure TOwningClass.RestoreAttributes(AStream : TStream);
 
   //# genRestoreVars
   AStream.ReadBuffer(FLeaf, sizeof(TOID));
-  AStream.ReadBuffer(FReferrer, sizeof(TOID));
   //# endGenRestoreVars
   end;
 
-procedure TOwningClass.SaveAttributes(AStream : TStream);
+procedure TReferringClass.SaveAttributes(AStream : TStream);
   var
     i: Integer;
   begin
@@ -144,50 +130,36 @@ procedure TOwningClass.SaveAttributes(AStream : TStream);
 
   //# genSaveVars
   AStream.WriteBuffer(FLeaf, sizeof(TOID));
-  AStream.WriteBuffer(FReferrer, sizeof(TOID));
   //# endGenSaveVars
   end;
   
-procedure TOwningClass.SaveYamlAttributes(AEmitter : TYamlEmitter);
+procedure TReferringClass.SaveYamlAttributes(AEmitter : TYamlEmitter);
   var
     i: Integer;
   begin
   inherited;
   
   //# genSaveYamlVars
-  SaveYamlObject(AEmitter, 'leaf', FLeaf);
-  SaveYamlObject(AEmitter, 'referrer', FReferrer);
+  SaveYamlObjectReference(AEmitter, 'leaf', FLeaf);
   //# endGenSaveYamlVars
   end;
 
 //# genGetSetMethods
 // GENERATED METHOD - DO NOT EDIT
-function TOwningClass.GetLeaf: TLeafClass;
+function TReferringClass.GetLeaf: TLeafClass;
 begin
   Result := TLeafClass(FromOID(FLeaf));
 end;
 
 // GENERATED METHOD - DO NOT EDIT
-procedure TOwningClass.SetLeaf(const AValue: TLeafClass);
+procedure TReferringClass.SetLeaf(const AValue: TLeafClass);
 begin
-  SetOwned(FLeaf, AValue);
-end;
-
-// GENERATED METHOD - DO NOT EDIT
-function TOwningClass.GetReferrer: TReferringClass;
-begin
-  Result := TReferringClass(FromOID(FReferrer));
-end;
-
-// GENERATED METHOD - DO NOT EDIT
-procedure TOwningClass.SetReferrer(const AValue: TReferringClass);
-begin
-  SetOwned(FReferrer, AValue);
+  SetReference(FLeaf, AValue);
 end;
 
 //# endGenGetSetMethods
 
-function TOwningClass.GetLeafSum: Integer;
+function TReferringClass.GetLeafSum: Integer;
 begin
   CheckCalculated;
 
@@ -195,9 +167,9 @@ begin
 end;
 
 initialization
-  TOwningClass.RegisterClass;
-  TOwningClassOwningList.RegisterClass;
-  TOwningClassReferenceList.RegisterClass;
+  TReferringClass.RegisterClass;
+  TReferringClassOwningList.RegisterClass;
+  TReferringClassReferenceList.RegisterClass;
 
-  //log := Logger.GetInstance('TOwningClass');
+  //log := Logger.GetInstance('TReferringClass');
 end.

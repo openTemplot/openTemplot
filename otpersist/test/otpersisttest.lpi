@@ -101,6 +101,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="OwningClass"/>
       </Unit>
+      <Unit>
+        <Filename Value="referringclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ReferringClass"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

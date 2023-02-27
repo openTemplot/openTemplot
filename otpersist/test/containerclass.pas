@@ -48,7 +48,7 @@ type
     //# genPublicDeclarations
     //# endGenPublicDeclarations
 
-    procedure   RestoreYamlAttribute(AName, AValue : String; AIndex: Integer); override;
+    procedure   RestoreYamlAttribute(AName, AValue : String; AIndex: Integer; ALoader: TOTPersistentLoader); override;
     procedure   SaveYamlAttributes(AEmitter: TYamlEmitter); override;
 
     //# genProperty
@@ -94,14 +94,14 @@ begin
   // Add your calculation code here, and cache the results...
 end;
 
-procedure TContainerClass.RestoreYamlAttribute(AName, AValue : String; AIndex: Integer);
+procedure TContainerClass.RestoreYamlAttribute(AName, AValue : String; AIndex: Integer; ALoader: TOTPersistentLoader);
 begin
   //# genRestoreYamlVars
   if AName = 'leafs' then
-    RestoreYamlObjectOwn(FLeafs, StrToInteger(AValue))
+    RestoreYamlObjectOwn(FLeafs, StrToInteger(AValue), ALoader)
   else
   //# endGenRestoreYamlVars
-    inherited RestoreYamlAttribute(AName, AValue, AIndex);
+    inherited RestoreYamlAttribute(AName, AValue, AIndex, ALoader);
 end;
 
 procedure TContainerClass.RestoreAttributes(AStream : TStream);
