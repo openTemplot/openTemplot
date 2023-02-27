@@ -41,7 +41,7 @@ type
     //# genPublicDeclarations
     //# endGenPublicDeclarations
 
-    procedure   RestoreYamlAttribute(AName, AValue : String; AIndex: Integer); override;
+    procedure   RestoreYamlAttribute(AName, AValue : String; AIndex: Integer; ALoader: TOTPersistentLoader); override;
     procedure   SaveYamlAttributes(AEmitter: TYamlEmitter); override;
 
     //# genProperty
@@ -82,11 +82,11 @@ begin
   // Add your calculation code here, and cache the results...
 end;
 
-procedure TFred.RestoreYamlAttribute(AName, AValue : String; AIndex: Integer);
+procedure TFred.RestoreYamlAttribute(AName, AValue : String; AIndex: Integer; ALoader: TOTPersistentLoader);
 begin
   //# genRestoreYamlVars
   //# endGenRestoreYamlVars
-    inherited RestoreYamlAttribute(AName, AValue, AIndex);
+    inherited RestoreYamlAttribute(AName, AValue, AIndex, ALoader);
 end;
 
 procedure TFred.RestoreAttributes(AStream : TStream);

@@ -1366,10 +1366,10 @@ var
 const
   expected: TArray<string> = [
     '  if AName = ''tom'' then',
-    '    RestoreYamlObjectOwn(FTom, StrToInteger(AValue))',
+    '    RestoreYamlObjectOwn(FTom, StrToInteger(AValue), ALoader)',
     '  else',
     '  if AName = ''dick'' then',
-    '    RestoreYamlObjectRef(FDick, StrToInteger(AValue))',
+    '    RestoreYamlObjectRef(FDick, StrToInteger(AValue), ALoader)',
     '  else'
     ];
 begin
