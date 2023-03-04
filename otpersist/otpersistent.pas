@@ -33,6 +33,8 @@ type
     procedure DeleteReference(AOID: TOID);
     function GetReferencesCount: Integer;
 
+    procedure UpdateModified;
+
     function GetParent: TOTPersistent;
 
   protected
@@ -59,12 +61,13 @@ type
     procedure RestoreYamlAttribute(AName, AValue: String; AIndex: Integer; ALoader: TOTPersistentLoader); virtual;
     procedure SaveYamlAttributes(AEmitter: TYamlEmitter); virtual;
 
+    procedure RestoreFromStream(AStream: TStream);
+
     class procedure RegisterClass;
     class function RestoreYamlObject(AParent: TOTPersistent; AParser: TYamlParser;
       AEvent: TMappingStartEvent; ALoader: TOTPersistentLoader): TOTPersistent;
     class function RestoreYamlFromStream(AStream: TStream): TOTPersistent;
 
-    class function RestoreStreamedObject(AParent: TOTPersistent; AStream: TStream): TOTPersistent;
     class function FromOID(AOid: TOID): TOTPersistent;
 
     property oid: TOID Read FOID;
@@ -115,7 +118,8 @@ procedure SaveYamlEndSequence(AEmitter: TYamlEmitter);
 implementation
 
 uses
-  OTOIDManager;
+  OTOIDManager,
+  OTUndoRedoManager;
 
 var
   Registry: THashMap<String, TOTPersistentClassRef>;
@@ -316,11 +320,13 @@ end;
 
 procedure TOTPersistent.AddReference(AOID: TOID);
 begin
+  SetModified;
   FReferences.Add(AOID);
 end;
 
 procedure TOTPersistent.DeleteReference(AOID: TOID);
 begin
+  SetModified;
   FReferences.Remove(AOID);
 end;
 
@@ -340,6 +346,13 @@ begin
 end;
 
 procedure TOTPersistent.SetModified;
+begin
+  UndoRedoManager.SetModified(self);
+
+  UpdateModified;
+end;
+
+procedure TOTPersistent.UpdateModified;
 var
   oid: TOID;
 begin
@@ -347,12 +360,12 @@ begin
     FIsCalculated := False;
 
     if FParent <> 0 then begin
-      FromOID(FParent).SetModified;
+      FromOID(FParent).UpdateModified;
     end;
 
     for oid in FReferences do begin
       if oid <> 0 then
-        FromOID(oid).SetModified;
+        FromOID(oid).UpdateModified;
     end;
   end;
 end;
@@ -367,13 +380,15 @@ end;
 
 procedure TOTPersistent.SetOwned(var AOID: TOID; ANew: TOTPersistent);
 begin
-  if (AOID = 0) and (ANew = nil) then
+  if (AOID = 0) and (ANew = nil) then begin
     // equal and nil, so no change...
     Exit;
+  end;
 
-  if Assigned(ANew) and (AOID = ANew.FOID) then
+  if Assigned(ANew) and (AOID = ANew.FOID) then begin
     // oid's the same, so no change...
     Exit;
+  end;
 
   SetModified;
 
@@ -390,6 +405,8 @@ begin
 end;
 
 procedure TOTPersistent.SetReference(var AOID: TOID; ANew: TOTPersistent);
+var
+  hasActiveMark: Boolean;
 begin
   if (AOID = 0) and (ANew = nil) then
     // equal and nil, so no change...
@@ -398,6 +415,10 @@ begin
   if Assigned(ANew) and (AOID = ANew.FOID) then
     // oid's the same, so no change...
     Exit;
+
+  hasActiveMark := UndoRedoManager.hasActiveMark;
+  if not hasActiveMark then
+    UndoRedoManager.SetMark('');
 
   SetModified;
 
@@ -411,6 +432,9 @@ begin
   else begin
     AOID := 0;
   end;
+
+  if not hasActiveMark then
+    UndoRedoManager.Commit;
 end;
 
 procedure TOTPersistent.Calculate;
@@ -439,11 +463,31 @@ end;
 
 procedure TOTPersistent.SaveToStream(AStream: TStream);
 var
-  classref: TOTPersistentClassRef;
+  refCount: SizeInt;
+  oid: TOID;
 begin
-  classref := TOTPersistentClassRef(ClassType);
-  AStream.WriteBuffer(classref, sizeof(classref));
+  refCount := FReferences.Count;
+  AStream.Write(refCount, sizeof(refCount));
+  for oid in FReferences do
+    AStream.Write(oid, sizeof(oid));
   SaveAttributes(AStream);
+end;
+
+procedure TOTPersistent.RestoreFromStream(AStream: TStream);
+var
+  refCount: SizeInt;
+  i: Integer;
+  oid: TOID;
+begin
+  AStream.Read(refCount, sizeof(refCount));
+  FReferences.Clear;
+  FReferences.Capacity := refCount;
+  for i := 0 to refCount - 1 do begin
+    AStream.Read(oid, sizeof(oid));
+    FReferences.Add(oid);
+  end;
+  RestoreAttributes(AStream);
+  UpdateModified;
 end;
 
 class procedure TOTPersistent.RegisterClass;
@@ -627,23 +671,6 @@ begin
     parser.Free;
     event.Free;
   end;
-end;
-
-class function TOTPersistent.RestoreStreamedObject(AParent: TOTPersistent;
-  AStream: TStream): TOTPersistent;
-var
-  classref: TOTPersistentClassRef;
-  obj: TOTPersistent;
-begin
-  AStream.ReadBuffer(classref, sizeof(classref));
-  obj := classref.Create(AParent);
-  try
-    obj.RestoreAttributes(AStream);
-  except
-    obj.Free;
-    raise;
-  end;
-  Result := obj;
 end;
 
 class function TOTPersistent.FromOID(AOid: TOID): TOTPersistent;

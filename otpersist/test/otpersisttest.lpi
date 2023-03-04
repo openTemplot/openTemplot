@@ -106,6 +106,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ReferringClass"/>
       </Unit>
+      <Unit>
+        <Filename Value="..\otundoredomanager.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OTUndoRedoManager"/>
+      </Unit>
+      <Unit>
+        <Filename Value="otundoredomanagertest.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OTUndoRedoManagerTest"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
