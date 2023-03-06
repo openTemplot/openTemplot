@@ -561,6 +561,8 @@ begin
     code[biGetSetDeclarations] := GenerateGetSetDeclarations;
     code[biPublicDeclarations] := GeneratePublicDeclarations;
     code[biProperty] := GeneratePropertyDeclarations;
+    code[biCreate] := GenerateCreate;
+    code[biDestroy] := GenerateDestroy;
     code[biRestoreYamlVars] := GenerateRestoreYamlVars;
     code[biRestoreVars] := GenerateRestoreVars;
     code[biSaveVars] := GenerateSaveVars;
