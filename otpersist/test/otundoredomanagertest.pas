@@ -24,8 +24,10 @@ type
     procedure TestSingleObjectEditUndo;
     procedure TestSingleObjectEditUndoCalculatedUpdate;
 
+    procedure TestMultipleEditsAndUndo;
     procedure TestEditReferenceAndUndo;
 
+    procedure TestObjectCreateAndUndo;
   end;
 
 implementation
@@ -33,6 +35,7 @@ implementation
 uses
   OTPersistent,
   OTUndoRedoManager,
+  OTOIDManager,
   OwningClass,
   ReferringClass,
   LeafClass;
@@ -135,6 +138,48 @@ begin
   end;
 end;
 
+procedure TTestOTUndoRedoManager.TestMultipleEditsAndUndo;
+var
+  leaf: TLeafClass;
+  undoCount: Integer;
+begin
+  //
+  // Give a leaf object
+  //
+  // When SetMark is called
+  // And multiple edits are made
+  // And Commit is called
+  //
+  // Then a single undo entry has been created
+  //
+  // When Undo is called
+  // Then all edits are undone
+  //
+  leaf := TLeafClass.Create(nil);
+  try
+    undoCount := UndoRedoManager.undoCount;
+
+    UndoRedoManager.SetMark('');
+    leaf.int1 := 26;
+    leaf.int2 := 77;
+    leaf.AddArray1(1234.5);
+    leaf.array2[0] := 'Tom';
+    UndoRedoManager.Commit;
+
+    AssertEquals(undoCount+1, UndoRedoManager.undoCount);
+
+    UndoRedoManager.Undo;
+
+    AssertEquals('int1', 0, leaf.int1);
+    AssertEquals('int2', 0, leaf.int2);
+    AssertEquals('array1Count', 0, leaf.array1Count);
+    AssertEquals('', leaf.array2[0]);
+
+  finally
+    leaf.Free;
+  end;
+end;
+
 procedure TTestOTUndoRedoManager.TestEditReferenceAndUndo;
 var
   owning: TOwningClass;
@@ -178,6 +223,36 @@ begin
   end;
 end;
 
+procedure TTestOTUndoRedoManager.TestObjectCreateAndUndo;
+var
+  leaf: TLeafClass;
+  leafOid: TOID;
+  undoCount: Integer;
+  obj: TOTPersistent;
+begin
+  //
+  // Given an initial undoCount
+  //
+  // When a leaf object is created
+  // Then the undoCount increases
+  //
+  // When Undo is called
+  // Then the leaf object is Free'd
+  //
+
+  undoCount := UndoRedoManager.undoCount;
+
+  leaf := TLeafClass.Create(nil);
+  leafOid := leaf.oid;
+
+  AssertEquals(undoCount+1, UndoRedoManager.undoCount);
+
+  UndoRedoManager.Undo;
+
+  obj := OIDManager.FromOID(leafOid);
+  AssertNull('null', obj);
+
+end;
 
 initialization
   RegisterTest(TTestOTUndoRedoManager);

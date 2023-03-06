@@ -80,4 +80,7 @@ end;
 initialization
   OIDManager := TOTOIDManager.Create;
 
+finalization
+  OIDManager.Free;
+
 end.

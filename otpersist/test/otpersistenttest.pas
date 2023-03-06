@@ -18,6 +18,7 @@ type
   TTestOTPersistent = class(TTestCase)
   published
     procedure TestSimpleSaveRestoreYaml;
+
     //procedure TestSimpleSaveRestoreStream;
     procedure TestSimpleSetModified;
 
@@ -422,7 +423,7 @@ begin
     AssertFalse('owning not calculated when leaf modified', owning.IsCalculated);
 
   finally
-    leaf.Free;
+    owning.Free;
   end;
 end;
 

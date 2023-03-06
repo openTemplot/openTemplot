@@ -90,12 +90,16 @@ constructor TOwningClass.Create(AParent: TOTPersistent);
 begin
   inherited Create(AParent);
   //# genCreate
+  FLeaf := 0;
+  FReferrer := 0;
   //# endGenCreate
 end;
 
 destructor TOwningClass.Destroy;
 begin
   //# genDestroy
+  SetOwned(FLeaf, nil);
+  SetOwned(FReferrer, nil);
   //# endGenDestroy
   inherited;
 end;

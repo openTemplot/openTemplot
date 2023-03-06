@@ -12,21 +12,29 @@ uses
 
 type
 
+  EUndoOperation = (
+    opCreate,
+    opEdit,
+    opDelete
+    );
+
   { TUndoEntryItem }
 
   TUndoEntryItem = class
   private
+    FOperation: EUndoOperation;
     FItemOID: TOID;
     FClassRef: TOTPersistentClassRef;
     FStreamPos: SizeInt;
 
   public
-    constructor Create(AItem: TOTPersistent; AStreamPos: SizeInt);
+    constructor Create(AOperation: EUndoOperation; AItem: TOTPersistent; AStreamPos: SizeInt);
     destructor Destroy; override;
 
+    property operation: EUndoOperation Read FOperation;
     property itemOid: TOID Read FItemOid;
     property classRef: TOTPersistentClassRef Read FClassRef;
-    property streamPos: SizeInt read FstreamPos;
+    property streamPos: SizeInt Read FstreamPos;
   end;
 
   { TUndoEntry }
@@ -41,6 +49,7 @@ type
     constructor Create(AText: String);
     destructor Destroy; override;
 
+    procedure SaveCreate(AObject: TOTPersistent);
     procedure SaveModified(AObject: TOTPersistent);
     procedure Restore;
   end;
@@ -61,6 +70,7 @@ type
 
     procedure SetMark(AText: String);
     procedure SetModified(AObject: TOTPersistent);
+    procedure SetCreated(AObject: TOTPersistent);
     procedure Commit;
 
     procedure Undo;
@@ -79,10 +89,12 @@ uses
 
 { TUndoEntryItem }
 
-constructor TUndoEntryItem.Create(AItem: TOTPersistent; AStreamPos: SizeInt);
+constructor TUndoEntryItem.Create(AOperation: EUndoOperation; AItem: TOTPersistent;
+  AStreamPos: SizeInt);
 begin
   inherited Create;
 
+  FOperation := AOperation;
   FItemOID := AItem.oid;
   FClassRef := TOTPersistentClassRef(AItem.ClassType);
   FStreamPos := AStreamPos;
@@ -110,11 +122,23 @@ begin
   inherited Destroy;
 end;
 
+procedure TUndoEntry.SaveCreate(AObject: TOTPersistent);
+begin
+  FItems.Add(TUndoEntryItem.Create(opCreate, AObject, FStream.Position));
+end;
+
 procedure TUndoEntry.SaveModified(AObject: TOTPersistent);
 var
   newItem: TUndoEntryItem;
+  item: TUndoEntryItem;
 begin
-  newItem := TUndoEntryItem.Create(AObject, FStream.Position);
+  for item in FItems do begin
+    if item.itemOid = AObject.oid then begin
+      // item is already saved, so don't save it again
+      Exit;
+    end;
+  end;
+  newItem := TUndoEntryItem.Create(opEdit, AObject, FStream.Position);
   AObject.SaveToStream(FStream);
   FItems.Add(newItem);
 end;
@@ -125,9 +149,20 @@ var
   obj: TOTPersistent;
 begin
   for item in FItems do begin
-    FStream.Seek(item.streamPos, soFromBeginning);
-    obj := OIDManager.FromOID(item.itemOid);
-    obj.RestoreFromStream(FStream);
+    case item.operation of
+      opCreate: begin
+        obj := OIDManager.FromOID(item.itemOid);
+        obj.Free;
+      end;
+      opEdit: begin
+        FStream.Seek(item.streamPos, soFromBeginning);
+        obj := OIDManager.FromOID(item.itemOid);
+        obj.RestoreFromStream(FStream);
+      end;
+      opDelete: begin
+
+      end;
+    end;
   end;
 end;
 
@@ -152,6 +187,20 @@ begin
     raise Exception.Create('UndoRedoManger.SetMark with active mark');
 
   FCurrent := TUndoEntry.Create(AText);
+end;
+
+procedure TOTUndoRedoManager.SetCreated(AObject: TOTPersistent);
+var
+  hasActiveMark: Boolean;
+begin
+  hasActiveMark := Assigned(FCurrent);
+  if not hasActiveMark then
+    SetMark('');
+
+  FCurrent.SaveCreate(AObject);
+
+  if not hasActiveMark then
+    Commit;
 end;
 
 procedure TOTUndoRedoManager.SetModified(AObject: TOTPersistent);
@@ -201,4 +250,6 @@ end;
 initialization
   UndoRedoManager := TOTUndoRedoManager.Create;
 
+finalization
+  UndoRedoManager.Free;
 end.

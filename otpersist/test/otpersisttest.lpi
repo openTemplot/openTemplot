@@ -116,6 +116,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="OTUndoRedoManagerTest"/>
       </Unit>
+      <Unit>
+        <Filename Value="..\..\submodules\otYaml\src\otyamlscanner.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="otYamlScanner"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -134,6 +139,11 @@
         <OptimizationLevel Value="0"/>
       </Optimizations>
     </CodeGeneration>
+    <Linking>
+      <Debugging>
+        <UseHeaptrc Value="True"/>
+      </Debugging>
+    </Linking>
   </CompilerOptions>
   <Debugging>
     <Exceptions>

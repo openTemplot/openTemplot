@@ -303,6 +303,8 @@ begin
     FParent := 0;
   FIsCalculated := False;
   FReferences := TList<TOID>.Create;
+
+  UndoRedoManager.SetCreated(self);
 end;
 
 destructor TOTPersistent.Destroy;
@@ -393,6 +395,7 @@ begin
   SetModified;
 
   if (AOID <> 0) then begin
+    OIDManager.FromOID(AOID).Free;
     OIDManager.FreeOID(AOID);
   end;
   if (ANew <> nil) then begin
@@ -591,6 +594,7 @@ end;
 procedure TOTPersistent.RestoreYamlObjectOwn(var AOid: TOID; ASourceOID: TOID; ALoader: TOTPersistentLoader);
 begin
   if (AOid <> 0) then begin
+    OIDManager.FromOID(AOid).Free;
     OIDManager.FreeOID(AOid);
   end;
   AOid := ASourceOID;
