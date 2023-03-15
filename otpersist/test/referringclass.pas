@@ -47,7 +47,7 @@ type
     function GetLeafSum: Integer;
 
   public
-    constructor Create(AParent: TOTPersistent); override;
+    constructor Create(AParent: TOTPersistent; AOID: TOID = 0); override;
     destructor Destroy; override;
 
     //# genPublicDeclarations
@@ -78,9 +78,9 @@ var
 
 { TReferringClass }
 
-constructor TReferringClass.Create(AParent: TOTPersistent);
+constructor TReferringClass.Create(AParent: TOTPersistent; AOID: TOID);
 begin
-  inherited Create(AParent);
+  inherited Create(AParent, AOID);
   //# genCreate
   //# endGenCreate
 end;

@@ -42,7 +42,7 @@ type
     //# endGenGetSetDeclarations
 
   public
-    constructor Create(AParent: TOTPersistent); override;
+    constructor Create(AParent: TOTPersistent; AOID: TOID = 0); override;
     destructor Destroy; override;
 
     //# genPublicDeclarations
@@ -71,9 +71,9 @@ var
 
 { TContainerClass }
 
-constructor TContainerClass.Create(AParent: TOTPersistent);
+constructor TContainerClass.Create(AParent: TOTPersistent; AOID: TOID);
 begin
-  inherited Create(AParent);
+  inherited Create(AParent, AOID);
   //# genCreate
   FLeafs := 0;
   //# endGenCreate

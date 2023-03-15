@@ -75,7 +75,7 @@ type
     function GetSum: Integer;
 
   public
-    constructor Create(AParent: TOTPersistent); override;
+    constructor Create(AParent: TOTPersistent; AOID: TOID = 0); override;
     destructor Destroy; override;
 
     //# genPublicDeclarations
@@ -114,9 +114,9 @@ var
 
 { TLeafClass }
 
-constructor TLeafClass.Create(AParent: TOTPersistent);
+constructor TLeafClass.Create(AParent: TOTPersistent; AOID: TOID);
 begin
-  inherited Create(AParent);
+  inherited Create(AParent, AOID);
 end;
 
 destructor TLeafClass.Destroy;

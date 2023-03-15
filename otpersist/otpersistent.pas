@@ -22,7 +22,7 @@ type
 
   { TOTPersistent }
 
-  TOTPersistent = class
+  TOTPersistent = class(TObject)
   private
     FOID: TOID;
     FParent: TOID;
@@ -52,8 +52,11 @@ type
     procedure Calculate; virtual;
 
   public
-    constructor Create(AParent: TOTPersistent); virtual;
+    constructor Create(AParent: TOTPersistent; AOID: TOID = 0); virtual;
     destructor Destroy; override;
+    procedure BeforeDestruction; override;
+
+    procedure Free;
 
     procedure SaveToYaml(AEmitter: TYamlEmitter);
     procedure SaveToStream(AStream: TStream);
@@ -95,6 +98,8 @@ type
     function GetObject(AOID: TOID): TOTPersistent;
   end;
 
+procedure FreeAndNil(var obj);
+
 function StrToInteger(const AValue: String): Integer;
 function StrToDouble(const AValue: String): Double;
 function StrToBoolean(const AValue: String): Boolean;
@@ -123,6 +128,18 @@ uses
 
 var
   Registry: THashMap<String, TOTPersistentClassRef>;
+
+procedure FreeAndNil(var obj);
+var
+  temp: TObject;
+begin
+  temp := TObject(obj);
+  TObject(obj) := nil;
+  if temp is TOTPersistent then
+    TOTPersistent(temp).Free
+  else
+    temp.Free;
+end;
 
 function StrToInteger(const AValue: String): Integer;
 begin
@@ -292,11 +309,18 @@ end;
 
 { TOTPersistent }
 
-constructor TOTPersistent.Create(AParent: TOTPersistent);
+constructor TOTPersistent.Create(AParent: TOTPersistent; AOID: TOID);
 begin
   inherited Create;
 
-  FOID := OIDManager.AllocateOID(self);
+  if AOID = 0 then begin
+    FOID := OIDManager.AllocateOID(self);
+  end
+  else begin
+    FOID := AOID;
+    OIDManager.SetOID(AOID, self);
+  end;
+
   if Assigned(AParent) then
     FParent := AParent.oid
   else
@@ -313,6 +337,30 @@ begin
   OIDManager.FreeOID(FOID);
 
   inherited Destroy;
+end;
+
+procedure TOTPersistent.BeforeDestruction;
+begin
+  inherited;
+
+  UndoRedoManager.SetDestroyed(self);
+end;
+
+procedure TOTPersistent.Free;
+var
+  hasActiveMark: Boolean;
+begin
+  if Assigned(self) then begin
+    hasActiveMark := UndoRedoManager.hasActiveMark;
+
+    if not hasActiveMark then
+      UndoRedoManager.SetMark('');
+
+    self.Destroy;
+
+    if not hasActiveMark then
+      UndoRedoManager.Commit;
+  end;
 end;
 
 function TOTPersistent.GetParent: TOTPersistent;
@@ -469,6 +517,7 @@ var
   refCount: SizeInt;
   oid: TOID;
 begin
+  AStream.Write(FParent, sizeof(FParent));
   refCount := FReferences.Count;
   AStream.Write(refCount, sizeof(refCount));
   for oid in FReferences do
@@ -482,6 +531,7 @@ var
   i: Integer;
   oid: TOID;
 begin
+  AStream.Read(FParent, sizeof(FParent));
   AStream.Read(refCount, sizeof(refCount));
   FReferences.Clear;
   FReferences.Capacity := refCount;

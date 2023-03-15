@@ -28,7 +28,7 @@ type
     procedure SaveYamlAttributes(AEmitter: TYamlEmitter); override;
 
   public
-    constructor Create(AParent: TOTPersistent); override;
+    constructor Create(AParent: TOTPersistent; AOID: TOID); override;
     destructor Destroy; override;
 
     function Add(AValue: T): Integer;
@@ -43,23 +43,23 @@ type
 
   TOTOwningList<T: TOTPersistent> = class(TOTPersistentList<T>)
   public
-    constructor Create(AParent: TOTPersistent); override;
+    constructor Create(AParent: TOTPersistent; AOID: TOID = 0); override;
   end;
 
   { TOTReferenceList }
 
   TOTReferenceList<T: TOTPersistent> = class(TOTPersistentList<T>)
   public
-    constructor Create(AParent: TOTPersistent); override;
+    constructor Create(AParent: TOTPersistent; AOID: TOID); override;
   end;
 
 implementation
 
 { TOTPersistentList }
 
-constructor TOTPersistentList<T>.Create(AParent: TOTPersistent);
+constructor TOTPersistentList<T>.Create(AParent: TOTPersistent; AOID: TOID);
 begin
-  inherited Create(AParent);
+  inherited Create(AParent, AOID);
   FOwnsObjects := True;
   FList := TList<TOID>.Create;
 end;
@@ -129,17 +129,17 @@ end;
 
 { TOTOwningList }
 
-constructor TOTOwningList<T>.Create(AParent: TOTPersistent);
+constructor TOTOwningList<T>.Create(AParent: TOTPersistent; AOID: TOID);
 begin
-  inherited Create(AParent);
+  inherited Create(AParent, AOID);
   FOwnsObjects := True;
 end;
 
 { TOTReferenceList }
 
-constructor TOTReferenceList<T>.Create(AParent: TOTPersistent);
+constructor TOTReferenceList<T>.Create(AParent: TOTPersistent; AOID: TOID);
 begin
-  inherited Create(AParent);
+  inherited Create(AParent, AOID);
   FOwnsObjects := False;
 end;
 

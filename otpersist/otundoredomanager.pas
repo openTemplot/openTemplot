@@ -15,7 +15,7 @@ type
   EUndoOperation = (
     opCreate,
     opEdit,
-    opDelete
+    opDestroy
     );
 
   { TUndoEntryItem }
@@ -51,6 +51,7 @@ type
 
     procedure SaveCreate(AObject: TOTPersistent);
     procedure SaveModified(AObject: TOTPersistent);
+    procedure SaveDestroy(AObject: TOTPersistent);
     procedure Restore;
   end;
 
@@ -59,10 +60,13 @@ type
   TOTUndoRedoManager = class
   private
     FUndo: TObjectStack<TUndoEntry>;
+    FRedo: TObjectStack<TUndoEntry>;
+
     FCurrent: TUndoEntry;
 
     function GetHasActiveMark: Boolean;
     function GetUndoCount: Integer;
+    function GetRedoCount: Integer;
 
   public
     constructor Create;
@@ -71,12 +75,15 @@ type
     procedure SetMark(AText: String);
     procedure SetModified(AObject: TOTPersistent);
     procedure SetCreated(AObject: TOTPersistent);
+    procedure SetDestroyed(AObject: TOTPersistent);
     procedure Commit;
 
     procedure Undo;
+    procedure Redo;
 
     property hasActiveMark: Boolean Read GetHasActiveMark;
     property undoCount: Integer Read GetUndoCount;
+    property redoCount: Integer Read GetRedoCount;
   end;
 
 var
@@ -143,6 +150,31 @@ begin
   FItems.Add(newItem);
 end;
 
+procedure TUndoEntry.SaveDestroy(AObject: TOTPersistent);
+var
+  newItem: TUndoEntryItem;
+  item: TUndoEntryItem;
+begin
+  for item in FItems do begin
+    if item.itemOid = AObject.oid then begin
+      // item is already saved, so don't save it again,
+      // but do mark it as destroyed
+      if item.operation = opEdit then begin
+        item.FOperation := opDestroy;
+      end
+      else if item.operation = opCreate then begin
+        // item has been created AND destroyed in the same Undo transaction
+        // so let's just delete this entry
+        FItems.Remove(item);
+      end;
+      Exit;
+    end;
+  end;
+  newItem := TUndoEntryItem.Create(opDestroy, AObject, FStream.Position);
+  AObject.SaveToStream(FStream);
+  FItems.Add(newItem);
+end;
+
 procedure TUndoEntry.Restore;
 var
   item: TUndoEntryItem;
@@ -155,12 +187,18 @@ begin
         obj.Free;
       end;
       opEdit: begin
-        FStream.Seek(item.streamPos, soFromBeginning);
         obj := OIDManager.FromOID(item.itemOid);
+        UndoRedoManager.SetModified(obj);
+        FStream.Seek(item.streamPos, soFromBeginning);
         obj.RestoreFromStream(FStream);
       end;
-      opDelete: begin
-
+      opDestroy: begin
+        // construct a new object using "private" constructor that
+        // doesn't rebuild everything or assign a new oid,
+        // and then restore from stream and save to OIDManager
+        obj := item.classRef.Create(nil, item.itemOid);
+        FStream.Seek(item.streamPos, soFromBeginning);
+        obj.RestoreFromStream(FStream);
       end;
     end;
   end;
@@ -173,10 +211,12 @@ begin
   inherited;
 
   FUndo := TObjectStack<TUndoEntry>.Create;
+  FRedo := TObjectStack<TUndoEntry>.Create;
 end;
 
 destructor TOTUndoRedoManager.Destroy;
 begin
+  FRedo.Free;
   FUndo.Free;
   inherited Destroy;
 end;
@@ -217,6 +257,20 @@ begin
     Commit;
 end;
 
+procedure TOTUndoRedoManager.SetDestroyed(AObject: TOTPersistent);
+var
+  hasActiveMark: Boolean;
+begin
+  hasActiveMark := Assigned(FCurrent);
+  if not hasActiveMark then
+    SetMark('');
+
+  FCurrent.SaveDestroy(AObject);
+
+  if not hasActiveMark then
+    Commit;
+end;
+
 procedure TOTUndoRedoManager.Commit;
 begin
   if not Assigned(FCurrent) then
@@ -236,15 +290,53 @@ begin
   Result := FUndo.Count;
 end;
 
+function TOTUndoRedoManager.GetRedoCount: Integer;
+begin
+  Result := FRedo.Count;
+end;
+
 procedure TOTUndoRedoManager.Undo;
 var
   undo: TUndoEntry;
 begin
+  if Assigned(FCurrent) then
+    raise Exception.Create('UndoRedoManager.Undo with active mark');
+
+  if (FUndo.Count < 1) then
+    raise Exception.Create('UndoRedoManager.Undo nothing to Undo');
+
   undo := FUndo.Peek;
+
+  FCurrent := TUndoEntry.Create('');
 
   undo.Restore;
 
+  FRedo.Push(FCurrent);
+  FCurrent := nil;
+
   FUndo.Pop; // and free it
+end;
+
+procedure TOTUndoRedoManager.Redo;
+var
+  redo: TUndoEntry;
+begin
+  if Assigned(FCurrent) then
+    raise Exception.Create('UndoRedoManager.Redo with active mark');
+
+  if (FRedo.Count < 1) then
+    raise Exception.Create('UndoRedoManager.Redo nothing to Redo');
+
+  redo := FRedo.Peek;
+
+  FCurrent := TUndoEntry.Create('');
+
+  redo.Restore;
+
+  FUndo.Push(FCurrent);
+  FCurrent := nil;
+
+  FRedo.Pop; // and free it
 end;
 
 initialization

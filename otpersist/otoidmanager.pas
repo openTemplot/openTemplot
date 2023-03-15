@@ -23,6 +23,7 @@ type
     function AllocateOID(AObject: TOTPersistent): TOID;
     procedure FreeOID(AOID: TOID);
     function FromOID(AOID: TOID): TOTPersistent;
+    procedure SetOID(AOID: TOID; AObject: TOTPersistent);
   end;
 
 var
@@ -75,7 +76,13 @@ begin
     Result := FTable[AOID];
 end;
 
+procedure TOTOIDManager.SetOID(AOID: TOID; AObject: TOTPersistent);
+begin
+  if AOID>= FNextOID then
+    raise Exception.Create('SetOID illegal AOID');
 
+  FTable[AOID] := AObject;
+end;
 
 initialization
   OIDManager := TOTOIDManager.Create;
