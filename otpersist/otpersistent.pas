@@ -29,8 +29,6 @@ type
     FIsCalculated: Boolean;
     FReferences: TList<TOID>;
 
-    procedure AddReference(AOID: TOID);
-    procedure DeleteReference(AOID: TOID);
     function GetReferencesCount: Integer;
 
     procedure UpdateModified;
@@ -51,12 +49,17 @@ type
 
     procedure Calculate; virtual;
 
+    procedure SetParent(AParent: TOTPersistent);
+    procedure AddReference(AOID: TOID);
+
+
   public
     constructor Create(AParent: TOTPersistent; AOID: TOID = 0); virtual;
     destructor Destroy; override;
     procedure BeforeDestruction; override;
 
     procedure Free;
+    procedure DeleteReference(AOID: TOID);
 
     procedure SaveToYaml(AEmitter: TYamlEmitter);
     procedure SaveToStream(AStream: TStream);
@@ -395,6 +398,33 @@ begin
 
 end;
 
+procedure TOTPersistent.SetParent(AParent: TOTPersistent);
+var
+  hasActiveMark: Boolean;
+begin
+  if (FParent = 0) and (not Assigned(AParent)) then
+    Exit; // no change
+
+  if Assigned(AParent) and (AParent.oid = FParent) then
+    Exit; // no change
+
+  hasActiveMark := UndoRedoManager.hasActiveMark;
+  if not hasActiveMark then begin
+    UndoRedoManager.SetMark('');
+  end;
+
+  SetModified;
+
+  if Assigned(AParent) then
+    FParent := AParent.FOID
+  else
+    FParent := 0;
+
+  if not hasActiveMark then begin
+    UndoRedoManager.Commit;
+  end;
+end;
+
 procedure TOTPersistent.SetModified;
 begin
   UndoRedoManager.SetModified(self);
@@ -429,6 +459,8 @@ begin
 end;
 
 procedure TOTPersistent.SetOwned(var AOID: TOID; ANew: TOTPersistent);
+var
+  hasActiveMark: Boolean;
 begin
   if (AOID = 0) and (ANew = nil) then begin
     // equal and nil, so no change...
@@ -440,18 +472,26 @@ begin
     Exit;
   end;
 
+  hasActiveMark := UndoRedoManager.hasActiveMark;
+  if not hasActiveMark then begin
+    UndoRedoManager.SetMark('');
+  end;
+
   SetModified;
 
   if (AOID <> 0) then begin
     OIDManager.FromOID(AOID).Free;
-    OIDManager.FreeOID(AOID);
   end;
   if (ANew <> nil) then begin
     AOID := ANew.oid;
-    ANew.FParent := FOID;
+    ANew.SetParent(self);
   end
   else begin
     AOID := 0;
+  end;
+
+  if not hasActiveMark then begin
+    UndoRedoManager.Commit;
   end;
 end;
 

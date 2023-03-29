@@ -16,6 +16,10 @@ type
   { TTestOTPersistent }
 
   TTestOTPersistent = class(TTestCase)
+  protected
+    procedure Setup; override;
+    procedure Teardown; override;
+
   published
     procedure TestSimpleSaveRestoreYaml;
 
@@ -37,11 +41,33 @@ implementation
 uses
   OTYaml,
   OTYamlEmitter,
+  OTOIDManager,
+  OTUndoRedoManager,
   OTPersistent,
   ContainerClass,
   OwningClass,
   ReferringClass,
   LeafClass;
+
+procedure TTestOTPersistent.Setup;
+begin
+  inherited Setup;
+  // clear it out and start anew...
+  OIDManager.Free;
+  OIDManager := TOTOIDManager.Create;
+  UndoRedoManager.Free;
+  UndoRedoManager := TOTUndoRedoManager.Create;
+end;
+
+procedure TTestOTPersistent.Teardown;
+begin
+  // clear it out and start anew...
+  OIDManager.Free;
+  OIDManager := TOTOIDManager.Create;
+  UndoRedoManager.Free;
+  UndoRedoManager := TOTUndoRedoManager.Create;
+  inherited Teardown;
+end;
 
 procedure TTestOTPersistent.TestSimpleSaveRestoreYaml;
 var
