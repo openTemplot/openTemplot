@@ -36,10 +36,12 @@ type
     procedure TestOwningListAddAndUndoRedo;
     procedure TestOwningListRemoveAndUndoRedo;
     procedure TestOwningListEditAndUndoRedo;
+    procedure TestOwningListExtractAndUndoRedo;
 
     procedure TestReferringListAddAndUndoRedo;
     procedure TestReferringListRemoveAndUndoRedo;
     procedure TestReferringListEditAndUndoRedo;
+    procedure TestReferringListExtractAndUndoRedo;
   end;
 
 implementation
@@ -673,6 +675,58 @@ begin
   end;
 end;
 
+procedure TTestOTUndoRedoManager.TestOwningListExtractAndUndoRedo;
+var
+  container: TContainerClass;
+  undoCount: Integer;
+  leaf1: TLeafClass;
+  leafOid1: TOID;
+begin
+  //
+  // Given a container object that contains a leaf object
+  //
+  // When the existing leaf is extracted from the list
+  //  and Undo is called
+  // Then the leaf is back in the list
+  //  and the leaf parent is this list
+  //
+  // When Redo is called
+  // Then the leaf parent is nil
+  //  and the leaf is not in the list
+  //
+  leaf1 := nil;
+  container := TContainerClass.Create(nil);
+  try
+    leaf1 := TLeafClass.Create(nil);
+
+    container.leafs.Add(leaf1);
+    undoCount := UndoRedoManager.undoCount;
+
+    // When
+    container.leafs.Extract(leaf1);
+    UndoRedoManager.Undo;
+
+    // Then
+    AssertEquals('undoCount after Undo', undoCount, UndoRedoManager.undoCount);
+    AssertEquals('redoCount after Undo', 1, undoRedoManager.redoCount);
+    AssertSame('leaf1 parent after Undo', container.leafs, leaf1.parent);
+    AssertEquals('list contents after Undo', 1, container.leafs.Count);
+    AssertSame('leaf1 in list after Undo', container.leafs[0], leaf1);
+
+    // When
+    UndoRedoManager.Redo;
+
+    // Then
+    AssertNull('leaf1 parent  after Redo', leaf1.parent);
+    AssertEquals('list after redo', 0, container.leafs.Count);
+
+
+  finally
+    container.Free;
+    leaf1.Free;
+  end;
+end;
+
 procedure TTestOTUndoRedoManager.TestReferringListAddAndUndoRedo;
 var
   list: TLeafClassReferenceList;
@@ -835,6 +889,61 @@ begin
     list.Free;
     leaf1.Free;
     leaf2.Free;
+  end;
+end;
+
+procedure TTestOTUndoRedoManager.TestReferringListExtractAndUndoRedo;
+var
+  list: TLeafClassReferenceList;
+  undoCount: Integer;
+  leaf1: TLeafClass;
+begin
+  //
+  // Given a reference list that refers to a leaf object
+  //
+  // When the leaf is extracted from the list
+  //  and Undo is called
+  // Then the leaf is back in the list
+  //  and the leaf parent is nil
+  //  and the leaf ref count is 1
+  //
+  // When Redo is called
+  // Then the leaf parent is nil
+  //  and the leaf is not in the list
+  //  and the leaf ref count is 0
+  //
+  leaf1 := nil;
+  list := TLeafClassReferenceList.Create(nil);
+  try
+    leaf1 := TLeafClass.Create(nil);
+
+    list.Add(leaf1);
+    undoCount := UndoRedoManager.undoCount;
+
+    // When
+    list.Extract(leaf1);
+    UndoRedoManager.Undo;
+
+    // Then
+    AssertEquals('undoCount after Undo', undoCount, UndoRedoManager.undoCount);
+    AssertEquals('redoCount after Undo', 1, undoRedoManager.redoCount);
+    AssertNull('leaf1 parent after Undo', leaf1.parent);
+    AssertEquals('list contents after Undo', 1, list.Count);
+    AssertSame('leaf1 in list after Undo', list[0], leaf1);
+    AssertEquals('leaf1 ref count after Undo', 1, leaf1.referencesCount);
+
+    // When
+    UndoRedoManager.Redo;
+
+    // Then
+    AssertNull('leaf1 parent  after Redo', leaf1.parent);
+    AssertEquals('list after redo', 0, list.Count);
+    AssertEquals('leaf1 ref count after Redo', 0, leaf1.referencesCount);
+
+
+  finally
+    list.Free;
+    leaf1.Free;
   end;
 end;
 
