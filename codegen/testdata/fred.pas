@@ -35,7 +35,7 @@ type
     //# endGenGetSetDeclarations
 
   public
-    constructor Create(AParent: TOTPersistent); override;
+    constructor Create(AParent: TOTPersistent; AOID: TOID = 0); override;
     destructor Destroy; override;
 
     //# genPublicDeclarations
@@ -63,7 +63,7 @@ var
 
 { TFred }
 
-constructor TFred.Create(AParent: TOTPersistent);
+constructor TFred.Create(AParent: TOTPersistent; AOID: TOID);
 begin
   inherited Create(AParent);
   //# genCreate
