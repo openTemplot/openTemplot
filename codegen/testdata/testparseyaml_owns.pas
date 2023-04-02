@@ -14,10 +14,13 @@ attributes:
   - name: tom
     type: TTomOwningList
     access: [get]
-    owns: own
+    owns: create
   - name: dick
     type: TOther
     owns: ref
+  - name: harry
+    type: TSomethingElse
+    owns: own
 ...
 }
 
@@ -37,7 +40,7 @@ type
     //# endGenGetSetDeclarations
 
   public
-    constructor Create(AParent: TOTPersistent); override;
+    constructor Create(AParent: TOTPersistent; AOID: TOID = 0); override;
     destructor Destroy; override;
 
     //# genPublicDeclarations
@@ -62,7 +65,7 @@ var
 
 { TSample }
 
-constructor TSample.Create(AParent: TOTPersistent);
+constructor TSample.Create(AParent: TOTPersistent; AOID: TOID);
 begin
   inherited Create(AParent);
   //# genCreate

@@ -59,6 +59,7 @@ type
     FAccessControl: TAccessControlSet;
     FIsObject: boolean;
     FOwnsObject: boolean;
+    FCreatesObject: boolean;
 
   public
     constructor Create;
@@ -80,6 +81,7 @@ type
     property accessControl: TAccessControlSet Read FAccessControl;
     property isObject: Boolean Read FIsObject;
     property ownsObject: Boolean Read FOwnsObject;
+    property createsObject: Boolean Read FCreatesObject;
   end;
 
   { TOTClassRegenerator }
@@ -190,6 +192,7 @@ begin
   FAccessControl := [acGet, acSet];
   FIsObject := False;
   FOwnsObject := False;
+  FCreatesObject := False;
 end;
 
 destructor TAttribute.Destroy;
@@ -240,6 +243,11 @@ begin
     else
     if AValue = 'ref' then
       FOwnsObject := False
+    else
+    if AValue = 'create' then begin
+      FOwnsObject := True;
+      FCreatesObject := True;
+    end
     else
       raise Exception.CreateFmt('unexpected attribute name/value-- %s: %s', [AName, AValue]);
   end
@@ -931,6 +939,8 @@ begin
       try
         t.LoadTemplateFromResource('TEMPLATE_CREATE');
         (t['Name'] as TOTTemplateSubstitution).userValue := attr.Name;
+        (t['Type'] as TOTTemplateSubstitution).userValue := attr.TypeName;
+        (t['IsCreate'] as TOTTemplateCondition).userValue := attr.createsObject;
 
         t.Generate(Result);
       finally

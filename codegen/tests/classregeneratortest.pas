@@ -77,9 +77,23 @@ procedure TTestClassRegenerator.AssertEquals(const expected: TArray<string>; act
 var
   i: Integer;
 begin
-  AssertEquals(Length(expected), actual.Count);
-  for i := 0 to High(expected) do begin
-    AssertEquals(expected[i], actual[i]);
+  try
+    AssertEquals(Length(expected), actual.Count);
+    for i := 0 to High(expected) do begin
+      AssertEquals(expected[i], actual[i]);
+    end;
+  except
+    Writeln('Expected:');
+    for i := 0 to High(expected) do begin
+      Writeln(expected[i]);
+    end;
+    Writeln('-----------');
+    Writeln('Actual:');
+    for i := 0 to actual.Count-1 do begin
+      Writeln(actual[i]);
+    end;
+
+    raise;
   end;
 end;
 
@@ -1269,7 +1283,8 @@ var
 const
   expected: TArray<string> = [
     '    FTom: TOID;',
-    '    FDick: TOID;'
+    '    FDick: TOID;',
+    '    FHarry: TOID;'
     ];
 begin
   // Given a regen object with owning/ref attributes
@@ -1302,7 +1317,9 @@ const
   expected: TArray<string> = [
     '    function GetTom: TTomOwningList;',
     '    function GetDick: TOther;',
-    '    procedure SetDick(const AValue: TOther);'
+    '    function GetHarry: TSomethingElse;',
+    '    procedure SetDick(const AValue: TOther);',
+    '    procedure SetHarry(const AValue: TSomethingElse);'
     ];
 begin
   // Given a regen object with owns attributes
@@ -1334,7 +1351,8 @@ var
 const
   expected: TArray<string> = [
     '    property tom: TTomOwningList read GetTom;',
-    '    property dick: TOther read GetDick write SetDick;'
+    '    property dick: TOther read GetDick write SetDick;',
+    '    property harry: TSomethingElse read GetHarry write SetHarry;'
     ];
 begin
   // Given a regen object with owns attributes
@@ -1370,6 +1388,9 @@ const
     '  else',
     '  if AName = ''dick'' then',
     '    RestoreYamlObjectRef(FDick, StrToInteger(AValue), ALoader)',
+    '  else',
+    '  if AName = ''harry'' then',
+    '    RestoreYamlObjectOwn(FHarry, StrToInteger(AValue), ALoader)',
     '  else'
     ];
 begin
@@ -1402,7 +1423,8 @@ var
 const
   expected: TArray<string> = [
     '  AStream.ReadBuffer(FTom, sizeof(TOID));',
-    '  AStream.ReadBuffer(FDick, sizeof(TOID));'
+    '  AStream.ReadBuffer(FDick, sizeof(TOID));',
+    '  AStream.ReadBuffer(FHarry, sizeof(TOID));'
     ];
 begin
   // Given a regen object with owned attributes
@@ -1434,7 +1456,8 @@ var
 const
   expected: TArray<string> = [
     '  AStream.WriteBuffer(FTom, sizeof(TOID));',
-    '  AStream.WriteBuffer(FDick, sizeof(TOID));'
+    '  AStream.WriteBuffer(FDick, sizeof(TOID));',
+    '  AStream.WriteBuffer(FHarry, sizeof(TOID));'
     ];
 begin
   // Given a regen object with owned attributes
@@ -1466,7 +1489,8 @@ var
 const
   expected: TArray<string> = [
     '  SaveYamlObject(AEmitter, ''tom'', FTom);',
-    '  SaveYamlObjectReference(AEmitter, ''dick'', FDick);'
+    '  SaveYamlObjectReference(AEmitter, ''dick'', FDick);',
+    '  SaveYamlObject(AEmitter, ''harry'', FHarry);'
     ];
 begin
   // Given a regen object with owns attributes
@@ -1497,8 +1521,12 @@ var
   s: TStringList;
 const
   expected: TArray<string> = [
-    '  FTom := 0;',
-    '  FDick := 0;'
+    '  if AOID = 0 then',
+    '    FTom := TTomOwningList.Create(nil).oid',
+    '  else',
+    '    FTom := 0;',
+    '  FDick := 0;',
+    '  FHarry := 0;'
     ];
 begin
   // Given a regen object with owns attributes
@@ -1530,7 +1558,8 @@ var
 const
   expected: TArray<string> = [
     '  SetOwned(FTom, nil);',
-    '  SetReference(FDick, nil);'
+    '  SetReference(FDick, nil);',
+    '  SetOwned(FHarry, nil);'
     ];
 begin
   // Given a regen object with owns attributes
@@ -1577,6 +1606,18 @@ const
     'procedure TSample.SetDick(const AValue: TOther);',
     'begin',
     '  SetReference(FDick, AValue);',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'function TSample.GetHarry: TSomethingElse;',
+    'begin',
+    '  Result := TSomethingElse(FromOID(FHarry));',
+    'end;',
+    '',
+    '// GENERATED METHOD - DO NOT EDIT',
+    'procedure TSample.SetHarry(const AValue: TSomethingElse);',
+    'begin',
+    '  SetOwned(FHarry, AValue);',
     'end;',
     ''
     ];

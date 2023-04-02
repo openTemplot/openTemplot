@@ -82,12 +82,14 @@ constructor TReferringClass.Create(AParent: TOTPersistent; AOID: TOID);
 begin
   inherited Create(AParent, AOID);
   //# genCreate
+  FLeaf := 0;
   //# endGenCreate
 end;
 
 destructor TReferringClass.Destroy;
 begin
   //# genDestroy
+  SetReference(FLeaf, nil);
   //# endGenDestroy
   inherited;
 end;

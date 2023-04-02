@@ -498,6 +498,7 @@ end;
 procedure TOTPersistent.SetReference(var AOID: TOID; ANew: TOTPersistent);
 var
   hasActiveMark: Boolean;
+  previousObject: TOTPersistent;
 begin
   if (AOID = 0) and (ANew = nil) then
     // equal and nil, so no change...
@@ -514,7 +515,9 @@ begin
   SetModified;
 
   if (AOID <> 0) then begin
-    FromOID(AOID).DeleteReference(FOID);
+    previousObject := FromOID(AOID);
+    if Assigned(previousObject) then
+      previousObject.DeleteReference(FOID);
   end;
   if Assigned(ANew) then begin
     AOID := ANew.oid;

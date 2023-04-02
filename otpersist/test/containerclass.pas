@@ -19,7 +19,7 @@ class: TContainerClass
 attributes:
   - name: leafs
     type: TLeafClassOwningList
-    owns: own
+    owns: create
     access: [get]
 ...
 }
@@ -75,16 +75,17 @@ constructor TContainerClass.Create(AParent: TOTPersistent; AOID: TOID);
 begin
   inherited Create(AParent, AOID);
   //# genCreate
-  FLeafs := 0;
+  if AOID = 0 then
+    FLeafs := TLeafClassOwningList.Create(nil).oid
+  else
+    FLeafs := 0;
   //# endGenCreate
-
-  FLeafs := TLeafClassOwningList.Create(self).oid;
 end;
 
 destructor TContainerClass.Destroy;
 begin
   //# genDestroy
-  GetLeafs.Free;
+  SetOwned(FLeafs, nil);
   //# endGenDestroy
   inherited;
 end;
