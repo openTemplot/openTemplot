@@ -81,7 +81,13 @@ The Pascal type for the property. `Integer`, `Double` and `String` are supported
 Controls access to the property. Value is a set containing either `get`, `set`, or both. If not specified, the default is both.
 
 === owns
-If present, this specifies the property is referring to another `TOTPersistent` object. Values are `own` or `ref`. A value of `own` specifies a parent-child relation, and the lifetime of the child object will be tied to the parent. A value of `ref` specifies this is purely a reference. Child objects will be stored in YAML as a sub-oject of the parent.
+Specifies that this is an object property. The allowed values of the `owns` attributes are:
+
+* `own` specifies a parent-child relation, and the lifetime of the child object will be tied to the parent. Child objects will be stored in YAML as a sub-oject of the parent.
+
+* `create` specifies the same parent-child relationship and lifetime as `own` with the additional behaviour that a new instance will be created automatically when the parent is created. A primary use-case for the `create` option will be an class that contains a list of other objects. The list will generally be declared using `create`, so it is automatically constructed.
+
+* `ref` specifies this is purely a reference. 
 
 === array
 Specifies if this is an array property. Values are `false`, `dynamic`, a range that includes `..` or an enumerated type name.
