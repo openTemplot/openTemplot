@@ -1,0 +1,5 @@
+Name=sub
+Type=sub
+Bounds=sub
+||
+    F|Name|: array[|'Bounds'|] of |Type|;

@@ -1,0 +1,15 @@
+Name=sub
+Type=sub
+IndexType=sub
+IsDynamic=condition
+IsString=condition
+||
+|IF IsDynamic|
+  AStream.WriteDWord(Length(F|Name|));
+|ENDIF IsDynamic|
+|IF IsString|
+  for i := Ord(Low(F|Name|)) to Ord(High(F|Name|)) do
+    AStream.WriteAnsiString(F|Name|[|IndexType|(i)]);
+|ELSE IsString|
+  AStream.WriteBuffer(F|Name|[Low(F|Name|)], (Ord(High(F|Name|))-Ord(Low(F|Name|)) + 1)*sizeof(|Type|));
+|ENDIF IsString|

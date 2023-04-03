@@ -1,0 +1,25 @@
+Name=sub
+Type=sub
+HasGet=condition
+HasSet=condition
+HasComment=condition
+Comment=msub
+||
+|IF HasComment|
+
+|REPEAT Comment|
+    // |'Comment'|
+|ENDREPEAT Comment|
+|ENDIF HasComment|
+|IF HasGet|
+|IF HasSet|
+    property |name|: |Type| read F|Name| write Set|Name|;
+|ELSE HasSet|
+    property |name|: |Type| read F|Name|;
+|ENDIF HasSet|
+|ELSE HasGet|
+|IF HasSet|
+    property |name|: |Type| write Set|Name|;
+|ELSE HasSet|
+|ENDIF HasSet|
+|ENDIF HasGet|

@@ -1,0 +1,4 @@
+Name=sub
+Type=sub
+||
+    function Get|Name|: |Type|;

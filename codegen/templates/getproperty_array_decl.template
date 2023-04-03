@@ -1,0 +1,9 @@
+Name=sub
+Type=sub
+IndexType=sub
+IsDynamic=condition
+||
+    function Get|Name|(AIndex: |IndexType|): |Type|;
+|IF IsDynamic|
+    function Get|Name|Count: Integer;
+|ENDIF IsDynamic|

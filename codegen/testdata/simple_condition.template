@@ -1,0 +1,16 @@
+Include=condition true
+||
+Line1
+|IF Include|
+Line2
+|ENDIF Include|
+Line3
+|IFNOT Include|
+Line4
+|ENDIF Include|
+Line5
+|IF Include|
+Line6
+|ELSE Include|
+Line7
+|ENDIF Include|

@@ -1,0 +1,9 @@
+Name=sub
+Type=sub
+IsString=condition
+||
+|IF IsString|
+  F|Name| := AStream.ReadAnsiString;
+|ELSE IsString|
+  AStream.ReadBuffer(F|Name|, sizeof(|Type|));
+|ENDIF IsString|

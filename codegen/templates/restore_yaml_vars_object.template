@@ -1,0 +1,10 @@
+Name=sub
+Owns=condition
+||
+  if AName = '|name|' then
+|IF Owns|
+    RestoreYamlObjectOwn(F|Name|, StrToInteger(AValue), ALoader)
+|ELSE Owns|
+    RestoreYamlObjectRef(F|Name|, StrToInteger(AValue), ALoader)
+|ENDIF Owns|
+  else

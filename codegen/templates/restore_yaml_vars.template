@@ -1,0 +1,6 @@
+Name=sub
+Type=sub
+||
+  if AName = '|name|' then
+    F|Name| := StrTo|Type|(AValue)
+  else

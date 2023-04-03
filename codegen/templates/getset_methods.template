@@ -1,0 +1,103 @@
+Name=sub
+Type=sub
+Class=sub
+IndexType=sub
+HasGet=condition
+HasSet=condition
+IsCollection=condition
+IsObject=condition
+OwnsObject=condition
+IsDynamic=condition
+HasAdd=condition
+HasDelete=condition
+HasClear=condition
+||
+|IF HasGet|
+|IF IsCollection|
+// GENERATED METHOD - DO NOT EDIT
+function |Class|.Get|Name|(AIndex: |IndexType|): |Type|;
+begin
+  Result := F|Name|[AIndex];
+end;
+
+|ENDIF IsCollection|
+|IF IsObject|
+// GENERATED METHOD - DO NOT EDIT
+function |Class|.Get|Name|: |Type|;
+begin
+  Result := |Type|(FromOID(F|Name|));
+end;
+
+|ENDIF IsObject|
+|ENDIF HasGet|
+|IF HasSet|
+// GENERATED METHOD - DO NOT EDIT
+|IF IsCollection|
+procedure |Class|.Set|Name|(AIndex: |IndexType|; const AValue: |Type|);
+begin
+  if AValue <> F|Name|[AIndex] then begin
+    SetModified;
+    F|Name|[AIndex] := AValue;
+  end;
+end;
+|ELSE IsCollection|
+|IF IsObject|
+procedure |Class|.Set|Name|(const AValue: |Type|);
+begin
+|IF OwnsObject|
+  SetOwned(F|Name|, AValue);
+|ELSE OwnsObject|
+  SetReference(F|Name|, AValue);
+|ENDIF OwnsObject|
+end;
+|ELSE IsObject|
+procedure |Class|.Set|Name|(const AValue: |Type|);
+begin
+  if AValue <> F|Name| then begin
+    SetModified;
+    F|Name| := AValue;
+  end;
+end;
+|ENDIF IsObject|
+|ENDIF IsCollection|
+
+|ENDIF HasSet|
+|IF IsCollection|
+|IF IsDynamic|
+// GENERATED METHOD - DO NOT EDIT
+function |Class|.Get|Name|Count: Integer;
+begin
+  Result := Length(F|Name|);
+end;
+
+|IF HasAdd|
+// GENERATED METHOD - DO NOT EDIT
+function |Class|.Add|Name|(AValue: |Type|): Integer;
+begin
+  SetModified;
+  SetLength(F|Name|, Length(F|Name|) + 1);
+  F|Name|[High(F|Name|)] := AValue;
+  Result := High(F|Name|);
+end;
+
+|ENDIF HasAdd|
+|IF HasDelete|
+// GENERATED METHOD - DO NOT EDIT
+procedure |Class|.Delete|Name|(AIndex: Integer);
+begin
+  SetModified;
+  Delete(F|Name|, AIndex, 1);
+end;
+
+|ENDIF HasDelete|
+|IF HasClear|
+// GENERATED METHOD - DO NOT EDIT
+procedure |Class|.Clear|Name|;
+begin
+  SetModified;
+  SetLength(F|Name|, 0);
+end;
+
+|ENDIF HasClear|
+|ENDIF IsDynamic|
+|ENDIF IsCollection|

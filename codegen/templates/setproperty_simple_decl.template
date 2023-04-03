@@ -1,0 +1,4 @@
+Name=sub
+Type=sub
+||
+    procedure Set|Name|(const AValue: |Type|);

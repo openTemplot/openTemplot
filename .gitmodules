@@ -1,0 +1,3 @@
+[submodule "submodules/otYaml"]
+	path = submodules/otYaml
+	url = git@github.com:openTemplot/otYaml.git

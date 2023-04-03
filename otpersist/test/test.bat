@@ -1,0 +1,1 @@
+otpersisttest --format=plain --all

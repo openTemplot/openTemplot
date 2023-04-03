@@ -1,0 +1,30 @@
+Name=sub
+Type=sub
+IndexType=sub
+HasGet=condition
+HasSet=condition
+HasComment=condition
+Comment=msub
+IsDynamic=condition
+||
+|IF HasComment|
+
+|REPEAT Comment|
+    // |'Comment'|
+|ENDREPEAT Comment|
+|ENDIF HasComment|
+|IF HasGet|
+|IF HasSet|
+    property |name|[AIndex: |IndexType|]: |Type| read Get|Name| write Set|Name|;
+|ELSE HasSet|
+    property |name|[AIndex: |IndexType|]: |Type| read Get|Name|;
+|ENDIF HasSet|
+|ELSE HasGet|
+|IF HasSet|
+    property |name|[AIndex: |IndexType|]: |Type| write Set|Name|;
+|ELSE HasSet|
+|ENDIF HasSet|
+|ENDIF HasGet|
+|IF IsDynamic|
+    property |name|Count: Integer read Get|Name|Count;
+|ENDIF IsDynamic|
