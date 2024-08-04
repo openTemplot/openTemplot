@@ -2,13 +2,17 @@
 # OpenTemplot
 OpenTemplot is an open source fork of the Templot2 program by Martin Wynne.
 
+This has now been superceeded by the open-source release of Templot5 by Martin Wynne.
+
+See https://github.com/Martin-Wynne/Templot5 for details of Templot5
+
 See README.txt for the original ReadMe by Martin.
 
-Templot2 is still the official version of Templot. It is still under active development
-and can be found at <http://templot.com>
+This project will continue as an experimental area for a major rewrite of Templot2 that may eventually
+be included into Templot5.
 
-**Warning: the box3 file format currently used by OpenTemplot is _not_ cross-platform compatible. In particular, a box3
-file saved using a Win32 build will not work with any other platform build (Win64, Linux etc)**
+**Warning: This is an ongoing work-in-progress. Do not expect any files created using this 
+progream to be usable in any future version**
 
 ## Goals of this fork
 
