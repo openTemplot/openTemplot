@@ -12,7 +12,7 @@ This project will continue as an experimental area for a major rewrite of Templo
 be included into Templot5.
 
 **Warning: This is an ongoing work-in-progress. Do not expect any files created using this 
-progream to be usable in any future version**
+project to be usable in any future version**
 
 ## Goals of this fork
 
